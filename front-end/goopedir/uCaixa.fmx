@@ -786,6 +786,7 @@ object frmCaixa: TfrmCaixa
               Stroke.Color = xFFD60000
               XRadius = 15.000000000000000000
               YRadius = 15.000000000000000000
+              OnClick = rEstornoClick
               object Label25: TLabel
                 Align = Client
                 StyledSettings = [Family]

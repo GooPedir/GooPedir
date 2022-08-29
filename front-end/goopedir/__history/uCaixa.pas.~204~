@@ -225,6 +225,7 @@ type
     procedure rPedidosClick(Sender: TObject);
     procedure rMovClick(Sender: TObject);
     procedure rAbrirClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     FCodigoDoCaixa: Integer;
     FVisualizacao: Boolean;
@@ -490,6 +491,28 @@ begin
   BuscandoDados := False;
 end;
 
+procedure TfrmCaixa.Button1Click(Sender: TObject);
+var
+  VisualizarCaixa: TfrmCaixa;
+begin
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      VisualizarCaixa := TfrmCaixa.Create(self);
+      try
+        VisualizarCaixa.CodigoDoCaixa := HISTORICOCAIXAS.FieldByName('id')
+          .AsInteger;
+        VisualizarCaixa.BuscaDadosCaixa;
+        VisualizarCaixa.Visualizacao := True;
+        VisualizarCaixa.ShowModal;
+      finally
+        VisualizarCaixa.Free;
+      end;
+    end).Start;
+
+end;
+
 procedure TfrmCaixa.Caixa;
 begin
 
@@ -601,6 +624,7 @@ end;
 
 procedure TfrmCaixa.FormCreate(Sender: TObject);
 begin
+  Visualizacao := False;
   FormReceber := TfrmAReceber.Create(self);
   layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
 
@@ -966,6 +990,7 @@ end;
 procedure TfrmCaixa.SetCodigoDoCaixa(const Value: Integer);
 begin
   FCodigoDoCaixa := Value;
+  self.Caption := 'Histórico do Caixa #' + Value.toString;
 end;
 
 procedure TfrmCaixa.SetVisualizacao(const Value: Boolean);
@@ -982,7 +1007,7 @@ begin
 
   if Value then
   begin
-lNomeForm.Text := 'Visualização do Caixa';
+    lNomeForm.Text := 'Histórico do Caixa';
   end;
 
 end;
@@ -1012,7 +1037,7 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid2CellDblClick(const Column: TColumn;
-  const Row: Integer);
+const Row: Integer);
 begin
   DADOSPAGAMENTO.Edit;
   DADOSPAGAMENTO.FieldByName('informado').AsFloat :=
@@ -1021,7 +1046,7 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid3CellDblClick(const Column: TColumn;
-  const Row: Integer);
+const Row: Integer);
 begin
 
   if dm.CaixaResumo = 1 then
@@ -1043,8 +1068,8 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid3DrawColumnCell(Sender: TObject;
-  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
-  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
 var
   Cor: TColor;
   Valor: String;
@@ -1077,7 +1102,7 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid4CellDblClick(const Column: TColumn;
-  const Row: Integer);
+const Row: Integer);
 begin
   if NOT Assigned(FrmResumo) then
     Application.CreateForm(TFrmResumo, FrmResumo);
@@ -1088,8 +1113,8 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid4DrawColumnCell(Sender: TObject;
-  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
-  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
 var
   Cor: TColor;
   Valor: String;
@@ -1123,7 +1148,7 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid5CellDblClick(const Column: TColumn;
-  const Row: Integer);
+const Row: Integer);
 begin
   if length(HISTORICOMOTOBOY.FieldByName('codigo').AsString) > 0 then
     dm.GetSimples('/v1/motoboy/historico/completo/' +
@@ -1131,7 +1156,7 @@ begin
 end;
 
 procedure TfrmCaixa.StringGrid6CellDblClick(const Column: TColumn;
-  const Row: Integer);
+const Row: Integer);
 begin
   if NOT Assigned(FrmResumo) then
     Application.CreateForm(TFrmResumo, FrmResumo);

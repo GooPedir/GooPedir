@@ -226,6 +226,7 @@ type
     procedure rMovClick(Sender: TObject);
     procedure rAbrirClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure rEstornoClick(Sender: TObject);
   private
     FCodigoDoCaixa: Integer;
     FVisualizacao: Boolean;
@@ -965,6 +966,11 @@ end;
 procedure TfrmCaixa.Rectangle9MouseLeave(Sender: TObject);
 begin
   (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmCaixa.rEstornoClick(Sender: TObject);
+begin
+Extorno;
 end;
 
 procedure TfrmCaixa.rMovClick(Sender: TObject);

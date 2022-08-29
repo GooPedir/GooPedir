@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A579CC24-08D4-491C-99C0-A435C110280F}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="front-end\goopedir\GooPedir.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\servidor\ServidorGooPedir.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\site\SiteGooPedir.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="GooPedir">
+        <MSBuild Projects="front-end\goopedir\GooPedir.dproj"/>
+    </Target>
+    <Target Name="GooPedir:Clean">
+        <MSBuild Projects="front-end\goopedir\GooPedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GooPedir:Make">
+        <MSBuild Projects="front-end\goopedir\GooPedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ServidorGooPedir">
+        <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj"/>
+    </Target>
+    <Target Name="ServidorGooPedir:Clean">
+        <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ServidorGooPedir:Make">
+        <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SiteGooPedir">
+        <MSBuild Projects="back-end\site\SiteGooPedir.dproj"/>
+    </Target>
+    <Target Name="SiteGooPedir:Clean">
+        <MSBuild Projects="back-end\site\SiteGooPedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SiteGooPedir:Make">
+        <MSBuild Projects="back-end\site\SiteGooPedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
