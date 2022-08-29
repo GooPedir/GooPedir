@@ -185,7 +185,7 @@ procedure TfrmDashBoard.DadosMedia;
 var
   t: TThread;
 begin
- { t := TThread.CreateAnonymousThread(
+  t := TThread.CreateAnonymousThread(
     procedure
     var
       CONEXAO: iRequisicao;
@@ -327,9 +327,7 @@ begin
       layHistorico.Visible := True;
     end);
   t.OnTerminate := OnFinis;
-  t.Start;   }
-
-  OnFinis(nil);
+  t.Start;
 
 end;
 
@@ -349,7 +347,7 @@ begin
 
   // ValidaData(date);
   MesesPrevisao := 12;
-  //dm.BuscaFaturas(HorzScrollBoxFatura);
+  dm.BuscaFaturas(HorzScrollBoxFatura);
 
   try
     nDelivery.Text := dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;

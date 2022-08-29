@@ -166,6 +166,8 @@ type
     procedure AtualizaParametro(Campo: String; Valor: Variant);
     procedure CriaCampo(Campo: String);
     procedure DadosSite;
+    procedure AtualizaSite(SQL: String);
+    procedure AtualizaDadosSite;
 
     function UserId: Integer;
     function Link: String;
@@ -224,6 +226,51 @@ begin
 
 end;
 
+procedure TDM.AtualizaDadosSite;
+var
+  SQL: String;
+  ArrayDias: Array of String;
+  I: Integer;
+begin
+  SetLength(ArrayDias, 7);
+  ArrayDias[0] := 'segunda';
+  ArrayDias[1] := 'terca';
+  ArrayDias[2] := 'quarta';
+  ArrayDias[3] := 'quinta';
+  ArrayDias[4] := 'sexta';
+  ArrayDias[5] := 'sabado';
+  ArrayDias[6] := 'domingo';
+
+  SQL := 'update ws_empresa set msg_tempo_delivery = ' +
+    QuotedStr('Aproximado ' + DM.DADOS_WHATSAPP.FieldByName('temp_delivery')
+    .AsString + ' minutos.') + ', msg_tempo_buscar = ' +
+    QuotedStr('Aproximado ' + DM.DADOS_WHATSAPP.FieldByName('temp_vembuscar')
+    .AsString + ' minutos.');
+
+  for I := 0 to 6 do
+  begin
+
+    SQL := SQL + ',' + ArrayDias[I] + '_manha_de = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_abertura')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_manha_ate = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_fechamento')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_tarde_de = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_abertura')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_tarde_ate = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_fechamento')
+      .AsString, 0, 5));
+
+  end;
+  SQL := SQL + ' where user_id = ' + UserId.ToString;
+  AtualizaSite(SQL);
+end;
+
 procedure TDM.AtualizaParametro(Campo: String; Valor: Variant);
 var
   SQL: String;
@@ -234,11 +281,29 @@ begin
     Conexao.URL := '/v1/sql/update';
     Conexao.Body(SQL);
     Conexao.Execute;
+    AtualizaDadosSite;
   except
     on E: Exception do
     begin
       ShowMessage(E.Message);
     end;
+
+  end;
+end;
+
+procedure TDM.AtualizaSite(SQL: String);
+var
+  Requisicao: iRequisicao;
+begin
+  Requisicao := iRequisicao.Create(self);
+  Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+  Requisicao.URL := 'sql/a/';
+  Requisicao.Body('{"sql":"' + SQL +
+    '","clientId":"UwMyPVWhawPQ&K@AELqpNiRU$Sh%sZDlYgnb0YyTGU^rB7B&#nszh2tR&WNthWpuGv6@JAvV^bK","clientSecurity":"B7B&#nszh2W&K@AELqpNiRU$Sh"}');
+  Requisicao.Metodo := mPost;
+  try
+    Requisicao.Execute;
+  except
 
   end;
 end;

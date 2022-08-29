@@ -315,10 +315,10 @@ begin
     conexao.SQL.Add('select * from dados_whatsapp');
     frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
     conexao.SQL.Add
-      ('SELECT * FROM impressao_pedido where data_solicitacao = current_date() and status = 0');
+      ('SELECT * FROM impressao_pedido where data_solicitacao = current_date() and status = 0 and id_pedido > 0');
     DadosImpressao.LoadFromJSON(conexao.ConsultaSQL);
 
-    if DadosImpressao.RecordCount >= 2 then
+    if DadosImpressao.RecordCount >= 5 then
     begin
       frmServidor.FecharExe(frmServidor.IMPRESSAO);
     end;

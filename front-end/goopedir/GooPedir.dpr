@@ -40,7 +40,7 @@ uses
   uPedidoAdicionaAlterar in 'uPedidoAdicionaAlterar.pas' {frmCadastroBase1},
   uCaixa in 'uCaixa.pas' {frmCaixa},
   uPrincipalMotoboy in 'uPrincipalMotoboy.pas' {frmPrincipalMotoboy},
-  uOpenViewUrl in '..\..\papaleguas-backend\src\util\uOpenViewUrl.pas',
+//  uOpenViewUrl in '..\..\papaleguas-backend\src\util\uOpenViewUrl.pas',
   uFrameConfiguracaoEdit in 'frame\uFrameConfiguracaoEdit.pas' {FrameConfiguracaoEdit: TFrame},
   ufrmParametros in 'ufrmParametros.pas' {frmParametros},
   uFrameTitulo in 'frame\uFrameTitulo.pas' {FrameTitulo: TFrame},

@@ -3085,22 +3085,6 @@ begin
 
       end;
 
-      {
-        try
-        DadosVersao := frmPrincipal.GetDadosVersao('versao') + ' atualizado em ' +
-        FormatDateTime('dd/mm/yyyy', frmPrincipal.GetDadosVersao('data')) + ' '
-        + FormatDateTime('hh:nn', frmPrincipal.GetDadosVersao('hora'));
-        except
-        on E : Exception do
-        begin
-        ShowMessage(e.Message);
-        end;
-
-        end;
-
-        SQL := 'update ws_empresa set dados_versao = ' + QuotedStr(DadosVersao) +
-        ' where user_id = ' + FUserID.ToString;
-        BuscaPedidoThread.ExecutaSQLSite(SQL); }
 
       SQL := SQL + ',minimo_delivery = ' + frmPrincipal.GetMinimoDelivery;
 

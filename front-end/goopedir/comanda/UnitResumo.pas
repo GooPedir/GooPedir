@@ -307,6 +307,7 @@ type
     FStatusPedido: Integer;
     FApenasVisualizacao: Boolean;
     FValorTroco: Real;
+    FDelivery: Integer;
     procedure AddProdutoResumo(id_produto, qtd: Integer;
       descricao, descricaoitem: string; preco: double);
 
@@ -348,6 +349,7 @@ type
     procedure SetStatusPedido(const Value: Integer);
     procedure SetApenasVisualizacao(const Value: Boolean);
     procedure SetValorTroco(const Value: Real);
+    procedure SetDelivery(const Value: Integer);
 
   public
     { Public declarations }
@@ -367,6 +369,7 @@ type
     property ValorTroco: Real read FValorTroco write SetValorTroco;
 
     property mesa: Integer read Fmesa write Setmesa;
+    property Delivery: Integer read FDelivery write SetDelivery;
     procedure ListarProduto;
     procedure TipoPedido;
     procedure CalculaTempo;
@@ -1365,8 +1368,18 @@ begin
     ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
     exit;
   end;
+  Delivery := 0;
+  if mesa > 0 then
+  begin
+    Delivery := 0;
+  end
+  else
+  begin
+    if cTipo.ItemIndex = 0 then
+      Delivery := 1;
+  end;
 
-  FrmPrincipal.AddItem(mesa, CodigoPedido);
+  FrmPrincipal.AddItem(mesa, CodigoPedido,Delivery);
 end;
 
 procedure TFrmResumo.img_excluirClick(Sender: TObject);
@@ -1665,6 +1678,11 @@ begin
     FCodigoPedido := 0;
   end;
 
+end;
+
+procedure TFrmResumo.SetDelivery(const Value: Integer);
+begin
+  FDelivery := Value;
 end;
 
 procedure TFrmResumo.Setmesa(const Value: Integer);

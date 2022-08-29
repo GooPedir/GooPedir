@@ -4,12 +4,12 @@
     <Transaction>2021/12/28 18:36:13.000.202,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2022/01/31 10:52:28.000.446,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2022/02/15 10:19:27.000.402,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2022/02/15 10:26:49.000.031,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas=A:\PROJETOS\ALLAN\papaleguas-backend\src\uMain.pas</Transaction>
-    <Transaction>2022/02/15 10:26:49.000.031,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.dfm=A:\PROJETOS\ALLAN\papaleguas-backend\src\uMain.dfm</Transaction>
-    <Transaction>2022/02/15 10:27:05.000.635,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Project1.dproj=A:\PROJETOS\ALLAN\papaleguas-backend\servidor.dproj</Transaction>
+    <Transaction>2022/02/15 10:26:49.000.031,A:\PROJETOS\ALLAN\papaleguas-backend\src\uMain.dfm=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2022/02/15 10:26:49.000.031,A:\PROJETOS\ALLAN\papaleguas-backend\src\uMain.pas=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/02/15 10:27:05.000.635,A:\PROJETOS\ALLAN\papaleguas-backend\servidor.dproj=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
     <Transaction>2022/03/29 11:56:21.000.390,=A:\PROJETOS\ALLAN\papaleguas-backend\src\other\horse-upload-master\src\Horse.Upload.pas</Transaction>
     <Transaction>2022/05/10 14:16:10.000.088,=A:\PROJETOS\ALLAN\papaleguas-backend\src\sql\uSQL.pas</Transaction>
-    <Transaction>2022/05/30 12:38:56.000.091,A:\PROJETOS\ALLAN\papaleguas-backend\ServidorGooPedir.dproj=A:\PROJETOS\ALLAN\papaleguas-backend\servidor.dproj</Transaction>
+    <Transaction>2022/05/30 12:38:56.000.091,A:\PROJETOS\ALLAN\papaleguas-backend\servidor.dproj=A:\PROJETOS\ALLAN\papaleguas-backend\ServidorGooPedir.dproj</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="src"/>

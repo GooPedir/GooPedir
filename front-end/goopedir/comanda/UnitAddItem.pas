@@ -126,6 +126,7 @@ type
     dadosSelecionadocodigo_produto: TIntegerField;
     dadosSelecionadonomeclatura: TStringField;
     dadosSelecionadodescricao: TStringField;
+    memInsertvalor_produto: TFloatField;
 
     procedure img_fecharClick(Sender: TObject);
     procedure img_voltarClick(Sender: TObject);
@@ -164,6 +165,8 @@ type
     FQtd: Integer;
     FValorFaltando: String;
     FCodigoPedidoProduto: Integer;
+    FDelivery: Integer;
+    FValorProdutoUnitario: Real;
     procedure AddCategoriaLv(id_categoria: Integer; descricao: string;
       icone: TStream);
     procedure ListarCategoria;
@@ -189,11 +192,15 @@ type
     procedure SetQtd(const Value: Integer);
     procedure SetValorFaltando(const Value: String);
     procedure SetCodigoPedidoProduto(const Value: Integer);
+    procedure SetDelivery(const Value: Integer);
+    procedure SetValorProdutoUnitario(const Value: Real);
 
     property ValorView: Real read FValorView write SetValorView;
     property ValorViewAdicional: Real read FValorViewAdicional
       write SetValorViewAdicional;
     property QTDView: Real read FQTDView write SetQTDView;
+    property ValorProdutoUnitario: Real read FValorProdutoUnitario
+      write SetValorProdutoUnitario;
 
     //
     procedure ClickCategoria(Sender: TObject);
@@ -215,6 +222,7 @@ type
     procedure Load;
     property CodigoPedidoProduto: Integer read FCodigoPedidoProduto
       write SetCodigoPedidoProduto;
+    property Delivery: Integer read FDelivery write SetDelivery;
 
   var
     comanda: Integer;
@@ -398,6 +406,8 @@ begin
   ValorView := PRODUTO.FieldByName('venda').AsFloat;
   if (ValorView = 0) and (PRODUTO.FieldByName('valor_venda').AsFloat > 0) then
     ValorView := PRODUTO.FieldByName('valor_venda').AsFloat;
+
+  ValorProdutoUnitario := ValorView;
 
   codigoProduto := Codigo;
   ADICIONAL.Close;
@@ -885,7 +895,7 @@ begin
       ('codigo').AsString;
     // FrameCategoria.rPrincipal.OnClick := ClickCategoria;
 {$IFDEF Android}
-       FrameCategoria.rPrincipal.OnTap := OnTapCategoria;
+    FrameCategoria.rPrincipal.OnTap := OnTapCategoria;
 {$ELSE}
     FrameCategoria.rPrincipal.OnClick := ClickCategoria;
 {$ENDIF}
@@ -1081,6 +1091,7 @@ begin
   memInsert.FieldByName('mesa').AsInteger := comanda;
   memInsert.FieldByName('pedido').AsInteger := codigoPedido;
   memInsert.FieldByName('produto').AsInteger := codigoProduto;
+  memInsert.FieldByName('valor_produto').AsFloat := ValorProdutoUnitario;
   try
     memInsert.FieldByName('qtd').AsInteger := lbl_qtd.Text.ToInteger;
   except
@@ -1147,6 +1158,7 @@ begin
 
   layout_qtd.Visible := False;
   PostSimples('/v1/pedido/produto/:usuario', memInsert);
+  Delivery := 0;
 
   LimpaDados;
   ShowMessageToast(self, 'Produto Incluido!', 3);
@@ -1190,7 +1202,8 @@ begin
     begin
       Label3.Visible := true;
       vertProduto.Visible := False;
-      GetSimples('v1/produtos/' + id_categoria.ToString, PRODUTO);
+      GetSimples('v1/produtos/' + id_categoria.ToString + '/' +
+        Delivery.ToString, PRODUTO);
       for I := 0 to self.ComponentCount - 1 do
       begin
         if self.Components[I] is TFrameProdutos then
@@ -1245,10 +1258,10 @@ begin
         end;
 
         Produtos.Visible := true;
-
-        AddProdutoLv(PRODUTO.FieldByName('codigo').AsInteger,
+        {
+          AddProdutoLv(PRODUTO.FieldByName('codigo').AsInteger,
           PRODUTO.FieldByName('nome_produto').AsString,
-          PRODUTO.FieldByName('valor_venda').AsFloat);
+          PRODUTO.FieldByName('valor_venda').AsFloat); }
         PRODUTO.Next;
         sleep(100);
       end;
@@ -1429,11 +1442,12 @@ begin
   else
   begin
 
-    if CodigoCategoriaAtual <> CATEGORIA.Codigo then
-    begin
-      CodigoCategoriaAtual := CATEGORIA.Codigo;
-      ListarProduto(CATEGORIA.Codigo, '');
-    end;
+    // if (CodigoCategoriaAtual <> CATEGORIA.Codigo) then
+    // begin
+    // CodigoCategoriaAtual := CATEGORIA.Codigo;
+    // ListarProduto(CATEGORIA.Codigo, '');
+    // end;
+    ListarProduto(CATEGORIA.Codigo, '');
 
     TabControl.GotoVisibleTab(1, TTabTransition.Slide);
   end;
@@ -1538,6 +1552,11 @@ begin
 
 end;
 
+procedure TFrmAddItem.SetDelivery(const Value: Integer);
+begin
+  FDelivery := Value;
+end;
+
 procedure TFrmAddItem.SetQtd(const Value: Integer);
 begin
   FQtd := Value;
@@ -1574,6 +1593,11 @@ begin
   tVerificar.Enabled := length(Value) > 0;
   lVerificar.Text := Value;
 
+end;
+
+procedure TFrmAddItem.SetValorProdutoUnitario(const Value: Real);
+begin
+  FValorProdutoUnitario := Value;
 end;
 
 procedure TFrmAddItem.SetValorView(const Value: Real);

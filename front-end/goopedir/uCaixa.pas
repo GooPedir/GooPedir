@@ -287,6 +287,8 @@ uses uDM, uRequisicao, UnitResumo, FMXTee.Canvas, Funcoes, uMain, uSimNao,
 
 procedure TfrmCaixa.BuscaCaixa;
 begin
+  DADOSCAIXA.Close;
+  DADOSCAIXA.Open;
 
   dm.Caixa.Close;
   dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
@@ -970,7 +972,7 @@ end;
 
 procedure TfrmCaixa.rEstornoClick(Sender: TObject);
 begin
-Extorno;
+  Extorno;
 end;
 
 procedure TfrmCaixa.rMovClick(Sender: TObject);

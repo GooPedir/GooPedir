@@ -72,7 +72,7 @@ type
     procedure FinalizouCarregamento;
   public
     { Public declarations }
-    procedure AddItem(comanda, pedido: integer);
+    procedure AddItem(comanda, pedido,delivery: integer);
     procedure AlterarItem(Comanda, Pedido,CodigoPedidoProduto: integer);
   end;
 
@@ -99,13 +99,14 @@ begin
   TabControl.GotoVisibleTab(img.Tag, TTabTransition.Slide);
 end;
 
-procedure TFrmPrincipal.AddItem(comanda, pedido: integer);
+procedure TFrmPrincipal.AddItem(comanda, pedido,delivery: integer);
 begin
   if NOT Assigned(FrmAddItem) then
     Application.CreateForm(TFrmAddItem, FrmAddItem);
   FrmAddItem.CodigoPedidoProduto := 0;
   FrmAddItem.comanda := comanda;
   FrmAddItem.codigoPedido := pedido;
+  FrmAddItem.Delivery := delivery;
   FrmAddItem.TabControl.ActiveTab := FrmAddItem.TabCategoria;
   FrmAddItem.Show;
 end;

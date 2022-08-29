@@ -91,7 +91,7 @@ implementation
 {$R *.fmx}
 
 uses UnitPrincipal, uDM, uRequisicao, Funcoes, uLoginWindows,
-  uPrincipalMotoboy, uOpenViewUrl;
+  uPrincipalMotoboy{, uOpenViewUrl};
 
 procedure TFrmLogin.btn_updateClick(Sender: TObject);
 var
@@ -107,7 +107,7 @@ begin
 
   // url := 'https://play.google.com/store/apps/details?id=com.embarcadero.icep';
 
-  OpenURL(url, false);
+//  OpenURL(url, false);
 end;
 
 procedure TFrmLogin.FormActivate(Sender: TObject);

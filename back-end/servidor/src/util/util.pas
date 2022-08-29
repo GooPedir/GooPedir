@@ -85,6 +85,7 @@ procedure DoGetProduto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
   ID: Integer;
+  Delivery: Integer;
 begin
   try
     ID := Req.Params['categoria'].ToInteger;
@@ -92,10 +93,54 @@ begin
     Res.Send('').Status(500);
     exit;
   end;
+  try
+    Delivery := Req.Params['delivery'].ToInteger;
+  except
+    Delivery := 0;
+  end;
 
   conexao := TConexao.Create;
+  // conexao.SQL.Add('select * from produto where codigo_grupo = :ID order by codigo_interno asc');
+
+  conexao.SQL.Add('select ');
+  conexao.SQL.Add('p.codigo,');
+  conexao.SQL.Add('p.codigo_grupo,');
+  conexao.SQL.Add('p.codigo_interno,');
+  conexao.SQL.Add('p.controle_estoque,');
+  conexao.SQL.Add('p.nome_produto,');
+  conexao.SQL.Add('p.descricao,');
+  conexao.SQL.Add('p.valor_custo,');
+  conexao.SQL.Add('p.valor_lucro,');
+  conexao.SQL.Add('p.observacao,');
+  conexao.SQL.Add('p.id_site,');
+  conexao.SQL.Add('p.valor_embalagem_delivery,');
+  conexao.SQL.Add('CASE');
+  conexao.SQL.Add('    WHEN ' + Delivery.ToString + ' = 1 THEN ');
+  conexao.SQL.Add('		CASE');
   conexao.SQL.Add
-    ('select * from produto where codigo_grupo = :ID order by codigo_interno asc');
+    ('			WHEN pp.valor > 0 THEN pp.valor+p.valor_embalagem_delivery');
+  conexao.SQL.Add('			ELSE p.valor_venda+p.valor_embalagem_delivery');
+  conexao.SQL.Add('			END    ');
+  conexao.SQL.Add('    ELSE ');
+  conexao.SQL.Add('			CASE');
+  conexao.SQL.Add('			WHEN pp.valor > 0 THEN pp.valor');
+  conexao.SQL.Add('			ELSE p.valor_venda');
+  conexao.SQL.Add('			END ');
+  conexao.SQL.Add('END as valor_venda');
+  conexao.SQL.Add('from produto  p');
+  conexao.SQL.Add
+    ('left join produto_preco pp on pp.id_produto = p.codigo and ');
+  conexao.SQL.Add('CASE');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 0 THEN pp.segunda = 1');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 1 THEN pp.terca = 1');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 2 THEN pp.quarta = 1');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 3 THEN pp.quinta = 1');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 5 THEN pp.sexta = 1');
+  conexao.SQL.Add('    WHEN WEEKDAY(current_date) = 6 THEN pp.sabado = 1');
+  conexao.SQL.Add('    ELSE pp.domingo = 1');
+  conexao.SQL.Add('END');
+  conexao.SQL.Add('where p.codigo_grupo = :ID ');
+  conexao.SQL.Add('order by p.codigo_interno asc');
   conexao.Parametros('ID', ID);
   Res.Send((conexao.ConsultaSQL.ToString));
 
@@ -360,6 +405,8 @@ begin
     end;
 
   end;
+
+  ValorProduto := Dados.FieldByName('valor_produto').AsFloat;
 
   while not DadosProdutosAdicionais.Eof do
   begin
@@ -1337,7 +1384,7 @@ begin
   conexao.SQL.Add('order by data_pedido,codigo_pedido_dia limit 999');
   conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
   conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-//  ShowMessage(conexao.SQL.Text);
+  // ShowMessage(conexao.SQL.Text);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
 
   conexao.Free;
@@ -4928,10 +4975,12 @@ begin
       if Dados.RecordCount > 0 then
       begin
         conexao := TConexao.Create;
-        conexao.SQL.Add('update sabores_completo set id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :venda, modificado_site = 0 where id = :id');
+        conexao.SQL.Add
+          ('update sabores_completo set id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :venda, modificado_site = 0 where id = :id');
         conexao.Parametros('sabor', Dados.FieldByName('tipo').AsInteger);
         conexao.Parametros('nome', Dados.FieldByName('sabor').AsString);
-        conexao.Parametros('descricao', Dados.FieldByName('descricao').AsString);
+        conexao.Parametros('descricao', Dados.FieldByName('descricao')
+          .AsString);
         conexao.Parametros('venda', Dados.FieldByName('valor').AsFloat);
         conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
         conexao.ExecuteSQL;
@@ -5351,7 +5400,7 @@ begin
 
   THorse.Get('/v1/categorias/', DoGetCategoria);
 
-  THorse.Get('/v1/produtos/:categoria', DoGetProduto);
+  THorse.Get('/v1/produtos/:categoria/:delivery', DoGetProduto);
 
   THorse.Get('/v1/produtos/nome/:busca', DoGetProdutoBusca);
   THorse.Get('/v1/produtos/nome/', DoGetProdutoBusca);
