@@ -1,0 +1,78 @@
+unit uFrameBotao;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Objects, FMX.Controls.Presentation;
+
+type
+  tTipo = (Valida, Cadastro, ConexaoSite, Senha);
+  TCallback = procedure of object;
+
+  TFrameBotao = class(TFrame)
+    rPrincipal: TRectangle;
+    lTexto: TLabel;
+    procedure rPrincipalClick(Sender: TObject);
+  private
+    FTipoBotao: tTipo;
+    FTexto: String;
+    procedure SetTipoBotao(const Value: tTipo);
+    procedure SetTexto(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    property TipoBotao: tTipo read FTipoBotao write SetTipoBotao;
+    property Texto: String read FTexto write SetTexto;
+
+  var
+    Sim: TCallback;
+  end;
+
+implementation
+
+uses
+  FMXTee.Canvas;
+
+{$R *.fmx}
+{ TFrame1 }
+
+procedure TFrameBotao.rPrincipalClick(Sender: TObject);
+begin
+  if Assigned(Sim) then
+    Sim;
+end;
+
+procedure TFrameBotao.SetTexto(const Value: String);
+begin
+  FTexto := Value;
+  lTexto.Text := FTexto;
+end;
+
+procedure TFrameBotao.SetTipoBotao(const Value: tTipo);
+begin
+  FTipoBotao := Value;
+  case FTipoBotao of
+    Valida:
+      begin
+
+      end;
+    Cadastro:
+      begin
+
+      end;
+    Senha:
+      begin
+
+          rPrincipal.Stroke.Color := RGB(0,255,141);
+      end;
+    ConexaoSite:
+      begin
+       rPrincipal.Stroke.Color := RGB(9,1,119);
+      end;
+  end;
+end;
+
+end.

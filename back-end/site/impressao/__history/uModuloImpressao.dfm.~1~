@@ -1,0 +1,5 @@
+object dmImpressaoV2: TdmImpressaoV2
+  OldCreateOrder = False
+  Height = 610
+  Width = 1081
+end

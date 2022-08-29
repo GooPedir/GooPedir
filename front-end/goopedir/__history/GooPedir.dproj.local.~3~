@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/12/28 18:36:13.000.202,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/01/31 10:52:28.000.446,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/03/10 10:06:29.000.867,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/03/31 16:13:08.000.281,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/05/20 08:14:47.000.702,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/05/30 15:02:35.000.178,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/05/30 15:02:52.000.183,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/05/30 15:02:52.000.183,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx</Transaction>
+    <Transaction>2022/05/30 15:02:59.000.919,C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Project1.dproj=A:\PROJETOS\ALLAN\project-x\src\GooPedir.dproj</Transaction>
+    <Transaction>2022/05/30 18:40:15.000.406,=C:\Projeto\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/05/30 18:40:42.000.040,C:\Projeto\project-x\src\cadastro\uImpressora.pas=C:\Projeto\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/05/30 18:40:42.000.040,C:\Projeto\project-x\src\cadastro\uImpressora.fmx=C:\Projeto\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/05/30 18:54:40.000.633,=C:\Projeto\project-x\src\cadastro\uImpressora.pas</Transaction>
+    <Transaction>2022/06/01 12:52:33.000.363,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/01 12:52:52.000.169,A:\PROJETOS\ALLAN\project-x\src\frame\uFrameDescricaoAdicional.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/01 12:52:52.000.169,A:\PROJETOS\ALLAN\project-x\src\frame\uFrameDescricaoAdicional.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/02 21:07:40.000.229,=C:\Projeto\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/02 21:13:57.000.537,C:\Projeto\project-x\src\Unit2.fmx=C:\Projeto\project-x\src\frame\uframeCheckboxExtra.fmx</Transaction>
+    <Transaction>2022/06/02 21:13:57.000.537,C:\Projeto\project-x\src\Unit2.pas=C:\Projeto\project-x\src\frame\uframeCheckboxExtra.pas</Transaction>
+    <Transaction>2022/06/02 21:24:18.000.833,C:\Projeto\project-x\src\frame\uframeCheckboxExtra.pas=C:\Projeto\project-x\src\frame\uframeExtra.pas</Transaction>
+    <Transaction>2022/06/02 21:24:18.000.833,C:\Projeto\project-x\src\frame\uframeCheckboxExtra.fmx=C:\Projeto\project-x\src\frame\uframeExtra.fmx</Transaction>
+    <Transaction>2022/06/04 09:53:30.000.048,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/04 09:56:27.000.397,A:\PROJETOS\ALLAN\project-x\src\frame\uframeObservacaoPedido.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/04 09:56:27.000.397,A:\PROJETOS\ALLAN\project-x\src\frame\uframeObservacaoPedido.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/15 18:38:53.000.639,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/15 18:40:20.000.210,A:\PROJETOS\ALLAN\project-x\src\frame\uframeExtraAdd.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/15 18:40:20.000.210,A:\PROJETOS\ALLAN\project-x\src\frame\uframeExtraAdd.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/15 19:11:11.000.605,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/15 19:28:30.000.615,A:\PROJETOS\ALLAN\project-x\src\uExtraItem.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/15 19:28:30.000.615,A:\PROJETOS\ALLAN\project-x\src\uExtraItem.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/17 16:11:22.000.232,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/17 16:12:00.000.665,A:\PROJETOS\ALLAN\project-x\src\frame\uframeExtraItensAdd.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/17 16:12:00.000.665,A:\PROJETOS\ALLAN\project-x\src\frame\uframeExtraItensAdd.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/18 17:45:26.000.056,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/18 17:48:38.000.022,A:\PROJETOS\ALLAN\project-x\src\frame\uframeSabores.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/18 17:48:38.000.022,A:\PROJETOS\ALLAN\project-x\src\frame\uframeSabores.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/24 00:32:27.000.350,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 00:32:46.000.739,A:\PROJETOS\ALLAN\project-x\src\ufrmRelatorioVendas.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/24 00:32:46.000.739,A:\PROJETOS\ALLAN\project-x\src\ufrmRelatorioVendas.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 00:47:50.000.953,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 00:52:37.000.582,A:\PROJETOS\ALLAN\project-x\src\frame\uframeBalaoValores.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 00:52:37.000.582,A:\PROJETOS\ALLAN\project-x\src\frame\uframeBalaoValores.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/24 12:07:25.000.041,=A:\PROJETOS\ALLAN\project-x\src\util\uSuperChartLight.pas</Transaction>
+    <Transaction>2022/06/24 15:10:04.000.399,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 15:14:49.000.782,A:\PROJETOS\ALLAN\project-x\src\frame\uframeFaturas.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 15:14:49.000.782,A:\PROJETOS\ALLAN\project-x\src\frame\uframeFaturas.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx</Transaction>
+    <Transaction>2022/06/24 16:45:17.000.080,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/06/24 16:45:30.000.139,A:\PROJETOS\ALLAN\project-x\src\Unit2.pas=A:\PROJETOS\ALLAN\project-x\src\OpenViewUrl.pas</Transaction>
+    <Transaction>2022/06/27 20:54:27.000.775,=C:\Projeto\project-x\src\uLoginNovo.pas</Transaction>
+    <Transaction>2022/07/12 09:44:56.000.946,=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
+    <Transaction>2022/07/12 09:45:18.000.137,A:\PROJETOS\ALLAN\project-x\src\Unit2.fmx=A:\PROJETOS\ALLAN\project-x\src\frame\uFrameListaPedido.fmx</Transaction>
+    <Transaction>2022/07/12 09:45:18.000.137,A:\PROJETOS\ALLAN\project-x\src\Unit2.pas=A:\PROJETOS\ALLAN\project-x\src\frame\uFrameListaPedido.pas</Transaction>
+  </Transactions>
+	<ActiveMobileDevice>
+		<NoProfile Android="" Android64=""/>
+	</ActiveMobileDevice>
+</BorlandProject>

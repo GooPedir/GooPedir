@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/12/28 18:36:13.000.202,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/01/27 08:59:14.000.102,=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/01/27 09:00:12.000.037,A:\PROJETOS\ALLAN\project-x\src\conexao\banco\uPrincipal.fmx=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.fmx</Transaction>
+    <Transaction>2022/01/27 09:00:12.000.037,A:\PROJETOS\ALLAN\project-x\src\conexao\banco\uPrincipal.pas=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/01/27 09:00:19.000.028,A:\PROJETOS\ALLAN\project-x\src\conexao\banco\confbanco.dproj=C:\Users\ifort\OneDrive\Documentos\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2022/01/27 09:00:23.000.782,=A:\PROJETOS\ALLAN\project-x\src\conexao\banco\Unit1.pas</Transaction>
+    <Transaction>2022/01/27 09:24:37.000.113,A:\PROJETOS\ALLAN\project-x\src\conexao\uTestaConexao.pas=A:\PROJETOS\ALLAN\project-x\src\conexao\banco\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

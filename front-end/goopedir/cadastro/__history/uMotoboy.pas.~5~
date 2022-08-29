@@ -1,0 +1,48 @@
+unit uMotoboy;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, FMX.Edit, uEdit, System.Rtti, FMX.Grid.Style,
+  FMX.ScrollBox, FMX.Grid;
+
+type
+  TfrmMotoboy = class(TfrmCadastroBase)
+    DADOS: iMemTable;
+    DADOScodigo: TIntegerField;
+    DADOSnome: TStringField;
+    DADOSativo: TIntegerField;
+    Layout1: TLayout;
+    edtBairro: iEdit;
+    Label3: TLabel;
+    StringGrid4: TStringGrid;
+  private
+    { Private declarations }
+    procedure GetDados;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmMotoboy: TfrmMotoboy;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TfrmMotoboy }
+
+procedure TfrmMotoboy.GetDados;
+begin
+   dm.GetSimples('/v1/consulta/todos/motoboy', DADOS);
+end;
+
+end.

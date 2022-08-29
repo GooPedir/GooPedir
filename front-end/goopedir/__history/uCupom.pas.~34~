@@ -1,0 +1,378 @@
+unit uCupom;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, FMX.Effects,
+  FMX.Layouts, FMX.TabControl, FMX.Controls.Presentation, FMX.Objects,
+  uRequisicao, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt,
+  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.Grid, Data.Bind.DBScope, FMX.ScrollBox,
+  FMX.Grid, FMX.ListBox, FMX.Edit, uEdit, FMX.DateTimeCtrls, FMXTee.Canvas;
+
+type
+  TfrmCupom = class(TfrmCadastroBase)
+    memCupom: iMemTable;
+    memCupomid_cupom: TIntegerField;
+    memCupomativacao: TStringField;
+    memCupomtype_discount: TIntegerField;
+    memCupomporcentagem: TFloatField;
+    memCupomfixed_value: TFloatField;
+    memCupomdata_validade: TDateField;
+    memCupomtotal_vezes: TIntegerField;
+    memCupommostrar_site: TIntegerField;
+    Requisicao: iRequisicao;
+    StringGrid4: TStringGrid;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
+    Layout3: TLayout;
+    edtCupom: iEdit;
+    Label5: TLabel;
+    Layout1: TLayout;
+    iEdit1: iEdit;
+    Label3: TLabel;
+    cTipo: TComboBox;
+    Layout2: TLayout;
+    edtValor: iEdit;
+    Label4: TLabel;
+    Layout4: TLayout;
+    EdtQuantidade: iEdit;
+    Label6: TLabel;
+    Layout8: TLayout;
+    iEdit7: iEdit;
+    Label10: TLabel;
+    sMostrarSite: TSwitch;
+    memCupomuser_id: TIntegerField;
+    Layout5: TLayout;
+    Label8: TLabel;
+    edtDate: TDateEdit;
+    procedure FormCreate(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAdicionarClick(Sender: TObject);
+    procedure rAtivarDesativarClick(Sender: TObject);
+    procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+  private
+    { Private declarations }
+    function TipoCor(Index: Integer): TColor;
+  public
+    { Public declarations }
+    procedure GetDados;
+    function UserID: String;
+  end;
+
+var
+  frmCupom: TfrmCupom;
+
+implementation
+
+{$R *.fmx}
+
+uses util;
+{ TfrmCadastroBase2 }
+
+procedure TfrmCupom.FormCreate(Sender: TObject);
+begin
+  inherited;
+  GetDados;
+end;
+
+procedure TfrmCupom.GetDados;
+begin
+  memCupom.Close;
+  Requisicao.URL := 'cupom/1/a';
+  Requisicao.Metodo := mGet;
+  Requisicao.MemTable := memCupom;
+  Requisicao.Execute;
+end;
+
+procedure TfrmCupom.rAdicionarClick(Sender: TObject);
+begin
+  inherited;
+  tabPrincipal.TabIndex := 1;
+  edtDate.Date := Date + 10;
+  edtCupom.Text := '';
+  cTipo.ItemIndex := 0;
+  edtValor.Text := '';
+  EdtQuantidade.Text := '';
+  sMostrarSite.IsChecked := False;
+end;
+
+procedure TfrmCupom.rAtivarDesativarClick(Sender: TObject);
+begin
+  inherited;
+  if memCupom.RecordCount = 0 then
+    exit;
+
+  if memCupom.FieldByName('total_vezes').AsInteger = 0 then
+    exit;
+
+  if memCupom.FieldByName('data_validade').AsDateTime <= Date then
+    exit;
+
+  //
+
+  Requisicao.URL := 'deleta-cupom-desconto/' + memCupom.FieldByName('id_cupom')
+    .AsString + '/a';
+  Requisicao.Metodo := mPost;
+  Requisicao.MemTable := memCupom;
+  Requisicao.Execute;
+  GetDados;
+  ShowMessageToast(self, 'Cupom Deletado Com Sucesso!', 2);
+end;
+
+procedure TfrmCupom.rSalvarClick(Sender: TObject);
+var
+  Valor: Real;
+  Quantidade: Integer;
+  Body: String;
+  Porcentagem: String;
+  Fixo: String;
+begin
+  try
+    Valor := edtValor.Text.ToDouble;
+  except
+    edtValor.SetFocus;
+    ShowMessageToast(self, 'Valor informado invalido!', 1);
+    exit;
+  end;
+  try
+    Quantidade := EdtQuantidade.Text.ToInteger;
+  except
+    EdtQuantidade.SetFocus;
+    ShowMessageToast(self, 'Quantidade informada é invalido!', 1);
+    exit;
+  end;
+  Fixo := FloatToStr(Valor);
+  inherited;
+  if length(edtCupom.Text) < 5 then
+  begin
+    edtCupom.SetFocus;
+    ShowMessageToast(self, 'Cupom deve conter no minimo 5 letras!', 1);
+    exit;
+  end;
+  case cTipo.ItemIndex of
+    0:
+      begin
+        if Valor > 100 then
+        begin
+          edtValor.SetFocus;
+          ShowMessageToast(self,
+            'Valor informado não pode ser maior que 100% de desconto!', 1);
+        end;
+
+        Porcentagem := FloatToStr(Valor);
+        Fixo := '0';
+      end;
+  end;
+
+  // requisicao.URLI := 'insert/cupom_desconto/' + User + '/a';
+  Requisicao.URL := 'insert/cupom_desconto/' + UserID + '/a';
+  Requisicao.Metodo := mPost;
+
+  if sMostrarSite.IsChecked then
+  begin
+    Body := '{"id_cupom":"0", "user_id":"' + UserID + '", "ativacao":"' +
+      edtCupom.Text + '", "type_discount":"' + (cTipo.ItemIndex + 1).ToString +
+      '", "porcentagem":"' + Porcentagem + '", "fixed_value":"' + Fixo +
+      '", "data_validade":"' + FormatDateTime('yyyy-mm-dd', edtDate.Date) +
+      '", "total_vezes":"' + EdtQuantidade.Text + '", "mostrar_site":"1" }';
+  end
+  else
+  begin
+    Body := '{"id_cupom":"0", "user_id":"' + UserID + '", "ativacao":"' +
+      edtCupom.Text + '", "type_discount":"' + (cTipo.ItemIndex + 1).ToString +
+      '", "porcentagem":"' + Porcentagem + '", "fixed_value":"' + Fixo +
+      '", "data_validade":"' + FormatDateTime('yyyy-mm-dd', edtDate.Date) +
+      '", "total_vezes":"' + EdtQuantidade.Text + '", "mostrar_site":"0" }';
+  end;
+  Requisicao.Body(Body);
+  Requisicao.Execute;
+  tabPrincipal.TabIndex := 0;
+  GetDados;
+end;
+
+procedure TfrmCupom.StringGrid4DrawColumnCell(Sender: TObject;
+  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+var
+  Valor: String;
+begin
+  inherited;
+  case Column.Index of
+    1:
+      begin
+        // Status
+
+        if (Value.ToString = '1') then
+        begin
+          Valor := (Sender as TStringGrid).Cells[4, Row] + '%';
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Valor := FormatFloat('R$ #0.00',
+            StrToFloat((Sender as TStringGrid).Cells[5, Row]));
+          Canvas.Fill.Color := TipoCor(5);
+          Canvas.Stroke.Color := TipoCor(5);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    2:
+      begin
+        if Date > StrToDate(Value.ToString) then
+        begin
+          Valor := 'Expirado';
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.Stroke.Color := TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Valor := Value.ToString;
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    3:
+      begin
+        if StrToInt(Value.ToString) = 0 then
+        begin
+          Valor := 'Esgotado';
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Valor := Value.ToString;
+          Canvas.Fill.Color := TipoCor(6);
+          Canvas.Stroke.Color := TipoCor(6);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(10);
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+  end;
+end;
+
+function TfrmCupom.TipoCor(Index: Integer): TColor;
+begin
+  case Index of
+    1:
+      begin
+        // Azul
+        Result := RGB(109, 178, 253);
+      end;
+    2:
+      begin
+        // Vermelho
+        Result := RGB(247, 114, 115);
+      end;
+    3:
+      begin
+        // Verde
+        Result := RGB(49, 204, 175);
+      end;
+    4:
+      begin
+        // Laranja
+        Result := RGB(253, 128, 0);
+      end;
+    5:
+      begin
+        // Roxo
+        Result := RGB(144, 11, 250);
+      end;
+    6:
+      begin
+        Result := RGB(255, 232, 121);
+      end;
+    7:
+      begin
+        // iForth
+        Result := RGB(48, 48, 86);
+      end;
+    8:
+      begin
+        // Cinza
+        Result := RGB(151, 151, 198);
+      end;
+    9:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+    10:
+      begin
+        // BRanco
+        Result := RGB(255, 255, 255);
+      end;
+
+    15:
+      begin
+        Result := RGB(2, 233, 2);
+      end;
+    16:
+      begin
+        Result := RGB(233, 2, 2);
+      end;
+    17:
+      begin
+        Result := RGB(145, 2, 233);
+      end;
+    18:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+
+  end;
+end;
+
+function TfrmCupom.UserID: String;
+begin
+  Result := '1';
+end;
+
+initialization
+
+RegisterClass(TfrmCupom);
+
+end.

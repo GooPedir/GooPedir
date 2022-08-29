@@ -1,0 +1,296 @@
+unit ufrmParametros;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uFrmClonePadrao, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts;
+
+type
+  TCallback = procedure of object;
+
+  TfrmParametros = class(TfrmPadrao)
+    tabEmpresa: TTabItem;
+    Empresa: TVertScrollBox;
+    tabMensagem: TTabItem;
+    tabParametros: TTabItem;
+    Geral: TVertScrollBox;
+    tabFaturamento: TTabItem;
+    Faturamento: TVertScrollBox;
+    verWhatsapp: TVertScrollBox;
+    tabPontosFidelidade: TTabItem;
+    Fidelidade: TVertScrollBox;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    procedure TestarConexao;
+    procedure SenhaGerente;
+    procedure SenhaCadastrada;
+  public
+    { Public declarations }
+    procedure AdicionaParametroEdit(Local: TVertScrollBox;
+      Campo, Descricao: String);
+    procedure AdicionaTitulo(Local: TVertScrollBox; Descricao: String);
+    procedure AdicionaSelecao(Pai: TFmxObject; Alinhamento: TAlignLayout;
+      Campo, Descricao, True, False: String);
+    procedure AdicionaCombo(Pai: TFmxObject; Campo, Descricao: String;
+      Itens: Array of String; AcrecentaUm: Boolean);
+  end;
+
+var
+  frmParametros: TfrmParametros;
+  FrameTituloContador: Integer;
+
+implementation
+
+{$R *.fmx}
+
+uses uFrameConfiguracaoEdit, uFrameTitulo, uframeSelecao, cFrameCombo,
+  uframeMensagemWhatsapp, uFrameBotao, uSenha, uMain, util, uDM;
+
+procedure TfrmParametros.AdicionaCombo(Pai: TFmxObject;
+  Campo, Descricao: String; Itens: array of String; AcrecentaUm: Boolean);
+var
+  Frame: TFrameCombo;
+  I: Integer;
+begin
+
+  Frame := TFrameCombo.Create(Pai);
+  Frame.Parent := Pai;
+  Frame.Name := 'TFrameCombo' + Campo;
+  Frame.Campo := Campo;
+  Frame.Descricao := Descricao;
+  Frame.Align := TAlignLayout.Top;
+  Frame.SomaUm := AcrecentaUm;
+  for I := 0 to length(Itens) - 1 do
+  begin
+    Frame.AdicionaValor(Itens[I]);
+  end;
+
+end;
+
+procedure TfrmParametros.AdicionaParametroEdit(Local: TVertScrollBox;
+  Campo, Descricao: String);
+var
+  Frame: TFrameConfiguracaoEdit;
+begin
+  Frame := TFrameConfiguracaoEdit.Create(Local);
+  Frame.Name := 'TFrameConfiguracaoEdit' + Campo;
+  Frame.Campo := Campo;
+  Frame.Parent := Local;
+  Frame.Descricao := Descricao;
+  Frame.Align := TAlignLayout.Top;
+end;
+
+procedure TfrmParametros.AdicionaSelecao(Pai: TFmxObject;
+  Alinhamento: TAlignLayout; Campo, Descricao, True, False: String);
+var
+  Frame: TframeSelecao;
+begin
+  Frame := TframeSelecao.Create(Pai);
+  Frame.Parent := Pai;
+  Frame.Name := 'TframeSelecao' + Campo;
+  Frame.Campo := Campo;
+  Frame.ValorTrue := True;
+  Frame.ValorFalse := False;
+  Frame.Titulo := Descricao;
+  Frame.Align := Alinhamento;
+
+end;
+
+procedure TfrmParametros.AdicionaTitulo(Local: TVertScrollBox;
+  Descricao: String);
+var
+  Frame: TFrameTitulo;
+begin
+  inc(FrameTituloContador);
+  Frame := TFrameTitulo.Create(Local);
+  Frame.Name := 'TFrameTitulo' + FrameTituloContador.ToString;
+  Frame.Parent := Local;
+  Frame.Titulo := Descricao;
+  Frame.Align := TAlignLayout.Top;
+end;
+
+procedure TfrmParametros.FormCreate(Sender: TObject);
+var
+  LayoutDiaDaSemana: THorzScrollBox;
+  Mensagem: TframeMensagemWhatsapp;
+  Botoes: TframeBotao;
+
+begin
+  inherited;
+  AdicionaTitulo(Empresa, 'Dados Empresa');
+  // AdicionaParametroEdit(Empresa, 'allan', 'Teste');
+  AdicionaParametroEdit(Empresa, 'nome', '');
+  AdicionaParametroEdit(Empresa, 'cep', '');
+  AdicionaParametroEdit(Empresa, 'rua', '');
+  AdicionaParametroEdit(Empresa, 'numero', '');
+  AdicionaParametroEdit(Empresa, 'bairro', '');
+  AdicionaParametroEdit(Empresa, 'cidade', '');
+  AdicionaParametroEdit(Empresa, 'estado', '');
+
+  AdicionaTitulo(Empresa, 'Horário');
+
+  LayoutDiaDaSemana := THorzScrollBox.Create(Empresa);
+  LayoutDiaDaSemana.Height := 60;
+  LayoutDiaDaSemana.Align := TAlignLayout.Top;
+  LayoutDiaDaSemana.Parent := Empresa;
+
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'segunda',
+    'Segunda-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'terca', 'Terca-Feira',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quarta',
+    'Quarta-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quinta',
+    'Quinta-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sexta', 'Sexta-Feira',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sabado', 'Sabado',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'domingo', 'Domingo',
+    '1', '0');
+
+  AdicionaParametroEdit(Empresa, 'horario_abertura', '');
+  AdicionaParametroEdit(Empresa, 'horario_fechamento', '');
+
+  AdicionaTitulo(Empresa, 'Localização No Google Maps');
+  AdicionaParametroEdit(Empresa, 'latitude', '');
+  AdicionaParametroEdit(Empresa, 'longitude', '');
+
+  // Geral
+  AdicionaTitulo(Geral, 'Configuração API Site');
+  AdicionaParametroEdit(Geral, 'client_id', '');
+  AdicionaParametroEdit(Geral, 'client_security', '');
+  Botoes := TframeBotao.Create(Geral);
+  Botoes.Parent := Geral;
+  Botoes.Texto := 'Testar Conexão Com o Site';
+  Botoes.TipoBotao := ConexaoSite;
+  Botoes.Name := 'testarconexao';
+  Botoes.Align := TAlignLayout.Top;
+  Botoes.Sim := TestarConexao;
+
+  AdicionaTitulo(Geral, 'Geral');
+  AdicionaParametroEdit(Geral, 'vias_pedido', '');
+  AdicionaParametroEdit(Geral, 'valor_pedido_minimo', '');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'auto_lancar_produto',
+    'Lançar Produto Automaticamente Sem Adicionais', '1', '0');
+  AdicionaCombo(Geral, 'tipo_impressao', 'Configuração Bobina Impressão',
+    ['58mm', '80mm'], False);
+  AdicionaCombo(Geral, 'permitir_retirada', 'Tipo de Pedido',
+    ['Ambos', 'Apenas Delivery', 'Apenas Vem Buscar'], False);
+
+  AdicionaCombo(Geral, 'tipo_preco_pizza', 'Tipo Valor Pizza',
+    ['Média', 'Maior Valor', 'Soma Dos Valores'], False);
+
+  AdicionaCombo(Geral, 'aceitar_pedidos_site', 'Pedidos Site',
+    ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',
+    'Cancelar Automaticamente'], False);
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'impressaotipopro',
+    'Impressão Cozinha', '1', '0');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'impressao_agrupada',
+    'Impressão Cozinha (Agrupar)', '1', '0');
+
+  AdicionaTitulo(Geral, 'Configuração Relatório');
+  AdicionaParametroEdit(Geral, 'dias_relatorio', 'Quantidade de Dias');
+
+  AdicionaTitulo(Geral, 'Serviços');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'a_impressora', 'Impressão',
+    '1', '0');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'a_whatsapp', 'Whatsapp', '1', '0');
+  Botoes := TframeBotao.Create(Geral);
+  Botoes.Parent := Geral;
+  Botoes.Texto := 'Senha Gerente';
+  Botoes.TipoBotao := Senha;
+  Botoes.Name := 'senha_gerente';
+  Botoes.Align := TAlignLayout.Top;
+  Botoes.Sim := SenhaGerente;
+
+  AdicionaTitulo(verWhatsapp, 'Configurações');
+  AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_confirmacao',
+    'Enviar Confirmação De Recebimento do Pedido', '1', '0'); // Feito
+  AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_status',
+    'Enviar Alteração de Status Do Pedido', '1', '0');
+  AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_pix',
+    'Pedir Comprovante Do Pix', '1', '0'); // Feito
+  AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_motoboy',
+    'Enviar Confirmação do Envio', '1', '0');
+  AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_auto_bot',
+    'Auto Atendimento', '1', '0');
+
+  AdicionaTitulo(verWhatsapp, 'Mensagem de Saudação');
+  Mensagem := TframeMensagemWhatsapp.Create(verWhatsapp);
+  Mensagem.Parent := verWhatsapp;
+  Mensagem.Campo := 'mensagem_inicio';
+  Mensagem.Align := TAlignLayout.Client;
+
+  AdicionaTitulo(Faturamento, 'Configurações de Caixa');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'auto_abrir_fechar_caixa',
+    'Abrir / Fechar Caixa Automatico', '1', '0');
+  AdicionaParametroEdit(Faturamento, 'valor_padrao_caixa',
+    'Valor Padrão Abertura Caixa');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'fat_all_caixa',
+    'Faturar Todos Pedidos Ao Fechar o Caixa', '1', '0');
+
+  AdicionaTitulo(Faturamento, '');
+
+  AdicionaTitulo(Faturamento, '');
+  AdicionaTitulo(Faturamento, 'Impressão Caixa');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_resumo', 'Resumo',
+    '1', '0');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_completo',
+    'Completo', '1', '0');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_produto', 'Produto',
+    '1', '0');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_motoboy', 'Motoboy',
+    '1', '0');
+
+  // Fidelidade
+  AdicionaTitulo(Fidelidade, 'Pontos de Fidelidade');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'fidelidade', 'Programa de Fidelidade',
+    '1', '0');
+  AdicionaParametroEdit(Geral, 'fidelidade_pontos_eq_valor', '');
+  AdicionaParametroEdit(Geral, 'fidelidade_valor_eq_pontos', '');
+  AdicionaParametroEdit(Geral, 'fidelidade_pedido_minimo', '');
+    AdicionaTitulo(Fidelidade, 'Quais as Formas de Pedidos Geram Pontos');
+
+end;
+
+procedure TfrmParametros.SenhaCadastrada;
+begin
+  ShowMessageToast(frmMain, 'Senha Cadastrada Com Sucesso!', 2);
+end;
+
+procedure TfrmParametros.SenhaGerente;
+begin
+  if not Assigned(frmSenha) then
+    frmSenha := TfrmSenha.Create(frmMain);
+  frmSenha.Sim := SenhaCadastrada;
+  frmSenha.Tipo := Cadastrar;
+  frmSenha.Show;
+end;
+
+procedure TfrmParametros.TestarConexao;
+begin
+
+  dm.DadosSite;
+  if dm.UserId > 0 then
+  begin
+    ShowMessageToast(frmMain, 'Conectado Com Sucesso! ' + dm.Link, 3);
+  end
+  else
+  begin
+    ShowMessageToast(frmMain, 'Sem Conexão Com o Servidor!', 1);
+  end;
+end;
+
+initialization
+
+RegisterClass(TfrmParametros);
+
+end.

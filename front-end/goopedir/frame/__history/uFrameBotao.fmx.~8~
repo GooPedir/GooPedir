@@ -1,0 +1,40 @@
+object FrameBotao: TFrameBotao
+  Size.Width = 536.000000000000000000
+  Size.Height = 65.000000000000000000
+  Size.PlatformDefault = False
+  object rPrincipal: TRectangle
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Cursor = crHandPoint
+    Fill.Color = x00E0E0E0
+    Position.X = 8.000000000000000000
+    Position.Y = 7.000000000000000000
+    Size.Width = 520.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = xFF00FF8D
+    Stroke.Thickness = 3.000000000000000000
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    OnClick = rPrincipalClick
+    object lTexto: TLabel
+      Align = Client
+      StyledSettings = [Family]
+      Size.Width = 520.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.Size = 16.000000000000000000
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.FontColor = claWhite
+      TextSettings.HorzAlign = Center
+      Text = 'lTexto'
+      TabOrder = 0
+      object ShadowEffect1: TShadowEffect
+        Distance = 3.000000000000000000
+        Direction = 45.000000000000000000
+        Softness = 0.300000011920929000
+        Opacity = 0.600000023841857900
+        ShadowColor = claBlack
+      end
+    end
+  end
+end

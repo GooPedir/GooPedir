@@ -1,0 +1,141 @@
+unit uframeBalaoValores;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.Objects;
+
+type
+  TTipo = (qtd_pedido, qtd_cancelado, qtd_concluido, tot_pedido, tot_cancelado,
+    tot_concluido, tot_desconto, tot_taxa);
+
+  TframeBalaoValores = class(TFrame)
+    rFundo: TRectangle;
+    rStatus: TRectangle;
+    Image1: TImage;
+    Layout1: TLayout;
+    lTitulo: TLabel;
+    lValor: TLabel;
+  private
+    FValor: Real;
+    FDescricao: String;
+    FTipo: TTipo;
+    procedure SetDescricao(const Value: String);
+    procedure SetTipo(const Value: TTipo);
+    procedure SetValor(const Value: Real);
+    function Mascara: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Descricao: String read FDescricao write SetDescricao;
+    property Valor: Real read FValor write SetValor;
+    property Tipo: TTipo read FTipo write SetTipo;
+  end;
+
+implementation
+
+uses
+  FMXTee.Canvas;
+
+{$R *.fmx}
+{ TframeBalaoValores }
+
+function TframeBalaoValores.Mascara: String;
+begin
+  case Tipo of
+    qtd_pedido:
+      begin
+        Result := ',0';
+        rStatus.Stroke.Color := RGB(188, 206, 244);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end;
+    qtd_cancelado:
+      begin
+        Result := ',0';
+        rStatus.Stroke.Color := RGB(255, 168, 184);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end;
+    qtd_concluido:
+      begin
+        Result := ',0';
+        rStatus.Stroke.Color := RGB(162, 237, 206);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+
+      end;
+    tot_pedido:
+      begin
+        Result := 'R$ ,0.00';
+        rStatus.Stroke.Color := RGB(188, 206, 244);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end;
+    tot_cancelado:
+      begin
+        Result := 'R$ ,0.00';
+        rStatus.Stroke.Color := RGB(255, 168, 184);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end;
+    tot_concluido:
+      begin
+        Result := 'R$ ,0.00';
+        rStatus.Stroke.Color := RGB(162, 237, 206);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end;
+    tot_desconto:
+      begin
+        Result := 'R$ ,0.00';
+        rStatus.Stroke.Color := RGB(0, 0, 0);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+
+      end;
+    tot_taxa:
+      begin
+        Result := 'R$ ,0.00';
+        rStatus.Stroke.Color := RGB(0, 0, 0);
+        rStatus.Fill.Color := rStatus.Stroke.Color;
+        lTitulo.TextSettings.FontColor := rStatus.Stroke.Color;
+      end
+  else
+    Result := '0';
+  end;
+  rFundo.Stroke.Color := ;
+
+  lValor.Text := FormatFloat(Result, Valor);
+end;
+
+procedure TframeBalaoValores.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lTitulo.Text := Value;
+end;
+
+procedure TframeBalaoValores.SetTipo(const Value: TTipo);
+begin
+  FTipo := Value;
+end;
+
+procedure TframeBalaoValores.SetValor(const Value: Real);
+begin
+  try
+    FValor := Value;
+    lValor.Text := FormatFloat(Mascara, Value);
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+    end;
+
+  end;
+
+end;
+
+end.

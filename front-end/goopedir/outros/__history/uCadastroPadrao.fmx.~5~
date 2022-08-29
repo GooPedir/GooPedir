@@ -1,0 +1,309 @@
+object frmCadastroBase: TfrmCadastroBase
+  Left = 0
+  Top = 0
+  BorderStyle = None
+  Caption = 'Form1'
+  ClientHeight = 668
+  ClientWidth = 956
+  Position = DesktopCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object layClient: TLayout
+    Align = Client
+    Size.Width = 956.000000000000000000
+    Size.Height = 668.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object Rectangle1: TRectangle
+      Align = Top
+      Fill.Color = xFFA4001B
+      Size.Width = 956.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFFA4001B
+      object Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D4494441546843EDD24B0A02311084E1E04E510FE6D5F43ABA50DCF9B89290
+              74B4063B83C1C74218D2ADF56D023359FC354C20A23672CE731159E21CEB233F
+              BAF894D2F90A18B17535E231BEC0889D8B11AFE20B8C58EB359B3EC5C7182F78
+              BFD0ABF6FC42FC497B2B8C1F12E35B41DC0CF147EDAD307E488C6F85F1AD30BE
+              15344E117FB8E7D618FF85919EFF031FDBEF2F54A095234C402B479880568E30
+              01AD1C61025A39C204B472840968E50813D0FA7684886CF49A6D687D1A81F83D
+              8E895EB10FB1FD0877F1453702F12B97F14466847003A635BF41659197C10000
+              000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+        Align = Left
+        Cursor = crHandPoint
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        OnClick = Image1Click
+      end
+      object lNomeForm: TLabel
+        Align = Client
+        StyledSettings = [Family]
+        Margins.Right = 10.000000000000000000
+        Size.Width = 896.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 26.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.FontColor = claWhite
+        TextSettings.HorzAlign = Trailing
+        Text = 'lNomeForm'
+        TabOrder = 1
+      end
+    end
+    object tabPrincipal: TTabControl
+      Align = Client
+      Size.Width = 956.000000000000000000
+      Size.Height = 618.000000000000000000
+      Size.PlatformDefault = False
+      TabIndex = 0
+      TabOrder = 1
+      TabPosition = PlatformDefault
+      Sizes = (
+        956s
+        592s
+        956s
+        592s)
+      object tabConsulta: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 84.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'tabConsulta'
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object GridPanelLayout1: TGridPanelLayout
+          Align = Bottom
+          Position.Y = 542.000000000000000000
+          Size.Width = 956.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          ColumnCollection = <
+            item
+              Value = 33.437682479252260000
+            end
+            item
+              Value = 33.267278513825100000
+            end
+            item
+              Value = 33.295039006922640000
+            end>
+          ControlCollection = <
+            item
+              Column = 0
+              Control = rAdicionar
+              Row = 0
+            end
+            item
+              Column = 1
+              Control = rAlterar
+              Row = 0
+            end
+            item
+              Column = 2
+              Control = rAtivarDesativar
+              Row = 0
+            end>
+          RowCollection = <
+            item
+              Value = 100.000000000000000000
+            end
+            item
+              SizeStyle = Auto
+            end>
+          object rAdicionar: TRectangle
+            Tag = 1
+            Align = Client
+            Cursor = crHandPoint
+            Fill.Color = xFFA0F6B5
+            Opacity = 0.500000000000000000
+            Size.Width = 319.664245605468800000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFA0F6B5
+            OnMouseEnter = rAdicionarMouseEnter
+            OnMouseLeave = rAdicionarMouseLeave
+            object Label1: TLabel
+              Align = Client
+              StyledSettings = [Family, FontColor]
+              Size.Width = 319.664245605468800000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Text = 'Adicionar'
+              TabOrder = 0
+              object ShadowEffect1: TShadowEffect
+                Distance = 3.000000000000000000
+                Direction = 45.000000000000000000
+                Softness = 0.300000011920929000
+                Opacity = 0.600000023841857900
+                ShadowColor = claBlack
+              end
+            end
+          end
+          object rAlterar: TRectangle
+            Tag = 2
+            Align = Client
+            Cursor = crHandPoint
+            Fill.Color = xFF89CCD4
+            Opacity = 0.500000000000000000
+            Size.Width = 318.035217285156300000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Kind = None
+            OnMouseEnter = rAdicionarMouseEnter
+            OnMouseLeave = rAdicionarMouseLeave
+            object Label2: TLabel
+              Align = Client
+              StyledSettings = [Family, FontColor]
+              Size.Width = 318.035217285156300000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Text = 'Alterar'
+              TabOrder = 0
+              object ShadowEffect2: TShadowEffect
+                Distance = 3.000000000000000000
+                Direction = 45.000000000000000000
+                Softness = 0.300000011920929000
+                Opacity = 0.600000023841857900
+                ShadowColor = claBlack
+              end
+            end
+          end
+          object rAtivarDesativar: TRectangle
+            Tag = 3
+            Align = Client
+            Cursor = crHandPoint
+            Fill.Color = xFF30FE19
+            Opacity = 0.500000000000000000
+            Size.Width = 318.300537109375000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF30FE19
+            OnMouseEnter = rAdicionarMouseEnter
+            OnMouseLeave = rAdicionarMouseLeave
+            object lTipoAtivo: TLabel
+              Align = Client
+              StyledSettings = [Family, FontColor]
+              Size.Width = 318.300537109375000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Text = 'Pausar'
+              TabOrder = 0
+              object ShadowEffect3: TShadowEffect
+                Distance = 3.000000000000000000
+                Direction = 45.000000000000000000
+                Softness = 0.300000011920929000
+                Opacity = 0.600000023841857900
+                ShadowColor = claBlack
+              end
+            end
+          end
+        end
+      end
+      object TabDados: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 72.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabDados'
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object rSalvar: TRectangle
+          Tag = 1
+          Align = Bottom
+          Cursor = crHandPoint
+          Fill.Color = xFF02E902
+          Opacity = 0.500000000000000000
+          Position.Y = 542.000000000000000000
+          Size.Width = 956.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          OnMouseEnter = rAdicionarMouseEnter
+          OnMouseLeave = rAdicionarMouseLeave
+          object Layout21: TLayout
+            Align = Center
+            Size.Width = 104.000000000000000000
+            Size.Height = 32.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95410E82301045C104CFA627F0382EE51EDE4CA25BD6D0
+                    00FE193F4D2B055A138D0B5E623A9D3F7F86DAA0D946127DDF1FDBB6AD8644E0
+                    3BB3C532687EA32799A821AC1DB88D028D4F755D1BF1AD0ED1EEC08D97501388
+                    1EA22EE0C64BA889C810A6BD7CCE5519C51CBC1786903A868AEBD704D871FD0D
+                    F20402B7C9D0EEF9BF7E82A80178A87DD77597A6691EF291587294E3D1F3016E
+                    2D48952FC5A3A46C617EFE2BA63E29C01B7EA764911C650BA53FBC83A228AE0C
+                    2DA1DC2A3C61E80EA22E59CD80DB29D4E70B56A07DFE0E8C3195ACAC4BC6ED11
+                    043F581FFDE18C88173D0E6CB71143963D01252A3BEAA6FA05FA000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+              Align = Left
+              HitTest = False
+              Size.Width = 50.000000000000000000
+              Size.Height = 32.000000000000000000
+              Size.PlatformDefault = False
+            end
+            object Label7: TLabel
+              Align = Client
+              StyledSettings = [Family]
+              Margins.Left = 5.000000000000000000
+              Size.Width = 49.000000000000000000
+              Size.Height = 32.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = claWhite
+              Text = 'Salvar'
+              TabOrder = 0
+            end
+          end
+        end
+      end
+    end
+  end
+end

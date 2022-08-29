@@ -1,0 +1,213 @@
+object frmSenha: TfrmSenha
+  Left = 0
+  Top = 0
+  BorderStyle = None
+  Caption = 'Form1'
+  ClientHeight = 516
+  ClientWidth = 724
+  Transparency = True
+  WindowState = wsMaximized
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object Rectangle2: TRectangle
+    Align = Client
+    Fill.Color = claBlack
+    Opacity = 0.500000000000000000
+    Size.Width = 724.000000000000000000
+    Size.Height = 516.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object rConfirmacao: TRectangle
+    Align = Center
+    Fill.Color = claWhite
+    Size.Width = 384.000000000000000000
+    Size.Height = 194.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = claWhite
+    object lTitulo: TLabel
+      Align = Top
+      StyledSettings = [Family, FontColor]
+      Margins.Left = 3.000000000000000000
+      Margins.Top = 3.000000000000000000
+      Margins.Right = 3.000000000000000000
+      Margins.Bottom = 3.000000000000000000
+      Position.X = 3.000000000000000000
+      Position.Y = 3.000000000000000000
+      Size.Width = 378.000000000000000000
+      Size.Height = 41.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.Size = 14.000000000000000000
+      Text = 'Senha Gerente'
+      TabOrder = 0
+    end
+    object Layout1: TLayout
+      Align = Bottom
+      Position.Y = 144.000000000000000000
+      Size.Width = 384.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object GridPanelLayout1: TGridPanelLayout
+        Align = Bottom
+        Size.Width = 384.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 1
+            Control = btnNao
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnSim
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        object btnNao: iButton
+          Align = Client
+          Size.Width = 192.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          Text = 'iButton1'
+          OnClick = btnNaoClick
+          iForthTipoBotao = tCancelar
+          iForthCorFonte = cBranca
+          iForthDescricao = 'N'#227'o'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFF77273
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFF77273
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'N'#227'o'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFF77273
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFF77273
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'N'#227'o'
+              TabOrder = 0
+            end
+          end
+        end
+        object btnSim: iButton
+          Align = Client
+          Size.Width = 192.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'btnSim'
+          OnClick = btnSimClick
+          iForthTipoBotao = tSalvar
+          iForthCorFonte = cBranca
+          iForthDescricao = 'Sim'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Sim'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Sim'
+              TabOrder = 0
+            end
+          end
+        end
+      end
+    end
+    object Rectangle1: TRectangle
+      Position.X = -1.000000000000000000
+      Position.Y = 42.000000000000000000
+      Size.Width = 386.000000000000000000
+      Size.Height = 1.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object edtSenha: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Center
+      TabOrder = 2
+      Password = True
+      Size.Width = 330.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TextPrompt = 'Senha'
+      CharCase = ecUpperCase
+    end
+  end
+end

@@ -1,0 +1,15 @@
+﻿[FrmAddItem.SABORES]
+Visible=False
+
+[FrmResumo.ProdCompleto]
+Visible=False
+
+[FrmResumo.MemTaxa]
+Visible=False
+
+[FrmResumo.Pagamento]
+Visible=False
+
+[FrmResumo.mCliente]
+Visible=False
+

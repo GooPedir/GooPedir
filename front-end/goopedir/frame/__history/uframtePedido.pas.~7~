@@ -1,0 +1,165 @@
+unit uframtePedido;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Edit, FMX.Objects, FMX.ListBox;
+
+type
+  TframtePedido = class(TFrame)
+    Rectangle1: TRectangle;
+    edt_codigo: TEdit;
+    Label1: TLabel;
+    edt_data: TEdit;
+    Label2: TLabel;
+    edt_hora: TEdit;
+    Label3: TLabel;
+    edt_cliente: TEdit;
+    Label4: TLabel;
+    edt_valor: TEdit;
+    Label5: TLabel;
+    edt_taxa: TEdit;
+    Label6: TLabel;
+    edt_desconto: TEdit;
+    Label7: TLabel;
+    edt_total: TEdit;
+    Label8: TLabel;
+    img_imprimir: TImage;
+    img_alterar: TImage;
+    img_faturar: TImage;
+    Rectangle2: TRectangle;
+    c_status: TComboBox;
+    Label9: TLabel;
+    c_motoboy: TComboBox;
+    Label10: TLabel;
+    edt_endereco: TEdit;
+    Label11: TLabel;
+    procedure img_imprimirClick(Sender: TObject);
+  private
+    FTaxa: Real;
+    FDesconto: Real;
+    FHora: TTime;
+    FPedido: Real;
+    FMotoboy: Integer;
+    FCliente: String;
+    FCodigo: Integer;
+    FTotal: Real;
+    FID: Integer;
+    FStatus: String;
+    FEndereco: String;
+    FcodigoStatus: Integer;
+    FData: TDate;
+    procedure SetCliente(const Value: String);
+    procedure SetCodigo(const Value: Integer);
+    procedure SetcodigoStatus(const Value: Integer);
+    procedure SetData(const Value: TDate);
+    procedure SetDesconto(const Value: Real);
+    procedure SetEndereco(const Value: String);
+    procedure SetHora(const Value: TTime);
+    procedure SetID(const Value: Integer);
+    procedure SetMotoboy(const Value: Integer);
+    procedure SetPedido(const Value: Real);
+    procedure SetStatus(const Value: String);
+    procedure SetTaxa(const Value: Real);
+    procedure SetTotal(const Value: Real);
+    { Private declarations }
+  public
+    { Public declarations }
+    property ID: Integer read FID write SetID;
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Data: TDate read FData write SetData;
+    property Hora: TTime read FHora write SetHora;
+    property Cliente: String read FCliente write SetCliente;
+    property Pedido: Real read FPedido write SetPedido;
+    property Taxa: Real read FTaxa write SetTaxa;
+    property Desconto: Real read FDesconto write SetDesconto;
+    property Total: Real read FTotal write SetTotal;
+    property codigoStatus: Integer read FcodigoStatus write SetcodigoStatus;
+    property Status: String read FStatus write SetStatus;
+    property Endereco: String read FEndereco write SetEndereco;
+    property Motoboy: Integer read FMotoboy write SetMotoboy;
+
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TframtePedido }
+
+procedure TframtePedido.img_imprimirClick(Sender: TObject);
+begin
+  DM.PostSimples('/v1/imprimir/1/' + ID.ToString, nil);
+end;
+
+procedure TframtePedido.SetCliente(const Value: String);
+begin
+  FCliente := Value;
+end;
+
+procedure TframtePedido.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframtePedido.SetcodigoStatus(const Value: Integer);
+begin
+  FcodigoStatus := Value;
+end;
+
+procedure TframtePedido.SetData(const Value: TDate);
+begin
+  FData := Value;
+end;
+
+procedure TframtePedido.SetDesconto(const Value: Real);
+begin
+  FDesconto := Value;
+end;
+
+procedure TframtePedido.SetEndereco(const Value: String);
+begin
+  FEndereco := Value;
+end;
+
+procedure TframtePedido.SetHora(const Value: TTime);
+begin
+  FHora := Value;
+end;
+
+procedure TframtePedido.SetID(const Value: Integer);
+begin
+  FID := Value;
+end;
+
+procedure TframtePedido.SetMotoboy(const Value: Integer);
+begin
+  FMotoboy := Value;
+end;
+
+procedure TframtePedido.SetPedido(const Value: Real);
+begin
+  FPedido := Value;
+end;
+
+procedure TframtePedido.SetStatus(const Value: String);
+begin
+  FStatus := Value;
+end;
+
+procedure TframtePedido.SetTaxa(const Value: Real);
+begin
+  FTaxa := Value;
+end;
+
+procedure TframtePedido.SetTotal(const Value: Real);
+begin
+  FTotal := Value;
+end;
+
+end.

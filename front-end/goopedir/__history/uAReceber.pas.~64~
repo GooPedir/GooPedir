@@ -1,0 +1,338 @@
+unit uAReceber;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Edit, System.Rtti,
+  System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.EngExt,
+  FMX.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope, FMX.Grid.Style,
+  FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
+
+type
+  TfrmAReceber = class(TForm)
+    layReceber: TLayout;
+    DADOS: iMemTable;
+    DADOSid: TIntegerField;
+    DADOSid_caixa: TIntegerField;
+    DADOSid_pedido: TIntegerField;
+    DADOSid_cliente: TIntegerField;
+    DADOSid_tipo_pagamento: TIntegerField;
+    DADOSdata: TDateField;
+    DADOShora: TTimeField;
+    DADOSvalor: TFloatField;
+    DADOSstatus: TIntegerField;
+    DADOSobservacao: TStringField;
+    DADOSnome: TStringField;
+    DADOScelular: TStringField;
+    DADOSa_receber: TFloatField;
+    DADOSdata_abertura: TDateField;
+    DADOSdata_fechamento: TDateField;
+    DADOShora_abertura: TTimeField;
+    DADOShora_fechamento: TTimeField;
+    DADOSvalor_fechamento: TFloatField;
+    DADOSusuario: TStringField;
+    DADOStipo_pagamento: TStringField;
+    Layout1: TLayout;
+    rTopo: TRectangle;
+    imgClose: TImage;
+    lNomeForm: TLabel;
+    Layout6: TLayout;
+    Label6: TLabel;
+    EdtCelular: TEdit;
+    Layout7: TLayout;
+    Label7: TLabel;
+    EdtNome: TEdit;
+    Image2: TImage;
+    mConsultaCliente: iMemTable;
+    mConsultaClientecodigo: TIntegerField;
+    mConsultaClientecodigo1: TIntegerField;
+    mConsultaClientenome: TStringField;
+    mConsultaClientecelular_wpp: TStringField;
+    mConsultaClienterua: TStringField;
+    mConsultaClientebairro: TStringField;
+    mConsultaClientecidade: TStringField;
+    mConsultaClienteestado: TStringField;
+    mConsultaClientenumero: TStringField;
+    mConsultaClientecomplemento: TStringField;
+    mConsultaClientevalor_taxa: TFloatField;
+    bdsConsulta: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkControlToField1: TLinkControlToField;
+    Rectangle1: TRectangle;
+    StringGrid1: TStringGrid;
+    BindSourceDB1: TBindSourceDB;
+    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
+    Label1: TLabel;
+    DADOScodigo: TIntegerField;
+    layReceberDados: TLayout;
+    rStatus: TRectangle;
+    Layout3: TLayout;
+    Layout4: TLayout;
+    edtCliente: TEdit;
+    Label4: TLabel;
+    edtCelularCliente: TEdit;
+    Label5: TLabel;
+    Layout5: TLayout;
+    edtHoraCaixa: TEdit;
+    Label8: TLabel;
+    EdtValorCaixa: TEdit;
+    Label9: TLabel;
+    EdtTipoPagamento: TEdit;
+    edtNumeroCaixa: TEdit;
+    Label12: TLabel;
+    EdtObservacao: TEdit;
+    Label10: TLabel;
+    Label11: TLabel;
+    rReceber: TRectangle;
+    Label13: TLabel;
+    edtValorPedido: TEdit;
+    Label3: TLabel;
+    Rectangle2: TRectangle;
+    Label2: TLabel;
+    procedure EdtCelularKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
+    procedure Rectangle1Click(Sender: TObject);
+    procedure Rectangle1MouseEnter(Sender: TObject);
+    procedure Rectangle1MouseLeave(Sender: TObject);
+    procedure StringGrid1DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure FormCreate(Sender: TObject);
+    procedure Rectangle2Click(Sender: TObject);
+    procedure DADOSAfterScroll(DataSet: TDataSet);
+    procedure rReceberClick(Sender: TObject);
+    procedure StringGrid1CellDblClick(const Column: TColumn;
+      const Row: Integer);
+  private
+    FcodigoUsuario: Integer;
+    procedure SetcodigoUsuario(const Value: Integer);
+    procedure BuscarCliente;
+    { Private declarations }
+  public
+    { Public declarations }
+    property codigoUsuario: Integer read FcodigoUsuario write SetcodigoUsuario;
+    procedure Buscar;
+    procedure DadosCaixa;
+    procedure Recebimento;
+    procedure Cancelar;
+  end;
+
+var
+  frmAReceber: TfrmAReceber;
+  ConsultaCliente: Boolean;
+  Cor: TColor;
+  Carregando: Boolean;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, Funcoes, FMXTee.Canvas, UnitResumo, uFechamentoPedido, uCaixa, uMain;
+
+{ TfrmAReceber }
+
+procedure TfrmAReceber.Buscar;
+begin
+  Carregando := True;
+  dm.GetSimples('/v1/caixa/receber/' + codigoUsuario.ToString, DADOS);
+  Carregando := False;
+  DadosCaixa;
+
+end;
+
+procedure TfrmAReceber.BuscarCliente;
+begin
+  if ConsultaCliente then
+    exit;
+  ConsultaCliente := True;
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      sleep(1000);
+      mConsultaCliente.Close;
+      GetSimples('v1/dados/consulta/cliente/celular/' + EdtCelular.Text,
+        mConsultaCliente);
+      // PegaDadosCliente;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          ConsultaCliente := False;
+        end);
+    end).Start;
+end;
+
+procedure TfrmAReceber.Cancelar;
+begin
+
+  Buscar;
+end;
+
+procedure TfrmAReceber.DADOSAfterScroll(DataSet: TDataSet);
+begin
+  DadosCaixa;
+end;
+
+procedure TfrmAReceber.DadosCaixa;
+begin
+  layReceberDados.Visible := DADOS.RecordCount > 0;
+  if DADOS.RecordCount = 0 then
+    exit;
+  if Carregando then
+    exit;
+  edtCliente.Text := DADOS.FieldByName('nome').AsString;
+  edtCelularCliente.Text := DADOS.FieldByName('celular').AsString;
+  edtValorPedido.Text := FormatFloat('#0.00',
+    DADOS.FieldByName('a_receber').AsFloat);
+
+  edtNumeroCaixa.Text := '#' + DADOS.FieldByName('id_caixa').AsString;
+  edtHoraCaixa.Text := FormatDateTime('dd/mm/yyyy', DADOS.FieldByName('data')
+    .AsDateTime) + ' ' + FormatDateTime('hh:nn', DADOS.FieldByName('hora')
+    .AsDateTime);
+  EdtValorCaixa.Text := FormatFloat('#0.00', DADOS.FieldByName('valor')
+    .AsFloat);
+  EdtTipoPagamento.Text := DADOS.FieldByName('tipo_pagamento').AsString;
+  EdtObservacao.Text := DADOS.FieldByName('observacao').AsString;
+
+  case DADOS.FieldByName('status').AsInteger of
+    1:
+      begin
+        rStatus.Fill.Color := RGB(168, 16, 5);
+      end;
+    2:
+      begin
+        rStatus.Fill.Color := RGB(5, 168, 93);
+      end;
+  end;
+  // rStatus.Fill.Color := RGB(168, 16, 5);
+  rStatus.Stroke.Color := rStatus.Fill.Color;
+
+end;
+
+procedure TfrmAReceber.EdtCelularKeyDown(Sender: TObject; var Key: Word;
+var KeyChar: Char; Shift: TShiftState);
+begin
+  BuscarCliente;
+end;
+
+procedure TfrmAReceber.FormCreate(Sender: TObject);
+begin
+  Buscar;
+end;
+
+procedure TfrmAReceber.Recebimento;
+begin
+  //
+  dm.PostSimples('/v1/caixa/recebimento/pedido/' + dm.CodigoCaixa.ToString + '/'
+    + DADOS.FieldByName('id').AsString + '/' + DADOS.FieldByName('id_pedido')
+    .AsString, frmFechamentoPedido.PAG);
+
+  Buscar;
+end;
+
+procedure TfrmAReceber.Rectangle1Click(Sender: TObject);
+begin
+  Buscar;
+end;
+
+procedure TfrmAReceber.Rectangle1MouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmAReceber.Rectangle1MouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmAReceber.Rectangle2Click(Sender: TObject);
+begin
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := DADOS.FieldByName('id_pedido').AsInteger;
+  FrmResumo.Show;
+end;
+
+procedure TfrmAReceber.rReceberClick(Sender: TObject);
+begin
+  if dm.CodigoCaixa = 0 then
+  begin
+    ShowMessageToast(frmmain, 'Não há caixa aberto!', 1);
+    exit;
+  end;
+
+  if DADOS.FieldByName('status').AsInteger = 2 then
+  begin
+    ShowMessageToast(frmmain, 'Já foi recebido!', 1);
+    exit;
+  end;
+
+  frmFechamentoPedido := TfrmFechamentoPedido.Create(Self);
+  frmFechamentoPedido.Executar := Recebimento;
+  frmFechamentoPedido.Cancelar := Cancelar;
+
+  frmFechamentoPedido.CodigoPedido := DADOS.FieldByName('id_pedido').AsInteger;
+  frmFechamentoPedido.Valor := DADOS.FieldByName('valor').AsFloat;
+
+  frmFechamentoPedido.pago := 0;
+
+  frmFechamentoPedido.Show;
+  frmFechamentoPedido.Label3.Text := 'A Receber de ' + edtCliente.Text;
+end;
+
+procedure TfrmAReceber.SetcodigoUsuario(const Value: Integer);
+begin
+  FcodigoUsuario := Value;
+  if FcodigoUsuario = 0 then
+  begin
+    mConsultaCliente.Close;
+    Buscar;
+    exit;
+  end;
+  GetSimples('/v1/dados/consulta/cliente/' + codigoUsuario.ToString,
+    mConsultaCliente);
+
+  EdtCelular.Text := mConsultaCliente.FieldByName('celular_wpp').AsString;
+  Buscar;
+end;
+
+procedure TfrmAReceber.StringGrid1CellDblClick(const Column: TColumn;
+  const Row: Integer);
+begin
+EdtCelular.Text := DADOS.FieldByName('celular').AsString;
+end;
+
+procedure TfrmAReceber.StringGrid1DrawColumnCell(Sender: TObject;
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+begin
+
+  case Column.Index of
+    0:
+      begin
+        Canvas.Fill.Color := RGB(5, 168, 93);
+        if StringGrid1.Cells[8, Row].ToInteger = 1 then
+        begin
+          // Valor := UpperCase(Lista.Cells[7, Row]);
+          Canvas.Fill.Color := RGB(168, 16, 5);
+        end;
+
+        Canvas.Stroke.Color := Canvas.Fill.Color;
+        Canvas.FillRect(Bounds, 0, 0, [], 1);
+        Canvas.Fill.Color := TAlphaColorRec.Black;
+        Canvas.FillText(Bounds, Value.ToString, False, 1,
+          [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+          TTextAlign.Center);
+
+      end;
+  end;
+end;
+
+end.

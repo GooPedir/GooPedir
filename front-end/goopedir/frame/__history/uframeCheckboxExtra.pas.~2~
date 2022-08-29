@@ -1,0 +1,76 @@
+unit uframeCheckboxExtra;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Objects, FMX.Controls.Presentation,uFrameDescricaoAdicional;
+
+type
+  TframeCheckboxExtra = class(TFrame)
+    Img_checkbox: TImage;
+    img_un: TImage;
+    img_check: TImage;
+    Label1: TLabel;
+    procedure FrameClick(Sender: TObject);
+  private
+    FCheckbox: Boolean;
+    FPai: TFrameDescricaoAdicional;
+    FDescricao: String;
+    procedure SetCheckbox(const Value: Boolean);
+    procedure SetDescricao(const Value: String);
+    procedure SetPai(const Value: TFrameDescricaoAdicional);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Checkbox: Boolean read FCheckbox write SetCheckbox;
+    property Descricao : String read FDescricao write SetDescricao;
+    property Pai : TFrameDescricaoAdicional read FPai write SetPai;
+  end;
+
+implementation
+
+{$R *.fmx}
+{ TFrame2 }
+
+procedure TframeCheckboxExtra.FrameClick(Sender: TObject);
+begin
+  if Checkbox then
+    Checkbox := False
+  else
+    Checkbox := True;
+end;
+
+procedure TframeCheckboxExtra.SetCheckbox(const Value: Boolean);
+begin
+  FCheckbox := Value;
+
+  case FCheckbox of
+    True:
+      begin
+        Img_checkbox.Bitmap := img_check.Bitmap
+      end
+  else
+    begin
+      Img_checkbox.Bitmap := img_un.Bitmap
+    end;
+  end;
+
+end;
+
+procedure TframeCheckboxExtra.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+end;
+
+procedure TframeCheckboxExtra.SetPai(const Value: TFrameDescricaoAdicional);
+begin
+  FPai := Value;
+end;
+
+end.
+
+
+

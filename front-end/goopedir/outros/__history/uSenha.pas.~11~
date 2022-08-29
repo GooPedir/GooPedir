@@ -1,0 +1,115 @@
+unit uSenha;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
+  FMX.StdCtrls, uButton, FMX.Layouts, FMX.Controls.Presentation, FMX.Objects;
+
+type
+  TCallback = procedure of object;
+  TTipoSenha = (Cadastrar, Validar);
+
+  TfrmSenha = class(TForm)
+    rConfirmacao: TRectangle;
+    lTitulo: TLabel;
+    Layout1: TLayout;
+    GridPanelLayout1: TGridPanelLayout;
+    btnNao: iButton;
+    btnSim: iButton;
+    Rectangle1: TRectangle;
+    edtSenha: TEdit;
+    Rectangle2: TRectangle;
+    procedure btnSimClick(Sender: TObject);
+    procedure btnNaoClick(Sender: TObject);
+  private
+    FTipo: TTipoSenha;
+    FSenha: Boolean;
+    procedure SetTipo(const Value: TTipoSenha);
+    procedure SetSenha(const Value: Boolean);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Tipo: TTipoSenha read FTipo write SetTipo;
+    property Senha: Boolean read FSenha write SetSenha;
+
+  var
+    Sim: TCallback;
+  end;
+
+var
+  frmSenha: TfrmSenha;
+
+implementation
+
+{$R *.fmx}
+
+uses util, uDM, uRequisicao;
+{ TfrmSenha }
+
+procedure TfrmSenha.btnNaoClick(Sender: TObject);
+begin
+  Hide;
+end;
+
+procedure TfrmSenha.btnSimClick(Sender: TObject);
+begin
+  case Tipo of
+    Cadastrar:
+      begin
+        if length(edtSenha.Text) > 0 then
+        begin
+          dm.PostSimplesUnico('/v1/gerente/senha/' + edtSenha.Text, nil);
+        end
+        else
+        begin
+          ShowMessageToast(Self, 'Senha do gerente não pode ser vazia!', 1);
+          exit;
+        end;
+        Senha := True;
+      end;
+    Validar:
+      begin
+        dm.CONEXAO.URL := '/v1/gerente/senha/' + edtSenha.Text;
+        dm.CONEXAO.Metodo := mget;
+        dm.CONEXAO.Execute;
+        Senha := dm.CONEXAO.Retorno = 'True';
+        if not Senha then
+        begin
+          edtSenha.SetFocus;
+          ShowMessageToast(Self, 'Senha inforada não confere!', 1);
+          exit;
+        end;
+      end;
+  end;
+
+  if Assigned(Sim) then
+    Sim;
+     Hide;
+end;
+
+procedure TfrmSenha.SetSenha(const Value: Boolean);
+begin
+  FSenha := Value;
+end;
+
+procedure TfrmSenha.SetTipo(const Value: TTipoSenha);
+begin
+  FTipo := Value;
+  case FTipo of
+    Cadastrar:
+      begin
+        btnNao.iForthDescricao := 'Cancelar';
+        btnSim.iForthDescricao := 'Sair';
+      end;
+    Validar:
+      begin
+        btnNao.iForthDescricao := 'Cancelar';
+        btnSim.iForthDescricao := 'Entrar';
+      end;
+  end;
+end;
+
+end.

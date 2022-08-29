@@ -1,0 +1,41 @@
+unit uFazPedido;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts, FMX.Edit,
+  uEdit;
+
+type
+  TfrmFazPedido = class(TForm)
+    Rectangle1: TRectangle;
+    lNomeForm: TLabel;
+    Layout5: TLayout;
+    Layout2: TLayout;
+    edtTaxa: iEdit;
+    Label4: TLabel;
+    Layout1: TLayout;
+    edtDesconto: iEdit;
+    Label1: TLabel;
+    Layout3: TLayout;
+    edtAcrescimo: iEdit;
+    Label2: TLabel;
+    Layout4: TLayout;
+    edtTotal: iEdit;
+    Label3: TLabel;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmFazPedido: TfrmFazPedido;
+
+implementation
+
+{$R *.fmx}
+
+end.

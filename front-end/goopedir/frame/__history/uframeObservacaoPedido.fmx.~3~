@@ -1,0 +1,53 @@
+object frameObservacaoPedido: TframeObservacaoPedido
+  Size.Width = 913.000000000000000000
+  Size.Height = 219.000000000000000000
+  Size.PlatformDefault = False
+  object lQtdCaracteres: TLabel
+    Anchors = [akRight, akBottom]
+    StyledSettings = [Family, Size, Style]
+    Position.X = 785.000000000000000000
+    Position.Y = 194.000000000000000000
+    TextSettings.FontColor = claDarkgray
+    TextSettings.HorzAlign = Trailing
+    Text = 'lQtdCaracteres'
+    TabOrder = 3
+  end
+  object Rectangle1: TRectangle
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 40.000000000000000000
+    Size.Width = 897.000000000000000000
+    Size.Height = 147.000000000000000000
+    Size.PlatformDefault = False
+    object memMensagem: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      MaxLength = 200
+      Align = Client
+      Margins.Left = 1.000000000000000000
+      Margins.Top = 1.000000000000000000
+      Margins.Right = 1.000000000000000000
+      Margins.Bottom = 1.000000000000000000
+      Size.Width = 895.000000000000000000
+      Size.Height = 145.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Viewport.Width = 891.000000000000000000
+      Viewport.Height = 141.000000000000000000
+    end
+  end
+  object lDescricao: TLabel
+    Anchors = [akLeft, akTop, akRight]
+    StyledSettings = [Family]
+    Position.X = 8.000000000000000000
+    Position.Y = 5.000000000000000000
+    Size.Width = 897.000000000000000000
+    Size.Height = 34.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.Size = 20.000000000000000000
+    TextSettings.Font.StyleExt = {00070000000000000004000000}
+    TextSettings.FontColor = xFFA4001B
+    Text = 'Observa'#231#227'o'
+    TabOrder = 0
+  end
+end

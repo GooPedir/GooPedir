@@ -1,0 +1,64 @@
+unit uTestaConexao;
+
+interface
+
+type
+
+  TConexaoTest = class
+  private
+    FHost: String;
+    FPorta: Integer;
+    procedure SetHost(const Value: String);
+    procedure SetPorta(const Value: Integer);
+  public
+    property Porta: Integer read FPorta write SetPorta;
+    property Host: String read FHost write SetHost;
+    function TestarConexao: Boolean;
+  end;
+
+implementation
+
+uses
+  FireDAC.Comp.Client, System.Classes, System.SysUtils, FMX.Dialogs;
+
+{ TConexaoTest }
+
+procedure TConexaoTest.SetHost(const Value: String);
+begin
+  FHost := Value;
+end;
+
+procedure TConexaoTest.SetPorta(const Value: Integer);
+begin
+  FPorta := Value;
+end;
+
+function TConexaoTest.TestarConexao: Boolean;
+const
+  ArrayUsuario: TArray<String> = ['root', 'sistema'];
+  ArraySenha: TArray<String> = ['root', 'P4P4L3GU45F00D'];
+var
+  Conexao: TFDConnection;
+  I: Integer;
+begin
+  Conexao := TFDConnection.Create(nil);
+  Conexao.Params.DriverID := 'MySQL';
+  Conexao.Params.Add('server=' + Host);
+  Conexao.Params.Add('port=' + IntToStr(Porta));
+
+  for I := 0 to length(ArrayUsuario) - 1 do
+  begin
+    Conexao.Params.UserName := ArrayUsuario[I];
+    Conexao.Params.Password := ArraySenha[I];
+    try
+      Conexao.Connected := True;
+      Result := True;
+      abort;
+    except
+
+    end;
+  end;
+
+end;
+
+end.

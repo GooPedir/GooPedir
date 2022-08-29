@@ -1,0 +1,55 @@
+unit uSenhaGerente;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects,
+  FMX.Edit, FMX.StdCtrls, uButton, FMX.Layouts, FMX.Controls.Presentation;
+
+type
+  TCallback = procedure of object;
+
+  TfrmSenhaGerente = class(TForm)
+    rPreto: TRectangle;
+    Layout2: TLayout;
+    rConfirmacao: TRectangle;
+    lTitulo: TLabel;
+    Layout1: TLayout;
+    GridPanelLayout1: TGridPanelLayout;
+    btnNao: iButton;
+    btnSim: iButton;
+    Rectangle1: TRectangle;
+    Edit1: TEdit;
+    procedure btnSimClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    Sim: TCallback;
+  end;
+
+var
+  frmSenhaGerente: TfrmSenhaGerente;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, util;
+
+procedure TfrmSenhaGerente.btnSimClick(Sender: TObject);
+begin
+  if dm.DADOS_WHATSAPP.FieldByName('senha_gerente').AsString <> Edit1.Text then
+  begin
+    ShowMessageToast(self, 'Senha incorreta!', 1);
+    Edit1.SetFocus;
+    exit;
+  end;
+  Hide;
+  if Assigned(Sim) then
+    Sim;
+end;
+
+end.

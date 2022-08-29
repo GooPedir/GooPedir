@@ -1,0 +1,112 @@
+object frameFaturas: TframeFaturas
+  Size.Width = 338.000000000000000000
+  Size.Height = 120.000000000000000000
+  Size.PlatformDefault = False
+  object rLay: TRectangle
+    Cursor = crHandPoint
+    Fill.Color = claWhite
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 321.000000000000000000
+    Size.Height = 105.000000000000000000
+    Size.PlatformDefault = False
+    XRadius = 6.000000000000000000
+    YRadius = 6.000000000000000000
+    OnClick = rLayClick
+    object rStatus: TRectangle
+      Align = Left
+      Size.Width = 25.000000000000000000
+      Size.Height = 105.000000000000000000
+      Size.PlatformDefault = False
+      XRadius = 6.000000000000000000
+      YRadius = 6.000000000000000000
+    end
+    object Layout1: TLayout
+      Align = Client
+      Size.Width = 296.000000000000000000
+      Size.Height = 105.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object Label1: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 10.000000000000000000
+        Size.Width = 286.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Vencimento'
+        TabOrder = 5
+      end
+      object lData: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 27.000000000000000000
+        Size.Width = 286.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = '00/00/0000'
+        TabOrder = 4
+      end
+      object lVencimento: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 44.000000000000000000
+        Size.Width = 286.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'X dias para o vencimento'
+        TabOrder = 3
+      end
+      object lTotal: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Margins.Right = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 61.000000000000000000
+        Size.Width = 276.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.HorzAlign = Trailing
+        Text = 'R$ 100,00'
+        TabOrder = 2
+      end
+      object Label5: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 78.000000000000000000
+        Size.Width = 286.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Clique aqui para abrir o link de pagamento'
+        TabOrder = 1
+      end
+    end
+    object ShadowEffect1: TShadowEffect
+      Distance = 3.000000000000000000
+      Direction = 45.000000000000000000
+      Softness = 0.300000011920929000
+      Opacity = 0.600000023841857900
+      ShadowColor = claBlack
+    end
+  end
+end

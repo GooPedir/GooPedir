@@ -1,0 +1,78 @@
+object frameBalaoValores: TframeBalaoValores
+  Size.Width = 418.000000000000000000
+  Size.Height = 100.000000000000000000
+  Size.PlatformDefault = False
+  object rFundo: TRectangle
+    Fill.Color = claWhite
+    Position.X = 8.000000000000000000
+    Position.Y = 9.000000000000000000
+    Size.Width = 401.000000000000000000
+    Size.Height = 81.000000000000000000
+    Size.PlatformDefault = False
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object rStatus: TRectangle
+      Align = Left
+      Fill.Color = xFFE30D0D
+      Margins.Left = 1.000000000000000000
+      Margins.Top = 1.000000000000000000
+      Margins.Bottom = 1.000000000000000000
+      Position.X = 1.000000000000000000
+      Position.Y = 1.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 79.000000000000000000
+      Size.PlatformDefault = False
+      XRadius = 10.000000000000000000
+      YRadius = 10.000000000000000000
+      object Image1: TImage
+        MultiResBitmap = <
+          item
+          end>
+        Align = Center
+      end
+    end
+    object Layout1: TLayout
+      Align = Client
+      Size.Width = 336.000000000000000000
+      Size.Height = 81.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lTitulo: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Margins.Left = 10.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Margins.Right = 10.000000000000000000
+        Margins.Bottom = 1.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 10.000000000000000000
+        Size.Width = 316.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'lTitulo'
+        TabOrder = 2
+      end
+      object lValor: TLabel
+        Align = Top
+        StyledSettings = [Family]
+        Margins.Left = 10.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Margins.Right = 10.000000000000000000
+        Margins.Bottom = 1.000000000000000000
+        Position.X = 10.000000000000000000
+        Position.Y = 38.000000000000000000
+        Size.Width = 316.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.FontColor = xFFF40202
+        TextSettings.HorzAlign = Trailing
+        Text = 'lTitulo'
+        TabOrder = 1
+      end
+    end
+  end
+end

@@ -1,0 +1,449 @@
+unit UnitPrincipal;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Types, FMX.Dialogs, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts,
+  FMX.ListBox, FMX.Edit, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.ListView, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable;
+
+type
+  TFrmPrincipal = class(TForm)
+    Rectangle1: TRectangle;
+    Label1: TLabel;
+    TabControl: TTabControl;
+    TabItem1: TTabItem;
+    TabItem2: TTabItem;
+    TabItem3: TTabItem;
+    rect_abas: TRectangle;
+    Rectangle3: TRectangle;
+    Label2: TLabel;
+    Rectangle4: TRectangle;
+    Label3: TLabel;
+    Layout1: TLayout;
+    Label4: TLabel;
+    edt_comanda: TEdit;
+    rect_add_item: TRectangle;
+    Label5: TLabel;
+    lb_mapa: TListBox;
+    Rectangle6: TRectangle;
+    lv_produto: TListView;
+    edt_busca_produto: TEdit;
+    rect_busca_produto: TRectangle;
+    Label7: TLabel;
+    img_aba1: TImage;
+    img_aba2: TImage;
+    img_aba3: TImage;
+    MESA: iMemTable;
+    MESAid_mesa: TIntegerField;
+    MESAnr_mesa: TIntegerField;
+    MESAdescricao: TStringField;
+    MESAsts_mesa: TIntegerField;
+    MESAtot_mesa: TFloatField;
+    procedure img_aba1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure rect_detalhesClick(Sender: TObject);
+    procedure rect_add_itemClick(Sender: TObject);
+    procedure lb_mapaItemClick(const Sender: TCustomListBox;
+      const Item: TListBoxItem);
+    procedure FormResize(Sender: TObject);
+    procedure rect_busca_produtoClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    procedure MudarAba(img: TImage);
+    procedure DetalhesComanda(comanda: integer);
+    procedure AddMapa(comanda: integer; status: string; valor_total: double);
+    procedure AddProdutoLv(id_produto: integer; descricao: string;
+      preco: double);
+    procedure ListarProduto(ind_clear: boolean; busca: string);
+
+    procedure AddMesa(codigo, numero: integer; tipo: String; status: integer;
+      valor: real);
+
+    { Private declarations }
+    procedure CarregaMesa;
+    procedure FinalizouCarregamento;
+  public
+    { Public declarations }
+    procedure AddItem(comanda, pedido: integer);
+  end;
+
+var
+  FrmPrincipal: TFrmPrincipal;
+
+implementation
+
+{$R *.fmx}
+
+uses UnitAddItem, UnitResumo, Funcoes, uDM;
+
+procedure TFrmPrincipal.MudarAba(img: TImage);
+begin
+  img_aba1.Opacity := 0.4;
+  img_aba2.Opacity := 0.4;
+  img_aba3.Opacity := 0.4;
+  img.Opacity := 1;
+  if img = img_aba2 then
+  begin
+    CarregaMesa;
+  end;
+
+  TabControl.GotoVisibleTab(img.Tag, TTabTransition.Slide);
+end;
+
+procedure TFrmPrincipal.AddItem(comanda, pedido: integer);
+begin
+  if NOT Assigned(FrmAddItem) then
+    Application.CreateForm(TFrmAddItem, FrmAddItem);
+
+  FrmAddItem.comanda := comanda;
+  FrmAddItem.codigoPedido := pedido;
+  FrmAddItem.TabControl.ActiveTab := FrmAddItem.TabCategoria;
+  FrmAddItem.Show;
+end;
+
+procedure TFrmPrincipal.AddMapa(comanda: integer; status: string;
+  valor_total: double);
+var
+  Item: TListBoxItem;
+  rect: TRectangle;
+  lbl: TLabel;
+begin
+  // Item da lista
+  Item := TListBoxItem.Create(lb_mapa);
+  Item.Text := '';
+  Item.Height := 110;
+  Item.Tag := comanda;
+  Item.Selectable := false;
+
+  // Retangulo de fundo...
+  rect := TRectangle.Create(Item);
+  rect.Parent := Item;
+  rect.Align := TAlignLayout.Client;
+  rect.Margins.Top := 10;
+  rect.Margins.Bottom := 10;
+  rect.Margins.Left := 10;
+  rect.Margins.Right := 10;
+  rect.Fill.Kind := TBrushKind.Solid;
+  rect.HitTest := false;
+
+  if status = 'Livre' then
+    rect.Fill.Color := TAlphaColors.Black // azul...
+  else
+    rect.Fill.Color := $FF05A85D; // vermelho...
+
+  rect.XRadius := 10;
+  rect.YRadius := 10;
+  rect.Stroke.Kind := TBrushKind.None;
+
+  // Label status...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Top;
+  lbl.Text := status;
+  lbl.Margins.Left := 5;
+  lbl.Margins.Top := 5;
+  lbl.Height := 15;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor];
+  lbl.FontColor := $FFFFFFFF;
+
+  // Label valor...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Bottom;
+
+  if status = 'Livre' then
+    lbl.Text := ''
+  else
+    lbl.Text := FormatFloat('#,##0.00', valor_total);
+
+  lbl.Margins.Right := 5;
+  lbl.Margins.Bottom := 5;
+  lbl.Height := 15;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor];
+  lbl.FontColor := $FFFFFFFF;
+  lbl.TextAlign := TTextAlign.Trailing;
+
+  // Label comanda...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Client;
+  lbl.Text := comanda.ToString;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor,
+    TStyledSetting.Size];
+  lbl.FontColor := $FFFFFFFF;
+  lbl.Font.Size := 30;
+  lbl.TextAlign := TTextAlign.Center;
+  lbl.VertTextAlign := TTextAlign.Center;
+
+  lb_mapa.AddObject(Item);
+end;
+
+procedure TFrmPrincipal.AddMesa(codigo, numero: integer; tipo: String;
+  status: integer; valor: real);
+
+var
+  Item: TListBoxItem;
+  rect: TRectangle;
+  lbl: TLabel;
+  txstatus: String;
+  Cor: TColor;
+  Total: String;
+
+begin
+
+  case status of
+    0:
+      begin
+        txstatus := 'Livre';
+        Cor := $111111;
+        Total := '';
+      end;
+    1:
+      begin
+        txstatus := 'Ocupada';
+        Cor := $FF05A85D;
+        Total := FormatFloat('#,##0.00', valor);
+      end;
+    2:
+      begin
+        txstatus := '';
+      end;
+  end;
+
+  // Item da lista
+  Item := TListBoxItem.Create(lb_mapa);
+  Item.Text := '';
+  Item.Height := 110;
+  Item.Tag := codigo;
+  Item.Selectable := false;
+
+  // Retangulo de fundo...
+  rect := TRectangle.Create(Item);
+  rect.Parent := Item;
+  rect.Align := TAlignLayout.Client;
+  rect.Margins.Top := 10;
+  rect.Margins.Bottom := 10;
+  rect.Margins.Left := 10;
+  rect.Margins.Right := 10;
+  rect.Fill.Kind := TBrushKind.Solid;
+  rect.HitTest := false;
+  rect.Fill.Color := Cor;
+
+  rect.XRadius := 10;
+  rect.YRadius := 10;
+  rect.Stroke.Kind := TBrushKind.None;
+
+  // Label status...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Top;
+  lbl.Text := tipo;
+  lbl.Margins.Left := 5;
+  lbl.Margins.Top := 5;
+  lbl.Height := 15;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor];
+  lbl.FontColor := $FFFFFFFF;
+
+  // Label valor...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Bottom;
+  lbl.Text := Total;
+
+  lbl.Margins.Right := 5;
+  lbl.Margins.Bottom := 5;
+  lbl.Height := 15;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor];
+  lbl.FontColor := $FFFFFFFF;
+  lbl.TextAlign := TTextAlign.Trailing;
+
+  // Label comanda...
+  lbl := TLabel.Create(rect);
+  lbl.Parent := rect;
+  lbl.Align := TAlignLayout.Client;
+  lbl.Text := numero.ToString;
+  lbl.StyledSettings := lbl.StyledSettings - [TStyledSetting.FontColor,
+    TStyledSetting.Size];
+  lbl.FontColor := $FFFFFFFF;
+  lbl.Font.Size := 30;
+  lbl.TextAlign := TTextAlign.Center;
+  lbl.VertTextAlign := TTextAlign.Center;
+
+  lb_mapa.AddObject(Item);
+end;
+
+procedure TFrmPrincipal.DetalhesComanda(comanda: integer);
+begin
+  MESA.Close;
+  GetSimples('v1/mesa/' + comanda.ToString, MESA);
+
+  if MESA.RecordCount = 0 then
+  begin
+    ShowMessageToast(self, 'Mesa/Comanda Inexistente!', 1);
+    exit;
+  end;
+
+  // if MESA.FieldByName('sts_mesa').AsInteger = 0 then
+  // begin
+  // AddItem(MESA.FieldByName('id_mesa').AsInteger);
+  // // ShowMessageToast(self, 'Mesa/Comanda Fechada!', 1);
+  // exit;
+  // end;
+
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := comanda;
+  FrmResumo.ListarProduto;
+  FrmResumo.Show;
+end;
+
+procedure TFrmPrincipal.AddProdutoLv(id_produto: integer; descricao: string;
+  preco: double);
+begin
+  with lv_produto.Items.Add do
+  begin
+    Tag := id_produto;
+    TListItemText(Objects.FindDrawable('TxtDescricao')).Text := descricao;
+    TListItemText(Objects.FindDrawable('TxtPreco')).Text :=
+      FormatFloat('#,##0.00', preco);
+  end;
+end;
+
+procedure TFrmPrincipal.CarregaMesa;
+var
+  I: integer;
+  Dados: iMemTable;
+begin
+  Dados := iMemTable.Create(self);
+
+  // lb_mapa.AddObject(Item);
+
+  lb_mapa.Items.Clear;
+
+  GetSimples('v1/mesas/', Dados);
+
+  while not Dados.Eof do
+  begin
+
+    AddMesa(Dados.FieldByName('id_mesa').AsInteger, Dados.FieldByName('nr_mesa')
+      .AsInteger, Dados.FieldByName('descricao').AsString,
+      Dados.FieldByName('sts_mesa').AsInteger,
+      Dados.FieldByName('tot_mesa').AsFloat);
+    Dados.Next;
+  end;
+
+  // for I := 0 to 100 do
+  // begin
+  //
+  // // AddMapa(I, 'Livre', 1000);
+  // end;
+
+  Dados.Free;
+end;
+
+procedure TFrmPrincipal.ListarProduto(ind_clear: boolean; busca: string);
+var
+  x: integer;
+begin
+  if ind_clear then
+    lv_produto.Items.Clear;
+  // Buscar dados no server...
+  for x := 1 to 10 do
+    AddProdutoLv(x, 'Produto ' + x.ToString, x);
+end;
+
+procedure TFrmPrincipal.rect_add_itemClick(Sender: TObject);
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else if edt_comanda.Text <> '' then
+    DetalhesComanda(edt_comanda.Text.ToInteger);
+end;
+
+procedure TFrmPrincipal.rect_busca_produtoClick(Sender: TObject);
+begin
+  ListarProduto(true, edt_busca_produto.Text);
+end;
+
+procedure TFrmPrincipal.rect_detalhesClick(Sender: TObject);
+begin
+  if edt_comanda.Text <> '' then
+    DetalhesComanda(edt_comanda.Text.ToInteger);
+end;
+
+procedure TFrmPrincipal.FinalizouCarregamento;
+begin
+  rect_add_item.Visible := true;
+  Label1.Text := '#GooPedir - Garçom';
+end;
+
+procedure TFrmPrincipal.FormActivate(Sender: TObject);
+begin
+  if StatusServidor then
+  begin
+    // CarregaMesa;
+  end;
+
+end;
+
+procedure TFrmPrincipal.FormCreate(Sender: TObject);
+begin
+  rect_add_item.Visible := false;
+  if NOT Assigned(FrmAddItem) then
+  begin
+    Application.CreateForm(TFrmAddItem, FrmAddItem);
+    FrmAddItem.Load;
+    FinalizouCarregamento;
+    // FrmAddItem.ExecutarQuandoCarregaProdutos := FinalizouCarregamento;
+  end;
+end;
+
+procedure TFrmPrincipal.FormResize(Sender: TObject);
+begin
+  lb_mapa.Columns := Trunc(lb_mapa.Width / 110);
+  if StatusServidor then
+  begin
+    // CarregaMesa;
+  end;
+end;
+
+procedure TFrmPrincipal.FormShow(Sender: TObject);
+var
+  I: integer;
+begin
+  MudarAba(img_aba1);
+  if StatusServidor then
+  begin
+    // CarregaMesa;
+  end;
+end;
+
+procedure TFrmPrincipal.img_aba1Click(Sender: TObject);
+begin
+  MudarAba(TImage(Sender));
+end;
+
+procedure TFrmPrincipal.lb_mapaItemClick(const Sender: TCustomListBox;
+  const Item: TListBoxItem);
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+    DetalhesComanda(Item.Tag);
+end;
+
+end.

@@ -1,0 +1,570 @@
+unit ufrmRelatorioVendas;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uFrmClonePadrao, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts, FMX.DateTimeCtrls,
+  Data.Bind.Components, Data.Bind.DBScope, System.Rtti, FMX.Grid.Style,
+  Data.Bind.EngExt, FMX.Bind.DBEngExt, FMX.Bind.Grid, System.Bindings.Outputs,
+  FMX.Bind.Editors, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid, uframeBalaoValores;
+
+type
+  TfrmRelatorioVendas = class(TfrmPadrao)
+    TabPrincipal: TTabItem;
+    rFiltros: TRectangle;
+    Layout21: TLayout;
+    Label14: TLabel;
+    edtDataInicial: TDateEdit;
+    Layout22: TLayout;
+    Label16: TLabel;
+    edtDataFinal: TDateEdit;
+    tabPedidos: TTabItem;
+    TabProdutos: TTabItem;
+    TabExtra: TTabItem;
+    PEDIDOS: iMemTable;
+    PRODUTOS: iMemTable;
+    EXTRAS: iMemTable;
+    PEDIDOStotal: TFloatField;
+    PEDIDOStaxa: TFloatField;
+    PEDIDOSpedido: TFloatField;
+    PEDIDOSdesconto: TFloatField;
+    PEDIDOSdata_pedido: TDateField;
+    PEDIDOSstatus: TIntegerField;
+    PEDIDOSdescricao: TStringField;
+    PRODUTOStotal: TIntegerField;
+    PRODUTOSproduto: TStringField;
+    PRODUTOSvenda: TFloatField;
+    EXTRASqtd: TIntegerField;
+    EXTRASnome: TStringField;
+    EXTRAStotal: TFloatField;
+    bdsPEDIDOS: TBindSourceDB;
+    bdsPRODUTOS: TBindSourceDB;
+    bdsEXTRAS: TBindSourceDB;
+    FILTRO: iMemTable;
+    FILTROdata_inicial: TDateField;
+    FILTROdata_final: TDateField;
+    sProduto: TStringGrid;
+    sExtra: TStringGrid;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourcebdsPRODUTOS: TLinkGridToDataSource;
+    LinkGridToDataSourcebdsEXTRAS: TLinkGridToDataSource;
+    Button1: TButton;
+    Layout1: TLayout;
+    HorzScrollBox1: THorzScrollBox;
+    HorzScrollBox2: THorzScrollBox;
+    PEDIDOSqtd: TIntegerField;
+    TabItem1: TTabItem;
+    Rectangle1: TRectangle;
+    layout_chart1: TLayout;
+    Rectangle2: TRectangle;
+    lGrafico2: TLayout;
+    lPedidoPeriodo: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Rectangle1Click(Sender: TObject);
+    procedure tabMainClick(Sender: TObject);
+    procedure tabPedidosClick(Sender: TObject);
+    procedure TabItem1Click(Sender: TObject);
+  private
+    FQtdRegistroGrafico: Integer;
+    { Private declarations }
+    function CriaFrame(Pai: TFmxObject; Descricao: String; Tipo: TTipo)
+      : TframeBalaoValores;
+    procedure SetQtdRegistroGrafico(const Value: Integer);
+    procedure CalculaTotal;
+  public
+    { Public declarations }
+    procedure BuscaDados;
+
+    //
+    procedure MontarGrafico1;
+    procedure MontarGraficoMaisVendido;
+    procedure MontarGraficoPedido;
+    procedure MontarGraficoPedidoDia;
+
+    property QtdRegistroGrafico: Integer read FQtdRegistroGrafico
+      write SetQtdRegistroGrafico;
+
+  end;
+
+var
+  frmRelatorioVendas: TfrmRelatorioVendas;
+  IDFrame: Integer;
+  // TTipo = (qtd_pedido, qtd_cancelado, qtd_concluido, tot_pedido, tot_cancelado, tot_concluido,  tot_desconto, tot_taxa);
+  // procedure CriaFrame(Frame:TframeBalaoValores;Pai :TFmxObject;Descricao:String);
+  BalaoValoresQtdPedido: TframeBalaoValores;
+  BalaoValoresQtdCancelado: TframeBalaoValores;
+  BalaoValoresQtdConcluido: TframeBalaoValores;
+
+  BalaoValoresTotPedido: TframeBalaoValores;
+  BalaoValoresTotCancelado: TframeBalaoValores;
+  BalaoValoresTotConcluido: TframeBalaoValores;
+  BalaoValoresTotDesconto: TframeBalaoValores;
+  BalaoValoresTotTaxa: TframeBalaoValores;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, Loading, uSuperChartLight;
+
+procedure TfrmRelatorioVendas.BuscaDados;
+
+begin
+ lPedidoPeriodo.Text := 'Pedidos de '+edtDataInicial.Text+' até '+edtDataFinal.Text;
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+
+      FILTRO.Close;
+      FILTRO.Open;
+      FILTRO.insert;
+      FILTRO.FieldByName('data_inicial').AsDateTime := edtDataInicial.Date;
+      FILTRO.FieldByName('data_final').AsDateTime := edtDataFinal.Date;
+      FILTRO.Post;
+      dm.GetSimplesBody('/v1/util/relatorio/financeiro/4', FILTRO, PEDIDOS);
+      dm.GetSimplesBody('/v1/util/relatorio/financeiro/2', FILTRO, PRODUTOS);
+      dm.GetSimplesBody('/v1/util/relatorio/financeiro/3', FILTRO, EXTRAS);
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+        end);
+    end).Start;
+
+end;
+
+procedure TfrmRelatorioVendas.Button1Click(Sender: TObject);
+begin
+  inherited;
+  BuscaDados;
+
+end;
+
+procedure TfrmRelatorioVendas.CalculaTotal;
+var
+  TotalPedido: Integer;
+  TotalCancelado: Integer;
+  ValorPedido: Real;
+  ValorCancelado: Real;
+  ValorTaxa: Real;
+  ValorDesconto: Real;
+begin
+  TotalPedido := 0;
+  TotalCancelado := 0;
+
+  ValorPedido := 0;
+  ValorCancelado := 0;
+  ValorTaxa := 0;
+  ValorDesconto := 0;
+
+  if PEDIDOS.RecordCount > 0 then
+  begin
+    PEDIDOS.DisableControls;
+    PEDIDOS.First;
+    while not PEDIDOS.Eof do
+    begin
+
+      case PEDIDOS.FieldByName('status').AsInteger of
+        0:
+          begin
+            TotalPedido := TotalPedido + PEDIDOS.FieldByName('qtd').AsInteger;
+            TotalCancelado := TotalCancelado + PEDIDOS.FieldByName('qtd')
+              .AsInteger;
+
+            ValorPedido := ValorPedido + PEDIDOS.FieldByName('total').AsFloat;
+            ValorCancelado := ValorCancelado + PEDIDOS.FieldByName
+              ('total').AsFloat;
+
+          end
+      else
+        begin
+          TotalPedido := TotalPedido + PEDIDOS.FieldByName('qtd').AsInteger;
+          ValorPedido := ValorPedido + PEDIDOS.FieldByName('total').AsFloat;
+          ValorTaxa := ValorTaxa + PEDIDOS.FieldByName('taxa').AsFloat;
+          ValorDesconto := ValorDesconto + PEDIDOS.FieldByName
+            ('desconto').AsFloat;
+        end;
+
+      end;
+
+      PEDIDOS.Next;
+    end;
+
+    BalaoValoresQtdPedido.Valor := TotalPedido;
+    BalaoValoresQtdCancelado.Valor := TotalCancelado;
+    BalaoValoresQtdConcluido.Valor := TotalPedido - TotalCancelado;
+
+    BalaoValoresTotPedido.Valor := ValorPedido;
+    BalaoValoresTotCancelado.Valor := ValorCancelado;
+    BalaoValoresTotConcluido.Valor := ValorPedido - ValorCancelado;
+    BalaoValoresTotDesconto.Valor := ValorDesconto;
+    BalaoValoresTotTaxa.Valor := ValorTaxa;
+
+    PEDIDOS.EnableControls;
+  end;
+end;
+
+function TfrmRelatorioVendas.CriaFrame(Pai: TFmxObject; Descricao: String;
+Tipo: TTipo): TframeBalaoValores;
+begin
+  inc(IDFrame);
+  Result := TframeBalaoValores.Create(Pai);
+  Result.Parent := Pai;
+  Result.Align := TAlignLayout.Left;
+  Result.Descricao := Descricao;
+  Result.Tipo := Tipo;
+  Result.Valor := 0;
+  Result.Name := 'frameBalao' + IDFrame.ToString;
+end;
+
+procedure TfrmRelatorioVendas.FormCreate(Sender: TObject);
+var
+  Dias: Integer;
+begin
+  try
+    Dias := dm.DADOS_WHATSAPP.FieldByName('dias_relatorio').AsInteger;
+  except
+    Dias := 30;
+  end;
+  if Dias = 0 then
+    Dias := 30;
+
+  inherited;
+
+  // : TframeBalaoValores;
+  // : TframeBalaoValores;
+  // : TframeBalaoValores;
+  // : TframeBalaoValores;
+  // : TframeBalaoValores;
+  BalaoValoresQtdPedido := CriaFrame(HorzScrollBox1, 'Quantidade Pedido',
+    qtd_pedido);
+  BalaoValoresQtdCancelado := CriaFrame(HorzScrollBox1, 'Quantidade Cancelado',
+    qtd_cancelado);
+  BalaoValoresQtdConcluido := CriaFrame(HorzScrollBox1, 'Quantidade Concluida',
+    qtd_concluido);
+  BalaoValoresTotPedido := CriaFrame(HorzScrollBox2, 'Total Pedido',
+    tot_pedido);
+  BalaoValoresTotCancelado := CriaFrame(HorzScrollBox2, 'Total Cancelado',
+    tot_cancelado);
+  BalaoValoresTotConcluido := CriaFrame(HorzScrollBox2, 'Total Total',
+    tot_concluido);
+  BalaoValoresTotDesconto := CriaFrame(HorzScrollBox2, 'Total Desconto',
+    tot_desconto);
+  BalaoValoresTotTaxa := CriaFrame(HorzScrollBox2, 'Total Taxa', tot_taxa);
+
+  edtDataInicial.Text := FormatDateTime('dd/mm/yyyy', now - Dias);
+  edtDataFinal.Text := FormatDateTime('dd/mm/yyyy', now);
+  // BuscaDados;
+
+  QtdRegistroGrafico := 5;
+
+end;
+
+procedure TfrmRelatorioVendas.MontarGrafico1;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+begin
+  try
+    chart := TSuperChart.Create(layout_chart1, Lines);
+
+    // Valores...
+    chart.ShowValues := true;
+    chart.FontSizeValues := 10;
+    chart.FontColorValues := $FFFFFFFF;
+    chart.FormatValues := '#,##0.00';
+
+    // Linhas...
+    chart.LineColor := $FFFFFFFF;
+    // chart.ShowBackground := true;
+    // chart.BackgroundColor := $FF4F5060;
+    // chart.RoundedBotton := true;
+    // chart.RoundedTop := true;
+
+    // Argumentos...
+    chart.FontSizeArgument := 9;
+    chart.FontColorArgument := $FFFFFFFF;
+
+    // Json...
+    jsonStr :=
+      '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    jsonStr := jsonStr +
+      '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    jsonStr := jsonStr +
+      '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    jsonStr := jsonStr +
+      '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON(jsonStr, erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+end;
+
+procedure TfrmRelatorioVendas.Rectangle1Click(Sender: TObject);
+begin
+  inherited;
+  MontarGraficoPedido;
+end;
+
+procedure TfrmRelatorioVendas.MontarGraficoMaisVendido;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+  Quant: Integer;
+
+begin
+  if not(PRODUTOS.RecordCount >= QtdRegistroGrafico) then
+    exit;
+  try
+    chart := TSuperChart.Create(layout_chart1, Lines);
+
+    // Valores...
+    chart.ShowValues := true;
+    chart.FontSizeValues := 10;
+    chart.FontColorValues := $FFFFFFFF;
+    chart.FormatValues := '#,##0.00';
+
+    // Linhas...
+    chart.LineColor := $FFFFFFFF;
+    chart.ShowBackground := true;
+    chart.BackgroundColor := $FF4F5060;
+    chart.RoundedBotton := true;
+    chart.RoundedTop := true;
+
+    // Argumentos...
+    chart.FontSizeArgument := 9;
+    chart.FontColorArgument := $FFFFFFFF;
+    jsonStr := '';
+    PRODUTOS.First;
+    Quant := 0;
+    while not PRODUTOS.Eof do
+    begin
+      inc(Quant);
+      if Quant <= QtdRegistroGrafico then
+      begin
+        if length(jsonStr) = 0 then
+          jsonStr := '{"field":"' + PRODUTOS.FieldByName('produto').AsString +
+            '", "valor":' + PRODUTOS.FieldByName('venda').AsString + '}'
+        else
+          jsonStr := jsonStr + ',{"field":"' + PRODUTOS.FieldByName('produto')
+            .AsString + '", "valor":' + PRODUTOS.FieldByName('venda')
+            .AsString + '}';
+      end;
+
+      PRODUTOS.Next;
+    end;
+
+    // Json...
+    // jsonStr :=
+    // '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    // jsonStr := jsonStr +
+    // '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    // jsonStr := jsonStr +
+    // '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    // jsonStr := jsonStr +
+    // '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON('[' + jsonStr + ']', erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+end;
+
+procedure TfrmRelatorioVendas.MontarGraficoPedido;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+  Quant: Integer;
+  Vl: String;
+
+begin
+  if not(PRODUTOS.RecordCount >= QtdRegistroGrafico) then
+    exit;
+  try
+    chart := TSuperChart.Create(lGrafico2, Lines);
+
+    // Valores...
+    chart.ShowValues := true;
+    chart.FontSizeValues := 20;
+    chart.FontColorValues := $FFA4001B;
+    chart.FormatValues := 'R$ #,##0.00';
+
+    // 164,0,27
+
+    // Linhas...
+    chart.LineColor := $FFA4001B;
+    chart.ShowBackground := true;
+    // chart.BackgroundColor := $FF4F5060;
+    chart.RoundedBotton := true;
+    chart.RoundedTop := true;
+
+    // Argumentos...
+    chart.FontSizeArgument := 18;
+    chart.FontColorArgument := $FFFFFFFF;
+    jsonStr := '';
+
+    PEDIDOS.First;
+    Quant := 0;
+    while not PEDIDOS.Eof do
+    begin
+      inc(Quant);
+
+      Vl := PEDIDOS.FieldByName('total').AsString;
+      Vl := StringReplace(Vl, ',', '.', [rfReplaceAll]);
+      if length(jsonStr) = 0 then
+        jsonStr := '{"field":"' + PEDIDOS.FieldByName('descricao').AsString +
+          '", "valor":' + Vl + '}'
+      else
+        jsonStr := jsonStr + ',{"field":"' + PEDIDOS.FieldByName('descricao')
+          .AsString + '", "valor":' + Vl + '}';
+
+      PEDIDOS.Next;
+    end;
+
+    // Json...
+    // jsonStr :=
+    // '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    // jsonStr := jsonStr +
+    // '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    // jsonStr := jsonStr +
+    // '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    // jsonStr := jsonStr +
+    // '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON('[' + jsonStr + ']', erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+  CalculaTotal;
+end;
+
+procedure TfrmRelatorioVendas.MontarGraficoPedidoDia;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+  Quant: Integer;
+  Vl: String;
+
+begin
+  if not(PRODUTOS.RecordCount >= QtdRegistroGrafico) then
+    exit;
+  try
+    chart := TSuperChart.Create(lGrafico2, Lines);
+
+    // Valores...
+    chart.ShowValues := true;
+    chart.FontSizeValues := 20;
+    chart.FontColorValues := $FFA4001B;
+    chart.FormatValues := 'R$ #,##0.00';
+
+    // 164,0,27
+
+    // Linhas...
+    chart.LineColor := $FFA4001B;
+    chart.ShowBackground := true;
+    // chart.BackgroundColor := $FF4F5060;
+    chart.RoundedBotton := true;
+    chart.RoundedTop := true;
+
+    // Argumentos...
+    chart.FontSizeArgument := 18;
+    chart.FontColorArgument := $FFFFFFFF;
+    jsonStr := '';
+
+    PEDIDOS.First;
+    Quant := 0;
+    while not PEDIDOS.Eof do
+    begin
+      inc(Quant);
+
+      Vl := PEDIDOS.FieldByName('total').AsString;
+      Vl := StringReplace(Vl, ',', '.', [rfReplaceAll]);
+      if length(jsonStr) = 0 then
+        jsonStr := '{"field":"' + PEDIDOS.FieldByName('data_pedido').AsString +
+          '", "valor":' + Vl + '}'
+      else
+        jsonStr := jsonStr + ',{"field":"' + PEDIDOS.FieldByName('data_pedido')
+          .AsString + '", "valor":' + Vl + '}';
+
+      PEDIDOS.Next;
+    end;
+
+    // Json...
+    // jsonStr :=
+    // '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    // jsonStr := jsonStr +
+    // '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    // jsonStr := jsonStr +
+    // '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    // jsonStr := jsonStr +
+    // '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON('[' + jsonStr + ']', erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+  CalculaTotal;
+end;
+
+procedure TfrmRelatorioVendas.SetQtdRegistroGrafico(const Value: Integer);
+
+begin
+  FQtdRegistroGrafico := Value;
+end;
+
+procedure TfrmRelatorioVendas.TabItem1Click(Sender: TObject);
+begin
+  inherited;
+  MontarGraficoMaisVendido;
+end;
+
+procedure TfrmRelatorioVendas.tabMainClick(Sender: TObject);
+begin
+  inherited;
+  if (Sender as TTabControl).TabIndex = 4 then
+  begin
+    MontarGraficoMaisVendido;
+  end;
+
+end;
+
+procedure TfrmRelatorioVendas.tabPedidosClick(Sender: TObject);
+begin
+  inherited;
+  MontarGraficoPedidoDia;
+
+end;
+
+initialization
+
+RegisterClass(TfrmRelatorioVendas);
+
+end.

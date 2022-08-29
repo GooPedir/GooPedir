@@ -1,0 +1,138 @@
+unit uTestaConexao;
+
+interface
+
+uses
+  FireDAC.Comp.Client, System.Classes, System.SysUtils, FMX.Dialogs;
+
+type
+
+  TListaBanco = class
+  private
+    Fcount: integer;
+    Dados: Array of String;
+    procedure Setcount(const Value: integer);
+    function Size: integer;
+  public
+    property count: integer read Size;
+    procedure Add(Valor: String);
+    function Ler(Index: integer): String;
+
+  end;
+
+  TConexaoTest = class
+  private
+    Conexao: TFDConnection;
+
+    FHost: String;
+    FPorta: integer;
+    procedure SetHost(const Value: String);
+    procedure SetPorta(const Value: integer);
+    procedure ListaBancos;
+  public
+    Bancos: Array of String;
+    property Porta: integer read FPorta write SetPorta;
+    property Host: String read FHost write SetHost;
+    function TestarConexao: Boolean;
+  end;
+
+implementation
+
+{ TConexaoTest }
+
+procedure TConexaoTest.ListaBancos;
+var
+  Qry: TFDQuery;
+begin
+  Qry := TFDQuery.Create(nil);
+  Qry.Connection := Conexao;
+  Qry.SQL.Add('show databases');
+  Qry.Open;
+  SetLength(Bancos,0);
+
+  while not Qry.Eof do
+  begin
+    if Qry.FieldByName('Database').AsString <> 'sys' then
+    begin
+      if Qry.FieldByName('Database').AsString <> 'information_schema' then
+      begin
+        if Qry.FieldByName('Database').AsString <> 'performance_schema' then
+        begin
+         SetLength(Bancos,length(Bancos)+1);
+         Bancos[Length(Bancos)-1] := Qry.FieldByName('Database').AsString;
+        end;
+      end;
+
+    end;
+
+    Qry.Next;
+  end;
+
+  Qry.Free;
+end;
+
+procedure TConexaoTest.SetHost(const Value: String);
+begin
+  FHost := Value;
+end;
+
+procedure TConexaoTest.SetPorta(const Value: integer);
+begin
+  FPorta := Value;
+end;
+
+function TConexaoTest.TestarConexao: Boolean;
+const
+  ArrayUsuario: TArray<String> = ['sistema', 'root'];
+  ArraySenha: TArray<String> = ['P4P4L3GU45F00D', 'root'];
+var
+  I: integer;
+begin
+  Conexao := TFDConnection.Create(nil);
+  Conexao.Params.DriverID := 'MySQL';
+  Conexao.Params.Add('server=' + Host);
+  Conexao.Params.Add('port=' + IntToStr(Porta));
+
+  for I := 0 to length(ArrayUsuario) - 1 do
+  begin
+    Conexao.Params.UserName := ArrayUsuario[I];
+    Conexao.Params.Password := ArraySenha[I];
+    try
+      Conexao.Connected := True;
+      Result := True;
+      abort;
+    except
+
+    end;
+  end;
+
+end;
+
+{ TListaBanco }
+
+procedure TListaBanco.Add(Valor: String);
+begin
+  SetLength(Dados, length(Dados) + 1);
+  Dados[length(Dados) - 1] := Valor;
+end;
+
+function TListaBanco.Ler(Index: integer): String;
+begin
+  try
+    Result := Dados[Index];
+  except
+    Result := '';
+  end;
+end;
+
+procedure TListaBanco.Setcount(const Value: integer);
+begin
+  Fcount := Value;
+end;
+
+function TListaBanco.Size: integer;
+begin
+  Result := length(Dados);
+end;
+
+end.

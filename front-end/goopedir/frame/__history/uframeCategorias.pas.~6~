@@ -1,0 +1,59 @@
+unit uframeCategorias;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Effects, FMX.Controls.Presentation, FMX.Objects;
+
+type
+  TframeCategorias = class(TFrame)
+    rPrincipal: TRectangle;
+    lTexto: TLabel;
+    ShadowEffect1: TShadowEffect;
+    procedure rPrincipalMouseEnter(Sender: TObject);
+    procedure rPrincipalMouseLeave(Sender: TObject);
+  private
+    FDescricao: String;
+    FCodigo: Integer;
+    procedure SetDescricao(const Value: String);
+    procedure SetCodigo(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Descricao : String read FDescricao write SetDescricao;
+    property Codigo : Integer read FCodigo write SetCodigo;
+  end;
+
+implementation
+
+uses
+  FMXTee.Canvas;
+
+{$R *.fmx}
+
+procedure TframeCategorias.rPrincipalMouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+      (Sender as TRectangle).Stroke.Color := RGB(164,0,27);
+end;
+
+procedure TframeCategorias.rPrincipalMouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+      (Sender as TRectangle).Stroke.Color := RGB(0,0,0);
+end;
+
+procedure TframeCategorias.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframeCategorias.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lTexto.Text := FormataNome(Value);
+end;
+
+end.

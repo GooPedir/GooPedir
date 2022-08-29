@@ -1,0 +1,106 @@
+unit uframeDadosItens;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.Objects;
+
+type
+  TCallback = procedure of object;
+  TframeDadosItens = class(TFrame)
+    Layout1: TLayout;
+    lNome: TLabel;
+    Layout2: TLayout;
+    Layout3: TLayout;
+    lDescricao: TLabel;
+    lValor: TLabel;
+    img_excluir: TImage;
+    procedure img_excluirClick(Sender: TObject);
+    procedure img_excluirMouseEnter(Sender: TObject);
+    procedure img_excluirMouseLeave(Sender: TObject);
+  private
+    FValor: Real;
+    FDescricao: String;
+    FCodigo: Integer;
+    FQuantidade: Integer;
+    FNome: String;
+    procedure SetCodigo(const Value: Integer);
+    procedure SetDescricao(const Value: String);
+    procedure SetNome(const Value: String);
+    procedure SetQuantidade(const Value: Integer);
+    procedure SetValor(const Value: Real);
+    procedure AtualizaValor;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Codigo : Integer read FCodigo write SetCodigo;
+    property Nome : String read FNome write SetNome;
+    property Descricao : String read FDescricao write SetDescricao;
+    property Quantidade : Integer read FQuantidade write SetQuantidade;
+    property Valor : Real read FValor write SetValor;
+
+      var
+    Sim: TCallback;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses util;
+
+{ TframeDadosItens }
+
+procedure TframeDadosItens.AtualizaValor;
+begin
+lValor.Text := Quantidade.ToString + ' x R$ '+FormatFloat('#0.00',Valor);
+end;
+
+procedure TframeDadosItens.img_excluirClick(Sender: TObject);
+begin
+if Assigned(Sim) then
+Sim;
+end;
+
+procedure TframeDadosItens.img_excluirMouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+end;
+
+procedure TframeDadosItens.img_excluirMouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+end;
+
+procedure TframeDadosItens.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframeDadosItens.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lDescricao.Text := FormataNome(Value);
+end;
+
+procedure TframeDadosItens.SetNome(const Value: String);
+begin
+  FNome := Value;
+  lNome.Text := FormataNome(Value);
+end;
+
+procedure TframeDadosItens.SetQuantidade(const Value: Integer);
+begin
+  FQuantidade := Value;
+  AtualizaValor;
+end;
+
+procedure TframeDadosItens.SetValor(const Value: Real);
+begin
+  FValor := Value;
+  AtualizaValor;
+end;
+
+end.

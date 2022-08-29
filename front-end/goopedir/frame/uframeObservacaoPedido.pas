@@ -1,0 +1,53 @@
+unit uframeObservacaoPedido;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Memo.Types, FMX.ScrollBox, FMX.Memo, FMX.Objects,
+  FMX.Controls.Presentation;
+
+type
+  TframeObservacaoPedido = class(TFrame)
+    lQtdCaracteres: TLabel;
+    Rectangle1: TRectangle;
+    memMensagem: TMemo;
+    lDescricao: TLabel;
+    procedure memMensagemChange(Sender: TObject);
+    procedure memMensagemKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
+  private
+    { Private declarations }
+     procedure ContaCaracteres;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+{$R *.fmx}
+
+{ TFrame2 }
+
+procedure TframeObservacaoPedido.ContaCaracteres;
+begin
+  if (memMensagem.MaxLength > 0) then
+    lQtdCaracteres.Text := length(memMensagem.Text).ToString + '/' +
+      memMensagem.MaxLength.ToString
+  else
+    lQtdCaracteres.Text := '';
+end;
+
+procedure TframeObservacaoPedido.memMensagemChange(Sender: TObject);
+begin
+ContaCaracteres;
+end;
+
+procedure TframeObservacaoPedido.memMensagemKeyDown(Sender: TObject;
+  var Key: Word; var KeyChar: Char; Shift: TShiftState);
+begin
+ContaCaracteres;
+end;
+
+end.

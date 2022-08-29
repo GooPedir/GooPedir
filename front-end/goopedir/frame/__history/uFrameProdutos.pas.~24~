@@ -1,0 +1,140 @@
+unit uFrameProdutos;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Effects, FMX.Controls.Presentation, FMX.Objects, FMX.Layouts;
+
+type
+  TFrameProdutos = class(TFrame)
+    rPrincipal: TRectangle;
+    Layout1: TLayout;
+    Layout2: TLayout;
+    imgProduto: TImage;
+    Layout3: TLayout;
+    lCodigo: TLabel;
+    lNomeProduto: TLabel;
+    lDescricao: TLabel;
+    lValor: TLabel;
+    lCategoria: TLabel;
+    imSemFoto: TImage;
+    procedure rPrincipalMouseEnter(Sender: TObject);
+    procedure rPrincipalMouseLeave(Sender: TObject);
+    procedure rPrincipalClick(Sender: TObject);
+  private
+    FValor: Real;
+    FCategoria: String;
+    FNome: String;
+    FCodigo: Integer;
+    FInterno: Integer;
+    FDescricaoProduto: String;
+    procedure SetCategoria(const Value: String);
+    procedure SetNome(const Value: String);
+    procedure SetValor(const Value: Real);
+    procedure SetCodigo(const Value: Integer);
+    procedure SetInterno(const Value: Integer);
+    procedure SetDescricaoProduto(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Interno: Integer read FInterno write SetInterno;
+    property Nome: String read FNome write SetNome;
+    property Valor: Real read FValor write SetValor;
+    property Categoria: String read FCategoria write SetCategoria;
+    property DescricaoProduto: String read FDescricaoProduto
+      write SetDescricaoProduto;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, uRequisicao, FMXTee.Canvas, util;
+
+procedure TFrameProdutos.rPrincipalClick(Sender: TObject);
+begin
+  //
+end;
+
+procedure TFrameProdutos.rPrincipalMouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+  (Sender as TRectangle).Stroke.Color := RGB(164, 0, 27);
+end;
+
+procedure TFrameProdutos.rPrincipalMouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+  (Sender as TRectangle).Stroke.Color := RGB(0, 0, 0);
+
+end;
+
+procedure TFrameProdutos.SetCategoria(const Value: String);
+begin
+  FCategoria := Value;
+  lCategoria.Text := FormataNome(FCategoria);
+end;
+
+procedure TFrameProdutos.SetCodigo(const Value: Integer);
+var
+  Conexao: iRequisicao;
+begin
+  FCodigo := Value;
+  imgProduto.Bitmap := imSemFoto.Bitmap;
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+
+{$IFDEF Android}
+{$ELSE}
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Conexao.URL := '/v1/imagem/produto/' + FCodigo.ToString;
+      Conexao.Metodo := mGet;
+      Conexao.Execute;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          try
+            imgProduto.Bitmap := DM.BitmapFromBase64(Conexao.Retorno);
+          except
+            imgProduto.Bitmap := imSemFoto.Bitmap;
+          end;
+          Conexao.Free;
+        end);
+    end).Start;
+{$ENDIF}
+end;
+
+procedure TFrameProdutos.SetDescricaoProduto(const Value: String);
+begin
+  FDescricaoProduto := Value;
+  if length(Value) > 0 then
+    lDescricao.Text := '(' + FormataNome(Value) + ')'
+  else
+    lDescricao.Text := '';
+end;
+
+procedure TFrameProdutos.SetInterno(const Value: Integer);
+begin
+  FInterno := Value;
+  lCodigo.Text := FormatFloat('000000', Value);
+end;
+
+procedure TFrameProdutos.SetNome(const Value: String);
+begin
+  FNome := Value;
+  lNomeProduto.Text := FormataNome(FNome);
+end;
+
+procedure TFrameProdutos.SetValor(const Value: Real);
+begin
+  FValor := Value;
+  lValor.Text := 'R$ ' + FormatFloat('#0.00', FValor);
+end;
+
+end.

@@ -1,0 +1,1476 @@
+unit uPedido;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uFrmClonePadrao, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FMX.TabControl, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable,
+  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts, System.Rtti,
+  FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt, FMX.Bind.Grid,
+  System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Components,
+  Data.Bind.Grid, Data.Bind.DBScope, FMX.ScrollBox, FMX.Grid, FMXTee.Canvas,
+  JSON, uRequisicao, uComboboxLocal, FMX.DateTimeCtrls, System.ImageList,
+  FMX.ImgList, uFrameListaPedido;
+
+type
+  TfrmPedido = class(TfrmPadrao)
+    Dados: iMemTable;
+    DADOScodigo: TIntegerField;
+    DADOScodigo_dia: TIntegerField;
+    DADOScodigo_cliente: TIntegerField;
+    DADOScliente: TStringField;
+    DADOScliente_endereco: TIntegerField;
+    DADOSendereco_completo: TStringField;
+    DADOSdata: TDateField;
+    DADOSstatus: TIntegerField;
+    DADOSstatus_descricao: TStringField;
+    DADOSvalor: TFloatField;
+    DADOSdesconto: TFloatField;
+    DADOStaxa: TFloatField;
+    DADOStotal: TFloatField;
+    DADOSpagamento: TIntegerField;
+    DADOSmotivo_cancelamento: TIntegerField;
+    DADOSorigem: TIntegerField;
+    DADOStipo: TStringField;
+    TabItem1: TTabItem;
+    Lista: TStringGrid;
+    bdsDados: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourcebdsDados: TLinkGridToDataSource;
+    TabItem2: TTabItem;
+    Layout5: TLayout;
+    Layout1: TLayout;
+    Layout2: TLayout;
+    Rectangle1: TRectangle;
+    Label1: TLabel;
+    Layout3: TLayout;
+    Rectangle2: TRectangle;
+    Label2: TLabel;
+    Layout4: TLayout;
+    Rectangle3: TRectangle;
+    Label3: TLabel;
+    iRequisicao1: iRequisicao;
+    DADOStempo: TStringField;
+    Layout20: TLayout;
+    GridPanelLayout2: TGridPanelLayout;
+    rMotoboy: TRectangle;
+    Image2: TImage;
+    Label8: TLabel;
+    rImprimir: TRectangle;
+    Image1: TImage;
+    Label4: TLabel;
+    rStatus: TRectangle;
+    Image3: TImage;
+    Label10: TLabel;
+    rGerencial: TRectangle;
+    Image4: TImage;
+    Label12: TLabel;
+    rAtualizar: TRectangle;
+    Image5: TImage;
+    Label13: TLabel;
+    DADOSselecionado: TIntegerField;
+    DADOSpedidosite: TStringField;
+    DADOScaixa: TIntegerField;
+    DADOSficha: TIntegerField;
+    MOTOBOY: iMemTable;
+    MOTOBOYcodigo: TIntegerField;
+    MOTOBOYnome: TStringField;
+    ImageList1: TImageList;
+    rFiltros: TRectangle;
+    Layout21: TLayout;
+    Label14: TLabel;
+    edtDataInicial: TDateEdit;
+    Layout22: TLayout;
+    Label16: TLabel;
+    edtDataFinal: TDateEdit;
+    Layout23: TLayout;
+    Label17: TLabel;
+    edtHoraInicial: TTimeEdit;
+    Layout24: TLayout;
+    Label19: TLabel;
+    edtHoraFinal: TTimeEdit;
+    cWhatsapp: TCheckBox;
+    cSite: TCheckBox;
+    cFicha: TCheckBox;
+    cFaturado: TCheckBox;
+    cNaoFaturado: TCheckBox;
+    rGerencial2: TRectangle;
+    rGerencial1: TRectangle;
+    Rectangle4: TRectangle;
+    Layout6: TLayout;
+    lPedidosTotal: TLabel;
+    Label5: TLabel;
+    GridPanelLayout1: TGridPanelLayout;
+    Rectangle5: TRectangle;
+    Layout7: TLayout;
+    lPedidosWhatsapp: TLabel;
+    Label7: TLabel;
+    Rectangle6: TRectangle;
+    Layout8: TLayout;
+    lPedidosSite: TLabel;
+    Label9: TLabel;
+    Rectangle7: TRectangle;
+    Layout9: TLayout;
+    lPedidosFicha: TLabel;
+    Label11: TLabel;
+    Rectangle8: TRectangle;
+    Layout10: TLayout;
+    lDeliveryWhatsapp: TLabel;
+    Label27: TLabel;
+    Rectangle9: TRectangle;
+    Layout11: TLayout;
+    lDeliverySite: TLabel;
+    Label28: TLabel;
+    Rectangle10: TRectangle;
+    Layout12: TLayout;
+    lFichaAberta: TLabel;
+    Label29: TLabel;
+    Rectangle11: TRectangle;
+    Layout13: TLayout;
+    lVemBuscarWhatsapp: TLabel;
+    Label15: TLabel;
+    Rectangle12: TRectangle;
+    Layout14: TLayout;
+    lVemBuscarSite: TLabel;
+    Label18: TLabel;
+    Rectangle13: TRectangle;
+    Layout15: TLayout;
+    lFichaFechada: TLabel;
+    Label20: TLabel;
+    Rectangle14: TRectangle;
+    Layout16: TLayout;
+    lTotalWhatsapp: TLabel;
+    Label22: TLabel;
+    Rectangle15: TRectangle;
+    Layout17: TLayout;
+    lTotalSite: TLabel;
+    Label24: TLabel;
+    Rectangle16: TRectangle;
+    Layout18: TLayout;
+    lTotalFicha: TLabel;
+    Label26: TLabel;
+    Rectangle17: TRectangle;
+    Layout19: TLayout;
+    lTotalGeral: TLabel;
+    Label6: TLabel;
+    Rectangle20: TRectangle;
+    Rectangle21: TRectangle;
+    Label21: TLabel;
+    Image7: TImage;
+    Image6: TImage;
+    img_motoboy: TImage;
+    img_desmarcado: TImage;
+    img_marcado: TImage;
+    Image8: TImage;
+    rLoad: TRectangle;
+    DADOSmotoboy: TStringField;
+    DADOSstatus_pedido: TStringField;
+    DADOSHora: TStringField;
+    DADOSid_caixa: TIntegerField;
+    verDadosPedido: TVertScrollBox;
+    DADOSid_site: TIntegerField;
+    procedure FormCreate(Sender: TObject);
+    procedure ListaDrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure fEventosException(Sender: TObject; E: Exception);
+    procedure rMotoboyMouseEnter(Sender: TObject);
+    procedure rMotoboyMouseLeave(Sender: TObject);
+    procedure rMotoboyClick(Sender: TObject);
+    procedure ListaCellDblClick(const Column: TColumn; const Row: Integer);
+    procedure rStatusClick(Sender: TObject);
+    procedure edtDataInicialExit(Sender: TObject);
+    procedure edtDataFinalExit(Sender: TObject);
+    procedure imgFiltroClick(Sender: TObject);
+    procedure Image7Click(Sender: TObject);
+    procedure img_motoboyClick(Sender: TObject);
+    procedure Image8Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+  private
+    FFichaFechada: Integer;
+    FPedidosSite: Integer;
+    FTotalWhatsapp: Real;
+    FDeliveryWhatsapp: Real;
+    FPedidosTotal: Integer;
+    FTotalGeral: Real;
+    FTotalFicha: Real;
+    FVemBuscarWhatsapp: Real;
+    FTotalSite: Real;
+    FPedidosWhatsapp: Integer;
+    FDeliverySite: Real;
+    FVemBuscarSite: Real;
+    FFichaAberta: Integer;
+    FPedidosFicha: Integer;
+    FHoraFinal: TTime;
+    FHoraInicial: TTime;
+    FDataFinal: TDate;
+    FDataInicial: TDate;
+    FSelecionaMotoboy: Boolean;
+    procedure SetDeliverySite(const Value: Real);
+    procedure SetDeliveryWhatsapp(const Value: Real);
+    procedure SetFichaAberta(const Value: Integer);
+    procedure SetFichaFechada(const Value: Integer);
+    procedure SetPedidosFicha(const Value: Integer);
+    procedure SetPedidosSite(const Value: Integer);
+    procedure SetPedidosTotal(const Value: Integer);
+    procedure SetPedidosWhatsapp(const Value: Integer);
+    procedure SetTotalFicha(const Value: Real);
+    procedure SetTotalGeral(const Value: Real);
+    procedure SetTotalSite(const Value: Real);
+    procedure SetTotalWhatsapp(const Value: Real);
+    procedure SetVemBuscarSite(const Value: Real);
+    procedure SetVemBuscarWhatsapp(const Value: Real);
+    procedure SetDataFinal(const Value: TDate);
+    procedure SetDataInicial(const Value: TDate);
+    procedure SetHoraFinal(const Value: TTime);
+    procedure SetHoraInicial(const Value: TTime);
+    procedure SetSelecionaMotoboy(const Value: Boolean);
+    function SelecionaMotoboy: Boolean;
+    { Private declarations }
+
+  public
+    { Public declarations }
+
+    // Quantidade de Pedido
+    property PedidosTotal: Integer read FPedidosTotal write SetPedidosTotal;
+    property PedidosWhatsapp: Integer read FPedidosWhatsapp
+      write SetPedidosWhatsapp;
+    property PedidosSite: Integer read FPedidosSite write SetPedidosSite;
+    property PedidosFicha: Integer read FPedidosFicha write SetPedidosFicha;
+    // Totais
+
+    property DeliveryWhatsapp: Real read FDeliveryWhatsapp
+      write SetDeliveryWhatsapp;
+    property DeliverySite: Real read FDeliverySite write SetDeliverySite;
+
+    property VemBuscarWhatsapp: Real read FVemBuscarWhatsapp
+      write SetVemBuscarWhatsapp;
+    property VemBuscarSite: Real read FVemBuscarSite write SetVemBuscarSite;
+
+    property TotalWhatsapp: Real read FTotalWhatsapp write SetTotalWhatsapp;
+    property TotalSite: Real read FTotalSite write SetTotalSite;
+    property TotalFicha: Real read FTotalFicha write SetTotalFicha;
+    property FichaFechada: Integer read FFichaFechada write SetFichaFechada;
+    property FichaAberta: Integer read FFichaAberta write SetFichaAberta;
+    property TotalGeral: Real read FTotalGeral write SetTotalGeral;
+
+    function FormataValor(Valor: Real): String;
+
+    property DataInicial: TDate read FDataInicial write SetDataInicial;
+    property DataFinal: TDate read FDataFinal write SetDataFinal;
+    property HoraInicial: TTime read FHoraInicial write SetHoraInicial;
+    property HoraFinal: TTime read FHoraFinal write SetHoraFinal;
+
+    procedure AlteracaoStatus(Sender: TObject);
+    procedure SetaMotoboy(Sender: TObject);
+    function getTipo: String;
+
+    procedure CancelaPedido;
+
+    procedure CarregaDadosPedidos(Form: TfrmPedido; Dados: iMemTable);
+    procedure Selecionou;
+    procedure SimGerencial;
+
+  end;
+
+  TDadosDashBoard = class(TThread)
+  protected
+    procedure Execute; override;
+    function ConverteMysqlParaSegundo(Dados: String): Integer;
+    function SecondToTime(Segundos: Cardinal): String;
+
+  Var
+    Requisicao: iRequisicao;
+    Memory: TFDMemTable;
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    Dados: iMemTable;
+    Pedido: TfrmPedido;
+    NaoBuscar: Boolean;
+  end;
+
+var
+  frmPedido: TfrmPedido;
+
+  SelecionaStatus: Boolean;
+  cStatus: TCustomCombo;
+  cMotoboy: TCustomCombo;
+  DadosDashBoard: TDadosDashBoard;
+  JaCarregou: Boolean;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, util, uMain, UnitResumo, uSenha, uSimNao;
+
+{ TfrmPadrao1 }
+
+procedure TfrmPedido.AlteracaoStatus(Sender: TObject);
+var
+  Status: Integer;
+  SenhaGerente: Boolean;
+begin
+  Status := cStatus.CodItem.ToInteger;
+  cStatus.HideMenu;
+  case Status of
+    0:
+      begin
+
+        if not Assigned(frmSenha) then
+          frmSenha := TfrmSenha.Create(frmMain);
+        frmSenha.Sim := CancelaPedido;
+        frmSenha.Tipo := Validar;
+        frmSenha.Show;
+        exit;
+      end
+  else
+    begin
+      SenhaGerente := True;
+    end;
+  end;
+
+  ShowMessageToast(Self, 'Pedido Atualizado Com Suceso!', 2);
+  DM.PutSimples('v1/pedido/status/' + bdsDados.DataSet.FieldByName('codigo')
+    .AsString + '/' + Status.ToString + '/', nil);
+
+end;
+
+procedure TfrmPedido.CancelaPedido;
+begin
+  ShowMessageToast(Self, 'Pedido Cancelado Com Suceso!', 2);
+  DM.PutSimples('v1/pedido/status/' + bdsDados.DataSet.FieldByName('codigo')
+    .AsString + '/0/', nil);
+end;
+
+procedure TfrmPedido.CarregaDadosPedidos(Form: TfrmPedido; Dados: iMemTable);
+var
+  Frame: TfrmListaPedido;
+  Nome: String;
+begin
+  exit;
+  if Dados.RecordCount = 0 then
+    exit;
+  if Dados.RecordCount > 60 then
+  begin
+    Form.verDadosPedido.Visible := False;
+  end;
+
+  Dados.First;
+  while not Dados.Eof do
+  begin
+    try
+      Nome := 'TfrmListaPedido' + Dados.FieldByName('codigo').AsString;
+      Frame := Nil;
+      if Assigned(Form.verDadosPedido.FindComponent(Nome)) then
+      begin
+        if (Form.verDadosPedido.FindComponent(Nome) is TfrmListaPedido) then
+        begin
+          Frame := (Form.verDadosPedido.FindComponent(Nome) as TfrmListaPedido);
+        end;
+
+      end;
+
+      if not Assigned(Frame) then
+      begin
+        Frame := TfrmListaPedido.Create(Form.verDadosPedido);
+        Frame.Parent := Form.verDadosPedido;
+        Frame.Align := TAlignLayout.Top;
+        Frame.Position.Y := 99999;
+        Frame.Name := Nome;
+      end;
+
+      Frame.Origem := Dados.FieldByName('origem').AsInteger;
+      Frame.Tipo := Dados.FieldByName('tipo').AsString;
+      Frame.Codigo := Dados.FieldByName('codigo').AsInteger;
+      Frame.CodigoDia := Dados.FieldByName('codigo_dia').AsInteger;
+      Frame.Data := Dados.FieldByName('data').AsDateTime;
+      Frame.Hora := Dados.FieldByName('hora').AsDateTime;
+      Frame.Tempo := Dados.FieldByName('tempo').AsString;
+      Frame.Status := Dados.FieldByName('status_descricao').AsString;
+      Frame.Cliente := Dados.FieldByName('cliente').AsString;
+      Frame.Endereco := Dados.FieldByName('endereco_completo').AsString;
+      Frame.Valor := Dados.FieldByName('valor').AsFloat;
+      Frame.Taxa := Dados.FieldByName('taxa').AsFloat;
+      Frame.Desconto := Dados.FieldByName('desconto').AsFloat;
+      Frame.Total := Dados.FieldByName('total').AsFloat;
+      Frame.MOTOBOY := Dados.FieldByName('motoboy').AsString;
+      Frame.Selecionado := Dados.FieldByName('selecionado').AsInteger;
+      Frame.Caixa := Dados.FieldByName('id_caixa').AsInteger;
+      Frame.Clique := Form.Selecionou;
+
+      {
+
+
+
+        property Motoboy: String read FMotoboy write SetMotoboy;
+        property Selecionado: Integer read FSelecionado write SetSelecionado;
+      }
+
+    except
+      on E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
+
+    end;
+    Dados.Next;
+  end;
+  if not Form.verDadosPedido.Visible then
+    Form.verDadosPedido.Visible := True;
+end;
+
+procedure TfrmPedido.edtDataFinalExit(Sender: TObject);
+begin
+  inherited;
+  DataFinal := edtDataFinal.Date;
+end;
+
+procedure TfrmPedido.edtDataInicialExit(Sender: TObject);
+begin
+  inherited;
+  DataInicial := edtDataInicial.Date;
+end;
+
+procedure TfrmPedido.fEventosException(Sender: TObject; E: Exception);
+begin
+  inherited;
+  ///
+end;
+
+procedure TfrmPedido.FormActivate(Sender: TObject);
+begin
+  inherited;
+
+  if JaCarregou then
+    exit;
+  JaCarregou := True;
+
+  DadosDashBoard.Start;
+end;
+
+function TfrmPedido.FormataValor(Valor: Real): String;
+begin
+  Result := 'R$ ' + FormatFloat('#,###,##0.00', Valor);
+end;
+
+procedure TfrmPedido.FormCreate(Sender: TObject);
+
+begin
+  inherited;
+  rFiltros.Visible := False;
+  rGerencial1.Visible := False;
+  rGerencial2.Visible := False;
+  edtDataInicial.Date := now;
+  edtDataFinal.Date := now;
+  edtHoraInicial.Time := StrToTime('00:00:00');
+  edtHoraFinal.Time := StrToTime('23:59:59');
+
+  DataInicial := edtDataInicial.Date;
+  DataFinal := edtDataFinal.Date;
+  HoraInicial := edtHoraInicial.Time;
+  HoraFinal := edtHoraFinal.Time;
+
+  PedidosTotal := -1;
+  PedidosWhatsapp := -1;
+  PedidosSite := -1;
+  PedidosFicha := -1;
+  DeliveryWhatsapp := -1;
+  DeliverySite := -1;
+  VemBuscarWhatsapp := -1;
+  VemBuscarSite := -1;
+  TotalWhatsapp := -1;
+  TotalSite := -1;
+  TotalFicha := -1;
+  FichaFechada := -1;
+  FichaAberta := -1;
+  TotalGeral := -1;
+
+  PedidosTotal := 0;
+  PedidosWhatsapp := 0;
+  PedidosSite := 0;
+  PedidosFicha := 0;
+  DeliveryWhatsapp := 0;
+  DeliverySite := 0;
+  VemBuscarWhatsapp := 0;
+  VemBuscarSite := 0;
+  TotalWhatsapp := 0;
+  TotalSite := 0;
+  TotalFicha := 0;
+  FichaFechada := 0;
+  FichaAberta := 0;
+  TotalGeral := 0;
+
+  DadosDashBoard := TDadosDashBoard.Create;
+  DadosDashBoard.Pedido := Self;
+  DadosDashBoard.Dados := Dados;
+
+end;
+
+function TfrmPedido.getTipo: String;
+begin
+  Result := '';
+  if cWhatsapp.IsChecked then
+    if Result = '' then
+      Result := '1'
+    else
+      Result := Result + ',1';
+
+  if cSite.IsChecked then
+    if Result = '' then
+      Result := '2'
+    else
+      Result := Result + ',2';
+
+  if cFicha.IsChecked then
+    if Result = '' then
+      Result := '3'
+    else
+      Result := Result + ',3';
+
+  if length(Result) = 0 then
+    Result := '1,2,3';
+
+end;
+
+procedure TfrmPedido.Image7Click(Sender: TObject);
+begin
+  inherited;
+  rGerencial1.Visible := False;
+  rGerencial2.Visible := False;
+end;
+
+procedure TfrmPedido.Image8Click(Sender: TObject);
+begin
+  inherited;
+
+  Lista.Visible := False;
+
+  Lista.Visible := True;
+end;
+
+procedure TfrmPedido.img_motoboyClick(Sender: TObject);
+begin
+  inherited;
+  case (Sender as TImage).Tag of
+    0:
+      begin
+        // Desmarcado
+        (Sender as TImage).Bitmap := img_marcado.Bitmap;
+        (Sender as TImage).Tag := 1;
+      end
+  else
+    begin
+      (Sender as TImage).Bitmap := img_desmarcado.Bitmap;
+      (Sender as TImage).Tag := 0;
+    end;
+  end;
+
+end;
+
+procedure TfrmPedido.imgFiltroClick(Sender: TObject);
+begin
+  if rFiltros.Visible then
+  begin
+    rFiltros.Visible := False;
+  end
+  else
+  begin
+    rFiltros.Visible := True;
+  end;
+end;
+
+function TfrmPedido.SelecionaMotoboy: Boolean;
+begin
+  Result := img_motoboy.Tag > 0;
+end;
+
+procedure TfrmPedido.Selecionou;
+begin
+  case img_motoboy.Tag of
+    0:
+      begin
+        // Desmarcado
+        if NOT Assigned(FrmResumo) then
+          Application.CreateForm(TFrmResumo, FrmResumo);
+        FrmResumo.MESA := 0;
+        FrmResumo.CodigoPedido := Dados.FieldByName('codigo').AsInteger;
+        FrmResumo.Show;
+      end
+  else
+    begin
+      if Dados.FieldByName('tipo').AsString = 'Delivery' then
+      begin
+        if SelecionaMotoboy then
+        begin
+          Dados.Edit;
+
+          case Dados.FieldByName('selecionado').AsInteger of
+            0:
+              begin
+                Dados.FieldByName('selecionado').AsInteger := 1;
+              end
+          else
+            begin
+              Dados.FieldByName('selecionado').AsInteger := 0;
+            end;
+
+          end;
+
+          Dados.Post;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmPedido.SetaMotoboy(Sender: TObject);
+begin
+  cMotoboy.HideMenu;
+
+  if SelecionaMotoboy then
+  begin
+    DadosDashBoard.NaoBuscar := True;
+    Dados.DisableControls;
+    Dados.First;
+
+    while not Dados.Eof do
+    begin
+      if Dados.FieldByName('selecionado').AsInteger = 1 then
+      begin
+        DM.PutSimples('v1/pedido/motoboy/' + bdsDados.DataSet.FieldByName
+          ('codigo').AsString + '/' + cMotoboy.CodItem + '/', nil);
+      end;
+      Dados.Next;
+    end;
+
+    Dados.EnableControls;
+    DadosDashBoard.NaoBuscar := False;
+  end
+  else
+  begin
+    DM.PutSimples('v1/pedido/motoboy/' + bdsDados.DataSet.FieldByName('codigo')
+      .AsString + '/' + cMotoboy.CodItem + '/', nil);
+  end;
+
+  ShowMessageToast(Self, cMotoboy.DescrItem +
+    ' motoboy adicionado com sucesso ao ' + LowerCase(cMotoboy.SubTitleMenuText)
+    + '!', 2);
+
+end;
+
+procedure TfrmPedido.SetDataFinal(const Value: TDate);
+begin
+  FDataFinal := Value;
+end;
+
+procedure TfrmPedido.SetDataInicial(const Value: TDate);
+begin
+  FDataInicial := Value;
+end;
+
+procedure TfrmPedido.SetDeliverySite(const Value: Real);
+begin
+  if FDeliverySite <> Value then
+  begin
+    lDeliverySite.Text := FormataValor(Value);
+  end;
+  FDeliverySite := Value;
+end;
+
+procedure TfrmPedido.SetDeliveryWhatsapp(const Value: Real);
+begin
+  if FDeliveryWhatsapp <> Value then
+  begin
+    lDeliveryWhatsapp.Text := FormataValor(Value);
+  end;
+
+  FDeliveryWhatsapp := Value;
+end;
+
+procedure TfrmPedido.SetFichaAberta(const Value: Integer);
+begin
+  if FFichaAberta <> Value then
+  begin
+    lFichaAberta.Text := Value.ToString;;
+  end;
+  FFichaAberta := Value;
+end;
+
+procedure TfrmPedido.SetFichaFechada(const Value: Integer);
+begin
+  if FFichaFechada <> Value then
+  begin
+    lFichaFechada.Text := Value.ToString;;
+  end;
+
+  FFichaFechada := Value;
+end;
+
+procedure TfrmPedido.SetHoraFinal(const Value: TTime);
+begin
+  FHoraFinal := Value;
+end;
+
+procedure TfrmPedido.SetHoraInicial(const Value: TTime);
+begin
+  FHoraInicial := Value;
+end;
+
+procedure TfrmPedido.SetPedidosFicha(const Value: Integer);
+begin
+  if Value <> FPedidosFicha then
+  begin
+    lPedidosFicha.Text := Value.ToString;
+  end;
+
+  FPedidosFicha := Value;
+end;
+
+procedure TfrmPedido.SetPedidosSite(const Value: Integer);
+begin
+  if Value <> FPedidosSite then
+  begin
+    lPedidosSite.Text := Value.ToString;
+  end;
+
+  FPedidosSite := Value;
+end;
+
+procedure TfrmPedido.SetPedidosTotal(const Value: Integer);
+begin
+  if Value <> FPedidosTotal then
+  begin
+    lPedidosTotal.Text := Value.ToString;
+  end;
+
+  FPedidosTotal := Value;
+end;
+
+procedure TfrmPedido.SetPedidosWhatsapp(const Value: Integer);
+begin
+
+  if Value <> FPedidosWhatsapp then
+  begin
+    lPedidosWhatsapp.Text := Value.ToString;
+  end;
+
+  FPedidosWhatsapp := Value;
+end;
+
+procedure TfrmPedido.SetSelecionaMotoboy(const Value: Boolean);
+begin
+  FSelecionaMotoboy := Value;
+end;
+
+procedure TfrmPedido.SetTotalFicha(const Value: Real);
+begin
+  if FTotalFicha <> Value then
+  begin
+    lTotalFicha.Text := FormataValor(Value);
+  end;
+  FTotalFicha := Value;
+end;
+
+procedure TfrmPedido.SetTotalGeral(const Value: Real);
+begin
+  if FTotalGeral <> Value then
+  begin
+    lTotalGeral.Text := FormataValor(Value);
+  end;
+  FTotalGeral := Value;
+end;
+
+procedure TfrmPedido.SetTotalSite(const Value: Real);
+begin
+  if FTotalSite <> Value then
+  begin
+    lTotalSite.Text := FormataValor(Value);
+  end;
+
+  FTotalSite := Value;
+end;
+
+procedure TfrmPedido.SetTotalWhatsapp(const Value: Real);
+begin
+  if FTotalWhatsapp <> Value then
+  begin
+    lTotalWhatsapp.Text := FormataValor(Value);
+  end;
+
+  FTotalWhatsapp := Value;
+end;
+
+procedure TfrmPedido.SetVemBuscarSite(const Value: Real);
+begin
+  if FVemBuscarSite <> Value then
+  begin
+    lVemBuscarSite.Text := FormataValor(Value);
+  end;
+  FVemBuscarSite := Value;
+end;
+
+procedure TfrmPedido.SetVemBuscarWhatsapp(const Value: Real);
+begin
+  if FVemBuscarWhatsapp <> Value then
+  begin
+    lVemBuscarWhatsapp.Text := FormataValor(Value);
+  end;
+
+  FVemBuscarWhatsapp := Value;
+end;
+
+procedure TfrmPedido.SimGerencial;
+begin
+
+  DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+    DM.CodigoCaixa.ToString, nil);
+  DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+end;
+
+procedure TfrmPedido.ListaCellDblClick(const Column: TColumn;
+  const Row: Integer);
+begin
+  inherited;
+
+  case img_motoboy.Tag of
+    0:
+      begin
+        // Desmarcado
+        if NOT Assigned(FrmResumo) then
+          Application.CreateForm(TFrmResumo, FrmResumo);
+        FrmResumo.MESA := 0;
+        FrmResumo.CodigoPedido := Dados.FieldByName('codigo').AsInteger;
+        FrmResumo.Show;
+      end
+  else
+    begin
+      if Dados.FieldByName('tipo').AsString = 'Delivery' then
+      begin
+        if SelecionaMotoboy then
+        begin
+          Dados.Edit;
+
+          case Dados.FieldByName('selecionado').AsInteger of
+            0:
+              begin
+                Dados.FieldByName('selecionado').AsInteger := 1;
+              end
+          else
+            begin
+              Dados.FieldByName('selecionado').AsInteger := 0;
+            end;
+
+          end;
+
+          Dados.Post;
+        end;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmPedido.ListaDrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+  const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+  const Value: TValue; const State: TGridDrawStates);
+var
+  Cor: TColor;
+  CorFonte: TColor;
+  Valor: String;
+begin
+  inherited;
+
+  try
+    Cor := RGB(255, 255, 255);
+
+    case Column.Index of
+      1:
+        begin
+          Valor := Value.ToString;
+          if Value.ToString = 'Delivery' then
+          begin
+            Cor := RGB(165, 218, 232);
+          end
+          else
+          begin
+            Cor := RGB(185, 178, 219);
+          end;
+
+          try
+            if Lista.Cells[16, Row].ToInteger > 0 then
+            begin
+              Valor := UpperCase(Lista.Cells[7, Row]);
+            end;
+          except
+
+          end;
+
+          Canvas.Fill.Color := Cor;
+          Canvas.Stroke.Color := Cor;
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TAlphaColorRec.Black;
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      0:
+        begin
+          CorFonte := TAlphaColorRec.Black;
+          Valor := 'WPP';
+          if Value.ToString = '1' then
+          begin
+            Cor := RGB(189, 246, 227);
+          end;
+          if Value.ToString = '2' then
+          begin
+            Cor := RGB(175, 222, 250);
+
+            Valor := Lista.Cells[13, Row];
+            // Value.ToString := Valor;
+          end;
+          if Value.ToString = '3' then
+          begin
+            Cor := RGB(227, 210, 244);
+            try
+              if Lista.Cells[15, Row].ToInteger > 0 then
+              begin
+                Valor := 'FICHA';
+                CorFonte := TAlphaColorRec.Black;
+              end
+              else
+              begin
+                Valor := 'PEDIDO';
+                CorFonte := TAlphaColorRec.Black;
+              end;
+            except
+
+            end;
+          end;
+          if Value.ToString = '4' then
+          begin
+            Cor := RGB(227, 210, 244);
+            try
+              Valor := 'PEDIDO';
+              CorFonte := TAlphaColorRec.Black;
+            except
+
+            end;
+          end;
+          if Valor = '0' then
+          begin
+            // Cor := RGB(227, 210, 244);
+            try
+              Valor := 'SITE';
+              CorFonte := TAlphaColorRec.Black;
+            except
+
+            end;
+          end;
+
+          Canvas.Fill.Color := Cor;
+          Canvas.Stroke.Color := Cor;
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := CorFonte;
+          Canvas.FillText(Bounds, Valor, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+
+      2:
+        begin
+          if Lista.Cells[13, Row] = '1' then
+          begin
+            Cor := RGB(227, 210, 244);
+            Canvas.Fill.Color := Cor;
+            Canvas.Stroke.Color := Cor;
+            Canvas.FillRect(Bounds, 0, 0, [], 1);
+            Canvas.Fill.Color := TAlphaColorRec.Black;
+            Canvas.FillText(Bounds, Value.ToString, False, 1,
+              [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+              TTextAlign.Center);
+          end;
+        end;
+      6:
+        begin
+          Valor := Value.ToString;
+          if Value.ToString = 'Finalizado' then
+          begin
+            Cor := RGB(165, 218, 232);
+            Canvas.Fill.Color := Cor;
+            Canvas.Stroke.Color := Cor;
+            Canvas.FillRect(Bounds, 0, 0, [], 1);
+            Canvas.Fill.Color := TAlphaColorRec.Black;
+            Canvas.FillText(Bounds, Valor, False, 1,
+              [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+              TTextAlign.Center);
+          end;
+
+        end;
+      12:
+        begin
+
+        end;
+      18:
+        begin
+          try
+            Valor := Value.ToString;
+            Valor.ToInteger;
+          except
+            Valor := '0';
+          end;
+
+          if Valor.ToInteger > 0 then
+          begin
+            Cor := RGB(165, 218, 232);
+            Canvas.Fill.Color := Cor;
+            Canvas.Stroke.Color := Cor;
+            Canvas.FillRect(Bounds, 0, 0, [], 1);
+            Canvas.Fill.Color := TAlphaColorRec.Black;
+            Canvas.FillText(Bounds, '#' + FormatFloat('000', Valor.ToInteger),
+              False, 1, [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+              TTextAlign.Center);
+          end;
+
+        end;
+    end;
+  finally
+
+  end;
+end;
+
+procedure TfrmPedido.rMotoboyClick(Sender: TObject);
+begin
+  inherited;
+
+  case (Sender as TRectangle).Tag of
+    1:
+      begin
+        if bdsDados.DataSet.RecordCount = 0 then
+          exit;
+        // if not SelecionaMotoboy then
+        // begin
+        // (Sender as TRectangle).Stroke.Color := RGB(0, 237, 8);
+        // (Sender as TRectangle).Fill.Color := (Sender as TRectangle)
+        // .Stroke.Color;
+        // end
+        // else
+        // begin
+        // (Sender as TRectangle).Stroke.Color := RGB(0, 82, 237);
+        // (Sender as TRectangle).Fill.Color := (Sender as TRectangle)
+        // .Stroke.Color;
+        // end;
+        // cMotoboy
+
+        if bdsDados.DataSet.FieldByName('tipo').AsString = 'Vem Buscar' then
+        begin
+          ShowMessageToast(Self, 'Pedido Atual Não É Delivery!', 2);
+          exit;
+        end;
+
+        DM.GetSimples('/v1/motoboy/ativo/all/', MOTOBOY);
+
+        if MOTOBOY.RecordCount = 0 then
+        begin
+          ShowMessageToast(Self, 'Não há motoboys ativo!', 1);
+          exit;
+        end;
+
+        if not Assigned(cMotoboy) then
+        begin
+
+          cMotoboy := TCustomCombo.Create(frmMain);
+          cMotoboy.TitleMenuText := 'Escolha o Motoboy';
+
+          cMotoboy.BackgroundColor := $FFF2F2F8;
+{$IFDEF Android}
+{$ELSE}
+          cMotoboy.OnClick := SetaMotoboy;
+
+{$ENDIF}
+          MOTOBOY.First;
+
+          while not MOTOBOY.Eof do
+          begin
+            cMotoboy.AddItem(MOTOBOY.FieldByName('codigo').AsString,
+              UpperCase(MOTOBOY.FieldByName('nome').AsString));
+            MOTOBOY.Next;
+          end;
+
+        end;
+
+        cMotoboy.SubTitleMenuText := 'Pedido ' + bdsDados.DataSet.FieldByName
+          ('codigo_dia').AsString;
+
+        cMotoboy.ShowMenu;
+
+      end;
+    2:
+      begin
+        // Imprimir
+        if bdsDados.DataSet.RecordCount = 0 then
+          exit;
+
+        DM.PostSimples('/v1/imprimir/1/' + bdsDados.DataSet.FieldByName
+          ('codigo').AsString, nil);
+
+      end;
+    3:
+      begin
+        // Status
+        if bdsDados.DataSet.RecordCount = 0 then
+          exit;
+
+        if bdsDados.DataSet.FieldByName('status_descricao').AsString = 'Cancelado'
+        then
+        begin
+          ShowMessageToast(Self, 'Pedido já cancelado!', 2);
+          exit;
+        end;
+
+        if bdsDados.DataSet.FieldByName('status_descricao').AsString = 'Finalizado'
+        then
+        begin
+          ShowMessageToast(Self, 'Pedido já finalizado!', 2);
+          exit;
+        end;
+
+        if not Assigned(cStatus) then
+        begin
+          cStatus := TCustomCombo.Create(frmMain);
+          cStatus.TitleMenuText := 'Escolha o Status do Pedido';
+          cStatus.SubTitleMenuText := '';
+          cStatus.BackgroundColor := $FFF2F2F8;
+
+{$IFDEF Android}
+{$ELSE}
+          cStatus.OnClick := AlteracaoStatus;
+
+{$ENDIF}
+          cStatus.AddItem('0', 'Cancelar');
+          cStatus.AddItem('1', 'Em Espera');
+          cStatus.AddItem('2', 'Em Produção');
+          cStatus.AddItem('3', 'Pronto');
+          cStatus.AddItem('4', 'Disponivel Para Retirada');
+          cStatus.AddItem('5', 'Saiu Para Entrega');
+          cStatus.AddItem('6', 'Finalizado');
+
+        end;
+
+        cStatus.ShowMenu;
+
+      end;
+    4:
+      begin
+        // Gerencial
+        // if bdsDados.DataSet.RecordCount = 0 then
+        // exit;
+        //
+        // rGerencial1.Visible := True;
+        // rGerencial2.Visible := True;
+        // O Gerencial basicamente vai fazer o que, finalizar os pedidos com base no caixa e imprimir o relatorio dos pedidos
+
+        frmSimNao.titulo := 'Gerencial';
+        frmSimNao.descricao := 'Deseja gerar o relatorio gerencial?';
+        frmSimNao.Sim := SimGerencial;
+        frmSimNao.Show;
+
+      end;
+    5:
+      begin
+        //
+        if NOT Assigned(FrmResumo) then
+          Application.CreateForm(TFrmResumo, FrmResumo);
+        FrmResumo.MESA := 0;
+        FrmResumo.CodigoPedido := -1;
+        FrmResumo.Show;
+      end;
+  end;
+end;
+
+procedure TfrmPedido.rMotoboyMouseEnter(Sender: TObject);
+begin
+  inherited;
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmPedido.rMotoboyMouseLeave(Sender: TObject);
+begin
+  inherited;
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmPedido.rStatusClick(Sender: TObject);
+begin
+  inherited;
+
+end;
+
+{ TDadosDashBoard }
+
+function TDadosDashBoard.ConverteMysqlParaSegundo(Dados: String): Integer;
+var
+  I: Integer;
+  TotalVirgula: Integer;
+  Aux: String;
+  AuxHora: String;
+  AuxMinuto: String;
+
+begin
+  // 470:15:00.000000
+  TotalVirgula := 0;
+  Aux := '';
+  for I := 1 to length(Dados) - 1 do
+  begin
+    if Dados[I] = ':' then
+    begin
+      inc(TotalVirgula);
+    end;
+    if Dados[I] = '.' then
+    begin
+      break;
+    end;
+    Aux := Aux + Dados[I];
+  end;
+
+  Result := 0;
+  AuxHora := Copy(Aux, 0, Pos(':', Aux) - 1);
+  Aux := Copy(Aux, Pos(':', Aux) + 1, length(Aux));
+  AuxMinuto := Copy(Aux, 0, Pos(':', Aux) - 1);
+  Aux := Copy(Aux, Pos(':', Aux) + 1, length(Aux));
+
+  Result := (StrToInt(AuxHora) * 60) * 60;
+  Result := Result + (StrToInt(AuxMinuto) * 60) + StrToInt(Aux);
+
+end;
+
+constructor TDadosDashBoard.Create;
+begin
+  inherited Create(True);
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := DM.CONEXAO.BaseURL;
+
+  Memory := TFDMemTable.Create(nil);
+
+end;
+
+destructor TDadosDashBoard.Destroy;
+begin
+  Memory.Free;
+  inherited;
+end;
+
+procedure TDadosDashBoard.Execute;
+Var
+  JsonObject: TJSONObject;
+  Body: String;
+  Save: TBookmark;
+  I: Integer;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+
+    // frmPedido.rLoad.Visible := True;
+    {
+      try
+      Requisicao.eTAG := True;
+      Requisicao.URL := 'v1/total/' + FormatDateTime('ddmmyyyy',
+      Pedido.DataInicial) + '/' + FormatDateTime('ddmmyyyy', Pedido.DataFinal)
+      + '/' + FormatDateTime('hhmmss', Pedido.HoraInicial) + '/' +
+      FormatDateTime('hhmmss', Pedido.HoraFinal);
+
+      Requisicao.Metodo := mGet;
+      Requisicao.Execute;
+
+      JsonObject := TJSONObject.ParseJSONValue(Requisicao.Retorno)
+      as TJSONObject;
+
+      Pedido.PedidosTotal := JsonObject.GetValue('pedidos').Value.ToInteger;
+      Pedido.PedidosWhatsapp := JsonObject.GetValue('pedidowhatsapp')
+      .Value.ToInteger;
+      Pedido.PedidosSite := JsonObject.GetValue('pedidossite').Value.ToInteger;
+      Pedido.PedidosFicha := JsonObject.GetValue('pedidosficha')
+      .Value.ToInteger;
+
+      Pedido.DeliveryWhatsapp := JsonObject.GetValue('whatsappdelivery')
+      .Value.ToExtended;
+      Pedido.DeliverySite := JsonObject.GetValue('sitedelivery')
+      .Value.ToExtended;
+
+      Pedido.VemBuscarWhatsapp := JsonObject.GetValue('whatsappvembuscar')
+      .Value.ToExtended;
+      Pedido.VemBuscarSite := JsonObject.GetValue('sitevembuscar')
+      .Value.ToExtended;
+
+      Pedido.TotalWhatsapp := Pedido.VemBuscarWhatsapp +
+      Pedido.DeliveryWhatsapp;
+      Pedido.TotalSite := Pedido.VemBuscarSite + Pedido.DeliverySite;
+
+      Pedido.TotalGeral := Pedido.TotalWhatsapp + Pedido.TotalSite +
+      Pedido.TotalFicha;
+      JsonObject.Free;
+      except
+      on E: Exception do
+      begin
+      showmessage(E.message);
+      end;
+
+      end; }
+    if not NaoBuscar then
+    begin
+      try
+        Requisicao.eTAG := True;
+        Requisicao.URL := 'v1/pedidos/' + FormatDateTime('ddmmyyyy',
+          Pedido.DataInicial) + '/' + FormatDateTime('ddmmyyyy',
+          Pedido.DataFinal) + '/' + FormatDateTime('hhmmss', Pedido.HoraInicial)
+          + '/' + FormatDateTime('hhmmss', Pedido.HoraFinal) + '/' +
+          Pedido.getTipo + '/X';
+        Requisicao.Metodo := mGet;
+
+        Requisicao.MemTable2 := Memory;
+        Requisicao.Execute;
+
+        if Memory.RecordCount > 0 then
+        begin
+          Pedido.Lista.Visible := False;
+          Pedido.bdsDados.DataSet := nil;
+
+          if not Dados.Active then
+            Dados.Open;
+
+          Dados.DisableControls;
+          Save := Dados.GetBookMark;
+          while not Memory.Eof do
+          begin
+            if not Dados.Locate('codigo', Memory.FieldByName('codigo')
+              .AsString, []) then
+            begin
+              Dados.Insert;
+              Dados.FieldByName('selecionado').AsString := '0';
+            end
+            else
+            begin
+              Dados.Edit;
+            end;
+            for I := 0 to Dados.FieldCount - 1 do
+            begin
+
+              if Assigned(Memory.FindField(Dados.Fields[I].FieldName)) then
+              begin
+                try
+                  Dados.FieldByName(Dados.Fields[I].FieldName).AsString :=
+                    Memory.FieldByName(Dados.Fields[I].FieldName).AsString;
+                except
+                  on E: Exception do
+                  begin
+                    // ShowMessage(Memory.FieldByName(Dados.Fields[I].FieldName).AsString);
+                  end;
+
+                end;
+              end;
+            end;
+
+            Dados.FieldByName('tempo').AsString :=
+              SecondToTime(ConverteMysqlParaSegundo(Memory.FieldByName('tempo')
+              .AsString));
+
+            Dados.Post;
+            Memory.Next;
+          end;
+          frmPedido.CarregaDadosPedidos(Pedido, Dados);
+
+          Dados.GotoBookMark(Save);
+          Dados.FreeBookmark(Save);
+          Dados.EnableControls;
+          Pedido.bdsDados.DataSet := Dados;
+          Pedido.Lista.Visible := True;
+        end;
+      except
+
+      end;
+      Application.ProcessMessages;
+      Pedido.Lista.SetFocus;
+    end;
+    // frmPedido.rLoad.Visible := False;
+    Sleep(15 * 1000);
+  end;
+
+end;
+
+function TDadosDashBoard.SecondToTime(Segundos: Cardinal): String;
+var
+  Seg, Min, Hora, Dia: Integer;
+  Sobra: Real;
+  Aux: String;
+
+  AuxSoma: Integer;
+  AHora: Boolean;
+begin
+  Hora := Segundos div 3600;
+  Seg := Segundos mod 3600;
+  Min := Seg div 60;
+  Seg := Seg mod 60;
+  Dia := Hora div 24;
+
+  Sobra := ((Hora / 24) - Dia) * 24;
+
+  Dia := (Dia * 24); // Hora
+  Dia := (Dia * 60); // Minutos
+  Dia := (Dia * 60); // Segundos
+
+  Sobra := (Sobra * 60); // Minutos
+  Sobra := (Sobra * 60); // Segundos
+
+  Min := (Min * 60); // Segundos
+
+  AuxSoma := Seg + Min + Dia;
+  AuxSoma := (StrToInt(FloatToStr(Sobra)) div 1) + AuxSoma;
+
+  Hora := AuxSoma div 3600;
+  Seg := AuxSoma mod 3600;
+  Min := Seg div 60;
+  Seg := Seg mod 60;
+  Dia := Hora div 24;
+  Sobra := ((Hora / 24) - Dia) * 24;
+  AHora := False;
+  Aux := '';
+  if Dia > 0 then
+  begin
+    Aux := Aux + FormatFloat('0d ', Dia);
+  end;
+
+  if Sobra > 0 then
+  begin
+    Aux := Aux + FormatFloat('00:', Sobra);
+    AHora := True;
+  end;
+
+  if (Min > 0) or AHora then
+  begin
+    Aux := Aux + FormatFloat('00:', Min);
+  end;
+
+  if AHora then
+    Aux := Aux + FormatFloat('00', Seg)
+  else
+    Aux := Aux + FormatFloat('00s', Seg);
+
+  Result := Aux;
+
+end;
+
+initialization
+
+RegisterClass(TfrmPedido);
+
+end.

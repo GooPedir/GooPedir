@@ -1,0 +1,107 @@
+unit uframeSelecao;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Objects;
+
+type
+  TframeSelecao = class(TFrame)
+    sSelecao: TSwitch;
+    lTitulo: TLabel;
+    btnSalvar: TSpeedButton;
+    Image1: TImage;
+    procedure sSelecaoSwitch(Sender: TObject);
+  private
+    FTitulo: String;
+    FValorTrue: Variant;
+    FCampo: String;
+    FValorFalse: Variant;
+    FValor: Variant;
+    procedure SetCampo(const Value: String);
+    procedure SetTitulo(const Value: String);
+    procedure SetValorTrue(const Value: Variant);
+    procedure SetValorFalse(const Value: Variant);
+    procedure SetValor(const Value: Variant);
+    { Private declarations }
+    property Valor: Variant read FValor write SetValor;
+  public
+    { Public declarations }
+    property Titulo: String read FTitulo write SetTitulo;
+    property Campo: String read FCampo write SetCampo;
+    property ValorTrue: Variant read FValorTrue write SetValorTrue;
+    property ValorFalse: Variant read FValorFalse write SetValorFalse;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TFrame1 }
+
+procedure TframeSelecao.SetCampo(const Value: String);
+begin
+  Dm.GetNomeEmpresa;
+  FCampo := Value;
+
+  if Assigned(Dm.DADOS_WHATSAPP.FindField(Value)) then
+  begin
+    if length(ValorTrue) = 0 then
+      ValorTrue := '1';
+
+    try
+      sSelecao.IsChecked := (ValorTrue = Dm.DADOS_WHATSAPP.FieldByName(Value)
+        .AsVariant);
+    except
+      sSelecao.IsChecked := False;
+    end;
+
+    Valor := sSelecao.IsChecked;
+    btnSalvar.Visible := False;
+
+    // edtValor.Text := Dm.DADOS_WHATSAPP.FieldByName(Value).AsString;
+     lTitulo.Text := Dm.DADOS_WHATSAPP.FindField(Value).DisplayName;
+    // ValorAtual := Dm.DADOS_WHATSAPP.FieldByName(Value).AsString;
+    // edtValor.MaxLength := Dm.DADOS_WHATSAPP.FindField(Value).Size;
+    // ContaCaracteres;
+  end
+  else
+  begin
+    ShowMessage('campo "' + Value +
+      '" não foi declarado na memorytable "DADOS_WHATSAPP" no datamodule!');
+  end;
+end;
+
+procedure TframeSelecao.SetTitulo(const Value: String);
+begin
+  FTitulo := Value;
+  if Value <> '' then
+  lTitulo.Text := Value;
+end;
+
+procedure TframeSelecao.SetValor(const Value: Variant);
+begin
+  FValor := Value;
+end;
+
+procedure TframeSelecao.SetValorFalse(const Value: Variant);
+begin
+  FValorFalse := Value;
+end;
+
+procedure TframeSelecao.SetValorTrue(const Value: Variant);
+begin
+  FValorTrue := Value;
+end;
+
+procedure TframeSelecao.sSelecaoSwitch(Sender: TObject);
+begin
+  btnSalvar.Visible := (Sender as TSwitch).IsChecked <> Valor;
+end;
+
+end.

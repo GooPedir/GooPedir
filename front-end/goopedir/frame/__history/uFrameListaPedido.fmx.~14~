@@ -1,0 +1,224 @@
+object frmListaPedido: TfrmListaPedido
+  Cursor = crHandPoint
+  Margins.Bottom = 1.000000000000000000
+  Size.Width = 870.000000000000000000
+  Size.Height = 83.000000000000000000
+  Size.PlatformDefault = False
+  OnClick = FrameClick
+  object rOrigem: TRectangle
+    Align = Client
+    Fill.Kind = None
+    Size.Width = 870.000000000000000000
+    Size.Height = 83.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = xFFF40505
+    Stroke.Thickness = 3.000000000000000000
+    object rTipo: TRectangle
+      Align = Left
+      Margins.Left = 4.000000000000000000
+      Margins.Top = 4.000000000000000000
+      Margins.Right = 4.000000000000000000
+      Margins.Bottom = 4.000000000000000000
+      Position.X = 4.000000000000000000
+      Position.Y = 4.000000000000000000
+      Size.Width = 10.000000000000000000
+      Size.Height = 75.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object Label1: TLabel
+      Position.X = 22.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'C'#243'digo'
+      TabOrder = 18
+    end
+    object lCodigo: TLabel
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 22.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = '000'
+      TabOrder = 10
+    end
+    object Label3: TLabel
+      Position.X = 73.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Data'
+      TabOrder = 17
+    end
+    object lData: TLabel
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 73.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 128.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = '00/00/0000 00:00'
+      TabOrder = 9
+    end
+    object Label5: TLabel
+      Position.X = 209.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Tempo'
+      TabOrder = 16
+    end
+    object lTempo: TLabel
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 209.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 88.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.HorzAlign = Trailing
+      Text = '0000h 15m 20s'
+      TabOrder = 8
+    end
+    object Label7: TLabel
+      Position.X = 305.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Cliente'
+      TabOrder = 11
+    end
+    object lCliente: TLabel
+      Anchors = [akLeft, akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 305.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 170.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'Allan Colombo Da Silva'
+      TabOrder = 3
+    end
+    object Label9: TLabel
+      Anchors = [akTop, akRight]
+      Position.X = 774.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Total'
+      TabOrder = 15
+    end
+    object lTotal: TLabel
+      Anchors = [akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 774.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 88.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'R$ 1.000,00'
+      TabOrder = 7
+    end
+    object lTaxa: TLabel
+      Anchors = [akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 678.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 88.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'R$ 1.000,00'
+      TabOrder = 6
+    end
+    object lDesconto: TLabel
+      Anchors = [akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 579.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 88.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'R$ 1.000,00'
+      TabOrder = 5
+    end
+    object lPedido: TLabel
+      Anchors = [akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 483.000000000000000000
+      Position.Y = 24.000000000000000000
+      Size.Width = 88.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'R$ 1.000,00'
+      TabOrder = 4
+    end
+    object Label14: TLabel
+      Anchors = [akTop, akRight]
+      Position.X = 483.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Pedido'
+      TabOrder = 14
+    end
+    object Label15: TLabel
+      Anchors = [akTop, akRight]
+      Position.X = 579.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 68.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Desconto'
+      TabOrder = 12
+    end
+    object Label16: TLabel
+      Anchors = [akTop, akRight]
+      Position.X = 678.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 43.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Taxa'
+      TabOrder = 13
+    end
+    object lEndereco: TLabel
+      Anchors = [akLeft, akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 22.000000000000000000
+      Position.Y = 43.000000000000000000
+      Size.Width = 840.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      Text = 'Allan Colombo Da Silva'
+      TabOrder = 2
+    end
+    object lStatus: TLabel
+      Anchors = [akLeft, akTop, akRight]
+      StyledSettings = [Family, Size, FontColor]
+      Position.X = 22.000000000000000000
+      Position.Y = 58.000000000000000000
+      Size.Width = 840.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Text = 'Allan Colombo Da Silva'
+      TabOrder = 1
+    end
+  end
+end

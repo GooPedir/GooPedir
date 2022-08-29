@@ -1,0 +1,91 @@
+unit util;
+
+interface
+
+uses uMemTable, System.UITypes,
+  System.Classes, FMX.Toast, Data.DB, FMX.Grid, FMX.Types, System.JSON;
+
+procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
+function ArquivoParaJSON(pDirArquivo: string): String;
+
+implementation
+
+uses uMain, System.SysUtils;
+
+procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
+begin
+  Form := frmMain;
+  case Tipo of
+    1:
+      begin
+        TToast.New(Form).Error(Mensage);
+      end;
+
+    2:
+      begin
+        TToast.New(Form).Info(Mensage);
+      end;
+    3:
+      begin
+        TToast.New(Form).Success(Mensage);
+      end;
+    4:
+      begin
+        TToast.New(Form).Warning(Mensage);
+      end
+  else
+    begin
+      TToast.New(Form).Info(Mensage);
+    end;
+  end;
+end;
+
+function ArquivoParaJSON(pDirArquivo: string): String;
+var
+  sBytesArquivo, sNomeArquivo: string;
+  oSSArquivoStream: TStringStream;
+  iTamanhoArquivo, iCont: integer;
+begin
+  try
+    // Result := TJSONArray.Create; // Instanciando o objeto JSON que conterá o arquivo serializado
+
+    oSSArquivoStream := TStringStream.Create;
+    // Instanciando o objeto stream que carregará o arquivo para memoria
+    oSSArquivoStream.LoadFromFile(pDirArquivo);
+    // Carregando o arquivo para memoria
+    iTamanhoArquivo := oSSArquivoStream.Size; // pegando o tamanho do arquivo
+
+    sBytesArquivo := '';
+
+    // Fazendo um lanço no arquivo que está na memoria para pegar os bytes do mesmo
+    for iCont := 0 to iTamanhoArquivo - 1 do
+    begin
+      // A medida que está fazendo o laço para pegar os bytes, os mesmos são jogados para
+      // uma variável do tipo string separado por ","
+      sBytesArquivo := sBytesArquivo +
+        IntToStr(oSSArquivoStream.Bytes[iCont]) + ', ';
+    end;
+
+    // Como é colocado uma vírgula após o byte, fica sempre sobrando uma vígugula, que é deletada
+    Delete(sBytesArquivo, Length(sBytesArquivo) - 1, 2);
+
+    // Adiciona a string que contém os bytes para o array JSON
+    // Result.Add(sBytesArquivo);
+
+    // Adiciona para o array JSON o tamanho do arquivo
+    // Result.AddElement(TJSONNumber.Create(iTamanhoArquivo));
+
+    // Extrai o nome do arquivo
+    sNomeArquivo := ExtractFileName(pDirArquivo);
+
+    // Adiciona na terceira posição do array JSON o nome do arquivo
+    // Result.AddElement(TJSONString.Create(sNomeArquivo));
+
+    Result := '{"byte":"' + sBytesArquivo + '","size":"' + Length(sBytesArquivo)
+      .ToString + '","arquivo":"' + sNomeArquivo + '"}'
+  finally
+    oSSArquivoStream.Free;
+  end;
+end;
+
+end.

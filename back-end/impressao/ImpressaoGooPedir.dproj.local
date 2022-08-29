@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/06/25 23:08:42.000.833,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/09/30 19:11:11.000.783,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/09/30 19:59:30.000.294,C:\Projeto\papaleguas-backend-site\src\uPrincipal.dfm=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2021/09/30 19:59:30.000.294,C:\Projeto\papaleguas-backend-site\src\uPrincipal.pas=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/09/30 19:59:35.000.364,C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\site.dproj=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2021/09/30 19:59:40.000.442,C:\Projeto\papaleguas-backend-site\src\site.dproj=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\site.dproj</Transaction>
+    <Transaction>2021/09/30 20:04:15.000.723,=C:\Projeto\papaleguas-backend-site\src\util\requisicao.pas</Transaction>
+    <Transaction>2021/09/30 22:00:06.000.189,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
+    <Transaction>2021/09/30 22:00:18.000.671,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\uModulo.pas</Transaction>
+    <Transaction>2021/09/30 22:00:18.000.671,C:\Projeto\papaleguas-backend-site\src\Unit1.dfm=C:\Projeto\papaleguas-backend-site\src\uModulo.dfm</Transaction>
+    <Transaction>2021/09/30 22:00:50.000.679,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
+    <Transaction>2021/09/30 22:01:20.000.471,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\util\metodo.api.pas</Transaction>
+    <Transaction>2021/10/30 11:20:09.000.131,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
+    <Transaction>2021/10/30 11:20:36.000.446,C:\Projeto\papaleguas-backend-site\src\Unit1.dfm=C:\Projeto\papaleguas-backend-site\src\impressao\uModuloImpressao.dfm</Transaction>
+    <Transaction>2021/10/30 11:20:36.000.446,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\impressao\uModuloImpressao.pas</Transaction>
+    <Transaction>2021/10/30 13:41:14.000.282,=C:\Projeto\papaleguas-backend-site\src\impressao\uModuloImpressao.pas</Transaction>
+    <Transaction>2021/10/30 16:12:02.000.189,C:\Projeto\papaleguas-backend-impressao\src\site.dproj=C:\Projeto\papaleguas-backend-impressao\src\impressao.dproj</Transaction>
+    <Transaction>2021/10/30 16:12:42.000.214,C:\Projeto\papaleguas-backend-impressao\src\impressao.dproj=C:\Projeto\papaleguas-backend-impressao\src\ImpressaoPapaleguas.dproj</Transaction>
+    <Transaction>2021/10/30 16:15:57.000.268,C:\Projeto\papaleguas-backend-impressao\src\uPrincipal.pas=</Transaction>
+    <Transaction>2021/10/30 16:57:28.000.854,=C:\Projeto\papaleguas-backend-impressao\src\Unit1.pas</Transaction>
+    <Transaction>2021/10/30 16:58:03.000.371,C:\Projeto\papaleguas-backend-impressao\src\Unit1.pas=C:\Projeto\papaleguas-backend-impressao\src\util\uMain.pas</Transaction>
+    <Transaction>2021/10/30 16:58:03.000.371,C:\Projeto\papaleguas-backend-impressao\src\Unit1.dfm=C:\Projeto\papaleguas-backend-impressao\src\util\uMain.dfm</Transaction>
+    <Transaction>2022/05/30 11:34:20.000.741,C:\Projeto\papaleguas-backend-impressao\src\ImpressaoPapaleguas.dproj=C:\Projeto\papaleguas-backend-impressao\src\ImpressaoGooPedir.dproj</Transaction>
+  </Transactions>
+	<ActiveMobileDevice>
+		<NoProfile iOSSimulator="iPhone5"/>
+	</ActiveMobileDevice>
+</BorlandProject>

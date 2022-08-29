@@ -1,0 +1,270 @@
+inherited frmMotoboy: TfrmMotoboy
+  Caption = 'frmCadastroBase1'
+  ClientHeight = 540
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Height = 540.000000000000000000
+    inherited Rectangle1: TRectangle
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D4494441546843EDD24B0A02311084E1E04E510FE6D5F43ABA50DCF9B89290
+              74B4063B83C1C74218D2ADF56D023359FC354C20A23672CE731159E21CEB233F
+              BAF894D2F90A18B17535E231BEC0889D8B11AFE20B8C58EB359B3EC5C7182F78
+              BFD0ABF6FC42FC497B2B8C1F12E35B41DC0CF147EDAD307E488C6F85F1AD30BE
+              15344E117FB8E7D618FF85919EFF031FDBEF2F54A095234C402B479880568E30
+              01AD1C61025A39C204B472840968E50813D0FA7684886CF49A6D687D1A81F83D
+              8E895EB10FB1FD0877F1453702F12B97F14466847003A635BF41659197C10000
+              000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Size.Height = 490.000000000000000000
+      Sizes = (
+        956s
+        464s
+        956s
+        464s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          Position.Y = 414.000000000000000000
+          TabOrder = 1
+          inherited rAdicionar: TRectangle
+            OnClick = rAdicionarClick
+            inherited Label1: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            OnClick = rAlterarClick
+            inherited Label2: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            Visible = False
+            inherited lTipoAtivo: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object StringGrid4: TStringGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 956.000000000000000000
+          Size.Height = 414.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          RowHeight = 50.000000000000000000
+          RowCount = 0
+          Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
+          Viewport.Width = 956.000000000000000000
+          Viewport.Height = 414.000000000000000000
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          Position.Y = 414.000000000000000000
+          OnClick = rSalvarClick
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95410E82301045C104CFA627F0382EE51EDE4CA26BB6D0
+                    00FE193F4D2B055A138D0B5E623A9D3F7F86DAA0D946127DDF1FDBB6AD8644E0
+                    3BB3C532687EA32799A821AC1DB88D028D4F755D1BF1AD0ED1EEC08D97501388
+                    1EA22EE0C64BA889C810A6BD7CCE5519C51CBC1786903A868AEBD704D871FD0D
+                    F20402B7C9D0EEF9BF7E82A80178A87DD77597A6691EF291587294E3D1F3016E
+                    2D48952FC5A3A46C617EFE2BA63E29C01B7EA764911C650BA53FBC83A228AE0C
+                    2DA1DC2A3C61E80EA22E59CD80DB29D4E70B56A07DFE0E8C3195ACAC4BC6ED11
+                    043F581FFDE18C88173D0E6CB71143963D014D893BF0219D9230000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout1: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 8.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 938.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 4
+          object edtBairro: iEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 0
+            KeyboardType = Alphabet
+            ReturnKeyType = Next
+            Position.Y = 17.000000000000000000
+            Size.Width = 938.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            CharCase = ecUpperCase
+            iForthMemInsert = DADOS
+            iForthCampoInser = 'nome'
+            iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+          end
+          object Label3: TLabel
+            Align = Top
+            Size.Width = 938.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Nome'
+            TabOrder = 1
+          end
+        end
+      end
+    end
+  end
+  object DADOS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 784
+    Top = 250
+    object DADOScodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object DADOSnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 255
+    end
+    object DADOSativo: TIntegerField
+      FieldName = 'ativo'
+    end
+  end
+  object BDSDADOS: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 464
+    Top = 256
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 900
+    Top = 213
+    object LinkGridToDataSourceBDSDADOS: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BDSDADOS
+      GridControl = StringGrid4
+      Columns = <
+        item
+          MemberName = 'nome'
+          Width = 200
+        end>
+    end
+  end
+end

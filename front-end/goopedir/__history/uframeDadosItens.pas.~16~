@@ -1,0 +1,138 @@
+unit uframeDadosItens;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.Objects, UnitResumo;
+
+type
+  TCallback = procedure of object;
+
+  TframeDadosItens = class(TFrame)
+    Layout1: TLayout;
+    lNome: TLabel;
+    Layout2: TLayout;
+    Layout3: TLayout;
+    lDescricao: TLabel;
+    lValor: TLabel;
+    img_excluir: TImage;
+    Rectangle1: TRectangle;
+    Image1: TImage;
+    procedure img_excluirClick(Sender: TObject);
+    procedure img_excluirMouseEnter(Sender: TObject);
+    procedure img_excluirMouseLeave(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+  private
+    FValor: Real;
+    FDescricao: String;
+    FCodigo: Integer;
+    FQuantidade: Integer;
+    FNome: String;
+    FMesa: Integer;
+    FCodigoPedido: Integer;
+    procedure SetCodigo(const Value: Integer);
+    procedure SetDescricao(const Value: String);
+    procedure SetNome(const Value: String);
+    procedure SetQuantidade(const Value: Integer);
+    procedure SetValor(const Value: Real);
+    procedure AtualizaValor;
+    procedure SetMesa(const Value: Integer);
+    procedure SetCodigoPedido(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Nome: String read FNome write SetNome;
+    property Descricao: String read FDescricao write SetDescricao;
+    property Quantidade: Integer read FQuantidade write SetQuantidade;
+    property Valor: Real read FValor write SetValor;
+    property Mesa : Integer read FMesa write SetMesa;
+    property CodigoPedido : Integer read FCodigoPedido write SetCodigoPedido;
+
+  var
+    Sim: TCallback;
+    FormResumo: TFrmResumo;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses util, UnitPrincipal;
+
+{ TframeDadosItens }
+
+procedure TframeDadosItens.AtualizaValor;
+begin
+  lValor.Text := Quantidade.ToString + ' x R$ ' + FormatFloat('#0.00', Valor);
+end;
+
+procedure TframeDadosItens.Image1Click(Sender: TObject);
+begin
+FrmPrincipal.AlterarItem(mesa, CodigoPedido,CodigoProdutoPedido);
+end;
+
+procedure TframeDadosItens.img_excluirClick(Sender: TObject);
+begin
+  if Assigned(Sim) then
+  begin
+    // ProdCompleto.FieldByName('nome_produto').AsString;
+    FormResumo.ProdCompleto.Locate('codigo', Codigo, []);
+    Sim;
+  end;
+end;
+
+procedure TframeDadosItens.img_excluirMouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+end;
+
+procedure TframeDadosItens.img_excluirMouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+end;
+
+procedure TframeDadosItens.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframeDadosItens.SetCodigoPedido(const Value: Integer);
+begin
+  FCodigoPedido := Value;
+end;
+
+procedure TframeDadosItens.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lDescricao.Text := StringReplace(Value, ',', ', ', [rfReplaceAll]);
+  lDescricao.Text := FormataNome(lDescricao.Text);
+end;
+
+procedure TframeDadosItens.SetMesa(const Value: Integer);
+begin
+  FMesa := Value;
+end;
+
+procedure TframeDadosItens.SetNome(const Value: String);
+begin
+  FNome := Value;
+  lNome.Text := FormataNome(Value);
+end;
+
+procedure TframeDadosItens.SetQuantidade(const Value: Integer);
+begin
+  FQuantidade := Value;
+  AtualizaValor;
+end;
+
+procedure TframeDadosItens.SetValor(const Value: Real);
+begin
+  FValor := Value;
+  AtualizaValor;
+end;
+
+end.

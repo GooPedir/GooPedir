@@ -1,0 +1,39 @@
+unit util;
+
+interface
+
+uses uMemTable, System.UITypes,
+  System.Classes, FMX.Toast, Data.DB, FMX.Grid, FMX.Types;
+
+procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
+
+implementation
+
+procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
+begin
+  case Tipo of
+    1:
+      begin
+        TToast.New(Form).Error(Mensage);
+      end;
+
+    2:
+      begin
+        TToast.New(Form).Info(Mensage);
+      end;
+    3:
+      begin
+        TToast.New(Form).Success(Mensage);
+      end;
+    4:
+      begin
+        TToast.New(Form).Warning(Mensage);
+      end
+  else
+    begin
+      TToast.New(Form).Info(Mensage);
+    end;
+  end;
+end;
+
+end.

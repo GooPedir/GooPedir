@@ -1,0 +1,126 @@
+unit uFrameDescricaoAdicional;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.Objects;
+
+type
+  TFrameDescricaoAdicional = class(TFrame)
+    Layout1: TLayout;
+    lDescricao: TLabel;
+    Rectangle1: TRectangle;
+    lQtd: TLabel;
+    lObrigatorio: TLabel;
+  private
+    FCodigoAdicional: Integer;
+    FMaximo: Integer;
+    FMinimo: Integer;
+    FDescricao: String;
+    FQtdSelecionado: Integer;
+    procedure SetCodigoAdicional(const Value: Integer);
+    procedure SetMaximo(const Value: Integer);
+    procedure SetMinimo(const Value: Integer);
+    procedure SetDescricao(const Value: String);
+    procedure SetQtdSelecionado(const Value: Integer);
+    { Private declarations }
+    property QtdSelecionado: Integer read FQtdSelecionado
+      write SetQtdSelecionado;
+    procedure AtualizaQtd;
+  public
+    { Public declarations }
+    property Minimo: Integer read FMinimo write SetMinimo;
+    property Maximo: Integer read FMaximo write SetMaximo;
+    property CodigoAdicional: Integer read FCodigoAdicional
+      write SetCodigoAdicional;
+    property Descricao: String read FDescricao write SetDescricao;
+    procedure Mais;
+    procedure Menos;
+    function Valida: Boolean;
+    function ValidaMenos: Boolean;
+    function Selecionado: Integer;
+
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses util;
+{ TFrameDescricaoAdicional }
+
+procedure TFrameDescricaoAdicional.AtualizaQtd;
+begin
+  lQtd.Text := QtdSelecionado.ToString + ' / ' + Maximo.ToString;
+  if (QtdSelecionado = Maximo) and (QtdSelecionado > 0) then
+    lQtd.Text := 'Máx';
+
+  lObrigatorio.Visible := (lQtd.Text = 'Máx');
+
+end;
+
+procedure TFrameDescricaoAdicional.Mais;
+begin
+  QtdSelecionado := QtdSelecionado + 1;
+end;
+
+procedure TFrameDescricaoAdicional.Menos;
+begin
+  QtdSelecionado := QtdSelecionado - 1;
+end;
+
+function TFrameDescricaoAdicional.Selecionado: Integer;
+begin
+  Result := QtdSelecionado;
+end;
+
+procedure TFrameDescricaoAdicional.SetCodigoAdicional(const Value: Integer);
+begin
+  FCodigoAdicional := Value;
+  Self.Name := 'CategoriaAdicional' + Value.ToString;
+end;
+
+procedure TFrameDescricaoAdicional.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lDescricao.Text := FormataNome(Descricao);
+  QtdSelecionado := 0;
+{$IFDEF Android}
+  //
+{$ENDIF}
+end;
+
+procedure TFrameDescricaoAdicional.SetMaximo(const Value: Integer);
+begin
+  FMaximo := Value;
+  AtualizaQtd;
+end;
+
+procedure TFrameDescricaoAdicional.SetMinimo(const Value: Integer);
+begin
+  FMinimo := Value;
+  AtualizaQtd;
+  lObrigatorio.Text := 'obrigatório ' + Value.ToString + ' itens';
+end;
+
+procedure TFrameDescricaoAdicional.SetQtdSelecionado(const Value: Integer);
+begin
+  FQtdSelecionado := Value;
+  AtualizaQtd;
+end;
+
+function TFrameDescricaoAdicional.Valida: Boolean;
+begin
+  Result := (QtdSelecionado = Maximo);
+
+end;
+
+function TFrameDescricaoAdicional.ValidaMenos: Boolean;
+begin
+  Result := (QtdSelecionado = 0);
+end;
+
+end.

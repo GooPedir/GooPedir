@@ -1,0 +1,141 @@
+object frmPadrao: TfrmPadrao
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 572
+  ClientWidth = 820
+  Position = Designed
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object layClient: TLayout
+    Align = Client
+    Size.Width = 820.000000000000000000
+    Size.Height = 572.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object rTopo: TRectangle
+      Align = Top
+      Size.Width = 820.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      object imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF6FDEBC
+              F90D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE28181280810100B6B8FB0C6DA187740000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+        Align = Left
+        Size.Width = 48.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object lNomeForm: TLabel
+        Align = Client
+        StyledSettings = [Family]
+        HitTest = True
+        Margins.Right = 5.000000000000000000
+        Size.Width = 707.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 22.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.FontColor = claWhite
+        TextSettings.HorzAlign = Center
+        Text = 'lNomeForm'
+        TabOrder = 0
+      end
+      object imgFiltro: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0226494441546843ED96CB4EC2401486690D10127D009FC1952B7D0AA30BBCC4
+              07F2B2F511344477C6B7D0F8005E125D7959232C4A05FCCFF0D300054E6F14D4
+              F992C94CE7FCF3F71C3A2D53B0582C168BC562F9C738EC6742B7DB2DA2DBEE74
+              3A5B681B9EE7ADCA7CB95CFE705DF716ED0697D78EE3F832BF5020E11DDFF79F
+              51C45444235A2E4B0F7D55280F8190DB6EB74F7AAAE8708D4B9BE4F4EC74280F
+              81444E29898DACA54D72E8A542F910B215180EA8D7EB1E123B436C1397CBD264
+              2C731233A201526F27FAA8501E80A9E2E89E6FB55A6F48689D921012130DE506
+              7AC8CB9F2FB869D56440E4D79D967C1FD18C79125586F3035BE2823737C81661
+              4845B45C66102F86F2038FFE81F737E097DD644845B45C66102F86F2A3D96CD6
+              797F03925A614845B45C66102F8654D27F776700B6D012872A9915502A95DE39
+              ECB3C63E0A43DA4AA5F2C9A14AA8003E4515CA0370AEB9E7D000C921872AA35A
+              78DD71181F935D04280FC0D4627C4669A0427900A6B2FA237B4157A2243E3D1B
+              1DCA874042A98F12E09876F30189253ECC0928EA1B051ED02E7F9043A2E3F420
+              2C629F96F341B6D3E83B310E685E51F01192F6396590EBB917813C8A68552478
+              8E449F1A8DC697EC7B8C1F3177293134F3C2CA7842117BC6EC37809CFF7411BB
+              944C876B3283B6B1C0B2B145A0D3FFE07AF2ECA06D6CB0345404DE9B1AC393A1
+              3633689B082C0F8A40F257E8F453AA88B384B68981857CC56AE8231FB12D168B
+              C562B1E443A1F0038F6E8EA08752A2060000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
+              'nage_search_white_24dp.png'
+          end>
+        Align = MostRight
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 765.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 40.000000000000000000
+        Size.PlatformDefault = False
+        OnClick = imgFiltroClick
+      end
+    end
+    object tabMain: TTabControl
+      Align = Client
+      Size.Width = 820.000000000000000000
+      Size.Height = 522.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      TabPosition = PlatformDefault
+    end
+  end
+  object memFiltros: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 528
+    Top = 2
+    object memFiltrosFILTRO: TStringField
+      FieldName = 'FILTRO'
+      Size = 255
+    end
+    object memFiltrosVALOR: TStringField
+      FieldName = 'VALOR'
+      Size = 255
+    end
+  end
+end

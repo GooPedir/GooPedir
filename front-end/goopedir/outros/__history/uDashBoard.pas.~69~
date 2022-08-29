@@ -1,0 +1,608 @@
+unit uDashBoard;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, uRequisicao, FireDAC.Comp.Client, uDM,
+  FMX.Edit, FMX.EditBox, FMX.NumberBox;
+
+type
+
+  TfrmDashBoard = class(TfrmCadastroBase)
+    Layout4: TLayout;
+    Layout5: TLayout;
+    Layout2: TLayout;
+    Label5: TLabel;
+    lProdutoPausado: TLabel;
+    imgMotoboy: TImage;
+    lTotalMotoboy: TLabel;
+    Layout3: TLayout;
+    Label8: TLabel;
+    lPedidosMesAtual: TLabel;
+    Label15: TLabel;
+    lPedidosMesAnterior: TLabel;
+    Layout1: TLayout;
+    layHistorico: TLayout;
+    Layout6: TLayout;
+    Label11: TLabel;
+    Label12: TLabel;
+    HorzScrollBox1: THorzScrollBox;
+    rSegunda: TRectangle;
+    Label3: TLabel;
+    Label4: TLabel;
+    lMediaSegunda: TLabel;
+    Label6: TLabel;
+    lMediaSegundaCancelado: TLabel;
+    Label9: TLabel;
+    lMediaSegundaConcluido: TLabel;
+    rDomingo: TRectangle;
+    Label13: TLabel;
+    Label14: TLabel;
+    lMediaDomingo: TLabel;
+    Label16: TLabel;
+    lMediaDomingoCancelado: TLabel;
+    Label18: TLabel;
+    lMediaDomingoConcluido: TLabel;
+    rSabado: TRectangle;
+    Label20: TLabel;
+    Label21: TLabel;
+    lMediaSabado: TLabel;
+    Label23: TLabel;
+    lMediaSabadoCancelado: TLabel;
+    Label25: TLabel;
+    lMediaSabadoConcluido: TLabel;
+    rSexta: TRectangle;
+    Label27: TLabel;
+    Label28: TLabel;
+    lMediaSexta: TLabel;
+    Label30: TLabel;
+    lMediaSextaCancelado: TLabel;
+    Label32: TLabel;
+    lMediaSextaConcluido: TLabel;
+    rQuinta: TRectangle;
+    Label34: TLabel;
+    Label35: TLabel;
+    lMediaQuinta: TLabel;
+    Label37: TLabel;
+    lMediaQuintaCancelado: TLabel;
+    Label39: TLabel;
+    lMediaQuintaConcluido: TLabel;
+    rQuarta: TRectangle;
+    Label41: TLabel;
+    Label42: TLabel;
+    lMediaQuarta: TLabel;
+    Label44: TLabel;
+    lMediaQuartaCancelado: TLabel;
+    Label46: TLabel;
+    lMediaQuartaConcluido: TLabel;
+    rTerca: TRectangle;
+    Label48: TLabel;
+    Label49: TLabel;
+    lMediaTerca: TLabel;
+    Label51: TLabel;
+    lMediaTercaCancelado: TLabel;
+    Label53: TLabel;
+    lMediaTercaConcluido: TLabel;
+    Label19: TLabel;
+    Layout7: TLayout;
+    Label10: TLabel;
+    lPedidoHoje: TLabel;
+    lPrevisaoHoje: TLabel;
+    lUltimosMeses: TLabel;
+    lUltimosMesesText: TLabel;
+    lPercentual: TLabel;
+    Label24: TLabel;
+    imgCategoria: TImage;
+    lCategoria: TLabel;
+    imgTaxa: TImage;
+    lTaxa: TLabel;
+    imgMesas: TImage;
+    lMesas: TLabel;
+    imgTipoPag: TImage;
+    lTipoPagamento: TLabel;
+    imgImpressora: TImage;
+    lImpressora: TLabel;
+    imgConfig: TImage;
+    Label17: TLabel;
+    Image2: TImage;
+    Label22: TLabel;
+    HorzScrollBoxFatura: THorzScrollBox;
+    imgCliente: TImage;
+    lCliente: TLabel;
+    img_cliente: TImage;
+    Image4: TImage;
+    Label26: TLabel;
+    nDelivery: TNumberBox;
+    Label29: TLabel;
+    nVemBuscar: TNumberBox;
+    procedure FormCreate(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure imgMotoboyClick(Sender: TObject);
+    procedure imgCategoriaClick(Sender: TObject);
+    procedure imgTaxaClick(Sender: TObject);
+    procedure imgMesasClick(Sender: TObject);
+    procedure imgConfigClick(Sender: TObject);
+    procedure imgImpressoraClick(Sender: TObject);
+    procedure lProdutoPausadoClick(Sender: TObject);
+    procedure imgTipoPagClick(Sender: TObject);
+    procedure imgClienteClick(Sender: TObject);
+    procedure img_clienteClick(Sender: TObject);
+    procedure Image4Click(Sender: TObject);
+    procedure Image2Click(Sender: TObject);
+    procedure nDeliveryExit(Sender: TObject);
+    procedure nVemBuscarExit(Sender: TObject);
+  private
+    FMesesPrevisao: Integer;
+    FPrevisaoHoje: Integer;
+    FPrevisaoUltimosMeses: Integer;
+    procedure SetMesesPrevisao(const Value: Integer);
+    procedure SetPrevisaoHoje(const Value: Integer);
+    procedure SetPrevisaoUltimosMeses(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+
+    // Procedures
+    procedure DadosMedia;
+    function ValidaData(Data: TDate): Boolean;
+    procedure OnFinis(Sender: TObject);
+
+    // Propertys
+    property MesesPrevisao: Integer read FMesesPrevisao write SetMesesPrevisao;
+    property PrevisaoHoje: Integer read FPrevisaoHoje write SetPrevisaoHoje;
+    property PrevisaoUltimosMeses: Integer read FPrevisaoUltimosMeses
+      write SetPrevisaoUltimosMeses;
+
+  end;
+
+  TPrevisaoPedidoTThread = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    CONEXAO: iRequisicao;
+    Dados: TFDMemTable;
+    Formulario: TfrmDashBoard;
+  end;
+
+var
+  frmDashBoard: TfrmDashBoard;
+
+implementation
+
+{$R *.fmx}
+
+uses uMain, uFrameTitulo;
+
+procedure TfrmDashBoard.DadosMedia;
+var
+  t: TThread;
+begin
+  t := TThread.CreateAnonymousThread(
+    procedure
+    var
+      CONEXAO: iRequisicao;
+      Dados: TFDMemTable;
+
+      DataInicial: TDateTime;
+      Hoje: Integer;
+      DataComeco: TDateTime;
+      DataFim: TDateTime;
+      I: Integer;
+      Datas: Array of String;
+      DiaDaSemana: String;
+
+    begin
+      CONEXAO := iRequisicao.Create(nil);
+      CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+
+      Dados := TFDMemTable.Create(nil);
+      CONEXAO.URL := '/v1/dashboard';
+      CONEXAO.MemTable2 := Dados;
+      CONEXAO.Metodo := mGet;
+      CONEXAO.Execute;
+      lProdutoPausado.Text := Dados.FieldByName('pausado').AsString;
+      lTotalMotoboy.Text := Dados.FieldByName('motoboy').AsString;
+
+      lCategoria.Text := Dados.FieldByName('categoria').AsString;
+      lTaxa.Text := Dados.FieldByName('taxa').AsString;
+      lMesas.Text := Dados.FieldByName('mesa').AsString;
+
+      lTipoPagamento.Text := Dados.FieldByName('pagamento').AsString;
+      lImpressora.Text := Dados.FieldByName('impressora').AsString;
+
+      lPedidosMesAtual.Text := Dados.FieldByName('pedidos_mes_atual').AsString;
+      lPedidosMesAnterior.Text :=
+        Dados.FieldByName('pedidos_mes_anterior').AsString;
+
+      Dados.Free;
+
+      CONEXAO.URL := '/v1/media/pedido';
+      Dados := TFDMemTable.Create(nil);
+
+      Hoje := DayOfWeek(date);
+      DataComeco := date - Hoje;
+      DataFim := DataComeco + 7;
+
+      setlength(Datas, 7);
+
+      while not(DataComeco = DataFim) do
+      begin
+        // DayOfWeek(Hoje)
+        DataInicial := DataComeco - 30;
+        while not(DataInicial = DataComeco) do
+        begin
+
+          if DayOfWeek(DataInicial) = DayOfWeek(DataComeco) then
+          begin
+
+            if length(Datas[DayOfWeek(DataInicial) - 1]) = 0 then
+            begin
+              Datas[DayOfWeek(DataInicial) - 1] :=
+                QuotedStr(FormatDateTime('yyyy-mm-dd', DataInicial));
+            end
+            else
+            begin
+              Datas[DayOfWeek(DataInicial) - 1] :=
+                Datas[DayOfWeek(DataInicial) - 1] + ',' +
+                QuotedStr(FormatDateTime('yyyy-mm-dd', DataInicial));
+            end;
+
+          end;
+
+          DataInicial := DataInicial + 1;
+        end;
+
+        DataComeco := DataComeco + 1;
+      end;
+
+      for I := 0 to 6 do
+      begin
+        Dados.Close;
+        CONEXAO.BODY(Datas[I]);
+        CONEXAO.MemTable2 := Dados;
+        CONEXAO.Metodo := mGet;
+        CONEXAO.Execute;
+        // ShowMessage(CONEXAO.Retorno);
+
+        case I of
+          0:
+            DiaDaSemana := 'domingo';
+          1:
+            DiaDaSemana := 'segunda';
+          2:
+            DiaDaSemana := 'terca';
+          3:
+            DiaDaSemana := 'quarta';
+          4:
+            DiaDaSemana := 'quinta';
+          5:
+            DiaDaSemana := 'sexta';
+          6:
+            DiaDaSemana := 'sabado';
+        end;
+
+        if Assigned(Self.FindComponent('lMedia' + DiaDaSemana)) then
+        begin
+          if Dados.FieldByName('media').IsNull then
+            (Self.FindComponent('lMedia' + DiaDaSemana) as TLabel).Text := '0'
+          else
+            (Self.FindComponent('lMedia' + DiaDaSemana) as TLabel).Text :=
+              Dados.FieldByName('media').AsString;
+        end;
+
+        if Assigned(Self.FindComponent('lMedia' + DiaDaSemana + 'Cancelado'))
+        then
+        begin
+          if Dados.FieldByName('media_cancelado').IsNull then
+            (Self.FindComponent('lMedia' + DiaDaSemana + 'Cancelado') as TLabel)
+              .Text := '0,00%'
+          else
+            (Self.FindComponent('lMedia' + DiaDaSemana + 'Cancelado') as TLabel)
+              .Text := FormatFloat('#0.00%',
+              Dados.FieldByName('media_cancelado').AsFloat);
+        end;
+
+        if Assigned(Self.FindComponent('lMedia' + DiaDaSemana + 'Cancelado'))
+        then
+        begin
+          if Dados.FieldByName('media_concluido').IsNull then
+            (Self.FindComponent('lMedia' + DiaDaSemana + 'Concluido') as TLabel)
+              .Text := '0,00%'
+          else
+            (Self.FindComponent('lMedia' + DiaDaSemana + 'Concluido') as TLabel)
+              .Text := FormatFloat('#0.00%',
+              Dados.FieldByName('media_concluido').AsFloat);
+        end;
+
+      end;
+
+      layHistorico.Visible := True;
+    end);
+  t.OnTerminate := OnFinis;
+  t.Start;
+
+end;
+
+procedure TfrmDashBoard.FormActivate(Sender: TObject);
+begin
+  inherited;
+  DadosMedia;
+  layHistorico.Visible := False;
+end;
+
+procedure TfrmDashBoard.FormCreate(Sender: TObject);
+var
+  Frame: TFrameTitulo;
+begin
+  inherited;
+  tabPrincipal.TabPosition := TTabPosition.None;
+
+  // ValidaData(date);
+  MesesPrevisao := 12;
+  dm.BuscaFaturas(HorzScrollBoxFatura);
+  try
+    nDelivery.Text := dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;
+  except
+
+  end;
+  try
+    nVemBuscar.Text := dm.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsString;
+  except
+
+  end;
+end;
+
+procedure TfrmDashBoard.Image2Click(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmRelatorioVendas');
+end;
+
+procedure TfrmDashBoard.Image4Click(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCupom');
+end;
+
+procedure TfrmDashBoard.imgCategoriaClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCategoria');
+end;
+
+procedure TfrmDashBoard.imgClienteClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCliente');
+end;
+
+procedure TfrmDashBoard.imgConfigClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmParametros');
+end;
+
+procedure TfrmDashBoard.imgImpressoraClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmImpressora');
+end;
+
+procedure TfrmDashBoard.imgMesasClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCadastroMesas');
+end;
+
+procedure TfrmDashBoard.imgMotoboyClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmMotoboy');
+end;
+
+procedure TfrmDashBoard.imgTaxaClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmTaxaEntrega');
+end;
+
+procedure TfrmDashBoard.imgTipoPagClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmTipoPagamento');
+end;
+
+procedure TfrmDashBoard.img_clienteClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCliente');
+end;
+
+procedure TfrmDashBoard.lProdutoPausadoClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmProduto');
+end;
+
+procedure TfrmDashBoard.nDeliveryExit(Sender: TObject);
+begin
+  inherited;
+  try
+    DM.DADOS_WHATSAPP.Edit;
+
+    DM.DADOS_WHATSAPP.FieldByName('temp_delivery').AsVariant := nDelivery.Text;
+
+    DM.DADOS_WHATSAPP.Post;
+
+    DM.AtualizaParametro('temp_delivery', nDelivery.Text);
+  except
+
+  end;
+end;
+
+procedure TfrmDashBoard.nVemBuscarExit(Sender: TObject);
+begin
+  inherited;
+  try
+    DM.DADOS_WHATSAPP.Edit;
+
+    DM.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsVariant := nVemBuscar.Text;
+
+    DM.DADOS_WHATSAPP.Post;
+
+    DM.AtualizaParametro('temp_vembuscar', nVemBuscar.Text);
+  except
+
+  end;
+end;
+
+procedure TfrmDashBoard.OnFinis(Sender: TObject);
+var
+  PrevisaoPedidoTThread: TPrevisaoPedidoTThread;
+begin
+  PrevisaoPedidoTThread := TPrevisaoPedidoTThread.Create;
+  PrevisaoPedidoTThread.Formulario := Self;
+  PrevisaoPedidoTThread.Start;
+
+end;
+
+procedure TfrmDashBoard.SetMesesPrevisao(const Value: Integer);
+begin
+  FMesesPrevisao := Value;
+  lUltimosMesesText.Text := 'Ultimos ' + MesesPrevisao.ToString + ' meses';
+end;
+
+procedure TfrmDashBoard.SetPrevisaoHoje(const Value: Integer);
+begin
+  FPrevisaoHoje := Value;
+  try
+    FPrevisaoHoje := FPrevisaoHoje div MesesPrevisao;
+  except
+
+  end;
+  lUltimosMeses.Text := (Value div MesesPrevisao).ToString;
+end;
+
+procedure TfrmDashBoard.SetPrevisaoUltimosMeses(const Value: Integer);
+begin
+  FPrevisaoUltimosMeses := Value;
+  lPedidoHoje.Text := FPrevisaoUltimosMeses.ToString;
+  try
+    lPercentual.Text := FormatFloat('#0.00 %',
+      (((FPrevisaoHoje - FPrevisaoUltimosMeses) * 100) / FPrevisaoHoje));
+  except
+    lPercentual.Text := '0,00 %';
+  end;
+end;
+
+function TfrmDashBoard.ValidaData(Data: TDate): Boolean;
+Var
+  DiaAtualSemana: Integer;
+  DiaValidaSemana: Integer;
+
+  SemanaAtual: Integer;
+  SemanaValida: Integer;
+begin
+  Result := False;
+
+  DiaAtualSemana := DayOfWeek(date);
+
+  DiaValidaSemana := DayOfWeek(Data);
+
+  if DiaAtualSemana <> DiaValidaSemana then
+  begin
+    exit;
+  end;
+
+  SemanaAtual := (StrToInt(FormatDateTime('dd', date)) - 1) div 7 + 1;
+  SemanaValida := (StrToInt(FormatDateTime('dd', Data)) - 1) div 7 + 1;
+
+  if SemanaAtual <> SemanaValida then
+    exit;
+
+  Result := True;
+
+end;
+
+{ TPrevisaoPedidoTThread }
+
+constructor TPrevisaoPedidoTThread.Create;
+begin
+  inherited Create(True);
+  CONEXAO := iRequisicao.Create(nil);
+  CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+  Dados := TFDMemTable.Create(nil);
+  CONEXAO.URL := '/v1/dashboard/previsao/';
+end;
+
+destructor TPrevisaoPedidoTThread.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TPrevisaoPedidoTThread.Execute;
+var
+  ValorString: String;
+  MesAtras6: TDateTime;
+  DiasValidos: String;
+  DataAtual: TDateTime;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+    if DataAtual <> date then
+    begin
+      MesAtras6 := StrToDate('01' + FormatDateTime('/mm/yyyy',
+        IncMonth(date, -Formulario.MesesPrevisao)));
+      DiasValidos := '';
+      while not(MesAtras6 = date) do
+      begin
+        if Formulario.ValidaData(MesAtras6) then
+        begin
+          if length(DiasValidos) > 0 then
+            DiasValidos := DiasValidos + ',' +
+              QuotedStr(FormatDateTime('yyyy-mm-dd', MesAtras6))
+          else
+            DiasValidos := QuotedStr(FormatDateTime('yyyy-mm-dd', MesAtras6))
+        end;
+
+        MesAtras6 := MesAtras6 + 1;
+
+      end;
+      DataAtual := date;
+    end;
+
+    Dados.Close;
+    CONEXAO.BODY(DiasValidos);
+    CONEXAO.MemTable2 := Dados;
+    CONEXAO.Execute;
+
+    Formulario.PrevisaoHoje := Dados.FieldByName('previsao').AsInteger;
+    try
+      Formulario.PrevisaoUltimosMeses := Dados.FieldByName('atual').AsInteger;
+    except
+
+    end;
+    // ValorString := 'Ultimos ' + Formulario.MesesPrevisao.ToString + ' meses';
+    // Formulario.lUltimosMesesText.Text := ValorString;
+
+    Sleep(60 * 1000);
+  end;
+
+end;
+
+initialization
+
+RegisterClass(TfrmDashBoard);
+
+end.

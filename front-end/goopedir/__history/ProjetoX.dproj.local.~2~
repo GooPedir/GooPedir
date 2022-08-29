@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/11/27 11:48:41.000.808,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/11/27 11:49:41.000.443,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/11/28 14:32:15.000.056,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/24 18:21:57.000.209,=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/25 22:40:55.000.100,C:\Projeto\projeto-x\src\uProduto.fmx=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.fmx</Transaction>
+    <Transaction>2021/12/25 22:40:55.000.099,C:\Projeto\projeto-x\src\uProduto.pas=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/25 22:41:08.000.706,C:\Projeto\projeto-x\src\ProjetoX.dproj=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2021/12/26 21:21:19.000.951,=C:\Projeto\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2021/12/26 21:22:10.000.831,C:\Projeto\projeto-x\src\uDM.dfm=C:\Projeto\projeto-x\src\Unit1.dfm</Transaction>
+    <Transaction>2021/12/26 21:22:10.000.831,C:\Projeto\projeto-x\src\uDM.pas=C:\Projeto\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2021/12/27 17:24:15.000.858,=A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2021/12/27 17:25:14.000.996,A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas=A:\PROJETOS\ALLAN\projeto-x\src\uExtra.pas</Transaction>
+    <Transaction>2021/12/27 17:25:14.000.996,A:\PROJETOS\ALLAN\projeto-x\src\Unit1.fmx=A:\PROJETOS\ALLAN\projeto-x\src\uExtra.fmx</Transaction>
+    <Transaction>2021/12/30 13:12:42.000.153,=A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2021/12/30 13:12:57.000.526,A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas=A:\PROJETOS\ALLAN\projeto-x\src\util.pas</Transaction>
+    <Transaction>2021/12/30 13:14:42.000.875,=A:\PROJETOS\ALLAN\projeto-x\src\outros\toast\FMX.Toast.Types.pas</Transaction>
+    <Transaction>2021/12/30 13:14:42.000.826,=A:\PROJETOS\ALLAN\projeto-x\src\outros\toast\FMX.Toast.pas</Transaction>
+    <Transaction>2021/12/30 13:14:42.000.765,=A:\PROJETOS\ALLAN\projeto-x\src\outros\toast\FMX.Toast.Frame.pas</Transaction>
+    <Transaction>2021/12/30 17:23:07.000.851,=A:\PROJETOS\ALLAN\projeto-x\src\outros\simnao\uSimNao.pas</Transaction>
+    <Transaction>2022/01/24 10:35:33.000.126,=A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/01/24 10:37:01.000.067,A:\PROJETOS\ALLAN\projeto-x\src\util.funcoes.pas=A:\PROJETOS\ALLAN\projeto-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/04 10:44:10.000.678,=A:\PROJETOS\ALLAN\project-x\src\outros\uPedido.pas</Transaction>
+    <Transaction>2022/02/04 10:45:36.000.528,=A:\PROJETOS\ALLAN\project-x\src\outros\uFrmClonePadrao.pas</Transaction>
+    <Transaction>2022/02/04 10:46:47.000.413,=A:\PROJETOS\ALLAN\project-x\src\outros\uFiltroPadrao.pas</Transaction>
+    <Transaction>2022/02/04 11:52:57.000.261,=A:\PROJETOS\ALLAN\project-x\src\outros\uCombobox.pas</Transaction>
+    <Transaction>2022/02/04 11:59:30.000.988,A:\PROJETOS\ALLAN\project-x\src\outros\uCombobox.pas=A:\PROJETOS\ALLAN\project-x\src\outros\uComboboxLocal.pas</Transaction>
+    <Transaction>2022/02/04 12:43:38.000.912,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/04 12:43:49.000.201,A:\PROJETOS\ALLAN\project-x\src\Unit1.pas=A:\PROJETOS\ALLAN\project-x\src\uMain.pas</Transaction>
+    <Transaction>2022/02/04 12:43:49.000.201,A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx=A:\PROJETOS\ALLAN\project-x\src\uMain.fmx</Transaction>
+    <Transaction>2022/02/05 14:31:35.000.756,=C:\Projeto\project-x\src\outros\uCadastroPadrao.pas</Transaction>
+    <Transaction>2022/02/05 14:32:20.000.010,=C:\Projeto\project-x\src\cadastro\uCategoria.pas</Transaction>
+    <Transaction>2022/02/06 19:32:42.000.411,=C:\Projeto\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/13 19:26:35.000.847,=C:\Projeto\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/13 19:27:07.000.649,C:\Projeto\project-x\src\Unit1.pas=C:\Projeto\project-x\src\cadastro\uTaxaEntrega.pas</Transaction>
+    <Transaction>2022/02/13 19:27:07.000.649,C:\Projeto\project-x\src\Unit1.fmx=C:\Projeto\project-x\src\cadastro\uTaxaEntrega.fmx</Transaction>
+    <Transaction>2022/02/13 19:28:49.000.548,=C:\Projeto\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/13 19:29:27.000.079,C:\Projeto\project-x\src\cadastro\uTaxaEntrega.pas=</Transaction>
+    <Transaction>2022/02/13 19:29:43.000.584,C:\Projeto\project-x\src\Unit1.fmx=C:\Projeto\project-x\src\cadastro\uTaxaEntrega.fmx</Transaction>
+    <Transaction>2022/02/13 19:29:43.000.584,C:\Projeto\project-x\src\Unit1.pas=C:\Projeto\project-x\src\cadastro\uTaxaEntrega.pas</Transaction>
+    <Transaction>2022/02/17 09:30:42.000.213,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/17 09:31:00.000.320,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/17 09:33:26.000.245,A:\PROJETOS\ALLAN\project-x\src\outros\uDashBoard.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx</Transaction>
+    <Transaction>2022/02/17 09:33:26.000.245,A:\PROJETOS\ALLAN\project-x\src\outros\uDashBoard.pas=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/21 10:23:59.000.721,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/21 10:24:14.000.118,A:\PROJETOS\ALLAN\project-x\src\Unit1.pas=A:\PROJETOS\ALLAN\project-x\src\uMesas.pas</Transaction>
+    <Transaction>2022/02/21 10:24:14.000.118,A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx=A:\PROJETOS\ALLAN\project-x\src\uMesas.fmx</Transaction>
+    <Transaction>2022/02/21 10:25:41.000.722,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/21 10:25:59.000.597,A:\PROJETOS\ALLAN\project-x\src\uMesas.pas=</Transaction>
+    <Transaction>2022/02/21 10:26:06.000.635,A:\PROJETOS\ALLAN\project-x\src\Unit1.pas=A:\PROJETOS\ALLAN\project-x\src\uMesas.pas</Transaction>
+    <Transaction>2022/02/21 10:26:06.000.635,A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx=A:\PROJETOS\ALLAN\project-x\src\uMesas.fmx</Transaction>
+    <Transaction>2022/02/21 13:39:11.000.937,=A:\PROJETOS\ALLAN\project-x\src\comanda\Funcoes.pas</Transaction>
+    <Transaction>2022/02/21 13:39:12.000.816,=A:\PROJETOS\ALLAN\project-x\src\comanda\UnitResumo.pas</Transaction>
+    <Transaction>2022/02/21 13:39:12.000.175,=A:\PROJETOS\ALLAN\project-x\src\comanda\uFechamentoPedido.pas</Transaction>
+    <Transaction>2022/02/21 13:39:12.000.527,=A:\PROJETOS\ALLAN\project-x\src\comanda\UnitLogin.pas</Transaction>
+    <Transaction>2022/02/21 13:39:12.000.687,=A:\PROJETOS\ALLAN\project-x\src\comanda\UnitPrincipal.pas</Transaction>
+    <Transaction>2022/02/21 13:39:12.000.367,=A:\PROJETOS\ALLAN\project-x\src\comanda\UnitAddItem.pas</Transaction>
+    <Transaction>2022/02/21 13:39:13.000.005,=A:\PROJETOS\ALLAN\project-x\src\comanda\uTransferencia.pas</Transaction>
+    <Transaction>2022/02/21 13:45:32.000.949,=A:\PROJETOS\ALLAN\project-x\src\comanda\Loading.pas</Transaction>
+    <Transaction>2022/02/21 14:31:00.000.702,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/21 14:33:07.000.359,A:\PROJETOS\ALLAN\project-x\src\uLoginWindows.pas=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/21 14:33:07.000.359,A:\PROJETOS\ALLAN\project-x\src\uLoginWindows.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx</Transaction>
+    <Transaction>2022/02/24 13:39:57.000.739,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/24 13:42:17.000.161,A:\PROJETOS\ALLAN\project-x\src\cadastro\uCadastroMesas.pas=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/24 13:42:17.000.161,A:\PROJETOS\ALLAN\project-x\src\cadastro\uCadastroMesas.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx</Transaction>
+    <Transaction>2022/02/24 13:48:30.000.446,=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+    <Transaction>2022/02/24 13:49:28.000.057,A:\PROJETOS\ALLAN\project-x\src\outros\uSenha.fmx=A:\PROJETOS\ALLAN\project-x\src\Unit1.fmx</Transaction>
+    <Transaction>2022/02/24 13:49:28.000.057,A:\PROJETOS\ALLAN\project-x\src\outros\uSenha.pas=A:\PROJETOS\ALLAN\project-x\src\Unit1.pas</Transaction>
+  </Transactions>
+	<ActiveMobileDevice>
+		<NoProfile iOSSimulator="iPhone5" Android64="R9XR7049HKJ" Android="R9XR7049HKJ"/>
+	</ActiveMobileDevice>
+</BorlandProject>

@@ -1,0 +1,379 @@
+unit uMesas;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, uRequisicao;
+
+type
+
+  TfrmMesas = class(TfrmCadastroBase)
+    MESA: iMemTable;
+    MESAid_mesa: TIntegerField;
+    MESAnr_mesa: TIntegerField;
+    MESAdescricao: TStringField;
+    MESAsts_mesa: TIntegerField;
+    MESAtot_mesa: TFloatField;
+    tabMesas: TTabControl;
+    MESAfk_tipo_mesa: TIntegerField;
+    procedure FormActivate(Sender: TObject);
+    procedure Rectangle2MouseLeave(Sender: TObject);
+
+    procedure OnMouseEnterLocal(Sender: TObject);
+    procedure OnMouseLeaveLocal(Sender: TObject);
+    procedure ClickLocal(Sender: TObject);
+    procedure Rectangle2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure CarregaMesas;
+    procedure CriarRetanguloMesa(Flow: TFlowLayout; Descricao: String;
+      Numero, Status: Integer; Total: Real; Codigo: Integer);
+    procedure AtualizarMesa(Codigo: Integer; Status: Integer; Total: Real);
+  end;
+
+  TDadosMesa = class(TThread)
+  protected
+    procedure Execute; override;
+
+  var
+    CONEXAO: iRequisicao;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    Formulario: TfrmMesas;
+  end;
+
+var
+  frmMesas: TfrmMesas;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, Funcoes, UnitResumo;
+
+{ TfrmMesas }
+
+procedure TfrmMesas.AtualizarMesa(Codigo, Status: Integer; Total: Real);
+var
+  RetanguloPrincipal: TRectangle;
+
+  LabelTotalDescricao: TLabel;
+  LabelTotal: TLabel;
+  CorStatus: Tcolor;
+begin
+  RetanguloPrincipal :=
+    (Self.FindComponent('RetanguloPrincipal' + Codigo.ToString) as TRectangle);
+  case Status of
+    1:
+      begin
+        CorStatus := Rectangle1.Stroke.Color;
+        if Assigned(RetanguloPrincipal) then
+          RetanguloPrincipal.Fill.Color := CorStatus;
+      end
+  else
+    begin
+      CorStatus := TAlphaColors.Black;
+        if Assigned(RetanguloPrincipal) then
+          RetanguloPrincipal.Fill.Color :=TAlphaColors.White
+    end;
+  end;
+
+  if Assigned(RetanguloPrincipal) then
+    RetanguloPrincipal.Stroke.Color := CorStatus;
+
+  LabelTotal := (Self.FindComponent('LabelTotal' + Codigo.ToString) as TLabel);
+
+  if Assigned(LabelTotal) then
+    LabelTotal.Text := FormatFloat('#0.00', Total);
+
+end;
+
+procedure TfrmMesas.CarregaMesas;
+var
+  Tab: TTabItem;
+  Flow: TFlowLayout;
+  Scrol: TVertScrollBox;
+  Tipo: Integer;
+
+  Dados: TDadosMesa;
+  Tot: Integer;
+  SizeL: Integer;
+begin
+
+  DM.GetSimples('/v1/mesas', MESA);
+
+  while not MESA.Eof do
+  begin
+    if MESA.FieldByName('fk_tipo_mesa').AsInteger <> Tipo then
+    begin
+      Tab := (FindComponent('Tab' + MESA.FieldByName('fk_tipo_mesa').AsString)
+        as TTabItem);
+      if not Assigned(Tab) then
+      begin
+        Tot := 0;
+        Tab := TTabItem.Create(Self);
+
+        with Tab do
+        begin
+          Text := MESA.FieldByName('descricao').AsString;
+          Parent := tabMesas;
+          Name := 'Tab' + MESA.FieldByName('fk_tipo_mesa').AsString;
+        end;
+
+        Scrol := TVertScrollBox.Create(Self);
+
+        with Scrol do
+        begin
+          Name := 'Scrol' + MESA.FieldByName('fk_tipo_mesa').AsString;
+          Parent := Tab;
+          Align := TAlignLayout.Client;
+
+        end;
+
+        Flow := TFlowLayout.Create(Self);
+
+        with Flow do
+        begin
+          Name := 'Flow' + MESA.FieldByName('fk_tipo_mesa').AsString;
+          Parent := Scrol;
+          // Align := TAlignLayout.Client;
+          Top := 0;
+          Left := 0;
+          Height := Screen.Height;
+          Width := Screen.Width;
+          Flow.Height := Flow.Height * 6;
+        end;
+
+      end;
+      inc(Tot);
+
+      Tipo := MESA.FieldByName('fk_tipo_mesa').AsInteger;
+    end
+    else
+    begin
+      inc(Tot);
+    end;
+
+    // ShowMessage((Screen.Height / 100).ToString);
+    // SizeL := FormatFloat('0', ((Screen.Height / 100) * (Tot+235))).ToInteger;
+    // Flow.Height := SizeL;
+
+    if Assigned(Flow) then
+    begin
+      CriarRetanguloMesa(Flow, MESA.FieldByName('descricao').AsString,
+        MESA.FieldByName('nr_mesa').AsInteger, MESA.FieldByName('sts_mesa')
+        .AsInteger, MESA.FieldByName('tot_mesa').AsFloat,
+        MESA.FieldByName('id_mesa').AsInteger);
+    end;
+
+    MESA.Next;
+  end;
+  Dados := TDadosMesa.Create;
+  Dados.Formulario := Self;
+  Dados.Start;
+end;
+
+procedure TfrmMesas.ClickLocal(Sender: TObject);
+begin
+
+  if MESA.Locate('id_mesa', (Sender as TRectangle).Tag, []) then
+  begin
+    if NOT Assigned(FrmResumo) then
+      Application.CreateForm(TFrmResumo, FrmResumo);
+    FrmResumo.MESA := (Sender as TRectangle).Tag;
+    FrmResumo.Show;
+  end;
+end;
+
+procedure TfrmMesas.CriarRetanguloMesa(Flow: TFlowLayout; Descricao: String;
+  Numero, Status: Integer; Total: Real; Codigo: Integer);
+var
+  RetanguloPrincipal: TRectangle;
+  LabelDescricao: TLabel;
+  LabelNumero: TLabel;
+  LabelTotalDescricao: TLabel;
+  LabelTotal: TLabel;
+begin
+  RetanguloPrincipal := TRectangle.Create(Self);
+
+  with RetanguloPrincipal do
+  begin
+    Parent := Flow;
+    Width := 150;
+    Height := 150;
+    Stroke.Thickness := 5;
+    Margins.Left := 10;
+    Margins.Top := 10;
+    Fill.Color := TAlphaColors.White;
+    XRadius := 10;
+    YRadius := 10;
+    Name := 'RetanguloPrincipal' + Codigo.ToString;
+    Cursor := crHandPoint;
+    Opacity := 0.5;
+    OnMouseEnter := OnMouseEnterLocal;
+    OnMouseLeave := OnMouseLeaveLocal;
+    OnClick := ClickLocal;
+    Tag := Codigo;
+  end;
+
+  LabelDescricao := TLabel.Create(Self);
+  with LabelDescricao do
+  begin
+    Parent := RetanguloPrincipal;
+    Align := TAlignLayout.Top;
+    Text := Descricao;
+    Name := 'LabelDescricao' + Codigo.ToString;
+    TextSettings.HorzAlign := TTextAlign.Center;
+    TextSettings.Font.Style := [TFontStyle.fsBold];
+    StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
+    Width := 150;
+    TextSettings.Font.Size := 16;
+    Height := 23;
+    Margins.Top := 10;
+    TabOrder := 1;
+    Tag := Codigo;
+  end;
+
+  LabelNumero := TLabel.Create(Self);
+  with LabelNumero do
+  begin
+    Parent := LabelDescricao;
+    Align := TAlignLayout.Center;
+    Text := Numero.ToString;
+    Name := 'LabelNumero' + Codigo.ToString;
+    TextSettings.HorzAlign := TTextAlign.Center;
+    TextSettings.Font.Style := [TFontStyle.fsBold];
+    StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
+    Width := 150;
+    TextSettings.Font.Size := 24;
+    Height := 38;
+    Margins.Top := 60;
+    TabOrder := 2;
+  end;
+
+  LabelTotalDescricao := TLabel.Create(Self);
+  with LabelTotalDescricao do
+  begin
+    Parent := LabelNumero;
+    Align := TAlignLayout.Center;
+    Text := 'Total R$';
+    Name := 'LabelTotalDescricao' + Codigo.ToString;
+    TextSettings.HorzAlign := TTextAlign.Center;
+    StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
+    Width := 150;
+    TextSettings.Font.Size := 12;
+    Height := 23;
+    Margins.Top := 60;
+    TabOrder := 3;
+  end;
+
+  LabelTotal := TLabel.Create(Self);
+  with LabelTotal do
+  begin
+    Parent := LabelTotalDescricao;
+    Align := TAlignLayout.Center;
+    Text := FormatFloat('#0.00', Total);
+    Name := 'LabelTotal' + Codigo.ToString;
+    TextSettings.HorzAlign := TTextAlign.Center;
+    TextSettings.Font.Style := [TFontStyle.fsBold];
+    StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
+    Width := 150;
+    TextSettings.Font.Size := 24;
+    Height := 38;
+    Margins.Top := 60;
+    TabOrder := 4;
+  end;
+
+  if Total = 0 then
+    Status := 0;
+
+  AtualizarMesa(Codigo, Status, Total);
+
+end;
+
+procedure TfrmMesas.FormActivate(Sender: TObject);
+begin
+  inherited;
+  CarregaMesas;
+end;
+
+procedure TfrmMesas.OnMouseEnterLocal(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmMesas.OnMouseLeaveLocal(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmMesas.Rectangle2Click(Sender: TObject);
+begin
+  inherited;
+  //
+end;
+
+procedure TfrmMesas.Rectangle2MouseLeave(Sender: TObject);
+begin
+  inherited;
+
+end;
+
+{ TDadosMesa }
+
+constructor TDadosMesa.Create;
+begin
+  inherited Create(True);
+  CONEXAO := iRequisicao.Create(nil);
+  CONEXAO.BaseURL := DM.CONEXAO.BaseURL;
+  CONEXAO.URL := '/v1/mesas';
+  CONEXAO.Metodo := mGet;
+end;
+
+destructor TDadosMesa.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TDadosMesa.Execute;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+    CONEXAO.MemTable := Formulario.MESA;
+    CONEXAO.Execute;
+
+    while not Formulario.MESA.Eof do
+    begin
+
+      Formulario.AtualizarMesa(Formulario.MESA.FieldByName('id_mesa').AsInteger,
+        Formulario.MESA.FieldByName('sts_mesa').AsInteger,
+        Formulario.MESA.FieldByName('tot_mesa').AsFloat);
+
+      Formulario.MESA.Next;
+    end;
+
+    Sleep(5000);
+  end;
+
+end;
+
+initialization
+
+RegisterClass(TfrmMesas);
+
+end.

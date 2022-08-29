@@ -1,0 +1,393 @@
+unit uExtra;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl,
+  FMX.Objects, FMX.StdCtrls, FMX.Controls.Presentation, FMX.Edit, uEdit,
+  FMX.Layouts, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, System.Rtti,
+  FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt, FMX.Bind.Grid,
+  System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Components,
+  Data.Bind.Grid, FMX.ScrollBox, FMX.Grid, Data.Bind.DBScope, FMX.Effects,
+  FMXTee.Canvas;
+
+type
+  TTipo = (Novo, Alteracao);
+
+  TfrmExtra = class(TForm)
+    tabMain: TTabControl;
+    TabItem1: TTabItem;
+    TabItem2: TTabItem;
+    Layout3: TLayout;
+    edtCategoria: iEdit;
+    Label5: TLabel;
+    Layout2: TLayout;
+    edtMin: iEdit;
+    Label2: TLabel;
+    rSalvar: TRectangle;
+    ITENS: iMemTable;
+    ITENSDESCRICAO: TStringField;
+    ITENSVALOR: TFloatField;
+    Rectangle1: TRectangle;
+    Layout4: TLayout;
+    edtExtra: iEdit;
+    Label3: TLabel;
+    Layout6: TLayout;
+    edtValor: iEdit;
+    Label6: TLabel;
+    Layout7: TLayout;
+    rAdicionaExtra: TRectangle;
+    Image1: TImage;
+    BDSITENS: TBindSourceDB;
+    StringGrid1: TStringGrid;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBDSITENS: TLinkGridToDataSource;
+    rDeletar: TRectangle;
+    Image2: TImage;
+    Layout8: TLayout;
+    Image3: TImage;
+    Label7: TLabel;
+    Layout1: TLayout;
+    Label1: TLabel;
+    edtMax: iEdit;
+    ITENSNOME: TStringField;
+    Layout5: TLayout;
+    edtDescricao: iEdit;
+    Label4: TLabel;
+    Label8: TLabel;
+    Rectangle2: TRectangle;
+    Layout9: TLayout;
+    EXTRA: iMemTable;
+    EXTRAid: TIntegerField;
+    EXTRAdescricao: TStringField;
+    EXTRAmin: TIntegerField;
+    EXTRAmax: TIntegerField;
+    EXTRAstatus: TIntegerField;
+    EXTRAtot: TIntegerField;
+    StringGrid4: TStringGrid;
+    BDSEXTRA: TBindSourceDB;
+    LinkGridToDataSourceBDSEXTRA: TLinkGridToDataSource;
+    GridPanelLayout1: TGridPanelLayout;
+    rAdicionar: TRectangle;
+    Label9: TLabel;
+    ShadowEffect1: TShadowEffect;
+    rAlterar: TRectangle;
+    Label10: TLabel;
+    ShadowEffect2: TShadowEffect;
+    rAtivarDesativar: TRectangle;
+    lTipoAtivo: TLabel;
+    ShadowEffect3: TShadowEffect;
+    rExcluir: TRectangle;
+    lExcluir: TLabel;
+    ShadowEffect4: TShadowEffect;
+    ITENS_EXTRA: iMemTable;
+    ITENSID: TIntegerField;
+    ITENS_EXTRAnome: TStringField;
+    ITENS_EXTRAdescricao: TStringField;
+    ITENS_EXTRAvalor: TFloatField;
+    ITENSSTATUS: TIntegerField;
+    ITENS_EXTRAstatus: TIntegerField;
+    ITENS_EXTRAid: TIntegerField;
+    procedure rSalvarMouseEnter(Sender: TObject);
+    procedure rSalvarMouseLeave(Sender: TObject);
+    procedure rAdicionaExtraClick(Sender: TObject);
+    procedure rDeletarClick(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure rAdicionarClick(Sender: TObject);
+    procedure rAlterarClick(Sender: TObject);
+  private
+    { Private declarations }
+    function TipoCor(Index: Integer): TColor;
+  public
+    { Public declarations }
+    procedure Novo;
+    procedure getExtra;
+  end;
+
+var
+  frmExtra: TfrmExtra;
+  Sincronia: Boolean;
+  Tipo: TTipo;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, util.funcoes, util;
+
+procedure TfrmExtra.FormActivate(Sender: TObject);
+begin
+  if Sincronia then
+    exit;
+  getExtra;
+  Sincronia := True;
+end;
+
+procedure TfrmExtra.getExtra;
+begin
+  DM.GetSimples('/v1/extra/alteracao/all', EXTRA);
+  tabMain.TabIndex := 0;
+end;
+
+procedure TfrmExtra.Novo;
+begin
+  Tipo := TTipo.Novo;
+  try
+    edtCategoria.Text := '';
+    edtMin.Text := '0';
+    edtMax.Text := '0';
+    ITENS.Close;
+    ITENS.Open;
+    tabMain.TabIndex := 1;
+  except
+
+  end;
+
+end;
+
+procedure TfrmExtra.rAdicionaExtraClick(Sender: TObject);
+begin
+  if ITENS.Locate('NOME', edtExtra.Text, []) then
+  begin
+    ShowMessage('Adicional já cadastrado!');
+    exit;
+  end;
+
+  ITENS.Insert;
+  ITENS.FieldByName('ID').AsInteger := 0;
+  ITENS.FieldByName('STATUS').AsInteger := 1;
+  ITENS.FieldByName('NOME').AsString := edtExtra.Text;
+  ITENS.FieldByName('DESCRICAO').AsString := edtDescricao.Text;
+  try
+    ITENS.FieldByName('VALOR').AsFloat := edtValor.Text.ToDouble;
+  except
+    ITENS.Cancel;
+    ShowMessage('Valor informado invalido!');
+    edtValor.SetFocus;
+    exit;
+  end;
+  edtExtra.Text := '';
+  edtDescricao.Text := '';
+  edtValor.Text := '0';
+  edtExtra.SetFocus;
+  ITENS.Post;
+end;
+
+procedure TfrmExtra.rAdicionarClick(Sender: TObject);
+begin
+  Novo;
+end;
+
+procedure TfrmExtra.rAlterarClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  Novo;
+  Tipo := TTipo.Alteracao;
+
+  DM.GetSimples('/v1/extra/itens/' + BDSEXTRA.DataSet.FieldByName('id')
+    .AsString, ITENS_EXTRA);
+
+  ITENS_EXTRA.First;
+  while not ITENS_EXTRA.Eof do
+  begin
+    WITH ITENS DO
+    begin
+      Insert;
+      for I := 0 to FieldCount - 1 do
+      begin
+        FieldByName(Fields[I].FieldName).AsVariant :=
+          ITENS_EXTRA.FieldByName(Fields[I].FieldName).AsVariant;
+      end;
+      Post;
+    end;
+
+    ITENS_EXTRA.Next;
+  end;
+
+  edtCategoria.Text := EXTRA.FieldByName('descricao').AsString;
+  edtMax.Text := EXTRA.FieldByName('max').AsString;
+  edtMin.Text := EXTRA.FieldByName('min').AsString;
+end;
+
+procedure TfrmExtra.rDeletarClick(Sender: TObject);
+begin
+  if ITENS.RecordCount = 0 then
+    exit;
+
+  ITENS.Delete;
+
+end;
+
+procedure TfrmExtra.rSalvarClick(Sender: TObject);
+begin
+  if edtCategoria.Text = '' then
+  begin
+    edtCategoria.SetFocus;
+    ShowMessage('A categoria deve ser informada!');
+    exit;
+  end;
+
+  if edtMin.Text = '' then
+  begin
+    edtMin.SetFocus;
+    ShowMessage('O minimo deve ser informado!');
+    exit;
+  end;
+
+  if edtMax.Text = '' then
+  begin
+    edtMin.SetFocus;
+    ShowMessage('O maximo deve ser informado!');
+    exit;
+  end;
+
+  if ITENS.RecordCount = 0 then
+  begin
+    ShowMessage('Você deve informar pelomenos 1 extra!');
+    exit;
+  end;
+
+  case Tipo of
+    TTipo.Novo:
+      begin
+        DM.PostSimples('/v1/extra/' + edtCategoria.Text + '/' + edtMin.Text +
+          '/' + edtMax.Text, ITENS);
+
+      end;
+    TTipo.Alteracao:
+      begin
+
+      end;
+  end;
+
+  getExtra;
+
+end;
+
+procedure TfrmExtra.rSalvarMouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmExtra.rSalvarMouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmExtra.StringGrid4DrawColumnCell(Sender: TObject;
+  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+begin
+  case Column.Index of
+    0:
+      begin
+        // Status
+
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.Stroke.Color := TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+  end;
+end;
+
+function TfrmExtra.TipoCor(Index: Integer): TColor;
+begin
+  case Index of
+    1:
+      begin
+        // Azul
+        Result := RGB(109, 178, 253);
+      end;
+    2:
+      begin
+        // Vermelho
+        Result := RGB(247, 114, 115);
+      end;
+    3:
+      begin
+        // Verde
+        Result := RGB(49, 204, 175);
+      end;
+    4:
+      begin
+        // Laranja
+        Result := RGB(253, 128, 0);
+      end;
+    5:
+      begin
+        // Roxo
+        Result := RGB(144, 11, 250);
+      end;
+    6:
+      begin
+        Result := RGB(255, 232, 121);
+      end;
+    7:
+      begin
+        // iForth
+        Result := RGB(48, 48, 86);
+      end;
+    8:
+      begin
+        // Cinza
+        Result := RGB(151, 151, 198);
+      end;
+    9:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+    10:
+      begin
+        // BRanco
+        Result := RGB(255, 255, 255);
+      end;
+
+    15:
+      begin
+        Result := RGB(2, 233, 2);
+      end;
+    16:
+      begin
+        Result := RGB(233, 2, 2);
+      end;
+    17:
+      begin
+        Result := RGB(145, 2, 233);
+      end;
+    18:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+
+  end;
+end;
+
+end.

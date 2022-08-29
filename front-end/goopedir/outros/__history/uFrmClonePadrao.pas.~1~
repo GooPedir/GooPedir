@@ -1,0 +1,56 @@
+unit uFrmClonePadrao;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl,
+  FMX.Objects, FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable;
+
+type
+  TfrmPadrao = class(TForm)
+    layClient: TLayout;
+    rTopo: TRectangle;
+    tabMain: TTabControl;
+    imgClose: TImage;
+    lNomeForm: TLabel;
+    imgFiltro: TImage;
+    memFiltros: iMemTable;
+    memFiltrosFILTRO: TStringField;
+    memFiltrosVALOR: TStringField;
+    procedure imgFiltroClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPadrao: TfrmPadrao;
+
+implementation
+
+{$R *.fmx}
+
+uses uFiltroPadrao;
+
+procedure TfrmPadrao.FormCreate(Sender: TObject);
+begin
+imgFiltro.Visible := Assigned(frmFiltroPadrao);
+end;
+
+procedure TfrmPadrao.imgFiltroClick(Sender: TObject);
+begin
+  if not Assigned(frmFiltroPadrao) then
+  begin
+    ShowMessage
+      ('Você deve instanciar o form "frmFiltroPadrao" no create do form atual e deve colocar alimentar a procedure "Executar" com a procedure de consulta!');
+    exit;
+  end;
+end;
+
+end.

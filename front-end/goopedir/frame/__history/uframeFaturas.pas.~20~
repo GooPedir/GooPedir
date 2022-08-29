@@ -1,0 +1,107 @@
+unit uframeFaturas;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.Objects, FMX.Effects;
+
+type
+  TframeFaturas = class(TFrame)
+    rLay: TRectangle;
+    rStatus: TRectangle;
+    Layout1: TLayout;
+    Label1: TLabel;
+    lData: TLabel;
+    lVencimento: TLabel;
+    lTotal: TLabel;
+    Label5: TLabel;
+    ShadowEffect1: TShadowEffect;
+    procedure rLayClick(Sender: TObject);
+  private
+    FValor: Real;
+    FLink: String;
+    FDataVencimento: TDate;
+    procedure SetDataVencimento(const Value: TDate);
+    procedure SetLink(const Value: String);
+    procedure SetValor(const Value: Real);
+    { Private declarations }
+
+  public
+    { Public declarations }
+    property DataVencimento: TDate read FDataVencimento write SetDataVencimento;
+    property Valor: Real read FValor write SetValor;
+    property Link: String read FLink write SetLink;
+  end;
+
+implementation
+
+uses
+  System.DateUtils, FMXTee.Canvas
+{$IFDEF WIN32}
+    , Winapi.Windows, Winapi.ShellAPI
+{$ENDIF WIN32}
+    ;
+
+{$R *.fmx}
+{ TframeFaturas }
+
+procedure TframeFaturas.rLayClick(Sender: TObject);
+begin
+
+  // OpenURL(Link, false);
+
+{$IFDEF WIN32}
+  ShellExecute(0, 'OPEN', PWideChar(Link), nil, nil, SW_SHOWNORMAL);
+{$ENDIF WIN32}
+end;
+
+procedure TframeFaturas.SetDataVencimento(const Value: TDate);
+var
+  Qtd_Dias: String;
+begin
+  FDataVencimento := Value;
+  lData.Text := FormatDateTime('dd/mm/yyyy', Value);
+  if FDataVencimento > Date then
+  begin
+    Qtd_Dias := IntToStr(DaysBetween(Value, Date));
+    lVencimento.Text := Qtd_Dias + ' dias para o vencimento';
+    rStatus.Stroke.Color := rgb(190, 228, 231);
+
+    if Qtd_Dias.ToInteger < 6 then
+    begin
+      rStatus.Stroke.Color := rgb(251, 246, 188);
+    end;
+    if Qtd_Dias.ToInteger < 3 then
+    begin
+      rStatus.Stroke.Color := rgb(241, 196, 165);
+    end;
+    if Qtd_Dias.ToInteger = 0 then
+    begin
+      lVencimento.Text := 'Vencimento Hoje';
+      rStatus.Stroke.Color := rgb(241, 196, 165);
+    end;
+  end
+  else
+  begin
+    lVencimento.Text := 'Fatura Vencida';
+    rStatus.Stroke.Color := rgb(231, 178, 198);
+  end;
+  rStatus.Fill.Color := rStatus.Stroke.Color;
+  rLay.Stroke.Color := rStatus.Stroke.Color;
+end;
+
+procedure TframeFaturas.SetLink(const Value: String);
+begin
+  FLink := Value;
+end;
+
+procedure TframeFaturas.SetValor(const Value: Real);
+begin
+  FValor := Value;
+  lTotal.Text := 'R$ ' + FormatFloat(',0.00', Value);
+end;
+
+end.

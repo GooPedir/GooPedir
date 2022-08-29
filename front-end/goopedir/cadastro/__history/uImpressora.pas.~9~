@@ -1,0 +1,277 @@
+unit uImpressora;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.Bind.Components, Data.Bind.DBScope,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, System.Rtti,
+  FMX.Grid.Style, FMX.ScrollBox, FMX.Grid, Data.Bind.EngExt, FMX.Bind.DBEngExt,
+  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Grid,
+  FMXTee.Canvas,
+  FMX.Edit, uEdit, FMX.ListBox, uComboBox;
+
+type
+  TfrmImpressora = class(TfrmCadastroBase)
+    BDSDADOS: TBindSourceDB;
+    StringGrid4: TStringGrid;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBDSDADOS: TLinkGridToDataSource;
+    DADOS: iMemTable;
+    DADOScodigo: TIntegerField;
+    DADOSdescricao: TStringField;
+    DADOSdriver: TStringField;
+    DADOSdata: TDateField;
+    DADOSativo: TIntegerField;
+    DADOSimpressora_padrao: TIntegerField;
+    DADOStipo_impressao: TIntegerField;
+    Layout3: TLayout;
+    edtNome: iEdit;
+    Label5: TLabel;
+    Layout1: TLayout;
+    Label3: TLabel;
+    Layout2: TLayout;
+    Driver: TLabel;
+    memImpressora: iMemTable;
+    memImpressoraid: TIntegerField;
+    memImpressoradriver: TStringField;
+    iComboBox1: iComboBox;
+    iComboBox2: iComboBox;
+    memTipo: iMemTable;
+    memTipoID: TIntegerField;
+    memTipoDESCRICAO: TStringField;
+    procedure FormCreate(Sender: TObject);
+    procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure rAlterarClick(Sender: TObject);
+  private
+    { Private declarations }
+    function TipoCor(Index: Integer): TColor;
+  public
+    { Public declarations }
+    procedure GetDados;
+  end;
+
+var
+  frmImpressora: TfrmImpressora;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, util;
+{ TfrmImpressora }
+
+procedure TfrmImpressora.FormCreate(Sender: TObject);
+begin
+  inherited;
+  GetDados;
+  tabPrincipal.TabIndex := 0;
+  tabPrincipal.TabPosition := TTabPosition.None;
+  memTipo.Close;
+  memTipo.Open;
+  memTipo.Insert;
+  memTipo.FieldByName('ID').AsInteger := 0;
+  memTipo.FieldByName('DESCRICAO').AsString := '56mm';
+  memTipo.Post;
+  memTipo.Insert;
+  memTipo.FieldByName('ID').AsInteger := 1;
+  memTipo.FieldByName('DESCRICAO').AsString := '80mm';
+  memTipo.Post;
+
+end;
+
+procedure TfrmImpressora.GetDados;
+begin
+  dm.GetSimples('/v1/consulta/todos/impressoras', DADOS);
+end;
+
+procedure TfrmImpressora.rAlterarClick(Sender: TObject);
+begin
+  inherited;
+  dm.GetSimples('/v1/impressora/servidor/', memImpressora);
+
+  if memImpressora.RecordCount = 0 then
+  begin
+    ShowMessageToast(self,
+      'Não há nenhuma impressora instalada, no servidor!', 1);
+    exit;
+  end;
+  tabPrincipal.TabIndex := 1;
+  iComboBox1.LocalizaIndex('');
+  iComboBox2.LocalizaIndex('');
+end;
+
+procedure TfrmImpressora.StringGrid4DrawColumnCell(Sender: TObject;
+  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+begin
+  inherited;
+  case Column.Index of
+    0:
+      begin
+        // Status
+
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.FillText(Bounds, Value.ToString, false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.Stroke.Color := TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.FillText(Bounds, Value.ToString, false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    3:
+      begin
+        // Status
+
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.Stroke.Color := TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(3);
+          Canvas.FillText(Bounds, Value.ToString, false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.Stroke.Color := TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(2);
+          Canvas.FillText(Bounds, Value.ToString, false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    4:
+      begin
+        // Status
+
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := TipoCor(1);
+          Canvas.Stroke.Color := TipoCor(1);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(18);
+          Canvas.FillText(Bounds, '80mm', false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := TipoCor(5);
+          Canvas.Stroke.Color := TipoCor(5);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := TipoCor(18);
+          Canvas.FillText(Bounds, '56mm', false, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+  end;
+end;
+
+function TfrmImpressora.TipoCor(Index: Integer): TColor;
+begin
+  case Index of
+    1:
+      begin
+        // Azul
+        Result := RGB(109, 178, 253);
+      end;
+    2:
+      begin
+        // Vermelho
+        Result := RGB(247, 114, 115);
+      end;
+    3:
+      begin
+        // Verde
+        Result := RGB(49, 204, 175);
+      end;
+    4:
+      begin
+        // Laranja
+        Result := RGB(253, 128, 0);
+      end;
+    5:
+      begin
+        // Roxo
+        Result := RGB(144, 11, 250);
+      end;
+    6:
+      begin
+        Result := RGB(255, 232, 121);
+      end;
+    7:
+      begin
+        // iForth
+        Result := RGB(48, 48, 86);
+      end;
+    8:
+      begin
+        // Cinza
+        Result := RGB(151, 151, 198);
+      end;
+    9:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+    10:
+      begin
+        // BRanco
+        Result := RGB(255, 255, 255);
+      end;
+
+    15:
+      begin
+        Result := RGB(2, 233, 2);
+      end;
+    16:
+      begin
+        Result := RGB(233, 2, 2);
+      end;
+    17:
+      begin
+        Result := RGB(145, 2, 233);
+      end;
+    18:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+
+  end;
+end;
+
+initialization
+
+RegisterClass(TfrmImpressora);
+
+end.

@@ -1,0 +1,177 @@
+inherited frmCliente: TfrmCliente
+  Caption = 'frmCadastroBase2'
+  ClientHeight = 632
+  ClientWidth = 909
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 909.000000000000000000
+    Size.Height = 632.000000000000000000
+    inherited Rectangle1: TRectangle
+      Size.Width = 909.000000000000000000
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D1494441546843EDD2390EC2301445D1880E042C8CADC176A000D1316C8922
+              36DC886F148BA1408AFC0DEF34961217F7456944A48C18E33C84B0E41CDBA37A
+              74F16DDB9EAF60C4B6AA11FDF88411BB2A46BC8A4F18B1B66B3E7D8ABF80F70B
+              BBEACF2FC49FAC37A3F82129BE14E266C41FAD37A3F82129BE14C597A2F85268
+              9C127FB8E7E614FF85919DFF838F5DEF2F94D0AA112ED0AA112ED0AA112ED0AA
+              112ED0AA112ED0AA112ED0AA112ED0FA7644086163D77CA3F56904F17B8E895D
+              F18FD8C788EAE2936E04F1AB2AE345DC689A1BF2B7BE2A40B3075F0000000049
+              454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 849.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'Cliente'
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Size.Width = 909.000000000000000000
+      Size.Height = 582.000000000000000000
+      Sizes = (
+        909s
+        556s
+        909s
+        556s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          Position.Y = 506.000000000000000000
+          Size.Width = 909.000000000000000000
+          inherited rAdicionar: TRectangle
+            Size.Width = 303.948547363281300000
+            inherited Label1: TLabel
+              Size.Width = 303.948547363281300000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            Size.Width = 302.399597167968800000
+            inherited Label2: TLabel
+              Size.Width = 302.399597167968800000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            Size.Width = 302.651916503906300000
+            inherited lTipoAtivo: TLabel
+              Size.Width = 302.651916503906300000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object lDados: TListView
+          ItemAppearanceClassName = 'TListItemAppearance'
+          ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TListHeaderObjects'
+          Align = Client
+          Size.Width = 909.000000000000000000
+          Size.Height = 506.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          SearchVisible = True
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          Position.Y = 506.000000000000000000
+          Size.Width = 909.000000000000000000
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC9944FF3800
+                    3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
+                    DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
+                    F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
+                    902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
+                    6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
+                    6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
+                    20F8C1FAE80F6744BCE87160BB8D18B2EC09D45D3BDE110B1175000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+      end
+    end
+  end
+  object DADOS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 528
+    Top = 274
+    object DADOScodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object DADOSnome: TStringField
+      FieldName = 'nome'
+      Size = 255
+    end
+    object DADOScelular: TStringField
+      FieldName = 'celular'
+    end
+    object DADOSativo: TIntegerField
+      FieldName = 'ativo'
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 528
+    Top = 344
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkListControlToField1: TLinkListControlToField
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      FieldName = 'nome'
+      Control = lDados
+      FillExpressions = <>
+      FillHeaderExpressions = <>
+      FillHeaderFieldName = 'celular'
+      FillBreakGroups = <>
+    end
+  end
+end

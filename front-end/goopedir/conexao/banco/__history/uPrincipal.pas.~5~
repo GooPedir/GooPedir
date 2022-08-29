@@ -1,0 +1,70 @@
+unit uPrincipal;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
+  FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.Phys, FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef, FireDAC.FMXUI.Wait,
+  Data.DB, FireDAC.Comp.Client, FMX.StdCtrls, FMX.Controls.Presentation,
+  FMX.Edit, FMX.ListBox, FMX.Effects, FMX.Objects, FMX.Layouts;
+
+type
+  TForm1 = class(TForm)
+    FDConnection1: TFDConnection;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Button1: TButton;
+    ComboBox1: TComboBox;
+    Layout1: TLayout;
+    Rectangle1: TRectangle;
+    Label1: TLabel;
+    ShadowEffect1: TShadowEffect;
+    Rectangle2: TRectangle;
+    edtHost: TEdit;
+    Edit3: TEdit;
+    Rectangle3: TRectangle;
+    Label2: TLabel;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.fmx}
+
+uses uTestaConexao;
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Conexao: TConexaoTest;
+  I: Integer;
+begin
+  Conexao := TConexaoTest.create;
+  Conexao.host := Edit1.Text;
+  Conexao.Porta := Edit2.Text.ToInteger;
+  if Conexao.TestarConexao then
+  begin
+    ShowMessage('Conectado');
+    ComboBox1.Items.Clear;
+    for I := 0 to length(Conexao.Bancos) - 1 do
+    begin
+      ComboBox1.Items.Add(Conexao.Bancos[I]);
+    end;
+
+  end
+  else
+    ShowMessage('Desconectado')
+
+end;
+
+end.

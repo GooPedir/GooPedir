@@ -1,0 +1,86 @@
+unit cFrameCombo;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.ListBox, FMX.Controls.Presentation;
+
+type
+  TFrameCombo = class(TFrame)
+    cItem: TComboBox;
+    lTitulo: TLabel;
+  private
+    FDescricao: String;
+    FCampo: String;
+    procedure SetCampo(const Value: String);
+    procedure SetDescricao(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    property Campo: String read FCampo write SetCampo;
+    property Descricao: String read FDescricao write SetDescricao;
+    procedure AdicionaValor(Valor: String);
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TFrameCombo }
+
+procedure TFrameCombo.AdicionaValor(Valor: String);
+begin
+
+  cItem.Items.Add(Valor);
+  try
+    cItem.ItemIndex := Dm.DADOS_WHATSAPP.FindField(Campo).AsInteger;
+  except
+
+  end;
+
+end;
+
+procedure TFrameCombo.SetCampo(const Value: String);
+begin
+  Dm.GetNomeEmpresa;
+  FCampo := Value;
+
+  if Assigned(Dm.DADOS_WHATSAPP.FindField(Value)) then
+  begin
+    cItem.Items.Clear;
+    // if length(ValorTrue) = 0 then
+    // ValorTrue := '1';
+    //
+    // try
+    // sSelecao.IsChecked := (ValorTrue = Dm.DADOS_WHATSAPP.FieldByName(Value)
+    // .AsVariant);
+    // except
+    // sSelecao.IsChecked := False;
+    // end;
+    //
+    // Valor := sSelecao.IsChecked;
+    /// /    btnSalvar.Visible := False;
+    Descricao := Dm.DADOS_WHATSAPP.FindField(Value).DisplayName;
+
+  end
+  else
+  begin
+    ShowMessage('campo "' + Value +
+      '" não foi declarado na memorytable "DADOS_WHATSAPP" no datamodule!');
+  end;
+end;
+
+procedure TFrameCombo.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+    if Value <> '' then
+    lTitulo.Text := Value;
+
+end;
+
+end.

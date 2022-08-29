@@ -1,0 +1,32 @@
+object FrameCombo: TFrameCombo
+  Size.Width = 432.000000000000000000
+  Size.Height = 58.000000000000000000
+  Size.PlatformDefault = False
+  object cItem: TComboBox
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 416.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    OnChange = cItemChange
+    OnClick = cItemClick
+    object lTitulo: TLabel
+      Align = Client
+      StyledSettings = [Family, Size]
+      Margins.Left = 15.000000000000000000
+      Margins.Top = 5.000000000000000000
+      Margins.Right = 25.000000000000000000
+      Margins.Bottom = 5.000000000000000000
+      Size.Width = 376.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.FontColor = xFFA4001B
+      TextSettings.HorzAlign = Trailing
+      Text = 'lTitulo'
+      TabOrder = 0
+    end
+  end
+end

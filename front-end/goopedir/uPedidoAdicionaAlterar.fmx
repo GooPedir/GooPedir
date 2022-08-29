@@ -1,0 +1,524 @@
+inherited frmCadastroBase1: TfrmCadastroBase1
+  Caption = 'frmCadastroBase1'
+  StyleBook = StyleBook1
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    inherited Rectangle1: TRectangle
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D4494441546843EDD24B0A02311084E1E04E510FE6D5F43ABA50DCF9B89284
+              74B4063B83C1C74218D2ADF56D023359FC354C20A23672CE731159E21CEB233F
+              BAF894D2F90A18B17535E231BEC0889D8B11AFE20B8C58EB359B3EC5C7182F78
+              BFD0ABF6FC42FC497B2B8C1F12E35B41DC0CF147EDAD307E488C6F85F1AD30BE
+              15344E117FB8E7D618FF85919EFF031FDBEF2F54A095234C402B479880568E30
+              01AD1C61025A39C204B472840968E50813D0FA7684886CF49A6D687D1A81F83D
+              8E895EB10FB1FD0877F1453702F12B97F144668470031515BEE4127A4D1B0000
+              000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Sizes = (
+        956s
+        592s
+        956s
+        592s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          Visible = False
+          inherited rAdicionar: TRectangle
+            inherited Label1: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            inherited Label2: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            inherited lTipoAtivo: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout1: TLayout
+          Align = Left
+          Size.Width = 273.000000000000000000
+          Size.Height = 592.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object lCodigo: TLabel
+            Align = Top
+            StyledSettings = [Family]
+            Margins.Top = 10.000000000000000000
+            Margins.Bottom = 10.000000000000000000
+            Position.Y = 10.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 45.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 20.000000000000000000
+            TextSettings.Font.StyleExt = {00090000000000000004000000}
+            TextSettings.FontColor = xFF05A85D
+            TextSettings.HorzAlign = Center
+            Text = '#1530'
+            TabOrder = 1
+            object Label3: TLabel
+              Align = Top
+              Size.Width = 273.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'C'#243'digo Interno'
+              TabOrder = 0
+            end
+          end
+          object Label4: TLabel
+            Align = Top
+            StyledSettings = [Family]
+            Margins.Bottom = 10.000000000000000000
+            Position.Y = 65.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 45.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 20.000000000000000000
+            TextSettings.Font.StyleExt = {00090000000000000004000000}
+            TextSettings.HorzAlign = Center
+            Text = '27/02/202216:30'
+            TabOrder = 0
+            object Label5: TLabel
+              Align = Top
+              Size.Width = 273.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Data Pedido'
+              TabOrder = 1
+            end
+          end
+          object Rectangle2: TRectangle
+            Align = Top
+            Position.Y = 120.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 2.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object Layout2: TLayout
+            Align = Bottom
+            Position.Y = 392.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 200.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 3
+            object edtAcre: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 0
+              Text = '15,00'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claDarkgreen
+              TextSettings.HorzAlign = Center
+              Position.Y = 20.000000000000000000
+              Margins.Top = 20.000000000000000000
+              Size.Width = 273.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label6: TLabel
+                Align = Top
+                Margins.Top = -15.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Acr'#233'scimo'
+                TabOrder = 0
+              end
+            end
+            object edtDesconto: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 1
+              Text = '15,00'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claCrimson
+              TextSettings.HorzAlign = Center
+              Position.Y = 70.000000000000000000
+              Margins.Top = 20.000000000000000000
+              Size.Width = 273.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label10: TLabel
+                Align = Top
+                Margins.Top = -15.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Desconto'
+                TabOrder = 0
+              end
+            end
+            object edtTaxa: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 2
+              Text = '15,00'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claDarkgreen
+              TextSettings.HorzAlign = Center
+              Position.Y = 120.000000000000000000
+              Margins.Top = 20.000000000000000000
+              Size.Width = 273.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label9: TLabel
+                Align = Top
+                Margins.Top = -15.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Taxa'
+                TabOrder = 0
+              end
+            end
+            object edtTotal: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 3
+              Text = '15,00'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claBlue
+              TextSettings.HorzAlign = Center
+              Position.Y = 170.000000000000000000
+              Margins.Top = 20.000000000000000000
+              Size.Width = 273.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label8: TLabel
+                Align = Top
+                Margins.Top = -15.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Total'
+                TabOrder = 0
+              end
+            end
+          end
+          object Layout3: TLayout
+            Align = Top
+            Position.Y = 122.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 271.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 4
+            object edtCelular: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 4
+              MaxLength = 12
+              Text = '48998111156'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Position.Y = 20.000000000000000000
+              Margins.Top = 20.000000000000000000
+              Size.Width = 273.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label11: TLabel
+                Align = Top
+                Margins.Top = -15.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Celular'
+                TabOrder = 0
+              end
+            end
+            object Edit1: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 3
+              Text = 'ALLAN COLOMBO'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              Position.X = 5.000000000000000000
+              Position.Y = 62.000000000000000000
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 12.000000000000000000
+              Size.Width = 268.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label12: TLabel
+                Align = Top
+                Margins.Left = -5.000000000000000000
+                Margins.Top = -15.000000000000000000
+                Position.X = -5.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Nome'
+                TabOrder = 0
+              end
+            end
+            object Edit2: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 2
+              Text = '88806120'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Position.X = 5.000000000000000000
+              Position.Y = 104.000000000000000000
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 12.000000000000000000
+              Size.Width = 268.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label13: TLabel
+                Align = Top
+                Margins.Left = -5.000000000000000000
+                Margins.Top = -15.000000000000000000
+                Position.X = -5.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'CEP'
+                TabOrder = 0
+              end
+            end
+            object Edit3: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 1
+              Text = '88806120'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Position.X = 5.000000000000000000
+              Position.Y = 188.000000000000000000
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 12.000000000000000000
+              Size.Width = 268.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label14: TLabel
+                Align = Top
+                Margins.Left = -5.000000000000000000
+                Margins.Top = -15.000000000000000000
+                Position.X = -5.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'N'#250'mero'
+                TabOrder = 0
+              end
+            end
+            object Edit4: TEdit
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              StyleLookup = 'Edit1Style1'
+              TabOrder = 0
+              Text = 'RUA JO'#195'O SERAFIM'
+              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              Position.X = 5.000000000000000000
+              Position.Y = 146.000000000000000000
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 12.000000000000000000
+              Size.Width = 268.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = '15,00'
+              StyledSettings = [Family]
+              object Label15: TLabel
+                Align = Top
+                Margins.Left = -5.000000000000000000
+                Margins.Top = -15.000000000000000000
+                Position.X = -5.000000000000000000
+                Position.Y = -15.000000000000000000
+                Size.Width = 273.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.HorzAlign = Center
+                Text = 'Rua'
+                TabOrder = 0
+              end
+            end
+          end
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+      end
+    end
+  end
+  object StyleBook1: TStyleBook
+    Styles = <
+      item
+      end
+      item
+        Platform = 'Windows 10 Desktop'
+        ResourcesBin = {
+          464D585F5354594C4520322E3501060B45646974315374796C65310392090616
+          45646974315374796C65314C6162656C5374796C653103030100545046300754
+          4C61796F757400095374796C654E616D65060B45646974315374796C65310541
+          6C69676E070643656E7465720A53697A652E57696474680500000000000000E9
+          06400B53697A652E4865696768740500000000000000B003401453697A652E50
+          6C6174666F726D44656661756C7408085461624F726465720200001254416374
+          6976655374796C654F626A65637400095374796C654E616D65060A6261636B67
+          726F756E6405416C69676E0708436F6E74656E74730C536F757263654C6F6F6B
+          7570061B57696E646F7773203130204465736B746F707374796C652E706E670A
+          53697A652E57696474680500000000000000E906400B53697A652E4865696768
+          740500000000000000B003401453697A652E506C6174666F726D44656661756C
+          74080D416374697665547269676765720707466F63757365640A416374697665
+          4C696E6B0E010E436170496E736574732E4C6566740500000000000000E00140
+          0D436170496E736574732E546F700500000000000000E001400F436170496E73
+          6574732E52696768740500000000000000E0014010436170496E736574732E42
+          6F74746F6D0500000000000000E001400F536F75726365526563742E4C656674
+          05000000000000008507400E536F75726365526563742E546F70050000000000
+          0000A2054010536F75726365526563742E526967687405000000000000809807
+          4011536F75726365526563742E426F74746F6D0500000000000000DC05400001
+          0E436170496E736574732E4C6566740500000000000000A002400D436170496E
+          736574732E546F700500000000000000A002400F436170496E736574732E5269
+          6768740500000000000000A0024010436170496E736574732E426F74746F6D05
+          00000000000000A00240055363616C650500000000000000C0FF3F0F536F7572
+          6365526563742E4C6566740500000000000080C707400E536F75726365526563
+          742E546F700500000000000000F2054010536F75726365526563742E52696768
+          740500000000000080E4074011536F75726365526563742E426F74746F6D0500
+          000000000000A5064000010E436170496E736574732E4C656674050000000000
+          0000E002400D436170496E736574732E546F700500000000000000E002400F43
+          6170496E736574732E52696768740500000000000000E0024010436170496E73
+          6574732E426F74746F6D0500000000000000E00240055363616C650500000000
+          0000008000400F536F75726365526563742E4C65667405000000000000008508
+          400E536F75726365526563742E546F700500000000000000A2064010536F7572
+          6365526563742E5269676874050000000000008098084011536F757263655265
+          63742E426F74746F6D0500000000000000DC064000000A536F757263654C696E
+          6B0E010E436170496E736574732E4C6566740500000000000000E001400D4361
+          70496E736574732E546F700500000000000000E001400F436170496E73657473
+          2E52696768740500000000000000E0014010436170496E736574732E426F7474
+          6F6D0500000000000000E001400F536F75726365526563742E4C656674050000
+          0000000000AF06400E536F75726365526563742E546F700500000000000000AA
+          054010536F75726365526563742E52696768740500000000000000D606401153
+          6F75726365526563742E426F74746F6D0500000000000000E4054000010E4361
+          70496E736574732E4C6566740500000000000000A002400D436170496E736574
+          732E546F700500000000000000A002400F436170496E736574732E5269676874
+          0500000000000000A0024010436170496E736574732E426F74746F6D05000000
+          00000000A00240055363616C650500000000000000C0FF3F0F536F7572636552
+          6563742E4C65667405000000000000008007400E536F75726365526563742E54
+          6F700500000000000000FE054010536F75726365526563742E52696768740500
+          0000000000809D074011536F75726365526563742E426F74746F6D0500000000
+          000000AB064000010E436170496E736574732E4C6566740500000000000000E0
+          02400D436170496E736574732E546F700500000000000000E002400F43617049
+          6E736574732E52696768740500000000000000E0024010436170496E73657473
+          2E426F74746F6D0500000000000000E00240055363616C650500000000000000
+          8000400F536F75726365526563742E4C6566740500000000000080A907400E53
+          6F75726365526563742E546F700500000000000000B1064010536F7572636552
+          6563742E52696768740500000000000080D0074011536F75726365526563742E
+          426F74746F6D0500000000000000EB0640000013546F756368416E696D617469
+          6F6E2E4C696E6B0E00000007544C61796F757400095374796C654E616D650607
+          636F6E74656E7405416C69676E0706436C69656E74064C6F636B6564090C4D61
+          7267696E732E4C6566740500000000000000C000400B4D617267696E732E546F
+          700500000000000000C000400D4D617267696E732E5269676874050000000000
+          0000C000400E4D617267696E732E426F74746F6D0500000000000000C000400A
+          53697A652E57696474680500000000000000AF06400B53697A652E4865696768
+          7405000000000000008003401453697A652E506C6174666F726D44656661756C
+          7408000007544C61796F757400095374796C654E616D650607627574746F6E73
+          05416C69676E07055269676874064C6F636B6564090B4D617267696E732E546F
+          7005000000000000008000400D4D617267696E732E5269676874050000000000
+          00008000400E4D617267696E732E426F74746F6D05000000000000008000400A
+          506F736974696F6E2E580500000000000000B506400A506F736974696F6E2E59
+          05000000000000008000400A53697A652E57696474680500000000000000C804
+          400B53697A652E48656967687405000000000000009003401453697A652E506C
+          6174666F726D44656661756C740800000C5442727573684F626A656374000953
+          74796C654E616D65060A666F726567726F756E640B42727573682E436F6C6F72
+          0708636C61426C61636B00000C5442727573684F626A65637400095374796C65
+          4E616D65060973656C656374696F6E0B42727573682E436F6C6F720709784646
+          30444231363600000B54466F6E744F626A65637400095374796C654E616D6506
+          04666F6E74000006544C6162656C00095374796C654E616D65060670726F6D70
+          74064C6F636B656409074F706163697479050000000000000080FE3F0B537479
+          6C654C6F6F6B7570061645646974315374796C65314C6162656C5374796C6531
+          0756697369626C65080000005450463007544C61796F757400095374796C654E
+          616D65061645646974315374796C65314C6162656C5374796C65310A53697A65
+          2E57696474680500000000000000E906400B53697A652E486569676874050000
+          0000000000B003401453697A652E506C6174666F726D44656661756C74080756
+          697369626C6508085461624F7264657202010005545465787400095374796C65
+          4E616D6506047465787405416C69676E0706436C69656E74064C6F636B656409
+          0748697454657374080A53697A652E57696474680500000000000000E906400B
+          53697A652E4865696768740500000000000000B003401453697A652E506C6174
+          666F726D44656661756C7408000000}
+      end>
+    Left = 64
+    Top = 32
+  end
+end

@@ -1,0 +1,53 @@
+object frameMensagemWhatsapp: TframeMensagemWhatsapp
+  Size.Width = 849.000000000000000000
+  Size.Height = 380.000000000000000000
+  Size.PlatformDefault = False
+  object memMensagem: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Position.X = 8.000000000000000000
+    Position.Y = 56.000000000000000000
+    Size.Width = 833.000000000000000000
+    Size.Height = 289.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    OnKeyDown = memMensagemKeyDown
+    Viewport.Width = 829.000000000000000000
+    Viewport.Height = 285.000000000000000000
+  end
+  object cItem: TComboBox
+    Anchors = [akLeft, akTop, akRight]
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 833.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object lTitulo: TLabel
+      Align = Client
+      StyledSettings = [Family, Size]
+      Margins.Left = 15.000000000000000000
+      Margins.Top = 5.000000000000000000
+      Margins.Right = 25.000000000000000000
+      Margins.Bottom = 5.000000000000000000
+      Size.Width = 793.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.FontColor = xFFA4001B
+      TextSettings.HorzAlign = Trailing
+      Text = 'Coringas Para Utiliza'#231#227'o'
+      TabOrder = 0
+    end
+  end
+  object lQtdCaracteres: TLabel
+    Anchors = [akTop, akRight]
+    StyledSettings = [Family, Size, Style]
+    Position.X = 721.000000000000000000
+    Position.Y = 350.000000000000000000
+    TextSettings.FontColor = claDarkgray
+    TextSettings.HorzAlign = Trailing
+    Text = 'lQtdCaracteres'
+    TabOrder = 4
+  end
+end

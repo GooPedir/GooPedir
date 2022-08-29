@@ -1,0 +1,43 @@
+object frmSenha: TfrmSenha
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Adiministrador'
+  ClientHeight = 136
+  ClientWidth = 402
+  Color = clBtnFace
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -21
+  Font.Name = 'Segoe UI Semibold'
+  Font.Style = [fsBold]
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  PixelsPerInch = 96
+  TextHeight = 30
+  object Label1: TLabel
+    Left = 8
+    Top = 8
+    Width = 57
+    Height = 30
+    Caption = 'Senha'
+  end
+  object edtSenha: TEdit
+    Left = 8
+    Top = 44
+    Width = 377
+    Height = 38
+    PasswordChar = '*'
+    TabOrder = 0
+  end
+  object btnConfirmar: TButton
+    Left = 248
+    Top = 88
+    Width = 137
+    Height = 41
+    Caption = 'Confirmar'
+    TabOrder = 1
+    OnClick = btnConfirmarClick
+  end
+end

@@ -1,0 +1,37 @@
+unit uFuncoes;
+
+interface
+
+uses
+  uMemTable, FMX.Forms, System.UITypes, FMXTee.Canvas, System.SysUtils;
+
+function RemoveAcento(aText: string): string;
+
+function FormatarMoeda(Valor:Real):String;
+
+implementation
+
+function RemoveAcento(aText: string): string;
+const
+  ComAcento = 'àâêôûãõáéíóúçüñıÀÂÊÔÛÃÕÁÉÍÓÚÇÜÑİ';
+  SemAcento = 'aaeouaoaeioucunyAAEOUAOAEIOUCUNY';
+var
+  x: Cardinal;
+begin;
+  for x := 1 to Length(aText) do
+    try
+      if (Pos(aText[x], ComAcento) <> 0) then
+        aText[x] := SemAcento[Pos(aText[x], ComAcento)];
+    except
+         aText := '';
+    end;
+
+  Result := UpperCase(aText);
+end;
+
+function FormatarMoeda(Valor:Real):String;
+begin
+  Result := FormatFloat('###,###,##0.00',Valor);
+end;
+
+end.

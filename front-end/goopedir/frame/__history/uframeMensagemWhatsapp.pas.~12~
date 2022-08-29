@@ -1,0 +1,131 @@
+unit uframeMensagemWhatsapp;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo,
+  FMX.ListBox, FMX.Objects;
+
+type
+  TframeMensagemWhatsapp = class(TFrame)
+    memMensagem: TMemo;
+    cItem: TComboBox;
+    lTitulo: TLabel;
+    lQtdCaracteres: TLabel;
+    btnSalvar: TSpeedButton;
+    Image1: TImage;
+    procedure memMensagemKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
+    procedure btnSalvarClick(Sender: TObject);
+  private
+    FCampo: String;
+    FValorAtual: String;
+    procedure SetCampo(const Value: String);
+    procedure SetValorAtual(const Value: String);
+    procedure ContaCaracteres;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Campo : String read FCampo write SetCampo;
+    property ValorAtual : String read FValorAtual write SetValorAtual;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+procedure TframeMensagemWhatsapp.btnSalvarClick(Sender: TObject);
+var
+ ValorFormatado : String;
+begin
+  DM.DADOS_WHATSAPP.Edit;
+  try
+    DM.DADOS_WHATSAPP.Edit;
+    DM.DADOS_WHATSAPP.FieldByName(Campo).AsVariant := memMensagem.Text;
+    ValorAtual := memMensagem.Text;
+    DM.DADOS_WHATSAPP.Post;
+
+    ValorFormatado := memMensagem.Text;
+
+    DM.AtualizaParametro(Campo, ValorFormatado);
+
+//    lStatus.Text := 'Salvo com Sucesso';
+//    tLimpaStatus.Enabled := True;
+  except
+//    lStatus.Text := 'Erro ao Salvar!';
+//    tLimpaStatus.Enabled := True;
+  end;
+end;
+
+procedure TframeMensagemWhatsapp.ContaCaracteres;
+begin
+  if (memMensagem.MaxLength > 0) then
+    lQtdCaracteres.Text := length(memMensagem.Text).ToString + '/' +
+      memMensagem.MaxLength.ToString
+  else
+    lQtdCaracteres.Text := '';
+end;
+
+procedure TframeMensagemWhatsapp.memMensagemKeyDown(Sender: TObject;
+  var Key: Word; var KeyChar: Char; Shift: TShiftState);
+begin
+  btnSalvar.Enabled := ((Sender as TMemo).Text <> ValorAtual);
+  btnSalvar.Visible := btnSalvar.Enabled;
+ContaCaracteres;
+end;
+
+procedure TframeMensagemWhatsapp.SetCampo(const Value: String);
+begin
+  FCampo := Value;
+  cItem.Items.Add(dm.Link);
+if Assigned(DM.DADOS_WHATSAPP.FindField(Value)) then
+  begin
+     memMensagem.Text := DM.DADOS_WHATSAPP.FieldByName(Value).AsString;
+    // lNome.Text := DM.DADOS_WHATSAPP.FindField(Value).DisplayName;
+     ValorAtual := DM.DADOS_WHATSAPP.FieldByName(Value).AsString;
+     memMensagem.MaxLength := DM.DADOS_WHATSAPP.FindField(Value).Size;
+     ContaCaracteres;
+     btnSalvar.Visible := False;
+    // TipoCampo := Texto;
+    // case DM.DADOS_WHATSAPP.FindField(Value).DataType of
+    // ftString:
+    // begin
+    // TipoCampo := Texto;
+    // end;
+    // ftInteger:
+    // begin
+    // TipoCampo := Inteiro;
+    // end;
+    // ftSmallint:
+    // begin
+    // TipoCampo := Inteiro;
+    // end;
+    // ftFloat:
+    // begin
+    // TipoCampo := Numerico;
+    // end;
+    // ftCurrency:
+    // begin
+    // TipoCampo := Numerico;
+    // end;
+    // end;
+
+    // TipoCampo
+  end
+  else
+  begin
+    ShowMessage('campo "' + Value +
+      '" não foi declarado na memorytable "DADOS_WHATSAPP" no datamodule!');
+  end;
+end;
+
+procedure TframeMensagemWhatsapp.SetValorAtual(const Value: String);
+begin
+  FValorAtual := Value;
+end;
+
+end.

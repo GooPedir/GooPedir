@@ -1,0 +1,283 @@
+unit uframeExtraAdd;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Objects, FMX.Controls.Presentation, FMX.Edit, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
+
+type
+  TframeExtraAdd = class(TFrame)
+    img_play: TImage;
+    Img_pause: TImage;
+    DADOS: TFDMemTable;
+    DADOSDESCRICAO: TStringField;
+    DADOSMIN: TIntegerField;
+    DADOSMAX: TIntegerField;
+    DADOSSTATUS: TIntegerField;
+    DADOSID: TIntegerField;
+    Rectangle1: TRectangle;
+    edtDescricao: TEdit;
+    Label1: TLabel;
+    EdtMin: TEdit;
+    Label2: TLabel;
+    EdtMax: TEdit;
+    Label3: TLabel;
+    img_status: TImage;
+    imgSalvar: TImage;
+    img_adicionar: TImage;
+    procedure edtDescricaoChange(Sender: TObject);
+    procedure img_adicionarMouseEnter(Sender: TObject);
+    procedure img_adicionarMouseLeave(Sender: TObject);
+    procedure img_statusClick(Sender: TObject);
+    procedure imgSalvarClick(Sender: TObject);
+    procedure img_adicionarClick(Sender: TObject);
+    procedure EdtMaxMouseEnter(Sender: TObject);
+    procedure EdtMinExit(Sender: TObject);
+    procedure EdtMaxExit(Sender: TObject);
+  private
+    FMax: Integer;
+    FDescricao: String;
+    FMin: Integer;
+    FCodigo: Integer;
+    FStatus: Integer;
+    FCodigoProduto: Integer;
+    FStatusAtual: Integer;
+    procedure SetCodigo(const Value: Integer);
+    procedure SetDescricao(const Value: String);
+    procedure SetMax(const Value: Integer);
+    procedure SetMin(const Value: Integer);
+    procedure SetStatus(const Value: Integer);
+    { Private declarations }
+    procedure ValidaDados;
+    procedure SetCodigoProduto(const Value: Integer);
+    procedure SetStatusAtual(const Value: Integer);
+    procedure Envia;
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Descricao: String read FDescricao write SetDescricao;
+    property Min: Integer read FMin write SetMin;
+    property Max: Integer read FMax write SetMax;
+    property Status: Integer read FStatus write SetStatus;
+    property CodigoProduto: Integer read FCodigoProduto write SetCodigoProduto;
+    property StatusAtual: Integer read FStatusAtual write SetStatusAtual;
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, uRequisicao, uExtraItem, FMXTee.Canvas;
+{ TFrame2 }
+
+procedure TframeExtraAdd.edtDescricaoChange(Sender: TObject);
+begin
+  ValidaDados;
+end;
+
+procedure TframeExtraAdd.EdtMaxExit(Sender: TObject);
+begin
+  try
+    (Sender as TEdit).Text.ToInteger;
+  except
+    EdtMax.Text := Max.ToString;
+    ValidaDados;
+    EdtMax.SetFocus;
+    EdtMax.SelectAll;
+    ShowMessage('Valor informado invalido');
+    exit;
+  end;
+
+  if not(((Sender as TEdit).Text.ToInteger = 0) or
+    ((Sender as TEdit).Text.ToInteger > 0)) then
+  begin
+    EdtMax.Text := Max.ToString;
+    ValidaDados;
+    EdtMax.SetFocus;
+    EdtMax.SelectAll;
+    ShowMessage('Valor informado invalido');
+    exit;
+  end;
+end;
+
+procedure TframeExtraAdd.EdtMaxMouseEnter(Sender: TObject);
+begin
+  ValidaDados;
+end;
+
+procedure TframeExtraAdd.EdtMinExit(Sender: TObject);
+begin
+  try
+    (Sender as TEdit).Text.ToInteger;
+  except
+    EdtMin.Text := Min.ToString;
+    ValidaDados;
+    EdtMin.SetFocus;
+    EdtMin.SelectAll;
+    ShowMessage('Valor informado invalido');
+    exit;
+  end;
+
+  if not(((Sender as TEdit).Text.ToInteger = 0) or
+    ((Sender as TEdit).Text.ToInteger > 0)) then
+  begin
+    EdtMin.Text := Min.ToString;
+    ValidaDados;
+    EdtMin.SetFocus;
+    EdtMin.SelectAll;
+    ShowMessage('Valor informado invalido');
+    exit;
+  end;
+end;
+
+procedure TframeExtraAdd.Envia;
+begin
+  //
+  DADOS.Close;
+  DADOS.Open;
+  DADOS.Insert;
+  DADOS.FieldByName('ID').AsInteger := Codigo;
+  DADOS.FieldByName('DESCRICAO').AsString := edtDescricao.Text;
+  DADOS.FieldByName('MIN').AsInteger := EdtMin.Text.ToInteger;
+  DADOS.FieldByName('MAX').AsInteger := EdtMax.Text.ToInteger;
+  DADOS.FieldByName('STATUS').AsInteger := StatusAtual;
+  DADOS.Post;
+
+  DM.Conexao.URL := '/v1/extra/produto/atualiza';
+  DM.Conexao.BODY(DADOS);
+  DM.Conexao.Metodo := mpost;
+  DM.Conexao.Execute;
+
+  Descricao := edtDescricao.Text;
+  Min := EdtMin.Text.ToInteger;
+  Max := EdtMax.Text.ToInteger;
+  Status := StatusAtual;
+
+end;
+
+procedure TframeExtraAdd.imgSalvarClick(Sender: TObject);
+begin
+  Envia;
+end;
+
+procedure TframeExtraAdd.img_adicionarClick(Sender: TObject);
+begin
+  frmExtraItem := TfrmExtraItem.Create(self);
+  frmExtraItem.Descricao := Descricao;
+  frmExtraItem.Codigo := Codigo;
+  frmExtraItem.Min := Min;
+  frmExtraItem.Max := Max;
+  frmExtraItem.Show;
+end;
+
+procedure TframeExtraAdd.img_adicionarMouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+end;
+
+procedure TframeExtraAdd.img_adicionarMouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+end;
+
+procedure TframeExtraAdd.img_statusClick(Sender: TObject);
+begin
+  case StatusAtual of
+    1:
+      begin
+        StatusAtual := 0;
+      end
+  else
+    begin
+      StatusAtual := 1;
+    end;
+  end;
+
+end;
+
+procedure TframeExtraAdd.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframeExtraAdd.SetCodigoProduto(const Value: Integer);
+begin
+  FCodigoProduto := Value;
+end;
+
+procedure TframeExtraAdd.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  edtDescricao.Text := Value;
+end;
+
+procedure TframeExtraAdd.SetMax(const Value: Integer);
+begin
+  FMax := Value;
+  EdtMax.Text := Value.ToString;
+end;
+
+procedure TframeExtraAdd.SetMin(const Value: Integer);
+begin
+  FMin := Value;
+  EdtMin.Text := Value.ToString;
+end;
+
+procedure TframeExtraAdd.SetStatus(const Value: Integer);
+begin
+  FStatus := Value;
+  StatusAtual := Status;
+end;
+
+procedure TframeExtraAdd.SetStatusAtual(const Value: Integer);
+begin
+  FStatusAtual := Value;
+  img_status.Bitmap := Img_pause.Bitmap;
+  if FStatusAtual = 1 then
+  begin
+    img_status.Bitmap := img_play.Bitmap;
+  end;
+  if FStatusAtual = 1 then
+  begin
+    Rectangle1.Stroke.Color := RGB(153, 204, 50);
+  end
+  else
+  begin
+    Rectangle1.Stroke.Color := RGB(140, 23, 23);
+  end;
+  ValidaDados;
+end;
+
+procedure TframeExtraAdd.ValidaDados;
+var
+  Diferente: Boolean;
+begin
+  Diferente := False;
+  if (edtDescricao.Text <> Descricao) then
+  begin
+    Diferente := True;
+  end;
+  if (EdtMin.Text <> Min.ToString) then
+  begin
+    Diferente := True;
+  end;
+  if (EdtMax.Text <> Max.ToString) then
+  begin
+    Diferente := True;
+  end;
+  if (Status <> StatusAtual) then
+  begin
+    Diferente := True;
+  end;
+
+  imgSalvar.Visible := Diferente;
+
+end;
+
+end.

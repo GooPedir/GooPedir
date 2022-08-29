@@ -1,0 +1,80 @@
+unit uCliente;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
+  FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
+  Data.Bind.DBScope, FMX.ListView;
+
+type
+  TfrmCliente = class(TfrmCadastroBase)
+    DADOS: iMemTable;
+    DADOScodigo: TIntegerField;
+    DADOSnome: TStringField;
+    DADOScelular: TStringField;
+    DADOSativo: TIntegerField;
+    ListView1: TListView;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure GetDados;
+  end;
+
+var
+  frmCliente: TfrmCliente;
+  Carregando: Boolean;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TfrmCliente }
+
+procedure TfrmCliente.FormCreate(Sender: TObject);
+begin
+  inherited;
+  GetDados;
+end;
+
+procedure TfrmCliente.GetDados;
+begin
+  if Carregando then
+    exit;
+  Carregando := True;
+  try
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        dm.GetSimples('/v1/consulta/todos/cliente', DADOS);
+
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            Carregando := False;
+          end);
+      end).Start;
+  except
+    Carregando := False;
+  end;
+
+  tabPrincipal.TabIndex := 0;
+
+end;
+
+end.

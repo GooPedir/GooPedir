@@ -1,0 +1,292 @@
+unit uCategoria;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
+  FMX.Bind.DBEngExt, FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid,
+  Data.Bind.DBScope, FMX.Edit, uEdit, FMX.ListBox;
+
+type
+  TfrmCategoria = class(TfrmCadastroBase)
+    DADOS: iMemTable;
+    DADOScodigo: TIntegerField;
+    DADOSdescricao: TStringField;
+    DADOSpizza: TIntegerField;
+    DADOSvisivel_vem_buscar: TIntegerField;
+    DADOSvisivel_delivery: TIntegerField;
+    DADOSid_site: TIntegerField;
+    DADOSordem: TIntegerField;
+    DADOSmodificado_site: TIntegerField;
+    BDSDADOS: TBindSourceDB;
+    StringGrid4: TStringGrid;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBDSDADOS: TLinkGridToDataSource;
+    Layout2: TLayout;
+    edtCodigo: iEdit;
+    Label4: TLabel;
+    DADOSdescricao_impressora: TStringField;
+    DADOSimpressora: TIntegerField;
+    Layout1: TLayout;
+    edtDescricao: iEdit;
+    Label3: TLabel;
+    IMPRESSORA: iMemTable;
+    IMPRESSORAcodigo: TIntegerField;
+    IMPRESSORAdescricao: TStringField;
+    Layout9: TLayout;
+    iEdit8: iEdit;
+    Label11: TLabel;
+    cCategoria: TComboBox;
+    BDSIMPRESSORA: TBindSourceDB;
+    LinkListControlToField1: TLinkListControlToField;
+    Layout3: TLayout;
+    iEdit2: iEdit;
+    Label5: TLabel;
+    sVD: TSwitch;
+    Layout4: TLayout;
+    iEdit3: iEdit;
+    Label6: TLabel;
+    SVV: TSwitch;
+    procedure FormCreate(Sender: TObject);
+    procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure DADOSAfterScroll(DataSet: TDataSet);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAdicionarClick(Sender: TObject);
+    procedure rAlterarClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure Insert;
+    procedure Controller;
+    procedure SaveController;
+  public
+    { Public declarations }
+    procedure getCategoria;
+  end;
+
+var
+  frmCategoria: TfrmCategoria;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM;
+
+{ TfrmCategoria }
+
+procedure TfrmCategoria.Controller;
+begin
+  sVD.IsChecked := DADOS.FieldByName('visivel_delivery').AsInteger = 1;
+  SVV.IsChecked := DADOS.FieldByName('visivel_vem_buscar').AsInteger = 1;
+
+  IMPRESSORA.Locate('codigo',DADOS.FieldByName('impressora').AsInteger,[]);
+
+end;
+
+procedure TfrmCategoria.DADOSAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if (DataSet.State in [dsEdit, dsInsert]) then
+  begin
+    Controller;
+  end;
+
+end;
+
+procedure TfrmCategoria.FormCreate(Sender: TObject);
+begin
+  inherited;
+tabPrincipal.TabPosition := TTabPosition.None;
+  DM.GetSimples('/v1/consulta/todos/impressoras', IMPRESSORA);
+  getCategoria;
+
+end;
+
+procedure TfrmCategoria.getCategoria;
+begin
+  DM.GetSimples('v1/categoria/all/', DADOS);
+end;
+
+procedure TfrmCategoria.Insert;
+begin
+  DADOS.Insert;
+  DADOS.FieldByName('codigo').AsInteger := 0;
+  DADOS.FieldByName('pizza').AsInteger := 0;
+  DADOS.FieldByName('visivel_vem_buscar').AsInteger := 1;
+  DADOS.FieldByName('visivel_delivery').AsInteger := 1;
+  DADOS.FieldByName('impressora').AsInteger := 1;
+  DADOS.FieldByName('ordem').AsInteger := 0;
+  DADOS.FieldByName('id_site').AsInteger := 0;
+  DADOS.FieldByName('modificado_site').AsInteger := 0;
+  DADOS.AtualizaCampos;
+  Controller;
+end;
+
+procedure TfrmCategoria.rAdicionarClick(Sender: TObject);
+begin
+  inherited;
+  Insert;
+  tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCategoria.rAlterarClick(Sender: TObject);
+begin
+  inherited;
+  DADOS.Edit;
+  tabPrincipal.TabIndex := 1;
+  Controller;
+end;
+
+procedure TfrmCategoria.rSalvarClick(Sender: TObject);
+begin
+  inherited;
+  SaveController;
+  DADOS.Post;
+  DM.PostSimplesUnico('/v1/categoria/post/', DADOS);
+  tabPrincipal.TabIndex := 0;
+  getCategoria;
+end;
+
+procedure TfrmCategoria.SaveController;
+begin
+
+  case sVD.IsChecked of
+    True:
+      begin
+        DADOS.FieldByName('visivel_delivery').AsInteger := 1;
+      end
+  else
+    begin
+      DADOS.FieldByName('visivel_delivery').AsInteger := 0;
+    end;
+  end;
+
+    case SVV.IsChecked of
+    True:
+      begin
+        DADOS.FieldByName('visivel_vem_buscar').AsInteger := 1;
+      end
+  else
+    begin
+      DADOS.FieldByName('visivel_vem_buscar').AsInteger := 0;
+    end;
+  end;
+
+  DADOS.FieldByName('impressora').AsInteger := IMPRESSORA.FieldByName('codigo').AsInteger;
+
+  DADOS.FieldByName('descricao').AsString := edtDescricao.Text;
+  try
+  DADOS.FieldByName('ordem').AsInteger := edtCodigo.Text.ToInteger;
+  except
+  DADOS.FieldByName('ordem').AsInteger :=  0;
+  end;
+  DADOS.FieldByName('modificado_site').AsInteger := 0;
+
+end;
+
+procedure TfrmCategoria.StringGrid4DrawColumnCell(Sender: TObject;
+  const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+  const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+begin
+  inherited;
+  case Column.Index of
+    3:
+      begin
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := DM.TipoCor(3);
+          Canvas.Stroke.Color := DM.TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(3);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := DM.TipoCor(2);
+          Canvas.Stroke.Color := DM.TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(2);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    4:
+      begin
+        if (Value.ToString = '1') then
+        begin
+          Canvas.Fill.Color := DM.TipoCor(3);
+          Canvas.Stroke.Color := DM.TipoCor(3);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(3);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end
+        else
+        begin
+          Canvas.Fill.Color := DM.TipoCor(2);
+          Canvas.Stroke.Color := DM.TipoCor(2);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(2);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+        end;
+      end;
+    5:
+      begin
+        try
+
+          case strtoint((Sender as TStringGrid).Cells[6, Row]) of
+            1:
+              begin
+                Canvas.Fill.Color := DM.TipoCor(3);
+                Canvas.Stroke.Color := DM.TipoCor(3);
+              end
+          else
+            begin
+              Canvas.Fill.Color := DM.TipoCor(2);
+              Canvas.Stroke.Color := DM.TipoCor(2);
+            end;
+          end;
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(9);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+
+        except
+          Canvas.Fill.Color := DM.TipoCor(5);
+          Canvas.Stroke.Color := DM.TipoCor(5);
+
+          Canvas.FillRect(Bounds, 0, 0, [], 1);
+          Canvas.Fill.Color := DM.TipoCor(5);
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
+            [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            TTextAlign.Center);
+
+        end;
+
+      end;
+  end;
+end;
+
+end.

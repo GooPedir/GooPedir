@@ -1,0 +1,243 @@
+unit uframtePedido;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Edit, FMX.Objects, FMX.ListBox;
+
+type
+  TframtePedido = class(TFrame)
+    r_principal: TRectangle;
+    edt_codigo: TEdit;
+    Label1: TLabel;
+    edt_data: TEdit;
+    Label2: TLabel;
+    edt_hora: TEdit;
+    Label3: TLabel;
+    edt_cliente: TEdit;
+    Label4: TLabel;
+    edt_valor: TEdit;
+    Label5: TLabel;
+    edt_taxa: TEdit;
+    Label6: TLabel;
+    edt_desconto: TEdit;
+    Label7: TLabel;
+    edt_total: TEdit;
+    Label8: TLabel;
+    img_imprimir: TImage;
+    img_alterar: TImage;
+    img_faturar: TImage;
+    r_status: TRectangle;
+    c_status: TComboBox;
+    Label9: TLabel;
+    c_motoboy: TComboBox;
+    Label10: TLabel;
+    edt_endereco: TEdit;
+    Label11: TLabel;
+    procedure img_imprimirClick(Sender: TObject);
+    procedure img_alterarClick(Sender: TObject);
+    procedure img_faturarClick(Sender: TObject);
+  private
+    FTaxa: Real;
+    FDesconto: Real;
+    FHora: TTime;
+    FPedido: Real;
+    FMotoboy: Integer;
+    FCliente: String;
+    FCodigo: Integer;
+    FTotal: Real;
+    FID: Integer;
+    FStatus: String;
+    FEndereco: String;
+    FcodigoStatus: Integer;
+    FData: TDate;
+    FOrigem: Integer;
+    FCodigoEndereco: Integer;
+    procedure SetCliente(const Value: String);
+    procedure SetCodigo(const Value: Integer);
+    procedure SetcodigoStatus(const Value: Integer);
+    procedure SetData(const Value: TDate);
+    procedure SetDesconto(const Value: Real);
+    procedure SetEndereco(const Value: String);
+    procedure SetHora(const Value: TTime);
+    procedure SetID(const Value: Integer);
+    procedure SetMotoboy(const Value: Integer);
+    procedure SetPedido(const Value: Real);
+    procedure SetStatus(const Value: String);
+    procedure SetTaxa(const Value: Real);
+    procedure SetTotal(const Value: Real);
+    procedure SetOrigem(const Value: Integer);
+    procedure SetCodigoEndereco(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    property ID: Integer read FID write SetID;
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Data: TDate read FData write SetData;
+    property Hora: TTime read FHora write SetHora;
+    property Cliente: String read FCliente write SetCliente;
+    property Pedido: Real read FPedido write SetPedido;
+    property Taxa: Real read FTaxa write SetTaxa;
+    property Desconto: Real read FDesconto write SetDesconto;
+    property Total: Real read FTotal write SetTotal;
+    property codigoStatus: Integer read FcodigoStatus write SetcodigoStatus;
+    property Status: String read FStatus write SetStatus;
+    property Endereco: String read FEndereco write SetEndereco;
+    property CodigoEndereco: Integer read FCodigoEndereco
+      write SetCodigoEndereco;
+    property Motoboy: Integer read FMotoboy write SetMotoboy;
+    property Origem: Integer read FOrigem write SetOrigem;
+
+  end;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, UnitResumo, uFechamentoPedido, FMXTee.Canvas;
+
+{ TframtePedido }
+
+procedure TframtePedido.img_alterarClick(Sender: TObject);
+begin
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := ID;
+  FrmResumo.Show;
+end;
+
+procedure TframtePedido.img_faturarClick(Sender: TObject);
+begin
+  frmFechamentoPedido := TfrmFechamentoPedido.Create(Self);
+  // frmFechamentoPedido.Executar := Conluir;
+  // frmFechamentoPedido.Cancelar := Cancelar;
+
+  frmFechamentoPedido.CodigoPedido := ID;
+  frmFechamentoPedido.Valor := Total;
+  frmFechamentoPedido.DescricaoMesa := Cliente;
+
+  frmFechamentoPedido.pago := 0;
+
+  frmFechamentoPedido.Show;
+end;
+
+procedure TframtePedido.img_imprimirClick(Sender: TObject);
+begin
+  DM.PostSimples('/v1/imprimir/1/' + ID.ToString, nil);
+end;
+
+procedure TframtePedido.SetCliente(const Value: String);
+begin
+  FCliente := Value;
+end;
+
+procedure TframtePedido.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+end;
+
+procedure TframtePedido.SetCodigoEndereco(const Value: Integer);
+begin
+  FCodigoEndereco := Value;
+
+  case FCodigoEndereco of
+    0:
+      begin
+        r_status.Stroke.Color := RGB(185, 178, 219);
+
+      end
+  else
+    begin
+      r_status.Stroke.Color := RGB(165, 218, 232);
+    end;
+
+  end;
+  r_status.Fill.Color := r_status.Stroke.Color;
+end;
+
+procedure TframtePedido.SetcodigoStatus(const Value: Integer);
+begin
+  FcodigoStatus := Value;
+end;
+
+procedure TframtePedido.SetData(const Value: TDate);
+begin
+  FData := Value;
+end;
+
+procedure TframtePedido.SetDesconto(const Value: Real);
+begin
+  FDesconto := Value;
+end;
+
+procedure TframtePedido.SetEndereco(const Value: String);
+begin
+  FEndereco := Value;
+end;
+
+procedure TframtePedido.SetHora(const Value: TTime);
+begin
+  FHora := Value;
+end;
+
+procedure TframtePedido.SetID(const Value: Integer);
+begin
+  FID := Value;
+end;
+
+procedure TframtePedido.SetMotoboy(const Value: Integer);
+begin
+  FMotoboy := Value;
+end;
+
+procedure TframtePedido.SetOrigem(const Value: Integer);
+var
+  Cor: TColor;
+begin
+  FOrigem := Value;
+  case FOrigem of
+    1:
+      begin
+        Cor := RGB(189, 246, 227);
+      end;
+    2:
+      begin
+        Cor := RGB(175, 222, 250);
+      end;
+    3:
+      begin
+        Cor := RGB(227, 210, 244);
+      end;
+    4:
+      begin
+        Cor := RGB(227, 210, 244);
+      end;
+  end;
+  r_principal.Stroke.Color := Cor;
+end;
+
+procedure TframtePedido.SetPedido(const Value: Real);
+begin
+  FPedido := Value;
+end;
+
+procedure TframtePedido.SetStatus(const Value: String);
+begin
+  FStatus := Value;
+end;
+
+procedure TframtePedido.SetTaxa(const Value: Real);
+begin
+  FTaxa := Value;
+end;
+
+procedure TframtePedido.SetTotal(const Value: Real);
+begin
+  FTotal := Value;
+end;
+
+end.

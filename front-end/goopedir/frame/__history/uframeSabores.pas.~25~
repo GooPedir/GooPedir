@@ -1,0 +1,246 @@
+unit uframeSabores;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.ListBox, FMX.Controls.Presentation, FMX.Edit, FMX.Objects,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Data.Bind.EngExt,
+  FMX.Bind.DBEngExt, System.Rtti, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.DBScope, uProduto;
+
+type
+  TframeSabores = class(TFrame)
+    ComboBox1: TComboBox;
+    edtSabor: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    edtDescricao: TEdit;
+    Label3: TLabel;
+    edtValor: TEdit;
+    Label4: TLabel;
+    sStatus: TSwitch;
+    imgSalvar: TImage;
+    memTipoSabor: TFDMemTable;
+    memTipoSaborid: TIntegerField;
+    memTipoSabornome: TStringField;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    memSalvar: TFDMemTable;
+    memSalvarid: TIntegerField;
+    memSalvarsabor: TStringField;
+    memSalvardescricao: TStringField;
+    memSalvarstatus: TIntegerField;
+    memSalvarvalor: TFloatField;
+    memSalvartipo: TIntegerField;
+    procedure edtValorExit(Sender: TObject);
+    procedure edtSaborKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
+    procedure sStatusClick(Sender: TObject);
+    procedure imgSalvarClick(Sender: TObject);
+  private
+    FSabor: String;
+    FValor: Real;
+    FDescricao: String;
+    FStatus: Integer;
+    FCodigo: Integer;
+    FStatusAtual: Integer;
+    FCodigoSabor: Integer;
+    FProduto: TfrmProduto;
+    procedure SetDescricao(const Value: String);
+    procedure SetSabor(const Value: String);
+    procedure SetStatus(const Value: Integer);
+    procedure SetValor(const Value: Real);
+    procedure SetCodigo(const Value: Integer);
+    procedure SetStatusAtual(const Value: Integer);
+    { Private declarations }
+    procedure ValidaSalvamento;
+    procedure SetCodigoSabor(const Value: Integer);
+    procedure SetProduto(const Value: TfrmProduto);
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Sabor: String read FSabor write SetSabor;
+    property Descricao: String read FDescricao write SetDescricao;
+    property Valor: Real read FValor write SetValor;
+    property Status: Integer read FStatus write SetStatus;
+    property CodigoSabor: Integer read FCodigoSabor write SetCodigoSabor;
+    property StatusAtual: Integer read FStatusAtual write SetStatusAtual;
+    property Produto: TfrmProduto read FProduto write SetProduto;
+  end;
+
+implementation
+
+{$IFDEF Android}
+{$ELSE}
+
+uses
+  Winapi.Windows, uDM, util;
+{$ENDIF}
+{$R *.fmx}
+{ TframeSabores }
+
+procedure TframeSabores.edtSaborKeyDown(Sender: TObject; var Key: Word;
+  var KeyChar: Char; Shift: TShiftState);
+begin
+{$IFDEF Android}
+{$ELSE}
+  if Key = vkReturn then
+  begin
+    keybd_event(VK_TAB, 0, 0, 0);
+    keybd_event(VK_TAB, 0, KEYEVENTF_KEYUP, 0);
+    ValidaSalvamento;
+  end;
+{$ENDIF}
+end;
+
+procedure TframeSabores.edtValorExit(Sender: TObject);
+begin
+  try
+    (Sender as TEdit).Text.ToDouble;
+  except
+    edtValor.SetFocus;
+    ShowMessage('Valor informado invalido!');
+    exit;
+  end;
+end;
+
+procedure TframeSabores.imgSalvarClick(Sender: TObject);
+begin
+  memSalvar.Close;
+  memSalvar.Open;
+
+  try
+    StrToFloat(edtValor.Text)
+  except
+    ShowMessageToast(Produto, 'Valor do sabor invalido!', 1);
+    exit;
+  end;
+  if trim(edtSabor.Text) = '' then
+  begin
+    ShowMessageToast(Produto, 'Sabor não pode ser vazio!', 1);
+    exit;
+  end;
+
+  memSalvar.Insert;
+  memSalvar.FieldByName('tipo').AsInteger := memTipoSabor.FieldByName('id')
+    .AsInteger;
+  memSalvar.FieldByName('id').AsInteger := Codigo;
+  memSalvar.FieldByName('sabor').AsString := edtSabor.Text;
+  memSalvar.FieldByName('descricao').AsString := edtDescricao.Text;
+  memSalvar.FieldByName('valor').AsString := edtValor.Text;
+  if sStatus.IsChecked then
+    memSalvar.FieldByName('status').AsInteger := 1
+  else
+    memSalvar.FieldByName('status').AsInteger := 0;
+
+  Sabor := edtSabor.Text;
+  Descricao := edtDescricao.Text;
+  Valor := StrToFloat(edtValor.Text);
+  Status := memSalvar.FieldByName('status').AsInteger;
+  StatusAtual := memSalvar.FieldByName('status').AsInteger;
+  CodigoSabor := memSalvar.FieldByName('tipo').AsInteger;
+  memSalvar.Post;
+
+  dm.PostSimplesUnico2('/v1/sabor/produto/', memSalvar);
+  ValidaSalvamento;
+
+end;
+
+procedure TframeSabores.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+  dm.GetSimples2('/v1/util/tipo/sabor/', memTipoSabor);
+end;
+
+procedure TframeSabores.SetCodigoSabor(const Value: Integer);
+begin
+  FCodigoSabor := Value;
+  memTipoSabor.First;
+
+  while not memTipoSabor.Eof do
+  begin
+    if memTipoSabor.FieldByName('id').AsInteger = Value then
+    begin
+      exit;
+    end;
+    memTipoSabor.Next;
+  end;
+
+end;
+
+procedure TframeSabores.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  edtDescricao.Text := Value;
+end;
+
+procedure TframeSabores.SetProduto(const Value: TfrmProduto);
+begin
+  FProduto := Value;
+end;
+
+procedure TframeSabores.SetSabor(const Value: String);
+begin
+  FSabor := Value;
+  edtSabor.Text := Value;
+end;
+
+procedure TframeSabores.SetStatus(const Value: Integer);
+begin
+  FStatus := Value;
+  StatusAtual := Status;
+end;
+
+procedure TframeSabores.SetStatusAtual(const Value: Integer);
+begin
+  FStatusAtual := Value;
+  sStatus.IsChecked := Value = 1;
+  ValidaSalvamento;
+end;
+
+procedure TframeSabores.SetValor(const Value: Real);
+begin
+  FValor := Value;
+  edtValor.Text := FloatToStr(Value);
+end;
+
+procedure TframeSabores.sStatusClick(Sender: TObject);
+begin
+  if StatusAtual = 1 then
+    StatusAtual := 0
+  else
+    StatusAtual := 1;
+  ValidaSalvamento;
+end;
+
+procedure TframeSabores.ValidaSalvamento;
+var
+  Diferente: Boolean;
+begin
+  Diferente := False;
+
+  if Sabor <> edtSabor.Text then
+    Diferente := True;
+
+  if Descricao <> edtDescricao.Text then
+    Diferente := True;
+
+  if Valor <> StrToFloat(edtValor.Text) then
+    Diferente := True;
+
+  if Status <> StatusAtual then
+    Diferente := True;
+
+  if CodigoSabor <> memTipoSabor.FieldByName('id').AsInteger then
+    Diferente := True;
+
+  imgSalvar.Visible := Diferente;
+end;
+
+end.

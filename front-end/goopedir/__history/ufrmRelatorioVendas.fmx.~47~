@@ -1,0 +1,563 @@
+inherited frmRelatorioVendas: TfrmRelatorioVendas
+  Caption = 'frmPadrao2'
+  ClientWidth = 904
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 904.000000000000000000
+    inherited rTopo: TRectangle
+      Size.Width = 904.000000000000000000
+      inherited imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF4F9F3E
+              FD0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE28181280810100344EFA10576193AE0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 791.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Relat'#243'rio de Vendas'
+      end
+      inherited imgFiltro: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0228494441546843ED96CB4EC2401486690D10127D009FC1952B790AA30BBCC4
+              07F2B2F511344477C6B7D0F8005E125D7949D8292C4A05FCCFF4A7010A1C5A4A
+              419D2F99CC74CE3F7FCFA1D332398BC562B1582C967F8CC37E26743A9D3CBAAD
+              76BBBD89B6E179DEAACC178BC577D7756FD0AE7179E5388E2FF30B0512DEF67D
+              FF09458C4534A2E5B2E9A1AF0AE51110725BADD671A09A1CAE7169939CC04E87
+              F20848E48492D8C85ADA24875E2A94F7215B81E1905AADE621B153C4CAB85C96
+              266399939811F530F576A28F0AE52198CA0FEEF966B3F98A84D629892031D150
+              6EA087BCFCD9829B564C06447EDD71C97711CD90275161383BB025CE7973836C
+              11865444CB6506F162283BF0E8EF797F037ED932432AA2E532837831941D8D46
+              E393F73720A915865444CB6506F1624865FAEFEE0CC0165AE25025B5020A85C2
+              1B875DD6D84F429FB6542A7D70A81229804F5185F2109C6BEE38344072C0A1CA
+              A0165EB71CC6C76437019487606A313EA33450A13C045369FD913DA32B50129F
+              C04687F23E90D0D447097044BBF980C4121FE60414F58D02F769973DC821D171
+              BA1716B147CBF920DB69F09D1806342F28F81049FB9C32C8F5DC8B401E79B40A
+              123C43A28FF57AFD4BF63DC60F98BB90189A7961653CA2885D63F61B40CE7FBA
+              881D4AC6C335A941DB5860D9D022D0E97F70813C3D681B1B2C8D1481F7A6CAF0
+              68A84D0DDA2602CBC32290FC253AFD942AE234A16D6260215FB12AFA898FD816
+              8BC562B158B22197FB018DA68CBDAAF559D70000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
+              'nage_search_white_24dp.png'
+          end>
+        Position.X = 849.000000000000000000
+      end
+    end
+    inherited tabMain: TTabControl
+      Size.Width = 904.000000000000000000
+      TabIndex = 0
+      OnClick = tabMainClick
+      Sizes = (
+        904s
+        496s
+        904s
+        496s
+        904s
+        496s
+        904s
+        496s
+        904s
+        496s)
+      object TabPrincipal: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 84.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabPrincipal'
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object rFiltros: TRectangle
+          Align = Top
+          Fill.Color = claWhite
+          Size.Width = 904.000000000000000000
+          Size.Height = 73.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = claWhite
+          object Layout21: TLayout
+            Position.X = 9.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 161.000000000000000000
+            Size.Height = 57.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object Label14: TLabel
+              Align = Top
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Position.Y = 5.000000000000000000
+              Size.Width = 156.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Data Inicial'
+              TabOrder = 0
+            end
+            object edtDataInicial: TDateEdit
+              Date = 44596.000000000000000000
+              Align = Top
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Position.Y = 27.000000000000000000
+              Size.Width = 151.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+            end
+          end
+          object Layout22: TLayout
+            Position.X = 178.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 161.000000000000000000
+            Size.Height = 57.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object Label16: TLabel
+              Align = Top
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Position.Y = 5.000000000000000000
+              Size.Width = 156.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Data Final'
+              TabOrder = 0
+            end
+            object edtDataFinal: TDateEdit
+              Date = 44596.000000000000000000
+              Align = Top
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Position.Y = 27.000000000000000000
+              Size.Width = 151.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+            end
+          end
+          object Button1: TButton
+            Position.X = 343.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 130.000000000000000000
+            Size.Height = 57.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            Text = 'Buscar'
+            OnClick = Button1Click
+          end
+        end
+      end
+      object tabPedidos: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 62.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Pedidos'
+        OnClick = tabPedidosClick
+        ExplicitSize.cx = 62.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Layout1: TLayout
+          Align = Top
+          Size.Width = 904.000000000000000000
+          Size.Height = 241.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object HorzScrollBox1: THorzScrollBox
+            Align = Top
+            Size.Width = 904.000000000000000000
+            Size.Height = 110.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            Viewport.Width = 904.000000000000000000
+            Viewport.Height = 110.000000000000000000
+          end
+          object HorzScrollBox2: THorzScrollBox
+            Align = Top
+            Margins.Top = 10.000000000000000000
+            Position.Y = 120.000000000000000000
+            Size.Width = 904.000000000000000000
+            Size.Height = 110.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Viewport.Width = 904.000000000000000000
+            Viewport.Height = 110.000000000000000000
+          end
+        end
+        object Rectangle2: TRectangle
+          Align = Client
+          Fill.Color = xFF1B2231
+          Margins.Left = 10.000000000000000000
+          Margins.Top = 10.000000000000000000
+          Margins.Right = 10.000000000000000000
+          Margins.Bottom = 10.000000000000000000
+          Size.Width = 884.000000000000000000
+          Size.Height = 235.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          XRadius = 6.000000000000000000
+          YRadius = 6.000000000000000000
+          OnClick = Rectangle1Click
+          object lGrafico2: TLayout
+            Align = Client
+            Margins.Left = 75.000000000000000000
+            Margins.Top = 20.000000000000000000
+            Margins.Right = 75.000000000000000000
+            Margins.Bottom = 12.000000000000000000
+            Size.Width = 734.000000000000000000
+            Size.Height = 176.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+          end
+          object lPedidoPeriodo: TLabel
+            Align = Top
+            StyledSettings = [Family]
+            Margins.Top = 10.000000000000000000
+            Position.Y = 10.000000000000000000
+            Size.Width = 884.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 14.000000000000000000
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Pedidos'
+            TabOrder = 1
+          end
+        end
+      end
+      object TabProdutos: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 68.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Produtos'
+        ExplicitSize.cx = 68.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object sProduto: TStringGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 904.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          RowHeight = 40.000000000000000000
+          Options = [ColumnResize, ColumnMove, ColLines, RowLines, Tabs, Header, HeaderClick, AutoDisplacement]
+          Viewport.Width = 900.000000000000000000
+          Viewport.Height = 471.000000000000000000
+        end
+      end
+      object TabExtra: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 52.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Extras'
+        ExplicitSize.cx = 52.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object sExtra: TStringGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 904.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          RowHeight = 40.000000000000000000
+          Options = [ColumnResize, ColumnMove, ColLines, RowLines, Tabs, Header, HeaderClick, AutoDisplacement]
+          Viewport.Width = 900.000000000000000000
+          Viewport.Height = 471.000000000000000000
+        end
+      end
+      object TabItem1: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 69.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabItem1'
+        OnClick = TabItem1Click
+        ExplicitSize.cx = 69.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Rectangle1: TRectangle
+          Align = Client
+          Fill.Color = xFF487DF7
+          Margins.Left = 10.000000000000000000
+          Margins.Top = 10.000000000000000000
+          Margins.Right = 10.000000000000000000
+          Margins.Bottom = 10.000000000000000000
+          Size.Width = 884.000000000000000000
+          Size.Height = 476.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          XRadius = 6.000000000000000000
+          YRadius = 6.000000000000000000
+          OnClick = Rectangle1Click
+          object layout_chart1: TLayout
+            Align = Client
+            Margins.Left = 25.000000000000000000
+            Margins.Top = 20.000000000000000000
+            Margins.Right = 25.000000000000000000
+            Margins.Bottom = 12.000000000000000000
+            Size.Width = 834.000000000000000000
+            Size.Height = 444.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+          end
+        end
+      end
+    end
+  end
+  inherited memFiltros: iMemTable
+    Left = 592
+    Top = 74
+  end
+  object PEDIDOS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 688
+    Top = 90
+    object PEDIDOStotal: TFloatField
+      DisplayLabel = 'Total'
+      FieldName = 'total'
+      currency = True
+    end
+    object PEDIDOStaxa: TFloatField
+      DisplayLabel = 'Taxa Entrega'
+      FieldName = 'taxa'
+      currency = True
+    end
+    object PEDIDOSpedido: TFloatField
+      DisplayLabel = 'Pedido'
+      FieldName = 'pedido'
+      currency = True
+    end
+    object PEDIDOSdesconto: TFloatField
+      DisplayLabel = 'Desconto'
+      FieldName = 'desconto'
+      currency = True
+    end
+    object PEDIDOSdata_pedido: TDateField
+      DisplayLabel = 'Data'
+      FieldName = 'data_pedido'
+    end
+    object PEDIDOSstatus: TIntegerField
+      DisplayLabel = 'Status'
+      FieldName = 'status'
+    end
+    object PEDIDOSdescricao: TStringField
+      DisplayLabel = 'Status'
+      FieldName = 'descricao'
+      Size = 255
+    end
+    object PEDIDOSqtd: TIntegerField
+      FieldName = 'qtd'
+    end
+  end
+  object PRODUTOS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 688
+    Top = 162
+    object PRODUTOStotal: TIntegerField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'total'
+    end
+    object PRODUTOSproduto: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+      Size = 255
+    end
+    object PRODUTOSvenda: TFloatField
+      DisplayLabel = 'Total'
+      FieldName = 'venda'
+      currency = True
+    end
+  end
+  object EXTRAS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 688
+    Top = 242
+    object EXTRASqtd: TIntegerField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'qtd'
+    end
+    object EXTRASnome: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'nome'
+      Size = 255
+    end
+    object EXTRAStotal: TFloatField
+      DisplayLabel = 'Total'
+      FieldName = 'total'
+      currency = True
+    end
+  end
+  object bdsPEDIDOS: TBindSourceDB
+    DataSet = PEDIDOS
+    ScopeMappings = <>
+    Left = 768
+    Top = 88
+  end
+  object bdsPRODUTOS: TBindSourceDB
+    DataSet = PRODUTOS
+    ScopeMappings = <>
+    Left = 768
+    Top = 216
+  end
+  object bdsEXTRAS: TBindSourceDB
+    DataSet = EXTRAS
+    ScopeMappings = <>
+    Left = 768
+    Top = 152
+  end
+  object FILTRO: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 768
+    Top = 282
+    object FILTROdata_inicial: TDateField
+      FieldName = 'data_inicial'
+    end
+    object FILTROdata_final: TDateField
+      FieldName = 'data_final'
+    end
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkGridToDataSourcebdsPRODUTOS: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = bdsPRODUTOS
+      GridControl = sProduto
+      Columns = <
+        item
+          MemberName = 'total'
+          Width = 80
+        end
+        item
+          MemberName = 'produto'
+          Width = 250
+        end
+        item
+          MemberName = 'venda'
+          Width = 90
+        end>
+    end
+    object LinkGridToDataSourcebdsEXTRAS: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = bdsEXTRAS
+      GridControl = sExtra
+      Columns = <
+        item
+          MemberName = 'qtd'
+          Width = 90
+        end
+        item
+          MemberName = 'nome'
+          Width = 250
+        end
+        item
+          MemberName = 'total'
+          Width = 90
+        end>
+    end
+  end
+end

@@ -1,0 +1,193 @@
+inherited frmParametros: TfrmParametros
+  Caption = 'frmPadrao1'
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    inherited rTopo: TRectangle
+      inherited imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FFF7EFDF
+              FF0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE2818128081010056C6F938A72FB6DF0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        Text = 'Parametriza'#231#227'o do Sistema'
+      end
+      inherited imgFiltro: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0229494441546843ED96CB4EC2401486690D2524FA003E832B57FA1446177889
+              0FE465EB236888EE8C6FA1718F97C4AEBCB055584005FCCFF4A7010A4C6F14D4
+              F992C94CE7FCF3F71C3A2D5330180C0683C160F8C758EC6742AFD72BA2DBEE76
+              BB5B681BAD566B55E64BA5D2BB6DDBB76837B8BCB62CCB93F9850209EF789EF7
+              8C22A6221AD172597AE8AB85F21008D99D4EE7C45745876B6CDA24C7B7D34379
+              0824724A496C642D6D92432F2D940F215B81E1807ABDDE426267886DE272599A
+              8C654E624A3440EAED441F2D940760AA38BAE7DBEDF62B125AA72484C44443B9
+              821EF2F2E70B6E5A511910F975A725DF4734639E4485E1FCC096B8E0CD15B245
+              18D2225A2E53881743F98147FFC0FB2BF0CB6E32A445B45CA6102F86F2A3D96C
+              7EF2FE0A24B5C29016D1729942BC18D292FEBB3B03B0859638D49259018EE3BC
+              71D8678D7D1486B4E572F983432DA102F814B5501E8073CD3D870A480E39D432
+              AA85D71D87F151D94580F2004C2DC66794065A280FC054567F642FE81C4AE2E3
+              DBE8A17C082494FA28018E69371F9058E2C39C50ABD5BE51E001EDF20739243A
+              4E0FC222F669391F643B8DBE13E380C645C147AEEB7A9C52C8F5DC8B401E45B4
+              0A123C47A24F8D46E34BF63DC68F98BB94189A7A61653CA1883D65F61B40CE7F
+              BA885D4AA6C3359941DB5860D9D822D0E9FFE07C7976D03636581A2A02EF4D95
+              E1C9509B19B44D0496074520F92B74FA53AA88B384B68981857CC5AAE8231FB1
+              0D0683C16030E443A1F00361898A5F07A58C420000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
+              'nage_search_white_24dp.png'
+          end>
+      end
+    end
+    inherited tabMain: TTabControl
+      TabIndex = 0
+      Sizes = (
+        820s
+        496s
+        820s
+        496s
+        820s
+        496s
+        820s
+        496s
+        820s
+        496s)
+      object tabEmpresa: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 66.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Empresa'
+        ExplicitSize.cx = 66.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Empresa: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+      object tabMensagem: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 74.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Whatsapp'
+        ExplicitSize.cx = 136.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object verWhatsapp: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+      object tabParametros: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 122.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Configura'#231#227'o Geral'
+        ExplicitSize.cx = 122.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Geral: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+      object tabFaturamento: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 49.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Caixa'
+        ExplicitSize.cx = 105.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Faturamento: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+      object tabPontosFidelidade: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 131.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Pontos de Fidelidade'
+        ExplicitSize.cx = 131.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Fidelidade: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+    end
+  end
+end
