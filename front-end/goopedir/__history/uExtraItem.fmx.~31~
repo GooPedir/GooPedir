@@ -78,8 +78,24 @@ object frmExtraItem: TfrmExtraItem
     Size.Height = 447.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
+    Visible = False
     Viewport.Width = 810.000000000000000000
     Viewport.Height = 447.000000000000000000
+  end
+  object ListView1: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Align = Client
+    Size.Width = 810.000000000000000000
+    Size.Height = 447.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    ParentShowHint = False
+    ShowHint = True
+    OnItemClickEx = ListView1ItemClickEx
+    SearchVisible = True
   end
   object DADOS: iMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -119,6 +135,67 @@ object frmExtraItem: TfrmExtraItem
     end
     object DADOSmodificado_site: TIntegerField
       FieldName = 'modificado_site'
+    end
+  end
+  object DADOEXTRA: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 216
+    Top = 194
+    object DADOEXTRAcodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object DADOEXTRAextra_id: TIntegerField
+      FieldName = 'extra_id'
+    end
+    object DADOEXTRAjuncao: TStringField
+      FieldName = 'juncao'
+      Size = 255
+    end
+    object DADOEXTRAproduto: TStringField
+      FieldName = 'produto'
+      Size = 255
+    end
+    object DADOEXTRAextra: TStringField
+      FieldName = 'extra'
+      Size = 255
+    end
+    object DADOEXTRAitens: TStringField
+      FieldName = 'itens'
+      Size = 2000
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = DADOEXTRA
+    ScopeMappings = <>
+    Left = 392
+    Top = 232
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkListControlToField1: TLinkListControlToField
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      FieldName = 'itens'
+      Control = ListView1
+      FillExpressions = <>
+      FillHeaderExpressions = <>
+      FillHeaderFieldName = 'juncao'
+      FillBreakGroups = <>
     end
   end
 end

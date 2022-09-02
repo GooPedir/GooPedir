@@ -4476,10 +4476,11 @@ begin
     if Dados.FieldByName('id').AsInteger = 0 then
     begin
       //
+      Codigo := conexao.GerarID('pro_adi_personalizado_sabores', 'id');
       with conexao do
       begin
-        Codigo := GerarID('pro_adi_personalizado_sabores', 'id');
-        SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site) values (:id,:extra,:nome,:descricao,:valor,:ativo,0)');
+
+        SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site,id_site) values (:id,:extra,:nome,:descricao,:valor,:ativo,0,0)');
         Parametros('id', Codigo);
         Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado')
           .AsString);

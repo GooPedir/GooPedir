@@ -14,12 +14,13 @@ object frameExtraItensAdd: TframeExtraItensAdd
     object EdtNome: TEdit
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 2
+      TabOrder = 0
       Position.X = 8.000000000000000000
       Position.Y = 8.000000000000000000
       Size.Width = 874.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
       object Label1: TLabel
         Align = Right
         Margins.Left = 5.000000000000000000
@@ -40,12 +41,13 @@ object frameExtraItensAdd: TframeExtraItensAdd
     object EdtDescricao: TEdit
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 0
+      TabOrder = 2
       Position.X = 8.000000000000000000
       Position.Y = 56.000000000000000000
       Size.Width = 874.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
       object Label2: TLabel
         Align = Right
         Margins.Left = 5.000000000000000000
@@ -72,6 +74,7 @@ object frameExtraItensAdd: TframeExtraItensAdd
       Size.Width = 189.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
       OnExit = edtValorExit
       object Label3: TLabel
         Align = Right
@@ -127,6 +130,16 @@ object frameExtraItensAdd: TframeExtraItensAdd
       OnClick = img_adicionarClick
       OnMouseEnter = img_adicionarMouseEnter
       OnMouseLeave = img_adicionarMouseLeave
+    end
+    object sStatus: TSwitch
+      Anchors = [akTop, akRight]
+      IsChecked = False
+      Position.X = 890.000000000000000000
+      Position.Y = 56.000000000000000000
+      Size.Width = 143.000000000000000000
+      Size.Height = 41.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
     end
   end
 end

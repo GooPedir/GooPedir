@@ -505,6 +505,41 @@ object frmExtra: TfrmExtra
             end
           end
           object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
+          object TRectangle
             Align = Right
             Opacity = 0.699999988079071000
             Position.X = 50.000000000000000000
@@ -694,6 +729,41 @@ object frmExtra: TfrmExtra
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
           iForthTipoEdit = Texto
+          object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
           object TRectangle
             Tag = 1
             Align = Right
@@ -1203,14 +1273,14 @@ object frmExtra: TfrmExtra
                 PNG = {
                   89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                   F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC99442FC017
+                  00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC99440FC01F
                   3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
                   DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
                   F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
                   902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
                   6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
                   6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
-                  20F8C1FAE80F6744BCE87160BB8D18B2EC09C6A63C02B484F564000000004945
+                  20F8C1FAE80F6744BCE87160BB8D18B2EC099E473BFC00CADBFE000000004945
                   4E44AE426082}
                 FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
               end>
@@ -1251,7 +1321,7 @@ object frmExtra: TfrmExtra
         Size.Width = 722.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 17
+        TabOrder = 18
         object edtExtra: iEdit
           Touch.InteractiveGestures = [LongTap, DoubleTap]
           Align = Top
@@ -1264,6 +1334,41 @@ object frmExtra: TfrmExtra
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
           iForthTipoEdit = Texto
+          object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
           object TRectangle
             Tag = 1
             Align = Right
@@ -1718,7 +1823,7 @@ object frmExtra: TfrmExtra
         Size.Width = 97.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 21
+        TabOrder = 22
         object edtValor: iEdit
           Touch.InteractiveGestures = [LongTap, DoubleTap]
           Align = Top
@@ -1731,6 +1836,41 @@ object frmExtra: TfrmExtra
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
           iForthTipoEdit = Texto
+          object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
           object TRectangle
             Tag = 1
             Align = Right
@@ -2623,6 +2763,41 @@ object frmExtra: TfrmExtra
             end
           end
           object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
+          object TRectangle
             Align = Right
             Opacity = 0.699999988079071000
             Position.X = 50.000000000000000000
@@ -2932,6 +3107,41 @@ object frmExtra: TfrmExtra
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
           iForthTipoEdit = Texto
+          object TRectangle
+            Tag = 1
+            Align = Right
+            Opacity = 0.699999988079071000
+            Position.X = 50.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Visible = False
+            object TLabel
+              Tag = 2
+              Align = Bottom
+              StyledSettings = []
+              Position.Y = 15.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 0
+            end
+            object TLabel
+              Tag = 3
+              Align = Client
+              StyledSettings = []
+              Size.Width = 100.000000000000000000
+              Size.Height = 15.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00070000000000000004000000}
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              TabOrder = 1
+            end
+          end
           object TRectangle
             Tag = 1
             Align = Right

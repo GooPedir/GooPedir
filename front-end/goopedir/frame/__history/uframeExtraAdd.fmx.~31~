@@ -97,6 +97,7 @@ object frameExtraAdd: TframeExtraAdd
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
       OnChange = edtDescricaoChange
+      OnExit = EdtMinExit
       OnMouseEnter = EdtMaxMouseEnter
       object Label2: TLabel
         Align = Right
@@ -125,6 +126,7 @@ object frameExtraAdd: TframeExtraAdd
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
       OnChange = edtDescricaoChange
+      OnExit = EdtMaxExit
       OnMouseEnter = EdtMaxMouseEnter
       object Label3: TLabel
         Align = Right

@@ -44,6 +44,8 @@ type
     function NomeBanco: String;
     function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
 
+    procedure GerarLog(Erro: String);
+
     // Para um insert
     {
       tabela = Banco
@@ -87,7 +89,7 @@ begin
     on E: Exception do
     begin
       // showme
-       //showmessage(E.Message);
+      GerarLog(E.message);
     end;
 
   end;
@@ -251,8 +253,8 @@ begin
     end;
 
     SQL.Add('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
-    Parametros('tabela',Tabela);
-    Parametros('sequencial',Valor);
+    Parametros('tabela', Tabela);
+    Parametros('sequencial', Valor);
     ExecuteSQL;
 
   end;
@@ -261,6 +263,21 @@ begin
   Dados.Free;
   exit;
 
+end;
+
+procedure TConexao.GerarLog(Erro: String);
+var
+  arq: TextFile;
+begin
+  try
+    AssignFile(arq, 'C:\papaleguas\erro.txt');
+    Rewrite(arq);
+    Writeln(arq, FormatDateTime('dd/mm/yyyy hh:nn', now));
+    Writeln(arq, Erro);
+    CloseFile(arq);
+  except
+
+  end;
 end;
 
 function TConexao.GetAll(Tabela: String): String;
@@ -454,7 +471,7 @@ begin
   except
     on E: Exception do
     begin
-      // ShowMessage(E.message);
+      GerarLog(E.message);
       Result := False;
     end;
   end;
