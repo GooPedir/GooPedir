@@ -1,0 +1,1796 @@
+unit UnitAddItem;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
+  FMX.Edit, FMX.TabControl, FMX.ListView, FMX.Objects,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts, FMX.ScrollBox, FMX.Memo,
+  uMemTable, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.Rtti,
+  System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.EngExt,
+  FMX.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope, FMXTee.Canvas,
+  uframeCategorias,
+  uFrameProdutos, uFrameDescricaoAdicional, uframeExtra,
+  uframeObservacaoPedido;
+
+type
+  TCallback = procedure of object;
+
+  TFrmAddItem = class(TForm)
+    Rectangle1: TRectangle;
+    Label1: TLabel;
+    img_fechar: TImage;
+    lv_categoria: TListView;
+    TabControl: TTabControl;
+    TabCategoria: TTabItem;
+    TabProduto: TTabItem;
+    Rectangle2: TRectangle;
+    lbl_titulo: TLabel;
+    img_voltar: TImage;
+    Rectangle6: TRectangle;
+    edt_busca_produto: TEdit;
+    rect_busca_produto: TRectangle;
+    Label7: TLabel;
+    Rectangle3: TRectangle;
+    lbl_comanda: TLabel;
+    img_icone: TImage;
+    lv_produto: TListView;
+    img_add: TImage;
+    layout_qtd: TLayout;
+    rDadosAddProduto: TRectangle;
+    rTelaPreta: TRectangle;
+    rect_encerrar: TRectangle;
+    Label4: TLabel;
+    img_menos: TImage;
+    img_mais: TImage;
+    Layout1: TLayout;
+    Layout2: TLayout;
+    memInsert: iMemTable;
+    memInsertmesa: TIntegerField;
+    memInsertproduto: TIntegerField;
+    memInsertqtd: TIntegerField;
+    memInsertadicionais: TStringField;
+    memInsertpizza: TStringField;
+    memInsertobservacao: TStringField;
+    CATEGORIA: iMemTable;
+    CATEGORIAcodigo: TIntegerField;
+    CATEGORIAdescricao: TStringField;
+    PRODUTO: iMemTable;
+    PRODUTOcodigo: TIntegerField;
+    PRODUTOnome_produto: TStringField;
+    PRODUTOvalor_venda: TFloatField;
+    MESA: iMemTable;
+    MESAid_mesa: TIntegerField;
+    MESAnr_mesa: TIntegerField;
+    MESAdescricao: TStringField;
+    MESAsts_mesa: TIntegerField;
+    MESAtot_mesa: TIntegerField;
+    ADICIONAL: iMemTable;
+    ADICIONALcategoria: TStringField;
+    ADICIONALnome: TStringField;
+    ADICIONALvalor: TFloatField;
+    ADICIONALcodigo: TIntegerField;
+    ADICIONALobservacao: TIntegerField;
+    TabSabores: TTabItem;
+    Rectangle7: TRectangle;
+    Label2: TLabel;
+    Image1: TImage;
+    ListView1: TListView;
+    SABORES: iMemTable;
+    SABORESquantidade_sabores: TIntegerField;
+    SABORESnome: TStringField;
+    SABORESvl_venda: TFloatField;
+    SABORESid: TIntegerField;
+    SABOREStipo_preco: TIntegerField;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    lTotal: TLabel;
+    flowPrincipal: TVertScrollBox;
+    memInsertpedido: TIntegerField;
+    VertCategorias: TVertScrollBox;
+    vertProduto: TVertScrollBox;
+    PRODUTOdescricao: TStringField;
+    PRODUTOcodigo_interno: TIntegerField;
+    StyleBook1: TStyleBook;
+    Layout3: TLayout;
+    Rectangle8: TRectangle;
+    edtBusca: TEdit;
+    Image2: TImage;
+    lbl_qtd: TLabel;
+    ADICIONALmin: TIntegerField;
+    ADICIONALmax: TIntegerField;
+    Label3: TLabel;
+    Layout4: TLayout;
+    lbl_descricao: TLabel;
+    img_fechar_qtd: TImage;
+    Layout5: TLayout;
+    Image3: TImage;
+    imgMenos: TImage;
+    lQuantidade: TLabel;
+    PRODUTOcategoria: TIntegerField;
+    PRODUTOid: TIntegerField;
+    PRODUTOobservacaopro: TStringField;
+    PRODUTOnome: TStringField;
+    PRODUTOvenda: TFloatField;
+    PRODUTOinterno: TIntegerField;
+    SABORESdescricao: TStringField;
+    lVerificar: TLabel;
+    tVerificar: TTimer;
+    dadosSelecionado: iMemTable;
+    dadosSelecionadocodigo_produto: TIntegerField;
+    dadosSelecionadonomeclatura: TStringField;
+    dadosSelecionadodescricao: TStringField;
+    memInsertvalor_produto: TFloatField;
+    ListCategoria: TListView;
+    BindSourceDB2: TBindSourceDB;
+    LinkListControlToField2: TLinkListControlToField;
+    ListProduto: TListView;
+    BindSourceDB3: TBindSourceDB;
+    LinkListControlToField3: TLinkListControlToField;
+
+    procedure img_fecharClick(Sender: TObject);
+    procedure img_voltarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure lv_categoriaItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
+    procedure lv_produtoItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
+    procedure img_menosClick(Sender: TObject);
+    procedure img_fechar_qtdClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure rect_encerrarClick(Sender: TObject);
+    procedure rect_busca_produtoClick(Sender: TObject);
+    procedure ListView1ItemClickEx(const Sender: TObject; ItemIndex: Integer;
+      const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+
+    procedure Sair(Sender: TObject);
+    procedure Entrar(Sender: TObject);
+    procedure Image2Click(Sender: TObject);
+    procedure edtBuscaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
+    procedure Image3Click(Sender: TObject);
+    procedure imgMenosClick(Sender: TObject);
+    procedure OcultaProdutos;
+    procedure CarregaTodosProdutos;
+
+    procedure CarregarTudos;
+    procedure AdicionarProdutoPedido;
+    procedure tVerificarTimer(Sender: TObject);
+    procedure ListCategoriaItemClickEx(const Sender: TObject;
+      ItemIndex: Integer; const LocalClickPos: TPointF;
+      const ItemObject: TListItemDrawable);
+    procedure ListProdutoItemClickEx(const Sender: TObject; ItemIndex: Integer;
+      const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+
+  private
+    FValorView: Real;
+    FValorViewAdicional: Real;
+    FQTDView: Real;
+    FValorAdicional: Real;
+    FQtd: Integer;
+    FValorFaltando: String;
+    FCodigoPedidoProduto: Integer;
+    FDelivery: Integer;
+    FValorProdutoUnitario: Real;
+    FFastItens: Boolean;
+    procedure AddCategoriaLv(id_categoria: Integer; descricao: string;
+      icone: TStream);
+    procedure ListarCategoria;
+    procedure AddProdutoLv(id_produto: Integer; descricao: string;
+      preco: double);
+    procedure CarregaProduto(Codigo: Integer; Nome, descricao: String;
+      Promocao, Valor: Real; MaisVendido: Boolean);
+
+    procedure ListarProduto(id_categoria: Integer; busca: string);
+    { Private declarations }
+    procedure LimpaDados;
+    procedure Confirmacao;
+    procedure Click(Sender: TObject);
+    procedure OnTap(Sender: TObject; const Point: TPointF);
+    procedure ClickChek(Sender: TObject);
+    procedure SetValorView(const Value: Real);
+    procedure SetValorViewAdicional(const Value: Real);
+    procedure SetQTDView(const Value: Real);
+    procedure AtualizaValorView;
+    procedure AtualizarValores;
+    procedure AddProduto(Codigo: Integer);
+    procedure SetValorAdicional(const Value: Real);
+    procedure SetQtd(const Value: Integer);
+    procedure SetValorFaltando(const Value: String);
+    procedure SetCodigoPedidoProduto(const Value: Integer);
+    procedure SetDelivery(const Value: Integer);
+    procedure SetValorProdutoUnitario(const Value: Real);
+    procedure SetFastItens(const Value: Boolean);
+
+    property ValorView: Real read FValorView write SetValorView;
+    property ValorViewAdicional: Real read FValorViewAdicional
+      write SetValorViewAdicional;
+    property QTDView: Real read FQTDView write SetQTDView;
+    property ValorProdutoUnitario: Real read FValorProdutoUnitario
+      write SetValorProdutoUnitario;
+
+    //
+    procedure ClickCategoria(Sender: TObject);
+    procedure OnTapCategoria(Sender: TObject; const Point: TPointF);
+    procedure ClickProduto(Sender: TObject);
+    procedure OnTapProduto(Sender: TObject; const Point: TPointF);
+    procedure BuscaProdutoUnico;
+    property ValorAdicional: Real read FValorAdicional write SetValorAdicional;
+
+    property Qtd: Integer read FQtd write SetQtd;
+    procedure Mais;
+    procedure Menos;
+    function ValidaSePodeAdicionar: Boolean;
+
+    property ValorFaltando: String read FValorFaltando write SetValorFaltando;
+
+  public
+    { Public declarations }
+    procedure Load;
+    property CodigoPedidoProduto: Integer read FCodigoPedidoProduto
+      write SetCodigoPedidoProduto;
+    property Delivery: Integer read FDelivery write SetDelivery;
+
+    property FastItens: Boolean read FFastItens write SetFastItens;
+
+  var
+    comanda: Integer;
+    codigoProduto: Integer;
+    codigoPedido: Integer;
+    ExecutarQuandoCarregaProdutos: TCallback;
+  end;
+
+var
+  FrmAddItem: TFrmAddItem;
+  TotalComponente: Integer;
+  vertProdutos: TVertScrollBox;
+  LabelSelecionado: TLabel;
+  ArrayofCategoria: Array of TframeCategorias;
+  // ArrayOfProdutos: Array of TFrameProdutos;
+  // ArrayOfDescricaoAdicional: Array of TFrameDescricaoAdicional;
+  // ArrayOfDescricaoAdicionalItem: Array of TframeExtra;
+  ObservacaoPedido: TframeObservacaoPedido;
+  CodigoCategoriaAtual: Integer;
+  PodeAdicionarDireto: Boolean;
+  //
+
+implementation
+
+uses
+  Funcoes, uSimNao, UnitPrincipal, UnitResumo, uDM, uExtra, Loading;
+{$R *.fmx}
+
+procedure TFrmAddItem.AddCategoriaLv(id_categoria: Integer; descricao: string;
+  icone: TStream);
+var
+  bmp: TBitmap;
+  Index: Integer;
+  CATEGORIA: TframeCategorias;
+begin
+  // ArrayofCategoria : Array of TframeCategorias;
+  SetLength(ArrayofCategoria, length(ArrayofCategoria) + 1);
+  Index := length(ArrayofCategoria) - 1;
+
+  if Assigned(VertCategorias.FindComponent('Categoria' + id_categoria.ToString))
+  then
+  begin
+    VertCategorias.FindComponent('Categoria' + id_categoria.ToString).Free;
+  end;
+
+  ArrayofCategoria[Index] := TframeCategorias.Create(VertCategorias);
+  CATEGORIA := ArrayofCategoria[Index];
+  CATEGORIA.Parent := VertCategorias;
+  CATEGORIA.descricao := descricao;
+  CATEGORIA.Align := TAlignLayout.Top;
+  CATEGORIA.Name := 'Categoria' + id_categoria.ToString;
+  CATEGORIA.rPrincipal.OnClick := ClickCategoria;
+
+{$IFDEF Android}
+  CATEGORIA.rPrincipal.OnTap := OnTapCategoria;
+{$ELSE}
+  CATEGORIA.rPrincipal.OnClick := ClickCategoria;
+{$ENDIF}
+  CATEGORIA.Codigo := id_categoria;
+
+  with lv_categoria.Items.Add do
+  begin
+    Tag := id_categoria;
+    if Assigned(Objects.FindDrawable('TxtDescricao')) then
+    begin
+      TListItemText(Objects.FindDrawable('TxtDescricao')).Text := descricao;
+    end;
+
+    // Icone...
+    if icone <> nil then
+    begin
+      bmp := TBitmap.Create;
+      bmp.LoadFromStream(icone);
+      // Somente se for carregado em tempo de execucao
+      TListItemImage(Objects.FindDrawable('ImgIcone')).OwnsBitmap := true;
+      TListItemImage(Objects.FindDrawable('ImgIcone')).Bitmap := bmp;
+    end;
+  end;
+end;
+
+procedure TFrmAddItem.LimpaDados;
+var
+  I: Integer;
+begin
+
+  for I := 0 to TotalComponente do
+  begin
+    if Assigned(FindComponent('DINAMIC_' + FormatFloat('0000', I))) then
+    begin
+      FindComponent('DINAMIC_' + FormatFloat('0000', I)).Free;
+    end;
+  end;
+  TotalComponente := 0;
+  TabControl.Visible := true;
+  vertProdutos := nil;
+end;
+
+procedure TFrmAddItem.ListarCategoria;
+var
+  x: Integer;
+  icone: TStream;
+  I: Integer;
+
+begin
+  exit;
+  if length(ArrayofCategoria) = 0 then
+  begin
+
+    CATEGORIA.Close;
+
+    GetSimples('v1/categorias/', CATEGORIA);
+    if not FastItens then
+    begin
+
+      lv_categoria.Items.Clear;
+
+      icone := TMemoryStream.Create;
+      img_icone.Bitmap.SaveToStream(icone);
+      icone.Position := 0;
+
+      for I := 0 to length(ArrayofCategoria) - 1 do
+      begin
+        try
+          if Assigned(ArrayofCategoria[I]) then
+            ArrayofCategoria[I].Free;
+        except
+
+        end;
+      end;
+
+      while not CATEGORIA.Eof do
+      begin
+        //
+        AddCategoriaLv(CATEGORIA.FieldByName('codigo').AsInteger,
+          CATEGORIA.FieldByName('descricao').AsString, icone);
+        CATEGORIA.Next;
+      end;
+      icone.disposeof;
+    end;
+  end;
+end;
+
+procedure TFrmAddItem.AddProduto(Codigo: Integer);
+var
+  I: Integer;
+  LabelDesc: TLabel;
+  Check: TCheckBox;
+  MemoDes: TMemo;
+
+  descricao: String;
+
+  DescricaoCheck: String;
+  CodigoPai: Integer;
+
+  DescricaoAdicional: TFrameDescricaoAdicional;
+  DescricaoAdicionalItem: TframeExtra;
+  ValorSabor: Real;
+begin
+  // Exibir a confirmacao + Qtd...
+  PodeAdicionarDireto := true;
+  if not FastItens then
+  begin
+  for I := 0 to rDadosAddProduto.ComponentCount - 1 do
+  begin
+    if rDadosAddProduto.Components[I] is TVertScrollBox then
+      (rDadosAddProduto.Components[I] as TVertScrollBox).Visible := False;
+
+  end;
+  end;
+  ValorFaltando := '';
+  PRODUTO.Locate('codigo', Codigo.ToString, []);
+  lbl_qtd.Text := '01';
+  lbl_descricao.Text := PRODUTO.FieldByName('nome').AsString;
+  layout_qtd.Visible := true;
+  TabControl.Visible := False;
+  // layout_qtd.Tag
+  // LimpaDados;
+
+  if length(lbl_descricao.Text) = 0 then
+    lbl_descricao.Text := PRODUTO.FieldByName('nome_produto').AsString;
+
+  ValorView := 0;
+  QTDView := 1;
+  ValorViewAdicional := 0;
+
+  TabControl.Visible := False;
+  ValorView := PRODUTO.FieldByName('venda').AsFloat;
+  if (ValorView = 0) and (PRODUTO.FieldByName('valor_venda').AsFloat > 0) then
+    ValorView := PRODUTO.FieldByName('valor_venda').AsFloat;
+
+  ValorProdutoUnitario := ValorView;
+
+  codigoProduto := Codigo;
+  ADICIONAL.Close;
+  SABORES.Close;
+  GetSimples('v1/produtos/sabores/' + Codigo.ToString, SABORES);
+  GetSimples('v1/produtos/adicional/' + codigoProduto.ToString, ADICIONAL);
+
+  if ADICIONAL.RecordCount > 0 then
+    PodeAdicionarDireto := False;
+  if SABORES.RecordCount > 0 then
+    PodeAdicionarDireto := False;
+
+  if Assigned(rDadosAddProduto.FindComponent('VerticalProduto' +
+    Codigo.ToString)) then
+  begin
+    // Achou
+    vertProdutos := rDadosAddProduto.FindComponent
+      ('VerticalProduto' + Codigo.ToString) as TVertScrollBox;
+    vertProdutos.Visible := true;
+  end
+  else
+  begin
+    // Não Achou
+    if not Assigned(vertProdutos) then
+      vertProdutos := TVertScrollBox.Create(rDadosAddProduto);
+    vertProdutos.Parent := rDadosAddProduto;
+    vertProdutos.Align := TAlignLayout.Client;
+    vertProdutos.Margins.Top := 5;
+    vertProdutos.Margins.Left := 5;
+    vertProdutos.Margins.Right := 5;
+    vertProdutos.Margins.Bottom := 5;
+    vertProdutos.Name := 'VerticalProduto' + Codigo.ToString;
+
+    TotalComponente := 0;
+    if SABORES.FieldByName('quantidade_sabores').AsInteger > 0 then
+    begin
+      ValorView := 0;
+      DescricaoAdicional := TFrameDescricaoAdicional.Create(vertProdutos);
+      DescricaoAdicional.Parent := vertProdutos;
+      // DescricaoAdicional.CodigoAdicional := SABORES.FieldByName('id').AsInteger;
+      DescricaoAdicional.Minimo := SABORES.FieldByName('quantidade_sabores')
+        .AsInteger;
+      DescricaoAdicional.Maximo := SABORES.FieldByName('quantidade_sabores')
+        .AsInteger;
+      DescricaoAdicional.descricao := 'Selecione os Sabores';
+      DescricaoAdicional.Name := 'DescSabores' + SABORES.FieldByName
+        ('id').AsString;
+      DescricaoAdicional.Align := TAlignLayout.Top;
+
+      ValorSabor := 0;
+      if dm.DADOS_WHATSAPP.FieldByName('tipo_preco_pizza').AsInteger = 1 then
+      begin
+        //
+        while not SABORES.Eof do
+        begin
+          if SABORES.FieldByName('vl_venda').AsFloat > ValorSabor then
+            ValorSabor := SABORES.FieldByName('vl_venda').AsFloat;
+          SABORES.Next;
+        end;
+      end;
+      SABORES.First;
+      while not SABORES.Eof do
+      begin
+
+        DescricaoAdicionalItem := TframeExtra.Create(vertProdutos);
+        DescricaoAdicionalItem.descricao := DescricaoCheck;
+        DescricaoAdicionalItem.Sabor := SABORES.FieldByName('nome').AsString;
+        DescricaoAdicionalItem.CategoriaSabor :=
+          SABORES.FieldByName('descricao').AsString;
+        DescricaoAdicionalItem.Codigo := SABORES.FieldByName('id').AsInteger;
+        DescricaoAdicionalItem.Tipo := Pizza;
+        DescricaoAdicionalItem.TipoValor := dm.DADOS_WHATSAPP.FieldByName
+          ('tipo_preco_pizza').AsInteger;
+        DescricaoAdicionalItem.Pai := DescricaoAdicional;;
+        if dm.DADOS_WHATSAPP.FieldByName('tipo_preco_pizza').AsInteger = 1 then
+        begin
+          DescricaoAdicionalItem.Valor := ValorSabor;
+        end
+        else
+          DescricaoAdicionalItem.Valor :=
+            SABORES.FieldByName('vl_venda').AsFloat;
+
+        DescricaoAdicionalItem.Quantidade := 0;
+        DescricaoAdicionalItem.Parent := vertProdutos;
+        DescricaoAdicionalItem.Name := 'Sabores' + SABORES.FieldByName('id')
+          .AsString + Codigo.ToString;
+        DescricaoAdicionalItem.Align := TAlignLayout.Top;
+        DescricaoAdicionalItem.AtualizaValo := AtualizarValores;
+
+        SABORES.Next;
+      end;
+    end;
+
+    descricao := '';
+    while not ADICIONAL.Eof do
+    begin
+      if descricao <> trim(ADICIONAL.FieldByName('categoria').AsString) then
+      begin
+        descricao := trim(ADICIONAL.FieldByName('categoria').AsString);
+
+        DescricaoAdicional := TFrameDescricaoAdicional.Create(vertProdutos);
+        DescricaoAdicional.Parent := vertProdutos;
+        DescricaoAdicional.Minimo := ADICIONAL.FieldByName('min').AsInteger;
+        DescricaoAdicional.Maximo := ADICIONAL.FieldByName('max').AsInteger;
+        DescricaoAdicional.descricao :=
+          ADICIONAL.FieldByName('categoria').AsString;
+        DescricaoAdicional.CodigoAdicional := ADICIONAL.FieldByName('codigo')
+          .AsInteger;
+        DescricaoAdicional.Align := TAlignLayout.Top;
+
+      end;
+      DescricaoCheck := (trim(ADICIONAL.FieldByName('nome').AsString));
+      // DescricaoAdicional: Array of TFrameDescricaoAdicional;
+
+      DescricaoAdicionalItem := TframeExtra.Create(vertProdutos);
+      DescricaoAdicionalItem.descricao := DescricaoCheck;
+      DescricaoAdicionalItem.Codigo := ADICIONAL.FieldByName('codigo')
+        .AsInteger;
+      DescricaoAdicionalItem.Valor := ADICIONAL.FieldByName('valor').AsFloat;
+      DescricaoAdicionalItem.Pai := DescricaoAdicional;;
+      DescricaoAdicionalItem.Quantidade := 0;
+
+      DescricaoAdicionalItem.Parent := vertProdutos;
+      DescricaoAdicionalItem.Name := 'Extra' + ADICIONAL.FieldByName('codigo')
+        .AsString + Codigo.ToString;
+      DescricaoAdicionalItem.Align := TAlignLayout.Top;
+      DescricaoAdicionalItem.AtualizaValo := AtualizarValores;
+      DescricaoAdicionalItem.CATEGORIA := descricao;
+
+      ADICIONAL.Next;
+    end;
+
+    if ADICIONAL.FieldByName('observacao').AsInteger = 1 then
+    begin
+      PodeAdicionarDireto := False;
+      ObservacaoPedido := TframeObservacaoPedido.Create(vertProdutos);
+      ObservacaoPedido.Name := 'ObservacaoPedido' + Codigo.ToString;
+      ObservacaoPedido.Align := TAlignLayout.Top;
+      ObservacaoPedido.Parent := vertProdutos;
+
+    end;
+
+  end;
+
+  if dadosSelecionado.RecordCount > 0 then
+  begin
+
+    for I := 0 to vertProdutos.ComponentCount - 1 do
+    begin
+      if (vertProdutos.Components[I] is TframeExtra) then
+      begin
+        dadosSelecionado.First;
+        while not dadosSelecionado.Eof do
+        begin
+          if UpperCase((vertProdutos.Components[I] as TframeExtra).CATEGORIA)
+            = UpperCase(dadosSelecionado.FieldByName('nomeclatura').AsString)
+          then
+            if UpperCase(dadosSelecionado.FieldByName('descricao').AsString)
+              = UpperCase((vertProdutos.Components[I] as TframeExtra).descricao)
+            then
+            begin
+              (vertProdutos.Components[I] as TframeExtra).Mais;
+            end;
+
+          dadosSelecionado.Next;
+        end;
+      end;
+      if (vertProdutos.Components[I] is TframeObservacaoPedido) then
+      begin
+        dadosSelecionado.First;
+        while not dadosSelecionado.Eof do
+        begin
+          dadosSelecionado.Next;
+        end;
+      end;
+
+    end;
+
+  end;
+
+  if PodeAdicionarDireto then
+  begin
+    AdicionarProdutoPedido;
+  end;
+end;
+
+procedure TFrmAddItem.AddProdutoLv(id_produto: Integer; descricao: string;
+  preco: double);
+begin
+  with lv_produto.Items.Add do
+  begin
+    Tag := id_produto;
+    TListItemText(Objects.FindDrawable('TxtDescricao')).Text := descricao;
+
+    TListItemText(Objects.FindDrawable('TxtPreco')).Text :=
+      FormatFloat('R$ #,##0.00', preco);
+    TListItemImage(Objects.FindDrawable('ImgAdd')).Bitmap := img_add.Bitmap;
+  end;
+end;
+
+procedure TFrmAddItem.AdicionarProdutoPedido;
+begin
+  if not ValidaSePodeAdicionar then
+    exit;
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+  begin
+    frmSimNao.titulo := 'Confirmação';
+    frmSimNao.descricao := 'Deseja adicionar o ' + lbl_descricao.Text +
+      ' ao pedido?';
+    frmSimNao.Sim := Confirmacao;
+    frmSimNao.Show;
+  end;
+end;
+
+procedure TFrmAddItem.AtualizarValores;
+var
+  Valor: Real;
+  I: Integer;
+begin
+  ValorViewAdicional := 0;
+  for I := 0 to vertProdutos.ComponentCount - 1 do
+  begin
+
+    if (vertProdutos.Components[I] is TframeExtra) then
+    begin
+      if ((vertProdutos.Components[I] as TframeExtra).Quantidade > 0) then
+      begin
+        ValorViewAdicional := ValorViewAdicional +
+          (vertProdutos.Components[I] as TframeExtra).ValorTotal;
+      end;
+    end;
+  end;
+
+  Valor := (ValorView + ValorViewAdicional) * QTDView;
+  lTotal.Text := 'R$ ' + FormatFloat('#0.00', Valor);
+end;
+
+procedure TFrmAddItem.AtualizaValorView;
+var
+  Valor: Real;
+  I: Integer;
+begin
+
+  Valor := (ValorView + ValorViewAdicional) * QTDView;
+  lTotal.Text := 'R$ ' + FormatFloat('#0.00', Valor);
+end;
+
+procedure TFrmAddItem.BuscaProdutoUnico;
+begin
+  //
+  if length(edtBusca.Text) = 0 then
+    exit;
+
+  PRODUTO.Close;
+  GetSimples('/v1/dados/produto/codigo/' + edtBusca.Text, PRODUTO);
+
+  if PRODUTO.RecordCount = 1 then
+  begin
+    AddProduto(PRODUTO.FieldByName('codigo').AsInteger);
+    edtBusca.Text := '';
+  end;
+
+end;
+
+procedure TFrmAddItem.CarregaProduto(Codigo: Integer; Nome, descricao: String;
+  Promocao, Valor: Real; MaisVendido: Boolean);
+var
+  RetaguloPrincipal: TRectangle;
+  RetanguloPrincipalBotton: TRectangle;
+  RetanguloPrincipalLeft: TRectangle;
+  RetanguloPrincipalRigth: TRectangle;
+  ImagemRetanguloPrincipalRigth: TImage;
+
+  LayoutPrincipal: TLayout;
+  NomeProdutoLayoutPrincipal: TLabel;
+  DescricaoLayoutPrincipal: TLabel;
+  ValorLayoutPrincipal: TLabel;
+  PromocionalValorLayoutPrincipal: TLabel;
+
+  ImagemSalva: TStream;
+  Promocional: Boolean;
+begin
+  Promocional := False;
+
+  Promocional := Promocao < Valor;
+
+  if (Promocao = 0) then
+    Promocional := False;
+
+  RetaguloPrincipal := TRectangle.Create(flowPrincipal);
+  with RetaguloPrincipal do
+  begin
+    Name := 'RetaguloPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.MostTop;
+
+    // Width := 620;
+    Width := 250;
+    Height := 120;
+    Margins.Top := 10;
+    Margins.Left := 10;
+    Margins.Right := 10;
+    Stroke.Color := RGB(255, 255, 255);
+    Fill.Color := RGB(255, 255, 255);
+
+    RetaguloPrincipal.Parent := flowPrincipal;
+    Cursor := crHandPoint;
+    Tag := Codigo;
+    // OnClick := Click;
+
+{$IFDEF Android}
+    OnTap := OnTap;
+{$ELSE}
+    OnClick := Click;
+{$ENDIF}
+    OnMouseEnter := Entrar;
+    OnMouseLeave := Sair;
+
+  end;
+
+  RetanguloPrincipalBotton := TRectangle.Create(RetaguloPrincipal);
+  with RetanguloPrincipalBotton do
+  begin
+    Name := 'RetanguloPrincipalBotton' + Codigo.ToString;
+    Align := TAlignLayout.Bottom;
+    Height := 10;
+    Stroke.Color := RGB(5, 168, 93);
+    Fill.Color := RGB(5, 168, 93);
+    Parent := RetaguloPrincipal;
+
+  end;
+
+  RetanguloPrincipalLeft := TRectangle.Create(RetaguloPrincipal);
+  with RetanguloPrincipalLeft do
+  begin
+    Name := 'RetanguloPrincipalLeft' + Codigo.ToString;
+    Align := TAlignLayout.Left;
+    Width := 10;
+    Stroke.Color := RGB(5, 168, 93);
+    Fill.Color := RGB(5, 168, 93);
+    Parent := RetaguloPrincipal;
+
+  end;
+
+  RetanguloPrincipalRigth := TRectangle.Create(RetaguloPrincipal);
+  with RetanguloPrincipalRigth do
+  begin
+    Name := 'RetanguloPrincipalRigth' + Codigo.ToString;
+    Align := TAlignLayout.Right;
+    Width := 80;
+    Width := 110;
+    Stroke.Color := RGB(255, 255, 255);
+    Fill.Color := RGB(255, 255, 255);
+    Parent := RetaguloPrincipal;
+    Margins.Top := 5;
+    Margins.Bottom := 5;
+    Margins.Left := 5;
+    Margins.Right := 5;
+  end;
+  ImagemRetanguloPrincipalRigth := TImage.Create(RetaguloPrincipal);
+
+  with ImagemRetanguloPrincipalRigth do
+  begin
+    Name := 'ImagemRetanguloPrincipalRigth' + Codigo.ToString;
+    Align := TAlignLayout.Center;
+    Height := 80;
+    Width := 80;
+    Bitmap := img_mais.Bitmap;
+    Parent := RetanguloPrincipalRigth;
+
+  end;
+
+  LayoutPrincipal := TLayout.Create(RetaguloPrincipal);
+  with LayoutPrincipal do
+  begin
+    Name := 'LayoutPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.Client;
+    Margins.Top := 5;
+    Margins.Bottom := 5;
+    Margins.Left := 5;
+    Margins.Right := 5;
+    Parent := RetaguloPrincipal;
+  end;
+
+  NomeProdutoLayoutPrincipal := TLabel.Create(RetaguloPrincipal);
+  with NomeProdutoLayoutPrincipal do
+  begin
+    Name := 'NomeProdutoLayoutPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.MostTop;
+    Text := Nome;
+    TextSettings.Font.Style := TextSettings.Font.Style - [TFontStyle.fsBold];
+    TextSettings.Font.Size := 20;
+    Height := 45;
+
+    StyledSettings := StyledSettings - [TStyledSetting.Family,
+      TStyledSetting.Size, TStyledSetting.Style];
+    Tag := Codigo;
+    Parent := LayoutPrincipal;
+  end;
+
+  DescricaoLayoutPrincipal := TLabel.Create(RetaguloPrincipal);
+  with DescricaoLayoutPrincipal do
+  begin
+    Name := 'DescricaoLayoutPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.Top;
+    Text := descricao;
+    Margins.Left := 5;
+    Margins.Top := 5;
+
+    StyledSettings := StyledSettings - [TStyledSetting.Family,
+      TStyledSetting.Size, TStyledSetting.Style];
+
+    Parent := LayoutPrincipal;
+  end;
+
+  ValorLayoutPrincipal := TLabel.Create(RetaguloPrincipal);
+  with ValorLayoutPrincipal do
+  begin
+    Name := 'ValorLayoutPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.MostBottom;
+    Text := FormatFloat('R$ #0.00', Valor);
+
+    if Promocional then
+      Text := FormatFloat('R$ #0.00', Promocao);
+
+    if Valor = 0 then
+      Text := 'Ver Valores';
+
+    TextSettings.Font.Style := TextSettings.Font.Style - [TFontStyle.fsBold];
+    TextSettings.Font.Size := 20;
+
+    StyledSettings := StyledSettings - [TStyledSetting.Family,
+      TStyledSetting.Size, TStyledSetting.Style];
+
+    Parent := LayoutPrincipal;
+
+    if Promocional then
+      Margins.Left := 55;
+
+  end;
+
+  PromocionalValorLayoutPrincipal := TLabel.Create(RetaguloPrincipal);
+  with PromocionalValorLayoutPrincipal do
+  begin
+    Name := 'PromocionalValorLayoutPrincipal' + Codigo.ToString;
+    Align := TAlignLayout.Left;
+    if Promocional then
+      Text := FormatFloat('R$ #0.00', Valor);
+
+    TextSettings.Font.Style := [TFontStyle.fsStrikeOut];
+
+    StyledSettings := StyledSettings - [TStyledSetting.Family,
+      TStyledSetting.Size, TStyledSetting.Style, TStyledSetting.Other,
+      TStyledSetting.FontColor];
+
+    Parent := ValorLayoutPrincipal;
+
+    if Promocional then
+      Margins.Left := -55
+    else
+      Visible := False;
+
+  end;
+
+end;
+
+procedure TFrmAddItem.CarregarTudos;
+Var
+  FrameCategoria: TframeCategorias;
+begin
+  CATEGORIA.Close;
+  GetSimples('v1/categorias/', CATEGORIA);
+  if not FastItens then
+  begin
+    while not CATEGORIA.Eof do
+    begin
+      // Carrega Todas Categorias
+      FrameCategoria := TframeCategorias.Create(self);
+      FrameCategoria.Parent := VertCategorias;
+      FrameCategoria.descricao := CATEGORIA.FieldByName('descricao').AsString;
+      FrameCategoria.Align := TAlignLayout.Top;
+      FrameCategoria.Name := 'Categoria' + CATEGORIA.FieldByName
+        ('codigo').AsString;
+      // FrameCategoria.rPrincipal.OnClick := ClickCategoria;
+{$IFDEF Android}
+      FrameCategoria.rPrincipal.OnTap := OnTapCategoria;
+{$ELSE}
+      FrameCategoria.rPrincipal.OnClick := ClickCategoria;
+{$ENDIF}
+      FrameCategoria.Codigo := CATEGORIA.FieldByName('codigo').AsInteger;
+      CATEGORIA.Next;
+    end;
+  end;
+end;
+
+procedure TFrmAddItem.CarregaTodosProdutos;
+var
+  Produtos: TFrameProdutos;
+  Flow: TVertScrollBox;
+begin
+  GetSimples('/v1/produto/all', PRODUTO);
+  while not PRODUTO.Eof do
+  begin
+    if Assigned(TabProduto.FindComponent('categoria_frame_' +
+      PRODUTO.FieldByName('categoria').AsString)) then
+    begin
+      Flow := (TabProduto.FindComponent('categoria_frame_' +
+        PRODUTO.FieldByName('categoria').AsString) as TVertScrollBox);
+    end
+    else
+    begin
+      Flow := TVertScrollBox.Create(TabProduto);
+      Flow.Parent := TabProduto;
+      Flow.Align := TAlignLayout.Client;
+      Flow.Name := 'categoria_frame_' + PRODUTO.FieldByName
+        ('categoria').AsString;
+      Flow.Visible := False;
+    end;
+
+    // SetLength(ArrayOfProdutos, length(ArrayOfProdutos) + 1);
+    // I := length(ArrayOfProdutos) - 1;
+    // ArrayOfProdutos[I] := TFrameProdutos.Create(vertProduto);
+    // Produtos := ArrayOfProdutos[I];
+    if Assigned(FindComponent('produto_frame_' + PRODUTO.FieldByName('id')
+      .AsString)) then
+    begin
+      Produtos := (FindComponent('produto_frame_' + PRODUTO.FieldByName('id')
+        .AsString) as TFrameProdutos);
+    end
+    else
+    begin
+      Produtos := TFrameProdutos.Create(self);
+      Produtos.Parent := Flow;
+      Produtos.Name := 'produto_frame_' + PRODUTO.FieldByName('id').AsString;
+      Produtos.Valor := PRODUTO.FieldByName('venda').AsFloat;
+      Produtos.Nome := PRODUTO.FieldByName('nome').AsString;
+      Produtos.Codigo := PRODUTO.FieldByName('id').AsInteger;
+      Produtos.DescricaoProduto := PRODUTO.FieldByName('observacaopro')
+        .AsString;
+      Produtos.CATEGORIA := PRODUTO.FieldByName('descricao').AsString;
+      Produtos.Interno := PRODUTO.FieldByName('interno').AsInteger;
+      Produtos.Align := TAlignLayout.Top;
+      Produtos.rPrincipal.OnClick := ClickProduto;
+      Produtos.Visible := true;
+    end;
+
+    PRODUTO.Next;
+
+    // ShowMessageToast(self, 'Todos produtos carregados!', 2);
+
+  end;
+end;
+
+procedure TFrmAddItem.Click(Sender: TObject);
+begin
+  ValorFaltando := '';
+  if (Sender is TRectangle) then
+  begin
+    AddProduto((Sender as TRectangle).Tag);
+  end
+  else if (Sender is TLabel) then
+  begin
+    LabelSelecionado := Sender as TLabel;
+    LabelSelecionado.Text := '1/' + SABORES.FieldByName('quantidade_sabores')
+      .AsString + ' - ' + SABORES.FieldByName('nome').AsString + ' - ' +
+      FormatFloat('R$ #,##0.00', SABORES.FieldByName('vl_venda').AsFloat);
+    TabControl.tabindex := 2;
+    layout_qtd.Visible := False;
+
+    TabControl.Visible := true;
+  end;
+
+end;
+
+procedure TFrmAddItem.ClickCategoria(Sender: TObject);
+var
+  CATEGORIA: TframeCategorias;
+begin
+  try
+    CATEGORIA := ((Sender as TRectangle).Parent as TframeCategorias);
+    // ShowMessage(CATEGORIA.descricao);
+  except
+    exit;
+  end;
+  lbl_titulo.Text := CATEGORIA.descricao;
+  if comanda > 0 then
+    lbl_comanda.Text := 'Número: ' + comanda.ToString
+  else
+    lbl_comanda.Text := '';
+
+  MESA.Close;
+  if comanda > 0 then
+  begin
+    GetSimples('v1/mesa/' + comanda.ToString, MESA);
+
+    lbl_comanda.Text := MESA.FieldByName('descricao').AsString + ' ' +
+      MESA.FieldByName('nr_mesa').AsString;
+  end;
+  OcultaProdutos;
+  if Assigned(TabProduto.FindComponent('categoria_frame_' +
+    CATEGORIA.Codigo.ToString)) then
+  begin
+    (TabProduto.FindComponent('categoria_frame_' + CATEGORIA.Codigo.ToString)
+      as TVertScrollBox).Visible := true;
+
+  end;
+  TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+  begin
+
+    if CodigoCategoriaAtual <> CATEGORIA.Codigo then
+    begin
+      CodigoCategoriaAtual := CATEGORIA.Codigo;
+      ListarProduto(CATEGORIA.Codigo, '');
+    end;
+
+    TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+  end;
+
+end;
+
+procedure TFrmAddItem.ClickChek(Sender: TObject);
+begin
+  // Check.Tag := ADICIONAL.FieldByName('codigo').AsInteger;
+  if ADICIONAL.Locate('codigo', (Sender as TCheckBox).Tag, []) then
+  begin
+    if not(Sender as TCheckBox).IsChecked then
+    begin
+      ValorViewAdicional := ValorViewAdicional + ADICIONAL.FieldByName
+        ('valor').AsFloat;
+    end
+    else
+      ValorViewAdicional := ValorViewAdicional - ADICIONAL.FieldByName
+        ('valor').AsFloat;
+  end;
+end;
+
+procedure TFrmAddItem.ClickProduto(Sender: TObject);
+var
+  PRODUTO: TFrameProdutos;
+begin
+  Qtd := 1;
+  try
+    PRODUTO := ((Sender as TRectangle).Parent as TFrameProdutos);
+    // ShowMessage(CATEGORIA.descricao);
+  except
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+    AddProduto(PRODUTO.Codigo);
+
+end;
+
+procedure TFrmAddItem.Confirmacao;
+var
+  I: Integer;
+  K: Integer;
+  Produtos: TFrameProdutos;
+  Extra: TframeExtra;
+begin
+  rTelaPreta.Visible := true;
+
+  // OcultaProdutos;
+
+  memInsert.Close;
+  memInsert.Open;
+  memInsert.insert;
+  memInsert.FieldByName('mesa').AsInteger := comanda;
+  memInsert.FieldByName('pedido').AsInteger := codigoPedido;
+  memInsert.FieldByName('produto').AsInteger := codigoProduto;
+  memInsert.FieldByName('valor_produto').AsFloat := ValorProdutoUnitario;
+  try
+    memInsert.FieldByName('qtd').AsInteger := lbl_qtd.Text.ToInteger;
+  except
+    memInsert.FieldByName('qtd').AsInteger := 1;
+  end;
+
+  for I := 0 to vertProdutos.ComponentCount - 1 do
+  begin
+    if vertProdutos.Components[I] is TframeExtra then
+    begin
+      Extra := (vertProdutos.Components[I] as TframeExtra);
+
+      if Extra.Tipo = Pizza then
+      begin
+        for K := 1 to Extra.Quantidade do
+        begin
+
+          if length(memInsert.FieldByName('pizza').AsString) = 0 then
+          begin
+            memInsert.FieldByName('pizza').AsString := Extra.Codigo.ToString;
+          end
+          else
+          begin
+            memInsert.FieldByName('pizza').AsString :=
+              memInsert.FieldByName('pizza').AsString + ',' +
+              Extra.Codigo.ToString;
+          end;
+        end;
+        Extra.Quantidade := 0;
+        Extra.ValorTotal := 0;
+        Extra.Pai.ZerarSelecionado;
+      end
+      else
+      begin
+        for K := 1 to Extra.Quantidade do
+        begin
+          if length(memInsert.FieldByName('adicionais').AsString) = 0 then
+          begin
+            memInsert.FieldByName('adicionais').AsString :=
+              Extra.Codigo.ToString;
+          end
+          else
+          begin
+            memInsert.FieldByName('adicionais').AsString :=
+              memInsert.FieldByName('adicionais').AsString + ',' +
+              Extra.Codigo.ToString;
+          end;
+        end;
+        Extra.Quantidade := 0;
+        Extra.ValorTotal := 0;
+        Extra.Pai.ZerarSelecionado;
+      end;
+
+    end;
+    if vertProdutos.Components[I] is TframeObservacaoPedido then
+    begin
+      memInsert.FieldByName('observacao').AsString :=
+        (vertProdutos.Components[I] as TframeObservacaoPedido).memMensagem.Text;
+      (vertProdutos.Components[I] as TframeObservacaoPedido)
+        .memMensagem.Text := '';
+    end;
+
+  end;
+
+  layout_qtd.Visible := False;
+  PostSimples('/v1/pedido/produto/:usuario', memInsert);
+  Delivery := 0;
+
+  LimpaDados;
+  ShowMessageToast(self, 'Produto Incluido!', 3);
+  if Assigned(FrmResumo) then
+    FrmResumo.ListarProduto;
+  Close;
+  rTelaPreta.Visible := False;
+end;
+
+procedure TFrmAddItem.edtBuscaKeyDown(Sender: TObject; var Key: Word;
+  var KeyChar: Char; Shift: TShiftState);
+begin
+  if Key = 13 then
+  begin
+    BuscaProdutoUnico;
+  end;
+end;
+
+procedure TFrmAddItem.Entrar(Sender: TObject);
+begin
+  (Sender as TRectangle).Stroke.Color := RGB(5, 168, 93);
+end;
+
+procedure TFrmAddItem.ListarProduto(id_categoria: Integer; busca: string);
+var
+  I: Integer;
+  Produtos: TFrameProdutos;
+
+begin
+  OcultaProdutos;
+  lv_produto.Items.Clear;
+  PRODUTO.Close;
+
+  // ArrayOfProdutos : Array of TFrameProdutos;
+  ListProduto.Visible := False;
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      I: Integer;
+    begin
+      Label3.Visible := true;
+      vertProduto.Visible := False;
+      GetSimples('v1/produtos/' + id_categoria.ToString + '/' +
+        Delivery.ToString, PRODUTO);
+      if not FastItens then
+      begin
+        for I := 0 to self.ComponentCount - 1 do
+        begin
+          if self.Components[I] is TFrameProdutos then
+          begin
+            (self.Components[I] as TFrameProdutos).Visible := False;
+          end;
+
+        end;
+        {
+          for I := 0 to length(ArrayOfProdutos) - 1 do
+          begin
+          try
+          if Assigned(ArrayOfProdutos[I]) then
+          ArrayOfProdutos[I].Free;
+          except
+
+          end;
+          end; }
+        while not PRODUTO.Eof do
+        begin
+          // SetLength(ArrayOfProdutos, length(ArrayOfProdutos) + 1);
+          // I := length(ArrayOfProdutos) - 1;
+          // ArrayOfProdutos[I] := TFrameProdutos.Create(vertProduto);
+          // Produtos := ArrayOfProdutos[I];
+          if Assigned(FindComponent('produto_frame_' +
+            PRODUTO.FieldByName('codigo').AsString)) then
+          begin
+            Produtos := (FindComponent('produto_frame_' +
+              PRODUTO.FieldByName('codigo').AsString) as TFrameProdutos);
+          end
+          else
+          begin
+            Produtos := TFrameProdutos.Create(self);
+            Produtos.Parent := vertProduto;
+            Produtos.Name := 'produto_frame_' + PRODUTO.FieldByName
+              ('codigo').AsString;
+            Produtos.Valor := PRODUTO.FieldByName('valor_venda').AsFloat;
+            Produtos.Nome := PRODUTO.FieldByName('nome_produto').AsString;
+            Produtos.Codigo := PRODUTO.FieldByName('codigo').AsInteger;
+            Produtos.DescricaoProduto :=
+              PRODUTO.FieldByName('descricao').AsString;
+            Produtos.CATEGORIA := lbl_titulo.Text;
+            Produtos.Interno := PRODUTO.FieldByName('codigo_interno').AsInteger;
+            Produtos.Align := TAlignLayout.Top;
+            Produtos.rPrincipal.OnClick := ClickProduto;
+{$IFDEF Android}
+            Produtos.rPrincipal.OnTap := OnTapProduto;
+{$ELSE}
+            Produtos.rPrincipal.OnClick := ClickProduto;
+{$ENDIF}
+            Produtos.Visible := true;
+          end;
+
+          Produtos.Visible := true;
+          {
+            AddProdutoLv(PRODUTO.FieldByName('codigo').AsInteger,
+            PRODUTO.FieldByName('nome_produto').AsString,
+            PRODUTO.FieldByName('valor_venda').AsFloat); }
+          PRODUTO.Next;
+          sleep(100);
+        end;
+      end;
+
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          Label3.Visible := False;
+          TabControl.tabindex := 1;
+          ListProduto.Visible := true;
+          vertProduto.Visible := true;
+          vertProduto.Enabled := true;
+        end);
+    end).Start;
+
+end;
+
+procedure TFrmAddItem.ListCategoriaItemClickEx(const Sender: TObject;
+ItemIndex: Integer; const LocalClickPos: TPointF;
+const ItemObject: TListItemDrawable);
+begin
+  // ListarProduto(CATEGORIA.FieldByName('codigo').AsInteger, '');
+  GetSimples('v1/produtos/' + CATEGORIA.FieldByName('codigo').AsString + '/' +
+    Delivery.ToString, PRODUTO);
+  TabControl.tabindex := 1;
+
+  // ShowMessage(PRODUTO.RecordCount.ToString);
+
+end;
+
+procedure TFrmAddItem.ListProdutoItemClickEx(const Sender: TObject;
+  ItemIndex: Integer; const LocalClickPos: TPointF;
+  const ItemObject: TListItemDrawable);
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+    AddProduto(PRODUTO.FieldByName('codigo').AsInteger);
+end;
+
+procedure TFrmAddItem.ListView1ItemClickEx(const Sender: TObject;
+ItemIndex: Integer; const LocalClickPos: TPointF;
+const ItemObject: TListItemDrawable);
+begin
+  LabelSelecionado.Tag := SABORES.FieldByName('id').AsInteger;
+  LabelSelecionado.Text := '1/' + SABORES.FieldByName('quantidade_sabores')
+    .AsString + ' - ' + SABORES.FieldByName('nome').AsString + ' - ' +
+    FormatFloat('R$ #,##0.00', SABORES.FieldByName('vl_venda').AsFloat);
+  TabControl.tabindex := 1;
+  ShowMessageToast(self, 'Sabor Selecionado!', 3);
+  layout_qtd.Visible := true;
+  TabControl.Visible := False;
+end;
+
+procedure TFrmAddItem.Load;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      TotalComponente := 0;
+      // CarregaTodosProdutos;
+      CarregarTudos;
+
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          if Assigned(ExecutarQuandoCarregaProdutos) then
+            ExecutarQuandoCarregaProdutos;
+        end);
+    end).Start;
+end;
+
+procedure TFrmAddItem.lv_categoriaItemClick(const Sender: TObject;
+const AItem: TListViewItem);
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+  begin
+
+    lbl_titulo.Text := TListItemText
+      (AItem.Objects.FindDrawable('TxtDescricao')).Text;
+    lbl_comanda.Text := 'Número: ' + comanda.ToString;
+
+    MESA.Close;
+    if comanda > 0 then
+    begin
+      GetSimples('v1/mesa/' + comanda.ToString, MESA);
+
+      lbl_comanda.Text := MESA.FieldByName('descricao').AsString + ' ' +
+        MESA.FieldByName('nr_mesa').AsString;
+    end;
+
+    ListarProduto(AItem.Tag, '');
+
+    TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+  end;
+end;
+
+procedure TFrmAddItem.lv_produtoItemClick(const Sender: TObject;
+const AItem: TListViewItem);
+
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+    AddProduto(AItem.Tag);
+
+end;
+
+procedure TFrmAddItem.Mais;
+begin
+  Qtd := Qtd + 1;
+end;
+
+procedure TFrmAddItem.Menos;
+begin
+  if Qtd = 1 then
+    exit;
+  Qtd := Qtd - 1;
+end;
+
+procedure TFrmAddItem.OcultaProdutos;
+var
+  I: Integer;
+
+begin
+  if FastItens then
+    exit;
+  for I := 0 to TabProduto.ComponentCount - 1 do
+  begin
+    if (TabProduto.Components[I] is TVertScrollBox) then
+    begin
+      (TabProduto.Components[I] as TVertScrollBox).Visible := False;
+    end;
+
+  end;
+end;
+
+procedure TFrmAddItem.OnTap(Sender: TObject; const Point: TPointF);
+begin
+  ValorFaltando := '';
+  if (Sender is TRectangle) then
+  begin
+    AddProduto((Sender as TRectangle).Tag);
+  end
+  else if (Sender is TLabel) then
+  begin
+    LabelSelecionado := Sender as TLabel;
+    LabelSelecionado.Text := '1/' + SABORES.FieldByName('quantidade_sabores')
+      .AsString + ' - ' + SABORES.FieldByName('nome').AsString + ' - ' +
+      FormatFloat('R$ #,##0.00', SABORES.FieldByName('vl_venda').AsFloat);
+    TabControl.tabindex := 2;
+    layout_qtd.Visible := False;
+
+    TabControl.Visible := true;
+  end;
+
+end;
+
+procedure TFrmAddItem.OnTapCategoria(Sender: TObject; const Point: TPointF);
+var
+  CATEGORIA: TframeCategorias;
+begin
+  try
+    CATEGORIA := ((Sender as TRectangle).Parent as TframeCategorias);
+    // ShowMessage(CATEGORIA.descricao);
+  except
+    exit;
+  end;
+  lbl_titulo.Text := CATEGORIA.descricao;
+  if comanda > 0 then
+    lbl_comanda.Text := 'Número: ' + comanda.ToString
+  else
+    lbl_comanda.Text := '';
+
+  MESA.Close;
+  if comanda > 0 then
+  begin
+    GetSimples('v1/mesa/' + comanda.ToString, MESA);
+
+    lbl_comanda.Text := MESA.FieldByName('descricao').AsString + ' ' +
+      MESA.FieldByName('nr_mesa').AsString;
+  end;
+  OcultaProdutos;
+  if Assigned(TabProduto.FindComponent('categoria_frame_' +
+    CATEGORIA.Codigo.ToString)) then
+  begin
+    (TabProduto.FindComponent('categoria_frame_' + CATEGORIA.Codigo.ToString)
+      as TVertScrollBox).Visible := true;
+
+  end;
+  TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+  begin
+
+    // if (CodigoCategoriaAtual <> CATEGORIA.Codigo) then
+    // begin
+    // CodigoCategoriaAtual := CATEGORIA.Codigo;
+    // ListarProduto(CATEGORIA.Codigo, '');
+    // end;
+    ListarProduto(CATEGORIA.Codigo, '');
+
+    TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+  end;
+
+end;
+
+procedure TFrmAddItem.OnTapProduto(Sender: TObject; const Point: TPointF);
+var
+  PRODUTO: TFrameProdutos;
+begin
+  Qtd := 1;
+  try
+    PRODUTO := ((Sender as TRectangle).Parent as TFrameProdutos);
+    // ShowMessage(CATEGORIA.descricao);
+  except
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+    AddProduto(PRODUTO.Codigo);
+
+end;
+
+procedure TFrmAddItem.rect_busca_produtoClick(Sender: TObject);
+var
+  I: Integer;
+  Produtos: TFrameProdutos;
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem conexão com servidor!', 1);
+
+  end
+  else
+  begin
+    OcultaProdutos;
+    lv_produto.Items.Clear;
+    PRODUTO.Close;
+
+    GetSimples('v1/produtos/nome/' + edt_busca_produto.Text, PRODUTO);
+    // for I := 0 to length(ArrayOfProdutos) - 1 do
+    // begin
+    // if Assigned(ArrayOfProdutos[I]) then
+    // ArrayOfProdutos[I].Free;
+    // end;
+
+    // while not PRODUTO.Eof do
+    // begin
+    // SetLength(ArrayOfProdutos, length(ArrayOfProdutos) + 1);
+    // I := length(ArrayOfProdutos) - 1;
+    // ArrayOfProdutos[I] := TFrameProdutos.Create(vertProduto);
+    // Produtos := ArrayOfProdutos[I];
+    // Produtos.Parent := vertProduto;
+    // Produtos.Name := 'produto_frame_' + PRODUTO.FieldByName('codigo')
+    // .AsString;
+    // Produtos.Valor := PRODUTO.FieldByName('valor_venda').AsFloat;
+    // Produtos.Nome := PRODUTO.FieldByName('nome_produto').AsString;
+    // Produtos.Codigo := PRODUTO.FieldByName('codigo').AsInteger;
+    // Produtos.DescricaoProduto := PRODUTO.FieldByName('descricao').AsString;
+    // Produtos.CATEGORIA := lbl_titulo.Text;
+    // Produtos.Interno := PRODUTO.FieldByName('codigo_interno').AsInteger;
+    // Produtos.Align := TAlignLayout.Top;
+    // Produtos.rPrincipal.OnClick := ClickProduto;
+    // AddProdutoLv(PRODUTO.FieldByName('codigo').AsInteger,
+    // PRODUTO.FieldByName('nome_produto').AsString,
+    // PRODUTO.FieldByName('valor_venda').AsFloat);
+    // PRODUTO.Next;
+    // end;
+    // end;
+
+  end;
+end;
+
+procedure TFrmAddItem.rect_encerrarClick(Sender: TObject);
+begin
+  AdicionarProdutoPedido;
+end;
+
+procedure TFrmAddItem.Sair(Sender: TObject);
+begin
+  (Sender as TRectangle).Stroke.Color := RGB(255, 255, 255);
+end;
+
+procedure TFrmAddItem.SetCodigoPedidoProduto(const Value: Integer);
+begin
+  FCodigoPedidoProduto := Value;
+
+  if FCodigoPedidoProduto > 0 then
+  begin
+    dm.GetSimples('/v1/util/dados/pedido/produtos/' +
+      FCodigoPedidoProduto.ToString, dadosSelecionado);
+    GetSimples('/v1/dados/produto/codigo/' + dadosSelecionado.FieldByName
+      ('codigo_produto').AsString, PRODUTO);
+    AddProduto(dadosSelecionado.FieldByName('codigo_produto').AsInteger);
+    edtBusca.Text := '';
+  end;
+
+end;
+
+procedure TFrmAddItem.SetDelivery(const Value: Integer);
+begin
+  FDelivery := Value;
+end;
+
+procedure TFrmAddItem.SetFastItens(const Value: Boolean);
+begin
+  FFastItens := Value;
+end;
+
+procedure TFrmAddItem.SetQtd(const Value: Integer);
+begin
+  FQtd := Value;
+  if FQtd = 1 then
+  begin
+    imgMenos.Visible := False;
+  end
+  else
+  begin
+    imgMenos.Visible := true;
+  end;
+  QTDView := Qtd;
+  lbl_qtd.Text := FQtd.ToString;
+  lQuantidade.Text := FQtd.ToString;
+  AtualizaValorView;
+end;
+
+procedure TFrmAddItem.SetQTDView(const Value: Real);
+begin
+  FQTDView := Value;
+  AtualizaValorView;
+end;
+
+procedure TFrmAddItem.SetValorAdicional(const Value: Real);
+begin
+  FValorAdicional := Value;
+  ValorViewAdicional := FValorAdicional;
+  AtualizaValorView;
+end;
+
+procedure TFrmAddItem.SetValorFaltando(const Value: String);
+begin
+  FValorFaltando := Value;
+  tVerificar.Enabled := length(Value) > 0;
+  lVerificar.Text := Value;
+
+end;
+
+procedure TFrmAddItem.SetValorProdutoUnitario(const Value: Real);
+begin
+  FValorProdutoUnitario := Value;
+end;
+
+procedure TFrmAddItem.SetValorView(const Value: Real);
+begin
+  FValorView := Value;
+  AtualizaValorView;
+
+end;
+
+procedure TFrmAddItem.SetValorViewAdicional(const Value: Real);
+begin
+  FValorViewAdicional := Value;
+  AtualizaValorView;
+end;
+
+procedure TFrmAddItem.tVerificarTimer(Sender: TObject);
+begin
+  if lVerificar.TextSettings.FontColor = RGB(0, 0, 0) then
+  begin
+    lVerificar.TextSettings.FontColor := RGB(164, 0, 27);
+  end
+  else
+    lVerificar.TextSettings.FontColor := RGB(0, 0, 0);
+end;
+
+function TFrmAddItem.ValidaSePodeAdicionar: Boolean;
+var
+  Extra: TframeExtra;
+  I: Integer;
+begin
+  Result := true;
+  for I := 0 to vertProdutos.ComponentCount - 1 do
+  begin
+    if vertProdutos.Components[I] is TframeExtra then
+    begin
+      Extra := (vertProdutos.Components[I] as TframeExtra);
+
+      if Extra.Tipo = Pizza then
+      begin
+        if Extra.Pai.Minimo > 0 then
+          if (Extra.Pai.Minimo > Extra.Pai.Selecionado) then
+          begin
+            ValorFaltando := 'Deve-se selecionar ' + Extra.Pai.Minimo.ToString +
+              ' sabores!';
+            Result := False;
+            Abort;
+          end;
+
+      end
+      else
+      begin
+        if Extra.Pai.Minimo > 0 then
+          if (Extra.Pai.Minimo > Extra.Pai.Selecionado) then
+          begin
+            ValorFaltando := 'Deve-se selecionar no minimo ' +
+              Extra.Pai.Minimo.ToString + ' do extra ' +
+              Extra.Pai.descricao + '!';
+            Result := False;
+            Abort;
+          end;
+
+      end;
+
+    end;
+
+  end;
+end;
+
+procedure TFrmAddItem.FormCreate(Sender: TObject);
+begin
+  // TCallback
+  layout_qtd.Visible := False;
+  TabControl.Visible := true;
+  FastItens := true;
+end;
+
+procedure TFrmAddItem.FormShow(Sender: TObject);
+begin
+  // layout_qtd.Visible := False;
+  // ListarCategoria;
+end;
+
+procedure TFrmAddItem.Image2Click(Sender: TObject);
+begin
+  BuscaProdutoUnico;
+end;
+
+procedure TFrmAddItem.Image3Click(Sender: TObject);
+begin
+  Mais;
+end;
+
+procedure TFrmAddItem.imgMenosClick(Sender: TObject);
+begin
+  Menos;
+end;
+
+procedure TFrmAddItem.img_fecharClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFrmAddItem.img_fechar_qtdClick(Sender: TObject);
+begin
+  layout_qtd.Visible := False;
+  TabControl.Visible := true;
+  LimpaDados;
+
+end;
+
+procedure TFrmAddItem.img_menosClick(Sender: TObject);
+begin
+  try
+    lbl_qtd.Text := FormatFloat('00', lbl_qtd.Text.ToInteger +
+      TImage(Sender).Tag);
+
+    if lbl_qtd.Text.ToInteger < 1 then
+      lbl_qtd.Text := '01';
+  except
+    lbl_qtd.Text := '01';
+  end;
+  QTDView := lbl_qtd.Text.ToInteger;
+end;
+
+procedure TFrmAddItem.img_voltarClick(Sender: TObject);
+begin
+  layout_qtd.Visible := False;
+  LimpaDados;
+  if Assigned(FrmResumo) then
+    FrmResumo.ListarProduto;
+  TabControl.GotoVisibleTab(0, TTabTransition.Slide);
+end;
+
+end.

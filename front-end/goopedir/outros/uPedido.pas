@@ -831,9 +831,14 @@ end;
 procedure TfrmPedido.SimGerencial;
 begin
 
-  DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
-    DM.CodigoCaixa.ToString, nil);
-  DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+
 end;
 
 procedure TfrmPedido.ListaCellDblClick(const Column: TColumn;

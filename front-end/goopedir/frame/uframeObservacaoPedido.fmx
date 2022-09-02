@@ -10,7 +10,7 @@ object frameObservacaoPedido: TframeObservacaoPedido
     TextSettings.FontColor = claDarkgray
     TextSettings.HorzAlign = Trailing
     Text = '0/200'
-    TabOrder = 2
+    TabOrder = 1
   end
   object Rectangle1: TRectangle
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -34,8 +34,8 @@ object frameObservacaoPedido: TframeObservacaoPedido
       Size.PlatformDefault = False
       TabOrder = 1
       OnKeyDown = memMensagemKeyDown
-      Viewport.Width = 895.000000000000000000
-      Viewport.Height = 145.000000000000000000
+      Viewport.Width = 891.000000000000000000
+      Viewport.Height = 141.000000000000000000
     end
   end
   object lDescricao: TLabel

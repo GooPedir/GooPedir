@@ -1,0 +1,99 @@
+object frameMensagemWhatsapp: TframeMensagemWhatsapp
+  Size.Width = 849.000000000000000000
+  Size.Height = 380.000000000000000000
+  Size.PlatformDefault = False
+  object memMensagem: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    OnChange = memMensagemChange
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 56.000000000000000000
+    Size.Width = 833.000000000000000000
+    Size.Height = 289.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    OnKeyDown = memMensagemKeyDown
+    Viewport.Width = 833.000000000000000000
+    Viewport.Height = 289.000000000000000000
+  end
+  object cItem: TComboBox
+    Anchors = [akLeft, akTop, akRight]
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 789.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object lTitulo: TLabel
+      Align = Client
+      StyledSettings = [Family, Size]
+      Margins.Left = 15.000000000000000000
+      Margins.Top = 5.000000000000000000
+      Margins.Right = 25.000000000000000000
+      Margins.Bottom = 5.000000000000000000
+      Size.Width = 749.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.FontColor = xFFA4001B
+      TextSettings.HorzAlign = Trailing
+      Text = 'Coringas Para Utiliza'#231#227'o'
+      TabOrder = 0
+    end
+  end
+  object lQtdCaracteres: TLabel
+    Anchors = [akRight, akBottom]
+    StyledSettings = [Family, Size, Style]
+    Position.X = 721.000000000000000000
+    Position.Y = 350.000000000000000000
+    TextSettings.FontColor = claDarkgray
+    TextSettings.HorzAlign = Trailing
+    Text = 'lQtdCaracteres'
+    TabOrder = 4
+  end
+  object btnSalvar: TSpeedButton
+    Anchors = [akTop, akRight]
+    Enabled = False
+    Position.X = 801.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 40.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    OnClick = btnSalvarClick
+    object Image1: TImage
+      MultiResBitmap.Height = 40
+      MultiResBitmap.Width = 40
+      MultiResBitmap = <
+        item
+          Width = 48
+          Height = 48
+          PNG = {
+            89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+            87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+            015C494441546843EDD6BB4E02411406E0B36282315E0A0D50D829B1530B8C9D
+            CFE043988835467900132FD1C6462D7C05130B9F420A2C05C5C45810A9309140
+            BCAC4CF6278440D623AB33039CAFD9FF54338733B30B092184510E9E6D126779
+            1791DE8A05A4567BAB6348C1EDE62248752E1D6436E36954BE86F0B48B433B89
+            D3FC3E2A5FDA26B0BD9542F21C1E1D23795A26D0C098849D1368604CC2EE0694
+            1F9AB0BF01A5DE04529BDE68C08734605ACF37C0FA0E544A4FE47E7EA06A4AAF
+            8CD26438F86FF0FA1EA293C729549D6592F18E7B65AD1E9E982627348CAAE932
+            57A372ED0B5577D4E6AF5FC651FD1E6B02360834019B4903A64903A6B1DE4217
+            6B33B4101D41A5C76DB14AEB57CFA802BE85746F5E598CF1D61C8C2374B33187
+            E4C9DE3D20FDADA5F95924CFF2F93D521F7FC8BA9A802E320144B903FF49EE80
+            6972074C933B601AAB01F5D756B72C734DD611B241DF1E2121843089E81BDE0F
+            83DA41EDB5440000000049454E44AE426082}
+          FileName = 'C:\Users\DESENVOLVIMENTO\Downloads\icons8-salvar-48 (1).png'
+        end>
+      Align = Client
+      HitTest = False
+      Margins.Left = 2.000000000000000000
+      Margins.Top = 2.000000000000000000
+      Margins.Right = 2.000000000000000000
+      Margins.Bottom = 2.000000000000000000
+      Size.Width = 36.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+end

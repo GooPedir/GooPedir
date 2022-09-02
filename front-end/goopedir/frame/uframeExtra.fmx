@@ -2,7 +2,7 @@ object frameExtra: TframeExtra
   Align = Right
   Padding.Right = 30.000000000000000000
   Size.Width = 851.000000000000000000
-  Size.Height = 54.000000000000000000
+  Size.Height = 65.000000000000000000
   Size.PlatformDefault = False
   OnClick = FrameClick
   object img_un: TImage
@@ -61,15 +61,15 @@ object frameExtra: TframeExtra
   end
   object Layout1: TLayout
     Align = Client
+    HitTest = True
     Size.Width = 821.000000000000000000
-    Size.Height = 54.000000000000000000
+    Size.Height = 63.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 2
     object Layout2: TLayout
-      Align = Right
-      Position.X = 701.000000000000000000
+      Align = Left
       Size.Width = 120.000000000000000000
-      Size.Height = 54.000000000000000000
+      Size.Height = 63.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 3
       object Image1: TImage
@@ -114,7 +114,7 @@ object frameExtra: TframeExtra
         Cursor = crHandPoint
         Position.X = 84.000000000000000000
         Size.Width = 36.000000000000000000
-        Size.Height = 54.000000000000000000
+        Size.Height = 63.000000000000000000
         Size.PlatformDefault = False
         OnClick = Image1Click
       end
@@ -156,7 +156,7 @@ object frameExtra: TframeExtra
         Align = Left
         Cursor = crHandPoint
         Size.Width = 36.000000000000000000
-        Size.Height = 54.000000000000000000
+        Size.Height = 63.000000000000000000
         Size.PlatformDefault = False
         OnClick = imgMenosClick
       end
@@ -209,8 +209,9 @@ object frameExtra: TframeExtra
     end
     object lSabor: TLayout
       Align = Client
+      HitTest = True
       Size.Width = 701.000000000000000000
-      Size.Height = 54.000000000000000000
+      Size.Height = 63.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 4
       object LValorSabor: TLabel
@@ -219,7 +220,7 @@ object frameExtra: TframeExtra
         Margins.Right = 10.000000000000000000
         Position.X = 582.000000000000000000
         Size.Width = 109.000000000000000000
-        Size.Height = 54.000000000000000000
+        Size.Height = 63.000000000000000000
         Size.PlatformDefault = False
         TextSettings.Font.Size = 18.000000000000000000
         TextSettings.Font.StyleExt = {00060000000000000004000000}
@@ -230,14 +231,17 @@ object frameExtra: TframeExtra
       end
       object Layout4: TLayout
         Align = Client
+        HitTest = True
         Size.Width = 582.000000000000000000
-        Size.Height = 54.000000000000000000
+        Size.Height = 63.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 5
         object lNomeSabor: TLabel
           Align = Top
           AutoSize = True
+          Cursor = crHandPoint
           StyledSettings = [Family, FontColor]
+          HitTest = True
           Margins.Left = 5.000000000000000000
           Position.X = 5.000000000000000000
           Size.Width = 577.000000000000000000
@@ -247,11 +251,14 @@ object frameExtra: TframeExtra
           TextSettings.Font.StyleExt = {00060000000000000004000000}
           Text = 'Descri'#231#227'o'
           TabOrder = 5
+          OnClick = lNomeSaborClick
         end
         object LTipoSabor: TLabel
           Align = Top
           AutoSize = True
+          Cursor = crHandPoint
           StyledSettings = [Family, FontColor]
+          HitTest = True
           Margins.Left = 5.000000000000000000
           Position.X = 5.000000000000000000
           Position.Y = 35.000000000000000000
@@ -265,5 +272,12 @@ object frameExtra: TframeExtra
         end
       end
     end
+  end
+  object Rectangle1: TRectangle
+    Align = Bottom
+    Position.Y = 63.000000000000000000
+    Size.Width = 821.000000000000000000
+    Size.Height = 2.000000000000000000
+    Size.PlatformDefault = False
   end
 end

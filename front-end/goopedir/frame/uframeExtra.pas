@@ -28,9 +28,12 @@ type
     Layout4: TLayout;
     lNomeSabor: TLabel;
     LTipoSabor: TLabel;
+    Rectangle1: TRectangle;
     procedure FrameClick(Sender: TObject);
     procedure Image1Click(Sender: TObject);
     procedure imgMenosClick(Sender: TObject);
+    procedure lNomeSaborClick(Sender: TObject);
+
   private
     FCheckbox: Boolean;
     FPai: TFrameDescricaoAdicional;
@@ -153,6 +156,13 @@ procedure TframeExtra.imgMenosClick(Sender: TObject);
 begin
   Menos;
 end;
+
+procedure TframeExtra.lNomeSaborClick(Sender: TObject);
+begin
+  Mais;
+end;
+
+
 
 procedure TframeExtra.Mais;
 begin

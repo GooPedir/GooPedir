@@ -404,9 +404,9 @@ begin
       end;
     end;
 
-  end;
-
-  ValorProduto := Dados.FieldByName('valor_produto').AsFloat;
+  end
+  else
+    ValorProduto := Dados.FieldByName('valor_produto').AsFloat;
 
   while not DadosProdutosAdicionais.Eof do
   begin

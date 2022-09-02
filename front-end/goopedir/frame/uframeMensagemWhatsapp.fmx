@@ -14,8 +14,8 @@ object frameMensagemWhatsapp: TframeMensagemWhatsapp
     Size.PlatformDefault = False
     TabOrder = 1
     OnKeyDown = memMensagemKeyDown
-    Viewport.Width = 833.000000000000000000
-    Viewport.Height = 289.000000000000000000
+    Viewport.Width = 829.000000000000000000
+    Viewport.Height = 285.000000000000000000
   end
   object cItem: TComboBox
     Anchors = [akLeft, akTop, akRight]

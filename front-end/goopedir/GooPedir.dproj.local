@@ -61,6 +61,6 @@
     <Transaction>2022/08/02 11:37:38.000.205,A:\PROJETOS\ALLAN\project-x\src\uframeDadosItens.pas=A:\PROJETOS\ALLAN\project-x\src\Unit2.pas</Transaction>
   </Transactions>
 	<ActiveMobileDevice>
-		<NoProfile Android="3200c98e538616f5" Android64="3200c98e538616f5"/>
+		<NoProfile Android="3200c98e538616f5" Android64=""/>
 	</ActiveMobileDevice>
 </BorlandProject>
