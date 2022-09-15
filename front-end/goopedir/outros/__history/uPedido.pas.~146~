@@ -273,6 +273,7 @@ type
 
     procedure CarregaDadosPedidos(Form: TfrmPedido; Dados: iMemTable);
     procedure Selecionou;
+    procedure SimGerencial;
 
   end;
 
@@ -309,7 +310,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, util, uMain, UnitResumo, uSenha;
+uses uDM, util, uMain, UnitResumo, uSenha, uSimNao;
 
 { TfrmPadrao1 }
 
@@ -827,6 +828,19 @@ begin
   FVemBuscarWhatsapp := Value;
 end;
 
+procedure TfrmPedido.SimGerencial;
+begin
+
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+
+end;
+
 procedure TfrmPedido.ListaCellDblClick(const Column: TColumn;
   const Row: Integer);
 begin
@@ -1026,14 +1040,14 @@ begin
             Canvas.Stroke.Color := Cor;
             Canvas.FillRect(Bounds, 0, 0, [], 1);
             Canvas.Fill.Color := TAlphaColorRec.Black;
-            Canvas.FillText(Bounds, '#'+Valor, False, 1,
-              [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+            Canvas.FillText(Bounds, '#' + FormatFloat('000', Valor.ToInteger),
+              False, 1, [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
               TTextAlign.Center);
           end;
 
         end;
     end;
-  finally
+  except
 
   end;
 end;
@@ -1162,11 +1176,23 @@ begin
     4:
       begin
         // Gerencial
-        if bdsDados.DataSet.RecordCount = 0 then
-          exit;
+        // if bdsDados.DataSet.RecordCount = 0 then
+        // exit;
+        //
+        // rGerencial1.Visible := True;
+        // rGerencial2.Visible := True;
+        // O Gerencial basicamente vai fazer o que, finalizar os pedidos com base no caixa e imprimir o relatorio dos pedidos
 
-        rGerencial1.Visible := True;
-        rGerencial2.Visible := True;
+        if DM.CodigoCaixa = 0 then
+        begin
+          ShowMessageToast(Self, 'Caixa deve ser aberto!', 1);
+          exit;
+        end;
+
+        frmSimNao.titulo := 'Gerencial';
+        frmSimNao.descricao := 'Deseja gerar o relatorio gerencial?';
+        frmSimNao.Sim := SimGerencial;
+        frmSimNao.Show;
 
       end;
     5:

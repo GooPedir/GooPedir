@@ -566,11 +566,13 @@ begin
         // Desmarcado
         (Sender as TImage).Bitmap := img_marcado.Bitmap;
         (Sender as TImage).Tag := 1;
+        DadosDashBoard.NaoBuscar := False;
       end
   else
     begin
       (Sender as TImage).Bitmap := img_desmarcado.Bitmap;
       (Sender as TImage).Tag := 0;
+      DadosDashBoard.NaoBuscar := True;
     end;
   end;
 
@@ -638,7 +640,7 @@ begin
 
   if SelecionaMotoboy then
   begin
-    DadosDashBoard.NaoBuscar := True;
+
     Dados.DisableControls;
     Dados.First;
 
@@ -648,6 +650,9 @@ begin
       begin
         DM.PutSimples('v1/pedido/motoboy/' + bdsDados.DataSet.FieldByName
           ('codigo').AsString + '/' + cMotoboy.CodItem + '/', nil);
+        Dados.Edit;
+        Dados.FieldByName('selecionado').AsInteger := 0;
+        Dados.Post;
       end;
       Dados.Next;
     end;
@@ -908,15 +913,14 @@ begin
           else
           begin
             Cor := RGB(185, 178, 219);
-          end;
+            try
+              if Lista.Cells[16, Row].ToInteger > 0 then
+              begin
+                Valor := UpperCase(Lista.Cells[7, Row]);
+              end;
+            except
 
-          try
-            if Lista.Cells[16, Row].ToInteger > 0 then
-            begin
-              Valor := UpperCase(Lista.Cells[7, Row]);
             end;
-          except
-
           end;
 
           Canvas.Fill.Color := Cor;
@@ -975,6 +979,16 @@ begin
             // Cor := RGB(227, 210, 244);
             try
               Valor := 'SITE';
+              CorFonte := TAlphaColorRec.Black;
+            except
+
+            end;
+          end;
+          if Valor = '1' then
+          begin
+            // Cor := RGB(227, 210, 244);
+            try
+              Valor := 'X';
               CorFonte := TAlphaColorRec.Black;
             except
 
@@ -1047,7 +1061,7 @@ begin
 
         end;
     end;
-  finally
+  except
 
   end;
 end;
@@ -1353,8 +1367,8 @@ begin
 
         if Memory.RecordCount > 0 then
         begin
-          Pedido.Lista.Visible := False;
-          Pedido.bdsDados.DataSet := nil;
+          // Pedido.Lista.Visible := False;
+          // Pedido.bdsDados.DataSet := nil;
 
           if not Dados.Active then
             Dados.Open;
@@ -1403,14 +1417,15 @@ begin
           Dados.GotoBookMark(Save);
           Dados.FreeBookmark(Save);
           Dados.EnableControls;
-          Pedido.bdsDados.DataSet := Dados;
-          Pedido.Lista.Visible := True;
+          // Pedido.bdsDados.DataSet := Dados;
+          // Pedido.Lista.Visible := True;
+          // Application.ProcessMessages;
+          // Pedido.Lista.SetFocus;
         end;
       except
 
       end;
-      Application.ProcessMessages;
-      Pedido.Lista.SetFocus;
+
     end;
     // frmPedido.rLoad.Visible := False;
     Sleep(15 * 1000);

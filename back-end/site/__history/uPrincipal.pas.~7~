@@ -293,14 +293,14 @@ var
 
 const
   // https://goopedir.com/triangulolanchesepizzaria
-//   URL_SITE = 'api.papaleguasfood.com.br/';
-//   URL_V2 = 'v2.papaleguasfood.com.br/';
+  // URL_SITE = 'api.papaleguasfood.com.br/';
+  // URL_V2 = 'v2.papaleguasfood.com.br/';
 
   URL_SITE = 'https://goopedir.com/ws/v1/';
   URL_V2 = 'https://goopedir.com/ws/v2/';
 
-  //http://ws.goopedir.com/v1/status/a
-  //http://ws.goopedir.com/v1/status/a
+  // http://ws.goopedir.com/v1/status/a
+  // http://ws.goopedir.com/v1/status/a
 
   LOCALHOST = 'http://localhost:2121/';
 
@@ -1799,6 +1799,8 @@ end;
 
 procedure TfrmPrincipal.NotificaPedidoWindows(Pedido, Valor: String);
 begin
+  Tray.Visible := True;
+  Tray.Animate := True;
   Tray.BalloonTitle := Pedido;
   Tray.BalloonHint := Valor;
   Tray.ShowBalloonHint;
@@ -2109,7 +2111,7 @@ begin
   except
     on E: Exception do
     begin
-//      ShowMessage(E.Message);
+      // ShowMessage(E.Message);
     end;
 
   end;
@@ -3085,23 +3087,6 @@ begin
 
       end;
 
-      {
-        try
-        DadosVersao := frmPrincipal.GetDadosVersao('versao') + ' atualizado em ' +
-        FormatDateTime('dd/mm/yyyy', frmPrincipal.GetDadosVersao('data')) + ' '
-        + FormatDateTime('hh:nn', frmPrincipal.GetDadosVersao('hora'));
-        except
-        on E : Exception do
-        begin
-        ShowMessage(e.Message);
-        end;
-
-        end;
-
-        SQL := 'update ws_empresa set dados_versao = ' + QuotedStr(DadosVersao) +
-        ' where user_id = ' + FUserID.ToString;
-        BuscaPedidoThread.ExecutaSQLSite(SQL); }
-
       SQL := SQL + ',minimo_delivery = ' + frmPrincipal.GetMinimoDelivery;
 
       SQL := SQL + ',msg_tempo_delivery = ' +
@@ -3270,7 +3255,7 @@ begin
               DadosConsulta.Close;
               SQL := 'select * from pedido where id_pedido_site = ' +
                 MemoryTablePedidos.FieldByName('id').AsString;
-              DadosConsulta.LoadFromJSON(Insert.ConsultaSQL(SQL));
+              // DadosConsulta.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
               if DadosConsulta.RecordCount = 0 then
               begin
@@ -3449,12 +3434,12 @@ begin
             end;
             if ValorDelivery > 0 then
             begin
-//              Insert.InserirUpdate('pedido_produto_sap',
-//                ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
-//                'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
-//                'DELIVERY', 'ADICIONAL DELIVERY',
-//                (ValorDelivery * MemoryDadosItem.FieldByName('qtd').AsFloat)
-//                .ToString]);
+              // Insert.InserirUpdate('pedido_produto_sap',
+              // ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
+              // 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
+              // 'DELIVERY', 'ADICIONAL DELIVERY',
+              // (ValorDelivery * MemoryDadosItem.FieldByName('qtd').AsFloat)
+              // .ToString]);
               SQL := 'update pedido set valor_pedido = valor_pedido + ' +
                 StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
                 ', valor_total_pedido = valor_total_pedido + ' +
@@ -3465,8 +3450,7 @@ begin
             MemoryDadosItem.next;
           end;
 
-          if not frmPrincipal.Homologacao then
-          begin
+         
             ExecutaSQLSite('update ws_pedidos set id_sistema = ' +
               CodigoNovoPeiddo.ToString + ' where id = ' +
               MemoryTablePedidos.FieldByName('id').AsString);
@@ -3479,17 +3463,16 @@ begin
             ExecutaSQLSite('update ws_pedidos set codigo_pedido = ' +
               QuotedStr(FormatFloat('00000', CodigoPedidoDia)) + ' where id = '
               + MemoryTablePedidos.FieldByName('id').AsString);
-          end
-          else
-          begin
-            try
-              frmPrincipal.NotificaPedidoWindows
-                ('Pedido ' + FormatFloat('000000', CodigoPedidoDia),
-                'R$: ' + FormatFloat('#.00',
-                MemoryTablePedidos.FieldByName('total').AsFloat));
-            except
 
-            end;
+
+          try
+
+            frmPrincipal.NotificaPedidoWindows('Pedido ' + FormatFloat('000000',
+              CodigoPedidoDia), 'R$: ' + FormatFloat('#.00',
+              StrToFloat(StringReplace(MemoryTablePedidos.FieldByName('total')
+              .AsString, '.', ',', []))));
+          except
+
           end;
 
         end

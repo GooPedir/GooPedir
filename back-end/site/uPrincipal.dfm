@@ -288,6 +288,7 @@ object frmPrincipal: TfrmPrincipal
     Hint = '2'
     BalloonHint = 'TEST'
     BalloonTitle = '1'
+    BalloonFlags = bfInfo
     Icons = imagemDesconectado
     Visible = True
     OnClick = TrayClick

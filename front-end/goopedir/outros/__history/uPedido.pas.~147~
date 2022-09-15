@@ -273,6 +273,7 @@ type
 
     procedure CarregaDadosPedidos(Form: TfrmPedido; Dados: iMemTable);
     procedure Selecionou;
+    procedure SimGerencial;
 
   end;
 
@@ -309,7 +310,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, util, uMain, UnitResumo, uSenha;
+uses uDM, util, uMain, UnitResumo, uSenha, uSimNao;
 
 { TfrmPadrao1 }
 
@@ -647,6 +648,9 @@ begin
       begin
         DM.PutSimples('v1/pedido/motoboy/' + bdsDados.DataSet.FieldByName
           ('codigo').AsString + '/' + cMotoboy.CodItem + '/', nil);
+          Dados.Edit;
+          Dados.FieldByName('selecionado').AsInteger := 0;
+          Dados.Post;
       end;
       Dados.Next;
     end;
@@ -825,6 +829,19 @@ begin
   end;
 
   FVemBuscarWhatsapp := Value;
+end;
+
+procedure TfrmPedido.SimGerencial;
+begin
+
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+
 end;
 
 procedure TfrmPedido.ListaCellDblClick(const Column: TColumn;
@@ -1033,7 +1050,7 @@ begin
 
         end;
     end;
-  finally
+  except
 
   end;
 end;
@@ -1175,9 +1192,10 @@ begin
           exit;
         end;
 
-        DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
-          DM.CodigoCaixa.ToString, nil);
-        DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+        frmSimNao.titulo := 'Gerencial';
+        frmSimNao.descricao := 'Deseja gerar o relatorio gerencial?';
+        frmSimNao.Sim := SimGerencial;
+        frmSimNao.Show;
 
       end;
     5:

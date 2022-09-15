@@ -48,7 +48,7 @@ Coordinates=468,655,57,58
 Coordinates=1019,937,67,36
 
 [Lista]
-Coordinates=292,753,70,454
+Coordinates=292,753,70,498
 Visible=True
 
 [rStatus]
@@ -534,4 +534,7 @@ Coordinates=146,166,109,36
 
 [DADOSid_caixa]
 Coordinates=146,1,107,36
+
+[DADOSid_site]
+Coordinates=146,221,97,36
 

@@ -273,6 +273,7 @@ type
 
     procedure CarregaDadosPedidos(Form: TfrmPedido; Dados: iMemTable);
     procedure Selecionou;
+    procedure SimGerencial;
 
   end;
 
@@ -309,7 +310,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, util, uMain, UnitResumo, uSenha;
+uses uDM, util, uMain, UnitResumo, uSenha, uSimNao;
 
 { TfrmPadrao1 }
 
@@ -355,7 +356,7 @@ var
   Frame: TfrmListaPedido;
   Nome: String;
 begin
-EXIT;
+  exit;
   if Dados.RecordCount = 0 then
     exit;
   if Dados.RecordCount > 60 then
@@ -406,7 +407,6 @@ EXIT;
       Frame.Caixa := Dados.FieldByName('id_caixa').AsInteger;
       Frame.Clique := Form.Selecionou;
 
-
       {
 
 
@@ -425,7 +425,7 @@ EXIT;
     Dados.Next;
   end;
   if not Form.verDadosPedido.Visible then
-  Form.verDadosPedido.Visible := True;
+    Form.verDadosPedido.Visible := True;
 end;
 
 procedure TfrmPedido.edtDataFinalExit(Sender: TObject);
@@ -552,9 +552,9 @@ procedure TfrmPedido.Image8Click(Sender: TObject);
 begin
   inherited;
 
-   Lista.Visible := False;
+  Lista.Visible := False;
 
-   Lista.Visible := True;
+  Lista.Visible := True;
 end;
 
 procedure TfrmPedido.img_motoboyClick(Sender: TObject);
@@ -595,7 +595,7 @@ end;
 
 procedure TfrmPedido.Selecionou;
 begin
-case img_motoboy.Tag of
+  case img_motoboy.Tag of
     0:
       begin
         // Desmarcado
@@ -648,6 +648,9 @@ begin
       begin
         DM.PutSimples('v1/pedido/motoboy/' + bdsDados.DataSet.FieldByName
           ('codigo').AsString + '/' + cMotoboy.CodItem + '/', nil);
+        Dados.Edit;
+        Dados.FieldByName('selecionado').AsInteger := 0;
+        Dados.Post;
       end;
       Dados.Next;
     end;
@@ -828,6 +831,19 @@ begin
   FVemBuscarWhatsapp := Value;
 end;
 
+procedure TfrmPedido.SimGerencial;
+begin
+
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+
+end;
+
 procedure TfrmPedido.ListaCellDblClick(const Column: TColumn;
   const Row: Integer);
 begin
@@ -895,15 +911,14 @@ begin
           else
           begin
             Cor := RGB(185, 178, 219);
-          end;
+            try
+              if Lista.Cells[16, Row].ToInteger > 0 then
+              begin
+                Valor := UpperCase(Lista.Cells[7, Row]);
+              end;
+            except
 
-          try
-            if Lista.Cells[16, Row].ToInteger > 0 then
-            begin
-              Valor := UpperCase(Lista.Cells[7, Row]);
             end;
-          except
-
           end;
 
           Canvas.Fill.Color := Cor;
@@ -967,6 +982,16 @@ begin
 
             end;
           end;
+          if Valor = '1' then
+          begin
+            // Cor := RGB(227, 210, 244);
+            try
+              Valor := 'SELECIONADAO';
+              CorFonte := TAlphaColorRec.Black;
+            except
+
+            end;
+          end;
 
           Canvas.Fill.Color := Cor;
           Canvas.Stroke.Color := Cor;
@@ -1011,8 +1036,30 @@ begin
         begin
 
         end;
+      18:
+        begin
+          try
+            Valor := Value.ToString;
+            Valor.ToInteger;
+          except
+            Valor := '0';
+          end;
+
+          if Valor.ToInteger > 0 then
+          begin
+            Cor := RGB(165, 218, 232);
+            Canvas.Fill.Color := Cor;
+            Canvas.Stroke.Color := Cor;
+            Canvas.FillRect(Bounds, 0, 0, [], 1);
+            Canvas.Fill.Color := TAlphaColorRec.Black;
+            Canvas.FillText(Bounds, '#' + FormatFloat('000', Valor.ToInteger),
+              False, 1, [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+              TTextAlign.Center);
+          end;
+
+        end;
     end;
-  finally
+  except
 
   end;
 end;
@@ -1141,11 +1188,23 @@ begin
     4:
       begin
         // Gerencial
-        if bdsDados.DataSet.RecordCount = 0 then
-          exit;
+        // if bdsDados.DataSet.RecordCount = 0 then
+        // exit;
+        //
+        // rGerencial1.Visible := True;
+        // rGerencial2.Visible := True;
+        // O Gerencial basicamente vai fazer o que, finalizar os pedidos com base no caixa e imprimir o relatorio dos pedidos
 
-        rGerencial1.Visible := True;
-        rGerencial2.Visible := True;
+        if DM.CodigoCaixa = 0 then
+        begin
+          ShowMessageToast(Self, 'Caixa deve ser aberto!', 1);
+          exit;
+        end;
+
+        frmSimNao.titulo := 'Gerencial';
+        frmSimNao.descricao := 'Deseja gerar o relatorio gerencial?';
+        frmSimNao.Sim := SimGerencial;
+        frmSimNao.Show;
 
       end;
     5:
@@ -1306,7 +1365,7 @@ begin
 
         if Memory.RecordCount > 0 then
         begin
-           Pedido.Lista.Visible := False;
+          Pedido.Lista.Visible := False;
           Pedido.bdsDados.DataSet := nil;
 
           if not Dados.Active then
@@ -1357,7 +1416,7 @@ begin
           Dados.FreeBookmark(Save);
           Dados.EnableControls;
           Pedido.bdsDados.DataSet := Dados;
-           Pedido.Lista.Visible := True;
+          Pedido.Lista.Visible := True;
         end;
       except
 
