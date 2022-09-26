@@ -5384,6 +5384,64 @@ begin
   conexao.Free;
 end;
 
+procedure DoGetGerador(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+  tabela: String;
+  Campo: String;
+  Dados: TFDMemTable;
+  Valor: Integer;
+begin
+  try
+    tabela := Req.Params['tabela'];
+  except
+    exit;
+  end;
+  try
+    Campo := Req.Params['campo'];
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add
+    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+  conexao.Parametros('tabela', tabela);
+  conexao.ExecuteSQL;
+
+  conexao.sql.Add('select * from geradores where tabela = :tabela');
+  conexao.Parametros('tabela', tabela);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount = 1 then
+  begin
+    Valor := Dados.FieldByName('sequencial').AsInteger;
+  end
+  else
+  begin
+    conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '
+      + tabela);
+
+    try
+      Valor := conexao.FieldByName('codigo');
+    except
+      Valor := 99;
+    end;
+
+    conexao.SQL.Add
+      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    conexao.Parametros('tabela', tabela);
+    conexao.Parametros('sequencial', Valor);
+    conexao.ExecuteSQL;
+  end;
+
+
+  Res.Send(valor.ToString);
+  Dados.Free;
+  conexao.Free;
+end;
+
 
 
 // THorse.Get('/v1/util/busca/bairro/:busca', DoGetBuscaBairro);
@@ -5608,6 +5666,8 @@ begin
 
   // Cadastro Mesa
   THorse.Post('/v1/util/grava/mesa/:tipo/:min/:max', DoPostGravaMesas);
+
+  THorse.Get('/v1/util/gerador/:tabela/:campo', DoGetGerador);
 
 end;
 

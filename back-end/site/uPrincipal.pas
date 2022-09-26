@@ -3470,7 +3470,7 @@ begin
             end;
             MemoryDadosItem.next;
           end;
-          {
+
             ExecutaSQLSite('update ws_pedidos set id_sistema = ' +
             CodigoNovoPeiddo.ToString + ' where id = ' +
             MemoryTablePedidos.FieldByName('id').AsString);
@@ -3483,7 +3483,7 @@ begin
 
             ExecutaSQLSite('update ws_pedidos set codigo_pedido = ' +
             QuotedStr(FormatFloat('00000', CodigoPedidoDia)) + ' where id = ' +
-            MemoryTablePedidos.FieldByName('id').AsString); }
+            MemoryTablePedidos.FieldByName('id').AsString);
 
           // try
           //
