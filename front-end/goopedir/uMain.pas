@@ -173,7 +173,7 @@ begin
 
   tabMain.TabIndex := 0;
   frmMain.Caption := frmMain.Caption + DM.GetNomeEmpresa;
-  DM.IniciaVerificacao;
+//  DM.IniciaVerificacao;
   DM.UserId;
   if NOT Assigned(FrmAddItem) then
   begin

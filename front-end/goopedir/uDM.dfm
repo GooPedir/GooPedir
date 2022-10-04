@@ -314,8 +314,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 576
-    Top = 384
+    Left = 360
+    Top = 256
     object FATURAS2codigo_cliente: TIntegerField
       FieldName = 'codigo_cliente'
     end
@@ -332,6 +332,146 @@ object DM: TDM
     end
     object FATURAS2link: TStringField
       FieldName = 'link'
+      Size = 255
+    end
+  end
+  object Requisicao: iRequisicao
+    BaseURL = 'https://goopedir.com/ws/v1/'
+    eTAG = False
+    Metodo = mGet
+    Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 60000
+    Left = 360
+    Top = 194
+  end
+  object DADOS_MOTOBOY_SITE: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 568
+    Top = 240
+    object DADOS_MOTOBOY_SITEdeliveryman_name: TStringField
+      FieldName = 'deliveryman_name'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_SITEnome_empresa: TStringField
+      FieldName = 'nome_empresa'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_SITEcor_topo: TStringField
+      FieldName = 'cor_topo'
+    end
+    object DADOS_MOTOBOY_SITEcor_loading: TStringField
+      FieldName = 'cor_loading'
+    end
+    object DADOS_MOTOBOY_SITEcor_titulo_produtos: TStringField
+      FieldName = 'cor_titulo_produtos'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_SITEtelefone_wpp: TStringField
+      FieldName = 'telefone_wpp'
+    end
+    object DADOS_MOTOBOY_SITEuser_id: TIntegerField
+      FieldName = 'user_id'
+    end
+    object DADOS_MOTOBOY_SITEid: TIntegerField
+      FieldName = 'id'
+    end
+  end
+  object DADOS_MOTOBOY_PEDIDO: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 752
+    Top = 224
+    object DADOS_MOTOBOY_PEDIDOid: TIntegerField
+      FieldName = 'id'
+    end
+    object DADOS_MOTOBOY_PEDIDOcodigo_pedido: TIntegerField
+      FieldName = 'codigo_pedido'
+      DisplayFormat = '00000'
+    end
+    object DADOS_MOTOBOY_PEDIDOdata: TStringField
+      FieldName = 'data'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOresumo_pedidos: TStringField
+      FieldName = 'resumo_pedidos'
+      Size = 2555
+    end
+    object DADOS_MOTOBOY_PEDIDOvalor_taxa: TFloatField
+      FieldName = 'valor_taxa'
+      currency = True
+    end
+    object DADOS_MOTOBOY_PEDIDOvalor_troco: TFloatField
+      FieldName = 'valor_troco'
+      currency = True
+    end
+    object DADOS_MOTOBOY_PEDIDOsub_total: TFloatField
+      FieldName = 'sub_total'
+      currency = True
+    end
+    object DADOS_MOTOBOY_PEDIDOtotal: TFloatField
+      FieldName = 'total'
+      currency = True
+    end
+    object DADOS_MOTOBOY_PEDIDOnome: TStringField
+      FieldName = 'nome'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOtelefone: TStringField
+      FieldName = 'telefone'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOrua: TStringField
+      FieldName = 'rua'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOunidade: TStringField
+      FieldName = 'unidade'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDObairro: TStringField
+      FieldName = 'bairro'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOcidade: TStringField
+      FieldName = 'cidade'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOuf: TStringField
+      FieldName = 'uf'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOcomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOstatus: TStringField
+      FieldName = 'status'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOid_sistema: TStringField
+      FieldName = 'id_sistema'
+    end
+    object DADOS_MOTOBOY_PEDIDOuser_id: TIntegerField
+      FieldName = 'user_id'
+    end
+    object DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField
+      FieldName = 'deliveryman_name'
+      Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField
+      FieldName = 'data_formatada'
       Size = 255
     end
   end

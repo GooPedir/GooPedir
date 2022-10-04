@@ -1,0 +1,555 @@
+unit uPrincipalMotoboy;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
+  FMX.Objects, FMX.TabControl, FMX.CodeReader, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
+  FMX.Bind.DBEngExt, FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.Grid, Data.Bind.DBScope,
+  FMX.Controls.Presentation, FMX.ScrollBox, FMX.Grid, uRequisicao, FMX.ListBox,
+  FMX.StdCtrls, FMXTee.Canvas, FMX.DateTimeCtrls, System.UIConsts, FMX.Edit,
+  FMX.Effects, FMX.Memo.Types, FMX.Memo;
+
+type
+  TfrmPrincipalMotoboy = class(TForm)
+    Layout1: TLayout;
+    rFundo: TRectangle;
+    TabControl1: TTabControl;
+    TabItem1: TTabItem;
+    TabItem2: TTabItem;
+    CodeReader1: TCodeReader;
+    rQRCod: TRectangle;
+    memDados: iMemTable;
+    memDadoscodigo: TIntegerField;
+    memDadosdia: TIntegerField;
+    memDadosdata: TDateField;
+    memDadoshora: TTimeField;
+    C: TStringField;
+    memDadosnome: TStringField;
+    memDadosbairro: TStringField;
+    memDadostotal: TFloatField;
+    memDadostaxa: TFloatField;
+    memDadosstatus: TIntegerField;
+    StringGrid1: TStringGrid;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
+    Requisicao: iRequisicao;
+    DadosEmpresa: iMemTable;
+    DadosEmpresauser_id: TIntegerField;
+    DadosEmpresanome_empresa: TStringField;
+    DadosEmpresacor_topo: TStringField;
+    DadosEmpresacor_titulo_produtos: TStringField;
+    Layout2: TLayout;
+    ComboBox1: TComboBox;
+    BindSourceDB2: TBindSourceDB;
+    LinkListControlToField1: TLinkListControlToField;
+    memDadosMotoboy: iMemTable;
+    memDadosMotoboyid: TIntegerField;
+    memDadosMotoboydeliveryman_name: TStringField;
+    lNomeMotoboy: TLabel;
+    lFiltro: TLayout;
+    Rectangle1: TRectangle;
+    Image1: TImage;
+    Image2: TImage;
+    Label1: TLabel;
+    dInicio: TDateEdit;
+    Label2: TLabel;
+    dFim: TDateEdit;
+    rStatus: TRectangle;
+    rEntrega: TLayout;
+    Rectangle2: TRectangle;
+    Rectangle3: TRectangle;
+    Label3: TLabel;
+    Label4: TLabel;
+    Rectangle4: TRectangle;
+    Label5: TLabel;
+    Layout3: TLayout;
+    TabControl2: TTabControl;
+    TabItem3: TTabItem;
+    TabItem4: TTabItem;
+    rTitulo: TRectangle;
+    lNomeEmpresa: TLabel;
+    lNumero: TLabel;
+    lNomeMotoboy1: TLabel;
+    Label6: TLabel;
+    edtCodigoPedido: TEdit;
+    rSaiuEntrega: TRectangle;
+    Label7: TLabel;
+    Rectangle6: TRectangle;
+    Label8: TLabel;
+    VertScrollBox1: TVertScrollBox;
+    edtNome: TEdit;
+    Label9: TLabel;
+    BindSourceDB3: TBindSourceDB;
+    LinkControlToField1: TLinkControlToField;
+    Label10: TLabel;
+    edtNumero: TEdit;
+    Label11: TLabel;
+    edtRua: TEdit;
+    Label12: TLabel;
+    edtBairro: TEdit;
+    edtCidadesd: TLabel;
+    edtCidade: TEdit;
+    LinkControlToField2: TLinkControlToField;
+    LinkControlToField3: TLinkControlToField;
+    LinkControlToField4: TLinkControlToField;
+    LinkControlToField5: TLinkControlToField;
+    Layout4: TLayout;
+    lCodigoPedido: TLabel;
+    LinkPropertyToFieldText: TLinkPropertyToField;
+    ShadowEffect1: TShadowEffect;
+    ShadowEffect2: TShadowEffect;
+    lSub: TLabel;
+    Label16: TLabel;
+    lTaxa: TLabel;
+    Label18: TLabel;
+    Label21: TLabel;
+    lTotal: TLabel;
+    LinkPropertyToFieldText2: TLinkPropertyToField;
+    LinkPropertyToFieldText3: TLinkPropertyToField;
+    LinkPropertyToFieldText4: TLinkPropertyToField;
+    Memo1: TMemo;
+    LinkControlToField7: TLinkControlToField;
+    btnVoltar: TImage;
+    BtnProximo: TImage;
+    lMotoboy: TLabel;
+    LinkPropertyToFieldText5: TLinkPropertyToField;
+    lData: TLabel;
+    LinkPropertyToFieldText6: TLinkPropertyToField;
+    procedure CodeReader1Start(Sender: TObject);
+    procedure CodeReader1Stop(Sender: TObject);
+    procedure CodeReader1CodeReady(aCode: string);
+    procedure rQRCodClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure memDadosAfterScroll(DataSet: TDataSet);
+    procedure Rectangle1Click(Sender: TObject);
+    procedure Rectangle2Click(Sender: TObject);
+    procedure Rectangle3Click(Sender: TObject);
+    procedure Rectangle4Click(Sender: TObject);
+    procedure Rectangle5Click(Sender: TObject);
+    procedure Rectangle6Click(Sender: TObject);
+    procedure rSaiuEntregaClick(Sender: TObject);
+    procedure Image3Click(Sender: TObject);
+    procedure Image4Click(Sender: TObject);
+    procedure btnVoltarClick(Sender: TObject);
+    procedure BtnProximoClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    FCelular: String;
+    procedure SetCelular(const Value: String);
+    { Private declarations }
+    procedure Consulta(SQL: String; Dados: iMemTable);
+    function HexToTColor(sColor: string): TColor;
+    function InserirUpdate(Tabela, User: String;
+      ArrayCampos, ArrayValores: array of String): Integer;
+    procedure InserirStatus(Status: Integer);
+    procedure GetDadosPedidos;
+
+  public
+    { Public declarations }
+    procedure ProcessaQRCod(QRCOD: String);
+    property Celular: String read FCelular write SetCelular;
+    procedure GetDados;
+    procedure AjustaMemo;
+  end;
+
+var
+  frmPrincipalMotoboy: TfrmPrincipalMotoboy;
+  Status: Boolean;
+  StrList: TStringList;
+
+implementation
+
+uses
+  Soap.EncdDecd, System.NetEncoding, uDM, System.JSON, Funcoes;
+
+{$R *.fmx}
+
+procedure TfrmPrincipalMotoboy.AjustaMemo;
+begin
+lCodigoPedido.Text := FormatFloat('00000',dm.DADOS_MOTOBOY_PEDIDO.FieldByName('codigo_pedido').AsInteger);
+lData.Text := dm.DADOS_MOTOBOY_PEDIDO.FieldByName('data').AsString;
+lSub.Text := dm.DADOS_MOTOBOY_PEDIDO.FieldByName('sub_total').AsString;
+lTaxa.Text := dm.DADOS_MOTOBOY_PEDIDO.FieldByName('valor_taxa').AsString;
+lTotal.Text := dm.DADOS_MOTOBOY_PEDIDO.FieldByName('total').AsString;
+lMotoboy.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('deliveryman_name').AsString);
+edtNome.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('nome').AsString);
+edtRua.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('rua').AsString);
+edtBairro.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('bairro').AsString);
+edtCidade.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('cidade').AsString);
+edtNumero.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('unidade').AsString);
+
+  Memo1.Text := StringReplace(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('resumo_pedidos').AsString, '<b>', '', [rfReplaceAll]);
+  Memo1.Text := StringReplace(Memo1.Text, '/<b>', '', [rfReplaceAll]);
+  Memo1.Text := StringReplace(Memo1.Text, '<br />', #13, [rfReplaceAll]);
+  Memo1.Text := StringReplace(Memo1.Text, '<br/>', #13, [rfReplaceAll]);
+
+  rSaiuEntrega.Visible :=
+    length(DM.DADOS_MOTOBOY_PEDIDO.FieldByName('deliveryman_name')
+    .AsString) = 0;
+
+  edtNome.Text := StringReplace(edtNome.Text, '%20', ' ', [rfReplaceAll]);
+  edtNome.Text := StringReplace(edtNome.Text, '%', ' ', [rfReplaceAll]);
+  rSaiuEntrega.Enabled := rSaiuEntrega.Visible;
+end;
+
+procedure TfrmPrincipalMotoboy.BtnProximoClick(Sender: TObject);
+begin
+  DM.DADOS_MOTOBOY_PEDIDO.Next;
+  AjustaMemo;
+end;
+
+procedure TfrmPrincipalMotoboy.btnVoltarClick(Sender: TObject);
+begin
+  DM.DADOS_MOTOBOY_PEDIDO.Prior;
+  AjustaMemo;
+end;
+
+procedure TfrmPrincipalMotoboy.CodeReader1CodeReady(aCode: string);
+begin
+  ProcessaQRCod(aCode);
+end;
+
+procedure TfrmPrincipalMotoboy.CodeReader1Start(Sender: TObject);
+begin
+  rQRCod.Stroke.Color := rgb(232, 40, 0);
+  rQRCod.Fill.Color := rgb(232, 40, 0);
+  Status := True;
+end;
+
+procedure TfrmPrincipalMotoboy.CodeReader1Stop(Sender: TObject);
+begin
+  rQRCod.Stroke.Color := rgb(0, 64, 232);
+  rQRCod.Fill.Color := rgb(0, 64, 232);
+  Status := False;
+end;
+
+procedure TfrmPrincipalMotoboy.Consulta(SQL: String; Dados: iMemTable);
+begin
+  SQL := '{"sql":"' + SQL +
+    '","clientId":"UwMyPVWhawPQ&K@AELqpNiRU$Sh%sZDlYgnb0YyTGU^rB7B&#nszh2tR&WNthWpuGv6@JAvV^bK","clientSecurity":"B7B&#nszh2W&K@AELqpNiRU$Sh"}';
+
+  Requisicao.Metodo := mPost;
+  Requisicao.URL := 'consulta/a';
+  Requisicao.BODY(SQL);
+  Requisicao.MemTable := Dados;
+  Requisicao.Execute;
+end;
+
+procedure TfrmPrincipalMotoboy.FormCreate(Sender: TObject);
+var
+  CorFundo: String;
+  CorLetra: String;
+begin
+  lNomeEmpresa.Text := DM.DADOS_MOTOBOY_SITE.FieldByName
+    ('nome_empresa').AsString;
+  lNumero.Text := DM.DADOS_MOTOBOY_SITE.FieldByName('telefone_wpp').AsString;
+  lNomeMotoboy1.Text := DM.DADOS_MOTOBOY_SITE.FieldByName
+    ('deliveryman_name').AsString;
+
+  CorFundo := StringReplace(DM.DADOS_MOTOBOY_SITE.FieldByName('cor_topo')
+    .AsString, '#', '', [rfReplaceAll]);
+  CorLetra := StringReplace(DM.DADOS_MOTOBOY_SITE.FieldByName
+    ('cor_titulo_produtos').AsString, '#', '', [rfReplaceAll]);
+  rTitulo.Stroke.Color := HexToTColor(CorFundo);
+  rTitulo.Fill.Color := HexToTColor(CorFundo);
+  lNomeMotoboy1.FontColor := HexToTColor(CorLetra);
+  lNomeEmpresa.FontColor := HexToTColor(CorLetra);
+  lNumero.FontColor := HexToTColor(CorLetra);
+
+end;
+
+procedure TfrmPrincipalMotoboy.FormShow(Sender: TObject);
+begin
+  GetDadosPedidos;
+end;
+
+procedure TfrmPrincipalMotoboy.GetDados;
+var
+  SQL: String;
+begin
+  SQL := 'select * from ws_pedidos_motoboy where user_id = ' +
+    DadosEmpresa.FieldByName('user_id').AsString + ' and motoboy = ' +
+    memDadosMotoboy.FieldByName('id').AsString + ' and data_apontado between ' +
+    QuotedStr(FormatDateTime('yyyy-mm-dd', dInicio.Date)) + ' and ' +
+    QuotedStr(FormatDateTime('yyyy-mm-dd', dFim.Date));
+  memDados.Close;
+  Consulta(SQL, memDados);
+
+end;
+
+procedure TfrmPrincipalMotoboy.GetDadosPedidos;
+begin
+  DM.DADOS_MOTOBOY_PEDIDO.Close;
+  btnVoltar.Visible := False;
+  BtnProximo.Visible := False;
+  DM.Requisicao.Metodo := mGet;
+  DM.Requisicao.URL := 'pedidosm/' + DM.DADOS_MOTOBOY_SITE.FieldByName
+    ('user_id').AsString + '-' + edtCodigoPedido.Text + '/a';
+  DM.Requisicao.Metodo := mGet;
+  DM.Requisicao.MemTable2 := DM.DADOS_MOTOBOY_PEDIDO;
+  DM.Requisicao.Execute;
+  AjustaMemo;
+
+  // rSaiuEntrega.Enabled := DM.DADOS_MOTOBOY_PEDIDO.RecordCount = 1;
+  rSaiuEntrega.Enabled := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  btnVoltar.Visible := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  BtnProximo.Visible := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  edtCodigoPedido.Text := '';
+end;
+
+function TfrmPrincipalMotoboy.HexToTColor(sColor: string): TColor;
+begin
+  sColor := StringReplace(sColor, '#', '', []);
+  Result := rgb(StrToInt('$' + Copy(sColor, 1, 2)),
+    StrToInt('$' + Copy(sColor, 3, 2)), StrToInt('$' + Copy(sColor, 5, 2)));
+end;
+
+procedure TfrmPrincipalMotoboy.Image3Click(Sender: TObject);
+begin
+  DM.DADOS_MOTOBOY_PEDIDO.Prior;
+end;
+
+procedure TfrmPrincipalMotoboy.Image4Click(Sender: TObject);
+begin
+  DM.DADOS_MOTOBOY_PEDIDO.Next;
+end;
+
+procedure TfrmPrincipalMotoboy.InserirStatus(Status: Integer);
+begin
+  { 1-Saiu para entrega
+    2-Entregue }
+  InserirUpdate('ws_pedidos_motoboy ', DadosEmpresa.FieldByName('user_id')
+    .AsString, ['codigo', 'dia', 'data', 'hora', 'celular', 'nome', 'bairro',
+    'total', 'taxa', 'user_id', 'motoboy', 'status', 'codigo_pedido',
+    'data_apontado', 'hora_apontado'], [StrList[0], StrList[1], StrList[2],
+    StrList[3], StrList[4], StrList[5], StrList[8], StrList[11], StrList[12],
+    DadosEmpresa.FieldByName('user_id').AsString,
+    memDadosMotoboy.FieldByName('id').AsString, Status.ToString, StrList[0],
+    FormatDateTime('yyyy-mm-dd', Date), TimeToStr(time)]);
+  GetDados;
+  TabControl1.TabIndex := 0;
+end;
+
+function TfrmPrincipalMotoboy.InserirUpdate(Tabela, User: String;
+  ArrayCampos, ArrayValores: array of String): Integer;
+var
+  qry: TFDquery;
+  Inserir: Boolean;
+
+  Campos: String;
+  Parametros: String;
+  I: Integer;
+
+  SQL: String;
+
+  Montado: String;
+
+  Valor: String;
+begin
+
+  Requisicao.URL := 'insert/' + Tabela + '/' + User + '/a';
+
+  Montado := '';
+
+  for I := 0 to length(ArrayCampos) - 1 do
+  begin
+    Valor := ArrayValores[I];
+
+    try
+      StrToFloat(Valor);
+      Valor := StringReplace(Valor, ',', '.', [rfReplaceAll]);
+    except
+
+    end;
+
+    if I = 0 then
+    begin
+      Montado := '"' + ArrayCampos[I] + '":"' + Valor + '"';
+    end
+    else
+    begin
+      Montado := Montado + ',"' + ArrayCampos[I] + '":"' + Valor + '"';
+    end;
+  end;
+  Montado := '{' + Montado + '}';
+  Montado := StringReplace(Montado, '#$A', '', [rfReplaceAll]);
+  Montado := StringReplace(Montado, #$A, '', [rfReplaceAll]);
+
+  Requisicao.BODY(Montado);
+  Requisicao.Metodo := mPost;
+  Requisicao.Execute;
+
+  try
+    Result := StrToInt(Requisicao.Retorno);
+  except
+    Result := 0;
+
+  end;
+
+end;
+
+procedure TfrmPrincipalMotoboy.memDadosAfterScroll(DataSet: TDataSet);
+var
+  SQL: String;
+begin
+
+end;
+
+procedure TfrmPrincipalMotoboy.ProcessaQRCod(QRCOD: String);
+var
+  Base64: TBase64Encoding;
+
+begin
+  if not memDados.Active then
+    memDados.Open;
+  rStatus.Visible := True;
+  rEntrega.Visible := True;
+
+  CodeReader1.Stop;
+  Base64 := TBase64Encoding.Create(0);
+  QRCOD := Base64.Decode(QRCOD);
+
+  StrList.DelimitedText := QRCOD;
+
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle1Click(Sender: TObject);
+begin
+  if lFiltro.Visible then
+    lFiltro.Visible := False
+  else
+    lFiltro.Visible := True;
+
+  GetDados;
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle2Click(Sender: TObject);
+begin
+  rStatus.Visible := False;
+  rEntrega.Visible := False;
+  InserirStatus(1);
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle3Click(Sender: TObject);
+begin
+  rStatus.Visible := False;
+  rEntrega.Visible := False;
+  InserirStatus(2);
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle4Click(Sender: TObject);
+begin
+  rStatus.Visible := False;
+  rEntrega.Visible := False;
+  TabControl1.TabIndex := 0;
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle5Click(Sender: TObject);
+var
+  DadosBody: TJSONObject;
+begin
+  DadosBody := TJSONObject.Create;
+
+end;
+
+procedure TfrmPrincipalMotoboy.Rectangle6Click(Sender: TObject);
+begin
+  GetDadosPedidos;
+
+end;
+
+procedure TfrmPrincipalMotoboy.rQRCodClick(Sender: TObject);
+begin
+
+  if not Status then
+  begin
+    CodeReader1.Start;
+    TabControl1.TabIndex := 1;
+  end
+  else
+  begin
+    CodeReader1.Stop;
+    TabControl1.TabIndex := 0;
+  end;
+
+{$IFDEF Android}
+{$ELSE}
+  ProcessaQRCod
+    ('MTUwMHwxNnwyMDIwLTA5LTI2fDIxOjE3OjM2fDQ4OTkxNjkwNzIzfExVQ0lBTk8gQUxWRVN8Ui4gSk9BTyBCT05PVE98Mjc0fEpBUkRJTSBVTklBT3xDUklDSVVNQXxTQ3wzNHwz');
+{$ENDIF}
+end;
+
+procedure TfrmPrincipalMotoboy.rSaiuEntregaClick(Sender: TObject);
+var
+  DadosBody: TJSONObject;
+begin
+  DadosBody := TJSONObject.Create;
+  DadosBody.AddPair('codigo', 0);
+  DadosBody.AddPair('dia', FormatDateTime('dd', now));
+  DadosBody.AddPair('data', FormatDateTime('yyyy-mm-dd', now));
+  DadosBody.AddPair('hora', FormatDateTime('hh:nn', now));
+  DadosBody.AddPair('celular', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('telefone')
+    .AsString);
+  DadosBody.AddPair('nome', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('nome')
+    .AsString);
+  DadosBody.AddPair('bairro', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('bairro')
+    .AsString);
+  DadosBody.AddPair('taxa', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('valor_taxa')
+    .AsString);
+  DadosBody.AddPair('total', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('total')
+    .AsString);
+  DadosBody.AddPair('user_id', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('user_id')
+    .AsString);
+  DadosBody.AddPair('motoboy', DM.DADOS_MOTOBOY_SITE.FieldByName('id')
+    .AsString);
+  DadosBody.AddPair('status', '1');
+  DadosBody.AddPair('codigo_pedido', DM.DADOS_MOTOBOY_PEDIDO.FieldByName
+    ('codigo_pedido').AsString);
+  DadosBody.AddPair('data_apontado', FormatDateTime('yyyy-mm-dd', now));
+  DadosBody.AddPair('hora_apontado', FormatDateTime('hh:nn', now));
+  DadosBody.AddPair('id_pedido', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('id')
+    .AsString);
+
+  DM.Requisicao.URL := 'insert/ws_pedidos_motoboy/' + DM.UserId.ToString + '/a';
+  DM.Requisicao.Metodo := mPost;
+
+  DM.Requisicao.BODY(DadosBody.ToString);
+  DM.Requisicao.Execute;
+  ShowMessageToast(self, 'Pedido saiu para entrega!', 2);
+  rSaiuEntrega.Visible := False;
+end;
+
+procedure TfrmPrincipalMotoboy.SetCelular(const Value: String);
+var
+  SQL: String;
+begin
+
+  SQL := 'select e.* from ws_empresa as e join ws_motoboys as m on m.user_id = e.user_id where m.deliveryman_phone_number = '
+    + QuotedStr('48998111156');
+  FCelular := Value;
+  Consulta(SQL, DadosEmpresa);
+
+  rFundo.Stroke.Color := HexToTColor(DadosEmpresa.FieldByName('cor_topo')
+    .AsString);
+  rFundo.Fill.Color := HexToTColor(DadosEmpresa.FieldByName('cor_topo')
+    .AsString);
+  lNomeMotoboy.TextSettings.FontColor :=
+    HexToTColor(DadosEmpresa.FieldByName('cor_titulo_produtos').AsString);
+
+  SQL := 'select m.* from ws_empresa as e join ws_motoboys as m on m.user_id = e.user_id where m.deliveryman_phone_number = '
+    + QuotedStr('48998111156');
+  Consulta(SQL, memDadosMotoboy);
+  lNomeMotoboy.Text := memDadosMotoboy.FieldByName('deliveryman_name').AsString;
+  GetDados;
+
+end;
+
+end.

@@ -26,7 +26,6 @@ type
     memCupomdata_validade: TDateField;
     memCupomtotal_vezes: TIntegerField;
     memCupommostrar_site: TIntegerField;
-    Requisicao: iRequisicao;
     StringGrid4: TStringGrid;
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
@@ -88,10 +87,10 @@ end;
 procedure TfrmCupom.GetDados;
 begin
   memCupom.Close;
-  Requisicao.URL := 'cupom/1/a';
-  Requisicao.Metodo := mGet;
-  Requisicao.MemTable := memCupom;
-  Requisicao.Execute;
+  dm.Requisicao.URL := 'cupom/'+UserID+'/a';
+  dm.Requisicao.Metodo := mGet;
+  dm.Requisicao.MemTable := memCupom;
+  dm.Requisicao.Execute;
 end;
 
 procedure TfrmCupom.rAdicionarClick(Sender: TObject);
@@ -120,11 +119,11 @@ begin
 
   //
 
-  Requisicao.URL := 'deleta-cupom-desconto/' + memCupom.FieldByName('id_cupom')
+  dm.Requisicao.URL := 'deleta-cupom-desconto/' + memCupom.FieldByName('id_cupom')
     .AsString + '/a';
-  Requisicao.Metodo := mPost;
-  Requisicao.MemTable := memCupom;
-  Requisicao.Execute;
+  dm.Requisicao.Metodo := mPost;
+  dm.Requisicao.MemTable := memCupom;
+  dm.Requisicao.Execute;
   GetDados;
   ShowMessageToast(self, 'Cupom Deletado Com Sucesso!', 2);
 end;
@@ -175,8 +174,8 @@ begin
   end;
 
   // requisicao.URLI := 'insert/cupom_desconto/' + User + '/a';
-  Requisicao.URL := 'insert/cupom_desconto/' + UserID + '/a';
-  Requisicao.Metodo := mPost;
+  DM.Requisicao.URL := 'insert/cupom_desconto/' + UserID + '/a';
+  DM.Requisicao.Metodo := mPost;
 
   if sMostrarSite.IsChecked then
   begin
@@ -194,8 +193,8 @@ begin
       '", "data_validade":"' + FormatDateTime('yyyy-mm-dd', edtDate.Date) +
       '", "total_vezes":"' + EdtQuantidade.Text + '", "mostrar_site":"0" }';
   end;
-  Requisicao.Body(Body);
-  Requisicao.Execute;
+  DM.Requisicao.Body(Body);
+  DM.Requisicao.Execute;
   tabPrincipal.TabIndex := 0;
   GetDados;
 end;

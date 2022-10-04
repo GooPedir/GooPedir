@@ -33,7 +33,7 @@ begin
 
   except
     on E: Exception do
-//      Showmessage(E.message);
+      // Showmessage(E.message);
 
   end;
 end;
@@ -65,6 +65,7 @@ var
   I: Integer;
 
   SQL: String;
+  arq: TextFile;
 
 begin
 
@@ -146,7 +147,13 @@ begin
   except
     on E: Exception do
     begin
-//      Showmessage(E.message);
+      // Showmessage(E.message);
+      AssignFile(arq, '\log.txt');
+      Rewrite(arq);
+      Writeln(arq, 'Erro ' + DateToStr(now));
+      Writeln(arq, E.message);
+      Writeln(arq, '');
+      CloseFile(arq);
     end;
 
   end;

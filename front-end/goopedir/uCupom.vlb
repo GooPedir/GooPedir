@@ -64,9 +64,6 @@ Coordinates=10,254,73,36
 [memCupomdata_validade]
 Coordinates=557,1,164,36
 
-[Requisicao]
-Coordinates=557,56,78,36
-
 [StringGrid4]
 Coordinates=315,10,80,58
 Visible=True
@@ -97,7 +94,7 @@ Coordinates=759,111,149,36
 Coordinates=759,166,149,36
 
 []
-Coordinates=557,276,91,36
+Coordinates=557,56,78,36
 
 [BindSourceDB1]
 Coordinates=10,10,106,256

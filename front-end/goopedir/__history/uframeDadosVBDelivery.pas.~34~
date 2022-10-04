@@ -1,0 +1,271 @@
+unit uframeDadosVBDelivery;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.ListBox, FMX.Edit, FMX.Objects, FMX.Layouts;
+
+type
+  TframeDadosVBDelivery = class(TFrame)
+    lCodigoDia: TLabel;
+    lCodigo: TLabel;
+    edtNome: TEdit;
+    Label3: TLabel;
+    edtEndereco: TEdit;
+    Label4: TLabel;
+    edtCelular: TEdit;
+    Label5: TLabel;
+    cStatus: TComboBox;
+    Label6: TLabel;
+    lOrigem: TLabel;
+    lImpressao: TLayout;
+    lVisualizacao: TLayout;
+    Image1: TImage;
+    lImprimir: TLabel;
+    Image2: TImage;
+    Label9: TLabel;
+    lDataHora: TLabel;
+    lTempo: TLabel;
+    cSelecionar: TCheckBox;
+    rBottom: TRectangle;
+    edtTaxa: TEdit;
+    Label1: TLabel;
+    edtTotal: TEdit;
+    Label7: TLabel;
+    rLateral: TRectangle;
+    tImprimindo: TTimer;
+    procedure lImpressaoMouseEnter(Sender: TObject);
+    procedure lImpressaoMouseLeave(Sender: TObject);
+    procedure lVisualizacaoClick(Sender: TObject);
+    procedure lImpressaoClick(Sender: TObject);
+    procedure tImprimindoTimer(Sender: TObject);
+    procedure cStatusChange(Sender: TObject);
+  private
+    FCodigoDia: Integer;
+    FDataPedido: TDate;
+    FCodigoEndereco: Integer;
+    FHoraPedido: TTime;
+    FStatus: Integer;
+    FCodigoInterno: Integer;
+    FNome: String;
+    FEndereco: String;
+    FCelular: String;
+    FTaxa: Real;
+    FTotal: Real;
+    FOrigem: Integer;
+    FTempo: String;
+    procedure SetCelular(const Value: String);
+    procedure SetCodigoDia(const Value: Integer);
+    procedure SetCodigoEndereco(const Value: Integer);
+    procedure SetCodigoInterno(const Value: Integer);
+    procedure SetDataPedido(const Value: TDate);
+    procedure SetEndereco(const Value: String);
+    procedure SetHoraPedido(const Value: TTime);
+    procedure SetNome(const Value: String);
+    procedure SetStatus(const Value: Integer);
+    procedure SetTaxa(const Value: Real);
+    procedure SetTotal(const Value: Real);
+    procedure SetOrigem(const Value: Integer);
+    procedure SetTempo(const Value: String);
+    procedure CancelaPedido;
+    { Private declarations }
+  public
+    { Public declarations }
+    property CodigoDia: Integer read FCodigoDia write SetCodigoDia;
+    property CodigoInterno: Integer read FCodigoInterno write SetCodigoInterno;
+    property CodigoEndereco: Integer read FCodigoEndereco
+      write SetCodigoEndereco;
+    property Endereco: String read FEndereco write SetEndereco;
+    property DataPedido: TDate read FDataPedido write SetDataPedido;
+    property HoraPedido: TTime read FHoraPedido write SetHoraPedido;
+    property Celular: String read FCelular write SetCelular;
+    property Nome: String read FNome write SetNome;
+    property Status: Integer read FStatus write SetStatus;
+    property Taxa: Real read FTaxa write SetTaxa;
+    property Total: Real read FTotal write SetTotal;
+    property Origem: Integer read FOrigem write SetOrigem;
+    property Tempo: String read FTempo write SetTempo;
+  end;
+
+implementation
+
+uses
+  FMXTee.Canvas, UnitResumo, uDM, uSenha, uMain, util;
+
+{$R *.fmx}
+{ TframeDadosVBDelivery }
+
+procedure TframeDadosVBDelivery.CancelaPedido;
+begin
+
+  ShowMessageToast(frmMain, 'Pedido Cancelado Com Suceso!',3);
+  DM.PutSimples('v1/pedido/status/' + CodigoInterno.ToString + '/0/', nil);
+  Status := 0;
+
+end;
+
+procedure TframeDadosVBDelivery.cStatusChange(Sender: TObject);
+begin
+  case cStatus.ItemIndex of
+    0:
+      begin
+
+        if not Assigned(frmSenha) then
+          frmSenha := TfrmSenha.Create(frmMain);
+        frmSenha.Sim := CancelaPedido;
+        frmSenha.Tipo := Validar;
+        frmSenha.Show;
+        Status := Status;
+        exit;
+      end;
+  end;
+  ShowMessageToast(frmMain, 'Pedido Atualizado Com Suceso!', 3);
+
+  DM.PutSimples('v1/pedido/status/' + CodigoInterno.ToString + '/' + cStatus.ItemIndex.ToString + '/', nil);
+end;
+
+procedure TframeDadosVBDelivery.lImpressaoClick(Sender: TObject);
+begin
+  DM.PostSimples('/v1/imprimir/1/' + CodigoInterno.ToString, nil);
+  lImprimir.Text := 'Imprimindo...';
+  tImprimindo.Enabled := True;
+end;
+
+procedure TframeDadosVBDelivery.lImpressaoMouseEnter(Sender: TObject);
+begin
+  (Sender as TLayout).Opacity := 1;
+end;
+
+procedure TframeDadosVBDelivery.lImpressaoMouseLeave(Sender: TObject);
+begin
+  (Sender as TLayout).Opacity := 0.5;
+end;
+
+procedure TframeDadosVBDelivery.lVisualizacaoClick(Sender: TObject);
+begin
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := CodigoInterno;
+  FrmResumo.Show;
+end;
+
+procedure TframeDadosVBDelivery.SetCelular(const Value: String);
+begin
+  FCelular := Value;
+  edtCelular.Text := Value;
+end;
+
+procedure TframeDadosVBDelivery.SetCodigoDia(const Value: Integer);
+begin
+  FCodigoDia := Value;
+  lCodigoDia.Text := FormatFloat('000', Value);
+end;
+
+procedure TframeDadosVBDelivery.SetCodigoEndereco(const Value: Integer);
+begin
+  FCodigoEndereco := Value;
+  cSelecionar.Visible := Value > 0;
+  edtEndereco.Visible := Value > 0;
+  edtTaxa.Visible := Value > 0;
+end;
+
+procedure TframeDadosVBDelivery.SetCodigoInterno(const Value: Integer);
+begin
+  FCodigoInterno := Value;
+  lCodigo.Text := FormatFloat('#000', Value);
+end;
+
+procedure TframeDadosVBDelivery.SetDataPedido(const Value: TDate);
+begin
+  FDataPedido := Value;
+
+end;
+
+procedure TframeDadosVBDelivery.SetEndereco(const Value: String);
+begin
+  FEndereco := Value;
+  edtEndereco.Text := UpperCase(Value);
+end;
+
+procedure TframeDadosVBDelivery.SetHoraPedido(const Value: TTime);
+begin
+  FHoraPedido := Value;
+end;
+
+procedure TframeDadosVBDelivery.SetNome(const Value: String);
+begin
+  FNome := Value;
+  edtNome.Text := UpperCase(Value);
+end;
+
+procedure TframeDadosVBDelivery.SetOrigem(const Value: Integer);
+var
+  Cor: TColor;
+begin
+  FOrigem := Value;
+  case Value of
+    1:
+      begin
+        lOrigem.Text := 'Whatsapp';
+        Cor := RGB(189, 246, 227);
+      end;
+    2:
+      begin
+        lOrigem.Text := 'Site';
+        Cor := RGB(175, 222, 250);
+      end;
+    3:
+      begin
+        lOrigem.Text := Nome;
+        Cor := RGB(227, 210, 244);
+        edtCelular.Visible := False;
+        edtNome.Visible := False;
+      end;
+    4:
+      begin
+        lOrigem.Text := 'Pedido Local';
+        Cor := RGB(227, 210, 244);
+      end;
+  end;
+  rLateral.Fill.Color := Cor;
+  rLateral.Stroke.Color := Cor;
+  rBottom.Fill.Color := Cor;
+  rBottom.Stroke.Color := Cor;
+end;
+
+procedure TframeDadosVBDelivery.SetStatus(const Value: Integer);
+begin
+  FStatus := Value;
+  cStatus.ItemIndex := Value;
+  cStatus.Enabled := Value < 5;
+end;
+
+procedure TframeDadosVBDelivery.SetTaxa(const Value: Real);
+begin
+  FTaxa := Value;
+  edtTaxa.Text := FormatFloat('R$ ###,##0.00', Value);
+end;
+
+procedure TframeDadosVBDelivery.SetTempo(const Value: String);
+begin
+  FTempo := Value;
+  lTempo.Text := Value;
+  lDataHora.Text := DateToStr(DataPedido) + ' ' + TimeToStr(HoraPedido);
+end;
+
+procedure TframeDadosVBDelivery.SetTotal(const Value: Real);
+begin
+  FTotal := Value;
+  edtTotal.Text := FormatFloat('R$ ###,##0.00', Value);
+end;
+
+procedure TframeDadosVBDelivery.tImprimindoTimer(Sender: TObject);
+begin
+  lImprimir.Text := 'Imprimir Pedido';
+end;
+
+end.

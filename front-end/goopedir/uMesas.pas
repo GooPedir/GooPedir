@@ -23,21 +23,75 @@ type
     MESAtot_mesa: TFloatField;
     tabMesas: TTabControl;
     MESAfk_tipo_mesa: TIntegerField;
+    Layout1: TLayout;
+    tabDeliveryVemBuscar: TTabControl;
+    tabDelivery: TTabItem;
+    tabVemBuscar: TTabItem;
+    Layout2: TLayout;
+    vertDelivery: TVertScrollBox;
+    vertVemBuscar: TVertScrollBox;
+    DadosPedido: TFDMemTable;
+    DadosTela: TTimer;
+    TabMesa: TTabItem;
+    vertMesa: TVertScrollBox;
+    Layout3: TLayout;
+    Label3: TLabel;
+    lMesa: TLabel;
+    Label5: TLabel;
+    lDelivery: TLabel;
+    Label8: TLabel;
+    lVemBuscar: TLabel;
+    Label10: TLabel;
+    lTotal: TLabel;
+    Label4: TLabel;
+    lMesaConsumindo: TLabel;
+    lImpressao: TLayout;
+    Image2: TImage;
+    lImprimir: TLabel;
+    Layout4: TLayout;
+    Image4: TImage;
+    Label6: TLabel;
+    Layout5: TLayout;
+    Image5: TImage;
+    Label9: TLabel;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
     procedure OnMouseLeaveLocal(Sender: TObject);
     procedure ClickLocal(Sender: TObject);
     procedure Rectangle2Click(Sender: TObject);
-    procedure tabConsultaClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure DadosTelaTimer(Sender: TObject);
+    procedure lImpressaoMouseEnter(Sender: TObject);
+    procedure lImpressaoMouseLeave(Sender: TObject);
+    procedure lImpressaoClick(Sender: TObject);
+    procedure Layout5Click(Sender: TObject);
   private
+    FValorVB: Real;
+    FValorEmAberto: Real;
+    FValorDelivery: Real;
+    FValorMesa: Real;
     { Private declarations }
+    procedure BuscaPedido;
+    procedure SetValorDelivery(const Value: Real);
+    procedure SetValorEmAberto(const Value: Real);
+    procedure SetValorMesa(const Value: Real);
+    procedure SetValorVB(const Value: Real);
+    property ValorMesa: Real read FValorMesa write SetValorMesa;
+    property ValorVB: Real read FValorVB write SetValorVB;
+    property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
+    property ValorEmAberto: Real read FValorEmAberto write SetValorEmAberto;
+    procedure SimGerencial;
   public
     { Public declarations }
     procedure CarregaMesas;
     procedure CriarRetanguloMesa(Flow: TFlowLayout; Descricao: String;
       Numero, Status: Integer; Total: Real; Codigo: Integer);
     procedure AtualizarMesa(Codigo: Integer; Status: Integer; Total: Real);
+
+  var
+    CarregandoMesa: Boolean;
+    CarregandoPedido: Boolean;
   end;
 
   TDadosMesa = class(TThread)
@@ -52,6 +106,7 @@ type
 
   var
     Formulario: TfrmMesas;
+
   end;
 
 var
@@ -61,7 +116,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, Funcoes, UnitResumo, FMXTee.Canvas;
+uses uDM, Funcoes, UnitResumo, FMXTee.Canvas, uframeDadosVBDelivery, uSimNao;
 
 { TfrmMesas }
 
@@ -103,6 +158,19 @@ begin
 
   if Assigned(LabelTotal) then
     LabelTotal.Text := FormatFloat('#0.00', Total);
+
+end;
+
+procedure TfrmMesas.BuscaPedido;
+begin
+
+end;
+
+procedure TfrmMesas.Button1Click(Sender: TObject);
+begin
+  inherited;
+
+  BuscaPedido;
 
 end;
 
@@ -158,7 +226,7 @@ begin
           Top := 0;
           Left := 0;
           Height := Screen.Height;
-          Width := Screen.Width;
+          Width := Screen.Width - 460;
           Flow.Height := Flow.Height * 6;
         end;
 
@@ -186,21 +254,19 @@ begin
 
     MESA.Next;
   end;
-  Dados := TDadosMesa.Create;
-  Dados.Formulario := Self;
-  Dados.Start;
+  // Dados := TDadosMesa.Create;
+  // Dados.Formulario := Self;
+  // Dados.Start;
 end;
 
 procedure TfrmMesas.ClickLocal(Sender: TObject);
 begin
 
-  if MESA.Locate('id_mesa', (Sender as TRectangle).Tag, []) then
-  begin
-    if NOT Assigned(FrmResumo) then
-      Application.CreateForm(TFrmResumo, FrmResumo);
-    FrmResumo.MESA := (Sender as TRectangle).Tag;
-    FrmResumo.Show;
-  end;
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := (Sender as TRectangle).Tag;
+  FrmResumo.Show;
+
 end;
 
 procedure TfrmMesas.CriarRetanguloMesa(Flow: TFlowLayout; Descricao: String;
@@ -322,8 +388,47 @@ begin
         procedure
         begin
           // Memo1.Lines.Add('Teste anonymous Thread');
+          DadosTela.Enabled := True;
         end);
     end).Start;
+end;
+
+procedure TfrmMesas.Layout5Click(Sender: TObject);
+begin
+  inherited;
+  if DM.CodigoCaixa = 0 then
+  begin
+    ShowMessageToast(Self, 'Caixa deve ser aberto!', 1);
+    exit;
+  end;
+
+  frmSimNao.titulo := 'Gerencial';
+  frmSimNao.Descricao := 'Deseja gerar o relatorio gerencial?';
+  frmSimNao.Sim := SimGerencial;
+  frmSimNao.Show;
+
+end;
+
+procedure TfrmMesas.lImpressaoClick(Sender: TObject);
+begin
+  inherited;
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := -1;
+  FrmResumo.Show;
+end;
+
+procedure TfrmMesas.lImpressaoMouseEnter(Sender: TObject);
+begin
+  inherited;
+  (Sender as TLayout).Opacity := 1;
+end;
+
+procedure TfrmMesas.lImpressaoMouseLeave(Sender: TObject);
+begin
+  inherited;
+  (Sender as TLayout).Opacity := 0.5;
 end;
 
 procedure TfrmMesas.OnMouseEnterLocal(Sender: TObject);
@@ -342,9 +447,189 @@ begin
   //
 end;
 
-procedure TfrmMesas.tabConsultaClick(Sender: TObject);
+procedure TfrmMesas.SetValorDelivery(const Value: Real);
+begin
+  FValorDelivery := Value;
+end;
+
+procedure TfrmMesas.SetValorEmAberto(const Value: Real);
+begin
+  FValorEmAberto := Value;
+end;
+
+procedure TfrmMesas.SetValorMesa(const Value: Real);
+begin
+  FValorMesa := Value;
+end;
+
+procedure TfrmMesas.SetValorVB(const Value: Real);
+begin
+  FValorVB := Value;
+end;
+
+procedure TfrmMesas.SimGerencial;
+begin
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+end;
+
+procedure TfrmMesas.DadosTelaTimer(Sender: TObject);
+var
+  RequisicaoPedido: iRequisicao;
+  FrameDados: TframeDadosVBDelivery;
 begin
   inherited;
+  // TimerMesa.Enabled := False;
+  CarregandoMesa := True;
+
+  if MESA.RecordCount > 0 then
+  begin
+    ValorEmAberto := 0;
+    while not MESA.Eof do
+    begin
+      ValorEmAberto := ValorEmAberto + MESA.FieldByName('tot_mesa').AsFloat;
+      AtualizarMesa(MESA.FieldByName('id_mesa').AsInteger,
+        MESA.FieldByName('sts_mesa').AsInteger,
+        MESA.FieldByName('tot_mesa').AsFloat);
+
+      MESA.Next;
+    end;
+    lMesaConsumindo.Text := FormatFloat('R$ ###,##0.00', ValorEmAberto);
+
+    MESA.Close;
+  end
+  else
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      var
+        CONEXAO: iRequisicao;
+      begin
+        CONEXAO := iRequisicao.Create(nil);
+        CONEXAO.BaseURL := DM.CONEXAO.BaseURL;
+        CONEXAO.URL := '/v1/mesas';
+        CONEXAO.Metodo := mGet;
+        CONEXAO.MemTable := MESA;
+        CONEXAO.TempoExpiracao := 10000;
+        CONEXAO.Execute;
+
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            // Memo1.Lines.Add('Teste anonymous Thread');
+            CONEXAO.Free;
+          end);
+      end).Start;
+  end;
+
+  CarregandoMesa := False;
+
+  if DadosPedido.RecordCount = 0 then
+  begin
+    RequisicaoPedido := iRequisicao.Create(nil);
+    RequisicaoPedido.BaseURL := DM.CONEXAO.BaseURL;
+    RequisicaoPedido.URL :=
+      'v1/pedidos/04102022/04102022/000000/235959/1,2,3/X';
+    RequisicaoPedido.Metodo := mGet;
+    RequisicaoPedido.MemTable2 := DadosPedido;
+    RequisicaoPedido.Execute;
+  end
+  else
+  begin
+    ValorVB := 0;
+    ValorDelivery := 0;
+    ValorMesa := 0;
+    while not DadosPedido.Eof do
+    begin
+      if Assigned(tabDeliveryVemBuscar.FindComponent('FrameDados' +
+        DadosPedido.FieldByName('codigo').AsString)) then
+      begin
+        FrameDados := tabDeliveryVemBuscar.FindComponent
+          ('FrameDados' + DadosPedido.FieldByName('codigo').AsString)
+          as TframeDadosVBDelivery;
+      end
+      else
+      begin
+        FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
+
+        FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
+          ('codigo').AsString;
+        FrameDados.Align := TAlignLayout.Top;
+
+        if DadosPedido.FieldByName('ficha').IsNull then
+        begin
+          case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+            0:
+              begin
+                FrameDados.Parent := vertVemBuscar;
+              end
+          else
+            begin
+              FrameDados.Parent := vertDelivery;
+            end;
+
+          end;
+        end
+        else
+        begin
+          FrameDados.Parent := vertMesa;
+
+        end;
+
+      end;
+
+      if DadosPedido.FieldByName('ficha').IsNull then
+      begin
+        case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+          0:
+            begin
+
+              ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
+            end
+        else
+          begin
+
+            ValorDelivery := ValorDelivery + DadosPedido.FieldByName
+              ('total').AsFloat;
+          end;
+
+        end;
+      end
+      else
+      begin
+
+        ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
+      end;
+
+      FrameDados.CodigoDia := DadosPedido.FieldByName('codigo_Dia').AsInteger;
+      FrameDados.CodigoInterno := DadosPedido.FieldByName('codigo').AsInteger;
+      FrameDados.CodigoEndereco := DadosPedido.FieldByName('cliente_Endereco')
+        .AsInteger;
+      FrameDados.DataPedido := DadosPedido.FieldByName('data').AsDateTime;
+      FrameDados.HoraPedido :=
+        StrToTime(copy(DadosPedido.FieldByName('hora').AsString, 0, 8));
+      FrameDados.Tempo := copy(DadosPedido.FieldByName('tempo').AsString, 0, 8);
+      FrameDados.Celular := DadosPedido.FieldByName('cliente').AsString;
+      FrameDados.Nome := DadosPedido.FieldByName('cliente').AsString;
+      FrameDados.Status := DadosPedido.FieldByName('status').AsInteger;
+      FrameDados.Taxa := DadosPedido.FieldByName('taxa').AsFloat;
+      FrameDados.Total := DadosPedido.FieldByName('total').AsFloat;
+      FrameDados.Origem := DadosPedido.FieldByName('origem').AsInteger;
+
+      DadosPedido.Next;
+    end;
+    lMesa.Text := FormatFloat('R$ ###,##0.00', ValorMesa);
+    lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);
+    lVemBuscar.Text := FormatFloat('R$ ###,##0.00', ValorVB);
+    lTotal.Text := FormatFloat('R$ ###,##0.00',
+      (ValorMesa + ValorDelivery + ValorVB));
+    DadosPedido.Close;
+  end;
 
 end;
 
@@ -373,19 +658,13 @@ begin
   begin
     if DM.TestaConexao then
     begin
-
-      CONEXAO.MemTable := Formulario.MESA;
-      CONEXAO.TempoExpiracao := 10000;
-      CONEXAO.Execute;
-
-      while not Formulario.MESA.Eof do
+      frmMesas := Formulario;
+      if not Formulario.CarregandoMesa then
       begin
+        CONEXAO.MemTable := Formulario.MESA;
+        CONEXAO.TempoExpiracao := 10000;
+        CONEXAO.Execute;
 
-        Formulario.AtualizarMesa(Formulario.MESA.FieldByName('id_mesa')
-          .AsInteger, Formulario.MESA.FieldByName('sts_mesa').AsInteger,
-          Formulario.MESA.FieldByName('tot_mesa').AsFloat);
-
-        Formulario.MESA.Next;
       end;
     end;
 

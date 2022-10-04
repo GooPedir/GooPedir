@@ -28,11 +28,13 @@ type
     BDSDADOS: TBindSourceDB;
     BindingsList1: TBindingsList;
     LinkGridToDataSourceBDSDADOS: TLinkGridToDataSource;
+    DADOSacesso_site: TStringField;
     procedure rAlterarClick(Sender: TObject);
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Image1Click(Sender: TObject);
+    procedure rAtivarDesativarClick(Sender: TObject);
   private
     { Private declarations }
     procedure GetDados;
@@ -47,7 +49,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, util, uMain;
+uses uDM, util, uMain, System.JSON, uRequisicao;
 
 { TfrmMotoboy }
 
@@ -85,6 +87,34 @@ begin
   inherited;
   DADOS.Edit;
   tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmMotoboy.rAtivarDesativarClick(Sender: TObject);
+var
+ Body : String;
+ DadosBody: TJSONObject;
+begin
+  inherited;
+  if Length(DADOS.FieldByName('acesso_site').AsString) > 0  then
+  begin
+
+  end;
+  DADOS.Edit;
+  DADOS.FieldByName('acesso_site').AsString := FormatFloat('S000',DM.UserId) + FormatFloat('-000',DM.UserId+DADOS.FieldByName('codigo').AsInteger);
+  DADOS.Post;
+  DadosBody := TJSONObject.Create;
+  DadosBody.AddPair('id',0);
+  DadosBody.AddPair('user_id',DM.UserId.ToString);
+  DadosBody.AddPair('deliveryman_name',UpperCase(DADOS.FieldByName('nome').AsString));
+  DadosBody.AddPair('deliveryman_phone_number',DADOS.FieldByName('codigo').AsString);
+  DadosBody.AddPair('senha',DADOS.FieldByName('acesso_site').AsString);
+  DadosBody.AddPair('id_local',DADOS.FieldByName('codigo').AsString);
+  DM.Requisicao.URL := 'insert/ws_motoboys/' + DM.UserId.ToString + '/a';
+  DM.Requisicao.Metodo := mPost;
+  ShowMessage(DadosBody.ToString);
+  DM.Requisicao.Body(DadosBody.ToString);
+  DM.Requisicao.Execute;
+
 end;
 
 procedure TfrmMotoboy.rSalvarClick(Sender: TObject);

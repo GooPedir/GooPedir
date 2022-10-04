@@ -72,7 +72,7 @@ type
     property Host: String read GetHost write SetHost;
     property Usuario: String read GetUsuario write SetUsuario;
     property Senha: String read GetSenha write SetSenha;
-    property Celular: String read FCelular write SetCelular;
+    property Celular: String read GetCelular write SetCelular;
     function TestaConexao: Boolean;
     procedure Validacao;
     procedure OnFinishUpdate(Sender: TObject);
@@ -318,9 +318,16 @@ end;
 
 procedure TFrmLogin.rect_motoboyClick(Sender: TObject);
 begin
+  if not DM.LoginMotoboy then
+  begin
+    ShowMessageToast(self,'Acesso negado!',1);
+    exit;
+  end;
+
+
   if NOT Assigned(frmPrincipalMotoboy) then
     Application.CreateForm(TfrmPrincipalMotoboy, frmPrincipalMotoboy);
-  frmPrincipalMotoboy.Celular := dm.GetCelular;
+  //frmPrincipalMotoboy.Celular := dm.GetCelular;
 
   frmPrincipalMotoboy.Show;
   Application.MainForm := frmPrincipalMotoboy;

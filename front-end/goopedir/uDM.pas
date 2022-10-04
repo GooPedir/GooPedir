@@ -114,6 +114,38 @@ type
     DADOS_WHATSAPPfidelidade_valor_desconto: TFloatField;
     DADOS_WHATSAPPtemp_vembuscar: TIntegerField;
     DADOS_WHATSAPPtemp_delivery: TIntegerField;
+    Requisicao: iRequisicao;
+    DADOS_MOTOBOY_SITE: TFDMemTable;
+    DADOS_MOTOBOY_SITEdeliveryman_name: TStringField;
+    DADOS_MOTOBOY_SITEnome_empresa: TStringField;
+    DADOS_MOTOBOY_SITEcor_topo: TStringField;
+    DADOS_MOTOBOY_SITEcor_loading: TStringField;
+    DADOS_MOTOBOY_SITEcor_titulo_produtos: TStringField;
+    DADOS_MOTOBOY_SITEtelefone_wpp: TStringField;
+    DADOS_MOTOBOY_SITEuser_id: TIntegerField;
+    DADOS_MOTOBOY_PEDIDO: TFDMemTable;
+    DADOS_MOTOBOY_PEDIDOid: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOcodigo_pedido: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOdata: TStringField;
+    DADOS_MOTOBOY_PEDIDOresumo_pedidos: TStringField;
+    DADOS_MOTOBOY_PEDIDOvalor_taxa: TFloatField;
+    DADOS_MOTOBOY_PEDIDOvalor_troco: TFloatField;
+    DADOS_MOTOBOY_PEDIDOsub_total: TFloatField;
+    DADOS_MOTOBOY_PEDIDOtotal: TFloatField;
+    DADOS_MOTOBOY_PEDIDOnome: TStringField;
+    DADOS_MOTOBOY_PEDIDOtelefone: TStringField;
+    DADOS_MOTOBOY_PEDIDOrua: TStringField;
+    DADOS_MOTOBOY_PEDIDOunidade: TStringField;
+    DADOS_MOTOBOY_PEDIDObairro: TStringField;
+    DADOS_MOTOBOY_PEDIDOcidade: TStringField;
+    DADOS_MOTOBOY_PEDIDOuf: TStringField;
+    DADOS_MOTOBOY_PEDIDOcomplemento: TStringField;
+    DADOS_MOTOBOY_PEDIDOstatus: TStringField;
+    DADOS_MOTOBOY_PEDIDOid_sistema: TStringField;
+    DADOS_MOTOBOY_PEDIDOuser_id: TIntegerField;
+    DADOS_MOTOBOY_SITEid: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField;
+    DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -133,6 +165,7 @@ type
 
   public
     { Public declarations }
+    function LoginMotoboy:Boolean;
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
     function PostSimples(URL: String; Dados: IMemTable): Boolean;
@@ -717,6 +750,21 @@ begin
   Result := Valor;
 end;
 
+function TDM.LoginMotoboy: Boolean;
+begin
+//motoboy/S043-044/a
+try
+  Requisicao.URL := 'motoboy/'+GetCelular+'/a';
+  Requisicao.Metodo := mGet;
+  Requisicao.MemTable2 := DADOS_MOTOBOY_SITE;
+  Requisicao.Execute;
+
+  Result := DADOS_MOTOBOY_SITE.RecordCount > 0;
+except
+   Result := False;
+end;
+end;
+
 procedure TDM.LogUsuario;
 begin
   DM.Conexao.BaseURL := GetHost;
@@ -841,6 +889,7 @@ var
 begin
   Conection := iRequisicao.Create(self);
   Conection.BaseURL := DM.Conexao.BaseURL;
+  Conection.TempoExpiracao := 60*1000;
 
   Conection.URL := 'v1/test/';
   Conection.Metodo := mGet;

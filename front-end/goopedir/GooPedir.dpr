@@ -40,7 +40,6 @@ uses
   uPedidoAdicionaAlterar in 'uPedidoAdicionaAlterar.pas' {frmCadastroBase1},
   uCaixa in 'uCaixa.pas' {frmCaixa},
   uPrincipalMotoboy in 'uPrincipalMotoboy.pas' {frmPrincipalMotoboy},
-//  uOpenViewUrl in '..\..\papaleguas-backend\src\util\uOpenViewUrl.pas',
   uFrameConfiguracaoEdit in 'frame\uFrameConfiguracaoEdit.pas' {FrameConfiguracaoEdit: TFrame},
   ufrmParametros in 'ufrmParametros.pas' {frmParametros},
   uFrameTitulo in 'frame\uFrameTitulo.pas' {FrameTitulo: TFrame},
@@ -69,7 +68,8 @@ uses
   uAReceber in 'uAReceber.pas' {frmAReceber},
   uFrameListaPedido in 'frame\uFrameListaPedido.pas' {frmListaPedido: TFrame},
   uCupom in 'uCupom.pas' {frmCupom},
-  uframeDadosItens in 'uframeDadosItens.pas' {frameDadosItens: TFrame};
+  uframeDadosItens in 'uframeDadosItens.pas' {frameDadosItens: TFrame},
+  uframeDadosVBDelivery in 'uframeDadosVBDelivery.pas' {frameDadosVBDelivery: TFrame};
 
 {$R *.res}
 
@@ -88,6 +88,7 @@ begin
   TipoVersao := 2;
 {$ELSE}
 {$ENDIF}
+//  TipoVersao := 2;
   case TipoVersao of
     1:
       begin
