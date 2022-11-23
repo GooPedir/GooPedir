@@ -90,3 +90,9 @@ Visible=False
 [frmProduto.SABORES_PRODUTOS]
 Visible=False
 
+[frmProduto.memDadosFicha]
+Visible=False
+
+[frmProduto.memFichaTecnicaProduto]
+Visible=False
+

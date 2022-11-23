@@ -1,8 +1,8 @@
 object dm: Tdm
-  OldCreateOrder = True
   OnCreate = DataModuleCreate
   Height = 485
   Width = 872
+  PixelsPerInch = 96
   object SQLite: TFDConnection
     Params.Strings = (
       'Password=root'
@@ -41,8 +41,8 @@ object dm: Tdm
       'Database=santinho'
       'DriverID=MySQL')
     LoginPrompt = False
-    Left = 392
-    Top = 256
+    Left = 424
+    Top = 232
   end
   object dados: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

@@ -25,32 +25,12 @@ uses
 
 function GetSimples(URL: String; Dados: IMemTable): boolean;
 begin
-  URL := Parametros(URL);
-  Dados.Close;
-  DM.CONEXAO.eTAG := False;
-  DM.CONEXAO.URL := URL;
-  DM.CONEXAO.Metodo := mGet;
-  DM.CONEXAO.Token(Token);
-  DM.CONEXAO.MemTable := Dados;
-  DM.CONEXAO.Execute;
-
-  Result := True;
-
+  dm.GetSimples(Parametros(URL), Dados);
 end;
 
 function GetSimples2(URL: String; Dados: TFDMemTable): boolean;
 begin
-  URL := Parametros(URL);
-  Dados.Close;
-  DM.CONEXAO.eTAG := False;
-  DM.CONEXAO.URL := URL;
-  DM.CONEXAO.Metodo := mGet;
-  DM.CONEXAO.Token(Token);
-  DM.CONEXAO.MemTable2 := Dados;
-  DM.CONEXAO.Execute;
-
-  Result := True;
-
+  dm.GetSimples2(Parametros(URL), Dados);
 end;
 
 procedure ShowMessageToast(AOwner: TFmxObject; Mensage: String; Tipo: integer);
@@ -100,65 +80,31 @@ end;
 
 function StatusServidor: boolean;
 begin
-  Result := DM.TestaConexao;
+  Result := dm.TestaConexao;
 end;
 
 function PostSimples(URL: String; Dados: IMemTable): boolean;
 begin
-  URL := Parametros(URL);
 
-  DM.CONEXAO.URL := URL;
-  DM.CONEXAO.Metodo := mPost;
-  DM.CONEXAO.Token(Token);
-  if Assigned(Dados) then
-    DM.CONEXAO.BODY(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  DM.CONEXAO.TempoExpiracao := 10000;
-  DM.CONEXAO.Execute;
-
-  Result := DM.CONEXAO.Status = 200;
-
+  dm.PostSimples(Parametros(URL), Dados);
 end;
 
 function PutSimples(URL: String; Dados: IMemTable): boolean;
 begin
-  URL := Parametros(URL);
-  DM.CONEXAO.URL := URL;
-  DM.CONEXAO.Metodo := mPut;
-  DM.CONEXAO.Token(Token);
-  if Assigned(Dados) then
-    DM.CONEXAO.BODY(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  DM.CONEXAO.TempoExpiracao := 10000;
-  DM.CONEXAO.Execute;
-
-  Result := DM.CONEXAO.Status = 200;
-
+  dm.PutSimples(Parametros(URL), Dados);
 end;
 
 function DeleteSimples(URL: String; Dados: IMemTable): boolean;
 begin
-  URL := Parametros(URL);
-
-  DM.CONEXAO.URL := URL;
-  DM.CONEXAO.Metodo := mDelete;
-  DM.CONEXAO.Token(Token);
-  if Assigned(Dados) then
-    DM.CONEXAO.BODY(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  DM.CONEXAO.TempoExpiracao := 10000;
-  DM.CONEXAO.Execute;
-
-  Result := DM.CONEXAO.Status = 200;
-
+  dm.DeleteSimples(Parametros(URL), Dados);
 end;
 
 function Parametros(URL: String): String;
 begin
-  URL := StringReplace(URL, ':usuario', DM.CodigoUsuario.ToString,
+  URL := StringReplace(URL, ':usuario', dm.CodigoUsuario.ToString,
     [rfReplaceAll]);
-  if DM.CAIXA.RecordCount > 0 then
-    URL := StringReplace(URL, ':caixa', DM.CodigoCaixa.ToString,
+  if dm.CAIXA.RecordCount > 0 then
+    URL := StringReplace(URL, ':caixa', dm.CodigoCaixa.ToString,
       [rfReplaceAll]);
   Result := URL;
 end;

@@ -282,10 +282,33 @@ begin
       begin
         ExecultaSQL('alter table pedido add gerou_pontos_fidelidade integer');
       end;
-      10: begin
+    10:
+      begin
         ExecultaSQL('alter table cliente add fidelidade_ponto integer');
         ExecultaSQL('alter table cliente add fidelidade_desconto float');
         ExecultaSQL('alter table tipo_produto add user_id integer');
+      end;
+    11:
+      begin
+        ExecultaSQL
+          ('update produto set saldo_atual = 0 where saldo_atual < 0 ');
+      end;
+    12:
+      begin
+        ExecultaSQL
+          ('create table pix(id integer,id_pedido integer,valor real,creatdatahora datetime,expdatahora datetime,transacao varchar(500),transacao_mp varchar(50));')
+      end;
+
+    // Deve-se Rodar manual esses sql
+    99999999:
+      begin
+        {
+          drop table ingredientes
+          drop table produto_ingredientes
+          create table produto_ingredientes(id integer,id_produto integer,id_ingredientes integer,quantidade real)
+          create table ingredientes (id integer,descricao varchar(200),unidade varchar(10));
+          create table ingredientes_estoque(id integer,id_ingredientes integer,data date,hora time,tipo integer,quantidade real,custo_total real,custo real);
+        }
       end;
   end;
 
@@ -293,7 +316,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '10';
+  Result := '12';
 end;
 
 end.

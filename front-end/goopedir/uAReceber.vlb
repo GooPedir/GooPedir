@@ -175,3 +175,21 @@ Visible=False
 [frmFechamentoPedido.PAG]
 Visible=False
 
+[frmCaixa.DADOSCAIXA]
+Visible=False
+
+[frmCaixa.DADOSHISTORICO]
+Visible=False
+
+[frmCaixa.DADOSPAGAMENTO]
+Visible=False
+
+[frmCaixa.HISTORICOCAIXAS]
+Visible=False
+
+[frmCaixa.HISTORICOMOTOBOY]
+Visible=False
+
+[frmCaixa.HISTORICOMOTOBOYPEDIDO]
+Visible=False
+

@@ -3,7 +3,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
   Top = 0
   BorderStyle = None
   Caption = 'Form1'
-  ClientHeight = 560
+  ClientHeight = 650
   ClientWidth = 1140
   WindowState = wsMaximized
   FormFactor.Width = 320
@@ -15,7 +15,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
   object Layout1: TLayout
     Align = Client
     Size.Width = 1140.000000000000000000
-    Size.Height = 560.000000000000000000
+    Size.Height = 650.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object rect_login: TRectangle
@@ -233,7 +233,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       Fill.Color = claWhite
       Position.Y = 50.000000000000000000
       Size.Width = 289.000000000000000000
-      Size.Height = 510.000000000000000000
+      Size.Height = 600.000000000000000000
       Size.PlatformDefault = False
       object ComboBox1: TComboBox
         Position.X = 8.000000000000000000
@@ -580,6 +580,69 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             TabOrder = 0
           end
         end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 273.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 273.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Adicionar'
+            TabOrder = 0
+          end
+        end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 273.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 273.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Adicionar'
+            TabOrder = 0
+          end
+        end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 273.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 273.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Adicionar'
+            TabOrder = 0
+          end
+        end
       end
       object lValorSelecionado: TLabel
         StyledSettings = [Family, Size, FontColor]
@@ -594,7 +657,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       end
       object Layout3: TLayout
         Align = Bottom
-        Position.Y = 300.000000000000000000
+        Position.Y = 390.000000000000000000
         Size.Width = 289.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
@@ -628,7 +691,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       end
       object Layout4: TLayout
         Align = Bottom
-        Position.Y = 350.000000000000000000
+        Position.Y = 440.000000000000000000
         Size.Width = 289.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
@@ -662,7 +725,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       end
       object Layout5: TLayout
         Align = Bottom
-        Position.Y = 400.000000000000000000
+        Position.Y = 490.000000000000000000
         Size.Width = 289.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
@@ -697,7 +760,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       object btnFinalizar: iButton
         Align = MostBottom
         Margins.Top = 10.000000000000000000
-        Position.Y = 460.000000000000000000
+        Position.Y = 550.000000000000000000
         Size.Width = 289.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
@@ -707,6 +770,69 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         iForthTipoBotao = tSalvar
         iForthCorFonte = cPreta
         iForthDescricao = 'Finalizar'
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 289.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 289.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Finalizar'
+            TabOrder = 0
+          end
+        end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 289.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 289.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Finalizar'
+            TabOrder = 0
+          end
+        end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 289.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 289.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Finalizar'
+            TabOrder = 0
+          end
+        end
         object TRectangle
           Align = Client
           Fill.Color = xFF31CCAF
@@ -968,13 +1094,13 @@ object frmFechamentoPedido: TfrmFechamentoPedido
     object Layout2: TLayout
       Align = Client
       Size.Width = 851.000000000000000000
-      Size.Height = 510.000000000000000000
+      Size.Height = 600.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 2
       object Rectangle2: TRectangle
         Align = Bottom
         Fill.Color = claWhite
-        Position.Y = 265.000000000000000000
+        Position.Y = 355.000000000000000000
         Size.Width = 851.000000000000000000
         Size.Height = 245.000000000000000000
         Size.PlatformDefault = False
@@ -987,10 +1113,10 @@ object frmFechamentoPedido: TfrmFechamentoPedido
           Size.Height = 195.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 2
-          RowHeight = 50.000000000000000000
+          RowHeight = 30.000000000000000000
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-          Viewport.Width = 851.000000000000000000
-          Viewport.Height = 195.000000000000000000
+          Viewport.Width = 831.000000000000000000
+          Viewport.Height = 170.000000000000000000
         end
         object iButton1: iButton
           Align = Bottom
@@ -1382,6 +1508,69 @@ object frmFechamentoPedido: TfrmFechamentoPedido
               TabOrder = 0
             end
           end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFFFC726
+            HitTest = False
+            Size.Width = 851.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFFFC726
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 851.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Excluir Pagamento'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFFFC726
+            HitTest = False
+            Size.Width = 851.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFFFC726
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 851.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Excluir Pagamento'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFFFC726
+            HitTest = False
+            Size.Width = 851.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFFFC726
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 851.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Excluir Pagamento'
+              TabOrder = 0
+            end
+          end
         end
       end
       object Lista: TStringGrid
@@ -1389,15 +1578,15 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         CanFocus = True
         ClipChildren = True
         Size.Width = 851.000000000000000000
-        Size.Height = 265.000000000000000000
+        Size.Height = 355.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 2
-        RowHeight = 50.000000000000000000
+        RowHeight = 30.000000000000000000
         Options = [AlwaysShowEditor, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
         OnDrawColumnCell = ListaDrawColumnCell
         OnCellDblClick = ListaCellDblClick
-        Viewport.Width = 851.000000000000000000
-        Viewport.Height = 265.000000000000000000
+        Viewport.Width = 847.000000000000000000
+        Viewport.Height = 330.000000000000000000
       end
     end
   end
@@ -1433,6 +1622,10 @@ object frmFechamentoPedido: TfrmFechamentoPedido
       DisplayLabel = 'Valor'
       FieldName = 'VALOR'
       currency = True
+    end
+    object PAGTRANSACAO_MP: TStringField
+      FieldName = 'TRANSACAO_MP'
+      Size = 2555
     end
   end
   object bdsPAGAMENTO: TBindSourceDB
@@ -1518,6 +1711,11 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         item
           MemberName = 'DESCRICAO_TIPO_PAG'
           Width = 250
+        end
+        item
+          MemberName = 'TRANSACAO_MP'
+          Header = 'Transa'#231#227'o PIX'
+          Width = 300
         end>
     end
   end

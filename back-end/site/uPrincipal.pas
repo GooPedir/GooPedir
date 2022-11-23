@@ -163,6 +163,7 @@ type
     procedure TrayClick(Sender: TObject);
     procedure lStatusClick(Sender: TObject);
     procedure Image1Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     FStatusConexao: Boolean;
     FIdRequisicao: Integer;
@@ -430,10 +431,10 @@ begin
       Ativo := '0';
 
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Dados.FieldByName('valor_venda').AsString, Ativo]);
+      Dados.FieldByName('valor_venda').AsString, Ativo,Dados.FieldByName('saldo_atual').AsString]);
 
     Dados.next;
   end;
@@ -441,7 +442,7 @@ begin
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'select p.id_site, pp.valor, p.ativo from produto as p ';
+  SQL := 'select p.id_site, pp.valor, p.ativo, p.saldo_atual from produto as p ';
   SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
   SQL := SQL + 'where p.codigo = p.codigo ';
   SQL := SQL + 'and p.usa_tabela_preco = 1 ';
@@ -473,25 +474,25 @@ begin
       Ativo := '0';
 
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Dados.FieldByName('valor').AsString, Ativo]);
+      Dados.FieldByName('valor').AsString, Ativo,Dados.FieldByName('saldo_atual').AsString]);
 
     Dados.next;
   end;
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
+  SQL := 'SELECT p.saldo_atual, p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   while not Dados.Eof do
   begin
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0',
-      Dados.FieldByName('ativo').AsString]);
+      Dados.FieldByName('ativo').AsString,Dados.FieldByName('saldo_atual').AsString]);
     Dados.next;
   end;
 
@@ -676,6 +677,11 @@ begin
   CadastraAlteraCategoria.Execute;
   CadastraAlteraCategoria.Free;
 
+end;
+
+procedure TfrmPrincipal.Button1Click(Sender: TObject);
+begin
+//EnviarSabores;
 end;
 
 procedure TfrmPrincipal.CadastraCategoria(Insert: TInsertUpdate;
@@ -1035,8 +1041,9 @@ begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'SELECT p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores FROM produto as p ';
-  SQL := SQL + ' join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
+  SQL := 'SELECT p.saldo_atual as estoque, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
+  SQL := SQL + 'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
+  SQL := SQL + 'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
   SQL := SQL +
     ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
   SQL := SQL + ' where p.modificado_site = 0 and tipo_produto.id_site > 0 ';
@@ -1079,27 +1086,27 @@ begin
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
               'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-              'valor_delivery'], [Dados.FieldByName('id_site').AsString,
+              'valor_delivery','estoque'], [Dados.FieldByName('id_site').AsString,
               Usuario.ToString, 'false', '0',
               'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
               Dados.FieldByName('codigo_interno').AsString,
               Dados.FieldByName('categoria').AsString,
               Dados.FieldByName('produto').AsString, Descricao,
               Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
-              .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString]);
+              .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString, Dados.FieldByName('estoque').AsString]);
           end
       else
         begin
           codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
-            'descricao_item', 'preco_item', 'disponivel', 'valor_delivery'],
+            'descricao_item', 'preco_item', 'disponivel', 'valor_delivery','estoque'],
             [Dados.FieldByName('id_site').AsString, Usuario.ToString, '0', '0',
             '0', Dados.FieldByName('codigo_interno').AsString,
             Dados.FieldByName('categoria').AsString,
             Dados.FieldByName('produto').AsString, Descricao,
             Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
-            .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString]);
+            .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString, Dados.FieldByName('estoque').AsString]);
         end;
       end;
     except
@@ -1107,14 +1114,14 @@ begin
         ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
         'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery'], [Dados.FieldByName('id_site').AsString,
+        'valor_delivery','estoque'], [Dados.FieldByName('id_site').AsString,
         Usuario.ToString, 'false', '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
         Dados.FieldByName('codigo_interno').AsString,
         Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
         .AsString, Descricao, Dados.FieldByName('venda').AsString,
         Dados.FieldByName('ativo').AsString,
-        Dados.FieldByName('vl_embalagem_delivery').AsString]);
+        Dados.FieldByName('vl_embalagem_delivery').AsString,Dados.FieldByName('estoque').AsString]);
     end;
 
     if codigo > 0 then
@@ -1389,11 +1396,8 @@ begin
         ['id', 'user_id', 'id_itens', 'qtd_sabor', 'ativo', 'tipo_valor',
         'valor', 'tipo', 'sabor', 'descricao'],
         [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-        Dados.FieldByName('id_itens').AsString, Dados.FieldByName('qtd_sabor')
-        .AsString, Dados.FieldByName('ativo').AsString,
-        Dados.FieldByName('tipo_valor').AsString, Dados.FieldByName('valor')
-        .AsString, Dados.FieldByName('tipo').AsString, Dados.FieldByName('nome')
-        .AsString, Dados.FieldByName('descricao').AsString]);
+        Dados.FieldByName('id_itens').AsString, Dados.FieldByName('qtd_sabor').AsString, Dados.FieldByName('ativo').AsString,
+        Dados.FieldByName('tipo_valor').AsString, Dados.FieldByName('valor').AsString, Dados.FieldByName('tipo').AsString, trim(Dados.FieldByName('nome').AsString), trim(Dados.FieldByName('descricao').AsString)]);
       if codigo > 0 then
       begin
         SQL := 'update sabores_completo set modificado_site = 1 where id = ' +
@@ -3740,6 +3744,7 @@ begin
 
   requisicao.URLI := 'insert/' + Tabela + '/' + User + '/a';
 
+
   Montado := '';
 
   for I := 0 to length(ArrayCampos) - 1 do
@@ -3765,9 +3770,11 @@ begin
   Montado := '{' + Montado + '}';
   Montado := StringReplace(Montado, '#$A', '', [rfReplaceAll]);
   Montado := StringReplace(Montado, #$A, '', [rfReplaceAll]);
+  Montado := StringReplace(Montado, #$D, '', [rfReplaceAll]);
 
   frmPrincipal.AdicionaLog(Montado);
   requisicao.Body(Montado);
+
   requisicao.Post;
 
   try

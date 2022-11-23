@@ -23,7 +23,8 @@ type
     constructor Create;
 
     destructor Destroy; override;
-
+    function VersaoMYSQL: String;
+    function ValidaVersao: string;
     function CriaQRY: TFDQuery;
     function ExecuteSQL(SQL: String): Boolean; overload;
     procedure ExecuteSQL; overload;
@@ -270,8 +271,11 @@ var
   arq: TextFile;
 begin
   try
-    AssignFile(arq, 'C:\papaleguas\erro.txt');
-    Rewrite(arq);
+    AssignFile(arq, '\erro._banco_mysql.txt');
+    if FileExists('\erro._banco_mysql.txt') then
+      Reset(arq)
+    else
+      Rewrite(arq);
     Writeln(arq, FormatDateTime('dd/mm/yyyy hh:nn', now));
     Writeln(arq, Erro);
     CloseFile(arq);
@@ -513,6 +517,50 @@ end;
 procedure TConexao.SetSQL(const Value: TStringlist);
 begin
   FSQL := Value;
+end;
+
+function TConexao.ValidaVersao: string;
+Var
+  MYSQL: String;
+  VersaoNumber: integer;
+begin
+  MYSQL := VersaoMYSQL;
+  VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
+
+  if VersaoNumber = 8027 then
+  begin
+    Result := '';
+  end
+  else
+  begin
+    Result := 'A sua versão do mysql (' + MYSQL +
+      ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
+  end;
+
+end;
+
+function TConexao.VersaoMYSQL: String;
+Var
+  Banco: String;
+  Query: TFDQuery;
+begin
+
+  Banco := DataModulo.Banco.Params.Database;
+  DataModulo.Banco.Close;
+  DataModulo.Banco.Params.Database := 'sys';
+  DataModulo.Banco.Open;
+  Query := DataModulo.CriaQRY;
+  Query.SQL.Add('SELECT * FROM version');
+  Query.Open;
+
+  Result := Query.FieldByName('mysql_version').AsString;
+
+  DataModulo.Banco.Close;
+  DataModulo.Banco.Params.Database := Banco;
+  DataModulo.Banco.Open;
+
+  Query.Free;
+
 end;
 
 procedure TConexao.Zerar;

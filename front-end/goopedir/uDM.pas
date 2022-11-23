@@ -7,7 +7,9 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.dataset, FireDAC.Comp.Client, System.JSON, FMX.Graphics,
-  Soap.EncdDecd, FMX.Types;
+  Soap.EncdDecd, FMX.Types, FireDAC.UI.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
+  FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef;
 
 type
   TConexaoServidor = class(TThread)
@@ -146,6 +148,9 @@ type
     DADOS_MOTOBOY_SITEid: TIntegerField;
     DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField;
     DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
+    VersaoConexao: TFDConnection;
+    DADOS_WHATSAPPtoken_mp: TStringField;
+    DADOS_WHATSAPPfat_integra_pix: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -165,16 +170,18 @@ type
 
   public
     { Public declarations }
-    function LoginMotoboy:Boolean;
+    function LoginMotoboy: Boolean;
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
     function PostSimples(URL: String; Dados: IMemTable): Boolean;
+    function PostSimplesComRetorno(URL: String):String;
     function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
     function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
     function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
     function PutSimples(URL: String; Dados: IMemTable): Boolean;
     function GetSimples(URL: String; Dados: IMemTable; Paginacao: Boolean)
       : Boolean; overload;
+    procedure DeleteSimples(URL: String; Dados: IMemTable);
 
     function TipoCor(Index: Integer): TColor;
 
@@ -202,6 +209,9 @@ type
     procedure AtualizaSite(SQL: String);
     procedure AtualizaDadosSite;
 
+    procedure FecharSite;
+    procedure AbrirSite;
+
     function UserId: Integer;
     function Link: String;
     function BitmapFromBase64(const Base64: string): TBitmap;
@@ -218,6 +228,8 @@ type
     procedure BuscaFaturas(Pai: TFmxObject);
 
     procedure ExtornoPedido(Pedido: Integer);
+
+    function IntegracaoPIX: Boolean;
 
   end;
 
@@ -250,6 +262,11 @@ begin
     DadosSite;
   end;
   Result := DM.DADOS_WHATSAPP.FieldByName('auto_abrir_fechar_caixa').AsInteger;
+end;
+
+procedure TDM.AbrirSite;
+begin
+  //
 end;
 
 procedure TDM.AtualizaCaixa;
@@ -376,73 +393,82 @@ var
   ConexaoLocal: iRequisicao;
   Fatura: TframeFaturas;
 
+  I: Integer;
+  FATURAS: TFDMemTable;
+
 begin
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      I: Integer;
-      FATURAS: TFDMemTable;
+  try
+    // TThread.CreateAnonymousThread(
+    // procedure
+    // var
+    // I: Integer;
+    // FATURAS: TFDMemTable;
+    // begin
+    FATURAS := TFDMemTable.Create(nil);
+    DM.DadosSite;
+    if DM.UserId > 0 then
     begin
-      FATURAS := TFDMemTable.Create(nil);
-      DM.DadosSite;
-      if DM.UserId > 0 then
-      begin
-        try
-          FATURAS.Close;
-          ConexaoLocal := iRequisicao.Create(self);
-          ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
-          Token := '';
-          ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
-          ConexaoLocal.Metodo := mGet;
-          ConexaoLocal.Token(Token);
-          ConexaoLocal.MemTable2 := FATURAS;
-          ConexaoLocal.TempoExpiracao := 60 * 1000;
-          ConexaoLocal.Execute;
+      try
+        FATURAS.Close;
+        ConexaoLocal := iRequisicao.Create(self);
+        ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
+        Token := '';
+        ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
+        ConexaoLocal.Metodo := mGet;
+        ConexaoLocal.Token(Token);
+        ConexaoLocal.MemTable2 := FATURAS;
+        ConexaoLocal.TempoExpiracao := 60 * 1000;
+        ConexaoLocal.Execute;
 
-          for I := 0 to Pai.ComponentCount - 1 do
+        for I := 0 to Pai.ComponentCount - 1 do
+        begin
+          if (Pai.Components[I] is TframeFaturas) then
           begin
-            if (Pai.Components[I] is TframeFaturas) then
-            begin
-              (Pai.Components[I] as TframeFaturas).Visible := False;
-            end;
+            (Pai.Components[I] as TframeFaturas).Visible := False;
           end;
-
-          if FATURAS.RecordCount = 0 then
-            FATURAS.Open
-          else
-          begin
-
-            FATURAS.First;
-            while not FATURAS.Eof do
-            begin
-              inc(ID);
-              Fatura := TframeFaturas.Create(Pai);
-              Fatura.Parent := Pai;
-              Fatura.Valor :=
-                StrToFloat(StringReplace(FATURAS.FieldByName(FATURAS.Fields[3]
-                .FieldName).AsString, '.', ',', []));
-              try
-                Fatura.DataVencimento :=
-                  FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
-              except
-                Fatura.DataVencimento := now;
-              end;
-              Fatura.Link := FATURAS.FieldByName('link').AsString;
-              Fatura.Name := 'Fatura' + ID.ToString;
-              Fatura.Align := TAlignLayout.Left;
-              FATURAS.Next;
-            end;
-          end;
-        except
-
         end;
 
-        ConexaoLocal.Free;
+        if FATURAS.RecordCount = 0 then
+          FATURAS.Open
+        else
+        begin
 
-        // HorzScrollBoxFatura
+          FATURAS.First;
+          while not FATURAS.Eof do
+          begin
+            inc(ID);
+            Fatura := TframeFaturas.Create(Pai);
+            Fatura.Parent := Pai;
+            Fatura.Valor :=
+              StrToFloat
+              (StringReplace(FATURAS.FieldByName(FATURAS.Fields[3].FieldName)
+              .AsString, '.', ',', []));
+            try
+              Fatura.DataVencimento :=
+                FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
+            except
+              Fatura.DataVencimento := now;
+            end;
+            Fatura.Link := FATURAS.FieldByName('link').AsString;
+            Fatura.Name := 'Fatura' + ID.ToString;
+            Fatura.Align := TAlignLayout.Left;
+            FATURAS.Next;
+          end;
+        end;
+      except
+
       end;
-      FATURAS.Free;
-    end).Start;
+
+      ConexaoLocal.Free;
+
+      // HorzScrollBoxFatura
+    end;
+    FATURAS.Free;
+    // end).Start;
+
+  except
+
+  end;
 end;
 
 function TDM.CaixaCompleto: Integer;
@@ -533,6 +559,28 @@ begin
   Result := USUARIO.FieldByName('deleta').AsInteger = 1;
 end;
 
+procedure TDM.DeleteSimples(URL: String; Dados: IMemTable);
+var
+  Conexao: iRequisicao;
+begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
+  URL := Parametros(URL);
+
+  if Assigned(Dados) then
+    Conexao.Body(Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mDelete;
+  Conexao.Token(Token);
+
+  Conexao.Execute;
+
+  Conexao.Free;
+end;
+
 function TDM.Encerra: Boolean;
 begin
   Result := USUARIO.FieldByName('encerra').AsInteger = 1;
@@ -546,6 +594,11 @@ end;
 function TDM.FaturarPedidosAoFecharCaixa: Integer;
 begin
   Result := DM.DADOS_WHATSAPP.FieldByName('fat_all_caixa').AsInteger;
+end;
+
+procedure TDM.FecharSite;
+begin
+  //
 end;
 
 function TDM.GetCelular: String;
@@ -579,130 +632,91 @@ end;
 
 function TDM.GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
 var
-  Token: String;
-  Campos: Boolean;
-  I: Integer;
-  Fields: String;
-  ConexaoLocal: iRequisicao;
+  Conexao: iRequisicao;
 begin
-
-  ConexaoLocal := iRequisicao.Create(self);
-  ConexaoLocal.BaseURL := Conexao.BaseURL;
-
-  Token := '';
-  Campos := Dados.FieldCount = 0;
-  Dados.Close;
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
 
   URL := Parametros(URL);
+  Dados.Close;
+  Conexao.Body(Body);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mPost;
+  Conexao.Token(Token);
+  Conexao.MemTable := Dados;
+  Conexao.Execute;
 
-  ConexaoLocal.URL := URL;
-  ConexaoLocal.Metodo := mGet;
-  ConexaoLocal.Token(Token);
-  ConexaoLocal.Body(Body);
-  ConexaoLocal.MemTable := Dados;
-  ConexaoLocal.Execute;
-
-  if Dados.RecordCount = 0 then
-    Dados.Open;
-
-  // ShowMessage(DM.CONEXAO.Retorno);
-
-  Result := True;
-  ConexaoLocal.Free;
+  Conexao.Free;
 end;
 
 function TDM.GetSimples(URL: String; Dados: IMemTable): Boolean;
 var
-  Token: String;
-  Campos: Boolean;
-  I: Integer;
-  Fields: String;
-  ConexaoLocal: iRequisicao;
+  Conexao: iRequisicao;
 begin
-
-  ConexaoLocal := iRequisicao.Create(self);
-  ConexaoLocal.BaseURL := Conexao.BaseURL;
-
-  Token := '';
-  Campos := Dados.FieldCount = 0;
-  Dados.Close;
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
 
   URL := Parametros(URL);
+  Dados.Close;
+  if Assigned(Dados) then
+    Conexao.Body(Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mGet;
+  Conexao.Token(Token);
+  Conexao.MemTable := Dados;
+  Conexao.Execute;
 
-  ConexaoLocal.URL := URL;
-  ConexaoLocal.Metodo := mGet;
-  ConexaoLocal.Token(Token);
-  ConexaoLocal.MemTable := Dados;
-  ConexaoLocal.Execute;
-
-  if Dados.RecordCount = 0 then
-    Dados.Open;
-
-  // ShowMessage(DM.CONEXAO.Retorno);
-
-  Result := True;
-  ConexaoLocal.Free;
+  Conexao.Free;
 end;
 
 function TDM.GetSimples(URL: String; Dados: IMemTable;
-Paginacao: Boolean): Boolean;
+  Paginacao: Boolean): Boolean;
 var
-  ConexaoLocal: iRequisicao;
+  Conexao: iRequisicao;
 begin
-  ConexaoLocal := iRequisicao.Create(self);
-  ConexaoLocal.BaseURL := Conexao.BaseURL;
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
 
-
-  // Dados.iForthToken := getToken;
-
-  Dados.Close;
   URL := Parametros(URL);
+  Dados.Close;
+  if Assigned(Dados) then
+    Conexao.Body(Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mGet;
+  Conexao.Token(Token);
+  Conexao.Paginacao := Paginacao;
+  Conexao.MemTable := Dados;
+  Conexao.Execute;
 
-  ConexaoLocal.eTAG := False;
-  ConexaoLocal.URL := URL;
-  ConexaoLocal.Metodo := mGet;
-  ConexaoLocal.Token(Dados.iForthToken);
-  ConexaoLocal.MemTable := Dados;
-  ConexaoLocal.Paginacao := Paginacao;
-  ConexaoLocal.Execute;
-  if Dados.RecordCount > 0 then
-
-    Dados.First;
-  Result := True;
-
+  Conexao.Free;
 end;
 
 function TDM.GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
 var
-  Token: String;
-  Campos: Boolean;
-  I: Integer;
-  Fields: String;
-  ConexaoLocal: iRequisicao;
+  Conexao: iRequisicao;
 begin
-
-  ConexaoLocal := iRequisicao.Create(self);
-  ConexaoLocal.BaseURL := Conexao.BaseURL;
-
-  Token := '';
-  Campos := Dados.FieldCount = 0;
-  Dados.Close;
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
 
   URL := Parametros(URL);
+  Dados.Close;
+  if Assigned(Dados) then
+    Conexao.Body(Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mGet;
+  Conexao.Token(Token);
+  Conexao.MemTable2 := Dados;
+  Conexao.Execute;
 
-  ConexaoLocal.URL := URL;
-  ConexaoLocal.Metodo := mGet;
-  ConexaoLocal.Token(Token);
-  ConexaoLocal.MemTable2 := Dados;
-  ConexaoLocal.Execute;
-
-  if Dados.RecordCount = 0 then
-    Dados.Open;
-
-  // ShowMessage(DM.CONEXAO.Retorno);
-
-  Result := True;
-  ConexaoLocal.Free;
+  Conexao.Free;
 end;
 
 function TDM.GetUsuario: String;
@@ -718,6 +732,27 @@ begin
     StatusConexao.Start;
 
   StatusConexao.Iniciado := True;
+end;
+
+function TDM.IntegracaoPIX: Boolean;
+begin
+  Result := False;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('token_mp').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').AsInteger = 0 then
+  begin
+    exit;
+  end
+  else
+  begin
+    Result := True;
+  end;
 end;
 
 function TDM.LerIni(Secao, Indice, ValorPadrao: String): String;
@@ -752,17 +787,17 @@ end;
 
 function TDM.LoginMotoboy: Boolean;
 begin
-//motoboy/S043-044/a
-try
-  Requisicao.URL := 'motoboy/'+GetCelular+'/a';
-  Requisicao.Metodo := mGet;
-  Requisicao.MemTable2 := DADOS_MOTOBOY_SITE;
-  Requisicao.Execute;
+  // motoboy/S043-044/a
+  try
+    Requisicao.URL := 'motoboy/' + GetCelular + '/a';
+    Requisicao.Metodo := mGet;
+    Requisicao.MemTable2 := DADOS_MOTOBOY_SITE;
+    Requisicao.Execute;
 
-  Result := DADOS_MOTOBOY_SITE.RecordCount > 0;
-except
-   Result := False;
-end;
+    Result := DADOS_MOTOBOY_SITE.RecordCount > 0;
+  except
+    Result := False;
+  end;
 end;
 
 procedure TDM.LogUsuario;
@@ -780,87 +815,133 @@ begin
   URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
     .AsString, []);
 
+  URL := StringReplace(URL, ':token_mp', dm.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+
+
+
+
   // URL := StringReplace(URL, ':caixa', CodigoCaixa.ToString, []);
 
   Result := URL;
 end;
 
 function TDM.PostSimples(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
 begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
   URL := Parametros(URL);
 
-  DM.Conexao.URL := URL;
-  DM.Conexao.Metodo := mPost;
-  DM.Conexao.Token(Token);
   if Assigned(Dados) then
-    DM.Conexao.Body(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  DM.Conexao.TempoExpiracao := 10000;
-  DM.Conexao.Execute;
+    Body := Dados.ToJSONArray().ToString;
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mPost;
+  Conexao.Token(Token);
+  Conexao.Body(Body);
 
-  Result := DM.Conexao.Status = 200;
+  Conexao.Execute;
 
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesComRetorno(URL: String): String;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
+  URL := Parametros(URL);
+
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mPost;
+  Conexao.Token(Token);
+  Conexao.Body(Body);
+
+  Conexao.Execute;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
 end;
 
 function TDM.PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
 begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
   URL := Parametros(URL);
-
-  DM.Conexao.URL := URL;
-  DM.Conexao.Metodo := mPost;
-  DM.Conexao.Token(Token);
   if Assigned(Dados) then
-    DM.Conexao.Body(Dados.ToJSONObject().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  DM.Conexao.TempoExpiracao := 10000;
-  DM.Conexao.Execute;
-
-  // ShowMessage(DM.Conexao.Retorno);
+    Body := (Dados.ToJSONObject().ToString);
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mPost;
+  Conexao.Token(Token);
+  Conexao.Body(Body);
+  Conexao.Execute;
 
   Result := DM.Conexao.Status = 200;
+  Conexao.Free;
 end;
 
 function TDM.PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
 var
-  Token: String;
+  Conexao: iRequisicao;
+  Body: String;
 begin
-  Token := '';
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
+  URL := Parametros(URL);
+
+  if Assigned(Dados) then
+    Body := (Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
   Conexao.URL := URL;
   Conexao.Metodo := mPost;
   Conexao.Token(Token);
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  Conexao.TempoExpiracao := 10000;
+  Conexao.Body(Body);
+
   Conexao.Execute;
 
-  Result := Conexao.Status = 200;
-
+  Result := DM.Conexao.Status = 200;
+  Conexao.Free;
 end;
 
 function TDM.PutSimples(URL: String; Dados: IMemTable): Boolean;
 var
-  Token: String;
+  Conexao: iRequisicao;
+  Body: String;
 begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
 
-  // URL := StringReplace(URL, ':unidade', GetUnidadeLogada.ToString,
-  // [rfReplaceAll]);
-  // URL := StringReplace(URL, ':linha', GetLinhaLogada.ToString, [rfReplaceAll]);
-  // URL := StringReplace(URL, ':usuario', GetUsuarioLogado.ToString,
-  // [rfReplaceAll]);
+  URL := Parametros(URL);
 
-  Token := '';
+  if Assigned(Dados) then
+    Body := (Dados.ToJSONArray().ToString);
+  Conexao.eTAG := False;
   Conexao.URL := URL;
   Conexao.Metodo := mPut;
   Conexao.Token(Token);
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  // showmessage(Dados.ToJSONArray().ToString);
-  Conexao.TempoExpiracao := 10000;
+  Conexao.Body(Body);
+
   Conexao.Execute;
 
-  Result := Conexao.Status = 200;
-
+  Conexao.Free;
 end;
 
 procedure TDM.SetAbrirFecharCaixaAuto(const Value: Integer);
@@ -889,7 +970,7 @@ var
 begin
   Conection := iRequisicao.Create(self);
   Conection.BaseURL := DM.Conexao.BaseURL;
-  Conection.TempoExpiracao := 60*1000;
+  Conection.TempoExpiracao := 60 * 1000;
 
   Conection.URL := 'v1/test/';
   Conection.Metodo := mGet;
@@ -1012,7 +1093,7 @@ begin
   inherited Create(True);
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 30000;
+  Conexao.TempoExpiracao := 50 * 1000;
   // Conexao.TempoExpiracao := 1000;
   Conexao.URL := 'v1/versao/app';
 end;

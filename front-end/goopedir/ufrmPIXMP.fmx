@@ -1,0 +1,91 @@
+object frmPIXMP: TfrmPIXMP
+  Left = 0
+  Top = 0
+  BorderIcons = []
+  Caption = 'Qrcode PIX'
+  ClientHeight = 359
+  ClientWidth = 239
+  Fill.Kind = Solid
+  Position = MainFormCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnClose = FormClose
+  DesignerMasterStyle = 0
+  object Layout1: TLayout
+    Align = Top
+    Size.Width = 239.000000000000000000
+    Size.Height = 77.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object Rectangle1: TRectangle
+      Align = Client
+      Fill.Color = xFF32BCAE
+      Size.Width = 239.000000000000000000
+      Size.Height = 77.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFF32BCAE
+      object Label1: TLabel
+        Align = Client
+        StyledSettings = [Family]
+        Size.Width = 239.000000000000000000
+        Size.Height = 77.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 28.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.FontColor = claWhite
+        TextSettings.HorzAlign = Center
+        Text = 'Qrcode PIX'
+        TabOrder = 0
+      end
+    end
+  end
+  object img_qrcod: TImage
+    MultiResBitmap = <
+      item
+      end>
+    Margins.Left = 5.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 5.000000000000000000
+    Margins.Bottom = 10.000000000000000000
+    Position.X = 10.000000000000000000
+    Position.Y = 85.000000000000000000
+    Size.Width = 220.000000000000000000
+    Size.Height = 224.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object Label2: TLabel
+    StyledSettings = [Family, FontColor]
+    Position.X = 8.000000000000000000
+    Position.Y = 312.000000000000000000
+    Size.Width = 120.000000000000000000
+    Size.Height = 24.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.Size = 16.000000000000000000
+    TextSettings.Font.StyleExt = {00060000000000000004000000}
+    Text = 'Valor R$:'
+    TabOrder = 3
+  end
+  object lValor: TLabel
+    StyledSettings = [Family]
+    HitTest = True
+    Position.X = 111.000000000000000000
+    Position.Y = 312.000000000000000000
+    Size.Width = 120.000000000000000000
+    Size.Height = 24.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.Size = 16.000000000000000000
+    TextSettings.Font.StyleExt = {00060000000000000004000000}
+    TextSettings.FontColor = xFF32BCAE
+    TextSettings.HorzAlign = Trailing
+    Text = '0,00'
+    TabOrder = 2
+    OnClick = lValorClick
+  end
+  object tVerificaStatus: TTimer
+    Interval = 10000
+    OnTimer = tVerificaStatusTimer
+    Left = 74
+    Top = 253
+  end
+end

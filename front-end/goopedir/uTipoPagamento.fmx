@@ -13,10 +13,10 @@ inherited frmTipoPagamento: TfrmTipoPagamento
             PNG = {
               89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
               F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF8F1F3F
-              FE0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF0F1F3E
+              FC0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
               340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
-              50EE28181280810100EA6CF9C852EA1B1B0000000049454E44AE426082}
+              50EE28181280810100A099F98000034D030000000049454E44AE426082}
             FileName = 
               'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
               'row_back_white_24dp.png'
@@ -38,24 +38,24 @@ inherited frmTipoPagamento: TfrmTipoPagamento
             PNG = {
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              0227494441546843ED96CB4EC2401486690D10127D009FC1952B790AA30BBCC4
-              07F2B2F511344477C6B7D0F8005E125D7961ABB02815F03FD39F062870682905
-              75BE6432D339FFFC3D874ECBE42C168BC562B158FE310EFB99D0E974F2E8B6DA
-              EDF626DA86E779AB325F2C16DF5DD7BD41BBC6E595E338BECC2F144878DBF7FD
-              27143116D18896CBA687BE2A944740C86DB55AC7816A72B8C6A54D72023B1DCA
-              232091134A62236B69931C7AA950DE876C0586436AB59A87C44E112BE372599A
-              8C654E6246D4C3D4DB893E2A9487602A3FB8E79BCDE62B125AA72482C44443B9
-              811EF2F2670B6E5A311910F975C725DF4534439E4485E1ECC09638E7CD0DB245
-              1852112D9719C48BA1ECC0A3BFE7FD0DF865CB0CA98896CB0CE2C55076341A8D
-              4FDEDF80A4561852112D9719C48B2195E9BFBB33005B68894395D40A28140A6F
-              1C7659633F097DDA52A9F4C1A14AA4003E4515CA4370AEB9E3D000C901872A83
-              5A78DD72181F93DD04501E82A9C5F88CD24085F2104CA5F547F68CAE40497C02
-              1B1DCAFB4042531F25C011EDE603124B7C981350D4370ADCA75DF6208744C7E9
-              5E58C41E2DE7836CA7C1776218D0BCA0E04324ED73CA20D7732F0279E4D12A48
-              F00C893ED6EBF52FD9F7183F60EE426268E68595F18822768DD96F0039FFE922
-              7628190FD7A4066D638165438B40A7FFC105F2F4A06D6CB0345204DE9B2AC3A3
-              A13635689B082C0F8B40F297E8F453AA88D384B68981857CC5AAE8273E625B2C
-              168BC562C9865CEE07D6448C3339ECB28E0000000049454E44AE426082}
+              0228494441546843ED96CB4EC2401486690D2524FA003E832B57FA1446177889
+              0FE465EB236888EE8C6FA1F101BC24BAD2CA5661512AE07FA63F0D50607AA3A0
+              CE974C663AE79FBFE7D0699992C16030180C06C33FC6623F137ABD5E19DD76B7
+              DBDD42DBF03C6F55E62B958A6BDBF62DDA0D2EAF2DCBF2657EA140C23BBEEF3F
+              A388A98846B45C961DFA6AA13C024276A7D3390954F1E11A9B36E909ECF4501E
+              01899C529218594B9BF4D04B0BE543C8566038A4D1687848EC0CB14D5C2E4B93
+              B1CC494C8906C8BC9DE8A385F2104C9547F77CBBDD7E4342EB94449098682857
+              D0435EFE62C14D6B2A0322BFEEB4E4FB8866CC93A8315C1CD81217BCB942B608
+              435A44CB650AF162A838F0E81F787F057ED94D86B48896CB14E2C55071B45AAD
+              4FDE5F81A45618D2225A2E538817435AB27F776700B6D012875A722BC0719C77
+              0EFBACB18FC390B65AAD7E70A82552009FA216CA4370AEB9E75001C921875A46
+              B5F0BAE330392ABB18501E82A9C5F88CD2400BE52198CAEB8FEC059D43497202
+              1B3D940F8184321F25C031EDE603124B7D98135CD7FD468107B42B1EE490EA38
+              3D088BD8A7E57C90ED34FA4E8C039A57147C84A47D4E29E47AEE45208F325A0D
+              099E23D1A766B3F925FB1EE347CC5D4A0C4DBDB0329E50C49E32FB0D20E73F5D
+              C42E25D3E19ADCA06D22B06C6C11E8F47F70813C3F689B182C8D1481F7A6CEF0
+              64A8CD0DDAA602CBC32290FC153AFD2955C47942DBD4C042BE6275F4B18FD806
+              83C16030188AA154FA01135F8BDF880AC5EF0000000049454E44AE426082}
             FileName = 
               'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
               'nage_search_white_24dp.png'
@@ -64,7 +64,7 @@ inherited frmTipoPagamento: TfrmTipoPagamento
       end
     end
     inherited tabMain: TTabControl
-      TabIndex = 0
+      TabIndex = 1
       Sizes = (
         820s
         496s
@@ -74,7 +74,7 @@ inherited frmTipoPagamento: TfrmTipoPagamento
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -236,7 +236,7 @@ inherited frmTipoPagamento: TfrmTipoPagamento
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -270,6 +270,76 @@ inherited frmTipoPagamento: TfrmTipoPagamento
             iForthMemInsert = DADOS
             iForthCampoInser = 'descricao'
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -3257,6 +3327,76 @@ inherited frmTipoPagamento: TfrmTipoPagamento
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -4013,15 +4153,15 @@ inherited frmTipoPagamento: TfrmTipoPagamento
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00EF49444154484BED95510E82301044C104CFA627F0387ECA3DBC9944390334
-                    80B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402DF
-                    992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40F4
-                    107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F90
-                    2710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F706B
-                    41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D1445716568
-                    09E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F20
-                    F8C1FAE80F6744BCE87160BB8D18B2EC09E2143BBAB0197C0F0000000049454E
-                    44AE426082}
+                    00EE49444154484BED95510E82301044C104CFA627F0387ECA3DBC99A4DE011A
+                    C0D975680A14684D347EF012D3EDCECE2EB541B39D24BAAE3B374D53F589C077
+                    658B75D0FC414F32514358DB731B051A5F8C31567C9B43B43BF0E335D404A287
+                    A80BF8F11A6A223284E9513EE7AA0C620EA68521A48EA1E2FB35010E5C7F833C
+                    81C06D32B48FFC5F3F41D4003CD4B16DDB5B5DD74FF9482C39CAF1E8F900B70E
+                    A4CAB732A2A4EC607EF92BA63E2BC01B6E28392447D941E90FEFA0288A3B4347
+                    28B7094F18BA83A84B5633E0760EF5E5820D685FBE036B6D252BEB92F17B04C1
+                    0FD6477F3803E2458F13DBEDC490652F91563BAE3B0D2B710000000049454E44
+                    AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
                 end>
               Align = Left
@@ -4064,6 +4204,76 @@ inherited frmTipoPagamento: TfrmTipoPagamento
             Size.PlatformDefault = False
             Visible = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -7232,6 +7442,76 @@ inherited frmTipoPagamento: TfrmTipoPagamento
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -7880,6 +8160,76 @@ inherited frmTipoPagamento: TfrmTipoPagamento
             iForthMemInsert = DADOS
             iForthCampoInser = 'chave_recebedor'
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right

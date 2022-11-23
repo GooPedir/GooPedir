@@ -6,7 +6,12 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Variants,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Objects, FMX.Controls.Presentation, FMX.Edit;
+  FMX.Objects, FMX.Controls.Presentation, FMX.Edit, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, FMX.ListBox, System.Rtti, System.Bindings.Outputs,
+  FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
+  Data.Bind.DBScope;
 
 type
   TframeExtraItensAdd = class(TFrame)
@@ -19,6 +24,17 @@ type
     Label3: TLabel;
     img_adicionar: TImage;
     sStatus: TSwitch;
+    memDadosFicha: TFDMemTable;
+    memDadosFichaid: TIntegerField;
+    memDadosFichadescricao: TStringField;
+    memDadosFichaunidade: TStringField;
+    memDadosFichacusto: TFloatField;
+    edtQuantidade: TEdit;
+    Label4: TLabel;
+    cIngrediente: TComboBox;
+    Label5: TLabel;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
     procedure img_adicionarClick(Sender: TObject);
     procedure img_adicionarMouseEnter(Sender: TObject);
     procedure img_adicionarMouseLeave(Sender: TObject);
@@ -32,6 +48,8 @@ type
     FNome: String;
     FStatus: Integer;
     Fmodificado: Integer;
+    FIDIngredientes: Integer;
+    FQuantidadeIngrediente: Real;
     procedure SetCodigo(const Value: Integer);
     procedure SetDescricao(const Value: String);
     procedure SetNome(const Value: String);
@@ -39,6 +57,8 @@ type
     procedure Excluir;
     procedure SetStatus(const Value: Integer);
     procedure Setmodificado(const Value: Integer);
+    procedure SetIDIngredientes(const Value: Integer);
+    procedure SetQuantidadeIngrediente(const Value: Real);
     { Private declarations }
   public
     { Public declarations }
@@ -48,6 +68,12 @@ type
     property Valor: Real read FValor write SetValor;
     property Status: Integer read FStatus write SetStatus;
     property modificado: Integer read Fmodificado write Setmodificado;
+    property IDIngredientes: Integer read FIDIngredientes
+      write SetIDIngredientes;
+    property QuantidadeIngrediente: Real read FQuantidadeIngrediente
+      write SetQuantidadeIngrediente;
+    function GetCodigoIngredienteSelecionado:Integer;
+    function GetQuantidadeIngredienteSelecionado: Real;
 
   end;
 
@@ -60,7 +86,7 @@ uses uSimNao,
 {$ELSE}
   Winapi.Windows,
 {$ENDIF}
-  FMXTee.Canvas;
+  FMXTee.Canvas, uDM;
 
 { TframeExtraItensAdd }
 
@@ -91,6 +117,32 @@ end;
 procedure TframeExtraItensAdd.Excluir;
 begin
   Self.Free;
+end;
+
+function TframeExtraItensAdd.GetCodigoIngredienteSelecionado: Integer;
+begin
+ memDadosFicha.First;
+ while not memDadosFicha.Eof do
+ begin
+ {    cIngrediente.Items.Add();}
+
+      if cIngrediente.Items[cIngrediente.ItemIndex] = FormatFloat('0000 - ',memDadosFicha.FieldByName('id').AsInteger) + memDadosFicha.FieldByName('descricao').AsString then
+      begin
+        Result := memDadosFicha.FieldByName('id').AsInteger;
+        Exit;
+      end;
+
+
+
+
+
+   memDadosFicha.Next;
+ end;
+end;
+
+function TframeExtraItensAdd.GetQuantidadeIngredienteSelecionado: Real;
+begin
+Result := StrToFloat(edtQuantidade.Text);
 end;
 
 procedure TframeExtraItensAdd.img_adicionarClick(Sender: TObject);
@@ -125,6 +177,43 @@ begin
   EdtDescricao.Text := Value;
 end;
 
+procedure TframeExtraItensAdd.SetIDIngredientes(const Value: Integer);
+var
+  Index: Integer;
+begin
+  FIDIngredientes := Value;
+
+  if memDadosFicha.RecordCount = 0 then
+  begin
+    Self.Height := 120;
+    Rectangle1.Height := 110;
+    exit;
+  end
+  else
+  begin
+    Self.Height := 165;
+    Rectangle1.Height := 150;
+  end;
+  Index := 0;
+
+  cIngrediente.Items.Clear;
+  edtQuantidade.Visible := memDadosFicha.RecordCount > 0;
+  cIngrediente.Visible := memDadosFicha.RecordCount > 0;
+  memDadosFicha.First;
+  while not memDadosFicha.Eof do
+  begin
+    if memDadosFicha.FieldByName('id').AsInteger = FIDIngredientes then
+      Index := cIngrediente.Items.Count;
+    cIngrediente.Items.Add(FormatFloat('0000 - ',
+      memDadosFicha.FieldByName('id').AsInteger) + memDadosFicha.FieldByName
+      ('descricao').AsString);
+    memDadosFicha.Next;
+  end;
+
+  cIngrediente.ItemIndex := Index;
+
+end;
+
 procedure TframeExtraItensAdd.Setmodificado(const Value: Integer);
 begin
   Fmodificado := Value;
@@ -142,6 +231,12 @@ procedure TframeExtraItensAdd.SetNome(const Value: String);
 begin
   FNome := Value;
   EdtNome.Text := Value;
+end;
+
+procedure TframeExtraItensAdd.SetQuantidadeIngrediente(const Value: Real);
+begin
+  FQuantidadeIngrediente := Value;
+  edtQuantidade.Text := FloatToStr(FQuantidadeIngrediente);
 end;
 
 procedure TframeExtraItensAdd.SetStatus(const Value: Integer);

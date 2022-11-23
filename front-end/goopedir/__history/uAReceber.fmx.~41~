@@ -1,0 +1,932 @@
+object frmAReceber: TfrmAReceber
+  Left = 0
+  Top = 0
+  Caption = 'Form2'
+  ClientHeight = 721
+  ClientWidth = 1036
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object layReceber: TLayout
+    Align = Client
+    Size.Width = 1036.000000000000000000
+    Size.Height = 721.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object Layout1: TLayout
+      Align = Top
+      Position.Y = 50.000000000000000000
+      Size.Width = 1036.000000000000000000
+      Size.Height = 105.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object Layout6: TLayout
+        Position.X = 8.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 49.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object Label6: TLabel
+          Align = Top
+          StyledSettings = [Family, FontColor]
+          Size.Width = 105.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Celular'
+          TabOrder = 0
+        end
+        object EdtCelular: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Top
+          TabOrder = 1
+          MaxLength = 14
+          TextSettings.HorzAlign = Trailing
+          Position.Y = 17.000000000000000000
+          Size.Width = 105.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          OnKeyDown = EdtCelularKeyDown
+        end
+      end
+      object Layout7: TLayout
+        Anchors = [akLeft, akTop, akRight]
+        Enabled = False
+        Position.X = 121.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 907.000000000000000000
+        Size.Height = 49.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Label7: TLabel
+          Align = Top
+          StyledSettings = [Family, FontColor]
+          Size.Width = 907.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Nome'
+          TabOrder = 0
+        end
+        object EdtNome: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Top
+          TabOrder = 1
+          Position.Y = 17.000000000000000000
+          Size.Width = 907.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          CharCase = ecUpperCase
+          object Image2: TImage
+            MultiResBitmap.Height = 50
+            MultiResBitmap.Width = 50
+            MultiResBitmap = <
+              item
+                Width = 50
+                Height = 50
+                PNG = {
+                  89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                  B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                  02AD494441546843ED9949EBD4301887C70D17F4A2E0C183070F0A1EF42AA820
+                  E23750C40D45BDBA811745C1058FE2C750E12FF8015C2E2A5ED59BDB1770392B
+                  2EE8EF993430C4B7334D2769A6320F3C24ED749ABC4D9BA4E960CE8CB1A84AA7
+                  61A5DC2E37CBF57289FC2D3FC977F2B5FC26679235F2B47C22BFCB3F63E4778E
+                  E3F8D57226E0EA5F955FA555E9497E915724E729C66EF9515A158C95F3EC929D
+                  735EFE9456A5DACAF9CEC9CEB829AD8AA4F286CCCE0569159EDAAC2DC33391FA
+                  76AA9372B23C33F42AA91EECA67E902B642B18BC2C2EC9FD2E1BC50B794F32D0
+                  6E6447046B2563CEB3E1560218B4DA8E13D725905ABF4F9271A6D5A0B9B84A47
+                  3924B93A2558270FBA6C1C562087ABB414ADCA0F03592577BA6C31E8BDA2A730
+                  6120DBE472972D063D17F588220C644B959626BA1EE1FBC84579DB656BA18B7D
+                  EEB2FFF0B8725FA505B7CEA4DB977ADC71D9763045B7BAC5517D17DB96265D33
+                  F588A24D8BF8AB6EE15B6BDC551FD75A9EA95BE484B4AE5053A71D10BDC76514
+                  E1C3FEB64A4B135D8F30905792F94E4928FF8DCB36270C8493709F9784672C7A
+                  D5250C04EE576929EE566914758130FB2D01E52EB86C1CD6FBC80FB94CEE1D6E
+                  C5F14B6E907BE4267644724B3E75D93430DFA2E7B0BAC65C4EF586388E1D92D6
+                  B10A4D6DB677760FAB1B56C1A93D2BB3C3BA9355782A3B59D7F2D03239561ACF
+                  48A07379208F0EB732C33DCC0369552AD6F7D24F2A792B7D28D94FAF77446687
+                  5E85D574563BC2CA35F1B3BC2C7DEFB454BE94A3C7104C67EB062CD99C928F24
+                  D389D18A84F23BC79D94D652CF0119DEB6D1C1A4FA62C53BB6FF62C555A622FE
+                  8B1513C04973278261618FFF7AF8EA754C969E3245C3CA66386E714108A677D4
+                  05D3496F969A7930B34A5D309D8C33A9F9AF82B1C619B6B7CADE11B6CC35D95B
+                  7C30BD0EC2D3CBDB694E8F190CFE02D05816BB96ABEB980000000049454E44AE
+                  426082}
+                FileName = 'C:\Users\ifort\Downloads\icons8-mais-zoom-50.png'
+              end>
+            Align = Right
+            Cursor = crHandPoint
+            Margins.Right = 5.000000000000000000
+            Position.X = 880.000000000000000000
+            Size.Width = 22.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+      end
+      object Rectangle1: TRectangle
+        Cursor = crHandPoint
+        Fill.Color = xFFD60000
+        Opacity = 0.500000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 65.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = xFFD60000
+        XRadius = 15.000000000000000000
+        YRadius = 15.000000000000000000
+        OnClick = Rectangle1Click
+        OnMouseEnter = Rectangle1MouseEnter
+        OnMouseLeave = Rectangle1MouseLeave
+        object Label1: TLabel
+          Align = Client
+          StyledSettings = [Family]
+          Margins.Right = 5.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 32.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 22.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = claWhite
+          TextSettings.HorzAlign = Center
+          Text = 'Buscar'
+          TabOrder = 0
+        end
+      end
+    end
+    object rTopo: TRectangle
+      Align = MostTop
+      Fill.Color = xFFA4001B
+      Size.Width = 1036.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFFA4001B
+      object imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FFF7EFDF
+              FF0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE2818128081010056C6F938A72FB6DF0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+        Align = Left
+        Size.Width = 48.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        Visible = False
+      end
+      object lNomeForm: TLabel
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        StyledSettings = [Family]
+        HitTest = True
+        Margins.Right = 5.000000000000000000
+        Position.X = -4.000000000000000000
+        Position.Y = -4.000000000000000000
+        Size.Width = 1031.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 22.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.FontColor = claWhite
+        TextSettings.HorzAlign = Trailing
+        Text = 'A Receber'
+        TabOrder = 0
+      end
+    end
+    object StringGrid1: TStringGrid
+      Align = Client
+      CanFocus = True
+      ClipChildren = True
+      Size.Width = 1036.000000000000000000
+      Size.Height = 212.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      RowHeight = 30.000000000000000000
+      Options = [ColumnResize, ColumnMove, ColLines, RowLines, Tabs, Header, HeaderClick, AutoDisplacement]
+      OnDrawColumnCell = StringGrid1DrawColumnCell
+      OnCellDblClick = StringGrid1CellDblClick
+      Viewport.Width = 1032.000000000000000000
+      Viewport.Height = 187.000000000000000000
+    end
+    object layReceberDados: TLayout
+      Align = Top
+      Position.Y = 255.000000000000000000
+      Size.Width = 1036.000000000000000000
+      Size.Height = 254.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object rStatus: TRectangle
+        Align = Left
+        Size.Width = 17.000000000000000000
+        Size.Height = 254.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object Layout3: TLayout
+        Align = Client
+        Size.Width = 1019.000000000000000000
+        Size.Height = 254.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Layout4: TLayout
+          Align = Top
+          Position.Y = 38.000000000000000000
+          Size.Width = 1019.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          object edtCliente: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            Anchors = [akLeft, akTop, akRight, akBottom]
+            TabOrder = 1
+            ReadOnly = True
+            Position.X = 5.000000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 710.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label4: TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 700.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Cliente'
+              TabOrder = 0
+            end
+          end
+          object edtCelularCliente: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 0
+            ReadOnly = True
+            Text = '48998111156'
+            Position.X = 720.000000000000000000
+            Size.Width = 132.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label5: TLabel
+              Align = Center
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 122.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Celular'
+              TabOrder = 0
+            end
+          end
+          object edtValorPedido: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 2
+            ReadOnly = True
+            Text = 'R$ 100.000,00'
+            Position.X = 857.000000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 153.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label3: TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 143.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Em Aberto'
+              TabOrder = 0
+            end
+          end
+        end
+        object Layout5: TLayout
+          Align = Top
+          Position.Y = 126.000000000000000000
+          Size.Width = 1019.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object edtHoraCaixa: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 3
+            ReadOnly = True
+            Text = '00/00/00 00:00'
+            Position.X = 115.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 174.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label8: TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 164.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Data/Hora'
+              TabOrder = 0
+            end
+          end
+          object EdtValorCaixa: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 2
+            ReadOnly = True
+            Text = 'R$ 100.000,00'
+            Position.X = 294.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 121.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label9: TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 111.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Valor'
+              TabOrder = 0
+            end
+          end
+          object EdtTipoPagamento: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 1
+            ReadOnly = True
+            Position.X = 420.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 183.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object edtNumeroCaixa: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            TabOrder = 4
+            ReadOnly = True
+            Text = '000000'
+            Position.X = 5.000000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 105.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            object Label12: TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 5.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 5.000000000000000000
+              Size.Width = 95.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.FontColor = xFFA4001B
+              TextSettings.HorzAlign = Trailing
+              Text = 'Caixa'
+              TabOrder = 0
+            end
+          end
+          object EdtObservacao: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Left
+            Anchors = [akLeft, akTop, akRight, akBottom]
+            TabOrder = 0
+            ReadOnly = True
+            Position.X = 608.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Size.Width = 400.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Label10: TLabel
+          Align = Top
+          StyledSettings = [Family]
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 5.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 5.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 1009.000000000000000000
+          Size.Height = 28.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFFA4001B
+          Text = 'Cliente'
+          TabOrder = 1
+        end
+        object Label11: TLabel
+          Align = Top
+          StyledSettings = [Family]
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 5.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 5.000000000000000000
+          Position.Y = 93.000000000000000000
+          Size.Width = 1009.000000000000000000
+          Size.Height = 28.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFFA4001B
+          Text = 'Receber'
+          TabOrder = 0
+        end
+        object rReceber: TRectangle
+          Cursor = crHandPoint
+          Fill.Color = xFFD60000
+          Opacity = 0.500000000000000000
+          Position.X = 5.000000000000000000
+          Position.Y = 193.000000000000000000
+          Size.Width = 105.000000000000000000
+          Size.Height = 32.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFFD60000
+          XRadius = 15.000000000000000000
+          YRadius = 15.000000000000000000
+          OnClick = rReceberClick
+          OnMouseEnter = Rectangle1MouseEnter
+          OnMouseLeave = Rectangle1MouseLeave
+          object Label13: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            Margins.Right = 5.000000000000000000
+            Size.Width = 100.000000000000000000
+            Size.Height = 32.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Receber'
+            TabOrder = 0
+          end
+        end
+        object Rectangle2: TRectangle
+          Cursor = crHandPoint
+          Fill.Color = xFFD60000
+          Opacity = 0.500000000000000000
+          Position.X = 114.000000000000000000
+          Position.Y = 193.000000000000000000
+          Size.Width = 278.000000000000000000
+          Size.Height = 32.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFFD60000
+          XRadius = 15.000000000000000000
+          YRadius = 15.000000000000000000
+          OnClick = Rectangle2Click
+          OnMouseEnter = Rectangle1MouseEnter
+          OnMouseLeave = Rectangle1MouseLeave
+          object Label2: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            Margins.Right = 5.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 32.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Visualizar Pedido'
+            TabOrder = 0
+          end
+        end
+      end
+    end
+    object Layout2: TLayout
+      Align = Top
+      Position.Y = 155.000000000000000000
+      Size.Width = 1036.000000000000000000
+      Size.Height = 100.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+      object Rectangle3: TRectangle
+        Fill.Kind = None
+        Position.X = 8.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 81.000000000000000000
+        Size.PlatformDefault = False
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+        object Image1: TImage
+          MultiResBitmap.Height = 50
+          MultiResBitmap.Width = 50
+          MultiResBitmap = <
+            item
+              Width = 50
+              Height = 50
+              PNG = {
+                89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                025B494441546843ED98CB6A14411486CF39035E401017CA4CF2063E82DDE3C2
+                8568A6070399415D48BC2122E83BF80C0651E265E3428D98E064820B7163C737
+                996EDCB952D4F43956F59C888E9AD89D6A69A53E68AAEBEFA99AFEAAABE652E0
+                F1783C1ECF0E402D2B2189DA7308D9A239DD4081CBCDE1DB17E32BEE212D2B41
+                205B306F71C01C0705E9B6C69550A9080135F5D432AD6525542AF237F12275C3
+                8BD40D2F5237BC48DDF02275C38BD40D2F5237BC48DD28259244E1B95114BC1F
+                75C2774927EC695C1ADBC7283A929A2349BB61A471210A8B48BFDF10800502DC
+                4F088744F8B115D3CB85B16D6D1FF66FB1395A92C15DBD5488E24FE4F0921070
+                A63520A286303F4C3AC1BC467F8C6D63DBDA3E342A4D6111BC090C8857992764
+                041FA4517841A36DB1AFB56DBE9718F729D7B55A88526BA435587F4A48671978
+                43232303C400F7CD54B9A6D16F493BC14566B867DB68944B20D0F9A9B5F5E71A
+                15A29488A5358C9750AC0C7CD1C8768676FD6C259376834B2CB838290108F353
+                6BF1238D0AB3E39DC6FC5346F899D1D8AD91997B202472C34CC15B1AE5B0C015
+                10B8F383841908643953F6496CE264CB741485B3665E3D31B7B74BA3B1CC44FF
+                3F650C9F99E0F4F46ABCA249699CEDFD2651701241CCA8D21E8DB6C6A184C599
+                882599094F20F1F2B632460291FB2E37B5BFCD551798C5FA92A5316B6EF4A346
+                BF803F0149CFF5CEBCD327B289F9A9719C9856CC30EDD548311248BDD6205ED5
+                C0199588589299F651816C68BEF0F6E501C3074438D51CC6AFF2BA632A13B1A4
+                DDF631C86490571AD86D0DDEBCCECFFF45AC4C2EE4F1783C9EFF0F80AF5795D3
+                B11C459FE10000000049454E44AE426082}
+              FileName = 'C:\Users\DESENVOLVIMENTO\Downloads\icons8-abaixo-50.png'
+            end>
+          Position.X = 19.000000000000000000
+          Position.Y = 16.000000000000000000
+          Size.Width = 36.000000000000000000
+          Size.Height = 36.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object Label14: TLabel
+          StyledSettings = [Family, FontColor]
+          Position.X = 63.000000000000000000
+          Position.Y = 21.000000000000000000
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Receber'
+          TabOrder = 1
+        end
+        object lReceber: TLabel
+          Position.X = 63.000000000000000000
+          Position.Y = 46.000000000000000000
+          TextSettings.HorzAlign = Trailing
+          Text = 'R$ 1.000,00'
+          TabOrder = 2
+        end
+        object SharpenEffect1: TSharpenEffect
+          Amount = 1.000000000000000000
+        end
+      end
+      object Rectangle4: TRectangle
+        Fill.Kind = None
+        Position.X = 225.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 81.000000000000000000
+        Size.PlatformDefault = False
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+        object Image3: TImage
+          MultiResBitmap.Height = 50
+          MultiResBitmap.Width = 50
+          MultiResBitmap = <
+            item
+              Width = 50
+              Height = 50
+              PNG = {
+                89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                0559494441546843ED966B68544714C7CF999B5DC9C33C90B25EB34494B6505B
+                2928F589368A09227D404BAD545A0B2644C5C65835D5209AADF68D58F1B9D98D
+                6D2CC536455123424CA246ABFDD00794967EA9B53589BBB18D91FA48E2EEBD73
+                7A669D046D1EE6E1870DDC1F1BEECDCCB9F7CE7FE69CFF0C3838383838383838
+                3838380C37505FE38A09BF56BA5BC237BD468270EBA65EB12446FF49BBD31097
+                42C6D4943DC773BC165024EBA65E91604785A40FE3528859132824848F05E008
+                DDD42736D1A77129647C8D3FAD03C47C223275531768881420788D6F9FB8DBC2
+                D8B4332E85F4C6A86F8323DD1D721D8028E481A7499211815C472C44E898F887
+                08DD1D548C04AB940822382148D4EB5E181E4288C49853C10F107023A7D54849
+                50154E687C11905A7444FC0B197BFAB374B3AEBC94075F4412A204E210B6DB2B
+                21BB54EA9018712D644265A53B62D9AB398D562A0743A4E386A40DE1170A1A74
+                48174312E2A9FE24D95B179C9D7932F092B7F6F34CDDFC70E09AB83EEAC6FB88
+                B056206480944700DCF94DF3F32FEA88FB18B410B3C69F2544FA3129E90C093C
+                6451F417B33690F7E8891DFDF2FEBE78A472578A59B7FF232EEC359C4E2E5E91
+                C31DA9894B42394BAEE9906E0C4A88591D984C601C44C4B9ECECD778F6FE1288
+                1928716B9B2B79A99A4D1D3A6032780F49481FF10E4A7B19EFDB361FA28E2444
+                ADE2D669AFDFD0219A52FEB488D5892DD46F80786A0353C860DF46984152364B
+                A48DB62116B19B9CE769F1F0D597591B2C1A94187E2691B00404BE05428CB425
+                549180758D0B96FDA123EEA19424D14F6A0C0689EF06F4314F75D9382150ADC4
+                5409BC19492C0A9D6FF283CF27CD9A8A2C42EB2B01349D0F401618B22474F6CA
+                36D5A71FEF1B1661D696EF44922B58042A8B6DBE64BF0C0505511DD19DCD9B05
+                6467AB3FBBDF4232CFEC7F8C22B29C677D160FB48504F9C2F3F2777317DD8DE0
+                943B1598CCE9B5836F67B2D06BECFBA56EA32978798EAFE36E44CF641DDF9361
+                B9DDEBF9556F4B01FC832A436261636E5E48873C10435FFB44A5130FBE8C1D64
+                2617F7154ECE4DE19C7C3F77758950DCAAA80AA7BCF9FCCFBC7F4D64BB7C9C45
+                4DB629B5EDD6F849DF437DFD7DB19D98C7FC4976A26B03D7C2725EE924243C8A
+                646D68CA2DB8AC43FAC5036B24B3AEFC697EF9769492D3095A79967DC9D6ED03
+                DCD5E3C0C273F37F444A58C4C2CFA99A41A2ADE66C6F712C0DFE8F6A4B32B672
+                3AEAB3135459482BAEE42EFF5D47F49B3E536B745D702CFBC2971C3593FF6D63
+                1B5C1FCEC9DBC5F73D8AB897D127037C3AC5A010308DDDA79D6D7463B2D5BEF7
+                E282557754BFF9833F49FE2BDE33088B623505F23875D062DEECDA622F1820BD
+                0A512BC1B6B05B89600161F6F47743B979DDD2A92F544A727A6D67313378B057
+                41C82DA1D6F47D5966343572E776311FFA0AF96D6E2EF4A39610C57FE72CBDA4
+                1F1D303D0AF154974F45C3DE2E404CE7A20D21189BC2464305CCF1F1CC0D0C4F
+                75F0293E5AF8D988580C2993D88B401EDE875E55E9C4B37258BADC6BAF3EFBC6
+                9FFA9141D14D88722769C903AA26D806DB7926D7845C8DC1C188E82466CD143D
+                A857C6E295E1EF0A3E3641151F00170D369DEEE53E219EFA03E38C48E40B954E
+                FC9156DEAD3785E62D55163B64BC27F74D9498C0A758F92457BDCD2B51ED4A4C
+                DED2306BF1751D3224BA848CAEF13F8364EC42015394C572476938373FA8BB1F
+                0ADE0B5F27CAF69B59224A76EA8DB486DF162E8CE8AE21131362D6EE9FC45BFD
+                4EBDF42D3C5B25CA623B1D66388099A7CBBCD216DFB0A269EAD801245637E7E4
+                EDD1FDC306615BF88A12A10E5FACAB70388A5008345C6779B3F2A361AC6A3ED7
+                14D0EDC3103E757A2F6C4B84CACA7E9DBB1C1C1C1C1C1CBA00F80FF9F143677C
+                93D4D50000000049454E44AE426082}
+              FileName = 
+                'C:\Users\DESENVOLVIMENTO\Downloads\icons8-chart-arrow-rise-64.pn' +
+                'g'
+            end>
+          Position.X = 19.000000000000000000
+          Position.Y = 16.000000000000000000
+          Size.Width = 36.000000000000000000
+          Size.Height = 36.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object Label16: TLabel
+          StyledSettings = [Family, FontColor]
+          Position.X = 63.000000000000000000
+          Position.Y = 21.000000000000000000
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Recebido'
+          TabOrder = 1
+        end
+        object LRecebido: TLabel
+          Position.X = 63.000000000000000000
+          Position.Y = 46.000000000000000000
+          TextSettings.HorzAlign = Trailing
+          Text = 'R$ 1.000,00'
+          TabOrder = 2
+        end
+        object SharpenEffect2: TSharpenEffect
+          Amount = 1.000000000000000000
+        end
+      end
+    end
+  end
+  object DADOS: iMemTable
+    AfterScroll = DADOSAfterScroll
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 824
+    Top = 120
+    object DADOSid: TIntegerField
+      FieldName = 'id'
+    end
+    object DADOSid_caixa: TIntegerField
+      FieldName = 'id_caixa'
+    end
+    object DADOSid_pedido: TIntegerField
+      FieldName = 'id_pedido'
+    end
+    object DADOSid_cliente: TIntegerField
+      FieldName = 'id_cliente'
+    end
+    object DADOSid_tipo_pagamento: TIntegerField
+      FieldName = 'id_tipo_pagamento'
+    end
+    object DADOSdata: TDateField
+      FieldName = 'data'
+    end
+    object DADOShora: TTimeField
+      FieldName = 'hora'
+    end
+    object DADOSvalor: TFloatField
+      FieldName = 'valor'
+      currency = True
+    end
+    object DADOSstatus: TIntegerField
+      FieldName = 'status'
+    end
+    object DADOSobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 200
+    end
+    object DADOSnome: TStringField
+      FieldName = 'nome'
+      Size = 200
+    end
+    object DADOScelular: TStringField
+      FieldName = 'celular'
+    end
+    object DADOSa_receber: TFloatField
+      FieldName = 'a_receber'
+    end
+    object DADOSdata_abertura: TDateField
+      FieldName = 'data_abertura'
+    end
+    object DADOSdata_fechamento: TDateField
+      FieldName = 'data_fechamento'
+    end
+    object DADOShora_abertura: TTimeField
+      FieldName = 'hora_abertura'
+    end
+    object DADOShora_fechamento: TTimeField
+      FieldName = 'hora_fechamento'
+    end
+    object DADOSvalor_fechamento: TFloatField
+      FieldName = 'valor_fechamento'
+    end
+    object DADOSusuario: TStringField
+      FieldName = 'usuario'
+      Size = 200
+    end
+    object DADOStipo_pagamento: TStringField
+      FieldName = 'tipo_pagamento'
+      Size = 200
+    end
+    object DADOScodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object mConsultaCliente: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 700
+    Top = 121
+    object mConsultaClientecodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object mConsultaClientecodigo1: TIntegerField
+      FieldName = 'codigo1'
+    end
+    object mConsultaClientenome: TStringField
+      FieldName = 'nome'
+      Size = 255
+    end
+    object mConsultaClientecelular_wpp: TStringField
+      FieldName = 'celular_wpp'
+    end
+    object mConsultaClienterua: TStringField
+      FieldName = 'rua'
+      Size = 255
+    end
+    object mConsultaClientebairro: TStringField
+      FieldName = 'bairro'
+      Size = 255
+    end
+    object mConsultaClientecidade: TStringField
+      FieldName = 'cidade'
+      Size = 255
+    end
+    object mConsultaClienteestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object mConsultaClientenumero: TStringField
+      FieldName = 'numero'
+    end
+    object mConsultaClientecomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 2555
+    end
+    object mConsultaClientevalor_taxa: TFloatField
+      FieldName = 'valor_taxa'
+    end
+  end
+  object bdsConsulta: TBindSourceDB
+    DataSet = mConsultaCliente
+    ScopeMappings = <>
+    Left = 776
+    Top = 120
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkControlToField1: TLinkControlToField
+      Category = 'Quick Bindings'
+      DataSource = bdsConsulta
+      FieldName = 'nome'
+      Control = EdtNome
+      Track = False
+    end
+    object LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      GridControl = StringGrid1
+      Columns = <
+        item
+          MemberName = 'codigo'
+          Header = 'C'#243'digo'
+        end
+        item
+          MemberName = 'id_caixa'
+          Header = 'Caixa'
+        end
+        item
+          MemberName = 'data'
+          Header = 'Data'
+        end
+        item
+          MemberName = 'hora'
+          Header = 'Hora'
+        end
+        item
+          MemberName = 'nome'
+          Header = 'Cliente'
+          Width = 250
+        end
+        item
+          MemberName = 'tipo_pagamento'
+          Header = 'Tipo Pagamento'
+          Width = 150
+        end
+        item
+          MemberName = 'valor'
+          Header = 'Valor'
+          Width = 64
+        end
+        item
+          MemberName = 'usuario'
+          Header = 'Usu'#225'rio'
+          Width = 100
+        end
+        item
+          MemberName = 'status'
+          Visible = False
+        end>
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 760
+    Top = 376
+  end
+end

@@ -1048,6 +1048,31 @@ procedure TFrmResumo.cTipoChange(Sender: TObject);
 begin
   TipoPedido;
   CalcularTotal;
+  if cTipo.ItemIndex = 0 then
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        GetSimples('/v1/consulta/generica/taxa_entrega/*/bairro = "' +
+          EdtBairro.Text + '"/*', MemTaxa);
+
+        if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+        begin
+          EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+          EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+          EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+          ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+        end;
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            CalcularTotal;
+          end);
+      end).Start;
+
+  end;
+
 end;
 
 procedure TFrmResumo.EdtAcrecimoExit(Sender: TObject);
@@ -1216,12 +1241,15 @@ begin
 
       if FrmResumo.MESAS.RecordCount > 0 then
       begin
+        FrmResumo.BeginUpdate;
         FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName
           ('descricao').AsString;
         FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
           ('nr_mesa').AsString;
         FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
           FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+
+        FrmResumo.EndUpdate;
       end;
 
     end
@@ -1284,11 +1312,13 @@ begin
 
     if FrmResumo.MESAS.RecordCount > 0 then
     begin
+      FrmResumo.BeginUpdate;
       FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
       FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
         ('nr_mesa').AsString;
       FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
         FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
     end;
 
   end
@@ -1379,7 +1409,7 @@ begin
       Delivery := 1;
   end;
 
-  FrmPrincipal.AddItem(mesa, CodigoPedido,Delivery);
+  FrmPrincipal.AddItem(mesa, CodigoPedido, Delivery);
 end;
 
 procedure TFrmResumo.img_excluirClick(Sender: TObject);
@@ -1705,11 +1735,13 @@ begin
     GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
     if FrmResumo.MESAS.RecordCount > 0 then
     begin
+      FrmResumo.BeginUpdate;
       FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
       FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
         ('nr_mesa').AsString;
       FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
         FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
     end;
     // FrmResumo.ListarProduto;
     // Dados.Start;

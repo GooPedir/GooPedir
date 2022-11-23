@@ -1,139 +1,163 @@
 ﻿[PAGAMENTO]
 Visible=False
-Coordinates=619,105,81,33
+Coordinates=619,105,96,36
 
 [PAG]
 Visible=False
-Coordinates=426,482,40,33
+Coordinates=426,482,41,36
 
 [PRODUTOS]
 Visible=False
-Coordinates=150,482,72,33
+Coordinates=150,482,87,36
 
 [PRODUTOScodigo]
-Coordinates=475,141,106,33
+Coordinates=475,141,124,36
 
 [Label1]
-Coordinates=353,143,46,51
+Coordinates=353,143,53,58
 
 [Layout4]
-Coordinates=0,180,53,33
+Coordinates=0,180,60,36
 
 [edtDividir]
-Coordinates=72,376,61,51
+Coordinates=72,376,69,58
 
 [Image1]
-Coordinates=294,376,49,51
+Coordinates=294,376,57,58
 
 [PRODUTOSquantidade]
-Coordinates=619,1,127,33
+Coordinates=619,1,150,36
 
 [PRODUTOSobs]
-Coordinates=475,193,91,33
+Coordinates=475,193,107,36
 
 [Label3]
-Coordinates=475,71,46,51
+Coordinates=475,71,53,58
 
 [Label4]
-Coordinates=353,213,46,51
+Coordinates=353,213,53,58
 
 [Layout3]
-Coordinates=475,245,53,33
+Coordinates=475,245,60,36
 
 [btnFinalizar]
-Coordinates=141,376,72,51
+Coordinates=141,376,82,58
 
 [BindingsList1]
-Coordinates=475,297,82,33
+Coordinates=475,297,91,36
 
 [EdtDiferenca]
-Coordinates=475,1,77,51
+Coordinates=475,1,89,58
 
 [Label5]
-Coordinates=118,71,46,51
+Coordinates=118,71,53,58
 
 [PRODUTOSvalor_total]
-Coordinates=619,53,124,33
+Coordinates=619,53,146,36
 
 [EdtPago]
-Coordinates=20,124,56,51
+Coordinates=20,124,64,58
 
 [Rectangle1]
-Coordinates=475,349,69,33
+Coordinates=475,349,80,36
 
 [PAGID]
-Coordinates=475,401,46,33
+Coordinates=475,401,54,36
 
 [StringGrid1]
-Coordinates=220,357,70,87
+Coordinates=220,357,80,102
 Visible=True
 
 [Lista]
-Coordinates=118,194,53,141
+Coordinates=118,194,63,168
 
 [rect_login]
-Coordinates=475,453,63,33
+Coordinates=475,453,71,36
 
 [edtValor]
-Coordinates=353,283,55,51
+Coordinates=353,283,63,58
 
 [BDSPAG]
-Coordinates=191,1,124,141
+Coordinates=191,1,149,168
 
 [bdsPAGAMENTO]
-Coordinates=0,0,99,105
+Coordinates=0,0,116,124
 
 [PAGVALOR]
-Coordinates=347,482,72,33
+Coordinates=347,482,84,36
 
 [Label2]
-Coordinates=23,376,46,51
+Coordinates=23,376,53,58
 
 [ComboBox1]
-Coordinates=353,1,84,123
+Coordinates=353,1,101,146
 
 [PAGID_TIPO_PAGAMENTO]
-Coordinates=619,157,149,33
+Coordinates=619,157,179,36
 
 [PAGDESCRICAO_TIPO_PAG]
-Coordinates=619,209,156,33
+Coordinates=619,209,188,36
 
 [Layout5]
-Coordinates=288,482,53,33
+Coordinates=288,482,60,36
 
 [Layout2]
-Coordinates=229,482,53,33
+Coordinates=229,482,60,36
 
 [Rectangle2]
-Coordinates=71,482,69,33
+Coordinates=71,482,80,36
 
 [BDSPRODUTOS]
-Coordinates=201,161,94,177
+Coordinates=201,161,113,212
 
 [PAGAMENTOdescricao]
-Coordinates=619,261,129,33
+Coordinates=619,261,151,36
 
 [edtTotal]
-Coordinates=118,1,54,51
+Coordinates=118,1,61,58
 
 [PAGAMENTOcodigo]
-Coordinates=619,313,115,33
+Coordinates=619,313,134,36
 
 [btnSim]
-Coordinates=353,353,49,51
+Coordinates=353,353,55,58
 
 [Layout1]
-Coordinates=12,482,53,33
+Coordinates=12,482,60,36
 
 [lValorSelecionado]
-Coordinates=79,124,103,51
+Coordinates=79,124,119,58
 
 [PRODUTOSselecionado]
-Coordinates=619,365,132,33
+Coordinates=619,365,155,36
 
 [iButton1]
-Coordinates=59,213,56,51
+Coordinates=59,213,62,58
 
 [PRODUTOSnome_produto]
-Coordinates=813,1,144,33
+Coordinates=813,1,169,36
+
+[DM.DADOS_MOTOBOY_SITE]
+Coordinates=637,772,191,234
+
+[DM.FATURAS2]
+Coordinates=637,1025,104,168
+
+[DM.PARAMETRO]
+Coordinates=845,56,118,58
+
+[DM.USUARIO]
+Coordinates=608,585,96,168
+
+[DM.DADOS_WHATSAPP]
+Coordinates=172,537,161,1422
+
+[DM.DADOS_MOTOBOY_PEDIDO]
+Coordinates=359,537,211,520
+
+[DM.CAIXA]
+Coordinates=608,420,86,146
+
+[PAGTRANSACAO_MP]
+Coordinates=845,133,147,36
 

@@ -4,7 +4,8 @@ interface
 
 uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
-  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer;
+  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
+  uRequisicao;
 
 procedure Registry;
 function GetBuildInfo: string;
@@ -18,6 +19,7 @@ function SQLFormatdaDataMysql(Campo: String): String;
 function SQLFormatdaHoraMysql(Campo: String): String;
 function SQLFormatdaValorMysql(Campo: String): String;
 function ValidaQuantidadeSabores(Sabores, Codigo: String): Integer;
+procedure MovimentacaoProduto(Codigo, Tipo, Quantidade: Integer);
 
 procedure SalvarImagenBase64(base64, Caminho: String);
 
@@ -297,7 +299,11 @@ begin
   end;
 
   conexao := TConexao.Create;
-  mesa := Dados.FieldByName('mesa').AsInteger;
+  try
+    mesa := Dados.FieldByName('mesa').AsInteger;
+  except
+    mesa := 0;
+  end;
   try
     CodigoPedido := Dados.FieldByName('pedido').AsInteger;
   except
@@ -1533,6 +1539,7 @@ var
   Caixa: Integer;
   SQL: String;
   ValorTotal: Real;
+  ID: Integer;
 begin
 
   try
@@ -1571,6 +1578,110 @@ begin
   conexao.Parametros('valor', ValorTotal);
   conexao.Parametros('codigo', Caixa);
   conexao.ExecuteSQL;
+
+  Dados.Free;
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add
+    ('select pedido_produtos.codigo_produto, pedido_produtos.quantidade  from pedido');
+  conexao.SQL.Add
+    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add('where pedido.id_caixa = :caixa');
+  conexao.Parametros('caixa', Caixa);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      MovimentacaoProduto(Dados.FieldByName('codigo_produto').AsInteger, 2,
+        Dados.FieldByName('quantidade').AsInteger);
+      Dados.Next;
+    end;
+  end;
+  Dados.Free;
+
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add
+    ('select produto_ingredientes.id_ingredientes, (produto_ingredientes.quantidade * pedido_produtos.quantidade) as quantidade, produto_ingredientes.id_produto as produto  from pedido');
+  conexao.SQL.Add
+    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add
+    ('join produto_ingredientes on produto_ingredientes.id_produto = pedido_produtos.codigo_produto');
+  conexao.SQL.Add('where id_caixa = :id_caixa');
+  conexao.Parametros('id_caixa', Caixa);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      ID := conexao.GerarID('ingredientes_estoque', 'id');
+      conexao.SQL.Add
+        ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+      conexao.Parametros('id', ID);
+      conexao.Parametros('id_ingredientes', Dados.FieldByName('id_ingredientes')
+        .AsInteger);
+      conexao.Parametros('tipo', 2);
+      conexao.Parametros('quantidade',
+        (Dados.FieldByName('quantidade').AsFloat * -1));
+      conexao.Parametros('custo_total', 0);
+      conexao.Parametros('custo', 0);
+      conexao.ExecuteSQL;
+      Dados.Next;
+    end;
+  end;
+  Dados.Free;
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add
+    ('select pro_adi_personalizado_sabores.id_ingredientes as ingredientes, pro_adi_personalizado_sabores.quantidade_ingredientes as quantidade from pedido');
+  conexao.SQL.Add
+    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add
+    ('join pedido_produto_sap on pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo');
+  conexao.SQL.Add
+    ('join pro_adi_personalizado on pro_adi_personalizado.id_produto = pedido_produtos.codigo_produto and upper(pro_adi_personalizado.descricao) = upper(pedido_produto_sap.nomeclatura)');
+  conexao.SQL.Add
+    ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id and');
+  conexao.SQL.Add
+    ('upper(pro_adi_personalizado_sabores.nome) = upper(pedido_produto_sap.descricao) and pro_adi_personalizado_sabores.id_ingredientes <> 0');
+  conexao.SQL.Add
+    ('and pro_adi_personalizado_sabores.quantidade_ingredientes <> 0');
+  conexao.SQL.Add('where id_caixa = :id_caixa');
+  conexao.Parametros('id_caixa', Caixa);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      ID := conexao.GerarID('ingredientes_estoque', 'id');
+      conexao.SQL.Add
+        ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+      conexao.Parametros('id', ID);
+      conexao.Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
+        .AsInteger);
+
+      if Dados.FieldByName('quantidade').AsFloat < 0 then
+      begin
+        conexao.Parametros('tipo', 2);
+      end
+      else
+      begin
+        conexao.Parametros('tipo', 1);
+      end;
+
+      conexao.Parametros('quantidade',
+        (Dados.FieldByName('quantidade').AsFloat));
+      conexao.Parametros('custo_total', 0);
+      conexao.Parametros('custo', 0);
+      conexao.ExecuteSQL;
+      Dados.Next;
+    end;
+  end;
+  Dados.Free;
+
   conexao.Free;
 
 end;
@@ -1908,23 +2019,46 @@ begin
     else
     begin
       where := Req.Params['busca'];
-      where := 'where lower(concat(p.codigo_interno,tp.descricao,p.nome_produto,p.descricao,p.valor_venda)) like "%'
-        + where + '%"';
+      // where := 'where lower(concat(p.codigo_interno,tp.descricao,p.nome_produto,p.descricao,p.valor_venda)) like "%'
+      // + where + '%"';
+      where := 'where upper(concat(CTE.concateno,CTE.concateno2,CTE.categoria,CTE.nome,CTE.descricao,CTE.observacaopro)) like "%'
+        + UpperCase(where) +
+        '%" or upper(concat(CTE.descricao,CTE.nome,CTE.descricao,CTE.observacaopro)) like "%'
+        + UpperCase(where) + '%"';
     end;
   except
     where := '';
   end;
 
   conexao := TConexao.Create;
+  conexao.SQL.Add('WITH CTE AS (');
+  conexao.SQL.Add('SELECT p.codigo as id, ');
   conexao.SQL.Add
-    ('SELECT p.codigo as id, p.descricao as observacaopro,p.ativo, p.codigo_interno as interno, tp.descricao, p.nome_produto as nome, p.valor_venda as venda, p.id_site as site,');
+    ('p.descricao as observacaopro,p.ativo, p.codigo_interno as interno, tp.descricao, p.nome_produto as nome, p.valor_venda as venda, p.id_site as site,');
   conexao.SQL.Add
-    ('p.modificado_site as modificado, p.valor_embalagem_delivery as delivery, p.valor_embalagem_vembusca as vb, p.descricao as descpro,p.codigo_grupo as categoria, pp.codigo as pizza,  pp.quantidade_sabores as quantidade FROM produto as p');
+    (' (select sum(produto_estoque.quantidade) from produto_estoque where produto_estoque.codigo_produto = p.codigo) as estoque,');
+  conexao.SQL.Add
+    ('p.modificado_site as modificado, p.valor_embalagem_delivery as delivery, p.valor_embalagem_vembusca as vb, p.descricao as descpro,p.codigo_grupo as categoria, pp.codigo as pizza,  pp.quantidade_sabores as quantidade ,');
+  conexao.SQL.Add
+    ('upper(concat(pro_adi_personalizado_sabores.descricao,p.descricao)) as concateno,');
+  conexao.SQL.Add
+    ('upper(group_concat(pro_adi_personalizado_sabores.nome)) as concateno2');
+  conexao.SQL.Add('FROM produto as p');
   conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
   conexao.SQL.Add
     ('left join produto_pizza as pp on pp.codigo_produto = p.codigo');
+  conexao.SQL.Add
+    ('left join pro_adi_personalizado on pro_adi_personalizado.id_produto = p.codigo');
+  conexao.SQL.Add
+    ('left join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado =  pro_adi_personalizado.id');
+  conexao.SQL.Add('group by p.codigo');
+  conexao.SQL.Add('order by p.codigo_interno)');
+  conexao.SQL.Add('select ');
+  conexao.SQL.Add
+    ('CTE.id,CTE.observacaopro,CTE.ativo,CTE.interno,CTE.descricao,CTE.nome,CTE.venda,CTE.site,CTE.modificado,CTE.delivery,CTE.vb,CTE.descpro,CTE.categoria,CTE.quantidade, CTE.estoque');
+  conexao.SQL.Add('from CTE');
   conexao.SQL.Add(where);
-  conexao.SQL.Add('order by p.codigo_interno');
+  conexao.SQL.Add('order by  CTE.interno, CTE.ativo');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 
@@ -1948,7 +2082,7 @@ begin
   ID := conexao.GerarID('pro_adi_personalizado', 'id');
 
   conexao.SQL.Add
-    ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima) values (:id,:id_produto,:descricao,1,0,:qtd_maxima)');
+    ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima,modificado_site) values (:id,:id_produto,:descricao,1,0,:qtd_maxima,1)');
   conexao.Parametros('id', ID);
   conexao.Parametros('id_produto', Dados.FieldByName('IDPRODUTO').AsInteger);
   conexao.Parametros('descricao', 'INGREDIENTES');
@@ -1966,7 +2100,7 @@ begin
     conexao.Parametros('nome', Dados.FieldByName('DESCRICAO').AsString);
     conexao.Parametros('descricao', '');
     conexao.Parametros('valor', 0);
-    conexao.Parametros('modificado_site', 0);
+    conexao.Parametros('modificado_site', 1);
     conexao.Parametros('ativo', 1);
     conexao.ExecuteSQL;
     //
@@ -2913,8 +3047,18 @@ procedure DoGetCategoriaAll(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
   conexao: TConexao;
+  Busca: String;
 begin
+  try
+    Busca := Req.Params['all'];
+  except
+    Busca := '';
+  end;
+  if UpperCase(Busca) = 'ALL' then
+    Busca := '';
   conexao := TConexao.Create;
+
+  // all
 
   with conexao do
   begin
@@ -2922,6 +3066,11 @@ begin
       + QuotedStr(' (') + ',upper(driver),' + QuotedStr(')') +
       ') FROM impressoras where codigo = impressora) as descricao_impressora');
     SQL.Add('FROM tipo_produto');
+    if Busca <> '' then
+    begin
+      SQL.Add('WHERE upper(descricao) LIKE ' +
+        QuotedStr('%' + UpperCase(Busca) + '%'))
+    end;
 
   end;
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -4480,7 +4629,8 @@ begin
       with conexao do
       begin
 
-        SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site,id_site) values (:id,:extra,:nome,:descricao,:valor,:ativo,0,0)');
+        SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site,id_site,id_ingredientes,quantidade_ingredientes)');
+        SQL.Add('values (:id,:extra,:nome,:descricao,:valor,:ativo,0,0,:id_ingredientes,:quantidade_ingredientes)');
         Parametros('id', Codigo);
         Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado')
           .AsString);
@@ -4488,6 +4638,11 @@ begin
         Parametros('descricao', Dados.FieldByName('descricao').AsString);
         Parametros('valor', Dados.FieldByName('valor').AsString);
         Parametros('ativo', Dados.FieldByName('ativo').AsString);
+        Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
+          .AsString);
+        Parametros('quantidade_ingredientes',
+          StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',
+          [rfReplaceAll]));
         ExecuteSQL;
       end;
 
@@ -4496,12 +4651,17 @@ begin
     begin
       with conexao do
       begin
-        SQL.Add('update pro_adi_personalizado_sabores  set nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo, modificado_site = 0 where id = :id');
+        SQL.Add('update pro_adi_personalizado_sabores  set nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo, id_ingredientes = :id_ingredientes,quantidade_ingredientes = :quantidade_ingredientes,  modificado_site = 0 where id = :id');
         Parametros('nome', Dados.FieldByName('nome').AsString);
         Parametros('descricao', Dados.FieldByName('descricao').AsString);
         Parametros('valor', Dados.FieldByName('valor').AsString);
         Parametros('ativo', Dados.FieldByName('ativo').AsString);
         Parametros('id', Dados.FieldByName('id').AsString);
+        Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
+          .AsString);
+        Parametros('quantidade_ingredientes',
+          StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',
+          [rfReplaceAll]));
         ExecuteSQL;
       end;
     end;
@@ -4859,7 +5019,7 @@ begin
   begin
     Codigo := conexao.GerarID('pro_adi_personalizado', 'id');
     conexao.SQL.Add
-      ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima) values (:id,:id_produto,:descricao,:ativo,:qtd_minima,:qtd_maxima)');
+      ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima,modificado_site) values (:id,:id_produto,:descricao,:ativo,:qtd_minima,:qtd_maxima,1)');
     conexao.Parametros('id', Codigo);
     conexao.Parametros('id_produto', Produto);
     conexao.Parametros('descricao', Dados.FieldByName('descricao').AsString);
@@ -4873,7 +5033,7 @@ begin
   begin
     CodigoExtra := conexao.GerarID('pro_adi_personalizado_sabores', 'id');
     conexao.SQL.Add
-      ('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo) values (:id,:id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo)');
+      ('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site) values (:id,:id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,1)');
     conexao.Parametros('id', CodigoExtra);
     conexao.Parametros('id_pro_adi_personalizado', Codigo);
     conexao.Parametros('nome', Dados.FieldByName('nome').AsString);
@@ -5114,7 +5274,180 @@ begin
 
 end;
 
-// DoPostGravaMesas
+{ THorse.Post('/v1/util/grava/ingrediente/:id/:descricao/:unidade',
+  ); }
+
+procedure DoGetFichaProduto(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Codigo: Integer;
+  conexao: TConexao;
+begin
+  try
+    Codigo := Req.Params['codigo'].ToInteger;
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+
+  conexao.SQL.Add
+    ('select produto_ingredientes.*, ingredientes.descricao, ingredientes.unidade,(select custo from ingredientes_estoque where ingredientes_estoque.id_ingredientes = ingredientes.id order by id desc limit 1) as custo from produto_ingredientes');
+  conexao.SQL.Add
+    ('join ingredientes on ingredientes.id = produto_ingredientes.id_ingredientes');
+  conexao.SQL.Add('where produto_ingredientes.id_produto = :produto');
+  conexao.Parametros('produto', Codigo);
+
+  Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  conexao.Free;
+
+end;
+
+procedure DoGetDadosIngredientes(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('select *, (select custo from ingredientes_estoque where ingredientes_estoque.id_ingredientes = ingredientes.id order by id desc limit 1) as custo,');
+  conexao.SQL.Add
+    (' (select sum(quantidade) from ingredientes_estoque where id_ingredientes = ingredientes.id) as estoque from ingredientes');
+  Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  conexao.Free;
+
+end;
+
+procedure DoPostEstoqueIngrediente(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  ingrediente: Integer;
+  Tipo: Real;
+  qtd: Real;
+  custo: Real;
+  ID: Integer;
+begin
+  try
+    ingrediente := Req.Params['ingrediente'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Tipo := Req.Params['tipo'].ToDouble;
+  except
+    exit;
+  end;
+  try
+    qtd := Req.Params['qtd'].ToDouble;
+    if Tipo <> 1 then
+      qtd := qtd * -1;
+  except
+    exit;
+  end;
+  try
+    custo := Req.Params['custo'].ToDouble;
+  except
+    exit;
+  end;
+
+  conexao := TConexao.Create;
+  ID := conexao.GerarID('ingredientes_estoque', 'id');
+  conexao.SQL.Add
+    ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+  conexao.Parametros('id', ID);
+  conexao.Parametros('id_ingredientes', ingrediente);
+  conexao.Parametros('tipo', Tipo);
+  conexao.Parametros('quantidade', qtd);
+  conexao.Parametros('custo_total', custo);
+  conexao.Parametros('custo', custo / qtd);
+  conexao.ExecuteSQL;
+  conexao.Free;
+
+end;
+
+procedure DoPostFichaProduto(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+Var
+  Dados: TFDMemTable;
+  conexao: TConexao;
+begin
+  Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON(Req.Body);
+  if Dados.RecordCount = 0 then
+  begin
+    Dados.Free;
+    exit;
+  end;
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('delete from produto_ingredientes where id_produto = :produto');
+  conexao.Parametros('produto', Dados.FieldByName('id_produto').AsInteger);
+  conexao.ExecuteSQL;
+  while not Dados.Eof do
+  begin
+    if Dados.FieldByName('id').AsInteger = 0 then
+    begin
+      Dados.Edit;
+      Dados.FieldByName('id').AsInteger :=
+        conexao.GerarID('produto_ingredientes', 'id');
+      Dados.Post;
+    end;
+    conexao.SQL.Add
+      ('insert into produto_ingredientes (id,id_produto,id_ingredientes,quantidade) values (:id,:id_produto,:id_ingredientes,:quantidade)');
+    conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
+    conexao.Parametros('id_produto', Dados.FieldByName('id_produto').AsInteger);
+    conexao.Parametros('id_ingredientes', Dados.FieldByName('id_ingredientes')
+      .AsInteger);
+    conexao.Parametros('quantidade', Dados.FieldByName('quantidade').AsFloat);
+    conexao.ExecuteSQL;
+    Dados.Next;
+  end;
+  conexao.Free;
+  Dados.Free;
+end;
+
+procedure DoPostIngredientesFicha(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  ID: Integer;
+  Descricao: String;
+  Unidade: String;
+begin
+  try
+    ID := Req.Params['id'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Descricao := Req.Params['descricao'];
+  except
+    exit;
+  end;
+  try
+    Unidade := Req.Params['unidade'];
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+  if ID > 0 then
+  begin
+    conexao.SQL.Add
+      ('update ingredientes set descricao = :descricao, unidade = :unidade where id = :id');
+  end
+  else
+  begin
+    ID := conexao.GerarID('ingredientes', 'id');
+    conexao.SQL.Add
+      ('insert into ingredientes (id,descricao,unidade) values (:id,:descricao,:unidade)');
+  end;
+  conexao.Parametros('id', ID);
+  conexao.Parametros('descricao', Descricao);
+  conexao.Parametros('unidade', Unidade);
+  conexao.ExecuteSQL;
+  conexao.Free;
+end;
+
 procedure DoPostGravaMesas(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -5410,7 +5743,7 @@ begin
   conexao.Parametros('tabela', tabela);
   conexao.ExecuteSQL;
 
-  conexao.sql.Add('select * from geradores where tabela = :tabela');
+  conexao.SQL.Add('select * from geradores where tabela = :tabela');
   conexao.Parametros('tabela', tabela);
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -5436,11 +5769,124 @@ begin
     conexao.ExecuteSQL;
   end;
 
-
-  Res.Send(valor.ToString);
+  Res.Send(Valor.ToString);
   Dados.Free;
   conexao.Free;
 end;
+
+procedure DoPostEstoqueProduto(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+
+  Produto: Integer;
+  Tipo: Integer;
+  Quantidade: Integer;
+begin
+
+  try
+    Produto := Req.Params['codigo'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Tipo := Req.Params['tipo'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Quantidade := Req.Params['quantidade'].ToInteger;
+  except
+    exit;
+  end;
+
+  if Tipo <> 1 then
+  begin
+    Tipo := 1;
+    Quantidade := Quantidade * -1;
+  end;
+  MovimentacaoProduto(Produto, Tipo, Quantidade);
+
+end;
+
+//
+
+procedure DoPostGeraPix(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+  token: String;
+  Valor: String;
+  Pedido: String;
+  ID: Integer;
+  MP: String;
+  RequisicaoPIX: iRequisicao;
+  JSonValue: TJSONValue;
+  Dados: TFDMemTable;
+begin
+  try
+    token := Req.Params['token'];
+  except
+    exit;
+  end;
+
+  try
+    Valor := Req.Params['valor'];
+  except
+    exit;
+  end;
+
+  try
+    Pedido := Req.Params['pedido'];
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add
+    ('select * from pix where id_pedido = :id_pedido and valor = :valor and expdatahora >= Now()');
+  conexao.Parametros('id_pedido', Pedido);
+  conexao.Parametros('valor', Valor);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+  RequisicaoPIX := iRequisicao.Create(nil);
+
+  if Dados.RecordCount = 0 then
+  begin
+    RequisicaoPIX.BaseURL := 'https://goopedir.com/produto/pix.php?token=' +
+      token + '&pedido=' + Pedido + '&valor=' + Valor;
+    RequisicaoPIX.Metodo := mPost;
+    RequisicaoPIX.Execute;
+
+    if RequisicaoPIX.Status = 200 then
+    begin
+      JSonValue := TJSONObject.ParseJSONValue(RequisicaoPIX.Retorno);
+
+      ID := conexao.GerarID('pix', 'id');
+      conexao.SQL.Add
+        ('insert into pix (id,id_pedido,valor,creatdatahora,expdatahora,transacao_mp) values (:id,:pedido,:valor,now(),date_add(now(), interval 1 day),:transacao_mp)');
+      conexao.Parametros('id', ID);
+      conexao.Parametros('pedido', Pedido);
+      conexao.Parametros('valor', Valor);
+      MP := JSonValue.GetValue<string>('id');
+      conexao.Parametros('transacao_mp', MP);
+      conexao.ExecuteSQL;
+    end;
+  end else
+  begin
+   MP := Dados.FieldByName('transacao_mp').AsString;
+  end;
+
+  RequisicaoPIX.BaseURL := 'https://goopedir.com/produto/pixstatus.php?token=' +
+    token + '&id=' + MP;
+  RequisicaoPIX.Metodo := mPost;
+  RequisicaoPIX.Execute;
+
+  Res.Status(RequisicaoPIX.Status);
+  Res.Send(RequisicaoPIX.Retorno);
+  RequisicaoPIX.Free;
+  conexao.Free;
+  Dados.Free;
+end;
+
+
 
 
 
@@ -5557,7 +6003,7 @@ begin
   THorse.Post('/v1/imprimir/:tipo/:codigo', DoPostImprimir);
 
   // Cadastros
-  THorse.Get('/v1/categoria/all/', DoGetCategoriaAll);
+  THorse.Get('/v1/categoria/:all/', DoGetCategoriaAll);
   THorse.Post('/v1/categoria/post/', DoPostCategoriaAll);
 
   THorse.Get('/v1/consulta/todos/:tabela', DoGetConsultaTodos);
@@ -5669,6 +6115,25 @@ begin
 
   THorse.Get('/v1/util/gerador/:tabela/:campo', DoGetGerador);
 
+  // Estoque
+  THorse.Post('/v1/estoque/produto/:codigo/:tipo/:quantidade',
+    DoPostEstoqueProduto);
+  // Ingredientes
+  THorse.Post('/v1/util/grava/ingrediente/:id/:descricao/:unidade',
+    DoPostIngredientesFicha);
+
+  THorse.Post('/v1/util/grava/ingrediente/ficha/produto', DoPostFichaProduto);
+  THorse.Get('/v1/util/grava/ingrediente/ficha/produto/:codigo',
+    DoGetFichaProduto);
+
+  THorse.Post
+    ('/v1/util/estoque/ingrediente/produto/:ingrediente/:tipo/:qtd/:custo',
+    DoPostEstoqueIngrediente);
+
+  THorse.Get('/v1/consulta/todos/ingredientes', DoGetDadosIngredientes);
+
+  THorse.Post('/v1/gera/pix/:token/:valor/:pedido', DoPostGeraPix);
+
 end;
 
 function TransformaData(Data: String): TDate;
@@ -5760,6 +6225,7 @@ begin
     conexao.Free;
     exit;
   end;
+
   Codigo := conexao.GerarID('caixa_receber', 'id');
   conexao.SQL.Add
     ('insert into caixa_receber (id,id_caixa,id_cliente,id_pedido,id_tipo_pagamento,data,hora,valor,status) values (:id,:id_caixa,:id_cliente,:id_pedido,:id_tipo_pagamento,current_date,current_time,:valor,1) ');
@@ -6004,6 +6470,33 @@ begin
     Result := Result + '.' + IntToStr(dwFileVersionLS and $FFFF);
   end;
   FreeMem(VerInfo, VerInfoSize);
+end;
+
+procedure MovimentacaoProduto(Codigo, Tipo, Quantidade: Integer);
+var
+  conexao: TConexao;
+  ID: Integer;
+  SaldoAtual: Integer;
+  SaldoNovo: Integer;
+begin
+  conexao := TConexao.Create;
+  SaldoAtual := 0;
+  SaldoNovo := 0;
+  if (Tipo <> 1) and (Quantidade > 0) then
+  begin
+    Quantidade := Quantidade * -1;
+  end;
+  ID := conexao.GerarID('produto_estoque', 'codigo');
+  conexao.SQL.Add
+    ('insert into produto_estoque (codigo,data,hora,operacao,codigo_produto,quantidade,saldo_novo,saldo_atual) values (:codigo,current_date,current_time,:operacao,:codigo_produto,:quantidade,:saldo_novo,:saldo_atual)');
+  conexao.Parametros('codigo', ID);
+  conexao.Parametros('operacao', Tipo);
+  conexao.Parametros('quantidade', Quantidade);
+  conexao.Parametros('codigo_produto', Codigo);
+  conexao.Parametros('saldo_novo', SaldoNovo);
+  conexao.Parametros('saldo_atual', SaldoAtual);
+  conexao.ExecuteSQL;
+  conexao.Free;
 end;
 
 end.

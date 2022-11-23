@@ -17,7 +17,7 @@ object FrmAddItem: TFrmAddItem
   object layout_qtd: TLayout
     Align = Contents
     Size.Width = 362.000000000000000000
-    Size.Height = 493.000000000000000000
+    Size.Height = 693.000000000000000000
     Size.PlatformDefault = False
     Visible = False
     TabOrder = 2
@@ -25,13 +25,13 @@ object FrmAddItem: TFrmAddItem
       Align = Client
       Fill.Color = claWhite
       Size.Width = 362.000000000000000000
-      Size.Height = 443.000000000000000000
+      Size.Height = 643.000000000000000000
       Size.PlatformDefault = False
       Stroke.Kind = None
       object rect_encerrar: TRectangle
         Align = Bottom
         Fill.Color = xFFA4001B
-        Position.Y = 381.000000000000000000
+        Position.Y = 581.000000000000000000
         Size.Width = 362.000000000000000000
         Size.Height = 62.000000000000000000
         Size.PlatformDefault = False
@@ -247,7 +247,7 @@ object FrmAddItem: TFrmAddItem
         Align = Bottom
         StyledSettings = [Family]
         Margins.Right = 5.000000000000000000
-        Position.Y = 336.000000000000000000
+        Position.Y = 536.000000000000000000
         Size.Width = 357.000000000000000000
         Size.Height = 45.000000000000000000
         Size.PlatformDefault = False
@@ -268,7 +268,7 @@ object FrmAddItem: TFrmAddItem
           TextSettings.Font.StyleExt = {00070000000000000004000000}
           TextSettings.FontColor = xFFF91E1E
           Text = 'lVerificar'
-          TabOrder = 4
+          TabOrder = 3
         end
       end
     end
@@ -366,7 +366,7 @@ object FrmAddItem: TFrmAddItem
     Size.Height = 693.000000000000000000
     Size.PlatformDefault = False
     TabHeight = 49.000000000000000000
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     TabPosition = None
     Sizes = (
@@ -380,7 +380,7 @@ object FrmAddItem: TFrmAddItem
       CustomIcon = <
         item
         end>
-      IsSelected = True
+      IsSelected = False
       Size.Width = 8.000000000000000000
       Size.Height = 8.000000000000000000
       Size.PlatformDefault = False
@@ -607,7 +607,7 @@ object FrmAddItem: TFrmAddItem
       CustomIcon = <
         item
         end>
-      IsSelected = False
+      IsSelected = True
       Size.Width = 8.000000000000000000
       Size.Height = 8.000000000000000000
       Size.PlatformDefault = False
@@ -772,7 +772,7 @@ object FrmAddItem: TFrmAddItem
         Size.Width = 370.000000000000000000
         Size.Height = 145.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 51
+        TabOrder = 55
         Visible = False
         ItemAppearanceObjects.ItemObjects.ObjectsCollection = <
           item

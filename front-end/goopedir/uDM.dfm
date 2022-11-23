@@ -305,6 +305,14 @@ object DM: TDM
     object DADOS_WHATSAPPtemp_delivery: TIntegerField
       FieldName = 'temp_delivery'
     end
+    object DADOS_WHATSAPPtoken_mp: TStringField
+      DisplayLabel = 'Token Mercado Pago'
+      FieldName = 'token_mp'
+      Size = 2555
+    end
+    object DADOS_WHATSAPPfat_integra_pix: TIntegerField
+      FieldName = 'fat_integra_pix'
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -353,8 +361,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 568
-    Top = 240
+    Left = 584
+    Top = 224
     object DADOS_MOTOBOY_SITEdeliveryman_name: TStringField
       FieldName = 'deliveryman_name'
       Size = 255
@@ -474,5 +482,16 @@ object DM: TDM
       FieldName = 'data_formatada'
       Size = 255
     end
+  end
+  object VersaoConexao: TFDConnection
+    Params.Strings = (
+      'Port=2020'
+      'Server=localhost'
+      'Password=root'
+      'User_Name=root'
+      'Database=sys'
+      'DriverID=MySQL')
+    Left = 912
+    Top = 224
   end
 end

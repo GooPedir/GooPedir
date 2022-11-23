@@ -66,6 +66,7 @@ type
     Label5: TLabel;
     iButton1: iButton;
     Image1: TImage;
+    PAGTRANSACAO_MP: TStringField;
     procedure FormCreate(Sender: TObject);
     procedure ListaCellDblClick(const Column: TColumn; const Row: Integer);
     procedure ListaDrawColumnCell(Sender: TObject; const Canvas: TCanvas;
@@ -116,21 +117,47 @@ implementation
 
 {$R *.fmx}
 
-uses Funcoes, FMXTee.Canvas, uSimNao;
+uses Funcoes, FMXTee.Canvas, uSimNao, uDM, ufrmPIXMP;
 
 procedure TfrmFechamentoPedido.AdicionarPagamento;
 begin
   try
     if edtValor.Text.ToDouble > 0 then
     begin
-      if PAG.Locate('ID_TIPO_PAGAMENTO', PAGAMENTO.FieldByName('codigo')
-        .AsInteger) then
+      if (DM.IntegracaoPIX) and
+        (UpperCase(PAGAMENTO.FieldByName('descricao').AsString) = 'PIX') then
       begin
-        PAG.Edit;
+        PAG.DisableControls;
+        PAG.Insert;
+        PAG.FieldByName('ID').AsInteger := GerarCodigo;
+        PAG.FieldByName('ID_TIPO_PAGAMENTO').AsInteger :=
+          PAGAMENTO.FieldByName('codigo').AsInteger;
+        PAG.FieldByName('DESCRICAO_TIPO_PAG').AsString :=
+          PAGAMENTO.FieldByName('descricao').AsString;
+        PAG.FieldByName('VALOR').AsFloat :=  edtValor.Text.ToDouble;
+
+        frmPIXMP := TfrmPIXMP.Create(self);
+
+        frmPIXMP.Pedido := CodigoPedido;
+        frmPIXMP.Valor := StrToFloat(edtValor.Text);
+        frmPIXMP.PAGAMENTO := PAG;
+        frmPIXMP.Load;
+        frmPIXMP.ShowModal;
+        PAG.EnableControls;
+        exit;
+
       end
       else
       begin
-        PAG.Insert;
+        if PAG.Locate('ID_TIPO_PAGAMENTO', PAGAMENTO.FieldByName('codigo')
+          .AsInteger) then
+        begin
+          PAG.Edit;
+        end
+        else
+        begin
+          PAG.Insert;
+        end;
       end;
 
       PAG.FieldByName('ID').AsInteger := GerarCodigo;
@@ -151,8 +178,13 @@ begin
       ShowMessageToast(self, 'Valor Incorreto!', 1);
     end;
   except
-    ShowMessageToast(self, 'Valor Incorreto!', 1);
-    edtValor.SetFocus;
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      // ShowMessageToast(self, 'Valor Incorreto!', 1);
+      // edtValor.SetFocus;
+    end;
+
   end;
 end;
 
@@ -217,6 +249,8 @@ begin
   SomaSelecionado := 0;
   FCodigo := 0;
   PAG.Open;
+
+   LinkGridToDataSourceBDSPAG.Columns[2].Visible := dm.IntegracaoPIX;
 
 end;
 

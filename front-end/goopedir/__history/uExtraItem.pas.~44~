@@ -1,0 +1,269 @@
+unit uExtraItem;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, FMX.ScrollBox,
+  FMX.Grid, FMX.Layouts, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.ListView, System.Bindings.Outputs,
+  FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
+  Data.Bind.DBScope;
+
+type
+  TfrmExtraItem = class(TForm)
+    Rectangle1: TRectangle;
+    lNomeProduto: TLabel;
+    img_adicionar: TImage;
+    DADOS: iMemTable;
+    DADOSid: TIntegerField;
+    DADOSid_pro_adi_personalizado: TIntegerField;
+    DADOSnome: TStringField;
+    DADOSdescricao: TStringField;
+    DADOSvalor: TFloatField;
+    VertScroll: TVertScrollBox;
+    DADOSativo: TIntegerField;
+    DADOSmodificado_site: TIntegerField;
+    DADOEXTRA: iMemTable;
+    DADOEXTRAcodigo: TIntegerField;
+    DADOEXTRAextra_id: TIntegerField;
+    DADOEXTRAjuncao: TStringField;
+    DADOEXTRAproduto: TStringField;
+    DADOEXTRAextra: TStringField;
+    DADOEXTRAitens: TStringField;
+    ListView1: TListView;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    memDadosFicha: TFDMemTable;
+    memDadosFichaid: TIntegerField;
+    memDadosFichadescricao: TStringField;
+    memDadosFichaunidade: TStringField;
+    memDadosFichacusto: TFloatField;
+    DADOSingredientes: TIntegerField;
+    DADOSquantidade: TFloatField;
+    procedure img_adicionarMouseEnter(Sender: TObject);
+    procedure img_adicionarMouseLeave(Sender: TObject);
+    procedure img_adicionarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure ListView1ItemClickEx(const Sender: TObject; ItemIndex: Integer;
+      const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+  private
+    FDescricao: String;
+    FCodigo: Integer;
+    FMax: Integer;
+    FMin: Integer;
+    FTipo: Integer;
+    procedure SetCodigo(const Value: Integer);
+    procedure SetDescricao(const Value: String);
+    procedure SetMax(const Value: Integer);
+    procedure SetMin(const Value: Integer);
+    procedure SetTipo(const Value: Integer);
+    procedure SimCopiar;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Descricao: String read FDescricao write SetDescricao;
+    property Min: Integer read FMin write SetMin;
+    property Max: Integer read FMax write SetMax;
+    property Tipo: Integer read FTipo write SetTipo;
+  end;
+
+var
+  frmExtraItem: TfrmExtraItem;
+  ExtraID: Integer;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, uframeExtraItensAdd, uSimNao, util, uProduto;
+
+{ TfrmExtraItem }
+
+procedure TfrmExtraItem.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  I: Integer;
+  Extra: TframeExtraItensAdd;
+begin
+  if Tipo = 1 then
+    exit;
+  DADOS.Close;
+  DADOS.Open;
+
+  DADOS.insert;
+  DADOS.FieldByName('id').AsInteger := -1;
+  DADOS.FieldByName('id_pro_adi_personalizado').AsInteger := Codigo;
+  DADOS.FieldByName('nome').AsString := '';
+  DADOS.FieldByName('descricao').AsString := '';
+  DADOS.FieldByName('valor').AsString := '';
+  DADOS.FieldByName('ativo').AsInteger := 0;
+  DADOS.FieldByName('ingredientes').AsInteger := 0;
+  DADOS.FieldByName('quantidade').AsFloat := 0;
+  DADOS.Post;
+
+  for I := 0 to VertScroll.ComponentCount - 1 do
+  begin
+    if VertScroll.Components[I] is TframeExtraItensAdd then
+    begin
+      Extra := VertScroll.Components[I] as TframeExtraItensAdd;
+      DADOS.insert;
+      DADOS.FieldByName('id').AsInteger := Extra.Codigo;
+      DADOS.FieldByName('id_pro_adi_personalizado').AsInteger := Codigo;
+      DADOS.FieldByName('nome').AsString := Extra.EdtNome.Text;
+      DADOS.FieldByName('descricao').AsString := Extra.EdtDescricao.Text;
+      DADOS.FieldByName('valor').AsString := Extra.edtValor.Text;
+      DADOS.FieldByName('ingredientes').AsInteger := Extra.GetCodigoIngredienteSelecionado;
+      DADOS.FieldByName('quantidade').AsFloat := Extra.GetQuantidadeIngredienteSelecionado;
+      if Extra.sStatus.IsChecked then
+      begin
+        DADOS.FieldByName('ativo').AsInteger := 1;
+      end
+      else
+      begin
+        DADOS.FieldByName('ativo').AsInteger := 0;
+      end;
+      DADOS.Post;
+    end;
+
+  end;
+
+  dm.PostSimples('/v1/extra/produto/itens', DADOS);
+end;
+
+procedure TfrmExtraItem.FormCreate(Sender: TObject);
+begin
+  ExtraID := 0;
+    DM.GetSimples2('/v1/consulta/todos/ingredientes', memDadosFicha);
+end;
+
+procedure TfrmExtraItem.img_adicionarClick(Sender: TObject);
+Var
+  FrameExtraItem: TframeExtraItensAdd;
+begin
+  inc(ExtraID);
+  FrameExtraItem := TframeExtraItensAdd.Create(VertScroll);
+  FrameExtraItem.Parent := VertScroll;
+  FrameExtraItem.memDadosFicha := memDadosFicha;
+  FrameExtraItem.Align := TAlignLayout.MostTop;
+  FrameExtraItem.Codigo := 0;
+  FrameExtraItem.Nome := '';
+  FrameExtraItem.Descricao := '';
+  FrameExtraItem.Valor := 0;
+  FrameExtraItem.Status := 1;
+  FrameExtraItem.Name := 'FrameExtraItem' + Codigo.ToString + ExtraID.ToString;
+  FrameExtraItem.modificado := 0;
+  FrameExtraItem.EdtNome.SetFocus;
+end;
+
+procedure TfrmExtraItem.img_adicionarMouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+end;
+
+procedure TfrmExtraItem.img_adicionarMouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+end;
+
+procedure TfrmExtraItem.ListView1ItemClickEx(const Sender: TObject;
+  ItemIndex: Integer; const LocalClickPos: TPointF;
+  const ItemObject: TListItemDrawable);
+begin
+  frmSimNao.Titulo := 'Copiar Extra de Outros Produtos';
+  frmSimNao.Descricao := 'Deseja copiar o extra "' + DADOEXTRA.FieldByName
+    ('extra').AsString + '"?';
+  frmSimNao.Sim := SimCopiar;
+  frmSimNao.Show;
+end;
+
+procedure TfrmExtraItem.SetCodigo(const Value: Integer);
+Var
+  FrameExtraItem: TframeExtraItensAdd;
+begin
+  FCodigo := Value;
+  VertScroll.Visible := True;
+  ListView1.Visible := False;
+  if Tipo = 1 then
+  begin
+    dm.GetSimples('/v1/util/extra/produtos/', DADOEXTRA);
+    ListView1.Visible := True;
+    VertScroll.Visible := False;
+    exit;
+  end;
+  dm.GetSimples('/v1/extra/produto/itens/' + Codigo.ToString, DADOS);
+  if DADOS.RecordCount = 0 then
+  begin
+    DADOS.Close;
+    DADOS.Open;
+    exit;
+  end;
+
+  while not DADOS.Eof do
+  begin
+    FrameExtraItem := TframeExtraItensAdd.Create(VertScroll);
+    FrameExtraItem.Parent := VertScroll;
+    FrameExtraItem.memDadosFicha := memDadosFicha;
+    FrameExtraItem.Align := TAlignLayout.Top;
+    FrameExtraItem.Codigo := DADOS.FieldByName('id').AsInteger;
+    FrameExtraItem.Nome := DADOS.FieldByName('nome').AsString;
+    FrameExtraItem.Descricao := DADOS.FieldByName('descricao').AsString;
+    FrameExtraItem.Valor := DADOS.FieldByName('valor').AsFloat;
+    FrameExtraItem.Status := DADOS.FieldByName('ativo').AsInteger;
+    FrameExtraItem.modificado := DADOS.FieldByName('modificado_site').AsInteger;
+    try
+      FrameExtraItem.IDIngredientes := DADOS.FieldByName('id_ingredientes')
+        .AsInteger;
+    except
+      FrameExtraItem.IDIngredientes := 0;
+    end;
+    try
+      FrameExtraItem.QuantidadeIngrediente :=
+        DADOS.FieldByName('quantidade_ingredientes').AsInteger;
+    except
+      FrameExtraItem.QuantidadeIngrediente := 0;
+    end;
+    DADOS.Next;
+  end;
+
+end;
+
+procedure TfrmExtraItem.SetDescricao(const Value: String);
+begin
+  FDescricao := Value;
+  lNomeProduto.Text := Value;
+end;
+
+procedure TfrmExtraItem.SetMax(const Value: Integer);
+begin
+  FMax := Value;
+end;
+
+procedure TfrmExtraItem.SetMin(const Value: Integer);
+begin
+  FMin := Value;
+end;
+
+procedure TfrmExtraItem.SetTipo(const Value: Integer);
+begin
+  FTipo := Value;
+end;
+
+procedure TfrmExtraItem.SimCopiar;
+begin
+  dm.PostSimplesUnico('/v1/util/extra/produtos/' + DADOEXTRA.FieldByName
+    ('extra_id').AsString + '/' + Codigo.ToString, nil);
+  ShowMessageToast(self, 'Extra cópiado com sucesso!', 3);
+  Close;
+  frmProduto.Abrir(2);
+
+end;
+
+end.

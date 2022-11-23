@@ -1712,6 +1712,13 @@ inherited frmDashBoard: TfrmDashBoard
               Viewport.Width = 1187.000000000000000000
               Viewport.Height = 121.000000000000000000
             end
+            object Button1: TButton
+              Position.X = 19.000000000000000000
+              Position.Y = 369.000000000000000000
+              TabOrder = 2
+              Text = 'Button1'
+              OnClick = Button1Click
+            end
           end
         end
       end

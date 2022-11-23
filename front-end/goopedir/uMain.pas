@@ -157,7 +157,7 @@ end;
 
 procedure TfrmMain.FinalizouCarregamento;
 begin
-  AbrirForm('TfrmPedido');
+//  AbrirForm('TfrmPedido');
   AbrirForm('TfrmMesas');
   AbrirForm('TfrmProduto');
   AbrirForm('TfrmCaixa');
@@ -274,6 +274,12 @@ begin
   if Nome = 'TfrmCaixa' then
   begin
     Result := 'Caixa';
+    exit;
+  end;
+
+  if Nome = 'TfrmIngredientesProduto' then
+  begin
+    Result := 'Ingredientes';
     exit;
   end;
 

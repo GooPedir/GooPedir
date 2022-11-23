@@ -40,6 +40,13 @@ type
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
     LinkListControlToField1: TLinkListControlToField;
+    memDadosFicha: TFDMemTable;
+    memDadosFichaid: TIntegerField;
+    memDadosFichadescricao: TStringField;
+    memDadosFichaunidade: TStringField;
+    memDadosFichacusto: TFloatField;
+    DADOSingredientes: TIntegerField;
+    DADOSquantidade: TFloatField;
     procedure img_adicionarMouseEnter(Sender: TObject);
     procedure img_adicionarMouseLeave(Sender: TObject);
     procedure img_adicionarClick(Sender: TObject);
@@ -98,6 +105,8 @@ begin
   DADOS.FieldByName('descricao').AsString := '';
   DADOS.FieldByName('valor').AsString := '';
   DADOS.FieldByName('ativo').AsInteger := 0;
+  DADOS.FieldByName('ingredientes').AsInteger := 0;
+  DADOS.FieldByName('quantidade').AsFloat := 0;
   DADOS.Post;
 
   for I := 0 to VertScroll.ComponentCount - 1 do
@@ -111,6 +120,10 @@ begin
       DADOS.FieldByName('nome').AsString := Extra.EdtNome.Text;
       DADOS.FieldByName('descricao').AsString := Extra.EdtDescricao.Text;
       DADOS.FieldByName('valor').AsString := Extra.edtValor.Text;
+      DADOS.FieldByName('ingredientes').AsInteger :=
+        Extra.GetCodigoIngredienteSelecionado;
+      DADOS.FieldByName('quantidade').AsFloat :=
+        Extra.GetQuantidadeIngredienteSelecionado;
       if Extra.sStatus.IsChecked then
       begin
         DADOS.FieldByName('ativo').AsInteger := 1;
@@ -130,6 +143,7 @@ end;
 procedure TfrmExtraItem.FormCreate(Sender: TObject);
 begin
   ExtraID := 0;
+
 end;
 
 procedure TfrmExtraItem.img_adicionarClick(Sender: TObject);
@@ -139,6 +153,7 @@ begin
   inc(ExtraID);
   FrameExtraItem := TframeExtraItensAdd.Create(VertScroll);
   FrameExtraItem.Parent := VertScroll;
+  FrameExtraItem.memDadosFicha := memDadosFicha;
   FrameExtraItem.Align := TAlignLayout.MostTop;
   FrameExtraItem.Codigo := 0;
   FrameExtraItem.Nome := '';
@@ -147,6 +162,8 @@ begin
   FrameExtraItem.Status := 1;
   FrameExtraItem.Name := 'FrameExtraItem' + Codigo.ToString + ExtraID.ToString;
   FrameExtraItem.modificado := 0;
+  FrameExtraItem.IDIngredientes := 0;
+  FrameExtraItem.QuantidadeIngrediente := 0;
   FrameExtraItem.EdtNome.SetFocus;
 end;
 
@@ -175,6 +192,11 @@ procedure TfrmExtraItem.SetCodigo(const Value: Integer);
 Var
   FrameExtraItem: TframeExtraItensAdd;
 begin
+  dm.GetSimples2('/v1/consulta/todos/ingredientes', memDadosFicha);
+  memDadosFicha.insert;
+  memDadosFicha.FieldByName('id').AsInteger := 0;
+  memDadosFicha.FieldByName('descricao').AsString := 'SEM INGREDIENTE';
+  memDadosFicha.Post;
   FCodigo := Value;
   VertScroll.Visible := True;
   ListView1.Visible := False;
@@ -197,6 +219,7 @@ begin
   begin
     FrameExtraItem := TframeExtraItensAdd.Create(VertScroll);
     FrameExtraItem.Parent := VertScroll;
+    FrameExtraItem.memDadosFicha := memDadosFicha;
     FrameExtraItem.Align := TAlignLayout.Top;
     FrameExtraItem.Codigo := DADOS.FieldByName('id').AsInteger;
     FrameExtraItem.Nome := DADOS.FieldByName('nome').AsString;
@@ -204,6 +227,18 @@ begin
     FrameExtraItem.Valor := DADOS.FieldByName('valor').AsFloat;
     FrameExtraItem.Status := DADOS.FieldByName('ativo').AsInteger;
     FrameExtraItem.modificado := DADOS.FieldByName('modificado_site').AsInteger;
+    try
+      FrameExtraItem.IDIngredientes := DADOS.FieldByName('id_ingredientes')
+        .AsInteger;
+    except
+      FrameExtraItem.IDIngredientes := 0;
+    end;
+    try
+      FrameExtraItem.QuantidadeIngrediente :=
+        DADOS.FieldByName('quantidade_ingredientes').AsInteger;
+    except
+      FrameExtraItem.QuantidadeIngrediente := 0;
+    end;
     DADOS.Next;
   end;
 
@@ -237,8 +272,6 @@ begin
   ShowMessageToast(self, 'Extra cópiado com sucesso!', 3);
   Close;
   frmProduto.Abrir(2);
-
-
 
 end;
 

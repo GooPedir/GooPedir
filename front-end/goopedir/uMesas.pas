@@ -10,7 +10,8 @@ uses
   FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, uMemTable, uRequisicao;
+  FireDAC.Comp.Client, uMemTable, uRequisicao, uComboboxLocal,
+  FMX.DateTimeCtrls;
 
 type
 
@@ -27,13 +28,21 @@ type
     tabDeliveryVemBuscar: TTabControl;
     tabDelivery: TTabItem;
     tabVemBuscar: TTabItem;
-    Layout2: TLayout;
     vertDelivery: TVertScrollBox;
     vertVemBuscar: TVertScrollBox;
     DadosPedido: TFDMemTable;
     DadosTela: TTimer;
     TabMesa: TTabItem;
     vertMesa: TVertScrollBox;
+    MOTOBOY: iMemTable;
+    MOTOBOYcodigo: TIntegerField;
+    MOTOBOYnome: TStringField;
+    Layout6: TLayout;
+    TabControl1: TTabControl;
+    TabItem1: TTabItem;
+    TabItem2: TTabItem;
+    TabItem3: TTabItem;
+    Layout2: TLayout;
     Layout3: TLayout;
     Label3: TLabel;
     lMesa: TLabel;
@@ -54,6 +63,25 @@ type
     Layout5: TLayout;
     Image5: TImage;
     Label9: TLabel;
+    Layout7: TLayout;
+    Label14: TLabel;
+    edtDataInicial: TDateEdit;
+    Layout22: TLayout;
+    Label16: TLabel;
+    edtDataFinal: TDateEdit;
+    Layout23: TLayout;
+    Label17: TLabel;
+    edtHoraInicial: TTimeEdit;
+    Layout24: TLayout;
+    Label19: TLabel;
+    edtHoraFinal: TTimeEdit;
+    TabItem4: TTabItem;
+    vertMotoboy: TVertScrollBox;
+    DadosMotoboy: TFDMemTable;
+    DadosMotoboyNOME: TStringField;
+    DadosMotoboyPEDIDO: TStringField;
+    DadosMotoboyTAXA: TFloatField;
+    DadosMotoboyTOTAL: TFloatField;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -66,6 +94,8 @@ type
     procedure lImpressaoMouseLeave(Sender: TObject);
     procedure lImpressaoClick(Sender: TObject);
     procedure Layout5Click(Sender: TObject);
+    procedure Layout4Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
@@ -82,6 +112,7 @@ type
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
     property ValorEmAberto: Real read FValorEmAberto write SetValorEmAberto;
     procedure SimGerencial;
+    procedure SetaMotoboy(Sender: TObject);
   public
     { Public declarations }
     procedure CarregaMesas;
@@ -111,12 +142,15 @@ type
 
 var
   frmMesas: TfrmMesas;
+  cMotoboy: TCustomCombo;
+  ArrayMotoboy: Array of Integer;
 
 implementation
 
 {$R *.fmx}
 
-uses uDM, Funcoes, UnitResumo, FMXTee.Canvas, uframeDadosVBDelivery, uSimNao;
+uses uDM, Funcoes, UnitResumo, FMXTee.Canvas, uframeDadosVBDelivery, uSimNao,
+  uMain, ufrmDadosPedidoMotoboy;
 
 { TfrmMesas }
 
@@ -393,6 +427,79 @@ begin
     end).Start;
 end;
 
+procedure TfrmMesas.FormCreate(Sender: TObject);
+begin
+  inherited;
+  edtDataInicial.Date := now;
+  edtDataFinal.Date := now + 1;
+  edtHoraInicial.Time := StrToTime('00:00:00');
+  edtHoraFinal.Time := StrToTime('23:59:59');
+
+end;
+
+procedure TfrmMesas.Layout4Click(Sender: TObject);
+var
+  I: Integer;
+  Frame: TframeDadosVBDelivery;
+begin
+  inherited;
+  setlength(ArrayMotoboy, 0);
+  //
+  for I := 0 to tabDeliveryVemBuscar.ComponentCount - 1 do
+  begin
+    if (tabDeliveryVemBuscar.Components[I] is TframeDadosVBDelivery) then
+    begin
+      Frame := (tabDeliveryVemBuscar.Components[I] as TframeDadosVBDelivery);
+      if Frame.cSelecionar.IsChecked then
+      begin
+        setlength(ArrayMotoboy, Length(ArrayMotoboy) + 1);
+        ArrayMotoboy[Length(ArrayMotoboy) - 1] := Frame.CodigoInterno;
+        Frame.cSelecionar.IsChecked := False;
+        // Selecionado
+      end;
+    end;
+  end;
+  if Length(ArrayMotoboy) = 0 then
+  begin
+    ShowMessageToast(Self, 'Você deve selecionar os pedidos!', 2);
+    exit;
+  end;
+  DM.GetSimples('/v1/motoboy/ativo/all/', MOTOBOY);
+
+  if MOTOBOY.RecordCount = 0 then
+  begin
+    ShowMessageToast(Self, 'Não há motoboys ativo!', 1);
+    exit;
+  end;
+
+  if not Assigned(cMotoboy) then
+  begin
+
+    cMotoboy := TCustomCombo.Create(frmMain);
+    cMotoboy.TitleMenuText := 'Escolha o Motoboy';
+
+    cMotoboy.BackgroundColor := $FFF2F2F8;
+{$IFDEF Android}
+{$ELSE}
+    cMotoboy.OnClick := SetaMotoboy;
+
+{$ENDIF}
+    MOTOBOY.First;
+
+    while not MOTOBOY.Eof do
+    begin
+      cMotoboy.AddItem(MOTOBOY.FieldByName('codigo').AsString,
+        UpperCase(MOTOBOY.FieldByName('nome').AsString));
+      MOTOBOY.Next;
+    end;
+
+  end;
+
+  cMotoboy.SubTitleMenuText := 'Slecione o Motoboy';
+
+  cMotoboy.ShowMenu;
+end;
+
 procedure TfrmMesas.Layout5Click(Sender: TObject);
 begin
   inherited;
@@ -447,6 +554,19 @@ begin
   //
 end;
 
+procedure TfrmMesas.SetaMotoboy(Sender: TObject);
+var
+  I: Integer;
+begin
+  cMotoboy.HideMenu;
+  for I := 0 to Length(ArrayMotoboy) - 1 do
+  begin
+    DM.PutSimples('v1/pedido/motoboy/' + ArrayMotoboy[I].ToString + '/' +
+      cMotoboy.CodItem + '/', nil);
+  end;
+  ShowMessageToast(Self, 'Motoboy incluido no(s) pedido(s) com sucesso!', 2);
+end;
+
 procedure TfrmMesas.SetValorDelivery(const Value: Real);
 begin
   FValorDelivery := Value;
@@ -482,6 +602,8 @@ procedure TfrmMesas.DadosTelaTimer(Sender: TObject);
 var
   RequisicaoPedido: iRequisicao;
   FrameDados: TframeDadosVBDelivery;
+  FrameDadosMotoboy: TfrmDadosPedidoMotoboy;
+  I: Integer;
 begin
   inherited;
   // TimerMesa.Enabled := False;
@@ -528,13 +650,16 @@ begin
   end;
 
   CarregandoMesa := False;
-
+  DadosMotoboy.Close;
+  DadosMotoboy.Open;
   if DadosPedido.RecordCount = 0 then
   begin
     RequisicaoPedido := iRequisicao.Create(nil);
     RequisicaoPedido.BaseURL := DM.CONEXAO.BaseURL;
-    RequisicaoPedido.URL :=
-      'v1/pedidos/04102022/04102022/000000/235959/1,2,3/X';
+    RequisicaoPedido.URL := 'v1/pedidos/' + FormatDateTime('ddmmyyyy',
+      edtDataInicial.Date) + '/' + FormatDateTime('ddmmyyyy', edtDataFinal.Date)
+      + '/' + FormatDateTime('hhnn59', edtHoraInicial.Time) + '/' +
+      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3/X';
     RequisicaoPedido.Metodo := mGet;
     RequisicaoPedido.MemTable2 := DadosPedido;
     RequisicaoPedido.Execute;
@@ -556,6 +681,7 @@ begin
       else
       begin
         FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
+        FrameDados.Position.Y := 9999999999;
 
         FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
           ('codigo').AsString;
@@ -571,6 +697,38 @@ begin
           else
             begin
               FrameDados.Parent := vertDelivery;
+              if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
+                .AsString) then
+              begin
+                DadosMotoboy.Edit;
+              end
+              else
+              begin
+                DadosMotoboy.Insert;
+                DadosMotoboy.FieldByName('NOME').AsString :=
+                  DadosPedido.FieldByName('motoboy').AsString;
+                DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+                DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+              end;
+              DadosMotoboy.FieldByName('TAXA').AsFloat :=
+                DadosMotoboy.FieldByName('TAXA').AsFloat +
+                DadosPedido.FieldByName('taxa').AsFloat;
+              DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+                DadosMotoboy.FieldByName('TOTAL').AsFloat +
+                DadosPedido.FieldByName('total').AsFloat;
+              if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+              begin
+                DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                  DadosPedido.FieldByName('codigo_Dia').AsString;
+              end
+              else
+              begin
+                DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                  DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                  DadosPedido.FieldByName('codigo_Dia').AsString;
+              end;
+              DadosMotoboy.Post;
+
             end;
 
           end;
@@ -610,6 +768,8 @@ begin
       FrameDados.CodigoInterno := DadosPedido.FieldByName('codigo').AsInteger;
       FrameDados.CodigoEndereco := DadosPedido.FieldByName('cliente_Endereco')
         .AsInteger;
+      FrameDados.Endereco := DadosPedido.FieldByName
+        ('endereco_completo').AsString;
       FrameDados.DataPedido := DadosPedido.FieldByName('data').AsDateTime;
       FrameDados.HoraPedido :=
         StrToTime(copy(DadosPedido.FieldByName('hora').AsString, 0, 8));
@@ -620,8 +780,53 @@ begin
       FrameDados.Taxa := DadosPedido.FieldByName('taxa').AsFloat;
       FrameDados.Total := DadosPedido.FieldByName('total').AsFloat;
       FrameDados.Origem := DadosPedido.FieldByName('origem').AsInteger;
+      FrameDados.MOTOBOY := DadosPedido.FieldByName('motoboy').AsString;
+      if DadosPedido.FieldByName('id_caixa').IsNull then
+        FrameDados.Caixa := 0
+      else
+        FrameDados.Caixa := DadosPedido.FieldByName('id_caixa').AsInteger;
 
       DadosPedido.Next;
+    end;
+
+//    for I := 0 to vertMotoboy.ComponentCount - 1 do
+//    begin
+//      if (vertMotoboy.Components[I] is TfrmDadosPedidoMotoboy) then
+//      begin
+//
+//        (vertMotoboy.Components[I] as TfrmDadosPedidoMotoboy).Visible := False;
+//      end;
+//    end;
+
+    DadosMotoboy.First;
+    while not DadosMotoboy.Eof do
+    begin
+
+      if Assigned(vertMotoboy.FindComponent('FrameDadosMotoboy' +
+        trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))) then
+      begin
+        FrameDadosMotoboy :=
+          (vertMotoboy.FindComponent('FrameDadosMotoboy' +
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))
+          as TfrmDadosPedidoMotoboy);
+
+      end
+      else
+      begin
+        FrameDadosMotoboy := TfrmDadosPedidoMotoboy.Create(vertMotoboy);
+        FrameDadosMotoboy.Position.Y := 9999999999;
+        FrameDadosMotoboy.Align := TAlignLayout.Top;
+        FrameDadosMotoboy.Parent := vertMotoboy;
+        FrameDadosMotoboy.Name := 'FrameDadosMotoboy' +
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll]));
+        FrameDadosMotoboy.Nome := DadosMotoboy.FieldByName('NOME').AsString;
+      end;
+      FrameDadosMotoboy.Visible := True;
+      FrameDadosMotoboy.Pedido := DadosMotoboy.FieldByName('PEDIDO').AsString;
+      FrameDadosMotoboy.Taxa := DadosMotoboy.FieldByName('TAXA').AsFloat;
+      FrameDadosMotoboy.Total := DadosMotoboy.FieldByName('TOTAL').AsFloat;
+
+      DadosMotoboy.Next;
     end;
     lMesa.Text := FormatFloat('R$ ###,##0.00', ValorMesa);
     lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);

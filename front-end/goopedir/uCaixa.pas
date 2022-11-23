@@ -217,7 +217,6 @@ type
     procedure TabItem4Click(Sender: TObject);
     procedure TabItem3Click(Sender: TObject);
     procedure ZClick(Sender: TObject);
-    procedure TabItem6Click(Sender: TObject);
     procedure Rectangle9MouseEnter(Sender: TObject);
     procedure Rectangle9MouseLeave(Sender: TObject);
     procedure Rectangle9Click(Sender: TObject);
@@ -227,6 +226,7 @@ type
     procedure rAbrirClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure rEstornoClick(Sender: TObject);
+    procedure TabItem1Click(Sender: TObject);
   private
     FCodigoDoCaixa: Integer;
     FVisualizacao: Boolean;
@@ -291,7 +291,12 @@ begin
   DADOSCAIXA.Open;
 
   dm.Caixa.Close;
-  dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
+    end).Start;
+
   Layout2.Visible := False;
   rGerencial1.Visible := False;
   if dm.CodigoCaixa > 0 then
@@ -352,6 +357,8 @@ begin
     lTipo.Text := 'Abrir Caixa';
 
   end;
+
+  Caixa;
 
 end;
 
@@ -536,6 +543,8 @@ begin
   lTotalSaida.Visible := layCaixa.Height = 130;
   lDadosDiferenca.Visible := layCaixa.Height = 130;
   lTotalDiferencaCaixa.Visible := layCaixa.Height = 130;
+  Pedidos;
+
 end;
 
 procedure TfrmCaixa.EdtValorExit(Sender: TObject);
@@ -627,14 +636,17 @@ end;
 
 procedure TfrmCaixa.FormCreate(Sender: TObject);
 begin
-  Visualizacao := False;
-  FormReceber := TfrmAReceber.Create(self);
-  layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
 
-  BuscaCaixa;
-  Caixa;
-  Pedidos;
-  Faturado;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      BuscaCaixa;
+      {
+        Visualizacao := False;
+        FormReceber := TfrmAReceber.Create(self);
+        layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber'))); }
+
+    end).Start;
 
 end;
 
@@ -855,6 +867,7 @@ begin
   LTaxa.Visible := layPedidos.Height = 130;
   Label8.Visible := layPedidos.Height = 130;
   LTotal.Visible := layPedidos.Height = 130;
+  Faturado;
 end;
 
 procedure TfrmCaixa.rAbrirClick(Sender: TObject);
@@ -1176,6 +1189,12 @@ begin
   FrmResumo.Show;
 end;
 
+procedure TfrmCaixa.TabItem1Click(Sender: TObject);
+begin
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  BuscaDadosCaixa;
+end;
+
 procedure TfrmCaixa.TabItem3Click(Sender: TObject);
 begin
   GraficoHistoricoPagamento;
@@ -1184,11 +1203,6 @@ end;
 procedure TfrmCaixa.TabItem4Click(Sender: TObject);
 begin
   GraficoHistoricoCaixa;
-end;
-
-procedure TfrmCaixa.TabItem6Click(Sender: TObject);
-begin
-  FormReceber.Buscar;
 end;
 
 function TfrmCaixa.ValidaTotalPagamento: Boolean;

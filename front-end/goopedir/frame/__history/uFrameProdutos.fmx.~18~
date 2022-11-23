@@ -1,0 +1,103 @@
+object FrameProdutos: TFrameProdutos
+  Size.Width = 908.000000000000000000
+  Size.Height = 110.000000000000000000
+  Size.PlatformDefault = False
+  object rPrincipal: TRectangle
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Cursor = crHandPoint
+    Fill.Color = x00E0E0E0
+    Opacity = 0.500000000000000000
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 892.000000000000000000
+    Size.Height = 90.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Thickness = 3.000000000000000000
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    OnClick = rPrincipalClick
+    OnMouseEnter = rPrincipalMouseEnter
+    OnMouseLeave = rPrincipalMouseLeave
+    object Layout2: TLayout
+      Align = Right
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 776.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 106.000000000000000000
+      Size.Height = 70.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object lValor: TLabel
+        Align = Top
+        StyledSettings = [Family]
+        Size.Width = 106.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.FontColor = xFF0E6400
+        TextSettings.HorzAlign = Trailing
+        Text = 'R$ 100,00'
+        TabOrder = 6
+      end
+      object lCategoria: TLabel
+        Align = Bottom
+        Position.Y = 53.000000000000000000
+        Size.Width = 106.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        Text = 'R$ 100,00'
+        TabOrder = 5
+      end
+    end
+    object Layout3: TLayout
+      Align = Client
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Size.Width = 746.000000000000000000
+      Size.Height = 70.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lCodigo: TLabel
+        Align = Top
+        StyledSettings = [Family, Style]
+        Size.Width = 746.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 10.000000000000000000
+        TextSettings.FontColor = xFFCCBABA
+        Text = 'lCodigo'
+        TabOrder = 0
+      end
+      object lNomeProduto: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Position.Y = 17.000000000000000000
+        Size.Width = 746.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 18.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'lCodigo'
+        TabOrder = 2
+      end
+      object lDescricao: TLabel
+        Align = Top
+        StyledSettings = [Family, FontColor]
+        Position.Y = 34.000000000000000000
+        Size.Width = 746.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 14.000000000000000000
+        Text = 'lCodigo'
+        TabOrder = 1
+      end
+    end
+  end
+end

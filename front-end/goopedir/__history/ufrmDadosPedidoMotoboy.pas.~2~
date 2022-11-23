@@ -1,0 +1,30 @@
+unit ufrmDadosPedidoMotoboy;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Edit;
+
+type
+  TfrmDadosPedidoMotoboy = class(TFrame)
+    edtNome: TEdit;
+    Label3: TLabel;
+    Edit1: TEdit;
+    Label1: TLabel;
+    edtTotal: TEdit;
+    Label7: TLabel;
+    Edit2: TEdit;
+    Label2: TLabel;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+{$R *.fmx}
+
+end.

@@ -481,6 +481,19 @@
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="ufrmDadosPedidoMotoboy.pas">
+            <Form>frmDadosPedidoMotoboy</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="cadastro\uIngredientesProduto.pas">
+            <Form>frmIngredientesProduto</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="ufrmPIXMP.pas">
+            <Form>frmPIXMP</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -1,0 +1,5 @@
+object frmDadosPedidoMotoboy: TfrmDadosPedidoMotoboy
+  Size.Width = 450.000000000000000000
+  Size.Height = 240.000000000000000000
+  Size.PlatformDefault = False
+end

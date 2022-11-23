@@ -1,0 +1,247 @@
+object frameExtraItensAdd: TframeExtraItensAdd
+  Size.Width = 1103.000000000000000000
+  Size.Height = 165.000000000000000000
+  Size.PlatformDefault = False
+  object Rectangle1: TRectangle
+    Anchors = [akLeft, akTop, akRight]
+    Fill.Color = claWhite
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 1087.000000000000000000
+    Size.Height = 149.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = xFFA4001B
+    object EdtNome: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 0
+      Position.X = 8.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 874.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
+      object Label1: TLabel
+        Align = Right
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 749.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 120.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        TextSettings.Trimming = Word
+        Text = 'Nome'
+        TabOrder = 0
+      end
+    end
+    object EdtDescricao: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 3
+      Position.X = 8.000000000000000000
+      Position.Y = 56.000000000000000000
+      Size.Width = 874.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
+      object Label2: TLabel
+        Align = Right
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 749.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 120.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        TextSettings.Trimming = Word
+        Text = 'Descri'#231#227'o'
+        TabOrder = 0
+      end
+    end
+    object edtValor: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Anchors = [akTop, akRight]
+      TabOrder = 2
+      Position.X = 890.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 189.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
+      OnExit = edtValorExit
+      object Label3: TLabel
+        Align = Right
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 128.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 56.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        TextSettings.Trimming = Word
+        Text = 'Valor'
+        TabOrder = 0
+      end
+    end
+    object img_adicionar: TImage
+      MultiResBitmap.Height = 30
+      MultiResBitmap.Width = 30
+      MultiResBitmap = <
+        item
+          Width = 30
+          Height = 30
+          PNG = {
+            89504E470D0A1A0A0000000D494844520000001E0000001E08060000003B30AE
+            A2000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+            010B49444154484BED96A10A024110864F3188D1A8C52C1A44B069B6580C565F
+            C422F822269B414C068BCDA0261F40B01A0C6210F5FF975D8E9365EF969533B8
+            1F7CCCEEC0ECDC2D0737C1DF9191312975D88415B10B39C11D3C885D02748DF3
+            B02DE3271DD88535B10B39C2155C8B5D943BDCC868A404CFF0F5257916CF8C90
+            9531754C573D812DB8956B1B4650D5729DE8AA150BC8AB62B425B6D6F6AAF916
+            3D1915BA9C13BAA776C945F8D9C7E51BA7866F9C1ABE716AF8C671CCE0584685
+            2EE744EC1FC680D3DFE90959CC898433938DAC612DCFD0621A6FA7B00F73F0C2
+            840545F880733864C286015CC22BE4D3DBC81AD6F20C2DA6372EC306ACC20213
+            16DC2067ED3DE478FBF704C11BF6195868434D7C560000000049454E44AE4260
+            82}
+          FileName = 'C:\Users\ifort\Downloads\icons8-lixo-24 (1).png'
+        end>
+      Anchors = [akTop, akRight]
+      Cursor = crHandPoint
+      Opacity = 0.500000000000000000
+      Margins.Left = 2.000000000000000000
+      Margins.Top = 2.000000000000000000
+      Margins.Right = 2.000000000000000000
+      Margins.Bottom = 2.000000000000000000
+      Position.X = 1039.000000000000000000
+      Position.Y = 56.000000000000000000
+      Size.Width = 40.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      OnClick = img_adicionarClick
+      OnMouseEnter = img_adicionarMouseEnter
+      OnMouseLeave = img_adicionarMouseLeave
+    end
+    object sStatus: TSwitch
+      Anchors = [akTop, akRight]
+      IsChecked = False
+      Position.X = 890.000000000000000000
+      Position.Y = 56.000000000000000000
+      Size.Width = 143.000000000000000000
+      Size.Height = 41.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+    end
+    object edtQuantidade: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Anchors = [akTop, akRight]
+      TabOrder = 1
+      Position.X = 890.000000000000000000
+      Position.Y = 102.000000000000000000
+      Size.Width = 189.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      OnKeyDown = EdtNomeKeyDown
+      OnExit = edtValorExit
+      object Label4: TLabel
+        Align = Right
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 104.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 80.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        TextSettings.Trimming = Word
+        Text = 'Quantidade'
+        TabOrder = 0
+      end
+    end
+    object cIngrediente: TComboBox
+      Anchors = [akLeft, akTop, akRight]
+      Position.X = 8.000000000000000000
+      Position.Y = 104.000000000000000000
+      Size.Width = 874.000000000000000000
+      Size.Height = 37.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 5
+      object Label5: TLabel
+        Align = Right
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 25.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        Position.X = 769.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 80.000000000000000000
+        Size.Height = 27.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Trailing
+        TextSettings.Trimming = Word
+        Text = 'Ingrediente'
+        TabOrder = 0
+      end
+    end
+  end
+  object memDadosFicha: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 664
+    Top = 56
+    object memDadosFichaid: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'id'
+    end
+    object memDadosFichadescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 255
+    end
+    object memDadosFichaunidade: TStringField
+      DisplayLabel = 'UN'
+      FieldName = 'unidade'
+      Size = 255
+    end
+    object memDadosFichacusto: TFloatField
+      FieldName = 'custo'
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = memDadosFicha
+    ScopeMappings = <>
+    Left = 536
+    Top = 72
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkListControlToField1: TLinkListControlToField
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      FieldName = 'descricao'
+      Control = cIngrediente
+      FillExpressions = <>
+      FillHeaderExpressions = <>
+      FillBreakGroups = <>
+    end
+  end
+end

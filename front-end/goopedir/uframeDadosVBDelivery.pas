@@ -37,6 +37,9 @@ type
     Label7: TLabel;
     rLateral: TRectangle;
     tImprimindo: TTimer;
+    layMotoboy: TLayout;
+    Image3: TImage;
+    lMotoboy: TLabel;
     procedure lImpressaoMouseEnter(Sender: TObject);
     procedure lImpressaoMouseLeave(Sender: TObject);
     procedure lVisualizacaoClick(Sender: TObject);
@@ -57,6 +60,8 @@ type
     FTotal: Real;
     FOrigem: Integer;
     FTempo: String;
+    FMotoboy: String;
+    FCaixa: Integer;
     procedure SetCelular(const Value: String);
     procedure SetCodigoDia(const Value: Integer);
     procedure SetCodigoEndereco(const Value: Integer);
@@ -71,6 +76,11 @@ type
     procedure SetOrigem(const Value: Integer);
     procedure SetTempo(const Value: String);
     procedure CancelaPedido;
+    procedure SetCaixa(const Value: Integer);
+    procedure SetMotoboy(const Value: String);
+
+  var
+    Carregando: Boolean;
     { Private declarations }
   public
     { Public declarations }
@@ -88,6 +98,8 @@ type
     property Total: Real read FTotal write SetTotal;
     property Origem: Integer read FOrigem write SetOrigem;
     property Tempo: String read FTempo write SetTempo;
+    property Motoboy: String read FMotoboy write SetMotoboy;
+    property Caixa: Integer read FCaixa write SetCaixa;
   end;
 
 implementation
@@ -109,6 +121,8 @@ end;
 
 procedure TframeDadosVBDelivery.cStatusChange(Sender: TObject);
 begin
+  if Carregando then
+    exit;
   case cStatus.ItemIndex of
     0:
       begin
@@ -154,6 +168,11 @@ begin
   FrmResumo.Show;
 end;
 
+procedure TframeDadosVBDelivery.SetCaixa(const Value: Integer);
+begin
+  FCaixa := Value;
+end;
+
 procedure TframeDadosVBDelivery.SetCelular(const Value: String);
 begin
   FCelular := Value;
@@ -195,6 +214,21 @@ end;
 procedure TframeDadosVBDelivery.SetHoraPedido(const Value: TTime);
 begin
   FHoraPedido := Value;
+end;
+
+procedure TframeDadosVBDelivery.SetMotoboy(const Value: String);
+begin
+  FMotoboy := Value;
+  if length(Value) > 0 then
+  begin
+    self.Height := 260;
+  end
+  else
+  begin
+    self.Height := 220;
+  end;
+  lMotoboy.Text := UpperCase(Value);
+  layMotoboy.Visible := self.Height > 220;
 end;
 
 procedure TframeDadosVBDelivery.SetNome(const Value: String);
@@ -240,9 +274,11 @@ end;
 
 procedure TframeDadosVBDelivery.SetStatus(const Value: Integer);
 begin
+  Carregando := True;
   FStatus := Value;
   cStatus.ItemIndex := Value;
   cStatus.Enabled := Value < 5;
+  Carregando := False;
 end;
 
 procedure TframeDadosVBDelivery.SetTaxa(const Value: Real);

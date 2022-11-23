@@ -409,6 +409,7 @@ begin
   ValorFaltando := '';
   PRODUTO.Locate('codigo', Codigo.ToString, []);
   lbl_qtd.Text := '01';
+  Qtd := 1;
   lbl_descricao.Text := PRODUTO.FieldByName('nome').AsString;
   layout_qtd.Visible := true;
   TabControl.Visible := False;

@@ -19,12 +19,13 @@ uses
   Soap.EncdDecd, uRequisicao
 {$IFDEF Android}
 {$ELSE}
-    , WinInet
+    , WinInet, uButton, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.ListView
 {$ENDIF}
     ;
 
 type
-  TTipo = (Novo, Alterar);
+  TTipo = (Novo, Alterar, Grid);
 
   TfrmProduto = class(TForm)
     layClient: TLayout;
@@ -274,7 +275,7 @@ type
     ALTERACAOextra: TStringField;
     ALTERACAOiten: TStringField;
     ALTERACAOid: TIntegerField;
-    TabItem5: TTabItem;
+    tabFicha: TTabItem;
     EXTRAid: TIntegerField;
     EXTRAdescricao: TStringField;
     EXTRAqtd_minima: TIntegerField;
@@ -312,6 +313,58 @@ type
     Layout36: TLayout;
     Image11: TImage;
     INGREDIENTEIDPRODUTO: TIntegerField;
+    lTotalProduto: TLabel;
+    TabItem1: TTabItem;
+    Layout37: TLayout;
+    Rectangle7: TRectangle;
+    Rectangle8: TRectangle;
+    Label44: TLabel;
+    cEntrada: TCheckBox;
+    cSaida: TCheckBox;
+    Layout39: TLayout;
+    edtNomeProduto: iEdit;
+    Label46: TLabel;
+    Layout40: TLayout;
+    edtQuantidadeEstoque: iEdit;
+    Label47: TLabel;
+    Layout38: TLayout;
+    edtSaldoAtual: iEdit;
+    Label45: TLabel;
+    GridPanelLayout4: TGridPanelLayout;
+    btnNao: iButton;
+    btnSim: iButton;
+    Image12: TImage;
+    Image13: TImage;
+    ALL_PRODUTOSestoque: TIntegerField;
+    rFicha: TRectangle;
+    Layout41: TLayout;
+    Image14: TImage;
+    Label48: TLabel;
+    memDadosFicha: iMemTable;
+    memDadosFichaid: TIntegerField;
+    memDadosFichadescricao: TStringField;
+    memDadosFichaunidade: TStringField;
+    GridPanelLayout5: TGridPanelLayout;
+    Layout42: TLayout;
+    Layout43: TLayout;
+    Label49: TLabel;
+    lIngredientes: TLabel;
+    ListView1: TListView;
+    BindSourceDB1: TBindSourceDB;
+    LinkListControlToField2: TLinkListControlToField;
+    memFichaTecnicaProduto: iMemTable;
+    memFichaTecnicaProdutoid: TIntegerField;
+    memFichaTecnicaProdutoid_produto: TIntegerField;
+    memFichaTecnicaProdutoid_ingredientes: TIntegerField;
+    memFichaTecnicaProdutoquantidade: TFloatField;
+    memFichaTecnicaProdutodescricao: TStringField;
+    memFichaTecnicaProdutounidade: TStringField;
+    BindSourceDB2: TBindSourceDB;
+    memFichaTecnicaProdutocusto: TFloatField;
+    memDadosFichacusto: TFloatField;
+    gridIngredientes: TStringGrid;
+    LinkGridToDataSourceBindSourceDB22: TLinkGridToDataSource;
+    rCusto: TLabel;
 
 {$IFDEF Android}
 {$ELSE}
@@ -377,6 +430,23 @@ type
     procedure img_salvarClick(Sender: TObject);
     procedure rAtualizaValorClick(Sender: TObject);
     procedure Rectangle2Click(Sender: TObject);
+    procedure ALL_PRODUTOSvendaSetText(Sender: TField; const Text: string);
+    procedure ALL_PRODUTOSdeliverySetText(Sender: TField; const Text: string);
+    procedure btnNaoClick(Sender: TObject);
+    procedure btnSimClick(Sender: TObject);
+    procedure Image12Click(Sender: TObject);
+    procedure Image13Click(Sender: TObject);
+    procedure Image12MouseEnter(Sender: TObject);
+    procedure Image12MouseLeave(Sender: TObject);
+    procedure cEntradaClick(Sender: TObject);
+    procedure cSaidaChange(Sender: TObject);
+    procedure ListView1DblClick(Sender: TObject);
+    procedure gridIngredientesDrawColumnCell(Sender: TObject;
+      const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+      const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+    procedure gridIngredientesCellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure rCustoClick(Sender: TObject);
   private
     FTipo: TTipo;
     FCodigoProduto: Integer;
@@ -404,6 +474,7 @@ type
     procedure SimAlteracaoSabor;
     procedure AtualizaValores;
     procedure SimAlteracaoPrecos;
+    procedure EntradaEstoque(Tipo: Integer);
 
   public
     { Public declarations }
@@ -422,6 +493,8 @@ type
     procedure CarregaProdutosSabores;
     procedure CarregaExtra;
     procedure CarregaSabor;
+    procedure GetFicha;
+    procedure CalculaCustoFicha;
 
   end;
 
@@ -433,6 +506,8 @@ var
   AtualizouSabor: Boolean;
   Voltar: TBookmark;
   AlteraValorDadosProduto: Boolean;
+  BuscandoDados: Boolean;
+  CodigoProdutoEstoque: Integer;
 
 implementation
 
@@ -469,6 +544,12 @@ begin
         Retangulo := rPizza;
         TabExtra.TabIndex := 2;
         CarregaSabor;
+      end;
+    4:
+      begin
+        Retangulo := rFicha;
+        TabExtra.TabIndex := 3;
+        GetFicha;
       end
   else
     begin
@@ -512,6 +593,29 @@ begin
   IdFTP1.Passive := false; { usa modo ativo }
   RemoveDir(ExtractFilePath(ParamStr(0)) + 'img\');
 
+end;
+
+procedure TfrmProduto.GetFicha;
+begin
+  DM.GetSimples('/v1/consulta/todos/ingredientes', memDadosFicha);
+  DM.GetSimples('/v1/util/grava/ingrediente/ficha/produto/' +
+    CodigoProduto.ToString, memFichaTecnicaProduto);
+  if memFichaTecnicaProduto.RecordCount > 0 then
+  begin
+    memFichaTecnicaProduto.First;
+    while not memFichaTecnicaProduto.Eof do
+    begin
+      if memDadosFicha.Locate('id', memFichaTecnicaProduto.FieldByName
+        ('id_ingredientes').AsInteger, []) then
+        memDadosFicha.Delete;
+
+      memFichaTecnicaProduto.Next;
+    end;
+    memFichaTecnicaProduto.First;
+  end;
+
+  lIngredientes.Text := 'Ficha Técnica (' + edtNome.Text + ')';
+  CalculaCustoFicha;
 end;
 
 procedure TfrmProduto.GetImagem(Codigo: String);
@@ -560,6 +664,8 @@ end;
 
 procedure TfrmProduto.GetProduto;
 begin
+  lTotalProduto.Text := '';
+
   if CarregandoProduto then
     exit;
   CarregandoProduto := True;
@@ -642,10 +748,79 @@ begin
     TABELA.Open;
 end;
 
+procedure TfrmProduto.gridIngredientesCellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+  if memFichaTecnicaProduto.RecordCount = 0 then
+    exit;
+
+  memDadosFicha.insert;
+  memDadosFicha.FieldByName('id').AsInteger :=
+    memFichaTecnicaProduto.FieldByName('id_ingredientes').AsInteger;
+  memDadosFicha.FieldByName('descricao').AsString :=
+    memFichaTecnicaProduto.FieldByName('descricao').AsString;
+  memDadosFicha.FieldByName('unidade').AsString :=
+    memFichaTecnicaProduto.FieldByName('unidade').AsString;
+  memDadosFicha.FieldByName('custo').AsFloat :=
+    memFichaTecnicaProduto.FieldByName('custo').AsFloat;
+
+  memDadosFicha.Post;
+  memFichaTecnicaProduto.Delete;
+end;
+
+procedure TfrmProduto.gridIngredientesDrawColumnCell(Sender: TObject;
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+var
+  Custo: Real;
+  Teste: String;
+begin
+  try
+
+    Custo := StrToFloat((Sender as TStringGrid).Cells[3, Row]) *
+      StrToFloat((Sender as TStringGrid).Cells[0, Row]);
+  except
+    Custo := 0;
+  end;
+  // case StrToInt((Sender as TStringGrid).Cells[7, Row]) of
+  case Column.Index of
+    3:
+      begin
+        Canvas.Fill.Color := TipoCor(3);
+        Canvas.Stroke.Color := TipoCor(3);
+        Canvas.FillRect(Bounds, 0, 0, [], 1);
+        Canvas.Fill.Color := TipoCor(9);
+        Canvas.FillText(Bounds, FormatFloat('R$ #0.00', Custo), false, 1,
+          [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+          TTextAlign.Center);
+      end;
+  end;
+end;
+
 procedure TfrmProduto.Image10Click(Sender: TObject);
 begin
 
   GetProduto;
+end;
+
+procedure TfrmProduto.Image12Click(Sender: TObject);
+begin
+  EntradaEstoque(1);
+end;
+
+procedure TfrmProduto.Image12MouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+end;
+
+procedure TfrmProduto.Image12MouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+end;
+
+procedure TfrmProduto.Image13Click(Sender: TObject);
+begin
+  EntradaEstoque(2);
 end;
 
 procedure TfrmProduto.imgProdutoClick(Sender: TObject);
@@ -763,6 +938,34 @@ begin
   end;
 end;
 
+procedure TfrmProduto.ListView1DblClick(Sender: TObject);
+begin
+  if memDadosFicha.RecordCount = 0 then
+    exit;
+
+  if not memFichaTecnicaProduto.Active then
+    memFichaTecnicaProduto.Open;
+
+  if not memFichaTecnicaProduto.Locate('id_ingredientes',
+    memDadosFicha.FieldByName('id').AsInteger, []) then
+  begin
+    memFichaTecnicaProduto.insert;
+    memFichaTecnicaProduto.FieldByName('id').AsInteger := 0;
+    memFichaTecnicaProduto.FieldByName('quantidade').AsFloat := 0;
+    memFichaTecnicaProduto.FieldByName('id_produto').AsInteger := CodigoProduto;
+    memFichaTecnicaProduto.FieldByName('id_ingredientes').AsInteger :=
+      memDadosFicha.FieldByName('id').AsInteger;
+    memFichaTecnicaProduto.FieldByName('descricao').AsString :=
+      memDadosFicha.FieldByName('descricao').AsString;
+    memFichaTecnicaProduto.FieldByName('unidade').AsString :=
+      memDadosFicha.FieldByName('unidade').AsString;
+    memFichaTecnicaProduto.FieldByName('custo').AsFloat :=
+      memDadosFicha.FieldByName('custo').AsFloat;
+    memFichaTecnicaProduto.Post;
+    memDadosFicha.Delete;
+  end;
+end;
+
 procedure TfrmProduto.LoadProduto;
 begin
 
@@ -781,6 +984,34 @@ begin
     .AsInteger, []);
 
   CodigoProduto := ALL_PRODUTOS.FieldByName('ID').AsInteger;
+end;
+
+procedure TfrmProduto.ALL_PRODUTOSdeliverySetText(Sender: TField;
+const Text: string);
+begin
+  Tipo := Grid;
+  Zerar;
+  ZerarTabela;
+  LoadProduto;
+  ALL_PRODUTOS.Edit;
+  ALL_PRODUTOS.FieldByName('modificado').AsInteger := 0;
+  ALL_PRODUTOS.Post;
+  SalvarProduto;
+end;
+
+procedure TfrmProduto.ALL_PRODUTOSvendaSetText(Sender: TField;
+const Text: string);
+begin
+  // Sender.Text := Text;
+  Tipo := Grid;
+  Zerar;
+  ZerarTabela;
+  LoadProduto;
+  ALL_PRODUTOS.Edit;
+  ALL_PRODUTOS.FieldByName('modificado').AsInteger := 0;
+  ALL_PRODUTOS.Post;
+  SalvarProduto;
+
 end;
 
 procedure TfrmProduto.AtualizaPrecoPizza;
@@ -835,10 +1066,64 @@ begin
   end;
 end;
 
+procedure TfrmProduto.btnNaoClick(Sender: TObject);
+begin
+  tabMain.TabIndex := 0;
+end;
+
+procedure TfrmProduto.btnSimClick(Sender: TObject);
+var
+  Tipo: Integer;
+begin
+  if cEntrada.IsChecked then
+    Tipo := 1
+  else
+    Tipo := 2;
+
+  try
+    if StrToInt(edtQuantidadeEstoque.Text) < 0 then
+    begin
+      ShowMessageToast(self,
+        'Quantidade informada deve ser maior que zero!', 1);
+      exit;
+    end;
+  except
+    ShowMessageToast(self, 'Quantidade informada invalida!', 1);
+    edtQuantidadeEstoque.SetFocus;
+    exit;
+  end;
+
+  DM.PostSimplesUnico('/v1/estoque/produto/' + CodigoProdutoEstoque.ToString +
+    '/' + Tipo.ToString + '/' + edtQuantidadeEstoque.Text, nil);
+  tabMain.TabIndex := 0;
+end;
+
 procedure TfrmProduto.Button1Click(Sender: TObject);
 begin
   GetSabores;
   tabMain.TabIndex := 3;
+end;
+
+procedure TfrmProduto.CalculaCustoFicha;
+var
+  Custo: Real;
+begin
+  Custo := 0;
+  if memFichaTecnicaProduto.RecordCount > 0 then
+  begin
+    memFichaTecnicaProduto.DisableControls;
+    memFichaTecnicaProduto.First;
+    while not memFichaTecnicaProduto.Eof do
+    begin
+      Custo := Custo + (memFichaTecnicaProduto.FieldByName('custo').AsFloat *
+        memFichaTecnicaProduto.FieldByName('quantidade').AsFloat);
+      memFichaTecnicaProduto.Next;
+    end;
+    memFichaTecnicaProduto.First;
+    memFichaTecnicaProduto.EnableControls;
+  end;
+  rCusto.Text := FormatFloat('R$ #0.00', Custo);
+
 end;
 
 procedure TfrmProduto.CarregaExtra;
@@ -858,32 +1143,35 @@ begin
 
     end;
   end;
-  EXTRA.First;
-
-  while not EXTRA.Eof do
+  if EXTRA.RecordCount > 0 then
   begin
-    if not Assigned(verExtra.FindComponent('FrameAdd' + CodigoProduto.ToString +
-      EXTRA.FieldByName('id').AsInteger.ToString)) then
+    EXTRA.First;
+
+    while not EXTRA.Eof do
     begin
-      FrameAdd := TframeExtraAdd.Create(verExtra);
-    end
-    else
-    begin
-      FrameAdd := verExtra.FindComponent('FrameAdd' + CodigoProduto.ToString +
-        EXTRA.FieldByName('id').AsInteger.ToString) as TframeExtraAdd;
+      if not Assigned(verExtra.FindComponent('FrameAdd' + CodigoProduto.ToString
+        + EXTRA.FieldByName('id').AsInteger.ToString)) then
+      begin
+        FrameAdd := TframeExtraAdd.Create(verExtra);
+      end
+      else
+      begin
+        FrameAdd := verExtra.FindComponent('FrameAdd' + CodigoProduto.ToString +
+          EXTRA.FieldByName('id').AsInteger.ToString) as TframeExtraAdd;
+      end;
+      FrameAdd.Parent := verExtra;
+      FrameAdd.Align := TAlignLayout.Top;
+      FrameAdd.Codigo := EXTRA.FieldByName('id').AsInteger;
+      FrameAdd.Descricao := EXTRA.FieldByName('descricao').AsString;
+      FrameAdd.Min := EXTRA.FieldByName('qtd_minima').AsInteger;
+      FrameAdd.Max := EXTRA.FieldByName('qtd_maxima').AsInteger;
+      FrameAdd.Status := EXTRA.FieldByName('ativo').AsInteger;
+      FrameAdd.CodigoProduto := CodigoProduto;
+      FrameAdd.Visible := True;
+      FrameAdd.Name := 'FrameAdd' + CodigoProduto.ToString +
+        EXTRA.FieldByName('id').AsString;
+      EXTRA.Next;
     end;
-    FrameAdd.Parent := verExtra;
-    FrameAdd.Align := TAlignLayout.Top;
-    FrameAdd.Codigo := EXTRA.FieldByName('id').AsInteger;
-    FrameAdd.Descricao := EXTRA.FieldByName('descricao').AsString;
-    FrameAdd.Min := EXTRA.FieldByName('qtd_minima').AsInteger;
-    FrameAdd.Max := EXTRA.FieldByName('qtd_maxima').AsInteger;
-    FrameAdd.Status := EXTRA.FieldByName('ativo').AsInteger;
-    FrameAdd.CodigoProduto := CodigoProduto;
-    FrameAdd.Visible := True;
-    FrameAdd.Name := 'FrameAdd' + CodigoProduto.ToString +
-      EXTRA.FieldByName('id').AsString;
-    EXTRA.Next;
   end;
 end;
 
@@ -1056,7 +1344,7 @@ begin
 
   while length(Valores) > 1 do
   begin
-    SABORES_PRODUTOS.Insert;
+    SABORES_PRODUTOS.insert;
 
     Achou := false;
     Aux := '';
@@ -1189,49 +1477,64 @@ begin
 
 end;
 
+procedure TfrmProduto.cEntradaClick(Sender: TObject);
+begin
+  cSaida.IsChecked := not cEntrada.IsChecked;
+end;
+
 procedure TfrmProduto.ChangePizza;
 begin
   layPizza.Visible := sPizza.IsChecked;
   rPizza.Visible := sPizza.IsChecked;
 end;
 
+procedure TfrmProduto.cSaidaChange(Sender: TObject);
+begin
+  cEntrada.IsChecked := not cSaida.IsChecked;
+end;
+
 procedure TfrmProduto.DadosProduto;
 var
   Tamanho: Single;
 begin
+  if not BuscandoDados then
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        BuscandoDados := True;
 
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      AlteraValorDadosProduto := True;
-      rDadosProduto.Opacity := 0.2;
-      BDSDADOSPRODUTO.DataSet := nil;
-      sDadosExtra.Visible := false;
+        AlteraValorDadosProduto := True;
+        rDadosProduto.Opacity := 0.2;
+        BDSDADOSPRODUTO.DataSet := nil;
+        sDadosExtra.Visible := false;
 
-      DM.GetSimples('/v1/dados/produto/' + BDSPRODUTOS.DataSet.FieldByName('id')
-        .AsString, DADOS_PRODUTO);
-      Tamanho := sDadosExtra.Width - 200;
-      Tamanho := (Tamanho / 2);
-      GetImagem(BDSPRODUTOS.DataSet.FieldByName('id').AsString);
+        DM.GetSimples('/v1/dados/produto/' + BDSPRODUTOS.DataSet.FieldByName
+          ('id').AsString, DADOS_PRODUTO);
+        Tamanho := sDadosExtra.Width - 200;
+        Tamanho := (Tamanho / 2);
+        GetImagem(BDSPRODUTOS.DataSet.FieldByName('id').AsString);
 
-      TThread.Synchronize(TThread.CurrentThread,
-        procedure
-        begin
-          BDSDADOSPRODUTO.DataSet := DADOS_PRODUTO;
-          LinkGridToDataSourceBDSDADOSPRODUTO.Columns[2].Width :=
-            Tamanho.ToString.ToInteger;
-          LinkGridToDataSourceBDSDADOSPRODUTO.Columns[3].Width :=
-            Tamanho.ToString.ToInteger;
-          sDadosExtra.Visible := True;
-          lNomeCat.Text := BDSPRODUTOS.DataSet.FieldByName('descricao')
-            .AsString;
-          LNomeProd.Text := BDSPRODUTOS.DataSet.FieldByName('nome').AsString;
-          // lDescricao.Text := BDSPRODUTOS.DataSet.FieldByName('descpro').AsString;
-          LValor.Text := FormatFloat('R$ #0.00',
-            BDSPRODUTOS.DataSet.FieldByName('venda').AsFloat);
-          rDadosProduto.Opacity := 1;
-        end);
-    end).Start;
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            BDSDADOSPRODUTO.DataSet := DADOS_PRODUTO;
+            LinkGridToDataSourceBDSDADOSPRODUTO.Columns[2].Width :=
+              Tamanho.ToString.ToInteger;
+            LinkGridToDataSourceBDSDADOSPRODUTO.Columns[3].Width :=
+              Tamanho.ToString.ToInteger;
+            sDadosExtra.Visible := True;
+            lNomeCat.Text := BDSPRODUTOS.DataSet.FieldByName
+              ('descricao').AsString;
+            LNomeProd.Text := BDSPRODUTOS.DataSet.FieldByName('nome').AsString;
+            // lDescricao.Text := BDSPRODUTOS.DataSet.FieldByName('descpro').AsString;
+            LValor.Text := FormatFloat('R$ #0.00',
+              BDSPRODUTOS.DataSet.FieldByName('venda').AsFloat);
+            rDadosProduto.Opacity := 1;
+            BuscandoDados := false;
+          end);
+      end).Start;
+  end;
 end;
 
 function TfrmProduto.DownloadArquivo(const Origem, Destino: String): Boolean;
@@ -1318,6 +1621,19 @@ begin
     ShowMessageToast(self, 'Valor informado invalido!', 1);
 
   end;
+end;
+
+procedure TfrmProduto.EntradaEstoque(Tipo: Integer);
+begin
+  cEntrada.IsChecked := Tipo = 1;
+  cSaida.IsChecked := not Tipo = 1;
+  edtNomeProduto.Text := ALL_PRODUTOS.FieldByName('nome').AsString;
+  CodigoProdutoEstoque := ALL_PRODUTOS.FieldByName('id').AsInteger;
+  edtSaldoAtual.Text := ALL_PRODUTOS.FieldByName('estoque').AsString;
+  edtQuantidadeEstoque.Text := '';
+
+  tabMain.TabIndex := 5;
+  edtQuantidadeEstoque.SetFocus;
 end;
 
 procedure TfrmProduto.EnviarImagem;
@@ -1451,6 +1767,11 @@ begin
   end;
 end;
 
+procedure TfrmProduto.rCustoClick(Sender: TObject);
+begin
+  CalculaCustoFicha;
+end;
+
 procedure TfrmProduto.rDeletarClick(Sender: TObject);
 begin
   frmSimNao.Titulo := 'Confirmação';
@@ -1478,38 +1799,6 @@ begin
   if INGREDIENTE.RecordCount > 0 then
   begin
     DM.PostSimples('/v1/ingredientes/', INGREDIENTE);
-    // if Assigned(frmExtra) then
-    // begin
-    // try
-    // frmExtra.Free;
-    // except
-    //
-    // end;
-    // end;
-    // frmExtra := TfrmExtra.Create(self);
-    // frmExtra.Novo;
-    // frmExtra.edtCategoria.Text := 'INGREDIENTES';
-    // frmExtra.edtMax.Text := INGREDIENTE.RecordCount.ToString;
-    //
-    // INGREDIENTE.First;
-    //
-    // while not INGREDIENTE.Eof do
-    // begin
-    //
-    // with frmExtra.ITENS do
-    // begin
-    // Insert;
-    // FieldByName('NOME').AsString := 'SEM ' + trim(INGREDIENTE.FieldByName('DESCRICAO').AsString);
-    // FieldByName('DESCRICAO').AsString := '';
-    // FieldByName('VALOR').AsFloat := 0;
-    // Post;
-    // end;
-    //
-    // INGREDIENTE.Next;
-    // end;
-    // frmExtra.rSalvarClick(nil);
-    //
-    // frmExtra.Free;
     Abrir(2);
 
     tabMain.TabIndex := 1;
@@ -1545,7 +1834,7 @@ end;
 
 procedure TfrmProduto.rTabelaPrecoClick(Sender: TObject);
 begin
-  TABELA.Insert;
+  TABELA.insert;
   TABELA.FieldByName('ID').AsInteger := 0;
   TABELA.FieldByName('ID_PRODUTO').AsInteger := CodigoProduto;
 
@@ -1623,7 +1912,7 @@ procedure TfrmProduto.SalvarProduto;
 begin
   PRODUTO.Close;
   PRODUTO.Open;
-  PRODUTO.Insert;
+  PRODUTO.insert;
   PRODUTO.FieldByName('CODIGO').AsInteger := CodigoProduto;
   PRODUTO.FieldByName('INTERNO').AsInteger := edtCodigo.Text.ToInteger;
   PRODUTO.FieldByName('CATEGORIA').AsInteger := BDSCATEGORIA.DataSet.FieldByName
@@ -1654,8 +1943,12 @@ begin
   end;
   PRODUTO.Post;
   DM.PostSimples('/v1/produto', PRODUTO);
+  if memFichaTecnicaProduto.RecordCount > 0 then
+    DM.PostSimples('/v1/util/grava/ingrediente/ficha/produto',
+      memFichaTecnicaProduto);
   tabMain.TabIndex := 0;
-  GetProduto;
+  if Tipo <> Grid then
+    GetProduto;
   UltimaCategoria := BDSCATEGORIA.DataSet.FieldByName('CODIGO').AsInteger;
 end;
 
@@ -1681,8 +1974,8 @@ begin
         if Descricao[I] = Separador[K] then
         begin
           Aux := UpperCase(RemoveAcento(Aux));
-          INGREDIENTE.Insert;
-          INGREDIENTE.FieldByName('DESCRICAO').AsString := 'SEM '+Aux;
+          INGREDIENTE.insert;
+          INGREDIENTE.FieldByName('DESCRICAO').AsString := 'SEM ' + Aux;
           INGREDIENTE.FieldByName('IDPRODUTO').AsInteger := CodigoProduto;
           INGREDIENTE.Post;
           Aux := '';
@@ -2230,6 +2523,7 @@ procedure TfrmProduto.StringGrid4DrawColumnCell(Sender: TObject;
 const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
 const Row: Integer; const Value: TValue; const State: TGridDrawStates);
 begin
+
   case Column.Index of
     0:
       begin
@@ -2258,11 +2552,11 @@ begin
             TTextAlign.Center);
         end;
       end;
-    5:
+    6:
       begin
         try
 
-          case StrToInt((Sender as TStringGrid).Cells[6, Row]) of
+          case StrToInt((Sender as TStringGrid).Cells[7, Row]) of
             1:
               begin
                 Canvas.Fill.Color := TipoCor(3);
@@ -2354,6 +2648,7 @@ procedure TfrmProduto.sDadosExtraDrawColumnCell(Sender: TObject;
 const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
 const Row: Integer; const Value: TValue; const State: TGridDrawStates);
 begin
+
   case Column.Index of
     0:
       begin

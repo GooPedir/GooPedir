@@ -155,7 +155,15 @@ begin
 end;
 
 procedure TfrmServidor.FormCreate(Sender: TObject);
+var
+  conexao: Tconexao;
+  VersaoMysql: String;
 begin
+  conexao := Tconexao.Create;
+  VersaoMysql := conexao.ValidaVersao;
+  if length(VersaoMysql) > 0 then
+    ShowMessage(VersaoMysql);
+  conexao.Free;
 
   THorse.Use(Jhonson);
   THorse.Use(Etag);
@@ -347,10 +355,14 @@ begin
     if (not frmServidor.VerificaExe(frmServidor.WHATSAPP)) and ServicoWhatsapp
     then
     begin
-      if Time >= StrToTime(copy(frmServidor.Configuracoes.FieldByName('horario_abertura').AsString, 0, 8)) then
+      if Time >= StrToTime
+        (copy(frmServidor.Configuracoes.FieldByName('horario_abertura')
+        .AsString, 0, 8)) then
         frmServidor.AbrirExe(frmServidor.WHATSAPP);
     end;
-    if  Time >= StrToTime(copy(frmServidor.Configuracoes.FieldByName('horario_fechamento').AsString, 0, 8)) then
+    if Time >= StrToTime
+      (copy(frmServidor.Configuracoes.FieldByName('horario_fechamento')
+      .AsString, 0, 8)) then
     begin
       frmServidor.FecharExe(frmServidor.WHATSAPP);
     end;

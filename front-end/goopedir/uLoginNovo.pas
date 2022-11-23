@@ -29,8 +29,8 @@ type
     recLoginClick: TRoundRect;
     Label9: TLabel;
     Label10: TLabel;
-    RoundRect7: TRoundRect;
-    RoundRect8: TRoundRect;
+    rUsuario: TRoundRect;
+    rSenha: TRoundRect;
     Layout4: TLayout;
     Label7: TLabel;
     imgLogin: TImage;
@@ -39,6 +39,7 @@ type
     edtSenha: TEdit;
     Label4: TLabel;
     lStatus: TLabel;
+    tFoco: TTimer;
     procedure AnimationCircleFinish(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure btnCriarContaClick(Sender: TObject);
@@ -49,6 +50,11 @@ type
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure tFocoTimer(Sender: TObject);
+    procedure edtUsuarioEnter(Sender: TObject);
+    procedure edtUsuarioExit(Sender: TObject);
+    procedure edtSenhaExit(Sender: TObject);
+    procedure edtSenhaEnter(Sender: TObject);
   private
     procedure PosicionaObjetos;
     procedure Animar;
@@ -68,7 +74,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, UnitLogin, uRequisicao, util;
+uses uDM, UnitLogin, uRequisicao, util, FMXTee.Canvas;
 
 procedure TFrmLoginNovo.Animar;
 begin
@@ -101,6 +107,18 @@ begin
   Animar;
 end;
 
+procedure TFrmLoginNovo.edtSenhaEnter(Sender: TObject);
+begin
+rSenha.Fill.Color := recLoginClick.Fill.Color;
+rSenha.Stroke.Color := recLoginClick.Fill.Color;
+end;
+
+procedure TFrmLoginNovo.edtSenhaExit(Sender: TObject);
+begin
+rSenha.Fill.Color := RGB(234,234,234);
+rSenha.Stroke.Color := RGB(234,234,234);
+end;
+
 procedure TFrmLoginNovo.edtSenhaKeyDown(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
@@ -109,6 +127,18 @@ begin
     recLoginClickClick(recLoginClick);
 
   end;
+end;
+
+procedure TFrmLoginNovo.edtUsuarioEnter(Sender: TObject);
+begin
+rUsuario.Fill.Color := recLoginClick.Fill.Color;
+rUsuario.Stroke.Color := recLoginClick.Fill.Color;
+end;
+
+procedure TFrmLoginNovo.edtUsuarioExit(Sender: TObject);
+begin
+rUsuario.Fill.Color := RGB(234,234,234);
+rUsuario.Stroke.Color := RGB(234,234,234);
 end;
 
 procedure TFrmLoginNovo.edtUsuarioKeyDown(Sender: TObject; var Key: Word;
@@ -262,6 +292,12 @@ end;
 function TFrmLoginNovo.Servidor: String;
 begin
   Result := ExtractFileDir(ParamStr(0)) + '\ServidorGooPedir.exe';
+end;
+
+procedure TFrmLoginNovo.tFocoTimer(Sender: TObject);
+begin
+tFoco.Enabled := False;
+edtUsuario.SetFocus;
 end;
 
 end.

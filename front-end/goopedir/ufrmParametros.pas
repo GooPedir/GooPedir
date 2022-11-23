@@ -250,6 +250,11 @@ begin
   AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_motoboy', 'Motoboy',
     '1', '0');
 
+  AdicionaTitulo(Faturamento, 'Integração PIX');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'fat_integra_pix',
+    'Integrar PIX', '1', '0');
+  AdicionaParametroEdit(Faturamento, 'token_mp', '');
+
   // Fidelidade
 
   AdicionaTitulo(Fidelidade, 'Pontos de Fidelidade');

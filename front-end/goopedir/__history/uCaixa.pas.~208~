@@ -1,0 +1,1284 @@
+unit uCaixa;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Edit,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, FMX.TabControl,
+  System.Rtti, FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt,
+  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.Grid, Data.Bind.DBScope, FMX.ScrollBox,
+  FMX.Grid, FMX.ListBox, uAReceber;
+
+type
+
+  TfrmCaixa = class(TForm)
+    layClient: TLayout;
+    rEsquerda: TRectangle;
+    lStatusLateral: TLabel;
+    Layout2: TLayout;
+    Label4: TLabel;
+    rTopo: TRectangle;
+    imgClose: TImage;
+    lNomeForm: TLabel;
+    rGerencial1: TRectangle;
+    Rectangle20: TRectangle;
+    Rectangle21: TRectangle;
+    Label21: TLabel;
+    imgCaixa: TImage;
+    edtTotal: TEdit;
+    rGerencial2: TRectangle;
+    DADOSCAIXA: iMemTable;
+    lDataAbertura: TLabel;
+    lValorInicial: TLabel;
+    DADOSCAIXAcodigo: TIntegerField;
+    DADOSCAIXAcodigo_pedido_dia: TIntegerField;
+    DADOSCAIXAdata_pedido: TDateField;
+    DADOSCAIXAhora_pedido: TTimeField;
+    DADOSCAIXAvalor_pedido: TFloatField;
+    DADOSCAIXAvalor_desconto: TFloatField;
+    DADOSCAIXAvalor_taxa_entrega: TFloatField;
+    DADOSCAIXAvalor_total_pedido: TFloatField;
+    DADOSCAIXAid_caixa: TIntegerField;
+    DADOSCAIXAnome: TStringField;
+    Layout3: TLayout;
+    TabControl1: TTabControl;
+    TabItem1: TTabItem;
+    TabItem2: TTabItem;
+    StringGrid4: TStringGrid;
+    BDSDADOSCAIXA: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBDSDADOSCAIXA: TLinkGridToDataSource;
+    Label6: TLabel;
+    lTotalDesconto: TLabel;
+    Label8: TLabel;
+    LTaxa: TLabel;
+    Label10: TLabel;
+    LTotal: TLabel;
+    Label5: TLabel;
+    DADOSHISTORICO: iMemTable;
+    BDSDADOSHISTORICO: TBindSourceDB;
+    DADOSHISTORICOid: TIntegerField;
+    DADOSHISTORICOdata: TDateField;
+    DADOSHISTORICOhora: TTimeField;
+    DADOSHISTORICOhistorico: TStringField;
+    DADOSHISTORICOvalor: TFloatField;
+    StringGrid1: TStringGrid;
+    LinkGridToDataSourceBDSDADOSHISTORICO: TLinkGridToDataSource;
+    TabItem3: TTabItem;
+    BDSDADOSPAGAMENTO: TBindSourceDB;
+    DADOSPAGAMENTO: iMemTable;
+    DADOSPAGAMENTOid_tipo_pagamento: TIntegerField;
+    DADOSPAGAMENTOdescricao: TStringField;
+    DADOSPAGAMENTOtotal: TFloatField;
+    DADOSPAGAMENTOinformado: TFloatField;
+    StringGrid2: TStringGrid;
+    LinkGridToDataSourceBDSDADOSPAGAMENTO: TLinkGridToDataSource;
+    DADOSHISTORICOtipo: TIntegerField;
+    TabItem4: TTabItem;
+    HISTORICOCAIXAS: iMemTable;
+    BDSHISTORICOCAIXAS: TBindSourceDB;
+    HISTORICOCAIXASid: TIntegerField;
+    HISTORICOCAIXASdata_abertura: TDateField;
+    HISTORICOCAIXAShora_abertura: TTimeField;
+    HISTORICOCAIXASvalor_abertura: TFloatField;
+    HISTORICOCAIXASdata_fechamento: TDateField;
+    HISTORICOCAIXAShora_fechamento: TTimeField;
+    HISTORICOCAIXASvalor_fechamento: TFloatField;
+    HISTORICOCAIXASnome: TStringField;
+    HISTORICOCAIXASstatus: TIntegerField;
+    StringGrid3: TStringGrid;
+    LinkGridToDataSourceBDSHISTORICOCAIXAS: TLinkGridToDataSource;
+    Rectangle1: TRectangle;
+    Label1: TLabel;
+    rAtualizar: TRectangle;
+    Label2: TLabel;
+    rMov: TRectangle;
+    Label3: TLabel;
+    rMovimentacao: TRectangle;
+    Rectangle6: TRectangle;
+    Label14: TLabel;
+    Image1: TImage;
+    Rectangle7: TRectangle;
+    Label15: TLabel;
+    edtDescricao: TEdit;
+    cTipo: TComboBox;
+    Label12: TLabel;
+    Label16: TLabel;
+    EdtValor: TEdit;
+    Label17: TLabel;
+    MOVIMENTACAO: iMemTable;
+    MOVIMENTACAOTIPO: TIntegerField;
+    MOVIMENTACAODESCRICAO: TStringField;
+    MOVIMENTACAOVALOR: TFloatField;
+    MOVIMENTACAOCAIXA: TIntegerField;
+    TabItem5: TTabItem;
+    MEMPARAMETRO: iMemTable;
+    MEMPARAMETRODATAINI: TStringField;
+    MEMPARAMETRODATAFIM: TStringField;
+    HISTORICOMOTOBOY: iMemTable;
+    HISTORICOMOTOBOYcodigo: TStringField;
+    HISTORICOMOTOBOYdia: TStringField;
+    HISTORICOMOTOBOYtaxa: TFloatField;
+    HISTORICOMOTOBOYnome: TStringField;
+    HISTORICOMOTOBOYtotal: TFloatField;
+    BDSHISTORICOMOTOBOY: TBindSourceDB;
+    MEMPARAMETROHORAINI: TStringField;
+    MEMPARAMETROHORAFIM: TStringField;
+    GridPanelLayout1: TGridPanelLayout;
+    StringGrid5: TStringGrid;
+    StringGrid6: TStringGrid;
+    LinkGridToDataSourceBDSHISTORICOMOTOBOY2: TLinkGridToDataSource;
+    HISTORICOMOTOBOYPEDIDO: iMemTable;
+    HISTORICOMOTOBOYPEDIDOcodigo: TIntegerField;
+    HISTORICOMOTOBOYPEDIDOcodigo_pedido_dia: TIntegerField;
+    HISTORICOMOTOBOYPEDIDOnome: TStringField;
+    HISTORICOMOTOBOYPEDIDObairro: TStringField;
+    HISTORICOMOTOBOYPEDIDOvalor_taxa_entrega: TFloatField;
+    HISTORICOMOTOBOYPEDIDOvalor_total_pedido: TFloatField;
+    BDSHISTORICOMOTOBOYPEDIDO: TBindSourceDB;
+    LinkGridToDataSourceBDSHISTORICOMOTOBOYPEDIDO: TLinkGridToDataSource;
+    rPedidos: TRectangle;
+    Label20: TLabel;
+    layPedidos: TLayout;
+    img_pedido: TImage;
+    img_fechar: TImage;
+    img_abrir: TImage;
+    layFaturado: TLayout;
+    Label7: TLabel;
+    img_faturado: TImage;
+    Label9: TLabel;
+    lTotalComputacional: TLabel;
+    lTotalFaturado: TLabel;
+    Label13: TLabel;
+    lTotalDiferenca: TLabel;
+    Label11: TLabel;
+    layCaixa: TLayout;
+    lTotalDiferencaCaixa: TLabel;
+    lDadosDiferenca: TLabel;
+    lTotalSaida: TLabel;
+    Label22: TLabel;
+    lTotalEntrada: TLabel;
+    Label19: TLabel;
+    Label18: TLabel;
+    img_caixa: TImage;
+    rAbrir: TRectangle;
+    lTipo: TLabel;
+    Rectangle2: TRectangle;
+    lGrafico2: TLayout;
+    Rectangle8: TRectangle;
+    Layout1: TLayout;
+    Label23: TLabel;
+    Label24: TLabel;
+    TabItem6: TTabItem;
+    layReceber: TLayout;
+    Layout4: TLayout;
+    rEstorno: TRectangle;
+    Label25: TLabel;
+    Layout5: TLayout;
+    Button1: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure StringGrid4CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure StringGrid2CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure StringGrid3DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
+      const Column: TColumn; const Bounds: TRectF; const Row: Integer;
+      const Value: TValue; const State: TGridDrawStates);
+    procedure StringGrid3CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure Rectangle2MouseEnter(Sender: TObject);
+    procedure Rectangle2MouseLeave(Sender: TObject);
+    procedure Image7Click(Sender: TObject);
+    procedure Rectangle1Click(Sender: TObject);
+    procedure Rectangle3Click(Sender: TObject);
+    procedure Rectangle4Click(Sender: TObject);
+    procedure EdtValorExit(Sender: TObject);
+    procedure Rectangle7Click(Sender: TObject);
+    procedure StringGrid5CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure StringGrid6CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure Rectangle5Click(Sender: TObject);
+    procedure imgCaixaClick(Sender: TObject);
+    procedure Label7Click(Sender: TObject);
+    procedure Label18Click(Sender: TObject);
+    procedure Label5Click(Sender: TObject);
+    procedure img_pedidoClick(Sender: TObject);
+    procedure TabItem4Click(Sender: TObject);
+    procedure TabItem3Click(Sender: TObject);
+    procedure ZClick(Sender: TObject);
+    procedure TabItem6Click(Sender: TObject);
+    procedure Rectangle9MouseEnter(Sender: TObject);
+    procedure Rectangle9MouseLeave(Sender: TObject);
+    procedure Rectangle9Click(Sender: TObject);
+    procedure rAtualizarClick(Sender: TObject);
+    procedure rPedidosClick(Sender: TObject);
+    procedure rMovClick(Sender: TObject);
+    procedure rAbrirClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure rEstornoClick(Sender: TObject);
+  private
+    FCodigoDoCaixa: Integer;
+    FVisualizacao: Boolean;
+    { Private declarations }
+    procedure BuscaCaixa;
+    function ValidaTotalPagamento: Boolean;
+    procedure SimFechamentoCaixa;
+    procedure SimAberturaCaixa;
+    procedure SimFaturar;
+    procedure FinalizaCaixa;
+
+    procedure Pedidos;
+    procedure Faturado;
+    procedure Caixa;
+
+    procedure GraficoHistoricoCaixa;
+    procedure GraficoHistoricoPagamento;
+
+    procedure Extorno;
+    procedure Extornar;
+    procedure SetCodigoDoCaixa(const Value: Integer);
+    procedure SetVisualizacao(const Value: Boolean);
+
+    property CodigoDoCaixa: Integer read FCodigoDoCaixa write SetCodigoDoCaixa;
+
+  public
+    { Public declarations }
+    procedure BuscaDadosCaixa;
+    property Visualizacao: Boolean read FVisualizacao write SetVisualizacao;
+  end;
+
+  TDadosCaixa = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    Formulario: TfrmCaixa;
+  end;
+
+var
+  frmCaixa: TfrmCaixa;
+
+  BuscandoDados: Boolean;
+  ThreadIniciada: Boolean;
+  FormReceber: TfrmAReceber;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, uRequisicao, UnitResumo, FMXTee.Canvas, Funcoes, uMain, uSimNao,
+  uSuperChartLight;
+
+{ TfrmCaixa }
+
+procedure TfrmCaixa.BuscaCaixa;
+begin
+  DADOSCAIXA.Close;
+  DADOSCAIXA.Open;
+
+  dm.Caixa.Close;
+  dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
+  Layout2.Visible := False;
+  rGerencial1.Visible := False;
+  if dm.CodigoCaixa > 0 then
+  begin
+    // Aberto
+    CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+    lTipo.Text := 'Fechar Caixa';
+    lStatusLateral.Text := 'Aberto';
+    Layout2.Visible := True;
+    lDataAbertura.Text := dm.Caixa.FieldByName('data_abertura').AsString + '  '
+      + dm.Caixa.FieldByName('hora_abertura').AsString;
+    lValorInicial.Text := 'R$ ' + FormatFloat('#0.00',
+      dm.Caixa.FieldByName('valor_abertura').AsFloat);
+
+    if dm.AbrirFecharCaixaAuto = 1 then
+    begin
+      if dm.Caixa.FieldByName('data_abertura').AsDateTime <> Date then
+      begin
+
+        if dm.FaturarPedidosAoFecharCaixa = 1 then
+        begin
+          dm.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+            CodigoDoCaixa.toString, nil);
+          BuscaDadosCaixa;
+        end;
+        if DADOSPAGAMENTO.RecordCount > 0 then
+        begin
+          DADOSPAGAMENTO.First;
+          while not DADOSPAGAMENTO.Eof do
+          begin
+            DADOSPAGAMENTO.Edit;
+            DADOSPAGAMENTO.FieldByName('informado').AsFloat :=
+              DADOSPAGAMENTO.FieldByName('total').AsFloat;
+            DADOSPAGAMENTO.Post;
+            DADOSPAGAMENTO.Next;
+          end;
+          FinalizaCaixa;
+        end;
+
+      end;
+
+    end;
+
+  end
+  else
+  begin
+    // Abrir
+    if dm.AbrirFecharCaixaAuto = 1 then
+    begin
+      rGerencial1.Visible := False;
+      dm.PostSimples('/v1/caixa/abertura/' + dm.CodigoUsuario.toString + '/' +
+        FloatToStr(dm.ValorInicialPadraoCaixa), nil);
+      BuscaCaixa;
+    end;
+
+    lStatusLateral.Text := 'Fechado';
+    rGerencial1.Visible := True;
+    lTipo.Text := 'Abrir Caixa';
+
+  end;
+
+end;
+
+procedure TfrmCaixa.BuscaDadosCaixa;
+var
+  Requisicao: iRequisicao;
+  Pedido: Real;
+  Desconto: Real;
+  Taxa: Real;
+  Faturado: Real;
+  TotalFinalizado: Real;
+  TotalSaida: Real;
+  TotalEntrada: Real;
+begin
+
+  TabControl1.TabIndex := 0;
+  if BuscandoDados then
+    exit;
+  BuscandoDados := True;
+  Pedido := 0;
+  Desconto := 0;
+  Taxa := 0;
+  Faturado := 0;
+  TotalFinalizado := 0;
+  TotalSaida := 0;
+  TotalEntrada := 0;
+  try
+    DADOSCAIXA.Close;
+    Requisicao := iRequisicao.Create(nil);
+    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
+    Requisicao.URL := '/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString;
+    Requisicao.MemTable := DADOSCAIXA;
+    Requisicao.Metodo := mGet;
+    Requisicao.Execute;
+
+    DADOSHISTORICO.Close;
+    Requisicao := iRequisicao.Create(nil);
+    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
+    Requisicao.URL := '/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString;
+    Requisicao.MemTable := DADOSHISTORICO;
+    Requisicao.Metodo := mGet;
+    Requisicao.Execute;
+
+    DADOSPAGAMENTO.Close;
+    Requisicao := iRequisicao.Create(nil);
+    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
+    Requisicao.URL := '/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString;
+    Requisicao.MemTable := DADOSPAGAMENTO;
+    Requisicao.Metodo := mGet;
+    Requisicao.Execute;
+
+  except
+
+  end;
+  Requisicao.Free;
+
+  if DADOSCAIXA.RecordCount > 0 then
+  begin
+    DADOSCAIXA.DisableControls;
+    DADOSCAIXA.First;
+    while not DADOSCAIXA.Eof do
+    begin
+      Pedido := Pedido + DADOSCAIXA.FieldByName('valor_total_pedido').AsFloat;
+      Desconto := Desconto + DADOSCAIXA.FieldByName('valor_desconto').AsFloat;
+      Taxa := Taxa + DADOSCAIXA.FieldByName('valor_taxa_entrega').AsFloat;
+
+      if DADOSCAIXA.FieldByName('id_caixa').AsFloat > 0 then
+        Faturado := Faturado + DADOSCAIXA.FieldByName
+          ('valor_total_pedido').AsFloat;
+
+      DADOSCAIXA.Next;
+    end;
+
+    DADOSCAIXA.Last;
+    DADOSCAIXA.EnableControls;
+  end;
+
+  if DADOSHISTORICO.RecordCount > 0 then
+  begin
+    DADOSHISTORICO.DisableControls;
+    DADOSHISTORICO.First;
+    while not DADOSHISTORICO.Eof do
+    begin
+      if not(DADOSHISTORICO.FieldByName('tipo').AsInteger in [0, 2, 3]) then
+        TotalFinalizado := TotalFinalizado + DADOSHISTORICO.FieldByName
+          ('valor').AsFloat;
+
+      if (DADOSHISTORICO.FieldByName('tipo').AsInteger in [2]) then
+        TotalSaida := TotalSaida + DADOSHISTORICO.FieldByName('valor').AsFloat;
+
+      if (DADOSHISTORICO.FieldByName('tipo').AsInteger in [0, 3]) then
+        TotalEntrada := TotalEntrada + DADOSHISTORICO.FieldByName
+          ('valor').AsFloat;
+
+      DADOSHISTORICO.Next;
+    end;
+
+    DADOSHISTORICO.EnableControls;
+  end;
+  TotalEntrada := TotalFinalizado + TotalEntrada + dm.Caixa.FieldByName
+    ('valor_abertura').AsFloat;
+  lTotalDesconto.Text := FormatFloat('#0.00', Desconto);
+  LTaxa.Text := FormatFloat('#0.00', Taxa);
+  LTotal.Text := FormatFloat('#0.00', (Pedido + Taxa) - Desconto);
+  lTotalComputacional.Text := FormatFloat('#0.00', Faturado);
+  lTotalFaturado.Text := FormatFloat('#0.00', TotalFinalizado);
+  lTotalDiferenca.Text := FormatFloat('#0.00', TotalFinalizado - Faturado);
+  lTotalEntrada.Text := FormatFloat('#0.00', TotalEntrada);
+  lTotalSaida.Text := FormatFloat('#0.00', TotalSaida);
+  lTotalDiferencaCaixa.Text := FormatFloat('#0.00', TotalEntrada - TotalSaida);
+
+  if (TotalEntrada - TotalSaida) > 0 then
+  begin
+
+    lDadosDiferenca.FontColor := RGB(5, 168, 93);
+    lTotalDiferencaCaixa.FontColor := RGB(5, 168, 93);
+    lDadosDiferenca.Text := 'Diferença R$ [+]';
+  end
+  else
+  begin
+    lDadosDiferenca.Text := 'Diferença R$ [-]';
+    lTotalDiferencaCaixa.FontColor := RGB(249, 65, 65);
+    lDadosDiferenca.FontColor := RGB(249, 65, 65);
+  end;
+
+  if (TotalFinalizado - Faturado) > 0 then
+  begin
+    lTotalDiferenca.FontColor := RGB(5, 168, 93);
+  end
+  else
+  begin
+    lTotalDiferenca.FontColor := RGB(0, 0, 0);
+  end;
+
+  // Buscar Historico
+
+  dm.GetSimples('/v1/motoboy/historico/' + FormatDateTime('ddmmyyyy',
+    dm.Caixa.FieldByName('DATA_ABERTURA').AsDateTime), HISTORICOMOTOBOY);
+
+  BuscandoDados := False;
+end;
+
+procedure TfrmCaixa.Button1Click(Sender: TObject);
+var
+  VisualizarCaixa: TfrmCaixa;
+begin
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      VisualizarCaixa := TfrmCaixa.Create(self);
+      try
+        VisualizarCaixa.CodigoDoCaixa := HISTORICOCAIXAS.FieldByName('id')
+          .AsInteger;
+        VisualizarCaixa.BuscaDadosCaixa;
+        VisualizarCaixa.Visualizacao := True;
+        VisualizarCaixa.ShowModal;
+      finally
+        VisualizarCaixa.Free;
+      end;
+    end).Start;
+
+end;
+
+procedure TfrmCaixa.Caixa;
+begin
+
+  if layCaixa.Height = 130 then
+  begin
+    layCaixa.Height := 30;
+    img_caixa.Bitmap := img_abrir.Bitmap;
+  end
+  else
+  begin
+    layCaixa.Height := 130;
+    img_caixa.Bitmap := img_fechar.Bitmap;
+
+  end;
+  Label19.Visible := layCaixa.Height = 130;
+  lTotalEntrada.Visible := layCaixa.Height = 130;
+  Label22.Visible := layCaixa.Height = 130;
+  lTotalSaida.Visible := layCaixa.Height = 130;
+  lDadosDiferenca.Visible := layCaixa.Height = 130;
+  lTotalDiferencaCaixa.Visible := layCaixa.Height = 130;
+end;
+
+procedure TfrmCaixa.EdtValorExit(Sender: TObject);
+begin
+  try
+    StrToFloat((Sender as TEdit).Text);
+  except
+    ShowMessageToast(frmMain, 'Valor informado invalido!', 1);
+    (Sender as TEdit).SetFocus;
+  end;
+end;
+
+procedure TfrmCaixa.Extornar;
+begin
+  dm.ExtornoPedido(DADOSCAIXA.FieldByName('codigo').AsInteger);
+  BuscaDadosCaixa;
+  ShowMessageToast(self, 'Pedido extornado com Sucesso!', 3);
+end;
+
+procedure TfrmCaixa.Extorno;
+begin
+  frmSimNao.titulo := 'Extorno';
+  frmSimNao.descricao := 'Deseja realizar o extorno do Pedido?';
+  frmSimNao.Sim := Extornar;
+  frmSimNao.Show;
+end;
+
+procedure TfrmCaixa.Faturado;
+begin
+
+  if layFaturado.Height = 130 then
+  begin
+    layFaturado.Height := 30;
+    img_faturado.Bitmap := img_abrir.Bitmap;
+  end
+  else
+  begin
+    layFaturado.Height := 130;
+    img_faturado.Bitmap := img_fechar.Bitmap;
+  end;
+
+  Label9.Visible := layFaturado.Height = 130;
+  lTotalComputacional.Visible := layFaturado.Height = 130;
+  Label11.Visible := layFaturado.Height = 130;
+  lTotalFaturado.Visible := layFaturado.Height = 130;
+  Label13.Visible := layFaturado.Height = 130;
+  lTotalDiferenca.Visible := layFaturado.Height = 130;
+
+end;
+
+procedure TfrmCaixa.FinalizaCaixa;
+begin
+  dm.PostSimples('/v1/caixa/fechamento/' + CodigoDoCaixa.toString,
+    DADOSPAGAMENTO);
+
+  if dm.CaixaResumo = 1 then
+    dm.PostSimples('/v1/imprimir/3/' + dm.Caixa.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaCompleto = 1 then
+    dm.PostSimples('/v1/imprimir/4/' + dm.Caixa.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaProduto = 1 then
+    dm.PostSimples('/v1/imprimir/5/' + dm.Caixa.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaMotoboy = 1 then
+    dm.PostSimples('/v1/imprimir/6/' + dm.Caixa.FieldByName('id')
+      .AsString, nil);
+
+  BuscaCaixa;
+  BuscaDadosCaixa;
+
+  if dm.AbrirFecharCaixaAuto = 1 then
+  begin
+    rGerencial1.Visible := False;
+    dm.PostSimples('/v1/caixa/abertura/' + dm.CodigoUsuario.toString + '/' +
+      FloatToStr(dm.ValorInicialPadraoCaixa), nil);
+    BuscaCaixa;
+  end;
+end;
+
+procedure TfrmCaixa.FormActivate(Sender: TObject);
+begin
+  BuscaDadosCaixa;
+
+end;
+
+procedure TfrmCaixa.FormCreate(Sender: TObject);
+begin
+
+    TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Visualizacao := False;
+      FormReceber := TfrmAReceber.Create(self);
+      layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
+
+      BuscaCaixa;
+      Caixa;
+      Pedidos;
+      Faturado;
+
+    end).Start;
+
+end;
+
+procedure TfrmCaixa.GraficoHistoricoCaixa;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+  Quant: Integer;
+  Vl: String;
+  Valor: Integer;
+  Total: Real;
+begin
+  Quant := HISTORICOCAIXAS.RecordCount - 7;
+  if not(HISTORICOCAIXAS.RecordCount > 1) then
+    exit;
+
+  try
+    chart := TSuperChart.Create(lGrafico2, Lines);
+
+    // Valores...
+    chart.ShowValues := True;
+    chart.FontSizeValues := 20;
+    chart.FontColorValues := $FFFFFFFF;
+    chart.FormatValues := 'R$ #,##0.00';
+
+    // 164,0,27
+
+    // Linhas...
+    chart.LineColor := $FFA4001B;
+    chart.ShowBackground := True;
+    // chart.BackgroundColor := $FF4F5060;
+    chart.RoundedBotton := True;
+    chart.RoundedTop := True;
+
+    // Argumentos...
+    chart.FontSizeArgument := 18;
+    chart.FontColorArgument := $FFFFFFFF;
+    jsonStr := '';
+
+    HISTORICOCAIXAS.First;
+    Valor := 0;
+    while not HISTORICOCAIXAS.Eof do
+    begin
+      inc(Valor);
+      if Valor >= Quant then
+      begin
+
+        Vl := HISTORICOCAIXAS.FieldByName('valor_fechamento').AsString;
+        Vl := StringReplace(Vl, ',', '.', [rfReplaceAll]);
+        if length(jsonStr) = 0 then
+          jsonStr := '{"field":"' + HISTORICOCAIXAS.FieldByName
+            ('data_fechamento').AsString + '", "valor":' + Vl + '}'
+        else
+          jsonStr := jsonStr + ',{"field":"' + HISTORICOCAIXAS.FieldByName
+            ('data_fechamento').AsString + '", "valor":' + Vl + '}';
+      end;
+
+      HISTORICOCAIXAS.Next;
+    end;
+
+    // if DADOSPAGAMENTO.RecordCount > 0 then
+    // begin
+    // DADOSPAGAMENTO.First;
+    // while not DADOSPAGAMENTO.Eof do
+    // begin
+    // Total := Total + DADOSPAGAMENTO.FieldByName('total').AsFloat;
+    // DADOSPAGAMENTO.Next;
+    // end;
+    // if Total > 0 then
+    // jsonStr := jsonStr + ',{"field":"Atual", "valor":' +
+    // FloatToStr(Total) + '}';
+    // end;
+
+
+    //
+
+    // Json...
+    // jsonStr :=
+    // '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    // jsonStr := jsonStr +
+    // '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    // jsonStr := jsonStr +
+    // '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    // jsonStr := jsonStr +
+    // '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON('[' + jsonStr + ']', erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+
+end;
+
+procedure TfrmCaixa.GraficoHistoricoPagamento;
+var
+  chart: TSuperChart;
+  jsonStr, erro: string;
+  Quant: Integer;
+  Vl: String;
+  Valor: Integer;
+begin
+
+  if not(DADOSPAGAMENTO.RecordCount > 1) then
+    exit;
+
+  try
+    chart := TSuperChart.Create(Layout1, Lines);
+
+    // Valores...
+    chart.ShowValues := True;
+    chart.FontSizeValues := 20;
+    chart.FontColorValues := $FFFFFFFF;
+    chart.FormatValues := 'R$ #,##0.00';
+
+    // 164,0,27
+
+    // Linhas...
+    chart.LineColor := $FFA4001B;
+    chart.ShowBackground := True;
+    // chart.BackgroundColor := $FF4F5060;
+    chart.RoundedBotton := True;
+    chart.RoundedTop := True;
+
+    // Argumentos...
+    chart.FontSizeArgument := 18;
+    chart.FontColorArgument := $FFFFFFFF;
+    jsonStr := '';
+
+    DADOSPAGAMENTO.First;
+    Valor := 0;
+    while not DADOSPAGAMENTO.Eof do
+    begin
+
+      Vl := DADOSPAGAMENTO.FieldByName('total').AsString;
+      Vl := StringReplace(Vl, ',', '.', [rfReplaceAll]);
+      if length(jsonStr) = 0 then
+        jsonStr := '{"field":"' + DADOSPAGAMENTO.FieldByName('descricao')
+          .AsString + '", "valor":' + Vl + '}'
+      else
+        jsonStr := jsonStr + ',{"field":"' + DADOSPAGAMENTO.FieldByName
+          ('descricao').AsString + '", "valor":' + Vl + '}';
+
+      DADOSPAGAMENTO.Next;
+    end;
+
+    // Json...
+    // jsonStr :=
+    // '[{"field":"Jan", "valor":220}, {"field":"Fev", "valor":580}, {"field":"Mar", "valor":750},';
+    // jsonStr := jsonStr +
+    // '{"field":"Abr", "valor":600}, {"field":"Mai", "valor":700}, {"field":"Jun", "valor":800},';
+    // jsonStr := jsonStr +
+    // '{"field":"Jul", "valor":950}, {"field":"Ago", "valor":1100}, {"field":"Set", "valor":950},';
+    // jsonStr := jsonStr +
+    // '{"field":"Out", "valor":800}, {"field":"Nov", "valor":700}, {"field":"Dez", "valor":900}]';
+
+    // Render do grafico...
+    chart.LoadFromJSON('[' + jsonStr + ']', erro);
+
+    if NOT erro.IsEmpty then
+      showmessage(erro);
+
+  finally
+    chart.DisposeOf;
+  end;
+
+end;
+
+procedure TfrmCaixa.Image7Click(Sender: TObject);
+begin
+  rMovimentacao.Visible := False;
+end;
+
+procedure TfrmCaixa.imgCaixaClick(Sender: TObject);
+begin
+  rGerencial1.Visible := False;
+end;
+
+procedure TfrmCaixa.img_pedidoClick(Sender: TObject);
+begin
+  Pedidos;
+end;
+
+procedure TfrmCaixa.Label18Click(Sender: TObject);
+begin
+  Caixa;
+end;
+
+procedure TfrmCaixa.Label5Click(Sender: TObject);
+begin
+  Pedidos;
+end;
+
+procedure TfrmCaixa.Label7Click(Sender: TObject);
+begin
+  Faturado;
+end;
+
+procedure TfrmCaixa.Pedidos;
+begin
+  if layPedidos.Height = 130 then
+  begin
+    layPedidos.Height := 30;
+    img_pedido.Bitmap := img_abrir.Bitmap;
+  end
+  else
+  begin
+    layPedidos.Height := 130;
+    img_pedido.Bitmap := img_fechar.Bitmap;
+  end;
+  Label6.Visible := layPedidos.Height = 130;
+  lTotalDesconto.Visible := layPedidos.Height = 130;
+  Label10.Visible := layPedidos.Height = 130;
+  LTaxa.Visible := layPedidos.Height = 130;
+  Label8.Visible := layPedidos.Height = 130;
+  LTotal.Visible := layPedidos.Height = 130;
+end;
+
+procedure TfrmCaixa.rAbrirClick(Sender: TObject);
+begin
+  if lTipo.Text = 'Abrir Caixa' then
+  begin
+    rGerencial1.Visible := True;
+  end
+  else
+  begin
+    // Fechar
+
+    if ValidaTotalPagamento then
+    begin
+      TabControl1.TabIndex := 2;
+      GraficoHistoricoPagamento;
+      ShowMessageToast(frmMain,
+        'O valor computado não pode ser maior que o informado no "Pagamento"!',
+        2);
+      exit;
+    end;
+
+    frmSimNao.titulo := 'Caixa';
+    frmSimNao.descricao := 'Deseja fechar o caixa?';
+    frmSimNao.Sim := SimFechamentoCaixa;
+    frmSimNao.Show;
+
+  end;
+end;
+
+procedure TfrmCaixa.rAtualizarClick(Sender: TObject);
+begin
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  BuscaDadosCaixa;
+end;
+
+procedure TfrmCaixa.Rectangle1Click(Sender: TObject);
+begin
+
+  frmSimNao.titulo := 'Caixa';
+  frmSimNao.descricao := 'Deseja abrir o caixa?';
+  frmSimNao.Sim := SimAberturaCaixa;
+  frmSimNao.Show;
+
+end;
+
+procedure TfrmCaixa.Rectangle2MouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmCaixa.Rectangle2MouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmCaixa.Rectangle3Click(Sender: TObject);
+begin
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  BuscaDadosCaixa;
+end;
+
+procedure TfrmCaixa.Rectangle4Click(Sender: TObject);
+begin
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  BuscaDadosCaixa;
+  rMovimentacao.Visible := True;
+  cTipo.ItemIndex := 0;
+  cTipo.SetFocus;
+  edtDescricao.Text := '';
+  EdtValor.Text := '0,00';
+  TabControl1.TabIndex := 1;
+end;
+
+procedure TfrmCaixa.Rectangle5Click(Sender: TObject);
+begin
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  frmSimNao.titulo := 'Pedidos';
+  frmSimNao.descricao := 'Deseja faturar todos pedidos automaticamente?';
+  frmSimNao.Sim := SimFaturar;
+  frmSimNao.Show;
+
+end;
+
+procedure TfrmCaixa.Rectangle7Click(Sender: TObject);
+begin
+  rMovimentacao.Visible := False;
+  MOVIMENTACAO.Close;
+  MOVIMENTACAO.Open;
+  MOVIMENTACAO.Insert;
+  MOVIMENTACAO.FieldByName('tipo').AsInteger := cTipo.ItemIndex;
+  MOVIMENTACAO.FieldByName('descricao').AsString := edtDescricao.Text;
+  MOVIMENTACAO.FieldByName('valor').AsString := EdtValor.Text;
+  MOVIMENTACAO.FieldByName('caixa').AsInteger := dm.CodigoCaixa;
+  MOVIMENTACAO.Post;
+  dm.PostSimples('/v1/caixa/movimentacao/', MOVIMENTACAO);
+  ShowMessageToast(frmMain, 'Movimentação lançada com sucesso!', 3);
+  BuscaDadosCaixa;
+end;
+
+procedure TfrmCaixa.Rectangle9Click(Sender: TObject);
+begin
+  Extorno;
+end;
+
+procedure TfrmCaixa.Rectangle9MouseEnter(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 1;
+end;
+
+procedure TfrmCaixa.Rectangle9MouseLeave(Sender: TObject);
+begin
+  (Sender as TRectangle).Opacity := 0.5;
+end;
+
+procedure TfrmCaixa.rEstornoClick(Sender: TObject);
+begin
+  Extorno;
+end;
+
+procedure TfrmCaixa.rMovClick(Sender: TObject);
+begin
+  BuscaDadosCaixa;
+  rMovimentacao.Visible := True;
+  cTipo.ItemIndex := 0;
+  cTipo.SetFocus;
+  edtDescricao.Text := '';
+  EdtValor.Text := '0,00';
+  TabControl1.TabIndex := 1;
+end;
+
+procedure TfrmCaixa.rPedidosClick(Sender: TObject);
+begin
+  frmSimNao.titulo := 'Pedidos';
+  frmSimNao.descricao := 'Deseja faturar todos pedidos automaticamente?';
+  frmSimNao.Sim := SimFaturar;
+  frmSimNao.Show;
+
+end;
+
+procedure TfrmCaixa.SetCodigoDoCaixa(const Value: Integer);
+begin
+  FCodigoDoCaixa := Value;
+  self.Caption := 'Histórico do Caixa #' + Value.toString;
+end;
+
+procedure TfrmCaixa.SetVisualizacao(const Value: Boolean);
+begin
+  FVisualizacao := Value;
+
+  TabItem4.Visible := not Value;
+  TabItem6.Visible := not Value;
+  rAtualizar.Visible := not Value;
+  rPedidos.Visible := not Value;
+  rMov.Visible := not Value;
+  rAbrir.Visible := not Value;
+  rEstorno.Visible := not Value;
+
+  if Value then
+  begin
+    lNomeForm.Text := 'Histórico do Caixa';
+  end;
+
+end;
+
+procedure TfrmCaixa.SimAberturaCaixa;
+begin
+  rGerencial1.Visible := False;
+  dm.PostSimples('/v1/caixa/abertura/' + dm.CodigoUsuario.toString + '/' +
+    edtTotal.Text, nil);
+  BuscaCaixa;
+end;
+
+procedure TfrmCaixa.SimFaturar;
+begin
+  dm.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+    CodigoDoCaixa.toString, nil);
+  ShowMessageToast(self, 'Pedidos faturados com sucesso!', 3);
+  BuscaDadosCaixa;
+end;
+
+procedure TfrmCaixa.SimFechamentoCaixa;
+begin
+  FinalizaCaixa;
+  TabControl1.TabIndex := 0;
+  ShowMessageToast(frmMain, 'Caixa fechado com sucesso!', 2);
+
+end;
+
+procedure TfrmCaixa.StringGrid2CellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+  DADOSPAGAMENTO.Edit;
+  DADOSPAGAMENTO.FieldByName('informado').AsFloat :=
+    DADOSPAGAMENTO.FieldByName('total').AsFloat;
+  DADOSPAGAMENTO.Post;
+end;
+
+procedure TfrmCaixa.StringGrid3CellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+
+  if dm.CaixaResumo = 1 then
+    dm.PostSimples('/v1/imprimir/3/' + HISTORICOCAIXAS.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaCompleto = 1 then
+    dm.PostSimples('/v1/imprimir/4/' + HISTORICOCAIXAS.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaProduto = 1 then
+    dm.PostSimples('/v1/imprimir/5/' + HISTORICOCAIXAS.FieldByName('id')
+      .AsString, nil);
+
+  if dm.CaixaMotoboy = 1 then
+    dm.PostSimples('/v1/imprimir/6/' + HISTORICOCAIXAS.FieldByName('id')
+      .AsString, nil);
+  ShowMessageToast(frmMain, 'Caixa reimpresso com sucesso!', 3);
+end;
+
+procedure TfrmCaixa.StringGrid3DrawColumnCell(Sender: TObject;
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+var
+  Cor: TColor;
+  Valor: String;
+begin
+  case Column.Index of
+    0:
+      begin
+        Cor := RGB(168, 16, 5);
+        Valor := '#' + Value.toString;
+        try
+          if StrToInt(Value.toString) > 0 then
+          begin
+            Cor := RGB(5, 168, 93);
+          end;
+
+        except
+
+        end;
+
+        Canvas.Fill.Color := Cor;
+        Canvas.Stroke.Color := Cor;
+        Canvas.FillRect(Bounds, 0, 0, [], 1);
+        Canvas.Fill.Color := TAlphaColorRec.Black;
+        Canvas.FillText(Bounds, Valor, False, 1,
+          [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+          TTextAlign.Center);
+
+      end;
+  end;
+end;
+
+procedure TfrmCaixa.StringGrid4CellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := DADOSCAIXA.FieldByName('codigo').AsInteger;
+  FrmResumo.FinalizaExecutar := BuscaDadosCaixa;
+  FrmResumo.Show;
+end;
+
+procedure TfrmCaixa.StringGrid4DrawColumnCell(Sender: TObject;
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+var
+  Cor: TColor;
+  Valor: String;
+begin
+  case Column.Index of
+    1:
+      begin
+        Cor := RGB(168, 16, 5);
+        Valor := 'X';
+        try
+          if StrToInt(Value.toString) > 0 then
+          begin
+            Cor := RGB(5, 168, 93);
+            Valor := '';
+          end;
+
+        except
+
+        end;
+
+        Canvas.Fill.Color := Cor;
+        Canvas.Stroke.Color := Cor;
+        Canvas.FillRect(Bounds, 0, 0, [], 1);
+        Canvas.Fill.Color := TAlphaColorRec.Black;
+        Canvas.FillText(Bounds, Valor, False, 1,
+          [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+          TTextAlign.Center);
+
+      end;
+  end;
+end;
+
+procedure TfrmCaixa.StringGrid5CellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+  if length(HISTORICOMOTOBOY.FieldByName('codigo').AsString) > 0 then
+    dm.GetSimples('/v1/motoboy/historico/completo/' +
+      HISTORICOMOTOBOY.FieldByName('codigo').AsString, HISTORICOMOTOBOYPEDIDO);
+end;
+
+procedure TfrmCaixa.StringGrid6CellDblClick(const Column: TColumn;
+const Row: Integer);
+begin
+  if NOT Assigned(FrmResumo) then
+    Application.CreateForm(TFrmResumo, FrmResumo);
+  FrmResumo.MESA := 0;
+  FrmResumo.CodigoPedido := HISTORICOMOTOBOYPEDIDO.FieldByName('codigo')
+    .AsInteger;
+  FrmResumo.ApenasVisualizacao := True;
+  // FrmResumo.FinalizaExecutar := BuscaDadosCaixa;
+  FrmResumo.Show;
+end;
+
+procedure TfrmCaixa.TabItem3Click(Sender: TObject);
+begin
+  GraficoHistoricoPagamento;
+end;
+
+procedure TfrmCaixa.TabItem4Click(Sender: TObject);
+begin
+  GraficoHistoricoCaixa;
+end;
+
+procedure TfrmCaixa.TabItem6Click(Sender: TObject);
+begin
+  FormReceber.Buscar;
+end;
+
+function TfrmCaixa.ValidaTotalPagamento: Boolean;
+var
+  Computado: Real;
+  Informado: Real;
+begin
+
+  if DADOSPAGAMENTO.RecordCount = 0 then
+  begin
+    Result := True;
+    exit;
+  end;
+
+  Computado := 0;
+  Informado := 0;
+  DADOSPAGAMENTO.First;
+  while not DADOSPAGAMENTO.Eof do
+  begin
+    Computado := Computado + DADOSPAGAMENTO.FieldByName('total').AsFloat;
+    Informado := Informado + DADOSPAGAMENTO.FieldByName('informado').AsFloat;
+    DADOSPAGAMENTO.Next;
+  end;
+
+  Result := Computado > Informado;
+  DADOSPAGAMENTO.First;
+end;
+
+procedure TfrmCaixa.ZClick(Sender: TObject);
+begin
+  if lTipo.Text = 'Abrir Caixa' then
+  begin
+    rGerencial1.Visible := True;
+  end
+  else
+  begin
+    // Fechar
+
+    if ValidaTotalPagamento then
+    begin
+      TabControl1.TabIndex := 2;
+      GraficoHistoricoPagamento;
+      ShowMessageToast(frmMain,
+        'O valor computado não pode ser maior que o informado no "Pagamento"!',
+        2);
+      exit;
+    end;
+
+    frmSimNao.titulo := 'Caixa';
+    frmSimNao.descricao := 'Deseja fechar o caixa?';
+    frmSimNao.Sim := SimFechamentoCaixa;
+    frmSimNao.Show;
+
+  end;
+end;
+
+{ TDadosCaixa }
+
+constructor TDadosCaixa.Create;
+begin
+  inherited Create(True);
+end;
+
+destructor TDadosCaixa.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TDadosCaixa.Execute;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+
+    Formulario.BuscaDadosCaixa;
+    Sleep(15 * 1000);
+  end;
+
+end;
+
+initialization
+
+RegisterClass(TfrmCaixa);
+
+end.
