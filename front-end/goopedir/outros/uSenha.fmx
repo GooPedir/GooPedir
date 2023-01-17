@@ -264,6 +264,28 @@ object frmSenha: TfrmSenha
               TabOrder = 0
             end
           end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFF77273
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFF77273
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'N'#227'o'
+              TabOrder = 0
+            end
+          end
         end
         object btnSim: iButton
           Align = Client
@@ -276,6 +298,28 @@ object frmSenha: TfrmSenha
           iForthTipoBotao = tSalvar
           iForthCorFonte = cBranca
           iForthDescricao = 'Sim'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 192.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 192.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Sim'
+              TabOrder = 0
+            end
+          end
           object TRectangle
             Align = Client
             Fill.Color = xFF31CCAF

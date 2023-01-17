@@ -389,24 +389,15 @@ begin
   TotalFinalizado := 0;
   TotalSaida := 0;
   TotalEntrada := 0;
-  try
+
+
     DADOSCAIXA.Close;
-    Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
-    Requisicao.URL := '/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString;
-    Requisicao.MemTable := DADOSCAIXA;
-    Requisicao.Metodo := mGet;
     DADOSPAGAMENTO.Close;
-    Requisicao.Execute;
-    Requisicao.URL := '/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString;
-    Requisicao.MemTable := DADOSPAGAMENTO;
-    Requisicao.Metodo := mGet;
-    Requisicao.Execute;
+    dm.GetSimples('/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString,DADOSCAIXA);
+    dm.GetSimples('/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString,DADOSPAGAMENTO);
 
-  except
 
-  end;
-  Requisicao.Free;
+
 
   if DADOSCAIXA.RecordCount > 0 then
   begin
@@ -655,13 +646,7 @@ var
   Requisicao: iRequisicao;
 begin
   DADOSHISTORICO.Close;
-  Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := dm.CONEXAO.BaseURL;
-  Requisicao.URL := '/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString;
-  Requisicao.MemTable := DADOSHISTORICO;
-  Requisicao.Metodo := mGet;
-  Requisicao.Execute;
-  Requisicao.Free;
+  dm.GetSimples('/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString,DADOSHISTORICO);
 
   Quant := HISTORICOCAIXAS.RecordCount - 7;
   if not(HISTORICOCAIXAS.RecordCount > 1) then

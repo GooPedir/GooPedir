@@ -2510,10 +2510,8 @@ begin
       conexao.Parametros('id', Codigo);
       conexao.Parametros('produto', Dados.FieldByName('ID_PRODUTO').AsInteger);
       conexao.Parametros('valor', Dados.FieldByName('VALOR').AsCurrency);
-      conexao.Parametros('inicial',
-        StrToDateTime(COPY(Dados.FieldByName('HORA_INICIO').AsString, 0, 8)));
-      conexao.Parametros('final',
-        StrToDateTime(COPY(Dados.FieldByName('HORA_FIM').AsString, 0, 8)));
+      conexao.Parametros('inicial',StrToDateTime(COPY(Dados.FieldByName('HORA_INICIO').AsString, 0, 8)));
+      conexao.Parametros('final',StrToDateTime(COPY(Dados.FieldByName('HORA_FIM').AsString, 0, 8)));
       conexao.Parametros('segunda', Dados.FieldByName('SEGUNDA').AsInteger);
       conexao.Parametros('terca', Dados.FieldByName('TERCA').AsInteger);
       conexao.Parametros('quarta', Dados.FieldByName('QUARTA').AsInteger);

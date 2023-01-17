@@ -33,7 +33,6 @@ type
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Image1Click(Sender: TObject);
     procedure rAtivarDesativarClick(Sender: TObject);
   private
     { Private declarations }
@@ -64,12 +63,6 @@ end;
 procedure TfrmMotoboy.GetDados;
 begin
   dm.GetSimples('/v1/consulta/todos/motoboy', DADOS);
-end;
-
-procedure TfrmMotoboy.Image1Click(Sender: TObject);
-begin
-  inherited;
-frmMain.AbrirForm('T'+self.Name);
 end;
 
 procedure TfrmMotoboy.rAdicionarClick(Sender: TObject);

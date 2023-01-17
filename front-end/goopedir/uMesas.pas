@@ -223,8 +223,8 @@ begin
 
   if MESA.RecordCount = 0 then
   begin
-  tabMesas.Visible := False;
-  Layout1.Align := TAlignLayout.Client;
+    tabMesas.Visible := False;
+    Layout1.Align := TAlignLayout.Client;
     exit;
   end;
 
@@ -525,11 +525,11 @@ end;
 procedure TfrmMesas.lImpressaoClick(Sender: TObject);
 begin
   inherited;
-  if NOT Assigned(FrmResumo) then
+  if not Assigned(FrmResumo) then
     Application.CreateForm(TFrmResumo, FrmResumo);
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := -1;
-  FrmResumo.Show;
+   FrmResumo.Show;
 end;
 
 procedure TfrmMesas.lImpressaoMouseEnter(Sender: TObject);
@@ -600,7 +600,6 @@ end;
 
 procedure TfrmMesas.DadosTelaTimer(Sender: TObject);
 var
-  RequisicaoPedido: iRequisicao;
   FrameDados: TframeDadosVBDelivery;
   FrameDadosMotoboy: TfrmDadosPedidoMotoboy;
   I: Integer;
@@ -632,13 +631,7 @@ begin
       var
         CONEXAO: iRequisicao;
       begin
-        CONEXAO := iRequisicao.Create(nil);
-        CONEXAO.BaseURL := DM.CONEXAO.BaseURL;
-        CONEXAO.URL := '/v1/mesas';
-        CONEXAO.Metodo := mGet;
-        CONEXAO.MemTable := MESA;
-        CONEXAO.TempoExpiracao := 10000;
-        CONEXAO.Execute;
+        DM.GetSimples('/v1/mesas', MESA);
 
         TThread.Synchronize(TThread.CurrentThread,
           procedure
@@ -654,15 +647,10 @@ begin
   DadosMotoboy.Open;
   if DadosPedido.RecordCount = 0 then
   begin
-    RequisicaoPedido := iRequisicao.Create(nil);
-    RequisicaoPedido.BaseURL := DM.CONEXAO.BaseURL;
-    RequisicaoPedido.URL := 'v1/pedidos/' + FormatDateTime('ddmmyyyy',
+    DM.GetSimples2('v1/pedidos/' + FormatDateTime('ddmmyyyy',
       edtDataInicial.Date) + '/' + FormatDateTime('ddmmyyyy', edtDataFinal.Date)
       + '/' + FormatDateTime('hhnn59', edtHoraInicial.Time) + '/' +
-      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3/X';
-    RequisicaoPedido.Metodo := mGet;
-    RequisicaoPedido.MemTable2 := DadosPedido;
-    RequisicaoPedido.Execute;
+      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3/X', DadosPedido);
   end
   else
   begin
@@ -789,26 +777,27 @@ begin
       DadosPedido.Next;
     end;
 
-//    for I := 0 to vertMotoboy.ComponentCount - 1 do
-//    begin
-//      if (vertMotoboy.Components[I] is TfrmDadosPedidoMotoboy) then
-//      begin
-//
-//        (vertMotoboy.Components[I] as TfrmDadosPedidoMotoboy).Visible := False;
-//      end;
-//    end;
+    // for I := 0 to vertMotoboy.ComponentCount - 1 do
+    // begin
+    // if (vertMotoboy.Components[I] is TfrmDadosPedidoMotoboy) then
+    // begin
+    //
+    // (vertMotoboy.Components[I] as TfrmDadosPedidoMotoboy).Visible := False;
+    // end;
+    // end;
 
     DadosMotoboy.First;
     while not DadosMotoboy.Eof do
     begin
 
       if Assigned(vertMotoboy.FindComponent('FrameDadosMotoboy' +
-        trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))) then
+        trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString, ' ', '_',
+        [rfReplaceAll])))) then
       begin
         FrameDadosMotoboy :=
           (vertMotoboy.FindComponent('FrameDadosMotoboy' +
-          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))
-          as TfrmDadosPedidoMotoboy);
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString, ' ',
+          '_', [rfReplaceAll]))) as TfrmDadosPedidoMotoboy);
 
       end
       else
@@ -818,7 +807,8 @@ begin
         FrameDadosMotoboy.Align := TAlignLayout.Top;
         FrameDadosMotoboy.Parent := vertMotoboy;
         FrameDadosMotoboy.Name := 'FrameDadosMotoboy' +
-          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll]));
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString, ' ',
+          '_', [rfReplaceAll]));
         FrameDadosMotoboy.Nome := DadosMotoboy.FieldByName('NOME').AsString;
       end;
       FrameDadosMotoboy.Visible := True;
@@ -843,10 +833,6 @@ end;
 constructor TDadosMesa.Create;
 begin
   inherited Create(True);
-  CONEXAO := iRequisicao.Create(nil);
-  CONEXAO.BaseURL := DM.CONEXAO.BaseURL;
-  CONEXAO.URL := '/v1/mesas';
-  CONEXAO.Metodo := mGet;
 end;
 
 destructor TDadosMesa.Destroy;
@@ -866,10 +852,7 @@ begin
       frmMesas := Formulario;
       if not Formulario.CarregandoMesa then
       begin
-        CONEXAO.MemTable := Formulario.MESA;
-        CONEXAO.TempoExpiracao := 10000;
-        CONEXAO.Execute;
-
+        DM.GetSimples('/v1/mesas', Formulario.MESA);
       end;
     end;
 

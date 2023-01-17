@@ -450,12 +450,12 @@ begin
   SQL := SQL + 'where p.codigo = p.codigo ';
   SQL := SQL + 'and p.usa_tabela_preco = 1 ';
   SQL := SQL + 'and pp.hora_inicial < current_time ';
+  SQL := SQL + 'and pp.hora_inicial <= current_time';
+  SQL := SQL + 'and pp.hora_final >= current_time';
   SQL := SQL + 'and p.id_site > 0 ';
   SQL := SQL + 'and (CASE WEEKDAY(current_date) ';
-  SQL := SQL +
-    'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
-  SQL := SQL +
-    'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)';
+  SQL := SQL + 'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
+  SQL := SQL + 'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then

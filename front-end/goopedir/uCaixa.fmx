@@ -1541,6 +1541,13 @@ object frmCaixa: TfrmCaixa
       end
     end
   end
+  object test: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = testTimer
+    Left = 613
+    Top = 268
+  end
   object DADOSCAIXA: iMemTable
     FieldDefs = <>
     IndexDefs = <>
@@ -2099,12 +2106,5 @@ object frmCaixa: TfrmCaixa
     ScopeMappings = <>
     Left = 1264
     Top = 480
-  end
-  object test: TTimer
-    Enabled = False
-    Interval = 5000
-    OnTimer = testTimer
-    Left = 613
-    Top = 268
   end
 end

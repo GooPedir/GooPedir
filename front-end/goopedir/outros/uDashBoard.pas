@@ -19,7 +19,6 @@ type
     Label5: TLabel;
     lProdutoPausado: TLabel;
     imgMotoboy: TImage;
-    lTotalMotoboy: TLabel;
     Layout3: TLayout;
     Label8: TLabel;
     lPedidosMesAtual: TLabel;
@@ -100,8 +99,6 @@ type
     lCategoria: TLabel;
     imgTaxa: TImage;
     lTaxa: TLabel;
-    imgMesas: TImage;
-    lMesas: TLabel;
     imgTipoPag: TImage;
     lTipoPagamento: TLabel;
     imgImpressora: TImage;
@@ -120,6 +117,25 @@ type
     Label29: TLabel;
     nVemBuscar: TNumberBox;
     Button1: TButton;
+    Layout8: TLayout;
+    Label31: TLabel;
+    lTotalMotoboy: TLabel;
+    Layout9: TLayout;
+    Label33: TLabel;
+    Layout10: TLayout;
+    Label38: TLabel;
+    Layout11: TLayout;
+    Label43: TLabel;
+    Layout12: TLayout;
+    Label47: TLabel;
+    Layout13: TLayout;
+    Label52: TLabel;
+    imgMesas: TImage;
+    lMesas: TLabel;
+    Layout14: TLayout;
+    Label40: TLabel;
+    lCLienteInativo: TLayout;
+    Label50: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -137,6 +153,9 @@ type
     procedure nDeliveryExit(Sender: TObject);
     procedure nVemBuscarExit(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Layout8DragEnter(Sender: TObject; const Data: TDragObject;
+      const Point: TPointF);
+    procedure Layout8DragLeave(Sender: TObject);
   private
     FMesesPrevisao: Integer;
     FPrevisaoHoje: Integer;
@@ -186,7 +205,7 @@ uses uMain, uFrameTitulo;
 procedure TfrmDashBoard.Button1Click(Sender: TObject);
 begin
   inherited;
- frmMain.AbrirForm('TfrmIngredientesProduto');
+  frmMain.AbrirForm('TfrmIngredientesProduto');
 end;
 
 procedure TfrmDashBoard.DadosMedia;
@@ -335,8 +354,8 @@ begin
       layHistorico.Visible := True;
     end);
   t.OnTerminate := OnFinis;
-//  t.Start;
-OnFinis(self);
+  t.Start;
+  // OnFinis(Self);
 
 end;
 
@@ -435,6 +454,19 @@ procedure TfrmDashBoard.img_clienteClick(Sender: TObject);
 begin
   inherited;
   frmMain.AbrirForm('TfrmCliente');
+end;
+
+procedure TfrmDashBoard.Layout8DragEnter(Sender: TObject;
+  const Data: TDragObject; const Point: TPointF);
+begin
+  inherited;
+(Sender as TLayout).Opacity := 1;
+end;
+
+procedure TfrmDashBoard.Layout8DragLeave(Sender: TObject);
+begin
+  inherited;
+(Sender as TLayout).Opacity := 0.5;
 end;
 
 procedure TfrmDashBoard.lProdutoPausadoClick(Sender: TObject);
@@ -591,14 +623,18 @@ begin
       DataAtual := date;
     end;
 
-    Dados.Close;
-    CONEXAO.BODY(DiasValidos);
-    CONEXAO.MemTable2 := Dados;
-    CONEXAO.Execute;
-
-    Formulario.PrevisaoHoje := Dados.FieldByName('previsao').AsInteger;
     try
-      Formulario.PrevisaoUltimosMeses := Dados.FieldByName('atual').AsInteger;
+      Dados.Close;
+      CONEXAO.BODY(DiasValidos);
+      CONEXAO.MemTable2 := Dados;
+      CONEXAO.Execute;
+
+      Formulario.PrevisaoHoje := Dados.FieldByName('previsao').AsInteger;
+      try
+        Formulario.PrevisaoUltimosMeses := Dados.FieldByName('atual').AsInteger;
+      except
+
+      end;
     except
 
     end;

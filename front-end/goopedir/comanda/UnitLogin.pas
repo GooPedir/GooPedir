@@ -130,8 +130,7 @@ begin
 
       // Tenta consumir servico...
       try
-        // RESTRequest1.Execute;
-        // dm.r
+
         dm.Conexao.BaseURL := 'http://' + GetHost + ':2121/';
         dm.Conexao.url := 'v1/versao/app';
         dm.Conexao.Metodo := mGet;
@@ -326,10 +325,7 @@ begin
     exit;
   end;
 
-  dm.Conexao.url := '/v1/usuario/' + Usuario + '/' + Senha;
-  dm.Conexao.Metodo := mGet;
-  dm.Conexao.MemTable2 := dm.Usuario;
-  dm.Conexao.Execute;
+  dm.GetSimples2('/v1/usuario/' + Usuario + '/' + Senha,dm.Usuario);
 
   if dm.Usuario.RecordCount = 0 then
   begin

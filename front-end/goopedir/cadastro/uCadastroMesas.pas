@@ -108,7 +108,7 @@ end;
 
 procedure TfrmCadastroMesas.Image1Click(Sender: TObject);
 begin
-  inherited;
+//  inherited;
   if tabPrincipal.TabIndex = 1 then
   begin
      tabPrincipal.TabIndex := 0;

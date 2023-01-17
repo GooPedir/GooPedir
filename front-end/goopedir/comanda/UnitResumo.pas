@@ -1676,6 +1676,8 @@ begin
 end;
 
 procedure TFrmResumo.SetCodigoPedido(const Value: Integer);
+var
+Busca : Boolean;
 
 begin
   TipoPagamento;
@@ -1688,7 +1690,7 @@ begin
     if Value = -1 then
     begin
       FCodigoPedido := 0;
-      GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
+      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
       AtualizaDadosPedido;
       exit;
     end;
@@ -1696,10 +1698,11 @@ begin
     begin
       FCodigoPedido := Value;
 
-      GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
+      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
       AtualizaDadosPedido;
 
     end;
+
 
     FCodigoPedido := Value;
   end

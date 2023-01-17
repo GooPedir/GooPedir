@@ -1875,8 +1875,8 @@ begin
 
   TABELA.FieldByName('VALOR').AsFloat := edtValorTabela.Text.ToDouble;
 
-  TABELA.FieldByName('HORA_INICIO').AsDateTime := tInicial.DateTime;
-  TABELA.FieldByName('HORA_FIM').AsDateTime := tFinal.DateTime;
+  TABELA.FieldByName('HORA_INICIO').AsString := FormatDateTime('hh:nn:ss',tInicial.DateTime);
+  TABELA.FieldByName('HORA_FIM').AsString := FormatDateTime('hh:nn:ss',tFinal.DateTime);
   TABELA.Post;
   DM.PostSimples('/v1/tabela/produto/', TABELA);
 

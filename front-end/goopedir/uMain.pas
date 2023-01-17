@@ -108,7 +108,9 @@ begin
       if NewTab.Visible then
       begin
         tabMain.TabIndex := 0;
-        NewTab.Visible := False
+        NewTab.Visible := False;
+        exit;
+
       end
       else
       begin
@@ -299,13 +301,7 @@ begin
 
   if DM.PARAMETRO.RecordCount = 0 then
   begin
-    // DM.GetSimples('/v1/consulta/todos/dados_whatsapp', DM.PARAMETRO);
-    DM.Conexao.URL := '/v1/consulta/todos/dados_whatsapp';
-    DM.Conexao.Metodo := mGet;
-    // DM.CONEXAO.Token(Token);
-    DM.Conexao.MemTable2 := DM.PARAMETRO;
-    DM.Conexao.Execute;
-
+    dm.GetSimples2('/v1/consulta/todos/dados_whatsapp',DM.PARAMETRO);
   end;
 
   try
@@ -320,12 +316,6 @@ end;
 
 constructor TConexaoServidor.Create;
 begin
-  //
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 30000;
-  // Conexao.TempoExpiracao := 1000;
-  Conexao.URL := 'v1/versao/app';
 end;
 
 destructor TConexaoServidor.Destroy;
@@ -340,13 +330,7 @@ begin
 
   while not Terminated do
   begin
-    try
-      Conexao.Execute;
-    except
-      Conexao.Status := 400;
-    end;
-
-    Status := Conexao.Status = 200;
+  Status := dm.GetSimples('v1/versao/app',nil);
 
     if Status then
       Sleep(1500)

@@ -686,6 +686,7 @@ begin
     Conexao.Token(Token);
     Conexao.MemTable := Dados;
     Conexao.Execute;
+    Result := Conexao.Status = 200;
   except
     on E: Exception do
     begin

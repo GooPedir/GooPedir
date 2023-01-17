@@ -25,7 +25,7 @@ uses
 
 function GetSimples(URL: String; Dados: IMemTable): boolean;
 begin
-  dm.GetSimples(Parametros(URL), Dados);
+  Result := dm.GetSimples(Parametros(URL), Dados);
 end;
 
 function GetSimples2(URL: String; Dados: TFDMemTable): boolean;
