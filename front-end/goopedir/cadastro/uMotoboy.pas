@@ -111,7 +111,7 @@ begin
   DadosBody.AddPair('id_local',DADOS.FieldByName('codigo').AsString);
   DM.Requisicao.URL := 'insert/ws_motoboys/' + DM.UserId.ToString + '/a';
   DM.Requisicao.Metodo := mPost;
-  ShowMessage(DadosBody.ToString);
+//  ShowMessage(DadosBody.ToString);
   DM.Requisicao.Body(DadosBody.ToString);
   DM.Requisicao.Execute;
 

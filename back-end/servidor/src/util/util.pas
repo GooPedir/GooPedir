@@ -380,9 +380,8 @@ begin
 
         end;
         ValorAux := ValorAux + ValorPizza;
-        conexao.SQL.Add
-          ('select max(id)+1 as id, 0 as zero from pedido_produto_sap');
-        CodigoAux := conexao.FieldByName('id');
+
+        CodigoAux := conexao.GerarID('pedido_produto_sap','id');
 
         conexao.SQL.Add
           ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor,tipo_valor) value (:id,:codigo_pedido_produto,0,:nomeclatura,:descricao,:valor,:tipo_valor)');
@@ -5753,11 +5752,11 @@ begin
   end
   else
   begin
-    conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '
-      + tabela);
+//    conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '+ tabela);
+
 
     try
-      Valor := conexao.FieldByName('codigo');
+      Valor := conexao.GerarID(tabela,Campo);
     except
       Valor := 99;
     end;

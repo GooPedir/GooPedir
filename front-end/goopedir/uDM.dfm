@@ -1,6 +1,6 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 652
+  Height = 609
   Width = 1980
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
@@ -482,16 +482,5 @@ object DM: TDM
       FieldName = 'data_formatada'
       Size = 255
     end
-  end
-  object VersaoConexao: TFDConnection
-    Params.Strings = (
-      'Port=2020'
-      'Server=localhost'
-      'Password=root'
-      'User_Name=root'
-      'Database=sys'
-      'DriverID=MySQL')
-    Left = 912
-    Top = 224
   end
 end

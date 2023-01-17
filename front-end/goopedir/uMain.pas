@@ -56,6 +56,7 @@ type
     function GetParametros(NomeParametro: String): Variant;
 
     procedure AbrirForm(Nome: String);
+    procedure AbrirFormVisivel(Nome: String; Visible: Boolean);
     function FormsName(Nome: String): String;
 
   var
@@ -77,6 +78,11 @@ uses uPedido, uProduto, uCategoria, uTaxaEntrega, uDM, uMotoboy,
   uDashBoard, UnitAddItem;
 
 procedure TfrmMain.AbrirForm(Nome: String);
+begin
+  AbrirFormVisivel(Nome, True);
+end;
+
+procedure TfrmMain.AbrirFormVisivel(Nome: String; Visible: Boolean);
 var
   Index: Integer;
   aForm: TComponentClass;
@@ -98,14 +104,17 @@ begin
 
     try
       NewTab := tabMain.FindComponent(NomeTab) as TTabItem;
-      tabMain.TabIndex := 0;
 
       if NewTab.Visible then
+      begin
+        tabMain.TabIndex := 0;
         NewTab.Visible := False
+      end
       else
       begin
         NewTab.Visible := True;
-        tabMain.TabIndex := NewTab.Index;
+        if not Visible then
+          tabMain.TabIndex := NewTab.Index;
       end;
     except
 
@@ -130,6 +139,7 @@ begin
 
     NewTab := TTabItem.Create(tabMain);
     NewTab.Name := NomeTab;
+    NewTab.Visible := Visible;
 
     NewTab.text := FormsName(Nome);
     NewTab.Parent := tabMain;
@@ -157,10 +167,10 @@ end;
 
 procedure TfrmMain.FinalizouCarregamento;
 begin
-//  AbrirForm('TfrmPedido');
+  // AbrirForm('TfrmPedido');
   AbrirForm('TfrmMesas');
   AbrirForm('TfrmProduto');
-  AbrirForm('TfrmCaixa');
+  AbrirFormVisivel('TfrmCaixa', False);
   tabMain.TabIndex := 0;
 
 end;
@@ -170,10 +180,9 @@ begin
 
   DM.LogUsuario;
 
-
   tabMain.TabIndex := 0;
   frmMain.Caption := frmMain.Caption + DM.GetNomeEmpresa;
-//  DM.IniciaVerificacao;
+  // DM.IniciaVerificacao;
   DM.UserId;
   if NOT Assigned(FrmAddItem) then
   begin

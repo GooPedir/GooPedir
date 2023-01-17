@@ -288,8 +288,8 @@ begin
   btnVoltar.Visible := False;
   BtnProximo.Visible := False;
   dm.Requisicao.Metodo := mGet;
-  dm.Requisicao.URL := 'pedidosm/' + dm.DADOS_MOTOBOY_SITE.FieldByName
-    ('user_id').AsString + '-' + edtCodigoPedido.Text + '/a';
+  dm.Requisicao.URL := 'pedidosm/' + dm.DADOS_MOTOBOY_SITE.FieldByName('user_id').AsString + '-' + edtCodigoPedido.Text + '/a';
+  ShowMessage(dm.Requisicao.BaseURL+dm.Requisicao.URL);
   dm.Requisicao.Metodo := mGet;
   dm.Requisicao.MemTable2 := dm.DADOS_MOTOBOY_PEDIDO;
   dm.Requisicao.Execute;
@@ -518,7 +518,8 @@ begin
   dm.Requisicao.URL := 'insert/ws_pedidos_motoboy/' + dm.UserId.ToString + '/a';
   dm.Requisicao.Metodo := mPost;
 
-  dm.Requisicao.BODY(DadosBody.ToString);
+  ShowMessage(DadosBody.ToString);
+//  dm.Requisicao.BODY(DadosBody.ToString);
   dm.Requisicao.Execute;
   ShowMessageToast(self, 'Pedido saiu para entrega!', 2);
   rSaiuEntrega.Visible := False;

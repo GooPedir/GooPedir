@@ -11,7 +11,7 @@ uses
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, XSuperObject, DataSet.Serialize,
   Winapi.TlHelp32, Vcl.ComCtrls, WinInet, metodo.api, Vcl.Imaging.pngimage,
-  uRequisicao;
+  uRequisicao, IdBaseComponent, IdComponent, IdIPWatch;
 
 type
   TCadastraAlteraSite = class
@@ -94,6 +94,7 @@ type
     property UserID: Integer read getUser;
     function TipoPedido: Integer;
   protected
+    function GetLocalIP: String;
     procedure Execute; override;
     procedure InserirPedidos;
     function BuscaItems(User, codigo: Integer): String;
@@ -158,6 +159,7 @@ type
     lRestante: TLabel;
     cImportaPedido: TCheckBox;
     RequisicaoLocal: iRequisicao;
+    IdIPWatch1: TIdIPWatch;
     procedure FormCreate(Sender: TObject);
     procedure tMinimizaTimer(Sender: TObject);
     procedure TrayClick(Sender: TObject);
@@ -431,10 +433,11 @@ begin
       Ativo := '0';
 
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Dados.FieldByName('valor_venda').AsString, Ativo,Dados.FieldByName('saldo_atual').AsString]);
+      Dados.FieldByName('valor_venda').AsString, Ativo,
+      Dados.FieldByName('saldo_atual').AsString]);
 
     Dados.next;
   end;
@@ -474,10 +477,11 @@ begin
       Ativo := '0';
 
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Dados.FieldByName('valor').AsString, Ativo,Dados.FieldByName('saldo_atual').AsString]);
+      Dados.FieldByName('valor').AsString, Ativo,
+      Dados.FieldByName('saldo_atual').AsString]);
 
     Dados.next;
   end;
@@ -489,10 +493,11 @@ begin
   while not Dados.Eof do
   begin
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel','estoque'],
+      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0',
-      Dados.FieldByName('ativo').AsString,Dados.FieldByName('saldo_atual').AsString]);
+      Dados.FieldByName('ativo').AsString, Dados.FieldByName('saldo_atual')
+      .AsString]);
     Dados.next;
   end;
 
@@ -681,7 +686,7 @@ end;
 
 procedure TfrmPrincipal.Button1Click(Sender: TObject);
 begin
-//EnviarSabores;
+  // EnviarSabores;
 end;
 
 procedure TfrmPrincipal.CadastraCategoria(Insert: TInsertUpdate;
@@ -1042,8 +1047,10 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'SELECT p.saldo_atual as estoque, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
-  SQL := SQL + 'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
-  SQL := SQL + 'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
+  SQL := SQL +
+    'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
+  SQL := SQL +
+    'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
   SQL := SQL +
     ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
   SQL := SQL + ' where p.modificado_site = 0 and tipo_produto.id_site > 0 ';
@@ -1086,27 +1093,29 @@ begin
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
               'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-              'valor_delivery','estoque'], [Dados.FieldByName('id_site').AsString,
-              Usuario.ToString, 'false', '0',
-              'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+              'valor_delivery', 'estoque'],
+              [Dados.FieldByName('id_site').AsString, Usuario.ToString, 'false',
+              '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
               Dados.FieldByName('codigo_interno').AsString,
               Dados.FieldByName('categoria').AsString,
               Dados.FieldByName('produto').AsString, Descricao,
               Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
-              .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString, Dados.FieldByName('estoque').AsString]);
+              .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
+              Dados.FieldByName('estoque').AsString]);
           end
       else
         begin
           codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
-            'descricao_item', 'preco_item', 'disponivel', 'valor_delivery','estoque'],
-            [Dados.FieldByName('id_site').AsString, Usuario.ToString, '0', '0',
-            '0', Dados.FieldByName('codigo_interno').AsString,
-            Dados.FieldByName('categoria').AsString,
+            'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
+            'estoque'], [Dados.FieldByName('id_site').AsString,
+            Usuario.ToString, '0', '0', '0', Dados.FieldByName('codigo_interno')
+            .AsString, Dados.FieldByName('categoria').AsString,
             Dados.FieldByName('produto').AsString, Descricao,
             Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
-            .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString, Dados.FieldByName('estoque').AsString]);
+            .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
+            Dados.FieldByName('estoque').AsString]);
         end;
       end;
     except
@@ -1114,14 +1123,15 @@ begin
         ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
         'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery','estoque'], [Dados.FieldByName('id_site').AsString,
+        'valor_delivery', 'estoque'], [Dados.FieldByName('id_site').AsString,
         Usuario.ToString, 'false', '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
         Dados.FieldByName('codigo_interno').AsString,
         Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
         .AsString, Descricao, Dados.FieldByName('venda').AsString,
         Dados.FieldByName('ativo').AsString,
-        Dados.FieldByName('vl_embalagem_delivery').AsString,Dados.FieldByName('estoque').AsString]);
+        Dados.FieldByName('vl_embalagem_delivery').AsString,
+        Dados.FieldByName('estoque').AsString]);
     end;
 
     if codigo > 0 then
@@ -1396,8 +1406,12 @@ begin
         ['id', 'user_id', 'id_itens', 'qtd_sabor', 'ativo', 'tipo_valor',
         'valor', 'tipo', 'sabor', 'descricao'],
         [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-        Dados.FieldByName('id_itens').AsString, Dados.FieldByName('qtd_sabor').AsString, Dados.FieldByName('ativo').AsString,
-        Dados.FieldByName('tipo_valor').AsString, Dados.FieldByName('valor').AsString, Dados.FieldByName('tipo').AsString, trim(Dados.FieldByName('nome').AsString), trim(Dados.FieldByName('descricao').AsString)]);
+        Dados.FieldByName('id_itens').AsString, Dados.FieldByName('qtd_sabor')
+        .AsString, Dados.FieldByName('ativo').AsString,
+        Dados.FieldByName('tipo_valor').AsString, Dados.FieldByName('valor')
+        .AsString, Dados.FieldByName('tipo').AsString,
+        trim(Dados.FieldByName('nome').AsString),
+        trim(Dados.FieldByName('descricao').AsString)]);
       if codigo > 0 then
       begin
         SQL := 'update sabores_completo set modificado_site = 1 where id = ' +
@@ -2842,6 +2856,8 @@ end;
 procedure TBuscaPedidos.Execute;
 var
   Insert: TInsertUpdate;
+  Requisicao: TRequest;
+
 begin
   inherited;
   while not Terminated do
@@ -2859,6 +2875,16 @@ begin
       frmPrincipal.lStatus.Caption := frmPrincipal.NomeRestaurante;
       if GetPedidos then
         frmPrincipal.BuscarPedido := True;
+      try
+        Requisicao := TRequest.Create;
+        Requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
+          GetLocalIP;
+        Requisicao.Get;
+        Requisicao.Free;
+      except
+
+      end;
+
     end;
 
     if frmPrincipal.BuscarPedido then
@@ -3085,6 +3111,11 @@ begin
   Dados.Free;
   Insert.Free;
 
+end;
+
+function TBuscaPedidos.GetLocalIP: String;
+begin
+  Result := frmPrincipal.IdIPWatch1.LocalIP;
 end;
 
 function TBuscaPedidos.getUser: Integer;
@@ -3743,7 +3774,6 @@ begin
   requisicao.BASEURL := URL_SITE;
 
   requisicao.URLI := 'insert/' + Tabela + '/' + User + '/a';
-
 
   Montado := '';
 

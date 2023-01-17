@@ -16,11 +16,11 @@ uses
   FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid, uDM, FMXTee.Canvas,
   System.NetEncoding, FMX.Memo.Types, FMX.Memo, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase, IdFTP,
-  Soap.EncdDecd, uRequisicao
+  Soap.EncdDecd, uRequisicao, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, uButton, FMX.ListView
 {$IFDEF Android}
 {$ELSE}
-    , WinInet, uButton, FMX.ListView.Types, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base, FMX.ListView
+    , WinInet
 {$ENDIF}
     ;
 

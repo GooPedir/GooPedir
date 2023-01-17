@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ChakraProvider>
-    <App />
+    <Mobile />
     {/* <Motoboy/> */}
   </ChakraProvider>
 );

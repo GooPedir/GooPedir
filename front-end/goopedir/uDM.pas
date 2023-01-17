@@ -8,8 +8,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.dataset, FireDAC.Comp.Client, System.JSON, FMX.Graphics,
   Soap.EncdDecd, FMX.Types, FireDAC.UI.Intf, FireDAC.Stan.Def,
-  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
-  FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef;
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys;
 
 type
   TConexaoServidor = class(TThread)
@@ -148,7 +147,6 @@ type
     DADOS_MOTOBOY_SITEid: TIntegerField;
     DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField;
     DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
-    VersaoConexao: TFDConnection;
     DADOS_WHATSAPPtoken_mp: TStringField;
     DADOS_WHATSAPPfat_integra_pix: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);

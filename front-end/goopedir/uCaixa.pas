@@ -182,6 +182,7 @@ type
     Label25: TLabel;
     Layout5: TLayout;
     Button1: TButton;
+    test: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure StringGrid4CellDblClick(const Column: TColumn;
@@ -227,6 +228,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure rEstornoClick(Sender: TObject);
     procedure TabItem1Click(Sender: TObject);
+    procedure testTimer(Sender: TObject);
   private
     FCodigoDoCaixa: Integer;
     FVisualizacao: Boolean;
@@ -275,6 +277,7 @@ var
   BuscandoDados: Boolean;
   ThreadIniciada: Boolean;
   FormReceber: TfrmAReceber;
+  Load: Boolean;
 
 implementation
 
@@ -288,14 +291,13 @@ uses uDM, uRequisicao, UnitResumo, FMXTee.Canvas, Funcoes, uMain, uSimNao,
 procedure TfrmCaixa.BuscaCaixa;
 begin
   DADOSCAIXA.Close;
-  DADOSCAIXA.Open;
 
   dm.Caixa.Close;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
-    end).Start;
+  // TThread.CreateAnonymousThread(
+  // procedure
+  // begin
+  // dm.GetSimples('/v1/caixa/historico/', HISTORICOCAIXAS);
+  // end).Start;
 
   Layout2.Visible := False;
   rGerencial1.Visible := False;
@@ -359,6 +361,8 @@ begin
   end;
 
   Caixa;
+  CodigoDoCaixa := dm.Caixa.FieldByName('id').AsInteger;
+  BuscaDadosCaixa;
 
 end;
 
@@ -392,19 +396,8 @@ begin
     Requisicao.URL := '/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString;
     Requisicao.MemTable := DADOSCAIXA;
     Requisicao.Metodo := mGet;
-    Requisicao.Execute;
-
-    DADOSHISTORICO.Close;
-    Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
-    Requisicao.URL := '/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString;
-    Requisicao.MemTable := DADOSHISTORICO;
-    Requisicao.Metodo := mGet;
-    Requisicao.Execute;
-
     DADOSPAGAMENTO.Close;
-    Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := dm.CONEXAO.BaseURL;
+    Requisicao.Execute;
     Requisicao.URL := '/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString;
     Requisicao.MemTable := DADOSPAGAMENTO;
     Requisicao.Metodo := mGet;
@@ -499,6 +492,7 @@ begin
     dm.Caixa.FieldByName('DATA_ABERTURA').AsDateTime), HISTORICOMOTOBOY);
 
   BuscandoDados := False;
+  test.Enabled := True;
 end;
 
 procedure TfrmCaixa.Button1Click(Sender: TObject);
@@ -658,7 +652,17 @@ var
   Vl: String;
   Valor: Integer;
   Total: Real;
+  Requisicao: iRequisicao;
 begin
+  DADOSHISTORICO.Close;
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := dm.CONEXAO.BaseURL;
+  Requisicao.URL := '/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString;
+  Requisicao.MemTable := DADOSHISTORICO;
+  Requisicao.Metodo := mGet;
+  Requisicao.Execute;
+  Requisicao.Free;
+
   Quant := HISTORICOCAIXAS.RecordCount - 7;
   if not(HISTORICOCAIXAS.RecordCount > 1) then
     exit;
@@ -1203,6 +1207,18 @@ end;
 procedure TfrmCaixa.TabItem4Click(Sender: TObject);
 begin
   GraficoHistoricoCaixa;
+end;
+
+procedure TfrmCaixa.testTimer(Sender: TObject);
+begin
+
+  test.Enabled := False;
+  if not Load then
+  begin
+    Load := True;
+    frmMain.AbrirForm('TfrmCaixa');
+  end;
+
 end;
 
 function TfrmCaixa.ValidaTotalPagamento: Boolean;

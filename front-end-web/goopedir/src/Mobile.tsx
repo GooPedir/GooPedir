@@ -6,7 +6,7 @@ import TopoMobile from "./mobile/topo/topo";
 var start = false;
 
 function Mobile() {
-const BaseURL = "http://192.168.3.251:2121/";
+const BaseURL = "http://192.168.10.195:2121/";
 
 const [Mesas, setMesas] = useState([]);
 
@@ -19,6 +19,7 @@ const API = axios.create({
         API.get('v1/mesas/all').then(
             function (response) {
             setMesas(response.data)
+            console.log(response.data) 
         
             })        
     }
@@ -26,7 +27,7 @@ const API = axios.create({
     start = true;
       API.get('v1/mesas/all').then(
          function (response) {
-    // console.log(response.data) 
+    console.log(response.data) 
          setMesas(response.data)
 
     })

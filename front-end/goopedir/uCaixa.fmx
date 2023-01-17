@@ -1,7 +1,7 @@
 object frmCaixa: TfrmCaixa
   Left = 0
   Top = 0
-  ActiveControl = TabItem6
+  ActiveControl = TabItem3
   Caption = 'Form1'
   ClientHeight = 771
   ClientWidth = 1584
@@ -719,7 +719,6 @@ object frmCaixa: TfrmCaixa
         Size.Width = 1267.000000000000000000
         Size.Height = 721.000000000000000000
         Size.PlatformDefault = False
-        TabIndex = 0
         TabOrder = 0
         TabPosition = PlatformDefault
         Sizes = (
@@ -743,7 +742,7 @@ object frmCaixa: TfrmCaixa
           TextSettings.Font.StyleExt = {00070000000000000004000000}
           TextSettings.FontColor = xFF05A85D
           StyledSettings = [Family]
-          IsSelected = True
+          IsSelected = False
           Size.Width = 81.000000000000000000
           Size.Height = 32.000000000000000000
           Size.PlatformDefault = False
@@ -820,6 +819,7 @@ object frmCaixa: TfrmCaixa
           StyleLookup = ''
           TabOrder = 0
           Text = 'Transa'#231#227'o'
+          Visible = False
           ExplicitSize.cx = 69.000000000000000000
           ExplicitSize.cy = 26.000000000000000000
           object StringGrid1: TStringGrid
@@ -2099,5 +2099,12 @@ object frmCaixa: TfrmCaixa
     ScopeMappings = <>
     Left = 1264
     Top = 480
+  end
+  object test: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = testTimer
+    Left = 613
+    Top = 268
   end
 end

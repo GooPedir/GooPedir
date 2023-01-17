@@ -7,7 +7,10 @@ uses
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
   FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
-  FMX.TabControl, System.IOUtils, Inifiles, FMX.CodeReader, System.JSON;
+  FMX.TabControl, System.IOUtils, Inifiles, FMX.CodeReader, System.JSON,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, uRequisicao;
 
 type
   TFrmLogin = class(TForm)
@@ -45,6 +48,9 @@ type
     Layout5: TLayout;
     rect_botao: TRectangle;
     btn_update: TSpeedButton;
+    IPS: iMemTable;
+    IPSIP: TStringField;
+    RequisicaoIP: iRequisicao;
     procedure rect_loginClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbl_configClick(Sender: TObject);
@@ -90,8 +96,8 @@ implementation
 
 {$R *.fmx}
 
-uses UnitPrincipal, uDM, uRequisicao, Funcoes, uLoginWindows,
-  uPrincipalMotoboy{, uOpenViewUrl};
+uses UnitPrincipal, uDM, Funcoes, uLoginWindows,
+  uPrincipalMotoboy {, uOpenViewUrl};
 
 procedure TFrmLogin.btn_updateClick(Sender: TObject);
 var
@@ -107,7 +113,7 @@ begin
 
   // url := 'https://play.google.com/store/apps/details?id=com.embarcadero.icep';
 
-//  OpenURL(url, false);
+  // OpenURL(url, false);
 end;
 
 procedure TFrmLogin.FormActivate(Sender: TObject);
@@ -230,8 +236,38 @@ end;
 
 procedure TFrmLogin.lbl_configClick(Sender: TObject);
 begin
-  TabControl.GotoVisibleTab(1, TTabTransition.Slide);
-  lbl_titulo.Text := 'Configurações';
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      IPS.Close;
+      RequisicaoIP.MemTable := IPS;
+      RequisicaoIP.Execute;
+
+      if IPS.RecordCount > 0 then
+      begin
+
+        while not IPS.Eof do
+        begin
+          dm.Conexao.TempoExpiracao := 500;
+          dm.Conexao.BaseURL := 'http://' + IPS.FieldByName('IP').AsString
+            + ':2121/';
+          if TestaConexao then
+          begin
+            edtHost.Text := IPS.FieldByName('IP').AsString;
+          end;
+
+          IPS.Next;
+        end;
+      end;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+          lbl_titulo.Text := 'Configurações';
+        end);
+    end).Start;
+
 end;
 
 function TFrmLogin.LerIni(Secao, Indice, ValorPadrao: String): String;
@@ -318,16 +354,15 @@ end;
 
 procedure TFrmLogin.rect_motoboyClick(Sender: TObject);
 begin
-  if not DM.LoginMotoboy then
+  if not dm.LoginMotoboy then
   begin
-    ShowMessageToast(self,'Acesso negado!',1);
+    ShowMessageToast(self, 'Acesso negado!', 1);
     exit;
   end;
 
-
   if NOT Assigned(frmPrincipalMotoboy) then
     Application.CreateForm(TfrmPrincipalMotoboy, frmPrincipalMotoboy);
-  //frmPrincipalMotoboy.Celular := dm.GetCelular;
+  // frmPrincipalMotoboy.Celular := dm.GetCelular;
 
   frmPrincipalMotoboy.Show;
   Application.MainForm := frmPrincipalMotoboy;

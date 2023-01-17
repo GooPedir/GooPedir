@@ -40,12 +40,16 @@ type
     layMotoboy: TLayout;
     Image3: TImage;
     lMotoboy: TLabel;
+    lStatus: TLayout;
+    Image4: TImage;
+    Label2: TLabel;
     procedure lImpressaoMouseEnter(Sender: TObject);
     procedure lImpressaoMouseLeave(Sender: TObject);
     procedure lVisualizacaoClick(Sender: TObject);
     procedure lImpressaoClick(Sender: TObject);
     procedure tImprimindoTimer(Sender: TObject);
     procedure cStatusChange(Sender: TObject);
+    procedure lStatusClick(Sender: TObject);
   private
     FCodigoDia: Integer;
     FDataPedido: TDate;
@@ -137,9 +141,15 @@ begin
       end;
   end;
   ShowMessageToast(frmMain, 'Pedido Atualizado Com Suceso!', 3);
+  cStatus.Enabled := False;
 
   DM.PutSimples('v1/pedido/status/' + CodigoInterno.ToString + '/' +
     cStatus.ItemIndex.ToString + '/', nil);
+end;
+
+procedure TframeDadosVBDelivery.lStatusClick(Sender: TObject);
+begin
+cStatus.Enabled := True;
 end;
 
 procedure TframeDadosVBDelivery.lImpressaoClick(Sender: TObject);
@@ -277,7 +287,7 @@ begin
   Carregando := True;
   FStatus := Value;
   cStatus.ItemIndex := Value;
-  cStatus.Enabled := Value < 5;
+  lStatus.Visible := Value < 5;
   Carregando := False;
 end;
 

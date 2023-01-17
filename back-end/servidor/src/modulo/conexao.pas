@@ -269,10 +269,13 @@ end;
 procedure TConexao.GerarLog(Erro: String);
 var
   arq: TextFile;
+
 begin
+  if not DirectoryExists('C:\goopedir\log\') then
+    ForceDirectories('C:\goopedir\log\');
   try
-    AssignFile(arq, '\erro._banco_mysql.txt');
-    if FileExists('\erro._banco_mysql.txt') then
+    AssignFile(arq, 'C:\goopedir\log\erro._banco_mysql.txt');
+    if FileExists('C:\goopedir\log\erro._banco_mysql.txt') then
       Reset(arq)
     else
       Rewrite(arq);

@@ -34,3 +34,9 @@ Visible=False
 [FrmAddItem.SABORES]
 Visible=False
 
+[FrmAddItem.CATEGORIA]
+Visible=False
+
+[FrmAddItem.PRODUTO]
+Visible=False
+

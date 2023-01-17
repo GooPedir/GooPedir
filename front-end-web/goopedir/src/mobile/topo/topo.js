@@ -14,6 +14,7 @@ import {
     AlertIcon,
     AlertTitle,
     AlertDescription,
+    Flex,
   } from '@chakra-ui/react'
 import  { useState, memo } from 'react';
 import styled from "styled-components";
@@ -63,6 +64,7 @@ export const Box = styled.div`
   background-color: ${props => props.cor};
   height: 100%;
   border-radius: 15px;
+  margin: ${px2vw(3)};
   box-shadow: black 0.2em 0.2em 0.2em;
 
   @media (min-width: 768px) {
@@ -158,7 +160,7 @@ const handleClick = (idLocalMesa)=> {
 
   return(
     <>
-          <Box key={mesa.dados.idMesa} cor={cor} onClick={() => AbrirMesaSelecionada(mesa.dados.idMesa)}>
+          <Box key={mesa.dados.idMesa} cor={cor} onClick={() => AbrirMesaSelecionada(mesa.dados.idMesa)} m='5px'>
           <BoxTitle>{mesa.dados.descricao} {mesa.dados.nrMesa}</BoxTitle>
           <BoxText>{mesa.dados.totMesa.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</BoxText>
           <BoxText>{status}</BoxText>                    
@@ -177,15 +179,9 @@ export default function TopoMobile(mesa) {
           <BarraSuperior>
             <BoxTitle>GooPedir</BoxTitle>
          </BarraSuperior>
-         <Container>
-
-
-         {
-         
-         mesa.data.map(mesa => (
-          <CarregaMesa dados={mesa}/>        
-      ))}                                                  
-        </Container>
+         <Flex flexDir={'row'} display={'flex'} flexWrap={"wrap"} w='100%' h='100%'>      
+          {mesa.data.map(mesa => (<CarregaMesa dados={mesa}/>))}                                                    
+        </Flex>
        
      
       </>  

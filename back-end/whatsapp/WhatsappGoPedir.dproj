@@ -143,7 +143,7 @@
         <DCCReference Include="Uses\uClassProduto.pas"/>
         <DCCReference Include="Uses\uClassEndereco.pas"/>
         <DCCReference Include="Uses\uClassEnderecoUtil.pas"/>
-        <DCCReference Include="..\papaleguas-frontend-whatsapp\Uses\uDM.pas">
+        <DCCReference Include="Uses\uDM.pas">
             <Form>dm</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
@@ -153,7 +153,7 @@
         <DCCReference Include="Uses\uClassFuncoes.pas"/>
         <DCCReference Include="Uses\uClassAPIGooleLocalizacao.pas"/>
         <DCCReference Include="Uses\uClassPizza.pas"/>
-        <DCCReference Include="..\papaleguas-frontend-whatsapp\Uses\uFuncoes.pas"/>
+        <DCCReference Include="Uses\uFuncoes.pas"/>
         <DCCReference Include="Uses\uClassEnviaMensagem.pas"/>
         <DCCReference Include="Uses\uClassCronometro.pas"/>
         <DCCReference Include="Uses\uClassThreeConversa.pas"/>

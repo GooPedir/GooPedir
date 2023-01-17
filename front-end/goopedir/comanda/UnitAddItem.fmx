@@ -268,7 +268,7 @@ object FrmAddItem: TFrmAddItem
           TextSettings.Font.StyleExt = {00070000000000000004000000}
           TextSettings.FontColor = xFFF91E1E
           Text = 'lVerificar'
-          TabOrder = 3
+          TabOrder = 4
         end
       end
     end
@@ -772,7 +772,7 @@ object FrmAddItem: TFrmAddItem
         Size.Width = 370.000000000000000000
         Size.Height = 145.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 55
+        TabOrder = 56
         Visible = False
         ItemAppearanceObjects.ItemObjects.ObjectsCollection = <
           item
