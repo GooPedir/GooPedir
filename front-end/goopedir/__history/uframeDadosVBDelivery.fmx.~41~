@@ -1,5 +1,5 @@
 object frameDadosVBDelivery: TframeDadosVBDelivery
-  Size.Width = 483.000000000000000000
+  Size.Width = 485.000000000000000000
   Size.Height = 260.000000000000000000
   Size.PlatformDefault = False
   object lCodigoDia: TLabel
@@ -32,7 +32,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     TextSettings.Font.StyleExt = {00070000000000000004000000}
     Position.X = 168.000000000000000000
     Position.Y = 54.000000000000000000
-    Size.Width = 308.000000000000000000
+    Size.Width = 310.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     StyledSettings = [Size, FontColor]
@@ -44,7 +44,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 268.000000000000000000
+      Position.X = 270.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 35.000000000000000000
       Size.Height = 12.000000000000000000
@@ -64,7 +64,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     TextSettings.Font.StyleExt = {00070000000000000004000000}
     Position.X = 8.000000000000000000
     Position.Y = 80.000000000000000000
-    Size.Width = 468.000000000000000000
+    Size.Width = 470.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     StyledSettings = [Size, FontColor]
@@ -76,7 +76,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 392.000000000000000000
+      Position.X = 394.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 71.000000000000000000
       Size.Height = 12.000000000000000000
@@ -96,7 +96,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     TextSettings.Font.StyleExt = {00070000000000000004000000}
     Position.X = 8.000000000000000000
     Position.Y = 54.000000000000000000
-    Size.Width = 150.000000000000000000
+    Size.Width = 152.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     StyledSettings = [Size, FontColor]
@@ -109,7 +109,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 86.000000000000000000
+      Position.X = 88.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 59.000000000000000000
       Size.Height = 12.000000000000000000
@@ -134,7 +134,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     ItemIndex = 0
     Position.X = 8.000000000000000000
     Position.Y = 134.000000000000000000
-    Size.Width = 468.000000000000000000
+    Size.Width = 470.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 7
@@ -146,7 +146,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 25.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 392.000000000000000000
+      Position.X = 394.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 51.000000000000000000
       Size.Height = 12.000000000000000000
@@ -160,7 +160,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     Anchors = [akLeft, akTop, akRight]
     Position.X = 8.000000000000000000
     Position.Y = 8.000000000000000000
-    Size.Width = 468.000000000000000000
+    Size.Width = 470.000000000000000000
     Size.Height = 17.000000000000000000
     Size.PlatformDefault = False
     TextSettings.HorzAlign = Center
@@ -313,7 +313,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     Anchors = [akTop, akRight]
     AutoSize = True
     StyledSettings = [Size, FontColor]
-    Position.X = 267.000000000000000000
+    Position.X = 269.000000000000000000
     Position.Y = 21.000000000000000000
     Size.Width = 209.000000000000000000
     Size.Height = 14.000000000000000000
@@ -327,7 +327,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
   object lTempo: TLabel
     Anchors = [akTop, akRight]
     StyledSettings = [Size, FontColor]
-    Position.X = 348.000000000000000000
+    Position.X = 350.000000000000000000
     Position.Y = 33.000000000000000000
     Size.Width = 128.000000000000000000
     Size.Height = 17.000000000000000000
@@ -351,7 +351,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     Align = Bottom
     Fill.Color = claBlack
     Position.Y = 255.000000000000000000
-    Size.Width = 483.000000000000000000
+    Size.Width = 485.000000000000000000
     Size.Height = 5.000000000000000000
     Size.PlatformDefault = False
   end
@@ -362,9 +362,9 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     Text = 'R$ 1.000,00'
     TextSettings.Font.Family = 'Courier New'
     TextSettings.Font.StyleExt = {00070000000000000004000000}
-    Position.X = 9.000000000000000000
+    Position.X = 8.000000000000000000
     Position.Y = 107.000000000000000000
-    Size.Width = 205.000000000000000000
+    Size.Width = 207.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     StyledSettings = [Size, FontColor]
@@ -376,7 +376,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 129.000000000000000000
+      Position.X = 131.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 71.000000000000000000
       Size.Height = 12.000000000000000000
@@ -397,7 +397,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     TextSettings.Font.StyleExt = {00070000000000000004000000}
     Position.X = 223.000000000000000000
     Position.Y = 107.000000000000000000
-    Size.Width = 253.000000000000000000
+    Size.Width = 255.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     StyledSettings = [Size, FontColor]
@@ -409,7 +409,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Margins.Top = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Margins.Bottom = 5.000000000000000000
-      Position.X = 177.000000000000000000
+      Position.X = 179.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 71.000000000000000000
       Size.Height = 12.000000000000000000
@@ -440,7 +440,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
     Anchors = [akLeft, akTop, akRight]
     Position.X = 9.000000000000000000
     Position.Y = 216.000000000000000000
-    Size.Width = 467.000000000000000000
+    Size.Width = 469.000000000000000000
     Size.Height = 32.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 16
@@ -513,7 +513,7 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
       Align = Client
       StyledSettings = [FontColor]
       Margins.Left = 5.000000000000000000
-      Size.Width = 430.000000000000000000
+      Size.Width = 432.000000000000000000
       Size.Height = 32.000000000000000000
       Size.PlatformDefault = False
       TextSettings.Font.Family = 'Courier New'

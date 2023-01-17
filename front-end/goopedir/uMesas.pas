@@ -87,7 +87,6 @@ type
     procedure OnMouseEnterLocal(Sender: TObject);
     procedure OnMouseLeaveLocal(Sender: TObject);
     procedure ClickLocal(Sender: TObject);
-    procedure Rectangle2Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure DadosTelaTimer(Sender: TObject);
     procedure lImpressaoMouseEnter(Sender: TObject);
@@ -221,6 +220,13 @@ var
 begin
 
   DM.GetSimples('/v1/mesas', MESA);
+
+  if MESA.RecordCount = 0 then
+  begin
+  tabMesas.Visible := False;
+  Layout1.Align := TAlignLayout.Client;
+    exit;
+  end;
 
   while not MESA.Eof do
   begin
@@ -546,12 +552,6 @@ end;
 procedure TfrmMesas.OnMouseLeaveLocal(Sender: TObject);
 begin
   (Sender as TRectangle).Opacity := 0.5;
-end;
-
-procedure TfrmMesas.Rectangle2Click(Sender: TObject);
-begin
-  inherited;
-  //
 end;
 
 procedure TfrmMesas.SetaMotoboy(Sender: TObject);

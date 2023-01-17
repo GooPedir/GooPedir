@@ -8,8 +8,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.dataset, FireDAC.Comp.Client, System.JSON, FMX.Graphics,
   Soap.EncdDecd, FMX.Types, FireDAC.UI.Intf, FireDAC.Stan.Def,
-  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
-  FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef;
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys;
 
 type
   TConexaoServidor = class(TThread)
@@ -148,7 +147,8 @@ type
     DADOS_MOTOBOY_SITEid: TIntegerField;
     DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField;
     DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
-    VersaoConexao: TFDConnection;
+    DADOS_WHATSAPPtoken_mp: TStringField;
+    DADOS_WHATSAPPfat_integra_pix: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -172,6 +172,7 @@ type
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
     function PostSimples(URL: String; Dados: IMemTable): Boolean;
+    function PostSimplesComRetorno(URL: String): String;
     function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
     function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
     function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
@@ -225,6 +226,8 @@ type
     procedure BuscaFaturas(Pai: TFmxObject);
 
     procedure ExtornoPedido(Pedido: Integer);
+
+    function IntegracaoPIX: Boolean;
 
   end;
 
@@ -650,20 +653,28 @@ function TDM.GetSimples(URL: String; Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -729,6 +740,27 @@ begin
   StatusConexao.Iniciado := True;
 end;
 
+function TDM.IntegracaoPIX: Boolean;
+begin
+  Result := False;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('token_mp').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').AsInteger = 0 then
+  begin
+    exit;
+  end
+  else
+  begin
+    Result := True;
+  end;
+end;
+
 function TDM.LerIni(Secao, Indice, ValorPadrao: String): String;
 var
   ArquivoINI: TIniFile;
@@ -789,6 +821,12 @@ begin
   URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
     .AsString, []);
 
+  URL := StringReplace(URL, ':token_mp',
+    DM.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+
+
+
+
   // URL := StringReplace(URL, ':caixa', CodigoCaixa.ToString, []);
 
   Result := URL;
@@ -806,7 +844,7 @@ begin
   URL := Parametros(URL);
 
   if Assigned(Dados) then
-    Body := Dados.ToJSONObject().ToString;
+    Body := Dados.ToJSONArray().ToString;
   Conexao.eTAG := False;
   Conexao.URL := URL;
   Conexao.Metodo := mPost;
@@ -818,10 +856,33 @@ begin
   Conexao.Free;
 end;
 
+function TDM.PostSimplesComRetorno(URL: String): String;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+
+  URL := Parametros(URL);
+
+  Conexao.eTAG := False;
+  Conexao.URL := URL;
+  Conexao.Metodo := mPost;
+  Conexao.Token(Token);
+  Conexao.Body(Body);
+
+  Conexao.Execute;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
+end;
+
 function TDM.PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
-  Body : String;
+  Body: String;
 begin
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
@@ -829,13 +890,12 @@ begin
 
   URL := Parametros(URL);
   if Assigned(Dados) then
-    Body :=
-    (Dados.ToJSONObject().ToString);
+    Body := (Dados.ToJSONObject().ToString);
   Conexao.eTAG := False;
   Conexao.URL := URL;
   Conexao.Metodo := mPost;
   Conexao.Token(Token);
-  Conexao.BODY(Body);
+  Conexao.Body(Body);
   Conexao.Execute;
 
   Result := DM.Conexao.Status = 200;
@@ -845,7 +905,7 @@ end;
 function TDM.PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
-  Body : String;
+  Body: String;
 begin
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
@@ -870,6 +930,7 @@ end;
 function TDM.PutSimples(URL: String; Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
+  Body: String;
 begin
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
@@ -878,11 +939,12 @@ begin
   URL := Parametros(URL);
 
   if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
+    Body := (Dados.ToJSONArray().ToString);
   Conexao.eTAG := False;
   Conexao.URL := URL;
   Conexao.Metodo := mPut;
   Conexao.Token(Token);
+  Conexao.Body(Body);
 
   Conexao.Execute;
 

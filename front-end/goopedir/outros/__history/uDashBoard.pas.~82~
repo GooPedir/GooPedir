@@ -119,6 +119,7 @@ type
     nDelivery: TNumberBox;
     Label29: TLabel;
     nVemBuscar: TNumberBox;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -135,6 +136,7 @@ type
     procedure Image2Click(Sender: TObject);
     procedure nDeliveryExit(Sender: TObject);
     procedure nVemBuscarExit(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     FMesesPrevisao: Integer;
     FPrevisaoHoje: Integer;
@@ -180,6 +182,12 @@ implementation
 {$R *.fmx}
 
 uses uMain, uFrameTitulo;
+
+procedure TfrmDashBoard.Button1Click(Sender: TObject);
+begin
+  inherited;
+ frmMain.AbrirForm('TfrmIngredientesProduto');
+end;
 
 procedure TfrmDashBoard.DadosMedia;
 var

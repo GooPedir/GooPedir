@@ -172,7 +172,7 @@ type
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
     function PostSimples(URL: String; Dados: IMemTable): Boolean;
-    function PostSimplesComRetorno(URL: String):String;
+    function PostSimplesComRetorno(URL: String): String;
     function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
     function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
     function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
@@ -561,6 +561,7 @@ procedure TDM.DeleteSimples(URL: String; Dados: IMemTable);
 var
   Conexao: iRequisicao;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -575,6 +576,14 @@ begin
   Conexao.Token(Token);
 
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -632,6 +641,7 @@ function TDM.GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -645,6 +655,14 @@ begin
   Conexao.Token(Token);
   Conexao.MemTable := Dados;
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -653,20 +671,29 @@ function TDM.GetSimples(URL: String; Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -676,6 +703,7 @@ function TDM.GetSimples(URL: String; Dados: IMemTable;
 var
   Conexao: iRequisicao;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -691,6 +719,14 @@ begin
   Conexao.Paginacao := Paginacao;
   Conexao.MemTable := Dados;
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -699,6 +735,7 @@ function TDM.GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -713,6 +750,14 @@ begin
   Conexao.Token(Token);
   Conexao.MemTable2 := Dados;
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -813,7 +858,8 @@ begin
   URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
     .AsString, []);
 
-  URL := StringReplace(URL, ':token_mp', dm.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+  URL := StringReplace(URL, ':token_mp',
+    DM.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
 
 
 
@@ -828,6 +874,7 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -843,6 +890,14 @@ begin
   Conexao.Body(Body);
 
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -852,6 +907,7 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -865,6 +921,14 @@ begin
   Conexao.Body(Body);
 
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := Conexao.Retorno;
   Conexao.Free;
@@ -875,6 +939,7 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -888,6 +953,14 @@ begin
   Conexao.Token(Token);
   Conexao.Body(Body);
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := DM.Conexao.Status = 200;
   Conexao.Free;
@@ -898,6 +971,7 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -913,6 +987,14 @@ begin
   Conexao.Body(Body);
 
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := DM.Conexao.Status = 200;
   Conexao.Free;
@@ -923,6 +1005,7 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
+try
   Conexao := iRequisicao.Create(nil);
   Conexao.BaseURL := DM.Conexao.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
@@ -938,6 +1021,14 @@ begin
   Conexao.Body(Body);
 
   Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;

@@ -120,6 +120,7 @@ begin
   ShowMessageToast(frmMain, 'Pedido Cancelado Com Suceso!', 3);
   DM.PutSimples('v1/pedido/status/' + CodigoInterno.ToString + '/0/', nil);
   Status := 0;
+   cStatus.Enabled := False;
 
 end;
 

@@ -610,6 +610,11 @@ var
   Resposta: String;
   Backup: TBackup;
 begin
+if Conversa.Telefone <> '4896185516' then
+begin
+  exit;
+end;
+
 
   if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_auto_bot').AsInteger <> 1 then
   begin

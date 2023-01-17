@@ -111,7 +111,7 @@ implementation
 
 { %CLASSGROUP 'FMX.Controls.TControl' }
 
-uses uFuncoes;
+//uses uFuncoes;
 
 {$R *.dfm}
 
@@ -449,8 +449,6 @@ begin
 end;
 
 procedure Tdm.DataModuleCreate(Sender: TObject);
-Var
-  DadosBanco: TBancoNovo;
 begin
 
   memTabelas.Open;

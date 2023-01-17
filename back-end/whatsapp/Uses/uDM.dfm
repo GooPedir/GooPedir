@@ -1,8 +1,8 @@
 object dm: Tdm
-  OldCreateOrder = False
   OnCreate = DataModuleCreate
   Height = 791
   Width = 1180
+  PixelsPerInch = 96
   object DADOS_EMPRESA: TFDMemTable
     AfterPost = DADOS_EMPRESAAfterPost
     FetchOptions.AssignedValues = [evMode]

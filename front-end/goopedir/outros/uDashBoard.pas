@@ -335,7 +335,8 @@ begin
       layHistorico.Visible := True;
     end);
   t.OnTerminate := OnFinis;
-  t.Start;
+//  t.Start;
+OnFinis(self);
 
 end;
 

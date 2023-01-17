@@ -2,6 +2,9 @@ program WhatsappGoPedir;
 
 uses
   Vcl.Forms,
+  Vcl.Themes,
+  Vcl.Styles,
+  Dialogs,
   uTInject.ConfigCEF,
   uPrincipal in 'Uses\uPrincipal.pas' {dmPrincipal},
   uBotConversa in 'Uses\uBotConversa.pas',
@@ -15,20 +18,20 @@ uses
   uClassFinalizarPedido in 'Uses\uClassFinalizarPedido.pas',
   uAlteracaoCancelamento in 'Uses\uAlteracaoCancelamento.pas',
   uClassPedidoRecente in 'Uses\uClassPedidoRecente.pas',
-  Vcl.Themes,
-  Vcl.Styles,
   uClassFuncoes in 'Uses\uClassFuncoes.pas',
   uClassAPIGooleLocalizacao in 'Uses\uClassAPIGooleLocalizacao.pas',
   uClassPizza in 'Uses\uClassPizza.pas',
-  uFuncoes in 'Uses\uFuncoes.pas',
   uClassEnviaMensagem in 'Uses\uClassEnviaMensagem.pas',
   uClassCronometro in 'Uses\uClassCronometro.pas',
   uClassThreeConversa in 'Uses\uClassThreeConversa.pas',
   uClassAdicionais in 'Uses\uClassAdicionais.pas',
   udmProdutos in 'Uses\udmProdutos.pas' {dmProdutos: TDataModule},
-  uBackup in 'Uses\uBackup.pas',
-  Dialogs,
-  uGravaConversaMemoria in 'Uses\uGravaConversaMemoria.pas';
+  uBackup in 'Uses\uBackup.pas' {,
+  uFuncoes in 'Uses\uFuncoes.pas',
+  uGravaConversaMemoria in 'Uses\uGravaConversaMemoria.pas'},
+  uGravaConversaMemoria in 'Uses\uGravaConversaMemoria.pas',
+  XSuperJSON in 'Uses\Superobject\XSuperJSON.pas',
+  XSuperObject in 'Uses\Superobject\XSuperObject.pas';
 
 {$R *.res}
 

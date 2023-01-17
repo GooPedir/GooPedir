@@ -153,7 +153,6 @@
         <DCCReference Include="Uses\uClassFuncoes.pas"/>
         <DCCReference Include="Uses\uClassAPIGooleLocalizacao.pas"/>
         <DCCReference Include="Uses\uClassPizza.pas"/>
-        <DCCReference Include="Uses\uFuncoes.pas"/>
         <DCCReference Include="Uses\uClassEnviaMensagem.pas"/>
         <DCCReference Include="Uses\uClassCronometro.pas"/>
         <DCCReference Include="Uses\uClassThreeConversa.pas"/>
@@ -162,8 +161,14 @@
             <Form>dmProdutos</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Uses\uBackup.pas"/>
+        <DCCReference Include="Uses\uBackup.pas">
+            <Form>,
+  uFuncoes in &apos;Uses\uFuncoes.pas&apos;,
+  uGravaConversaMemoria in &apos;Uses\uGravaConversaMemoria.pas&apos;</Form>
+        </DCCReference>
         <DCCReference Include="Uses\uGravaConversaMemoria.pas"/>
+        <DCCReference Include="Uses\Superobject\XSuperJSON.pas"/>
+        <DCCReference Include="Uses\Superobject\XSuperObject.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

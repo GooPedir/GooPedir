@@ -307,6 +307,7 @@ type
     FStatusPedido: Integer;
     FApenasVisualizacao: Boolean;
     FValorTroco: Real;
+    FDelivery: Integer;
     procedure AddProdutoResumo(id_produto, qtd: Integer;
       descricao, descricaoitem: string; preco: double);
 
@@ -348,6 +349,7 @@ type
     procedure SetStatusPedido(const Value: Integer);
     procedure SetApenasVisualizacao(const Value: Boolean);
     procedure SetValorTroco(const Value: Real);
+    procedure SetDelivery(const Value: Integer);
 
   public
     { Public declarations }
@@ -367,6 +369,7 @@ type
     property ValorTroco: Real read FValorTroco write SetValorTroco;
 
     property mesa: Integer read Fmesa write Setmesa;
+    property Delivery: Integer read FDelivery write SetDelivery;
     procedure ListarProduto;
     procedure TipoPedido;
     procedure CalculaTempo;
@@ -1045,6 +1048,31 @@ procedure TFrmResumo.cTipoChange(Sender: TObject);
 begin
   TipoPedido;
   CalcularTotal;
+  if cTipo.ItemIndex = 0 then
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        GetSimples('/v1/consulta/generica/taxa_entrega/*/bairro = "' +
+          EdtBairro.Text + '"/*', MemTaxa);
+
+        if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+        begin
+          EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+          EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+          EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+          ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+        end;
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            CalcularTotal;
+          end);
+      end).Start;
+
+  end;
+
 end;
 
 procedure TFrmResumo.EdtAcrecimoExit(Sender: TObject);
@@ -1213,12 +1241,15 @@ begin
 
       if FrmResumo.MESAS.RecordCount > 0 then
       begin
+        FrmResumo.BeginUpdate;
         FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName
           ('descricao').AsString;
         FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
           ('nr_mesa').AsString;
         FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
           FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+
+        FrmResumo.EndUpdate;
       end;
 
     end
@@ -1231,6 +1262,17 @@ end;
 
 procedure TFrmResumo.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+
+  if not ApenasVisualizacao then
+  begin
+    if mesa > 0 then
+      PostSimples('/v1/imprimir', Produtos)
+    else
+      SalvarDadosPedido;
+
+    FCodigoPedido := 0;
+  end;
+
   ApenasVisualizacao := False;
 end;
 
@@ -1270,11 +1312,13 @@ begin
 
     if FrmResumo.MESAS.RecordCount > 0 then
     begin
+      FrmResumo.BeginUpdate;
       FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
       FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
         ('nr_mesa').AsString;
       FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
         FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
     end;
 
   end
@@ -1354,8 +1398,18 @@ begin
     ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
     exit;
   end;
+  Delivery := 0;
+  if mesa > 0 then
+  begin
+    Delivery := 0;
+  end
+  else
+  begin
+    if cTipo.ItemIndex = 0 then
+      Delivery := 1;
+  end;
 
-  FrmPrincipal.AddItem(mesa, CodigoPedido);
+  FrmPrincipal.AddItem(mesa, CodigoPedido, Delivery);
 end;
 
 procedure TFrmResumo.img_excluirClick(Sender: TObject);
@@ -1447,17 +1501,10 @@ begin
   ApenasVisualizacao := False;
   if ApenasVisualizacao then
   begin
-
     Close;
     exit;
   end;
 
-  if mesa > 0 then
-    PostSimples('/v1/imprimir', Produtos)
-  else
-    SalvarDadosPedido;
-
-  FCodigoPedido := 0;
   Close;
 end;
 
@@ -1663,6 +1710,11 @@ begin
 
 end;
 
+procedure TFrmResumo.SetDelivery(const Value: Integer);
+begin
+  FDelivery := Value;
+end;
+
 procedure TFrmResumo.Setmesa(const Value: Integer);
 
 begin
@@ -1683,11 +1735,13 @@ begin
     GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
     if FrmResumo.MESAS.RecordCount > 0 then
     begin
+      FrmResumo.BeginUpdate;
       FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
       FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
         ('nr_mesa').AsString;
       FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
         FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
     end;
     // FrmResumo.ListarProduto;
     // Dados.Start;

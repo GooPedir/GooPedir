@@ -603,6 +603,7 @@ var
   RequisicaoPedido: iRequisicao;
   FrameDados: TframeDadosVBDelivery;
   FrameDadosMotoboy: TfrmDadosPedidoMotoboy;
+  I: Integer;
 begin
   inherited;
   // TimerMesa.Enabled := False;
@@ -680,6 +681,7 @@ begin
       else
       begin
         FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
+        FrameDados.Position.Y := 9999999999;
 
         FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
           ('codigo').AsString;
@@ -726,8 +728,6 @@ begin
                   DadosPedido.FieldByName('codigo_Dia').AsString;
               end;
               DadosMotoboy.Post;
-
-              //
 
             end;
 
@@ -788,28 +788,40 @@ begin
 
       DadosPedido.Next;
     end;
+
+//    for I := 0 to vertMotoboy.ComponentCount - 1 do
+//    begin
+//      if (vertMotoboy.Components[I] is TfrmDadosPedidoMotoboy) then
+//      begin
+//
+//        (vertMotoboy.Components[I] as TfrmDadosPedidoMotoboy).Visible := False;
+//      end;
+//    end;
+
     DadosMotoboy.First;
     while not DadosMotoboy.Eof do
     begin
 
       if Assigned(vertMotoboy.FindComponent('FrameDadosMotoboy' +
-        trim(DadosMotoboy.FieldByName('NOME').AsString))) then
+        trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))) then
       begin
         FrameDadosMotoboy :=
           (vertMotoboy.FindComponent('FrameDadosMotoboy' +
-          trim(DadosMotoboy.FieldByName('NOME').AsString))
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll])))
           as TfrmDadosPedidoMotoboy);
 
       end
       else
       begin
         FrameDadosMotoboy := TfrmDadosPedidoMotoboy.Create(vertMotoboy);
+        FrameDadosMotoboy.Position.Y := 9999999999;
         FrameDadosMotoboy.Align := TAlignLayout.Top;
         FrameDadosMotoboy.Parent := vertMotoboy;
         FrameDadosMotoboy.Name := 'FrameDadosMotoboy' +
-          trim(DadosMotoboy.FieldByName('NOME').AsString);
+          trim(StringReplace(DadosMotoboy.FieldByName('NOME').AsString,' ','_',[rfReplaceAll]));
         FrameDadosMotoboy.Nome := DadosMotoboy.FieldByName('NOME').AsString;
       end;
+      FrameDadosMotoboy.Visible := True;
       FrameDadosMotoboy.Pedido := DadosMotoboy.FieldByName('PEDIDO').AsString;
       FrameDadosMotoboy.Taxa := DadosMotoboy.FieldByName('TAXA').AsFloat;
       FrameDadosMotoboy.Total := DadosMotoboy.FieldByName('TOTAL').AsFloat;
