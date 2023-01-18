@@ -11,8 +11,8 @@ object dm: Tdm
     ResourceOptions.SilentMode = True
     UpdateOptions.AssignedValues = [uvCheckRequired]
     UpdateOptions.CheckRequired = False
-    Left = 12
-    Top = 8
+    Left = 148
+    Top = 56
     object DADOS_EMPRESANOME: TStringField
       FieldName = 'NOME'
       Size = 200
@@ -74,6 +74,24 @@ object dm: Tdm
     object DADOS_EMPRESAPERMITIR_CEP: TIntegerField
       FieldName = 'PERMITIR_CEP'
     end
+    object DADOS_EMPRESAtipo_wpp_auto_bot: TIntegerField
+      FieldName = 'tipo_wpp_auto_bot'
+    end
+    object DADOS_EMPRESAtipo_wpp_motoboy: TIntegerField
+      FieldName = 'tipo_wpp_motoboy'
+    end
+    object DADOS_EMPRESAtipo_wpp_pix: TIntegerField
+      FieldName = 'tipo_wpp_pix'
+    end
+    object DADOS_EMPRESAtipo_wpp_status: TIntegerField
+      FieldName = 'tipo_wpp_status'
+    end
+    object DADOS_EMPRESAtipo_wpp_confirmacao: TIntegerField
+      FieldName = 'tipo_wpp_confirmacao'
+    end
+    object DADOS_EMPRESAhorario_fechamento: TTimeField
+      FieldName = 'horario_fechamento'
+    end
   end
   object Banco: TFDConnection
     Params.Strings = (
@@ -88,8 +106,8 @@ object dm: Tdm
     ResourceOptions.Backup = True
     ResourceOptions.AutoReconnect = True
     LoginPrompt = False
-    Left = 56
-    Top = 160
+    Left = 16
+    Top = 152
   end
   object memTabelas: TFDMemTable
     IndexFieldNames = 'tipo;registros'
@@ -165,5 +183,15 @@ object dm: Tdm
     OnTimer = tTravadoTimer
     Left = 456
     Top = 272
+  end
+  object getCodigo: iRequisicao
+    BaseURL = 'http://localhost:2121/v1/util/gerador'
+    eTAG = False
+    Metodo = mGet
+    Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
+    Left = 944
+    Top = 144
   end
 end

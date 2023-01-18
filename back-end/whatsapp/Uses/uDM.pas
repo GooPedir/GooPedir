@@ -12,7 +12,7 @@ uses
   FireDAC.DApt.Intf, FireDAC.Comp.UI, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, windows, FireDAC.DApt,
   IniFiles,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls, uRequisicao;
 
 type
   TRegistro = class
@@ -59,6 +59,13 @@ type
     memDadosCelulartempo: TStringField;
     DADOS_EMPRESAPERMITIR_CEP: TIntegerField;
     tTravado: TTimer;
+    DADOS_EMPRESAtipo_wpp_confirmacao: TIntegerField;
+    DADOS_EMPRESAtipo_wpp_status: TIntegerField;
+    DADOS_EMPRESAtipo_wpp_pix: TIntegerField;
+    DADOS_EMPRESAtipo_wpp_motoboy: TIntegerField;
+    DADOS_EMPRESAtipo_wpp_auto_bot: TIntegerField;
+    DADOS_EMPRESAhorario_fechamento: TTimeField;
+    getCodigo: iRequisicao;
     procedure DataModuleCreate(Sender: TObject);
     procedure DADOS_EMPRESAAfterPost(DataSet: TDataSet);
     procedure tTravadoTimer(Sender: TObject);
@@ -159,8 +166,15 @@ var
   Porta: String;
   UserName: String;
   HOST: String;
+  Caminho : String;
 
 begin
+  Caminho := ExtractFileDir(ParamStr(0));
+  // Banco.Params.a
+  // Banco.Params.DataBase := Caminho + '\database\database.db';   ,
+
+  Banco.Params.LoadFromFile('CONFIGURACAO\Confi.dados');
+{
   SetLength(ArrayHost, 1);
   SetLength(ArrayPorta, 1);
   SetLength(ArrayUsuario, 1);
@@ -250,15 +264,17 @@ begin
       // frmPrincipal.FinalizaProcesso(ExtractFileName(Application.ExeName));
     end;
   end;
-
+   }
 end;
 
 procedure Tdm.CarregaDados;
 var
   Arquivo: String;
   QRY: TFDQuery;
+  I: Integer;
 
 begin
+  DADOS_EMPRESA.Open;
 
   QRY := CriaQRY('LOCALIZA');
   QRY.Close;
@@ -266,55 +282,68 @@ begin
   QRY.SQL.Add('SELECT * FROM dados_whatsapp');
   QRY.Open;
 
+
   DADOS_EMPRESA.Open;
   DADOS_EMPRESA.Insert;
-  DADOS_EMPRESA.FieldByName('nome').AsString := QRY.FieldByName('nome')
-    .AsString;
-  DADOS_EMPRESA.FieldByName('telefone').AsString := '(48)99811-1156';
-  DADOS_EMPRESA.FieldByName('pedido_minimo').AsFloat :=
-    QRY.FieldByName('valor_pedido_minimo').AsFloat;
-  DADOS_EMPRESA.FieldByName('km_maximo').AsFloat :=
-    QRY.FieldByName('kmmaximo').AsFloat;
+  for I := 0 to DADOS_EMPRESA.FieldCount - 1 do
+  begin
+    try
+      DADOS_EMPRESA.FieldByName(DADOS_EMPRESA.Fields[I].FieldName).AsString := QRY.FieldByName(DADOS_EMPRESA.Fields[I].FieldName).AsString;
+//        QRY.FieldByName('tipo_wpp_auto_bot').AsString;
+    except
 
-  DADOS_EMPRESA.FieldByName('cep').AsString := QRY.FieldByName('cep').AsString;
-  DADOS_EMPRESA.FieldByName('bairro').AsString :=
-    QRY.FieldByName('bairro').AsString;
-  DADOS_EMPRESA.FieldByName('cidade').AsString :=
-    QRY.FieldByName('cidade').AsString;
-  DADOS_EMPRESA.FieldByName('rua').AsString := QRY.FieldByName('rua').AsString;
-  DADOS_EMPRESA.FieldByName('estado').AsString :=
-    QRY.FieldByName('estado').AsString;
-  DADOS_EMPRESA.FieldByName('numero').AsString :=
-    QRY.FieldByName('numero').AsString;
-  DADOS_EMPRESA.FieldByName('lat').AsString :=
-    QRY.FieldByName('latitude').AsString;
-  DADOS_EMPRESA.FieldByName('long').AsString :=
-    QRY.FieldByName('longitude').AsString;
-  DADOS_EMPRESA.FieldByName('seleciona_bairros').AsInteger :=
-    QRY.FieldByName('lista_bairros').AsInteger;
-  DADOS_EMPRESA.FieldByName('taxa_por_km').AsInteger :=
-    QRY.FieldByName('taxa_por_km').AsInteger;
-  DADOS_EMPRESA.FieldByName('tipo_valor_pizza').AsInteger :=
-    QRY.FieldByName('tipo_preco_pizza').AsInteger + 1;
+    end;
 
-  DADOS_EMPRESA.FieldByName('taxa_entrega').AsInteger :=
-    QRY.FieldByName('valor_taxa').AsInteger;
+  end;
+//  DADOS_EMPRESA.Post;
 
-  DADOS_EMPRESA.FieldByName('atendimento').AsInteger :=
-    QRY.FieldByName('atendimento_atendente').AsInteger;
+   DADOS_EMPRESA.FieldByName('nome').AsString := QRY.FieldByName('nome')
+   .AsString;
+   DADOS_EMPRESA.FieldByName('telefone').AsString := '(48)99811-1156';
+   DADOS_EMPRESA.FieldByName('pedido_minimo').AsFloat :=
+   QRY.FieldByName('valor_pedido_minimo').AsFloat;
+   DADOS_EMPRESA.FieldByName('km_maximo').AsFloat :=
+   QRY.FieldByName('kmmaximo').AsFloat;
 
-  if QRY.FieldByName('lista_bairros').AsFloat = 1 then
-    DADOS_EMPRESA.FieldByName('taxa_por_km').AsInteger := 0;
+   DADOS_EMPRESA.FieldByName('cep').AsString := QRY.FieldByName('cep').AsString;
+   DADOS_EMPRESA.FieldByName('bairro').AsString :=
+   QRY.FieldByName('bairro').AsString;
+   DADOS_EMPRESA.FieldByName('cidade').AsString :=
+   QRY.FieldByName('cidade').AsString;
+   DADOS_EMPRESA.FieldByName('rua').AsString := QRY.FieldByName('rua').AsString;
+   DADOS_EMPRESA.FieldByName('estado').AsString :=
+   QRY.FieldByName('estado').AsString;
+   DADOS_EMPRESA.FieldByName('numero').AsString :=
+   QRY.FieldByName('numero').AsString;
+   DADOS_EMPRESA.FieldByName('lat').AsString :=
+   QRY.FieldByName('latitude').AsString;
+   DADOS_EMPRESA.FieldByName('long').AsString :=
+   QRY.FieldByName('longitude').AsString;
+   DADOS_EMPRESA.FieldByName('seleciona_bairros').AsInteger :=
+   QRY.FieldByName('lista_bairros').AsInteger;
+   DADOS_EMPRESA.FieldByName('taxa_por_km').AsInteger :=
+   QRY.FieldByName('taxa_por_km').AsInteger;
+   DADOS_EMPRESA.FieldByName('tipo_valor_pizza').AsInteger :=
+   QRY.FieldByName('tipo_preco_pizza').AsInteger + 1;
 
-  DADOS_EMPRESA.FieldByName('tipo_entrega').AsInteger :=
-    QRY.FieldByName('permitir_retirada').AsInteger;;
+   DADOS_EMPRESA.FieldByName('taxa_entrega').AsInteger :=
+   QRY.FieldByName('valor_taxa').AsInteger;
 
-  DADOS_EMPRESA.FieldByName('MENSAGEM_INICIAL').AsString :=
-    QRY.FieldByName('mensagem_inicio').AsString;
+   DADOS_EMPRESA.FieldByName('atendimento').AsInteger :=
+   QRY.FieldByName('atendimento_atendente').AsInteger;
 
-  DADOS_EMPRESA.FieldByName('PERMITIR_CEP').AsString :=
-    QRY.FieldByName('permitir_cep').AsString;
-  DADOS_EMPRESA.Post;
+   if QRY.FieldByName('lista_bairros').AsFloat = 1 then
+   DADOS_EMPRESA.FieldByName('taxa_por_km').AsInteger := 0;
+
+   DADOS_EMPRESA.FieldByName('tipo_entrega').AsInteger :=
+   QRY.FieldByName('permitir_retirada').AsInteger;;
+
+   DADOS_EMPRESA.FieldByName('MENSAGEM_INICIAL').AsString :=
+   QRY.FieldByName('mensagem_inicio').AsString;
+
+   DADOS_EMPRESA.FieldByName('PERMITIR_CEP').AsString :=
+   QRY.FieldByName('permitir_cep').AsString;
+   DADOS_EMPRESA.Post;
   QRY.Free;
 
 end;
@@ -502,23 +531,52 @@ begin
 end;
 
 function Tdm.GerarID(Tabela, Campo: String): Integer;
+var
+  QRYAux001: TFDQuery;
+  Valor: Integer;
 begin
-  try
-    CriaQRY('GERADOR').Close;
-    CriaQRY('GERADOR').SQL.Clear;
-    CriaQRY('GERADOR').SQL.Add('select max(' + Campo + ') as max from '
-      + Tabela);
-    CriaQRY('GERADOR').Open;
-    try
-      Result := CriaQRY('GERADOR').FieldByName('max').AsInteger + 1;
-      if Result < 1 then
-        Result := 1;
-    except
-      Result := -1;
-    end;
-  except
-    Result := GerarID(Tabela, Campo);
+  QRYAux001 := CriaQRY('');
+
+
+  QRYAux001.SQL.Add
+    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+  QRYAux001.ParamByName('tabela').AsString := Tabela;
+  QRYAux001.ExecSQL;
+  QRYAux001.Close;
+  QRYAux001.SQL.Clear;
+  QRYAux001.SQL.Add('select * from geradores where tabela = :tabela');
+  QRYAux001.ParamByName('tabela').AsString := Tabela;
+  QRYAux001.Open;
+
+  if QRYAux001.RecordCount = 1 then
+  begin
+    Valor := QRYAux001.FieldByName('sequencial').AsInteger;
+  end
+  else
+  begin
+    QRYAux001.Close;
+    QRYAux001.SQL.Clear;
+    QRYAux001.SQL.Add('select max(' + Campo + ')+100 as codigo from ' +
+      Tabela);
+    QRYAux001.Open;
+
+    if QRYAux001.FieldByName('codigo').IsNull then
+      Valor := 1
+    else
+      Valor := QRYAux001.FieldByName('codigo').AsInteger;
+
+    QRYAux001.Close;
+    QRYAux001.SQL.Clear;
+    QRYAux001.SQL.Add
+      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    QRYAux001.ParamByName('tabela').AsString := Tabela;
+    QRYAux001.ParamByName('sequencial').AsInteger := Valor;
+    QRYAux001.ExecSQL;
   end;
+
+  Result := Valor;
+
+  QRYAux001.Free;
 end;
 
 procedure Tdm.GerarXML;
