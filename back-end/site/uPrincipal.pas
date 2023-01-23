@@ -426,19 +426,15 @@ begin
   InsertSite := TInsertUpdateSite.Create;
   while not Dados.Eof do
   begin
-
     Ativo := Dados.FieldByName('ativo').AsString;
-
     if Dados.FieldByName('valor_venda').AsInteger = 0 then
       Ativo := '0';
-
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
       ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
       Dados.FieldByName('valor_venda').AsString, Ativo,
       Dados.FieldByName('saldo_atual').AsString]);
-
     Dados.next;
   end;
   InsertSite.Free;
@@ -454,8 +450,10 @@ begin
   SQL := SQL + 'and pp.hora_final >= current_time';
   SQL := SQL + 'and p.id_site > 0 ';
   SQL := SQL + 'and (CASE WEEKDAY(current_date) ';
-  SQL := SQL + 'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
-  SQL := SQL + 'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)';
+  SQL := SQL +
+    'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
+  SQL := SQL +
+    'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -2710,6 +2708,7 @@ begin
   Insert.ExecutaSQL
     ('update cliente_endereco set ativo = 0 where codigo_cliente = ' +
     IntToStr(CodigoCliente));
+
   Result := Insert.InserirUpdate('cliente_endereco',
     ['codigo', 'codigo_cliente', 'descricao', 'numero', 'rua', 'bairro',
     'cidade', 'estado', 'cep', 'complemento', 'ativo', 'km'],
@@ -2856,7 +2855,8 @@ end;
 procedure TBuscaPedidos.Execute;
 var
   Insert: TInsertUpdate;
-  Requisicao: TRequest;
+  requisicao: TRequest;
+  IP: Boolean;
 
 begin
   inherited;
@@ -2876,11 +2876,15 @@ begin
       if GetPedidos then
         frmPrincipal.BuscarPedido := True;
       try
-        Requisicao := TRequest.Create;
-        Requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
-          GetLocalIP;
-        Requisicao.Get;
-        Requisicao.Free;
+        if not IP then
+        begin
+          requisicao := TRequest.Create;
+          requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
+            GetLocalIP;
+          requisicao.Get;
+          requisicao.Free;
+          IP := True;
+        end;
       except
 
       end;
@@ -3408,9 +3412,13 @@ begin
 
                   FRequest.URLI := 'comp/' + MemoryTablePedidos.FieldByName
                     ('id').AsString + '/a';
-                  FRequest.Get;
-                  MemoryTablePedidos.FieldByName('complemento').AsString :=
-                    FRequest.Retorno;
+                  try
+                    FRequest.Get;
+                    MemoryTablePedidos.FieldByName('complemento').AsString :=
+                      FRequest.Retorno;
+                  except
+
+                  end;
 
                   MemoryTablePedidos.Post;
                 end;
@@ -3460,8 +3468,7 @@ begin
               ' and codigo_pedido = ' + CodigoNovoPeiddo.ToString;
             Dados := TFDMemTable.Create(nil);
             Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-            ValorDelivery := ValorAdicionalDelivery
-              (MemoryDadosItem.FieldByName('idproduto').AsInteger) *
+            ValorDelivery := ValorAdicionalDelivery(MemoryDadosItem.FieldByName('idproduto').AsInteger) *
               MemoryDadosItem.FieldByName('qtd').AsFloat;
 
             if Endereco = 0 then
@@ -3474,9 +3481,7 @@ begin
                 ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
                 'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
                 ['0', CodigoNovoPeiddo.ToString,
-                CodigoProduto(MemoryDadosItem.FieldByName('idproduto')
-                .AsInteger).ToString, MemoryDadosItem.FieldByName('id')
-                .AsString,
+                CodigoProduto(MemoryDadosItem.FieldByName('idproduto').AsInteger).ToString, MemoryDadosItem.FieldByName('id').AsString,
                 (ValorDelivery + ConverteValor(MemoryDadosItem.FieldByName
                 ('valor').AsString) / MemoryDadosItem.FieldByName('qtd')
                 .AsFloat).ToString, MemoryDadosItem.FieldByName('qtd').AsString,
@@ -3582,19 +3587,7 @@ begin
             MemoryDadosItem.next;
           end;
 
-          ExecutaSQLSite('update ws_pedidos set id_sistema = ' +
-            CodigoNovoPeiddo.ToString + ' where id = ' +
-            MemoryTablePedidos.FieldByName('id').AsString);
-          ExecutaSQLSite('update ws_pedidos set view = 1 where id = ' +
-            MemoryTablePedidos.FieldByName('id').AsString);
 
-          ExecutaSQLSite('update ws_pedidos set status = ' +
-            QuotedStr('Finalizado') + ' where id_sistema > 0 and user_id = ' +
-            UserID.ToString);
-
-          ExecutaSQLSite('update ws_pedidos set codigo_pedido = ' +
-            QuotedStr(FormatFloat('00000', CodigoPedidoDia)) + ' where id = ' +
-            MemoryTablePedidos.FieldByName('id').AsString);
 
           // try
           //
@@ -3658,6 +3651,20 @@ begin
               end;
             end;
         end;
+
+        ExecutaSQLSite('update ws_pedidos set id_sistema = ' +
+          CodigoNovoPeiddo.ToString + ' where id = ' +
+          MemoryTablePedidos.FieldByName('id').AsString);
+        ExecutaSQLSite('update ws_pedidos set view = 1 where id = ' +
+          MemoryTablePedidos.FieldByName('id').AsString);
+
+        ExecutaSQLSite('update ws_pedidos set status = ' +
+          QuotedStr('Finalizado') + ' where id_sistema > 0 and user_id = ' +
+          UserID.ToString);
+
+        ExecutaSQLSite('update ws_pedidos set codigo_pedido = ' +
+          QuotedStr(FormatFloat('00000', CodigoPedidoDia)) + ' where id = ' +
+          MemoryTablePedidos.FieldByName('id').AsString);
 
         MemoryTablePedidos.next;
       end;
@@ -3730,7 +3737,11 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
+  try
     Result := Dados.FieldByName('valor_embalagem_delivery').AsFloat;
+  except
+
+  end;
   end;
 
   Dados.Free;

@@ -46,6 +46,7 @@ type
     function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
 
     procedure GerarLog(Erro: String);
+    function SoNumero(fField : String): String;
 
     // Para um insert
     {
@@ -275,8 +276,9 @@ begin
     ForceDirectories('C:\goopedir\log\');
   try
     AssignFile(arq, 'C:\goopedir\log\erro._banco_mysql.txt');
+
     if FileExists('C:\goopedir\log\erro._banco_mysql.txt') then
-      Reset(arq)
+      Append(arq)
     else
       Rewrite(arq);
     Writeln(arq, FormatDateTime('dd/mm/yyyy hh:nn', now));
@@ -479,6 +481,7 @@ begin
     on E: Exception do
     begin
       GerarLog(E.message);
+
       Result := False;
     end;
   end;
@@ -522,12 +525,25 @@ begin
   FSQL := Value;
 end;
 
+function TConexao.SoNumero(fField: String): String;
+var
+  I : Byte;
+begin
+   Result := '';
+   for I := 1 To Length(fField) do
+       if fField [I] In ['0'..'9'] Then
+            Result := Result + fField [I];
+end;
+
 function TConexao.ValidaVersao: string;
 Var
   MYSQL: String;
   VersaoNumber: integer;
 begin
-  MYSQL := VersaoMYSQL;
+  MYSQL := SoNumero(VersaoMYSQL);
+//  MYSQL := SoNumero('5.7.37-log');
+//  ShowMessage(MYSQL);
+
   VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
 
   if VersaoNumber = 8027 then
@@ -536,7 +552,7 @@ begin
   end
   else
   begin
-    Result := 'A sua versão do mysql (' + MYSQL +
+    Result := 'A sua versão do mysql (' + VersaoMYSQL +
       ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
   end;
 

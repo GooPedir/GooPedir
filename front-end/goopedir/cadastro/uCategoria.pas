@@ -13,7 +13,8 @@ uses
   FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
   FMX.Bind.DBEngExt, FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
   Data.Bind.Components, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid,
-  Data.Bind.DBScope, FMX.Edit, uEdit, FMX.ListBox, System.ImageList, FMX.ImgList;
+  Data.Bind.DBScope, FMX.Edit, uEdit, FMX.ListBox, System.ImageList,
+  FMX.ImgList;
 
 type
   TfrmCategoria = class(TfrmCadastroBase)
@@ -120,6 +121,9 @@ end;
 
 procedure TfrmCategoria.Insert;
 begin
+  if not DADOS.Active then
+    DADOS.Open;
+
   DADOS.Insert;
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('pizza').AsInteger := 0;
@@ -143,6 +147,8 @@ end;
 procedure TfrmCategoria.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+    exit;
   DADOS.Edit;
   tabPrincipal.TabIndex := 1;
   Controller;

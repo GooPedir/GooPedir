@@ -3,8 +3,8 @@ object frmPrincipal: TfrmPrincipal
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'frmPrincipal'
-  ClientHeight = 536
-  ClientWidth = 1201
+  ClientHeight = 650
+  ClientWidth = 1374
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -18,8 +18,8 @@ object frmPrincipal: TfrmPrincipal
   object PageControl1: TPageControl
     Left = 0
     Top = 102
-    Width = 1201
-    Height = 434
+    Width = 1374
+    Height = 548
     ActivePage = tabPrincipal
     Align = alClient
     TabOrder = 0
@@ -28,8 +28,8 @@ object frmPrincipal: TfrmPrincipal
       object DBGrid1: TDBGrid
         Left = 0
         Top = 0
-        Width = 1193
-        Height = 402
+        Width = 1366
+        Height = 516
         Align = alClient
         DataSource = DataSource1
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
@@ -43,7 +43,7 @@ object frmPrincipal: TfrmPrincipal
           item
             Expanded = False
             FieldName = 'URL'
-            Width = 350
+            Width = 450
             Visible = True
           end
           item
@@ -90,8 +90,8 @@ object frmPrincipal: TfrmPrincipal
       object mLog: TMemo
         Left = 0
         Top = 0
-        Width = 1193
-        Height = 402
+        Width = 1366
+        Height = 516
         Align = alClient
         Lines.Strings = (
           'mLog')
@@ -105,8 +105,8 @@ object frmPrincipal: TfrmPrincipal
       object mLogBusca: TMemo
         Left = 0
         Top = 0
-        Width = 1193
-        Height = 402
+        Width = 1366
+        Height = 516
         Align = alClient
         Lines.Strings = (
           'mLog')
@@ -163,12 +163,12 @@ object frmPrincipal: TfrmPrincipal
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1201
+    Width = 1374
     Height = 102
     Align = alTop
     TabOrder = 1
     DesignSize = (
-      1201
+      1374
       102)
     object imgLogo: TImage
       Left = 1
@@ -193,7 +193,7 @@ object frmPrincipal: TfrmPrincipal
       OnClick = lStatusClick
     end
     object lSegundos: TLabel
-      Left = 1131
+      Left = 1304
       Top = 0
       Width = 63
       Height = 17
@@ -215,7 +215,7 @@ object frmPrincipal: TfrmPrincipal
       Height = 17
     end
     object Image1: TImage
-      Left = 1146
+      Left = 1319
       Top = 23
       Width = 48
       Height = 48

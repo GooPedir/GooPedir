@@ -68,6 +68,9 @@ end;
 procedure TfrmMotoboy.rAdicionarClick(Sender: TObject);
 begin
   inherited;
+  if not DADOS.Active then
+    DADOS.Open;
+
   DADOS.insert;
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('ativo').AsInteger := 1;
@@ -78,35 +81,40 @@ end;
 procedure TfrmMotoboy.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+    exit;
   DADOS.Edit;
   tabPrincipal.TabIndex := 1;
 end;
 
 procedure TfrmMotoboy.rAtivarDesativarClick(Sender: TObject);
 var
- Body : String;
- DadosBody: TJSONObject;
+  Body: String;
+  DadosBody: TJSONObject;
 begin
   inherited;
-  if Length(DADOS.FieldByName('acesso_site').AsString) > 0  then
+  if Length(DADOS.FieldByName('acesso_site').AsString) > 0 then
   begin
 
   end;
   DADOS.Edit;
-  DADOS.FieldByName('acesso_site').AsString := FormatFloat('S000',DM.UserId) + FormatFloat('-000',DM.UserId+DADOS.FieldByName('codigo').AsInteger);
+  DADOS.FieldByName('acesso_site').AsString := FormatFloat('S000', dm.UserId) +
+    FormatFloat('-000', dm.UserId + DADOS.FieldByName('codigo').AsInteger);
   DADOS.Post;
   DadosBody := TJSONObject.Create;
-  DadosBody.AddPair('id',0);
-  DadosBody.AddPair('user_id',DM.UserId.ToString);
-  DadosBody.AddPair('deliveryman_name',UpperCase(DADOS.FieldByName('nome').AsString));
-  DadosBody.AddPair('deliveryman_phone_number',DADOS.FieldByName('codigo').AsString);
-  DadosBody.AddPair('senha',DADOS.FieldByName('acesso_site').AsString);
-  DadosBody.AddPair('id_local',DADOS.FieldByName('codigo').AsString);
-  DM.Requisicao.URL := 'insert/ws_motoboys/' + DM.UserId.ToString + '/a';
-  DM.Requisicao.Metodo := mPost;
-//  ShowMessage(DadosBody.ToString);
-  DM.Requisicao.Body(DadosBody.ToString);
-  DM.Requisicao.Execute;
+  DadosBody.AddPair('id', 0);
+  DadosBody.AddPair('user_id', dm.UserId.ToString);
+  DadosBody.AddPair('deliveryman_name',
+    UpperCase(DADOS.FieldByName('nome').AsString));
+  DadosBody.AddPair('deliveryman_phone_number', DADOS.FieldByName('codigo')
+    .AsString);
+  DadosBody.AddPair('senha', DADOS.FieldByName('acesso_site').AsString);
+  DadosBody.AddPair('id_local', DADOS.FieldByName('codigo').AsString);
+  dm.Requisicao.URL := 'insert/ws_motoboys/' + dm.UserId.ToString + '/a';
+  dm.Requisicao.Metodo := mPost;
+  // ShowMessage(DadosBody.ToString);
+  dm.Requisicao.Body(DadosBody.ToString);
+  dm.Requisicao.Execute;
 
 end;
 
@@ -124,6 +132,5 @@ end;
 initialization
 
 RegisterClass(TfrmMotoboy);
-
 
 end.

@@ -37,6 +37,7 @@ type
     Layout2: TLayout;
     EdtMax: iEdit;
     Label4: TLabel;
+    DADOSLINK: TStringField;
     procedure FormActivate(Sender: TObject);
     procedure rAlterarClick(Sender: TObject);
     procedure rAtivarDesativarClick(Sender: TObject);
@@ -62,7 +63,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, uSimNao, uSenha, util, uMain;
+uses uDM, uSimNao, uSenha, util, uMain, System.NetEncoding;
 
 { TfrmCadastroMesas }
 
@@ -93,28 +94,44 @@ end;
 procedure TfrmCadastroMesas.FormCreate(Sender: TObject);
 begin
   inherited;
-  tabPrincipal.TabPosition :=  TTabPosition.None;
+  tabPrincipal.TabPosition := TTabPosition.None;
   GetDados;
 end;
 
 procedure TfrmCadastroMesas.GetDados;
+var
+  Base64: TBase64Encoding;
 begin
+  Base64 := TBase64Encoding.Create(0);
   try
     dm.GetSimples('/v1/mesas/all/', DADOS);
   except
 
   end;
+  if DADOS.RecordCount = 0 then
+    exit;
+  while not DADOS.Eof do
+  begin
+    DADOS.Edit;
+    DADOS.FieldByName('LINK').AsString := dm.Link + '/' +
+      Base64.Encode(DADOS.FieldByName('nr_mesa').AsString + '-' +
+      DADOS.FieldByName('descricao').AsString);
+
+    DADOS.Post;
+    DADOS.Next;
+  end;
 end;
 
 procedure TfrmCadastroMesas.Image1Click(Sender: TObject);
 begin
-//  inherited;
+  // inherited;
   if tabPrincipal.TabIndex = 1 then
   begin
-     tabPrincipal.TabIndex := 0;
-     GetDados;
-  end else
-  frmMain.AbrirForm('T' + self.Name);
+    tabPrincipal.TabIndex := 0;
+    GetDados;
+  end
+  else
+    frmMain.AbrirForm('T' + self.Name);
 end;
 
 function TfrmCadastroMesas.MesaUltima(Descricao: String): Integer;
@@ -122,6 +139,12 @@ var
   ValorMinimo: Integer;
 begin
   GetDados;
+  Result := 0;
+  if not DADOS.Active then
+    exit;
+  if DADOS.RecordCount = 0 then
+
+    exit;
   DADOS.First;
   ValorMinimo := 0;
   while not DADOS.Eof do
@@ -139,6 +162,9 @@ end;
 procedure TfrmCadastroMesas.rAdicionarClick(Sender: TObject);
 begin
   inherited;
+  if not DADOS.Active then
+    DADOS.Open;
+
   tabPrincipal.TabIndex := 1;
 end;
 

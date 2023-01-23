@@ -114,13 +114,20 @@ begin
       'Não há nenhuma impressora instalada, no servidor!', 1);
     exit;
   end;
+
+  if not memImpressora.Active then
+    memImpressora.Open;
+
   tabPrincipal.TabIndex := 1;
-  DADOS.insert;
+  DADOS.Insert;
 end;
 
 procedure TfrmImpressora.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+    exit;
+
   dm.GetSimples('/v1/impressora/servidor/', memImpressora);
 
   if memImpressora.RecordCount = 0 then
@@ -142,9 +149,10 @@ begin
   inherited;
   DADOS.Edit;
   DADOS.FieldByName('descricao').AsString := edtDescricao.Text;
-  DADOS.FieldByName('driver').AsString := memImpressora.FieldByName('driver').AsString;
-  DADOS.FieldByName('tipo_impressao').AsInteger := memTipo.FieldByName('id').AsInteger;
-
+  DADOS.FieldByName('driver').AsString := memImpressora.FieldByName
+    ('driver').AsString;
+  DADOS.FieldByName('tipo_impressao').AsInteger := memTipo.FieldByName('id')
+    .AsInteger;
 
   if sAtivo.IsChecked then
     DADOS.FieldByName('ativo').AsInteger := 1

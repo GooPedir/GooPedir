@@ -155,7 +155,6 @@ begin
   PIX.FieldByName('DESCRICAO').AsString := 'Aleatória';
   PIX.Post;
 
-
   tabMain.TabPosition := TTabPosition.None;
 
 end;
@@ -169,6 +168,9 @@ end;
 procedure TfrmTipoPagamento.rAdicionarClick(Sender: TObject);
 begin
   inherited;
+  if not DADOS.Active then
+    DADOS.Open;
+
   DADOS.Insert;
   DADOS.AtualizaCampos;
   sAtivo.IsChecked := True;
@@ -179,6 +181,9 @@ end;
 procedure TfrmTipoPagamento.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+    exit;
+
   edtDescricao.Text := DADOS.FieldByName('descricao').AsString;
   sAtivo.IsChecked := DADOS.FieldByName('ativo').AsInteger = 1;
   sTroco.IsChecked := DADOS.FieldByName('troco_delivery').AsInteger = 1;

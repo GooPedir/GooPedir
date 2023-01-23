@@ -1,13 +1,15 @@
 inherited frmMesas: TfrmMesas
   Caption = 'frmCadastroBase1'
-  ClientWidth = 980
+  ClientHeight = 485
+  ClientWidth = 726
   OnActivate = FormActivate
   OnCreate = FormCreate
   DesignerMasterStyle = 0
   inherited layClient: TLayout
-    Size.Width = 980.000000000000000000
+    Size.Width = 726.000000000000000000
+    Size.Height = 485.000000000000000000
     inherited Rectangle1: TRectangle
-      Size.Width = 980.000000000000000000
+      Size.Width = 726.000000000000000000
       inherited Image1: TImage
         MultiResBitmap.Height = 48
         MultiResBitmap.Width = 48
@@ -31,9 +33,28 @@ inherited frmMesas: TfrmMesas
         Visible = False
       end
       inherited lNomeForm: TLabel
-        Size.Width = 970.000000000000000000
+        Size.Width = 666.000000000000000000
         TextSettings.Font.StyleExt = {00070000000000000004000000}
         Text = 'Mesas / Pedidos'
+      end
+      object imgMenuLateral: TImage
+        MultiResBitmap = <
+          item
+            Width = 50
+            Height = 50
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+              B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0064494441546843EDD6310A80301045C1E0E9D4FBD70AE23D740362A59D908D
+              CCC0C32A1062F30B007C688ED6E8485EBDE314BDDAA2A78319DBA3DB707D7FA7
+              FEAE257A7A814CD53B8E1100404FCCF80699F19932E301801E99F10D32E33365
+              C603F0A1524EF4967FD4B08282230000000049454E44AE426082}
+            FileName = 'C:\Users\ifort\Downloads\icons8-menu-arredondado-50 (1).png'
+          end>
+        Align = Right
+        Cursor = crHandPoint
+        Position.X = 676.000000000000000000
+        OnClick = imgMenuLateralClick
       end
     end
     inherited tabPrincipal: TTabControl
@@ -100,8 +121,8 @@ inherited frmMesas: TfrmMesas
     end
     object tabMesas: TTabControl
       Align = Client
-      Size.Width = 530.000000000000000000
-      Size.Height = 618.000000000000000000
+      Size.Width = 276.000000000000000000
+      Size.Height = 435.000000000000000000
       Size.PlatformDefault = False
       TabIndex = 0
       TabOrder = 2
@@ -109,29 +130,29 @@ inherited frmMesas: TfrmMesas
     end
     object Layout1: TLayout
       Align = Right
-      Position.X = 530.000000000000000000
+      Position.X = 276.000000000000000000
       Position.Y = 50.000000000000000000
       Size.Width = 450.000000000000000000
-      Size.Height = 618.000000000000000000
+      Size.Height = 435.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 3
       object tabDeliveryVemBuscar: TTabControl
         Align = Client
         Size.Width = 450.000000000000000000
-        Size.Height = 406.000000000000000000
+        Size.Height = 223.000000000000000000
         Size.PlatformDefault = False
         TabIndex = 0
         TabOrder = 2
         TabPosition = PlatformDefault
         Sizes = (
           450s
-          380s
+          197s
           450s
-          380s
+          197s
           450s
-          380s
+          197s
           450s
-          380s)
+          197s)
         object tabDelivery: TTabItem
           CustomIcon = <
             item
@@ -151,11 +172,11 @@ inherited frmMesas: TfrmMesas
           object vertDelivery: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 380.000000000000000000
+            Size.Height = 197.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 380.000000000000000000
+            Viewport.Height = 197.000000000000000000
           end
         end
         object tabVemBuscar: TTabItem
@@ -177,11 +198,11 @@ inherited frmMesas: TfrmMesas
           object vertVemBuscar: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 380.000000000000000000
+            Size.Height = 197.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 380.000000000000000000
+            Viewport.Height = 197.000000000000000000
           end
         end
         object TabMesa: TTabItem
@@ -203,11 +224,11 @@ inherited frmMesas: TfrmMesas
           object vertMesa: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 380.000000000000000000
+            Size.Height = 197.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 380.000000000000000000
+            Viewport.Height = 197.000000000000000000
           end
         end
         object TabItem4: TTabItem
@@ -229,11 +250,11 @@ inherited frmMesas: TfrmMesas
           object vertMotoboy: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 380.000000000000000000
+            Size.Height = 197.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 380.000000000000000000
+            Viewport.Height = 197.000000000000000000
           end
         end
       end
@@ -252,6 +273,8 @@ inherited frmMesas: TfrmMesas
           TabOrder = 0
           TabPosition = PlatformDefault
           Sizes = (
+            450s
+            186s
             450s
             186s
             450s
@@ -279,151 +302,13 @@ inherited frmMesas: TfrmMesas
               Size.Height = 185.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 3
-              object Layout3: TLayout
-                Anchors = [akTop, akRight]
-                Position.X = 321.000000000000000000
-                Position.Y = 8.000000000000000000
-                Size.Width = 121.000000000000000000
-                Size.Height = 169.000000000000000000
-                Size.PlatformDefault = False
-                TabOrder = 0
-                object Label3: TLabel
-                  Align = Top
-                  StyledSettings = [Size, Style, FontColor]
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'Mesa'
-                  TabOrder = 10
-                end
-                object lMesa: TLabel
-                  Align = Top
-                  StyledSettings = [FontColor]
-                  Position.Y = 17.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.Font.Size = 14.000000000000000000
-                  TextSettings.Font.StyleExt = {00070000000000000004000000}
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'R$ 0,00'
-                  TabOrder = 7
-                end
-                object Label5: TLabel
-                  Align = Top
-                  StyledSettings = [Size, Style, FontColor]
-                  Position.Y = 34.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'Delivery'
-                  TabOrder = 8
-                end
-                object lDelivery: TLabel
-                  Align = Top
-                  StyledSettings = [FontColor]
-                  Position.Y = 51.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.Font.Size = 14.000000000000000000
-                  TextSettings.Font.StyleExt = {00070000000000000004000000}
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'R$ 0,00'
-                  TabOrder = 6
-                end
-                object Label8: TLabel
-                  Align = Top
-                  StyledSettings = [Size, Style, FontColor]
-                  Position.Y = 68.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'Vem Buscar'
-                  TabOrder = 2
-                end
-                object lVemBuscar: TLabel
-                  Align = Top
-                  StyledSettings = [FontColor]
-                  Position.Y = 85.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.Font.Size = 14.000000000000000000
-                  TextSettings.Font.StyleExt = {00070000000000000004000000}
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'R$ 0,00'
-                  TabOrder = 5
-                end
-                object Label10: TLabel
-                  Align = Bottom
-                  StyledSettings = [Size, Style, FontColor]
-                  Position.Y = 135.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'Total'
-                  TabOrder = 0
-                end
-                object lTotal: TLabel
-                  Align = Bottom
-                  StyledSettings = [FontColor]
-                  Position.Y = 152.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.Font.Size = 14.000000000000000000
-                  TextSettings.Font.StyleExt = {00070000000000000004000000}
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'R$ 0,00'
-                  TabOrder = 3
-                end
-                object Label4: TLabel
-                  Align = Top
-                  StyledSettings = [Size, Style, FontColor]
-                  Position.Y = 102.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'Consumindo'
-                  TabOrder = 1
-                end
-                object lMesaConsumindo: TLabel
-                  Align = Top
-                  StyledSettings = [FontColor]
-                  Position.Y = 119.000000000000000000
-                  Size.Width = 121.000000000000000000
-                  Size.Height = 17.000000000000000000
-                  Size.PlatformDefault = False
-                  TextSettings.Font.Family = 'Courier New'
-                  TextSettings.Font.Size = 14.000000000000000000
-                  TextSettings.Font.StyleExt = {00070000000000000004000000}
-                  TextSettings.HorzAlign = Trailing
-                  Text = 'R$ 0,00'
-                  TabOrder = 4
-                end
-              end
               object lImpressao: TLayout
                 Cursor = crHandPoint
                 HitTest = True
                 Opacity = 0.500000000000000000
                 Position.X = 8.000000000000000000
-                Position.Y = 8.000000000000000000
-                Size.Width = 207.000000000000000000
+                Position.Y = 116.000000000000000000
+                Size.Width = 169.000000000000000000
                 Size.Height = 48.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 12
@@ -474,7 +359,7 @@ inherited frmMesas: TfrmMesas
                   Align = Client
                   StyledSettings = [Family, FontColor]
                   Margins.Left = 5.000000000000000000
-                  Size.Width = 154.000000000000000000
+                  Size.Width = 116.000000000000000000
                   Size.Height = 48.000000000000000000
                   Size.PlatformDefault = False
                   TextSettings.Font.Size = 14.000000000000000000
@@ -488,8 +373,8 @@ inherited frmMesas: TfrmMesas
                 HitTest = True
                 Opacity = 0.500000000000000000
                 Position.X = 8.000000000000000000
-                Position.Y = 63.000000000000000000
-                Size.Width = 207.000000000000000000
+                Position.Y = 4.000000000000000000
+                Size.Width = 169.000000000000000000
                 Size.Height = 48.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 11
@@ -504,54 +389,54 @@ inherited frmMesas: TfrmMesas
                       PNG = {
                         89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
                         87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        05E5494441546843ED986B4C145714C7FFB32F06165C5810052D880F0C6AB5C6
-                        A6496BDBD85015A9A9D1C087366953AB6D5AD4D8D836FDD00FA66DFCD2479AAA
-                        7D2149E3935A05B1BEAA6810CB07D3F8C2B65A14B10AF804D65D7697DD9D9DB9
-                        3DBB7B1DDCB22CB02C96A4FB4BCEDC7BCEBCEEFFCE3D77EE0C62C48811E33F45
-                        E06544B06A983C1ACCA3EA6CA660265D2C4B014C81BD8046811B5AFC49D5F374
-                        A7737A09FB3505E808EC8D0E1109E83A827C8D06252E60A1081878B84FE8788F
-                        C8709809D812F72B2A858F407A07C7800478AAF1A4C2F0199D349B8722865A7E
-                        0E0C1FC4CFC7111E8A887E09500E22CEA5C1A71E012BA9C7353C1C151850216A
-                        B04C980B2B0F0D883E05380E622CB5B84A10308B87A28E97E1B25E83E2B802D4
-                        F350BF092BC0B50F932809ABA99A1D880C1D32D049C53C63214E0622FDA35701
-                        8E7D1843E3B44E27601C0F0D393493599906F9C68538CD437DA2E56510AC06A2
-                        ECC1311A3A793CF450A0612A528F2E1A953BEFC4C8DC42B1FECC6F16BEAB5742
-                        3E01E75E6CA46245C07B78FC6D1D85FD0D4FE0C2DD2C9FCB88B59B377DF3897F
-                        672FF410E0ACC4D334E3D4467BB609C78D4E330E5C7E1C676E4EA056F320E172
-                        41D28BBAF1DBCB36B4F0500F7A3692E17351A1B8EF1533C476C39A821F4E3F87
-                        8F6B8A70AA25078AAC501E745B9C41D10B8AFB2D3ABA57829E80BD02051438C4
-                        DD21A3CD99845F1A1F43DDF5C950E8B51C16E669733BCC59BB777FD9C5234104
-                        3D0126A324544F45CBDAED89D87276363E3C5684E35773E1951914EAE9B0C674
-                        69BA78EB4B748590A8F2EFED845976E3B62842C74351A3A3CB483D3E0DB5D726
-                        4352424E7CE191953F76966F9E4EB5073224802AA0B31C2FD334B69DBB034242
-                        3CECA602C87199D0BA5A91683D02BDE084CD23E270E3545437E545D6F007604C
-                        99B3BB7C6B2D77555401F6727C4D4549C0EB3F0EC31458F2CAC08C13FD3E4D7D
-                        501CAD3877681D0E9C35C0230FAEE12A0AF654FCB46D09F754BA056C471D1503
-                        5A654A2C1EB7661E854D49C7C19FABD0DC721D631FC9C282175E84C361C7F71B
-                        D7C3EB95F8D1838396E272BC17B995953B9A78C88F9AC4944FD9BE397820D699
-                        3C1F4AC204ECADDC8586BF2EC069B7E3D2C50BD8575581B4B4744CCAA5592654
-                        6246600645D17A05B9C7085105B02EA4FE7BD6E8CB24FD1812C2D074E50A3C1E
-                        49B5ABE4FBE2492653C8C6446A6EC69615171727D2DD55BA0518203CD8BBFD31
-                        ADAB19B22C2323231392E4516D746626BD946458DADB43362452D3294AB25362
-                        AFF026FB5105689DB4A20DD1CBE12CA9A31ACCDE8C458B8B9093339E2E464B57
-                        2A172E5A82CE8EEB68693C1BF4668D86298AFC14DD5D454D625B191AA90513B8
-                        DB6FEC863CDC99BC015E63E054DFD011EC8DC8B8B40A46CF25345992517F271D
-                        572C29FE7A878B5659838081BD7178FFDE32EE760BB096E22809C8E7EE809020
-                        C26ACA8744EF01BDAB05265B0DF4BE7923040E498F3B8E04DC7526E096AF24B3
-                        B84538251D199D45A5973E0A7C883A2F741A05C9716E98E3BB3025ADBDB3705C
-                        6BBAB0B4FBE2AA807B9BF005396BB83B7C11F0AA6939B672AF3B070405B5A1C6
-                        F970334542D0EA547D026D5F61848E0937693424F0D0B04591D90CF30A9CF7D5
-                        D52790B61A36A6C79E50AA879BD16CB7946A7E54013EB432FB36D409C3CEBC98
-                        4B5B3FEA10BACF9AE50BDA6E783252B93B288C5A37CD200E6427B4E1D1E4164C
-                        4B6E868E922D0AD8525631FF3FD81E024ADF9D5554737BEA2EB9AF2FA50818A1
-                        77A130F3773C9BDE00ED2084D022E0B679351BEDAB876CE5BAB79FA93963C99E
-                        C3DDA8936DECC09B93EA902EFAFE650D1C125095FA0E5BECAB07E5C07D268A57
-                        0BD3C4BBF77CEB9CA1B0269B09EBEA9FC7B5CE94D063BC2F63EC3BDAFAE9759C
-                        942E9F9E73C239F6A2CD9518C743512751EFC1DA19473192F2A4DF30FC687E8F
-                        A9DFC86107FAFA955367D4B78C39798B250D6E01138671891612719C72820646
-                        1FD0113BCC06F6BA6635DC3C145E808FB292BCEC06ABF958A33D657C97AC8F7E
-                        6613AF4D3C8FB999411F5A7E5C2E3051442B554FD162BF34F5FDA1FFE5132346
-                        8C18FF2B807F00DC8152E93F4E11550000000049454E44AE426082}
+                        05E7494441546843ED987B6C53551CC7BFB78FAD5B3BBA7563B0811BE3313240
+                        90604C143598C918934820DB1F9A6844D0E8806050E31FFE41D4F08F8F18015F
+                        6389018489B031E4250C32A6FB83185E4305076308DB786E2B5D1F6B7B7BEFF1
+                        D7F670475DD7AE5D874BEC27F9F59CDFEF3E7ABEE79EDF39E75EC4891327CE7F
+                        8AC0CBA8607530BA5528A2EA5C266336DD2C47068CFEA3804A860B6AFC49D573
+                        F44F67B522F6AB8AD1ED3F1A1BA212D07B04852A15CA6DC0220390C0C361A1F3
+                        DD0686C34CC0D6C45F51237C00D23B342212E0AEC3E332C32774D15C1E8A1A6A
+                        F95930BC97B4004778282A0625403E8844A70A1F3B04ACA21E57F1704C6040B5
+                        4E85E5C27C58782822C20AB01FC4786A71AD20600E0FC51C0FC325AD0A6589C5
+                        68E2A141135280731FA65012D65135D71F193E24C04A4591BE0427FC91C131A0
+                        00FB3E8CA371DAA811308187861D9AC92C4C8542FD229CE2A1B0A8791900AB87
+                        4E72E3180D9D021E7A20D030D5518F2E1E935FF4CBE8FC125DD3E9DFCCFCD080
+                        047D028EBDD844C54ABFF7E0F8DB3206FB9B1FC3F93B395E9711EBB66CFEEA23
+                        DFC101E827C05183276D2A34C47AB609C575AB09072E3D8AD3372651AB7990B0
+                        D92026193413B7576E6CE7A17EF46F24C3A70699E2DE256698EDBA250DDF9D7A
+                        061FD697E2647B1E6449A63CE8337DB2AC1564D71B74F680043C015B358A2970
+                        88BBC346A723053FB73C82C66B5321D3B21C12E6EE74D94D39BB777FDECB2301
+                        043C0126A13C584FC5CABA6C066C3D3317EF1F2BC5F12BF9F0480C32F5744863
+                        9A0C4D92E505BA435014F97777C2E472E096410F0D0FC58CEE5E3DF5F80C345C
+                        9D0A510E3AF1854692FFD859B56526D5EECB103F8A006B155EA4696C3B772342
+                        44126CC6624889D9503B3B60B01C815670A0C7ADC3E196E9A86B2D88AEE1F7C1
+                        983C6F77D5B606EE2A28026C55F8928A72BF3778EC09D3602EA804D34FF6F934
+                        F541B677E0ECA1F5387026016E69680D5790B1A7FAC7EF97724FA14FC0763452
+                        11D12E536449B839FB287AE44C1CFCA9166DEDD730FEA11C2C7CEE79D8ED367C
+                        BB69033C1E919F3D34682B2EA578905F53B3A395877C28494CF994EB9D832331
+                        6BEA02C8C993B0B766179AFF3A0F074DDC172F9CC7BEDA6A646464624A3ECD32
+                        C112330A4B9665B54790FA8D104500EB45FABF678D70266AC7911086D6CB97E1
+                        768B8A5D21DF1B4F311A8336265A7331B6BCACAC8CD6D83EFA042440B8BF7707
+                        636A671B24494256563644D1ADD8D8EC6C5A942498BBBA8236245AD3C872AA43
+                        642FF126FB5004A8EDB4A30DD2CBA12CA5BB0ECCD686C54B4A919737916E465B
+                        572A172D5E0A6BF735B4B79C0958596361B22C3D41FFAEA024714F255AA80593
+                        B83B686C0905B83D75233C7AFFA5DEA123D85A90757135F4EE8B6835A7A2E976
+                        262E9BD37CF56EA7CE775EB430B0D70EEFDF5BC9DD3E01960A1C250185DC8D08
+                        113A588C8510691DD03ADB61ECA987164E7E3410BBA8C56D7B32EE389271D35B
+                        92995D3A38440D195D45A5875E0ABCE8341E68543252135D3025F5625A4697B5
+                        644247A6B0ACEFE68A80BB9BF119396BB93B7211F0B27105B671AF2F0704190D
+                        C1C6F948335944C0EE5479029D5F609446146EC080641E1AB1C8129B655A8973
+                        DEBAF20432D6A08716D63DC1548F34A3D96E19D57C2802BCA825F675B00B469C
+                        79309F7E7D2843E81E6B572CECBCEECE4AE7EE90D0AB5D3483D8919BDC898753
+                        DB3123B50D1A4AB618D093B69AF9BEC1F61350F1F69CD2FA5BD37749E1DE94A2
+                        6094D68992ECDFF1746633D44310429B805BA6356CACB71EB495EBDF7CAAFEB4
+                        39771E77634EAEBE1BAF4F6944A6CEFB2D2B7248406DFA5B6C89B71E9003F798
+                        ACBB5292A1BB73D7BBCF190E6BED31627DD3B3B86A4D0B3EC6C31963DFD0AF8F
+                        01C749C58A99790D8EF117AC4E43220FC51C83D68D75B38E6234E5C9A061F8C1
+                        F40E53DE91430EF40DABA6CF6A6A1B77E2265286B68109C1048399441CA79CA0
+                        8111063A63872981BDAA5A03170F8516E0A5B2BC20B7D9623AD6624B9BD82B69
+                        639FD9C42B93CF617E76C08B960F9B1DCCA04707554FD266BF22FDDDE1FFE413
+                        274E9C38FF2B807F00BCF251FC2ABEAB090000000049454E44AE426082}
                       FileName = 'C:\Users\ifort\Downloads\icons8-capacete-de-moto-48.png'
                     end>
                   Align = Left
@@ -564,7 +449,7 @@ inherited frmMesas: TfrmMesas
                   Align = Client
                   StyledSettings = [Family, FontColor]
                   Margins.Left = 5.000000000000000000
-                  Size.Width = 154.000000000000000000
+                  Size.Width = 116.000000000000000000
                   Size.Height = 48.000000000000000000
                   Size.PlatformDefault = False
                   TextSettings.Font.Size = 14.000000000000000000
@@ -577,13 +462,12 @@ inherited frmMesas: TfrmMesas
                 Cursor = crHandPoint
                 HitTest = True
                 Opacity = 0.500000000000000000
-                Position.X = 8.000000000000000000
-                Position.Y = 118.000000000000000000
-                Size.Width = 207.000000000000000000
+                Position.X = 185.000000000000000000
+                Position.Y = 4.000000000000000000
+                Size.Width = 169.000000000000000000
                 Size.Height = 48.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 10
-                OnClick = Layout5Click
                 OnMouseEnter = lImpressaoMouseEnter
                 OnMouseLeave = lImpressaoMouseLeave
                 object Image5: TImage
@@ -594,51 +478,51 @@ inherited frmMesas: TfrmMesas
                       PNG = {
                         89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
                         87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        0580494441546843ED584B486357183EF7E54D26D1C4570DA80B3753A88F011D
-                        5D0C9DA1ABB6143A8F0ED27659487167C75D171599D282E0C28574D13294D958
-                        5ABA28B89056CA409D46EA7314155AA78A71E2B49A44ADE665929BF4FF4F4EAE
-                        373397E44EC9D540FDE0F33CEEF5FEFF77FEFF3FF7DC90739CE37F0E8EB586B0
-                        B6B6562BCBF225362C3A044178D4D0D0106443437821011B1B1BEFF23CFF2D1B
-                        161DE974FA9DA6A6A61FD8D01078D61A02385FCEBAA6000454B0AE61BC900030
-                        60AA80FFB240026BF3A2A7A7E795B6B636F22A0044BC06443166D0130A85D6BB
-                        BABA5CF3F3F37BCC7C5E188A402A95FA029A8FB7B6B63A14452166717D7DBD13
-                        DACF40C8E719CB856134851C070707EECDCDCDB78F8F8F8959F47ABD3763B1D8
-                        7BB0600E66B7200C0B5094E405ECE8192E16D9F32D1CC739E9C0008C0A7046A3
-                        5111F3F459A3C52422168B7210814A3A3000430222914879341A815A50080831
-                        8DE9740A04C4F08566783B2D28A0AFAFCF6AB3D9A470380C02D2BA868B455879
-                        58AC301674F104406869411D1D1DD1AD4ECF70B1880B140A853102D681810191
-                        3A50000505E08E008C630A2593498291308BB051407B44EDFA7C3E4351282800
-                        56DD015188A2F3B03B90783C6E1A398EA735003615B065682BD53DCCDDBF7FEF
-                        7597AB61ECC1839FE5959555367B3A68696926D7AFDF64A30CFC7E7F2C180CDE
-                        70BBDD136C4A856E0464D9F69DC56291979757882449A74A5C308CF6FEFE3EF4
-                        9729ED76BBC5E974EA9E829F13303C3CDC5B5353E37CFA749B88A2A06BC44CF2
-                        3C47B6B7B7F17D409CCE4AD2DCDC4216171F1187C351393232F2117353C57302
-                        C0F9BB894482CCCDCD119BAD1C4448A74ABBBD026CCF826D3BF1787E250F1F4E
-                        929D9D1D5A2315151577999B2A724EA3434343BDF5F5F5B7703F9E9C9C8454B2
-                        E09676EA0C06F7486B6B2BF529994C90B2B2325ADC2E97CBD2D1D17130313131
-                        4D2F02722200B946571FD52224493C13C2E64DD08FC6C646FA72BB78F165B2BB
-                        EBA77310854FA9730CEA2E343838F8017CCE7DCD8650447B646FCFD0919C0243
-                        8D7BB91EE04D4EAE5EBDC64685515555452A2BAB681F4EC17894A191A9ABABA3
-                        736363631F8E8E8EDEC3BE2AA0BFBFDF0321BA020AE97E5F8AC0930016F8F8F8
-                        F802A47807CE69047C1283159771D531DF4A0D580BE81712CE4AF1A9A9DF649C
-                        576B00D4C9986FA54C8C0012CE4C65CCED13017890CA5CD4FFE7B3E6896F193F
-                        B3D00850D49BB3DFA8A5C6AC7FC82CB429947343A9123F7A7423A0288761BD7F
-                        282D66D22712818F070655403269D92DF52864571FDECC01E6F6C9367AE74EAF
-                        074E8057028100FD3AD202E702013FCDC3D300BEB46A6B5F22D5D5D56C063324
-                        092784CC290184CC2F2C2C5DC6794D04127F294A1A6EC4223EE1F1719C3A8FD0
-                        9E57CC24C2EFDFA5BF5464FDC0F4C94402D388FB9BDE04D0EC42691F86E8D9B0
-                        E14304413C13E2E2E5FA83CE5341DBCC6DAD00E549662BCD25864E14C53321DA
-                        D6FA025F9A5400D48197B9AD4DA1A4375BE5B9AA1578984029081C9C93A0704C
-                        A428F2AABD5C3F90E81B6EA1CA66C66B8D00A8CFC77A2924CB17DC8F1F6F7048
-                        8E9356F06C6E260581FF326B4F96AD6EAD2F6CF5C15BE18F8CD7209AB508EEF6
-                        ED5BDF7BBDDE1BE0A9E63799F49BB3B30B3FC107C6359E27BFB049331192E568
-                        FDCCCC9F879D9DED6F805B3FE2246642341A57382E35B1BAFAFB5BF44E805640
-                        5E74765EFE0642FC3E1B9A0AB0D3333D3DF7151BE6852101DDDDDD82CFE7FB07
-                        F2D2C6A64C05A4CBACC733D5C586796134025C7BFBA54568DAD890FE7A407B58
-                        792A32459E1FB851B01E6DF10F16273E0BE7F05D941E595A5AEAC5AB85605400
-                        82833A507FB79724C9C2F3092B1BA203788D3E2F9D16CBC0919C68F1BC128226
-                        817D45E115494A1D621F118F7321B89F5EB35AADCACCCC8C7AED1CE738473E10
-                        F22FEF9F7A6AF5B6B97D0000000049454E44AE426082}
+                        0581494441546843ED585B482357183E7389936CD4C45B0DA80FBE6CA15E1674
+                        F561E92E7D6A4BA17BE9226D1F0B29BED9F5AD0F15D9D282E0830FD28796A5EC
+                        8BA5A50F051FA495B250B7917A5D4585D66D44DDB8AD26511B7333C964FAFF27
+                        27E3647748664B4603F583CF739971CEFF9DFF326742CE718EFF3938D61AC2FA
+                        FA7A9D244997D8B0E81004E151636363900D0DE185046C6C6CBCCBF3FCB76C58
+                        74288AF24E7373F30F6C68083C6B0D018CAF605D5300022A59D7305E48002C60
+                        AA80FFB241026BF3A2B7B7F795F6F676F22A0044BC06443166D0130E87BDDDDD
+                        DDAE8585857DB67C5E18F2403A9DFE029A8FB7B7B73B65592666D1EBF57641FB
+                        1908F93CB37261180D21C7E1E1A17B7373F3EDE3E3636216B7B6B66EC6E3F1F7
+                        60C31C6CDD82302C40965317B0A3B770B1C89E6FE538CE49070660548033168B
+                        8918A7CF2E5A4C22E2F118071EA8A20303302420140A55C46251C805998010D3
+                        A828691010C7179AE1725A50407F7FBFCDE17058229108085074172E1661E749
+                        341AC1842E9E00702D4DA8A3A3235AEAF4162E167183C2E1087AC03638382852
+                        030AA0A000AC08C00486502A9522E809B3088502DA23BAAECFE733E485820260
+                        D71DE085181A0FD581241209D3C8713CCD01585386B50C9552DDC3DCFDFBF75E
+                        77B91AC71F3CF8595A5D5D63B3A783D6D61672FDFA4D36CAC0EFF7C783C1E00D
+                        B7DB3DC9A654E87A4092ECDF59AD5669656595582C9653256E187AFBE0E000FA
+                        2B94E5E5E556A7D3A97B0A7E4EC0C8C8485F6D6DADF3E9D31D228A82EE226692
+                        E739B2B3B383EF03E2745691969656B2B4F4884025AC1A1D1DFD8899A9E23901
+                        60FCDD643249E6E7E789DD5E01222CA7CAF2F24A587B0ED62E271ECFAFE4E1C3
+                        29B2BBBB4B73A4B2B2F22E335345CE69747878B8AFA1A1E116D6E3A9A9290825
+                        2B96B4536730B84FDADADAA84DA95492949595D1E476B95CD6CECECEC3C9C9C9
+                        197A1190E3018835BAFBA81661B188674228DE04ED686A6AA22FB78B175F267B
+                        7B7E3A075EF8941AC7A056A1A1A1A10FE073EE6B368424DA27FBFB868EE414E8
+                        6AACE57AB0DBEDE4EAD56B6C5418D5D5D5A4AAAA9AF6E1140C6FE728F54C7D7D
+                        3D9D1B1F1FFF706C6CEC1EF655010303031E70D1155048EB7D29024F0298E013
+                        13138B10E29D38A711F0491C765CC25DC7782B35602EA05D48382B25A6A77F93
+                        705ECD01502761BC9532D1034838339531B34F04E0412A7351FF9FCF9A27B665
+                        ECCC422340566FCE7EA3961AB3F621B3D08650CE0DA54AFCE8D1F5802C87227A
+                        FF505ACC844F340A1F0F0CAA8054CABA57EA5EC8EE3EBC9903CCEC93327AE74E
+                        9F074E8057028100FD3AD202E702013F8DC3D300BEB4EAEA5E223535356C0623
+                        24052784CC2901842C2C2E2E5FC6798D07927FC9B2023762129FF0F838418D47
+                        68CF2B6612E1F7EFD15F2AB27660F8643C8161C4FD4D6F0268AA90E243173DEB
+                        367C8820886742DCBC5C7BD0782A688799AD15203FC994D25CA2EB44513C13E2
+                        DA5A5BE04B930A803CD862666B4328B595CDF25CD5323C4CA014040ECE499038
+                        2652147975BD5C3B90681B9650793363B54600E4E763BD1092A40BEEC78F3738
+                        24C75956F16C6E260581FF32BB9E24D9DC5A5BD8EE83B5C21F19AB41346B11DC
+                        EDDBB7BEF77ABD37E0D34EF39B8CF2E6DCDCE24FF081718DE7C92F6CD24C8425
+                        29D6303BFB67A8ABABE30D30EB479CC44888C51232C7A527D7D67E7F8BDE09D0
+                        0AC88BAEAECBDF808BDF67435301EBF4CECCCC7FC586796148404F4F8FE0F3F9
+                        FE81B8B4B3295301E132E7F14C77B3615E18F500D7D17169099A7636A4BF1ED0
+                        1E669E8A4C92E707160AD6A32DFEC1E4C467E11CBE8B94D1E5E5E53EBC5A0846
+                        052038C803F5777BC8132BCF276D6C8806E035FA3C4511CBC0901C6FF1BC1C86
+                        26897D59E6658B251DC23E2291E0C2703FBD66B3D9E4D9D959F5DA39CE718E7C
+                        20E45FE6637A6AA1C40BBB0000000049454E44AE426082}
                       FileName = 'C:\Users\ifort\Downloads\icons8-impressora-48.png'
                     end>
                   Align = Left
@@ -651,12 +535,99 @@ inherited frmMesas: TfrmMesas
                   Align = Client
                   StyledSettings = [Family, FontColor]
                   Margins.Left = 5.000000000000000000
-                  Size.Width = 154.000000000000000000
+                  Size.Width = 116.000000000000000000
                   Size.Height = 48.000000000000000000
                   Size.PlatformDefault = False
                   TextSettings.Font.Size = 14.000000000000000000
                   TextSettings.Font.StyleExt = {00060000000000000004000000}
                   Text = 'Gerencial'
+                  TabOrder = 0
+                end
+              end
+              object Layout8: TLayout
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Position.X = 8.000000000000000000
+                Position.Y = 60.000000000000000000
+                Size.Width = 169.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 9
+                OnClick = Layout8Click
+                OnMouseEnter = lImpressaoMouseEnter
+                OnMouseLeave = lImpressaoMouseLeave
+                object Image6: TImage
+                  MultiResBitmap = <
+                    item
+                      Width = 48
+                      Height = 48
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                        87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0581494441546843ED585B482357183E339371924DD478AB01F5C1972DD4CB82
+                        AE3E2CDDA54F6D29742F5DA4ED6321C537BBBEF5A1225B5A107CF041FAD0B294
+                        7DB1B4F4A1E083B45216EA3652AFABA8D07A43DDB8AD26F19A9B4926D3FF3F39
+                        1927BB43325B321AA81F7C9ECB8C73FEEFFC97391372810BFCCFC1B1D6109697
+                        97AB2449BAC286798720084F6A6B6B036C68082F25607D7DFD7D9EE7BF67C3BC
+                        435194F7EAEBEB7F624343E0596B08607C31EB9A021050C2BA86F15202600153
+                        05FC970D12589B159D9D9DAF35373793D70120E20D208A31839E6030B8D6DEDE
+                        EE9A9999D963CB6785210F2493C9AFA0F9746B6BAB5596656216D7D6D6DAA0FD
+                        02847C995A39378C8650E9C1C1817B6363E3DD93931362163737376F47A3D10F
+                        60C34AD9BA396158802C272E61476FE17C913DDFCA719C930E0CC0A800672412
+                        B1609C3EBF683E898846231C78A08C0E0CC09080C3C3C3E248240CB920131062
+                        1A15250902A2F842335C4E730AE8EEEEB6399D4E31140A81004577E17C11769E
+                        84C3214CE8FC0900D7D2843A3E3EA6A54E6FE17C113728180CA1076CBDBDBD16
+                        6A400EE41480150118C3104A2412043D6116A150407B4CD7F57ABD86BC905300
+                        EC7A29782182C6437520B158CC34721C4F7300D694612D43A554F730F7F0E183
+                        375DAEDAE1478F7E95161797D8ECD9A0B1B181DCBC799B8D52F0F97CD1402070
+                        CBED768FB22915BA1E9024FB0F56AB555A585824A2289E2971C3D0DBFBFBFBD0
+                        5FA074381C562824BAA7E017040C0C0C745556563A9F3DDB26168BA0BB8899E4
+                        798E6C6F6FE3FB80389D65A4A1A191CCCD3D21A5A5A5658383839F303355BC20
+                        008CBF1F8FC7C9F4F434B1DB8B418478A674384A60ED2958DB413C9EDFC9E3C7
+                        6364676787E6484949C97D66A68A8CD3687F7F7F574D4DCD1DACC7636363104A
+                        562C6967CE40608F343535519B128938292A2AA2C9ED72B9ACADADAD07A3A3A3
+                        13F42220C303106B74F7512D42142DE74228DE04EDA8ABABA32FB7CB975F25BB
+                        BB3E3A075EF89C1AC7A056A1BEBEBE8FE073EE5B368424DA237B7B868EE414E8
+                        6AACE57AB0DBEDE4FAF51B6C941BE5E5E5A4ACAC9CF6E1140C6FE730F54C7575
+                        359D1B1E1EFE786868E801F655013D3D3D1E70D1355048EB7D21024F0298E023
+                        2323B310E2AD38A711F05914765CC25DC7782B34602EA05D48382BC5C6C7FF90
+                        705ECD01502761BC1532D1034838331531B34F05E0412A7551FF9FCF9BA7B6A5
+                        EC4C432340566F4E7FA3161AD3F621D3D08650C60D854AFCE8D1F5802C1F85F4
+                        FEA1B0980A9F70183E1E185401898475B7D0BD90DE7D7833FB99D9A765F4DEBD
+                        2E0F9C00AFF9FD7EFA75A405CEF9FD3E1A8767017C695555BD422A2A2AD80C46
+                        48024E08A953020899999D9DBF8AF31A0FC4FF9665056EC4243EE5C9498C1A8F
+                        D09E57CC24C2E7DBA5BF54A4EDC0F0497902C388FB87DE04D05421C58B2E7ADE
+                        6DF81041B09C0B71F332ED41E3A9A06D66B65680FC34554A3389AEB3582CE742
+                        5C5B6B0B7C69520190079BCC6C6D082536D3599EA95A8687099482C0C1390912
+                        C7445A2CBCBA5EA61D48B40D4BA8BC91B25A2300F273452F8424E9927B65659D
+                        43729CB8886773332908FCD7E9F524C9E6D6DAC2761FAC15FE4A590DA2598BE0
+                        EEDEBDF3E3EAEAEA2D7890E63719E5EDA9A9D95FE003E306CF93DFD8A499084A
+                        52A4667272F5A8ADADE52D30EB679CC44888446232C725479796FE7C87DE09D0
+                        0AC88AB6B6ABDF818B3F64435301EB744E4C4C7FC38659614840474787E0F57A
+                        0F212EED6CCA5440B84C793CE3ED6C9815463DC0B5B45C9983A6990DE9AF07B4
+                        8799A72295E4D9818582F5688B7F3039F1593887EF2265707E7EBE0BAFE68251
+                        01080EF240FDDD5E14452BCFC76D6C8806E035FA3C45B114812119DEE2793908
+                        4D1CFBB2CCCBA2983CC23E2216E382703FBD66B3D9E4C9C949F5DA052E70816C
+                        20E45FE4147A6AAC39B0580000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-impressora-48.png'
+                    end>
+                  Align = Left
+                  HitTest = False
+                  Size.Width = 48.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object Label11: TLabel
+                  Align = Client
+                  StyledSettings = [Family, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 116.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 14.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Visualizar Todos'
                   TabOrder = 0
                 end
               end
@@ -823,6 +794,156 @@ inherited frmMesas: TfrmMesas
                 Size.Height = 22.000000000000000000
                 Size.PlatformDefault = False
                 TabOrder = 1
+              end
+            end
+          end
+          object TabItem5: TTabItem
+            CustomIcon = <
+              item
+              end>
+            IsSelected = False
+            Size.Width = 46.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = ''
+            TabOrder = 0
+            Text = 'Total'
+            object Layout3: TLayout
+              Anchors = [akTop, akRight]
+              Position.X = 321.000000000000000000
+              Position.Y = 8.000000000000000000
+              Size.Width = 121.000000000000000000
+              Size.Height = 169.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object Label3: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Mesa'
+                TabOrder = 10
+              end
+              object lMesa: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 17.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 7
+              end
+              object Label5: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 34.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Delivery'
+                TabOrder = 8
+              end
+              object lDelivery: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 51.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 6
+              end
+              object Label8: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 68.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Vem Buscar'
+                TabOrder = 2
+              end
+              object lVemBuscar: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 85.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 5
+              end
+              object Label10: TLabel
+                Align = Bottom
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 135.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Total'
+                TabOrder = 0
+              end
+              object lTotal: TLabel
+                Align = Bottom
+                StyledSettings = [FontColor]
+                Position.Y = 152.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 3
+              end
+              object Label4: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 102.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Consumindo'
+                TabOrder = 1
+              end
+              object lMesaConsumindo: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 119.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 4
               end
             end
           end

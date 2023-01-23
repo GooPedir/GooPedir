@@ -193,6 +193,8 @@ Var
   FrameExtraItem: TframeExtraItensAdd;
 begin
   dm.GetSimples2('/v1/consulta/todos/ingredientes', memDadosFicha);
+  if not memDadosFicha.Active then
+  memDadosFicha.Open;
   memDadosFicha.insert;
   memDadosFicha.FieldByName('id').AsInteger := 0;
   memDadosFicha.FieldByName('descricao').AsString := 'SEM INGREDIENTE';

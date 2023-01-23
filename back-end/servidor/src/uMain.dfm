@@ -387,4 +387,35 @@ object frmServidor: TfrmServidor
       Size = 255
     end
   end
+  object memEstoque: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 424
+    Top = 192
+    object memEstoqueID: TIntegerField
+      FieldName = 'ID'
+    end
+    object memEstoqueTIPO: TIntegerField
+      FieldName = 'TIPO'
+    end
+    object memEstoqueNOME: TStringField
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object memEstoqueUN: TStringField
+      FieldName = 'UN'
+      Size = 255
+    end
+    object memEstoqueQTD: TFloatField
+      FieldName = 'QTD'
+    end
+    object memEstoqueENTRADA: TFloatField
+      FieldName = 'ENTRADA'
+    end
+  end
 end

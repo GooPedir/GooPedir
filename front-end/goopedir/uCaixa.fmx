@@ -719,6 +719,7 @@ object frmCaixa: TfrmCaixa
         Size.Width = 1267.000000000000000000
         Size.Height = 721.000000000000000000
         Size.PlatformDefault = False
+        TabIndex = 4
         TabOrder = 0
         TabPosition = PlatformDefault
         Sizes = (
@@ -1252,7 +1253,7 @@ object frmCaixa: TfrmCaixa
           TextSettings.Font.StyleExt = {00070000000000000004000000}
           TextSettings.FontColor = xFF6A00FF
           StyledSettings = [Family]
-          IsSelected = False
+          IsSelected = True
           Size.Width = 135.000000000000000000
           Size.Height = 32.000000000000000000
           Size.PlatformDefault = False

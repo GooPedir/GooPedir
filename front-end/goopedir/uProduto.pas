@@ -495,6 +495,7 @@ type
     procedure CarregaSabor;
     procedure GetFicha;
     procedure CalculaCustoFicha;
+    procedure EnviarTodasFotos;
 
   end;
 
@@ -1687,6 +1688,67 @@ begin
 
   end;
 {$ENDIF}
+end;
+
+procedure TfrmProduto.EnviarTodasFotos;
+begin
+
+ DM.GetSimples('v1/produto/all', ALL_PRODUTOS);
+
+ if ALL_PRODUTOS.RecordCount = 0 then
+ exit;
+
+ while not ALL_PRODUTOS.Eof do
+ begin
+   ALL_PRODUTOS.Next;
+ end;
+
+
+{
+if DIALOG.Execute then
+  begin
+    try
+      imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
+      DM.CONEXAO.TempoExpiracao := 150000;
+      DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
+        ('id').AsString;
+      Body := Base64FromBitmap(imgProduto.Bitmap);
+      DM.CONEXAO.Body(Body);
+      DM.CONEXAO.Metodo := mPost;
+      DM.CONEXAO.Execute;
+
+      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
+        ExtractFileExt(DIALOG.FileName) + ';base64;';
+
+      EnvioImagem.Body(NomeArquivo + Body);
+
+      try
+        EnvioImagem.Execute;
+        if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
+        then
+        begin
+          ShowMessageToast(self,
+            'Foto do produto atualizada com sucesso no servidor!', 3);
+        end
+        else
+        begin
+          ShowMessageToast(self,
+            'Erro ao enviar a foto ao servidor! Código invalido!', 1);
+        end;
+
+      except
+        ShowMessageToast(self,
+          'Erro ao enviar a foto ao servidor! Tempo excedido.', 1);
+      end;
+
+    except
+      on E: Exception do
+        ShowMessage(E.Message);
+    end;
+
+  end;
+
+}
 end;
 
 procedure TfrmProduto.Pagina(Tag: Integer);

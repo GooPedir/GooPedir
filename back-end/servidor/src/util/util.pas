@@ -381,7 +381,7 @@ begin
         end;
         ValorAux := ValorAux + ValorPizza;
 
-        CodigoAux := conexao.GerarID('pedido_produto_sap','id');
+        CodigoAux := conexao.GerarID('pedido_produto_sap', 'id');
 
         conexao.SQL.Add
           ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor,tipo_valor) value (:id,:codigo_pedido_produto,0,:nomeclatura,:descricao,:valor,:tipo_valor)');
@@ -1722,6 +1722,24 @@ begin
 
 end;
 
+procedure DoGetHistoricoCaixaUltimos7Dias(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+
+begin
+
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('select c.id, c.data_abertura,c.hora_abertura, c.data_fechamento, c.hora_fechamento, c.status, c.valor_abertura, c.valor_fechamento, u.nome  from caixa as c');
+  conexao.SQL.Add('join usuario as u on c.id_usuario = u.codigo');
+  conexao.SQL.Add('where c.status = 2');
+  conexao.SQL.Add('order by c.data_abertura desc limit 7');
+  Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  conexao.Free;
+
+end;
+
 procedure DoGetHistoricoCaixaTodos(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -2510,8 +2528,10 @@ begin
       conexao.Parametros('id', Codigo);
       conexao.Parametros('produto', Dados.FieldByName('ID_PRODUTO').AsInteger);
       conexao.Parametros('valor', Dados.FieldByName('VALOR').AsCurrency);
-      conexao.Parametros('inicial',StrToDateTime(COPY(Dados.FieldByName('HORA_INICIO').AsString, 0, 8)));
-      conexao.Parametros('final',StrToDateTime(COPY(Dados.FieldByName('HORA_FIM').AsString, 0, 8)));
+      conexao.Parametros('inicial',
+        StrToDateTime(COPY(Dados.FieldByName('HORA_INICIO').AsString, 0, 8)));
+      conexao.Parametros('final',
+        StrToDateTime(COPY(Dados.FieldByName('HORA_FIM').AsString, 0, 8)));
       conexao.Parametros('segunda', Dados.FieldByName('SEGUNDA').AsInteger);
       conexao.Parametros('terca', Dados.FieldByName('TERCA').AsInteger);
       conexao.Parametros('quarta', Dados.FieldByName('QUARTA').AsInteger);
@@ -4619,7 +4639,7 @@ begin
 
   while not Dados.Eof do
   begin
-    if Dados.FieldByName('id').AsInteger = 0 then
+    if (Dados.FieldByName('id').AsInteger = 0) then
     begin
       //
       Codigo := conexao.GerarID('pro_adi_personalizado_sabores', 'id');
@@ -5714,6 +5734,65 @@ begin
   conexao.Free;
 end;
 
+procedure DoGetEstoqueGeral(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+begin
+  conexao := TConexao.Create;
+  Dados := TFDMemTable.Create(nil);
+  frmServidor.memEstoque.Close;
+  frmServidor.memEstoque.Open;
+
+  conexao.SQL.Add
+    ('select *, (select sum(quantidade) from produto_estoque where codigo_produto = produto.codigo) as estoque from produto');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  while not Dados.Eof do
+  begin
+    frmServidor.memEstoque.Insert;
+    frmServidor.memEstoque.FieldByName('ID').AsInteger :=
+      Dados.FieldByName('codigo').AsInteger;
+    frmServidor.memEstoque.FieldByName('TIPO').AsInteger := 1;
+    frmServidor.memEstoque.FieldByName('NOME').AsString :=
+      UpperCase(RemoveAcento(Dados.FieldByName('nome_produto').AsString));
+    frmServidor.memEstoque.FieldByName('UN').AsString := 'UN';
+    if not Dados.FieldByName('estoque').IsNull then
+    frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
+      Dados.FieldByName('estoque').AsFloat;
+    frmServidor.memEstoque.Post;
+
+    Dados.Next;
+  end;
+
+  Dados.Free;
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add
+    ('SELECT *, (SELECT sum(quantidade) FROM ingredientes_estoque where id_ingredientes = ingredientes.id) as estoque FROM ingredientes');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  while not Dados.Eof do
+  begin
+    frmServidor.memEstoque.Insert;
+    frmServidor.memEstoque.FieldByName('ID').AsInteger :=
+      Dados.FieldByName('id').AsInteger;
+    frmServidor.memEstoque.FieldByName('TIPO').AsInteger := 2;
+    frmServidor.memEstoque.FieldByName('NOME').AsString :=
+      UpperCase(RemoveAcento(Dados.FieldByName('descricao').AsString));
+    frmServidor.memEstoque.FieldByName('UN').AsString := 'UN';
+    if not Dados.FieldByName('estoque').IsNull then
+    frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
+      Dados.FieldByName('estoque').AsFloat;
+    frmServidor.memEstoque.Post;
+
+    Dados.Next;
+  end;
+  Dados.Free;
+  Res.Send<TJSONArray>(frmServidor.memEstoque.ToJSONArray);
+  conexao.Free;
+end;
+
 procedure DoGetGerador(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
@@ -5750,11 +5829,10 @@ begin
   end
   else
   begin
-//    conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '+ tabela);
-
+    // conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '+ tabela);
 
     try
-      Valor := conexao.GerarID(tabela,Campo);
+      Valor := conexao.GerarID(tabela, Campo);
     except
       Valor := 99;
     end;
@@ -5866,9 +5944,10 @@ begin
       conexao.Parametros('transacao_mp', MP);
       conexao.ExecuteSQL;
     end;
-  end else
+  end
+  else
   begin
-   MP := Dados.FieldByName('transacao_mp').AsString;
+    MP := Dados.FieldByName('transacao_mp').AsString;
   end;
 
   RequisicaoPIX.BaseURL := 'https://goopedir.com/produto/pixstatus.php?token=' +
@@ -5944,6 +6023,8 @@ begin
   THorse.Get('/v1/caixa/pedidos/historico/:caixa', DoGetHistoricoCaixa);
   THorse.Get('/v1/caixa/pedidos/pagamento/:caixa', DoGetPagamentoCaixa);
   THorse.Get('/v1/caixa/historico/', DoGetHistoricoCaixaTodos);
+  THorse.Get('/v1/caixa/historico/ultimos/7/dias',
+    DoGetHistoricoCaixaUltimos7Dias);
   THorse.Get('/v1/caixa/receber/:codigo', DoGetAReceber);
 
   THorse.Post('/v1/caixa/fechamento/:caixa', DoPostFechamentoCaixa);
@@ -6130,6 +6211,10 @@ begin
   THorse.Get('/v1/consulta/todos/ingredientes', DoGetDadosIngredientes);
 
   THorse.Post('/v1/gera/pix/:token/:valor/:pedido', DoPostGeraPix);
+
+  THorse.Get('v1/util/gerador/:tabela/:campo', DoGetGerador);
+
+  THorse.Get('v1/util/estoque/geral', DoGetEstoqueGeral);
 
 end;
 

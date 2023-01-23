@@ -85,7 +85,7 @@ object frmPIXMP: TfrmPIXMP
   object tVerificaStatus: TTimer
     Interval = 10000
     OnTimer = tVerificaStatusTimer
-    Left = 74
-    Top = 253
+    Left = 130
+    Top = 221
   end
 end

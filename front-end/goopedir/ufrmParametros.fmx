@@ -61,7 +61,7 @@ inherited frmParametros: TfrmParametros
       end
     end
     inherited tabMain: TTabControl
-      TabIndex = 0
+      TabIndex = 2
       Sizes = (
         820s
         496s
@@ -77,7 +77,7 @@ inherited frmParametros: TfrmParametros
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 66.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -123,7 +123,7 @@ inherited frmParametros: TfrmParametros
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 122.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False

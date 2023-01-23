@@ -99,6 +99,7 @@ begin
 
   if FORM.Locate('CLASSNAME', Nome, []) then
   begin
+    if Nome <> 'TfrmCaixa' then
     tabMain.TabIndex := FORM.FieldByName('TABINDEX').AsInteger;
     Index := FORM.FieldByName('INDEX').AsInteger;
 
@@ -107,6 +108,7 @@ begin
 
       if NewTab.Visible then
       begin
+      if Nome <> 'TfrmCaixa' then
         tabMain.TabIndex := 0;
         NewTab.Visible := False;
         exit;
@@ -114,9 +116,13 @@ begin
       end
       else
       begin
+
         NewTab.Visible := True;
         if not Visible then
+        begin
+        if Nome <> 'TfrmCaixa' then
           tabMain.TabIndex := NewTab.Index;
+        end;
       end;
     except
 
@@ -160,6 +166,7 @@ begin
     FORM.FieldByName('INDEX').AsInteger := Index;
     FORM.FieldByName('TABINDEX').AsInteger := tabMain.TabCount - 1;
     FORM.Post;
+    if Nome <> 'TfrmCaixa' then
     tabMain.TabIndex := tabMain.TabCount - 1;
 
   end;
@@ -172,6 +179,7 @@ begin
   // AbrirForm('TfrmPedido');
   AbrirForm('TfrmMesas');
   AbrirForm('TfrmProduto');
+  AbrirForm('TfrmEstoque');
   AbrirFormVisivel('TfrmCaixa', False);
   tabMain.TabIndex := 0;
 
@@ -194,10 +202,17 @@ begin
   end;
 
   AbrirForm('TfrmDashBoard');
+
 end;
 
 function TfrmMain.FormsName(Nome: String): String;
 begin
+
+  if Nome = 'TfrmEstoque' then
+  begin
+    Result := 'Estoque';
+    exit;
+  end;
 
   if Nome = 'TfrmCupom' then
   begin

@@ -557,3 +557,12 @@ Coordinates=291,105,59,58
 [Layout5]
 Coordinates=291,175,60,36
 
+[frmServidor.Configuracoes]
+Coordinates=238,243,168,58
+
+[frmServidor.memImpressora]
+Coordinates=158,521,177,102
+
+[test]
+Coordinates=310,385,40,36
+

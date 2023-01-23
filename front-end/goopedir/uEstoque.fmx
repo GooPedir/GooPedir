@@ -1,0 +1,204 @@
+inherited frmEstoque: TfrmEstoque
+  Caption = 'frmPadrao2'
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    inherited rTopo: TRectangle
+      inherited imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF2F5EBC
+              F80D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE281812808101002312FA7C4C6A45450000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+      end
+      inherited imgFiltro: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0228494441546843ED96CB4EC2401486690D10127D009FC1952B790AA30BBCC4
+              07F2B2F511344477C6B7D0F8005E125D7959B15058940AF89FE94F031438B494
+              823A5F3299E99C7FFE9E43A76572168BC562B1582CFF1887FD4CE8743A79745B
+              ED767B136DC3F3BC55992F168BEFAEEBDEA05DE3F2CA711C5FE6170A24BCEDFB
+              FE138A188B6844CB65D3435F15CA2320E4B65AADE34035395CE3D22639819D0E
+              E51190C80925B191B5B4490EBD5428EF43B602C321B55ACD4362A7889571B92C
+              4DC632273123EA61EAED441F15CA4330951FDCF3CD66F31509AD53124162A2A1
+              DC400F79F9B30537AD980C88FCBAE392EF229A214FA2C27076604B9CF3E606D9
+              220CA98896CB0CE2C55076E0D1DFF3FE06FCB265865444CB6506F162283B1A8D
+              C627EF6F40522B0CA98896CB0CE2C590CAF4DFDD19802DB4C4A14A6A05140A85
+              370EBBACB19F843E6DA954FAE0502552009FA20AE52138D7DC716880E4804395
+              412DBC6E398C8FC96E02280FC1D4627C4669A0427908A6D2FA237B4657A0243E
+              818D0EE57D20A1A98F12E08876F30189253ECC0928EA1B05EED32E7B9043A2E3
+              742F2C628F96F341B6D3E03B310C685E50F02192F6396590EBB917813CF26815
+              247886441FEBF5FA97EC7B8C1F3077213134F3C2CA784411BBC6EC37809CFF74
+              113B948C876B5283B6B1C0B2A145A0D3FFE002797AD03636581A2902EF4D95E1
+              D1509B1AB44D0496874520F94B74FA2955C46942DBC4C042BE6255F4131FB12D
+              168BC562B164432EF70320B98D8C37E92CCC0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
+              'nage_search_white_24dp.png'
+          end>
+      end
+    end
+    inherited tabMain: TTabControl
+      TabIndex = 0
+      Sizes = (
+        820s
+        496s
+        820s
+        496s)
+      object tabPrincipal: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 83.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'tabPrincipal'
+        object Layout1: TLayout
+          Align = Top
+          Size.Width = 820.000000000000000000
+          Size.Height = 89.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+        end
+        object Grid1: TGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 820.000000000000000000
+          Size.Height = 407.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          RowHeight = 30.000000000000000000
+          RowCount = 0
+          Viewport.Width = 816.000000000000000000
+          Viewport.Height = 382.000000000000000000
+        end
+      end
+      object TabEntradaEstoque: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 121.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabEntradaEstoque'
+      end
+    end
+  end
+  inherited memFiltros: iMemTable
+    Left = 760
+    Top = 90
+  end
+  object DADOS: TFDMemTable
+    Active = True
+    FieldDefs = <
+      item
+        Name = 'ID'
+        DataType = ftInteger
+      end
+      item
+        Name = 'TIPO'
+        DataType = ftInteger
+      end
+      item
+        Name = 'NOME'
+        DataType = ftString
+        Size = 255
+      end
+      item
+        Name = 'UN'
+        DataType = ftString
+        Size = 255
+      end
+      item
+        Name = 'QTD'
+        DataType = ftFloat
+      end
+      item
+        Name = 'ENTRADA'
+        DataType = ftFloat
+      end>
+    IndexDefs = <>
+    IndexFieldNames = 'QTD'
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    StoreDefs = True
+    Left = 704
+    Top = 386
+    object DADOSID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object DADOSTIPO: TIntegerField
+      DisplayLabel = 'Tipo'
+      FieldName = 'TIPO'
+    end
+    object DADOSNOME: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object DADOSUN: TStringField
+      DisplayLabel = 'Unidade'
+      FieldName = 'UN'
+      Size = 255
+    end
+    object DADOSQTD: TFloatField
+      DisplayLabel = 'Estoque'
+      FieldName = 'QTD'
+    end
+    object DADOSENTRADA: TFloatField
+      FieldName = 'ENTRADA'
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 704
+    Top = 312
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      GridControl = Grid1
+      Columns = <>
+    end
+  end
+end

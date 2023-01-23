@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, uMemTable, uRequisicao, uComboboxLocal,
-  FMX.DateTimeCtrls;
+  FMX.DateTimeCtrls, FMX.Ani;
 
 type
 
@@ -43,17 +43,6 @@ type
     TabItem2: TTabItem;
     TabItem3: TTabItem;
     Layout2: TLayout;
-    Layout3: TLayout;
-    Label3: TLabel;
-    lMesa: TLabel;
-    Label5: TLabel;
-    lDelivery: TLabel;
-    Label8: TLabel;
-    lVemBuscar: TLabel;
-    Label10: TLabel;
-    lTotal: TLabel;
-    Label4: TLabel;
-    lMesaConsumindo: TLabel;
     lImpressao: TLayout;
     Image2: TImage;
     lImprimir: TLabel;
@@ -82,6 +71,22 @@ type
     DadosMotoboyPEDIDO: TStringField;
     DadosMotoboyTAXA: TFloatField;
     DadosMotoboyTOTAL: TFloatField;
+    Layout8: TLayout;
+    Image6: TImage;
+    Label11: TLabel;
+    TabItem5: TTabItem;
+    Layout3: TLayout;
+    Label3: TLabel;
+    lMesa: TLabel;
+    Label5: TLabel;
+    lDelivery: TLabel;
+    Label8: TLabel;
+    lVemBuscar: TLabel;
+    Label10: TLabel;
+    lTotal: TLabel;
+    Label4: TLabel;
+    lMesaConsumindo: TLabel;
+    imgMenuLateral: TImage;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -92,9 +97,10 @@ type
     procedure lImpressaoMouseEnter(Sender: TObject);
     procedure lImpressaoMouseLeave(Sender: TObject);
     procedure lImpressaoClick(Sender: TObject);
-    procedure Layout5Click(Sender: TObject);
     procedure Layout4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Layout8Click(Sender: TObject);
+    procedure imgMenuLateralClick(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
@@ -443,6 +449,18 @@ begin
 
 end;
 
+procedure TfrmMesas.imgMenuLateralClick(Sender: TObject);
+begin
+  inherited;
+  if imgMenuLateral.RotationAngle = 90 then
+  begin
+    imgMenuLateral.RotationAngle := 0;
+  end else begin
+    imgMenuLateral.RotationAngle := 90;
+  end;
+  Layout1.Visible := imgMenuLateral.RotationAngle = 0;
+end;
+
 procedure TfrmMesas.Layout4Click(Sender: TObject);
 var
   I: Integer;
@@ -506,20 +524,10 @@ begin
   cMotoboy.ShowMenu;
 end;
 
-procedure TfrmMesas.Layout5Click(Sender: TObject);
+procedure TfrmMesas.Layout8Click(Sender: TObject);
 begin
   inherited;
-  if DM.CodigoCaixa = 0 then
-  begin
-    ShowMessageToast(Self, 'Caixa deve ser aberto!', 1);
-    exit;
-  end;
-
-  frmSimNao.titulo := 'Gerencial';
-  frmSimNao.Descricao := 'Deseja gerar o relatorio gerencial?';
-  frmSimNao.Sim := SimGerencial;
-  frmSimNao.Show;
-
+  frmMain.AbrirForm('TfrmPedido');
 end;
 
 procedure TfrmMesas.lImpressaoClick(Sender: TObject);
@@ -529,7 +537,7 @@ begin
     Application.CreateForm(TFrmResumo, FrmResumo);
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := -1;
-   FrmResumo.Show;
+  FrmResumo.Show;
 end;
 
 procedure TfrmMesas.lImpressaoMouseEnter(Sender: TObject);

@@ -13,7 +13,8 @@ uses
   FireDAC.Comp.Client, uMemTable, FMX.ListBox, FMX.Edit, uEdit, System.Rtti,
   FMX.Grid.Style, FMX.ScrollBox, FMX.Grid, Data.Bind.EngExt, FMX.Bind.DBEngExt,
   FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
-  Data.Bind.Components, Data.Bind.Grid, Data.Bind.DBScope;
+  Data.Bind.Components, Data.Bind.Grid, Data.Bind.DBScope, FMX.ListView.Types,
+  FMX.ListView.Appearances, FMX.ListView.Adapters.Base, FMX.ListView;
 
 type
   TfrmIngredientesProduto = class(TfrmCadastroBase)
@@ -52,6 +53,8 @@ type
     lCusto: TLabel;
     Button1: TButton;
     memDadosestoque: TFloatField;
+    ListView1: TListView;
+    LinkListControlToField1: TLinkListControlToField;
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rAlterarClick(Sender: TObject);

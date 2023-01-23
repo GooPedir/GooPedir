@@ -1,65 +1,65 @@
 ﻿[Label2]
-Coordinates=450,506,53,58
+Coordinates=450,506,46,51
 
 [tabConsulta]
-Coordinates=84,758,83,36
+Coordinates=84,758,73,33
 
 [ShadowEffect2]
-Coordinates=263,56,101,36
+Coordinates=263,56,88,33
 
 [Label1]
-Coordinates=1306,10,53,58
+Coordinates=1306,10,46,51
 
 [layClient]
-Coordinates=10,758,64,36
+Coordinates=10,758,57,33
 
 [Image3]
-Coordinates=229,234,57,58
+Coordinates=229,234,49,51
 
 [lNomeForm]
-Coordinates=448,370,81,58
+Coordinates=448,370,71,51
 
 [ShadowEffect3]
-Coordinates=263,111,101,36
+Coordinates=263,111,88,33
 
 [Layout21]
-Coordinates=1329,712,67,36
+Coordinates=1329,712,59,33
 
 [tabPrincipal]
-Coordinates=1237,712,82,36
+Coordinates=1237,712,73,33
 
 [ShadowEffect1]
-Coordinates=402,56,101,36
+Coordinates=402,56,88,33
 
 [GridPanelLayout1]
-Coordinates=1109,712,118,36
+Coordinates=1109,712,102,33
 
 [lTipoAtivo]
-Coordinates=369,506,71,58
+Coordinates=369,506,64,51
 
 [TabDados]
-Coordinates=1026,712,73,36
+Coordinates=1026,712,64,33
 
 [rSalvar]
-Coordinates=961,712,55,36
+Coordinates=961,712,49,33
 
 [rAlterar]
-Coordinates=894,712,57,36
+Coordinates=894,712,51,33
 
 [Rectangle1]
-Coordinates=804,712,80,36
+Coordinates=804,712,69,33
 
 [Label7]
-Coordinates=521,438,53,58
+Coordinates=521,438,46,51
 
 [rAdicionar]
-Coordinates=721,712,73,36
+Coordinates=721,712,65,33
 
 [Image1]
-Coordinates=302,506,57,58
+Coordinates=302,506,49,51
 
 [rAtivarDesativar]
-Coordinates=604,712,107,36
+Coordinates=604,712,93,33
 
 [(TLabel)]
 Coordinates=949,438,63,58
@@ -68,46 +68,113 @@ Coordinates=949,438,63,58
 Coordinates=1297,574,89,36
 
 [StringGrid4]
-Coordinates=270,40,80,58
+Coordinates=270,40,70,123
 Visible=True
 
 [memDados]
-Coordinates=121,10,80,36
+Coordinates=121,10,69,33
 Visible=False
 
 [cUnidade]
-Coordinates=10,10,101,146
+Coordinates=10,10,84,123
 
 [memDadosdescricao]
-Coordinates=1190,1,135,36
+Coordinates=1190,1,117,33
 
 [Layout3]
-Coordinates=208,620,60,36
+Coordinates=208,620,53,33
 
 [edtDescricao]
-Coordinates=1168,302,90,58
+Coordinates=1168,302,79,51
 
 [memDadosunidade]
-Coordinates=1190,661,125,36
+Coordinates=1190,661,109,33
 
 [memDadosid]
-Coordinates=1190,881,90,36
+Coordinates=1190,881,79,33
 
 [Label5]
-Coordinates=959,302,53,58
+Coordinates=959,302,46,51
 
 [Label3]
-Coordinates=740,166,53,58
+Coordinates=740,166,46,51
 
 [Layout1]
-Coordinates=612,506,60,36
+Coordinates=612,506,53,33
 
 []
 Coordinates=1190,496,91,36
 
 [BindSourceDB1]
-Coordinates=121,10,106,146
+Coordinates=430,-10,92,177
 
 [BindingsList1]
-Coordinates=130,175,91,36
+Coordinates=130,175,82,33
+
+[Button1]
+Coordinates=233,455,53,51
+
+[edtConversao]
+Coordinates=78,271,83,51
+
+[lDadosConversao]
+Coordinates=402,447,101,51
+
+[Label10]
+Coordinates=177,271,52,51
+
+[cEstoqueSaida]
+Coordinates=246,271,88,123
+
+[edtQuantidade]
+Coordinates=310,190,86,51
+
+[Label12]
+Coordinates=164,455,52,51
+
+[TabItem1]
+Coordinates=265,1,59,33
+
+[edtIngredienteEstoque]
+Coordinates=402,188,125,51
+
+[Label11]
+Coordinates=95,455,52,51
+
+[cUnidadeEstoque]
+Coordinates=0,0,101,123
+
+[edtCusto]
+Coordinates=52,175,58,51
+
+[memDadosestoque]
+Coordinates=402,1,109,33
+
+[rConversao]
+Coordinates=313,455,71,33
+
+[Label6]
+Coordinates=265,205,46,51
+
+[lCusto]
+Coordinates=402,265,46,51
+
+[Rectangle2]
+Coordinates=0,419,69,33
+
+[Label9]
+Coordinates=135,78,46,51
+
+[Label4]
+Coordinates=135,1,46,51
+
+[AtualizaTela]
+Coordinates=584,1,74,33
+
+[Label8]
+Coordinates=19,271,46,51
+
+[ListView1]
+Coordinates=660,30,89,141
+Visible=True
 

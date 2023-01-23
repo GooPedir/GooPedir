@@ -647,6 +647,10 @@ var
 begin
   DADOSHISTORICO.Close;
   dm.GetSimples('/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString,DADOSHISTORICO);
+  dm.GetSimples('/v1/caixa/historico/ultimos/7/dias',HISTORICOCAIXAS);
+
+
+
 
   Quant := HISTORICOCAIXAS.RecordCount - 7;
   if not(HISTORICOCAIXAS.RecordCount > 1) then

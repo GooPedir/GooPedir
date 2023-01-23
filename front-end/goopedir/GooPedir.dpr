@@ -72,7 +72,8 @@ uses
   uframeDadosVBDelivery in 'uframeDadosVBDelivery.pas' {frameDadosVBDelivery: TFrame},
   ufrmDadosPedidoMotoboy in 'ufrmDadosPedidoMotoboy.pas' {frmDadosPedidoMotoboy: TFrame},
   uIngredientesProduto in 'cadastro\uIngredientesProduto.pas' {frmIngredientesProduto},
-  ufrmPIXMP in 'ufrmPIXMP.pas' {frmPIXMP};
+  ufrmPIXMP in 'ufrmPIXMP.pas' {frmPIXMP},
+  uEstoque in 'uEstoque.pas' {frmEstoque};
 
 {$R *.res}
 
@@ -86,7 +87,7 @@ var
 begin
   Application.Initialize;
   Application.CreateForm(TDM, DM);
-//  Application.CreateForm(TfrmPIXMP, frmPIXMP);
+  //  Application.CreateForm(TfrmPIXMP, frmPIXMP);
   TipoVersao :=1;
 {$IFDEF Android}
   TipoVersao := 2;

@@ -98,6 +98,8 @@ end;
 procedure TfrmTaxaEntrega.rAdicionarClick(Sender: TObject);
 begin
   inherited;
+  if not DADOS.Active then
+    DADOS.Open;
   DADOS.Insert;
   tabPrincipal.TabIndex := 1;
   DADOS.FieldByName('cidade').AsString := frmMain.GetParametros('cidade');
@@ -114,6 +116,8 @@ end;
 procedure TfrmTaxaEntrega.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+  exit;
   DADOS.Edit;
   tabPrincipal.TabIndex := 1;
 end;

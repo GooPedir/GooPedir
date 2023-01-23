@@ -251,10 +251,14 @@ begin
           dm.Conexao.TempoExpiracao := 500;
           dm.Conexao.BaseURL := 'http://' + IPS.FieldByName('IP').AsString
             + ':2121/';
+            try
           if TestaConexao then
           begin
             edtHost.Text := IPS.FieldByName('IP').AsString;
           end;
+            except
+
+            end;
 
           IPS.Next;
         end;

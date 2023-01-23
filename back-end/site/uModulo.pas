@@ -54,15 +54,16 @@ end;
 function TdmModulo.GerarCodigo(txTabela, txCampo: String): Integer;
 var
   Valor: Integer;
+  QRYAux001 : TFDQuery;
 begin
-  getCodigo.URL := '/' + txTabela + '/' + txCampo;
-  getCodigo.Execute;
-  try
-    Result := getCodigo.Retorno.ToInteger;
-  except
-    Result := GerarCodigo(txTabela, txCampo);
-  end;
-  { QRYAux001 := CriaQRY('');
+//  getCodigo.URL := '/' + txTabela + '/' + txCampo;
+//  getCodigo.Execute;
+//  try
+//    Result := getCodigo.Retorno.ToInteger;
+//  except
+//    Result := GerarCodigo(txTabela, txCampo);
+//  end;
+   QRYAux001 := CriaQRY('');
 
 
     QRYAux001.SQL.Add
@@ -103,7 +104,7 @@ begin
 
     Result := Valor;
 
-    QRYAux001.Free; }
+    QRYAux001.Free;
 end;
 
 end.
