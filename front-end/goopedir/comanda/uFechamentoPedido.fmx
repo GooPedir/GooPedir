@@ -4,7 +4,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
   BorderStyle = None
   Caption = 'Form1'
   ClientHeight = 650
-  ClientWidth = 1140
+  ClientWidth = 1050
   WindowState = wsMaximized
   FormFactor.Width = 320
   FormFactor.Height = 480
@@ -14,14 +14,14 @@ object frmFechamentoPedido: TfrmFechamentoPedido
   DesignerMasterStyle = 0
   object Layout1: TLayout
     Align = Client
-    Size.Width = 1140.000000000000000000
+    Size.Width = 1050.000000000000000000
     Size.Height = 650.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object rect_login: TRectangle
       Align = Top
       Fill.Color = xFFA4001B
-      Size.Width = 1140.000000000000000000
+      Size.Width = 1050.000000000000000000
       Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
       Stroke.Kind = None
@@ -31,7 +31,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         Align = Client
         StyledSettings = [Family]
         Locked = True
-        Size.Width = 1090.000000000000000000
+        Size.Width = 1000.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         TextSettings.Font.Size = 16.000000000000000000
@@ -265,6 +265,27 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         iForthTipoBotao = tSalvar
         iForthCorFonte = cPreta
         iForthDescricao = 'Adicionar'
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 273.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 273.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Adicionar'
+            TabOrder = 0
+          end
+        end
         object TRectangle
           Align = Client
           Fill.Color = xFF31CCAF
@@ -1064,6 +1085,27 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             TabOrder = 0
           end
         end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 289.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 289.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Finalizar'
+            TabOrder = 0
+          end
+        end
       end
       object edtDividir: TEdit
         Touch.InteractiveGestures = [LongTap, DoubleTap]
@@ -1093,7 +1135,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
     end
     object Layout2: TLayout
       Align = Client
-      Size.Width = 851.000000000000000000
+      Size.Width = 761.000000000000000000
       Size.Height = 600.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 2
@@ -1101,7 +1143,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         Align = Bottom
         Fill.Color = claWhite
         Position.Y = 355.000000000000000000
-        Size.Width = 851.000000000000000000
+        Size.Width = 761.000000000000000000
         Size.Height = 245.000000000000000000
         Size.PlatformDefault = False
         Stroke.Color = claWhite
@@ -1109,19 +1151,19 @@ object frmFechamentoPedido: TfrmFechamentoPedido
           Align = Client
           CanFocus = True
           ClipChildren = True
-          Size.Width = 851.000000000000000000
+          Size.Width = 761.000000000000000000
           Size.Height = 195.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 2
           RowHeight = 30.000000000000000000
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-          Viewport.Width = 831.000000000000000000
+          Viewport.Width = 757.000000000000000000
           Viewport.Height = 170.000000000000000000
         end
         object iButton1: iButton
           Align = Bottom
           Position.Y = 195.000000000000000000
-          Size.Width = 851.000000000000000000
+          Size.Width = 761.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 3
@@ -1134,7 +1176,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1143,7 +1185,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1155,7 +1197,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1164,7 +1206,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1176,7 +1218,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1185,7 +1227,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1197,7 +1239,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1206,7 +1248,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1218,7 +1260,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1227,7 +1269,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1239,7 +1281,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1248,7 +1290,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1260,7 +1302,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1269,7 +1311,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1281,7 +1323,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1290,7 +1332,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1302,7 +1344,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1311,7 +1353,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1323,7 +1365,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1332,7 +1374,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1344,7 +1386,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1353,7 +1395,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1365,7 +1407,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1374,7 +1416,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1386,7 +1428,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1395,7 +1437,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1407,7 +1449,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1416,7 +1458,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1428,7 +1470,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1437,7 +1479,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1449,7 +1491,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1458,7 +1500,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1470,7 +1512,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1479,7 +1521,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1491,7 +1533,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1500,7 +1542,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1512,7 +1554,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1521,7 +1563,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1533,7 +1575,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1542,7 +1584,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1554,7 +1596,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             Align = Client
             Fill.Color = xFFFFC726
             HitTest = False
-            Size.Width = 851.000000000000000000
+            Size.Width = 761.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             Stroke.Color = xFFFFC726
@@ -1563,7 +1605,28 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             object TLabel
               Align = Client
               StyledSettings = [Family, Size]
-              Size.Width = 851.000000000000000000
+              Size.Width = 761.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Excluir Pagamento'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFFFC726
+            HitTest = False
+            Size.Width = 761.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFFFC726
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 761.000000000000000000
               Size.Height = 50.000000000000000000
               Size.PlatformDefault = False
               TextSettings.HorzAlign = Center
@@ -1577,7 +1640,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         Align = Client
         CanFocus = True
         ClipChildren = True
-        Size.Width = 851.000000000000000000
+        Size.Width = 761.000000000000000000
         Size.Height = 355.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 2
@@ -1585,7 +1648,7 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         Options = [AlwaysShowEditor, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
         OnDrawColumnCell = ListaDrawColumnCell
         OnCellDblClick = ListaCellDblClick
-        Viewport.Width = 847.000000000000000000
+        Viewport.Width = 757.000000000000000000
         Viewport.Height = 330.000000000000000000
       end
     end
