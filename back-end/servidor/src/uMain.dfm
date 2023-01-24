@@ -417,5 +417,8 @@ object frmServidor: TfrmServidor
     object memEstoqueENTRADA: TFloatField
       FieldName = 'ENTRADA'
     end
+    object memEstoqueSEQUENCIAL: TIntegerField
+      FieldName = 'SEQUENCIAL'
+    end
   end
 end

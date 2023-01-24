@@ -118,7 +118,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, Loading, uSuperChartLight;
+uses uDM, Loading, uSuperChartLight, Funcoes, util;
 
 procedure TfrmRelatorioVendas.BuscaDados;
 
@@ -129,18 +129,14 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-
-      FILTRO.Close;
-      FILTRO.Open;
-      FILTRO.insert;
-      FILTRO.FieldByName('data_inicial').AsDateTime := edtDataInicial.Date;
-      FILTRO.FieldByName('data_final').AsDateTime := edtDataFinal.Date;
-      FILTRO.Post;
-      dm.GetSimplesBody('/v1/util/relatorio/financeiro/4', FILTRO, PEDIDOS);
-      dm.GetSimplesBody('/v1/util/relatorio/financeiro/2', FILTRO, PRODUTOS);
-      dm.GetSimplesBody('/v1/util/relatorio/financeiro/3', FILTRO, EXTRAS);
+      dm.GetSimples('/v1/util/relatorio/financeiro/4/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
+      dm.GetSimples('/v1/util/relatorio/financeiro/2/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
+      dm.GetSimples('/v1/util/relatorio/financeiro/3/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
+      MontarGraficoPedido;
+      ShowMessageToast(Self, 'Dados gerado com sucesso!', 2);
       TThread.Synchronize(TThread.CurrentThread,
         procedure
+
         begin
         end);
     end).Start;

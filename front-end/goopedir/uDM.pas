@@ -561,25 +561,25 @@ procedure TDM.DeleteSimples(URL: String; Dados: IMemTable);
 var
   Conexao: iRequisicao;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mDelete;
-  Conexao.Token(Token);
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mDelete;
+    Conexao.Token(Token);
 
-  Conexao.Execute;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -641,24 +641,24 @@ function TDM.GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  Conexao.Body(Body);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    Conexao.Body(Body.ToJSONArray());
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -690,7 +690,7 @@ begin
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -704,26 +704,26 @@ function TDM.GetSimples(URL: String; Dados: IMemTable;
 var
   Conexao: iRequisicao;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.Paginacao := Paginacao;
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Paginacao := Paginacao;
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -736,25 +736,25 @@ function TDM.GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.MemTable2 := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable2 := Dados;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -875,26 +875,26 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := Dados.ToJSONArray().ToString;
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := Dados.ToJSONArray().ToString;
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -908,24 +908,24 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -940,24 +940,24 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONObject().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
-  Conexao.Execute;
+    URL := Parametros(URL);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONObject().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -972,26 +972,26 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -1006,26 +1006,26 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-try
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPut;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPut;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 

@@ -280,8 +280,8 @@ object frmProduto: TfrmProduto
             OnDrawColumnCell = StringGrid4DrawColumnCell
             OnCellClick = StringGrid4CellClick
             OnCellDblClick = StringGrid4CellDblClick
-            Viewport.Width = 522.000000000000000000
-            Viewport.Height = 507.000000000000000000
+            Viewport.Width = 526.000000000000000000
+            Viewport.Height = 532.000000000000000000
           end
           object Rectangle1: TRectangle
             Align = Client
@@ -638,8 +638,8 @@ object frmProduto: TfrmProduto
               RowHeight = 50.000000000000000000
               Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
               OnDrawColumnCell = sDadosExtraDrawColumnCell
-              Viewport.Width = 502.000000000000000000
-              Viewport.Height = 226.000000000000000000
+              Viewport.Width = 506.000000000000000000
+              Viewport.Height = 251.000000000000000000
             end
           end
         end
@@ -4420,6 +4420,41 @@ object frmProduto: TfrmProduto
                 TabOrder = 1
               end
             end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
           end
           object Label4: TLabel
             Align = Top
@@ -4451,6 +4486,41 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             CharCase = ecUpperCase
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -8667,6 +8737,41 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -9343,7 +9448,7 @@ object frmProduto: TfrmProduto
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                         016A49444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
-                        844FE36BB8104114C585D445A07B15FCC77699F7C89FE7B667F23399C6896623
+                        844FE36BB8104114C58554C8A27B15FCC77699F7C89FE7B667F23399C6896623
                         F483E1CEDC7B72CEB4246A492BB22CDB4BD3748B4727A01F26497216C7F103EA
                         1DCE871CD581600CE1874B08346B628C4B55088200A3744859019ABBD4642E21
                         905DCED575103CA2AC0086079CCF680A911B526605CF3E51AA7AACC2240CC398
@@ -9353,7 +9458,7 @@ object frmProduto: TfrmProduto
                         7D44BDC2CCFEB72C42872C32C7B9D507694542B0066573A1B300A16C2EC6B23A
                         0B31CCDFC55056272186F95BD9E8CF21A639CA264739BF0E7131D7B40E8160A3
                         64FEDA64AE314350FA1CD5C1D0C7BB7F01E18B8BB94687C8B3E2C1B61D1160AD
-                        F3E80C9EE9FF68FE0F51EA1BF2BDD0909A8B5F300000000049454E44AE426082}
+                        F3E80C9EE9FF68FE0F51EA1BDCF7D08D0483F67F0000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -9395,6 +9500,41 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             OnExit = edtVendaExit
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -11823,6 +11963,41 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             OnExit = edtVendaExit
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -16069,6 +16244,41 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -16775,6 +16985,41 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             Visible = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -21095,6 +21340,41 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -21852,25 +22132,25 @@ object frmProduto: TfrmProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    023249444154484BD5953D6B14511885772784B148C02016B6429AA44A95C232
-                    5682628A40B049217609043B5307C1904A2CB5F30788360AFB074C17B0108410
-                    521836AC2C2C2CFBBD93E7DC9CD94DC8CC0421223970B9F79EF79CF77ECE9DD2
-                    8D47D97526922499A47A3A1C0E9F50163B9DCE3DF1711C1F4751F49DF299EEA7
-                    72B9DC13FF5720E172AFD7FBC5208590465ADBAE069E683018BC39B32749BFDF
-                    FF41824DCA1CDD2915B5C5291644C09EC869F2817047866AB5DA21C93ACD0987
-                    4ACCF6A0DBED1EBAABC94C4823AD3CF23A940DC4CB123AF99269259AC1BC5DAF
-                    D75B2AB45F13BFEBB07C4BE920CA61FA22884DA67B8E68DDB4CC315BB127BEDD
-                    6E9F70D0C76A6B35C4EE58269D561BCE844A97E322205724F0BE8EB605E3AA78
-                    66FD962ADC3AB8570CF49BFEC32002F29C3B9315D36390E0A32298374D05D07F
-                    69FE9929258B28976629AFB4CA656A0C96F6534144F3A602D4AFD56AED56ABF5
-                    87F60692DB0E5D82B4CAA15CA6C668369B0D0F306D6A04B8C7DA7FC53518337C
-                    4FF3BEC323C82B8D72991AA368008190EEFF8BF4C0BDA20587030A07C8DBA22C
-                    A0795EA95486ACE48BA900799523738B0A0E798DD857EAD85400B7A8AA2BE96E
-                    80BCCA9179C8F099D714F1AE78EA0F54B7C491E89157F02D88803C85D71432F3
-                    43A33B83715FBCBE629E8A23B51B8D4613DD03CB3468F1872620CA7B2A74C05B
-                    4AEAA7E21DFD5987E5BBFAA9488139F7B1D343C70C0FDC0DDB224D9A5C5E87F2
-                    81EEDF3ED72948702D3F9CFFF7CBBC2128954E01ECC96D1758BC49B100000000
-                    49454E44AE426082}
+                    023149444154484BD5953D6B14511885772784B148C02016B6429AA44A95C232
+                    5682628A40B049217609043B5307C1904A2CB5F3078836CAFE02D3052C042184
+                    14860D2B0B0BCB7EEFE4393767761332334188480E5CEEBDE73DE7BD9F73A774
+                    E351769D89244926A99E0E87C32794C54EA7734F7C1CC7C751147DA77CA6FBA9
+                    5C2EF7C4FF1548B8DCEBF57E314821A491D6B6AB81271A0C066FCEEC49D2EFF7
+                    7F9060933247774A456D718A0511B027729A7C20DC91A15AAD7648B24E73C2A1
+                    12B33DE876BB87EE6A3213D2482B8FBC0E6503F1B2844EBE645A8966306FD7EB
+                    F5960AEDD7C4EF3A2CDF523A887298BE086293E99E235A372D73CC56EC896FB7
+                    DB271CF4B1DA5A0DB13B9649A7D58633A1D2E5B808C81509BCAFA36DC1B82A9E
+                    59BFA50AB70EEE1503FDA6FF3088803CE7CE64C5F41824F8A808E64D5301F45F
+                    9A7F664AC922CAA559CA2BAD72991A83A5FD5410D1BCA900F56BB55ABBD56AFD
+                    A1BD81E4B6439720AD722897A9319ACD66C3034C9B1A01EEB1F65F710DC60CDF
+                    D3BCEFF008F24AA35CA6C6281A4020A4FBFF223D70AF68C1E180C201F2B6280B
+                    689E572A95212BF9622A405EE5C8DCA282435E23F6953A3615C02DAAEA4ABA1B
+                    20AF72641E327CE63545BC2B9EFA03D52D71247AE4157C0B22204FE13585CCFC
+                    D0E8CE60DC17AFAF98A7E248ED46A3D144F7C0320D5AFCA10988F29E0A1DF096
+                    92FAA978477FD661F9AE7E2A5260CE7DECF4D031C30377C3B648932697D7A17C
+                    A0FBB7CF750A125CCB0FE7FFFD326F084AA553D7696D115AD60B6E0000000049
+                    454E44AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_paid_white_24dp.png'
                 end>
               Align = Left
@@ -21940,18 +22220,18 @@ object frmProduto: TfrmProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    016A49444154484BED933D4EC3401484D77181040D1110A0E30094B41C002987
-                    E0345C8302212110880285C64A0F48FC8BA4F43DFCC7BC64D63FEB8D59831BA4
-                    7CD2EAEDBE379ED944B65AD28A2CCBF6D234DDE2D109E88749929CC571FC807A
-                    87F3214775201843F8E11202CD9A18E352158220C0281D525680E62E35994B08
-                    649773751D048F282B80E101E7339A42E4869459C1B34F94AA1EAB3009C330E6
-                    5EF9BEBF0FA331D680AD1C781C736BC5F3BC29B755F0D34EE67728C06D3ECD10
-                    F49E39B602FD11A555305841C83D7539660834B71CD5C0EC94323B0C19519F83
-                    DE35E7DB51144DD9AE00CD39CAEACCA80933048613941D9A7F494F5E02686E50
-                    1F51AF30B3FF2D8BD0218BCC716EF5415A9110AC41D95CE82C40289B8BB1ACCE
-                    420CF3773194D5498861FE5636FA7388698EB2C951CEAF435CCC35AD4320D828
-                    99BF36996BCC10943E477530F4F1EE5F40F8E262AED121F2AC78B06D470458EB
-                    3C3A8367FA3F9AFF4394FA060892D0937513E18A0000000049454E44AE426082}
+                    016A49444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
+                    844FE36BB8104114C585D445A07B15FCC77699F7C89FE7B667F23399C6896623
+                    F483E1CEDC7B72CEB4246A492BB22CDB4BD3748B4727A01F26497216C7F103EA
+                    1DCE871CD581600CE1874B08346B628C4B55088200A3744859019ABBD4642E21
+                    905DCED575103CA2AC0086079CCF680A911B526605CF3E51AA7AACC2240CC398
+                    7BE5FBFE3E8CC65803B672E071CCAD15CFF3A6DC56C14F3B99DFA100B7F93443
+                    D07BE6D80AF4479456C1600521F7D4E59821D0DC725403B353CAEC3064447D0E
+                    7AD79C6F47513465BB0234E728AB33A326CC10184E507668FE253D7909A0B941
+                    7D44BDC2CCFEB72C42872C32C7B9D507694542B0066573A1B300A16C2EC6B23A
+                    0B31CCDFC55056272186F95BD9E8CF21A639CA264739BF0E7131D7B40E8160A3
+                    64FEDA64AE314350FA1CD5C1D0C7BB7F01E18B8BB94687C8B3E2C1B61D1160AD
+                    F3E80C9EE9FF68FE0F51EA1BF2BDD0909A8B5F300000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                     '4dp.png'
@@ -22008,20 +22288,20 @@ object frmProduto: TfrmProduto
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                     01BB49444154484BE5943D4B427118C5BD3730821A036B28A8AD3DF00B44D0D8
-                    20486BD0DCD03708BF817B20B8046DD22238445FA0769DAC366F8385EF9D9F9C
-                    827C4BD3253AF0F07FEE79CE39F7F17A35F6E711F81C896EB7BBA1E3B8D7EB1D
-                    A9DF69369B9BF0F178FC290CC372100405D58DEA057E6A2830A1BA2A954A1D9D
-                    1361CD952A61FB6468D374BD5E7FC55CAD569B9D4E272FEE44B5AB5A71D19F30
-                    4383168FB8B463464382F3CFAD65BED6F5364194A8918F53FC165A3C78C9F068
-                    18121610EABCE5DAC17DD0F7456380071D19A686A190BD4AA5D2A2E8A7BDC1A0
-                    CFF46868832C81FE3421C1BE5168C910ACC59335351E0A5B9736C2A0FEC0F458
-                    A0412B44784D4F86841738DAEDF6838EB19B33B386652E4CFF0C89975BAD56D9
-                    C65338B581FA6F6F14333468F1C04D0D1952981B8DC6B38E5507F7E17ED533AE
-                    53B6CD067DFC7B02F4E55D0EDE008E1E8DE5B34341C962B1D88DA2E84DFDD78F
-                    8E1E8E9990B4FC77D0A67936D599330597339737F57BB06DAD567BF7DFC03E45
-                    0FC7CCB2F9A04D336CACE77D4779FB8CC7F3439BAEE98D792118D0C379BC1828
-                    F0CCF9BC4567A61707E52EE9F13C52F4A6170B6D7E48F9F25F2016FB0026246D
-                    907D8B63450000000049454E44AE426082}
+                    20486BD0DCD03708BF817B20B8046DD2E0E0107D81DA75B2DABC0D16BE777E72
+                    0AF22D4D97E8C0C3FFB9E739E7DCC7EBD5D89F47E07324BADDEE868EE35EAF77
+                    A47EA7D96C6EC2C7E3F1A7300CCB4110145437AA17F8A9A1C084EAAA542A7574
+                    4E843557AA84ED93A14DD3F57AFD1573B55A6D763A9DBCB813D5AE6AC5457FC2
+                    0C0D5A3CE2D28E190D09CE3FB796F95AD7DB0451A2463E4EF15B68F1E025C3A3
+                    61485840A8F3966B07F741DF178D011E7464981A8642F62A954A8BA29FF60683
+                    3ED3A3A10DB204FAD38404FB46A12543B0164FD6D478286C5DDA0883FA03D363
+                    8106AD10E1353D19125EE068B7DB0F3AC66ECECC1A96B930FD33245E6EB55A65
+                    1B4FE1D406EABFBD51CCD0A0C50337356448616E341ACF3A561DDC87FB55CFB8
+                    4ED9361BF4F1EF09D09777397803387A3496CF0E05258BC562378AA237F55F3F
+                    3A7A386642D2F2DF419BE6D95467CE145CCE5CDED4EFC1B6B55AEDDD7F03FB14
+                    3D1C33CBE68336CDB0B19EF71DE5ED331ECF0F6DBAA637E68560400FE7F162A0
+                    C033E7F3169D995E1C94BBA4C7F348D19B5E2CB4F921E5CB7F8158EC0310886D
+                    8AC03D7A750000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_pizza_white_24' +
                     'dp.png'
@@ -22151,6 +22431,41 @@ object frmProduto: TfrmProduto
                   Size.Height = 30.000000000000000000
                   Size.PlatformDefault = False
                   iForthTipoEdit = Texto
+                  object TRectangle
+                    Tag = 1
+                    Align = Right
+                    Opacity = 0.699999988079071000
+                    Position.X = 50.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 30.000000000000000000
+                    Size.PlatformDefault = False
+                    Visible = False
+                    object TLabel
+                      Tag = 2
+                      Align = Bottom
+                      StyledSettings = []
+                      Position.Y = 15.000000000000000000
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.Size = 9.000000000000000000
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 0
+                    end
+                    object TLabel
+                      Tag = 3
+                      Align = Client
+                      StyledSettings = []
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.StyleExt = {00070000000000000004000000}
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 1
+                    end
+                  end
                   object TRectangle
                     Tag = 1
                     Align = Right
@@ -24895,8 +25210,8 @@ object frmProduto: TfrmProduto
               Size.PlatformDefault = False
               TabOrder = 2
               OnDrawColumnCell = StringGrid3DrawColumnCell
-              Viewport.Width = 1033.000000000000000000
-              Viewport.Height = 208.000000000000000000
+              Viewport.Width = 1037.000000000000000000
+              Viewport.Height = 233.000000000000000000
             end
           end
           object tabAdicional: TTabItem
@@ -24945,7 +25260,7 @@ object frmProduto: TfrmProduto
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                         016A49444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
-                        844FE36BB8104114C585D445A07B15FCC77699F7C89FE7B667F23399C6896623
+                        844FE36BB8104114C58554C8A27B15FCC77699F7C89FE7B667F23399C6896623
                         F483E1CEDC7B72CEB4246A492BB22CDB4BD3748B4727A01F26497216C7F103EA
                         1DCE871CD581600CE1874B08346B628C4B55088200A3744859019ABBD4642E21
                         905DCED575103CA2AC0086079CCF680A911B526605CF3E51AA7AACC2240CC398
@@ -24955,7 +25270,7 @@ object frmProduto: TfrmProduto
                         7D44BDC2CCFEB72C42872C32C7B9D507694542B0066573A1B300A16C2EC6B23A
                         0B31CCDFC55056272186F95BD9E8CF21A639CA264739BF0E7131D7B40E8160A3
                         64FEDA64AE314350FA1CD5C1D0C7BB7F01E18B8BB94687C8B3E2C1B61D1160AD
-                        F3E80C9EE9FF68FE0F51EA1BF2BDD0909A8B5F300000000049454E44AE426082}
+                        F3E80C9EE9FF68FE0F51EA1BDCF7D08D0483F67F0000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -25013,18 +25328,18 @@ object frmProduto: TfrmProduto
                       PNG = {
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        016A49444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
-                        844FE36BB8104114C58554C8A27B15FCC77699F7C89FE7B667F23399C6896623
-                        F483E1CEDC7B72CEB4246A492BB22CDB4BD3748B4727A01F26497216C7F103EA
-                        1DCE871CD581600CE1874B08346B628C4B55088200A3744859019ABBD4642E21
-                        905DCED575103CA2AC0086079CCF680A911B526605CF3E51AA7AACC2240CC398
-                        7BE5FBFE3E8CC65803B672E071CCAD15CFF3A6DC56C14F3B99DFA100B7F93443
-                        D07BE6D80AF4479456C1600521F7D4E59821D0DC725403B353CAEC3064447D0E
-                        7AD79C6F47513465BB0234E728AB33A326CC10184E507668FE253D7909A0B941
-                        7D44BDC2CCFEB72C42872C32C7B9D507694542B0066573A1B300A16C2EC6B23A
-                        0B31CCDFC55056272186F95BD9E8CF21A639CA264739BF0E7131D7B40E8160A3
-                        64FEDA64AE314350FA1CD5C1D0C7BB7F01E18B8BB94687C8B3E2C1B61D1160AD
-                        F3E80C9EE9FF68FE0F51EA1BDCF7D08D0483F67F0000000049454E44AE426082}
+                        016A49444154484BED933D4EC3401484D77181040D1110A0E30094B41C002987
+                        E0345C8302212110880205B9490F48FC8BA4F43DFCC7BC64D63FEB8D59831BA4
+                        7CD2EAEDBE379ED944B65AD28A2CCBF6D234DDE2D109E88749929CC571FC807A
+                        87F3214775201843F8E11202CD9A18E352158220C0281D525680E62E35994B08
+                        649773751D048F282B80E101E7339A42E4869459C1B34F94AA1EAB3009C330E6
+                        5EF9BEBF0FA331D680AD1C781C736BC5F3BC29B755F0D34EE67728C06D3ECD10
+                        F49E39B602FD11A555305841C83D7539660834B71CD5C0EC94323B0C19519F83
+                        DE35E7DB51144DD9AE00CD39CAEACCA80933048613941D9A7F494F5E02686E50
+                        1F51AF30B3FF2D8BD0218BCC716EF5415A9110AC41D95CE82C40289B8BB1ACCE
+                        420CF3773194D5498861FE5636FA7388698EB2C951CEAF435CCC35AD4320D828
+                        99BF36996BCC10943E477530F4F1EE5F40F8E262AED121F2AC78B06D470458EB
+                        3C3A8367FA3F9AFF4394FA06C731D08A1B19684D0000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -25220,35 +25535,35 @@ object frmProduto: TfrmProduto
                     PNG = {
                       89504E470D0A1A0A0000000D494844520000001E0000001E08060000003B30AE
                       A2000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                      038049444154484BED564B6B144110AE796D1E26C8E6819A357A082A78109788
-                      114F5EC48318F02042107F8AF80BBC0404FF821E14734A443D28E424E22590A3
-                      665B84DD1003EB3ABBB3DD6D553F667B663BE2217AF2636BAABABAABBEAEEEE9
-                      9D86FFF857088CD69032B8B2B95FEDB6B3516AB65A1DE55EAD8FC3F553E3CA26
-                      74945BF70D4CD3D60A6E6F49792449F63F2CD78CA788D0680522EDB5E5270863
-                      0641C44291B090C72C0802D6E75249D6172C8AFB2C0813262164150E2C4A0403
-                      6C7319B2A82219447D06BCD968CBF8CD99B556CDA42FA0404C95CA104E62E520
-                      8D8F208404CE792E428881E0D8C5C7EFE1F2934D78F7790F433156C5CF86A10C
-                      9622DE7BBAF0BC316F52E528102B585287594831204632CE51044D402A720B9A
-                      84F661B0FEE123BA1A8BE4D9E24B36D82BC4107199942088281722D7A4340997
-                      7850AD9DBCD632685DFA912547C965E1A9D8280CB2D0249A90C8894CAF0055EE
-                      56ACDB6A32865433CF44320A0A2FF2303142CFDC34107AA9AD70E8F789D4548E
-                      DA429AA5574BAD1C94CB18A5777B78A94BA48013DDFACE21CDFA4888A22A35D5
-                      D22450BFBD7F115EDFBB004B2726A08FC41FF72841949316F21914CAAF6F34E7
-                      B808996AD024DB19645D01313626830C079B65F524D22E4DD28B62E02323DA43
-                      1D286116D5B65766BF2A27C24F8C03D50ED18F021176CF6D227A585B3755846E
-                      1BC3ED8F4AC4DE97EBB04975A3B8C99EE3A447EB04A4B56113D1A39CD4B84D8C
-                      8F741845629A140598B187456A5401853D3EF7A2399724817AB988B43616C2A3
-                      FA0454633C2678A4F4BF923EA72492348E234DE7D7B677F1857CB01DC1B76E90
-                      4FA4277AB59D95D3BFD96384ADF4C6F10A9C9D0860BA02309D90C8824C195D8D
-                      054C91900FF5C298806B533C2735EB5280F71C6B0DEA18B9159685C6D2592EDB
-                      24149B93EA94051C50313D9495272A8B8F94B4DB6F4955BE123C15D3435998C0
-                      4F5C2675B53BE62052C270C58654C59592D984072DAF2BD4473954366B38F02C
-                      B509F01097495DED8AF66932B27DF02E35EFA44309A9FDA795521F6975BCD2AE
-                      2AA20CEF5237D7D641FC1C90FB486D9F2BE571A2DB83F6AB0DB44D6E0705E268
-                      3449F18FA271ECCE320463A3F0A52321359FBF3C99A35D7149BB5C024B4308F1
-                      0B3579F316F6653B7811480D8DC2D0F5F6FCFA7E95A7FA7A4B37B4D53AC078F9
-                      2B6ED0B1775907E4DB45FD707B0676B40BAF5D41DAB83BBF8774FE0DFF8FBF07
-                      805F81351314A18B9D4F0000000049454E44AE426082}
+                      038149444154484BED564B6B144110AE796D1E26C826C647D6E821A8E0415C22
+                      463C79110F62C0830841FC29E22FF01210FC0B7A50CC2911F5A090938897408E
+                      9A6D11372106D6757667BBDBAA7ECCF6CC76C443F4948FADA9EAEAAEFABABAA7
+                      771A0EF0BF1018AD216570656DB7DA6965C3D4DCDA6A2BF7527D14AE9F1A5536
+                      A1ADDCBAAF6F9AB656707B5DCA4349B2FB61A1663C4584462B1069B7253F4118
+                      330822168A84853C664110B01E974AB29E6051DC634198300921AB7060512218
+                      609BCB904515C920EA31E0DF1B2D19BF39B3BC5533E90B281053A53284935839
+                      48E323082181739E8B10A22F3876EEF17BB8FC640DDE7DDEC1508C55F147C350
+                      06F311EF3E9D7DDE9831A9721488152CA9C32CA4E8132319E72882262015B905
+                      4D42FB3058FFF0115D8D45F26CEE25EBEF156280B84C4A1044940B916B529A84
+                      4BDCAFD64E5E6B19342FFDCC92C3E4B2F0546C14065968124D48E444A657802A
+                      772BD66D351943AA99A72219058517799018A1676E1A08BDD45638F47A446A2A
+                      476D21CDD2ABA5560ECA658CD2BB3DB8D42552C089AEFFE090663D244451959A
+                      6A6912A8DFDEBF08AFEF5D80F91363D043E28F3B9420CA490BF90C0AE5D7579B
+                      D35C844C356892AD0CB28E80181BE3418683CDB27A12699726E94631F0A121ED
+                      A10E94308B6A1B8B535F9513E127C6816A87E8478108BBE736113DACAD9B2A42
+                      B78DE1F6472562EFCBB5DFA4BA51DC64CF71D2A37502D2DAB089E8514E6ADC26
+                      C6473A8822314D8A02CCD8FD2235AA80C21E9F7BD19C4E9240BD5C445A1B09E1
+                      517D0CAA311E133C52FA5F499F5312491AC791A6F36BDBDBF8423ED888E05B27
+                      C827D215DDDAE6E2E93FEC31C2567AE37805CE8E05305901984C486441268CAE
+                      C6022648C8877A7644C0B5099E939A7529C07B8EB506758CDC0ACB4263E92C97
+                      6D128ACD4975CA02F6A8981ECACA1395C5474ADAEDB7A42A5F099E8AE9A12C4C
+                      E0272E93BADA1DB3172961B06243AAE24AC96CC2BD96D715EAA31C2A9B351C78
+                      96DA047888CBA4AE7645FB3419D93E78979AB7D38184D4FEDB4AA98FB43A5E69
+                      4715518677A99BCB2B207EF5C97DA4B6CF95F238D1E942EBD52ADA26B7830271
+                      349CA4F847D138766701829161F8D296909ACF5F9ECCD1AEB8A41D2E81A52184
+                      F8851ABF790BFBB24DBC08A4864661E07A7B7E65B7CA537DBDA51BDA521D60B4
+                      FC153768DBBBAC03F26DA37EB8710436B50BAF5D41DAB83BB38374FE0D3FC0BF
+                      03C06F804313143108792A0000000049454E44AE426082}
                     FileName = 'C:\Users\ifort\Downloads\icons8-salvar-48.png'
                   end>
                 Align = Right
@@ -25383,7 +25698,7 @@ object frmProduto: TfrmProduto
                     Size.PlatformDefault = False
                     TextSettings.HorzAlign = Trailing
                     Text = 'rCusto'
-                    TabOrder = 4
+                    TabOrder = 3
                     OnClick = rCustoClick
                   end
                 end
@@ -25398,8 +25713,8 @@ object frmProduto: TfrmProduto
                   RowCount = 0
                   OnDrawColumnCell = gridIngredientesDrawColumnCell
                   OnCellDblClick = gridIngredientesCellDblClick
-                  Viewport.Width = 514.500000000000000000
-                  Viewport.Height = 243.000000000000000000
+                  Viewport.Width = 518.500000000000000000
+                  Viewport.Height = 268.000000000000000000
                 end
               end
             end
@@ -25550,6 +25865,41 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             Visible = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -29940,6 +30290,41 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -30626,20 +31011,20 @@ object frmProduto: TfrmProduto
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                     01BB49444154484BE5943D4B427118C5BD3730821A036B28A8AD3DF00B44D0D8
-                    20486BD0DCD03708BF817B20B8046DD2E0E0107D81DA75B2DABC0D16BE777E72
-                    0AF22D4D97E8C0C3FFB9E739E7DCC7EBD5D89F47E07324BADDEE868EE35EAF77
-                    A47EA7D96C6EC2C7E3F1A7300CCB4110145437AA17F8A9A1C084EAAA542A7574
-                    4E843557AA84ED93A14DD3F57AFD1573B55A6D763A9DBCB813D5AE6AC5457FC2
-                    0C0D5A3CE2D28E190D09CE3FB796F95AD7DB0451A2463E4EF15B68F1E025C3A3
-                    61485840A8F3966B07F741DF178D011E7464981A8642F62A954A8BA29FF60683
-                    3ED3A3A10DB204FAD38404FB46A12543B0164FD6D478286C5DDA0883FA03D363
-                    8106AD10E1353D19125EE068B7DB0F3AC66ECECC1A96B930FD33245E6EB55A65
-                    1B4FE1D406EABFBD51CCD0A0C50337356448616E341ACF3A561DDC87FB55CFB8
-                    4ED9361BF4F1EF09D09777397803387A3496CF0E05258BC562378AA237F55F3F
-                    3A7A386642D2F2DF419BE6D95467CE145CCE5CDED4EFC1B6B55AEDDD7F03FB14
-                    3D1C33CBE68336CDB0B19EF71DE5ED331ECF0F6DBAA637E68560400FE7F162A0
-                    C033E7F3169D995E1C94BBA4C7F348D19B5E2CB4F921E5CB7F8158EC0310886D
-                    8AC03D7A750000000049454E44AE426082}
+                    20486BD0DCD03708BF817B20B8046D12B838445FA0769DAC366F8385EF9D9F9C
+                    827C4BD3253AF0F07FEE79CE39F7F17A35F6E711F81C896EB7BBA1E3B8D7EB1D
+                    A9DF69369B9BF0F178FC290CC372100405D58DEA057E6A2830A1BA2A954A1D9D
+                    1361CD952A61FB6468D374BD5E7FC55CAD569B9D4E272FEE44B5AB5A71D19F30
+                    4383168FB8B463464382F3CFAD65BED6F5364194A8918F53FC165A3C78C9F068
+                    18121610EABCE5DAC17DD0F7456380071D19A686A190BD4AA5D2A2E8A7BDC1A0
+                    CFF46868832C81FE3421C1BE5168C910ACC59335351E0A5B9736C2A0FEC0F458
+                    A0412B44784D4F86841738DAEDF6838EB19B33B386652E4CFF0C89975BAD56D9
+                    C65338B581FA6F6F14333468F1C04D0D1952981B8DC6B38E5507F7E17ED533AE
+                    53B6CD067DFC7B02F4E55D0EDE008E1E8DE5B34341C962B1D88DA2E84DFDD78F
+                    8E1E8E9990B4FC77D0A67936D599330597339737F57BB06DAD567BF7DFC03E45
+                    0FC7CCB2F9A04D336CACE77D4779FB8CC7F3439BAEE98D792118D0C379BC1828
+                    F0CCF9BC4567A61707E52EE9F13C52F4A6170B6D7E48F9F25F2016FB00FADD6D
+                    84DE0D95F40000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_pizza_white_24' +
                     'dp.png'
@@ -30704,6 +31089,41 @@ object frmProduto: TfrmProduto
               Size.PlatformDefault = False
               OnExit = edtVendaExit
               iForthTipoEdit = Texto
+              object TRectangle
+                Tag = 1
+                Align = Right
+                Opacity = 0.699999988079071000
+                Position.X = 50.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Visible = False
+                object TLabel
+                  Tag = 2
+                  Align = Bottom
+                  StyledSettings = []
+                  Position.Y = 15.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 9.000000000000000000
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 0
+                end
+                object TLabel
+                  Tag = 3
+                  Align = Client
+                  StyledSettings = []
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00070000000000000004000000}
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 1
+                end
+              end
               object TRectangle
                 Tag = 1
                 Align = Right
@@ -33176,18 +33596,18 @@ object frmProduto: TfrmProduto
                     PNG = {
                       89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                       F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                      016A49444154484BED933D4EC3401484D77181040D1110A0E30094B41C002987
-                      E0345C8302212110880205B9490F48FC8BA4F43DFCC7BC64D63FEB8D59831BA4
-                      7CD2EAEDBE379ED944B65AD28A2CCBF6D234DDE2D109E88749929CC571FC807A
-                      87F3214775201843F8E11202CD9A18E352158220C0281D525680E62E35994B08
-                      649773751D048F282B80E101E7339A42E4869459C1B34F94AA1EAB3009C330E6
-                      5EF9BEBF0FA331D680AD1C781C736BC5F3BC29B755F0D34EE67728C06D3ECD10
-                      F49E39B602FD11A555305841C83D7539660834B71CD5C0EC94323B0C19519F83
-                      DE35E7DB51144DD9AE00CD39CAEACCA80933048613941D9A7F494F5E02686E50
-                      1F51AF30B3FF2D8BD0218BCC716EF5415A9110AC41D95CE82C40289B8BB1ACCE
-                      420CF3773194D5498861FE5636FA7388698EB2C951CEAF435CCC35AD4320D828
-                      99BF36996BCC10943E477530F4F1EE5F40F8E262AED121F2AC78B06D470458EB
-                      3C3A8367FA3F9AFF4394FA06C731D08A1B19684D0000000049454E44AE426082}
+                      016949444154484BED933D4EC3401484D77181040D1110A0E30094B41C002987
+                      E0345C830221211088020557E901897F9194BE87FF9897CCFA67BD316B708394
+                      4F5ABDDDF7C6339BC8564B5A9165D95E9AA65B3C3A01FD304992B3388E1F50EF
+                      703EE4A80E0463083F5C42A05913635CAA42100418A543CA0AD0DCA526730981
+                      EC72AEAE83E0116505303CE07C465388DC90322B78F68952D56315266118C6DC
+                      2BDFF7F76134C61AB095038F636EAD789E37E5B60A7EDAC9FC0E05B8CDA71982
+                      DE33C756A03FA2B40A062B08B9A72EC70C81E696A31A989D5266872123EA73D0
+                      BBE67C3B8AA229DB15A03947599D19356186C07082B243F32FE9C94B00CD0DEA
+                      23EA1566F6BF65113A649139CEAD3E482B128235289B0B9D050865733196D559
+                      8861FE2E86B23A0931CCDFCA467F0E31CD513639CAF975888BB9A67508041B25
+                      F3D726738D1982D2E7A80E863EDEFD0B085F5CCC353A449E150FB6ED88006B9D
+                      4767F04CFF47F37F8852DFB16BD0872008ED9E0000000049454E44AE426082}
                     FileName = 
                       'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                       '4dp.png'
@@ -33244,8 +33664,8 @@ object frmProduto: TfrmProduto
             TabOrder = 0
             RowHeight = 50.000000000000000000
             Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-            Viewport.Width = 1048.000000000000000000
-            Viewport.Height = 425.000000000000000000
+            Viewport.Width = 1052.000000000000000000
+            Viewport.Height = 450.000000000000000000
           end
         end
         object StringGrid5: TStringGrid
@@ -33262,8 +33682,8 @@ object frmProduto: TfrmProduto
           OnCellDblClick = StringGrid5CellDblClick
           OnDragEnter = StringGrid5DragEnter
           OnDragEnd = StringGrid5DragEnd
-          Viewport.Width = 1048.000000000000000000
-          Viewport.Height = 159.000000000000000000
+          Viewport.Width = 1052.000000000000000000
+          Viewport.Height = 184.000000000000000000
         end
       end
       object TabCarregando: TTabItem
@@ -33696,6 +34116,41 @@ object frmProduto: TfrmProduto
                     TabOrder = 1
                   end
                 end
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
               end
               object Label46: TLabel
                 Align = Top
@@ -33728,6 +34183,41 @@ object frmProduto: TfrmProduto
                 Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
                 iForthTipoEdit = Texto
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
                 object TRectangle
                   Tag = 1
                   Align = Right
@@ -38124,6 +38614,41 @@ object frmProduto: TfrmProduto
                   end
                 end
                 object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
+                object TRectangle
                   Align = Right
                   Opacity = 0.699999988079071000
                   Position.X = 50.000000000000000000
@@ -38953,6 +39478,28 @@ object frmProduto: TfrmProduto
                     TabOrder = 0
                   end
                 end
+                object TRectangle
+                  Align = Client
+                  Fill.Color = xFFF77273
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFFF77273
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'Cancelar'
+                    TabOrder = 0
+                  end
+                end
               end
               object btnSim: iButton
                 Align = Client
@@ -38965,6 +39512,28 @@ object frmProduto: TfrmProduto
                 iForthTipoBotao = tSalvar
                 iForthCorFonte = cBranca
                 iForthDescricao = 'Executar'
+                object TRectangle
+                  Align = Client
+                  Fill.Color = xFF31CCAF
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFF31CCAF
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'Executar'
+                    TabOrder = 0
+                  end
+                end
                 object TRectangle
                   Align = Client
                   Fill.Color = xFF31CCAF

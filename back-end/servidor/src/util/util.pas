@@ -4869,8 +4869,15 @@ Next: TProc);
 var
   conexao: TConexao;
   Tipo: Integer;
+  iDia: String;
+  iMes: String;
+  iAno: String;
+  fDia: String;
+  fMes: String;
+  fAno: String;
+  DataInicio: String;
+  DataFim: String;
 
-  Dados: TFDMemTable;
 begin
 
   try
@@ -4879,14 +4886,45 @@ begin
     Res.Send('Tipo Não Informado').Status(500);
     exit;
   end;
-  Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON(Req.Body);
-
-  if Dados.RecordCount = 0 then
-  begin
-    Dados.Free;
+  try
+    iDia := Req.Params.Items['idia'];
+  except
+    Res.Status(THTTPStatus.NotFound);
     exit;
   end;
+  try
+    iMes := Req.Params.Items['imes'];
+  except
+    Res.Status(THTTPStatus.NotFound);
+    exit;
+  end;
+  try
+    iAno := Req.Params.Items['iano'];
+  except
+    Res.Status(THTTPStatus.NotFound);
+    exit;
+  end;
+  try
+    fDia := Req.Params.Items['fdia'];
+  except
+    Res.Status(THTTPStatus.NotFound);
+    exit;
+  end;
+  try
+    fMes := Req.Params.Items['fmes'];
+  except
+    Res.Status(THTTPStatus.NotFound);
+    exit;
+  end;
+  try
+    fAno := Req.Params.Items['fano'];
+  except
+    Res.Status(THTTPStatus.NotFound);
+    exit;
+  end;
+  DataInicio := iAno + '-' + iMes + '-' + iDia;
+  DataFim := fAno + '-' + fMes + '-' + fDia;
+
   conexao := TConexao.Create;
   case Tipo of
     1:
@@ -4899,8 +4937,8 @@ begin
           ('where p.status >= 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by p.status');
         conexao.SQL.Add('order by p.data_pedido');
-        conexao.Parametros('ini', (Dados.FieldByName('data_inicial').AsString));
-        conexao.Parametros('fim', (Dados.FieldByName('data_final').AsString));
+        conexao.Parametros('ini', DataInicio);
+        conexao.Parametros('fim', DataFim);
       end;
     2:
       begin
@@ -4918,8 +4956,8 @@ begin
           ('where p.status > 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by pro.codigo');
         conexao.SQL.Add('order by (count(p.codigo)*pro.valor_venda) desc');
-        conexao.Parametros('ini', (Dados.FieldByName('data_inicial').AsString));
-        conexao.Parametros('fim', (Dados.FieldByName('data_final').AsString));
+        conexao.Parametros('ini', DataInicio);
+        conexao.Parametros('fim', DataFim);
 
       end;
     3:
@@ -4938,8 +4976,8 @@ begin
           ('where p.status >= 0 and pps.valor > 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by pp.codigo_produto, pps.descricao');
         conexao.SQL.Add('order by sum(pps.valor) desc, count(p.codigo) desc');
-        conexao.Parametros('ini', (Dados.FieldByName('data_inicial').AsString));
-        conexao.Parametros('fim', (Dados.FieldByName('data_final').AsString));
+        conexao.Parametros('ini', DataInicio);
+        conexao.Parametros('fim', DataFim);
 
       end;
     4:
@@ -4951,13 +4989,12 @@ begin
           ('where p.status > 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by p.data_pedido');
         conexao.SQL.Add('order by p.data_pedido');
-        conexao.Parametros('ini', (Dados.FieldByName('data_inicial').AsString));
-        conexao.Parametros('fim', (Dados.FieldByName('data_final').AsString));
+        conexao.Parametros('ini', DataInicio);
+        conexao.Parametros('fim', DataFim);
       end;
   end;
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
-  Dados.Free;
 end;
 
 procedure DoGetExtraAll(Req: THorseRequest; Res: THorseResponse;
@@ -5739,19 +5776,22 @@ Next: TProc);
 var
   conexao: TConexao;
   Dados: TFDMemTable;
+  Sequencial: Integer;
 begin
   conexao := TConexao.Create;
   Dados := TFDMemTable.Create(nil);
   frmServidor.memEstoque.Close;
   frmServidor.memEstoque.Open;
-
+  Sequencial := 0;
   conexao.SQL.Add
     ('select *, (select sum(quantidade) from produto_estoque where codigo_produto = produto.codigo) as estoque from produto');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
   while not Dados.Eof do
   begin
+    inc(Sequencial);
     frmServidor.memEstoque.Insert;
+    frmServidor.memEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
     frmServidor.memEstoque.FieldByName('ID').AsInteger :=
       Dados.FieldByName('codigo').AsInteger;
     frmServidor.memEstoque.FieldByName('TIPO').AsInteger := 1;
@@ -5759,8 +5799,8 @@ begin
       UpperCase(RemoveAcento(Dados.FieldByName('nome_produto').AsString));
     frmServidor.memEstoque.FieldByName('UN').AsString := 'UN';
     if not Dados.FieldByName('estoque').IsNull then
-    frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
-      Dados.FieldByName('estoque').AsFloat;
+      frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
+        Dados.FieldByName('estoque').AsFloat;
     frmServidor.memEstoque.Post;
 
     Dados.Next;
@@ -5775,21 +5815,117 @@ begin
   while not Dados.Eof do
   begin
     frmServidor.memEstoque.Insert;
+    inc(Sequencial);
+    frmServidor.memEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
     frmServidor.memEstoque.FieldByName('ID').AsInteger :=
       Dados.FieldByName('id').AsInteger;
     frmServidor.memEstoque.FieldByName('TIPO').AsInteger := 2;
     frmServidor.memEstoque.FieldByName('NOME').AsString :=
       UpperCase(RemoveAcento(Dados.FieldByName('descricao').AsString));
-    frmServidor.memEstoque.FieldByName('UN').AsString := 'UN';
+    frmServidor.memEstoque.FieldByName('UN').AsString :=
+      Dados.FieldByName('unidade').AsString;
     if not Dados.FieldByName('estoque').IsNull then
-    frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
-      Dados.FieldByName('estoque').AsFloat;
+      frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
+        Dados.FieldByName('estoque').AsFloat;
     frmServidor.memEstoque.Post;
 
     Dados.Next;
   end;
   Dados.Free;
   Res.Send<TJSONArray>(frmServidor.memEstoque.ToJSONArray);
+  conexao.Free;
+end;
+
+// THorse.Post('v1/util/fator/conversao/:unde/:unpara/:valor/:tipo/:codigo', DoPostFatorConversao);
+procedure DoPostFatorConversao(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  UnidadeDe: String;
+  UnidadePara: String;
+  Valor: Real;
+  Tipo: Integer;
+  Codigo: Integer;
+  CodigoAux: Integer;
+  conexao: TConexao;
+begin
+  try
+    UnidadeDe := Req.Params['unde'];
+  except
+    exit;
+  end;
+  try
+    UnidadePara := Req.Params['unpara'];
+  except
+    exit;
+  end;
+  try
+    Valor := Req.Params['valor'].ToDouble;
+  except
+    exit;
+  end;
+  try
+    Tipo := Req.Params['tipo'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Codigo := Req.Params['codigo'].ToInteger;
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('delete from conversao where un_de = :un and tipo = :tipo and codigo_tipo = :codigo');
+  conexao.Parametros('un', UnidadeDe);
+  conexao.Parametros('tipo', Tipo);
+  conexao.Parametros('codigo', Codigo);
+  conexao.ExecuteSQL;
+
+  CodigoAux := conexao.GerarID('conversao', 'id');
+
+  conexao.SQL.Add
+    ('insert into conversao (id,tipo,codigo_tipo,un_de,un_para,valor) values (:id,:tipo,:codigo_tipo,:un_de,:un_para,:valor)');
+  conexao.Parametros('id', CodigoAux);
+  conexao.Parametros('tipo', Tipo);
+  conexao.Parametros('codigo_tipo', Codigo);
+  conexao.Parametros('un_de', UnidadeDe);
+  conexao.Parametros('un_para', UnidadePara);
+  conexao.Parametros('valor', Valor);
+  conexao.ExecuteSQL;
+
+  conexao.Free;
+end;
+
+procedure DoGetFatorConversao(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Unidade: String;
+  Tipo: Integer;
+  Codigo: Integer;
+  conexao: TConexao;
+begin
+  try
+    Unidade := Req.Params['un'];
+  except
+    exit;
+  end;
+  try
+    Tipo := Req.Params['tipo'].ToInteger;
+  except
+    exit;
+  end;
+  try
+    Codigo := Req.Params['codigo'].ToInteger;
+  except
+    exit;
+  end;
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('select * from conversao where un_de = :un and tipo = :tipo and codigo_tipo = :codigo');
+  conexao.Parametros('un', Unidade);
+  conexao.Parametros('tipo', Tipo);
+  conexao.Parametros('codigo', Codigo);
+  Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
 
@@ -6156,7 +6292,9 @@ begin
 
   // Relatorio
 
-  THorse.Get('/v1/util/relatorio/financeiro/:tipo', DoGetRelatorioFinanceiro);
+  THorse.Get
+    ('/v1/util/relatorio/financeiro/:tipo/:idia/:imes/:iano/:fdia/:fmes/:fano',
+    DoGetRelatorioFinanceiro);
 
   // Extra
   THorse.Get('/v1/util/extra/produtos/', DoGetExtraAll);
@@ -6215,6 +6353,10 @@ begin
   THorse.Get('v1/util/gerador/:tabela/:campo', DoGetGerador);
 
   THorse.Get('v1/util/estoque/geral', DoGetEstoqueGeral);
+
+  THorse.Get('v1/util/fator/conversao/:un/:tipo/:codigo', DoGetFatorConversao);
+  THorse.Post('v1/util/fator/conversao/:unde/:unpara/:valor/:tipo/:codigo',
+    DoPostFatorConversao);
 
 end;
 

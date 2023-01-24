@@ -41,6 +41,7 @@ type
     memEstoqueUN: TStringField;
     memEstoqueQTD: TFloatField;
     memEstoqueENTRADA: TFloatField;
+    memEstoqueSEQUENCIAL: TIntegerField;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);

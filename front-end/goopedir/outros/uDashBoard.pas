@@ -136,6 +136,9 @@ type
     Label40: TLabel;
     lCLienteInativo: TLayout;
     Label50: TLabel;
+    Layout15: TLayout;
+    Label36: TLabel;
+    Image5: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -144,7 +147,6 @@ type
     procedure imgMesasClick(Sender: TObject);
     procedure imgConfigClick(Sender: TObject);
     procedure imgImpressoraClick(Sender: TObject);
-    procedure lProdutoPausadoClick(Sender: TObject);
     procedure imgTipoPagClick(Sender: TObject);
     procedure imgClienteClick(Sender: TObject);
     procedure img_clienteClick(Sender: TObject);
@@ -152,10 +154,10 @@ type
     procedure Image2Click(Sender: TObject);
     procedure nDeliveryExit(Sender: TObject);
     procedure nVemBuscarExit(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure Layout8DragEnter(Sender: TObject; const Data: TDragObject;
       const Point: TPointF);
     procedure Layout8DragLeave(Sender: TObject);
+    procedure Layout15Click(Sender: TObject);
   private
     FMesesPrevisao: Integer;
     FPrevisaoHoje: Integer;
@@ -201,12 +203,6 @@ implementation
 {$R *.fmx}
 
 uses uMain, uFrameTitulo;
-
-procedure TfrmDashBoard.Button1Click(Sender: TObject);
-begin
-  inherited;
-  frmMain.AbrirForm('TfrmIngredientesProduto');
-end;
 
 procedure TfrmDashBoard.DadosMedia;
 var
@@ -456,6 +452,12 @@ begin
   frmMain.AbrirForm('TfrmCliente');
 end;
 
+procedure TfrmDashBoard.Layout15Click(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmIngredientesProduto');
+end;
+
 procedure TfrmDashBoard.Layout8DragEnter(Sender: TObject;
   const Data: TDragObject; const Point: TPointF);
 begin
@@ -467,12 +469,6 @@ procedure TfrmDashBoard.Layout8DragLeave(Sender: TObject);
 begin
   inherited;
 (Sender as TLayout).Opacity := 0.5;
-end;
-
-procedure TfrmDashBoard.lProdutoPausadoClick(Sender: TObject);
-begin
-  inherited;
-  frmMain.AbrirForm('TfrmProduto');
 end;
 
 procedure TfrmDashBoard.nDeliveryExit(Sender: TObject);

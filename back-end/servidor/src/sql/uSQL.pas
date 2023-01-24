@@ -298,13 +298,24 @@ begin
         ExecultaSQL
           ('create table pix(id integer,id_pedido integer,valor real,creatdatahora datetime,expdatahora datetime,transacao varchar(500),transacao_mp varchar(50));')
       end;
-      13: begin
-          ExecultaSQL('create table ingredientes_estoque(id integer,id_ingredientes integer,data date,hora time,tipo integer,quantidade real,custo_total real,custo real);');
-          ExecultaSQL('alter table pro_adi_personalizado_sabores add id_ingredientes integer;');
-          ExecultaSQL('drop table ingredientes');
-          ExecultaSQL('drop table produto_ingredientes');
-          ExecultaSQL('create table produto_ingredientes(id integer,id_produto integer,id_ingredientes integer,quantidade real)');
-          ExecultaSQL('create table ingredientes (id integer,descricao varchar(200),unidade varchar(10));');
+    13:
+      begin
+        ExecultaSQL
+          ('create table ingredientes_estoque(id integer,id_ingredientes integer,data date,hora time,tipo integer,quantidade real,custo_total real,custo real);');
+        ExecultaSQL
+          ('alter table pro_adi_personalizado_sabores add id_ingredientes integer;');
+        ExecultaSQL('drop table ingredientes');
+        ExecultaSQL('drop table produto_ingredientes');
+        ExecultaSQL
+          ('create table produto_ingredientes(id integer,id_produto integer,id_ingredientes integer,quantidade real)');
+        ExecultaSQL
+          ('create table ingredientes (id integer,descricao varchar(200),unidade varchar(10));');
+      end;
+    14:
+      begin
+        ExecultaSQL
+          ('create table conversao(id integer,tipo integer,codigo_tipo integer,un_de varchar(20),un_para varchar(20),valor real);');
+
       end;
 
     // Deve-se Rodar manual esses sql
@@ -321,7 +332,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '13';
+  Result := '14';
 end;
 
 end.
