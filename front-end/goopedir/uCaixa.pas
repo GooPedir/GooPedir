@@ -390,14 +390,12 @@ begin
   TotalSaida := 0;
   TotalEntrada := 0;
 
-
-    DADOSCAIXA.Close;
-    DADOSPAGAMENTO.Close;
-    dm.GetSimples('/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString,DADOSCAIXA);
-    dm.GetSimples('/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString,DADOSPAGAMENTO);
-
-
-
+  DADOSCAIXA.Close;
+  DADOSPAGAMENTO.Close;
+  dm.GetSimples('/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString,
+    DADOSCAIXA);
+  dm.GetSimples('/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString,
+    DADOSPAGAMENTO);
 
   if DADOSCAIXA.RecordCount > 0 then
   begin
@@ -626,12 +624,24 @@ begin
     procedure
     begin
       BuscaCaixa;
-      {
-        Visualizacao := False;
-        FormReceber := TfrmAReceber.Create(self);
-        layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber'))); }
+
+      Visualizacao := False;
+      FormReceber := TfrmAReceber.Create(self);
+      layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
 
     end).Start;
+
+  try
+    rTopo.Stroke.Color := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fundo')
+      .AsString);
+    rTopo.Fill.Color := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fundo')
+      .AsString);
+
+    lNomeForm.FontColor := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
+  except
+
+  end;
 
 end;
 
@@ -646,11 +656,9 @@ var
   Requisicao: iRequisicao;
 begin
   DADOSHISTORICO.Close;
-  dm.GetSimples('/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString,DADOSHISTORICO);
-  dm.GetSimples('/v1/caixa/historico/ultimos/7/dias',HISTORICOCAIXAS);
-
-
-
+  dm.GetSimples('/v1/caixa/pedidos/historico/' + CodigoDoCaixa.toString,
+    DADOSHISTORICO);
+  dm.GetSimples('/v1/caixa/historico/ultimos/7/dias', HISTORICOCAIXAS);
 
   Quant := HISTORICOCAIXAS.RecordCount - 7;
   if not(HISTORICOCAIXAS.RecordCount > 1) then

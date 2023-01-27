@@ -129,9 +129,15 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-      dm.GetSimples('/v1/util/relatorio/financeiro/4/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
-      dm.GetSimples('/v1/util/relatorio/financeiro/2/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
-      dm.GetSimples('/v1/util/relatorio/financeiro/3/'+DateToStr(edtDataInicial.Date)+'/'+DateToStr(edtDataFinal.Date), FILTRO);
+      dm.GetSimples('/v1/util/relatorio/financeiro/4/' +
+        DateToStr(edtDataInicial.Date) + '/' +
+        DateToStr(edtDataFinal.Date), PEDIDOS);
+      dm.GetSimples('/v1/util/relatorio/financeiro/3/' +
+        DateToStr(edtDataInicial.Date) + '/' +
+        DateToStr(edtDataFinal.Date), EXTRAS);
+      dm.GetSimples('/v1/util/relatorio/financeiro/2/' +
+        DateToStr(edtDataInicial.Date) + '/' + DateToStr(edtDataFinal.Date),
+        PRODUTOS);
       MontarGraficoPedido;
       ShowMessageToast(Self, 'Dados gerado com sucesso!', 2);
       TThread.Synchronize(TThread.CurrentThread,

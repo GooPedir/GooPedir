@@ -149,6 +149,8 @@ type
     DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
     DADOS_WHATSAPPtoken_mp: TStringField;
     DADOS_WHATSAPPfat_integra_pix: TIntegerField;
+    DADOS_WHATSAPPcor_fundo: TStringField;
+    DADOS_WHATSAPPcor_fonte: TStringField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -228,6 +230,7 @@ type
     procedure ExtornoPedido(Pedido: Integer);
 
     function IntegracaoPIX: Boolean;
+           function CorSite(sColor: string): TColor;
 
   end;
 
@@ -509,6 +512,12 @@ end;
 function TDM.CodigoUsuario: Integer;
 begin
   Result := USUARIO.FieldByName('codigo').AsInteger;
+end;
+
+function TDM.CorSite(sColor: string): TColor;
+begin
+  Result := RGB(StrToInt('$' + Copy(sColor, 1, 2)),
+    StrToInt('$' + Copy(sColor, 3, 2)), StrToInt('$' + Copy(sColor, 5, 2)));
 end;
 
 procedure TDM.CriaCampo(Campo: String);

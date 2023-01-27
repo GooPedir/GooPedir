@@ -411,14 +411,14 @@ object frmServidor: TfrmServidor
       FieldName = 'UN'
       Size = 255
     end
-    object memEstoqueQTD: TFloatField
-      FieldName = 'QTD'
-    end
     object memEstoqueENTRADA: TFloatField
       FieldName = 'ENTRADA'
     end
     object memEstoqueSEQUENCIAL: TIntegerField
       FieldName = 'SEQUENCIAL'
+    end
+    object memEstoqueQTD: TCurrencyField
+      FieldName = 'QTD'
     end
   end
 end

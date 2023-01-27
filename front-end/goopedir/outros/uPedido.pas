@@ -601,11 +601,9 @@ begin
     0:
       begin
         // Desmarcado
-        if NOT Assigned(FrmResumo) then
-          Application.CreateForm(TFrmResumo, FrmResumo);
         FrmResumo.MESA := 0;
         FrmResumo.CodigoPedido := Dados.FieldByName('codigo').AsInteger;
-        FrmResumo.Show;
+        frmMain.OpenClose;
       end
   else
     begin
@@ -855,11 +853,9 @@ begin
     0:
       begin
         // Desmarcado
-        if NOT Assigned(FrmResumo) then
-          Application.CreateForm(TFrmResumo, FrmResumo);
         FrmResumo.MESA := 0;
         FrmResumo.CodigoPedido := Dados.FieldByName('codigo').AsInteger;
-        FrmResumo.Show;
+        frmMain.OpenClose;
       end
   else
     begin
@@ -1212,11 +1208,10 @@ begin
     5:
       begin
         //
-        if NOT Assigned(FrmResumo) then
-          Application.CreateForm(TFrmResumo, FrmResumo);
+
         FrmResumo.MESA := 0;
         FrmResumo.CodigoPedido := -1;
-        FrmResumo.Show;
+        frmMain.OpenClose;
       end;
   end;
 end;

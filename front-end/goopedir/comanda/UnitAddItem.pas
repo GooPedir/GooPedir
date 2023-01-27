@@ -133,6 +133,7 @@ type
     ListProduto: TListView;
     BindSourceDB3: TBindSourceDB;
     LinkListControlToField3: TLinkListControlToField;
+    layClient: TLayout;
 
     procedure img_fecharClick(Sender: TObject);
     procedure img_voltarClick(Sender: TObject);

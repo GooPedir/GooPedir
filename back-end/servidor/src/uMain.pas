@@ -39,9 +39,9 @@ type
     memEstoqueTIPO: TIntegerField;
     memEstoqueNOME: TStringField;
     memEstoqueUN: TStringField;
-    memEstoqueQTD: TFloatField;
     memEstoqueENTRADA: TFloatField;
     memEstoqueSEQUENCIAL: TIntegerField;
+    memEstoqueQTD: TCurrencyField;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
@@ -63,6 +63,11 @@ type
     function SITE: String;
     procedure LoadImpressora;
     procedure FichaTecnica;
+
+  var
+    FechouWhatsapp: Boolean;
+    FechouSite: Boolean;
+
   end;
 
 var
@@ -102,6 +107,8 @@ uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
 
 procedure TfrmServidor.AbrirExe(Nome: String);
 begin
+  if length(trim(Nome)) = 0 then
+    exit;
 
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
 end;
@@ -248,7 +255,8 @@ begin
       end;
 
       conexao.SQL.Add
-        ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes where id in('+Dados.FieldByName('ids').AsString+')');
+        ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes where id in('
+        + Dados.FieldByName('ids').AsString + ')');
 
       conexao.Parametros('id_ingredientes', CodigoIngrediente);
       conexao.ExecuteSQL;
@@ -363,7 +371,8 @@ end;
 
 function TfrmServidor.SITE: String;
 begin
-  Result := ExtractFileDir(Application.ExeName) + '\' + 'SiteGooPedir.exe';
+  if not FechouSite then
+    Result := ExtractFileDir(Application.ExeName) + '\' + 'SiteGooPedir.exe';
 end;
 
 procedure TfrmServidor.TemAtualizacao;
@@ -404,7 +413,8 @@ end;
 
 function TfrmServidor.WHATSAPP: String;
 begin
-  Result := ExtractFileDir(Application.ExeName) + '\' + 'WhatsappGoPedir.exe';
+  if FechouWhatsapp then
+    Result := ExtractFileDir(Application.ExeName) + '\' + 'WhatsappGoPedir.exe';
 end;
 
 { TAbrirServicos }

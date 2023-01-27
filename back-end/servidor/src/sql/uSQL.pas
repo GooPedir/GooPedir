@@ -317,6 +317,16 @@ begin
           ('create table conversao(id integer,tipo integer,codigo_tipo integer,un_de varchar(20),un_para varchar(20),valor real);');
 
       end;
+    15:
+      begin
+        ExecultaSQL('alter table dados_whatsapp add cor_fundo varchar(255);');
+        ExecultaSQL('alter table dados_whatsapp add cor_fonte varchar(255);');
+      end;
+    16:
+      begin
+        ExecultaSQL
+          ('alter table pro_adi_personalizado_sabores add quantidade_ingredientes float');
+      end;
 
     // Deve-se Rodar manual esses sql
     99999999:
@@ -332,7 +342,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '14';
+  Result := '16';
 end;
 
 end.

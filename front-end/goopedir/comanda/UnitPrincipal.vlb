@@ -13,3 +13,9 @@ Visible=False
 [FrmResumo.mCliente]
 Visible=False
 
+[FrmAddItem.CATEGORIA]
+Visible=False
+
+[FrmAddItem.PRODUTO]
+Visible=False
+

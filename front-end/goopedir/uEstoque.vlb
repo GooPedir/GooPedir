@@ -31,9 +31,6 @@ Coordinates=310,1,101,33
 [TabEntradaEstoque]
 Coordinates=287,179,111,33
 
-[DADOSQTD]
-Coordinates=19,195,73,33
-
 [DADOS]
 Coordinates=620,90,51,33
 Visible=False
@@ -61,7 +58,7 @@ Coordinates=141,179,53,33
 Coordinates=222,338,66,33
 
 []
-Coordinates=310,105,82,33
+Coordinates=0,0,53,51
 
 [BindSourceDB1]
 Coordinates=620,90,92,195
@@ -153,9 +150,6 @@ Coordinates=449,1,46,51
 
 [memEntradaEstoqueSEQLOCAL]
 Coordinates=972,105,174,33
-
-[Button1]
-Coordinates=0,0,53,51
 
 [layUltimos2]
 Coordinates=546,227,72,33

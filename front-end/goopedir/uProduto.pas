@@ -594,6 +594,18 @@ begin
   IdFTP1.Passive := false; { usa modo ativo }
   RemoveDir(ExtractFilePath(ParamStr(0)) + 'img\');
 
+  try
+    Rectangle6.Stroke.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle6.Fill.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+
+    lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
+  except
+
+  end;
+
 end;
 
 procedure TfrmProduto.GetFicha;
@@ -1693,62 +1705,61 @@ end;
 procedure TfrmProduto.EnviarTodasFotos;
 begin
 
- DM.GetSimples('v1/produto/all', ALL_PRODUTOS);
+  DM.GetSimples('v1/produto/all', ALL_PRODUTOS);
 
- if ALL_PRODUTOS.RecordCount = 0 then
- exit;
+  if ALL_PRODUTOS.RecordCount = 0 then
+    exit;
 
- while not ALL_PRODUTOS.Eof do
- begin
-   ALL_PRODUTOS.Next;
- end;
-
-
-{
-if DIALOG.Execute then
+  while not ALL_PRODUTOS.Eof do
   begin
-    try
-      imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
-      DM.CONEXAO.TempoExpiracao := 150000;
-      DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
-        ('id').AsString;
-      Body := Base64FromBitmap(imgProduto.Bitmap);
-      DM.CONEXAO.Body(Body);
-      DM.CONEXAO.Metodo := mPost;
-      DM.CONEXAO.Execute;
-
-      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
-        ExtractFileExt(DIALOG.FileName) + ';base64;';
-
-      EnvioImagem.Body(NomeArquivo + Body);
-
-      try
-        EnvioImagem.Execute;
-        if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
-        then
-        begin
-          ShowMessageToast(self,
-            'Foto do produto atualizada com sucesso no servidor!', 3);
-        end
-        else
-        begin
-          ShowMessageToast(self,
-            'Erro ao enviar a foto ao servidor! Código invalido!', 1);
-        end;
-
-      except
-        ShowMessageToast(self,
-          'Erro ao enviar a foto ao servidor! Tempo excedido.', 1);
-      end;
-
-    except
-      on E: Exception do
-        ShowMessage(E.Message);
-    end;
-
+    ALL_PRODUTOS.Next;
   end;
 
-}
+  {
+    if DIALOG.Execute then
+    begin
+    try
+    imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
+    DM.CONEXAO.TempoExpiracao := 150000;
+    DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
+    ('id').AsString;
+    Body := Base64FromBitmap(imgProduto.Bitmap);
+    DM.CONEXAO.Body(Body);
+    DM.CONEXAO.Metodo := mPost;
+    DM.CONEXAO.Execute;
+
+    NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
+    ExtractFileExt(DIALOG.FileName) + ';base64;';
+
+    EnvioImagem.Body(NomeArquivo + Body);
+
+    try
+    EnvioImagem.Execute;
+    if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
+    then
+    begin
+    ShowMessageToast(self,
+    'Foto do produto atualizada com sucesso no servidor!', 3);
+    end
+    else
+    begin
+    ShowMessageToast(self,
+    'Erro ao enviar a foto ao servidor! Código invalido!', 1);
+    end;
+
+    except
+    ShowMessageToast(self,
+    'Erro ao enviar a foto ao servidor! Tempo excedido.', 1);
+    end;
+
+    except
+    on E: Exception do
+    ShowMessage(E.Message);
+    end;
+
+    end;
+
+  }
 end;
 
 procedure TfrmProduto.Pagina(Tag: Integer);
@@ -1937,8 +1948,10 @@ begin
 
   TABELA.FieldByName('VALOR').AsFloat := edtValorTabela.Text.ToDouble;
 
-  TABELA.FieldByName('HORA_INICIO').AsString := FormatDateTime('hh:nn:ss',tInicial.DateTime);
-  TABELA.FieldByName('HORA_FIM').AsString := FormatDateTime('hh:nn:ss',tFinal.DateTime);
+  TABELA.FieldByName('HORA_INICIO').AsString :=
+    FormatDateTime('hh:nn:ss', tInicial.DateTime);
+  TABELA.FieldByName('HORA_FIM').AsString := FormatDateTime('hh:nn:ss',
+    tFinal.DateTime);
   TABELA.Post;
   DM.PostSimples('/v1/tabela/produto/', TABELA);
 

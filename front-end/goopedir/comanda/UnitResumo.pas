@@ -257,13 +257,13 @@ type
     Button1: TButton;
     Layout9: TLayout;
     DadosPedidos: TVertScrollBox;
+    layClient: TLayout;
     procedure img_fecharClick(Sender: TObject);
     procedure img_add_itemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure rect_encerrarClick(Sender: TObject);
     procedure lv_produtoItemClickEx(const Sender: TObject; ItemIndex: Integer;
       const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
-    procedure FormShow(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure img_transferenciaClick(Sender: TObject);
     procedure img_imprimirClick(Sender: TObject);
@@ -283,7 +283,6 @@ type
     procedure img_excluirMouseEnter(Sender: TObject);
     procedure img_excluirMouseLeave(Sender: TObject);
     procedure EdtBairroExit(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Rectangle5Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
     procedure edtTrocoExit(Sender: TObject);
@@ -379,6 +378,7 @@ type
 
     procedure BuscaBairroEdit;
     procedure FuncaoExcluir;
+    procedure LoadMain;
 
   var
     FinalizaExecutar: TCallback;
@@ -407,7 +407,7 @@ uses UnitPrincipal, Funcoes, Loading, uSimNao, uDM, uFechamentoPedido,
 {$ELSE}
     , Winapi.Windows
 {$ENDIF}
-    , uframeDadosItens;
+    , uframeDadosItens, uMain;
 
 procedure TFrmResumo.AddProdutoResumo(id_produto, qtd: Integer;
   descricao, descricaoitem: string; preco: double);
@@ -604,6 +604,40 @@ begin
   end;
 end;
 
+procedure TFrmResumo.LoadMain;
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    exit;
+  end;
+  rFundoPreto.Visible := True;
+  rFundoPreto1.Visible := True;
+  if mesa > 0 then
+  begin
+    rect_encerrar.Visible := dm.encerra;
+    FrmResumo.MESAS.Close;
+    GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
+
+    if FrmResumo.MESAS.RecordCount > 0 then
+    begin
+      FrmResumo.BeginUpdate;
+      FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
+      FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
+        ('nr_mesa').AsString;
+      FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
+        FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
+    end;
+
+  end
+  else
+  begin
+
+  end;
+  FrmResumo.ListarProduto;
+end;
+
 procedure TFrmResumo.lv_produtoItemClickEx(const Sender: TObject;
   ItemIndex: Integer; const LocalClickPos: TPointF;
   const ItemObject: TListItemDrawable);
@@ -710,7 +744,7 @@ begin
             ShowMessageToast(Self, 'Pedido Lançado Com Sucesso!', 2);
             FCodigoPedido := 0;
 
-            Close;
+            frmMain.OpenClose;
             exit;
           end;
         end
@@ -1040,6 +1074,7 @@ end;
 
 procedure TFrmResumo.ConsultaTaxa;
 begin
+  rect_encerrar.Visible := False;
   GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
   rConsultaTaxa.Visible := True;
 end;
@@ -1260,22 +1295,6 @@ begin
   end;
 end;
 
-procedure TFrmResumo.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-
-  if not ApenasVisualizacao then
-  begin
-    if mesa > 0 then
-      PostSimples('/v1/imprimir', Produtos)
-    else
-      SalvarDadosPedido;
-
-    FCodigoPedido := 0;
-  end;
-
-  ApenasVisualizacao := False;
-end;
-
 procedure TFrmResumo.FormCreate(Sender: TObject);
 var
   CalculoTempo: TCalculaTempo;
@@ -1293,40 +1312,6 @@ begin
 
   CalculoTempo := TCalculaTempo.Create;
   CalculoTempo.Start;
-end;
-
-procedure TFrmResumo.FormShow(Sender: TObject);
-begin
-  if not dm.TestaConexao then
-  begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
-    exit;
-  end;
-  rFundoPreto.Visible := True;
-  rFundoPreto1.Visible := True;
-  if mesa > 0 then
-  begin
-    rect_encerrar.Visible := dm.encerra;
-    FrmResumo.MESAS.Close;
-    GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
-
-    if FrmResumo.MESAS.RecordCount > 0 then
-    begin
-      FrmResumo.BeginUpdate;
-      FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
-      FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
-        ('nr_mesa').AsString;
-      FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
-        FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
-      FrmResumo.EndUpdate;
-    end;
-
-  end
-  else
-  begin
-
-  end;
-  FrmResumo.ListarProduto;
 end;
 
 procedure TFrmResumo.FuncaoExcluir;
@@ -1383,6 +1368,7 @@ procedure TFrmResumo.Image3Click(Sender: TObject);
 begin
   rConsultaTaxa.Visible := False;
   rCliente.Visible := False;
+  rect_encerrar.Visible := True;
 end;
 
 procedure TFrmResumo.img_add_itemClick(Sender: TObject);
@@ -1492,20 +1478,30 @@ end;
 
 procedure TFrmResumo.img_fecharClick(Sender: TObject);
 begin
-  if not dm.TestaConexao then
-  begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
-    exit;
-  end;
 
-  ApenasVisualizacao := False;
-  if ApenasVisualizacao then
-  begin
-    Close;
-    exit;
-  end;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      if not dm.TestaConexao then
+      begin
+        ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+        exit;
+      end;
 
-  Close;
+      if not ApenasVisualizacao then
+      begin
+        if mesa > 0 then
+          PostSimples('/v1/imprimir', Produtos)
+        else
+          SalvarDadosPedido;
+
+        CodigoPedido := 0;
+      end;
+
+      ApenasVisualizacao := False;
+    end).Start;
+  frmMain.OpenClose;
+
 end;
 
 procedure TFrmResumo.img_imprimirClick(Sender: TObject);
@@ -1677,7 +1673,7 @@ end;
 
 procedure TFrmResumo.SetCodigoPedido(const Value: Integer);
 var
-Busca : Boolean;
+  Busca: Boolean;
 
 begin
   TipoPagamento;
@@ -1690,7 +1686,8 @@ begin
     if Value = -1 then
     begin
       FCodigoPedido := 0;
-      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
+      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString,
+        mDadosPedido);
       AtualizaDadosPedido;
       exit;
     end;
@@ -1698,11 +1695,11 @@ begin
     begin
       FCodigoPedido := Value;
 
-      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
+      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString,
+        mDadosPedido);
       AtualizaDadosPedido;
 
     end;
-
 
     FCodigoPedido := Value;
   end

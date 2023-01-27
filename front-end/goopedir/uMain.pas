@@ -46,6 +46,7 @@ type
     StyleBook1: TStyleBook;
     rSemConexao: TRectangle;
     Label1: TLabel;
+    layPedido: TLayout;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -58,6 +59,8 @@ type
     procedure AbrirForm(Nome: String);
     procedure AbrirFormVisivel(Nome: String; Visible: Boolean);
     function FormsName(Nome: String): String;
+
+    procedure OpenClose;
 
   var
     Usuario: String;
@@ -75,7 +78,7 @@ implementation
 {$R *.fmx}
 
 uses uPedido, uProduto, uCategoria, uTaxaEntrega, uDM, uMotoboy,
-  uDashBoard, UnitAddItem;
+  uDashBoard, UnitAddItem, UnitResumo;
 
 procedure TfrmMain.AbrirForm(Nome: String);
 begin
@@ -100,7 +103,7 @@ begin
   if FORM.Locate('CLASSNAME', Nome, []) then
   begin
     if Nome <> 'TfrmCaixa' then
-    tabMain.TabIndex := FORM.FieldByName('TABINDEX').AsInteger;
+      tabMain.TabIndex := FORM.FieldByName('TABINDEX').AsInteger;
     Index := FORM.FieldByName('INDEX').AsInteger;
 
     try
@@ -108,8 +111,8 @@ begin
 
       if NewTab.Visible then
       begin
-      if Nome <> 'TfrmCaixa' then
-        tabMain.TabIndex := 0;
+        if Nome <> 'TfrmCaixa' then
+          tabMain.TabIndex := 0;
         NewTab.Visible := False;
         exit;
 
@@ -120,8 +123,8 @@ begin
         NewTab.Visible := True;
         if not Visible then
         begin
-        if Nome <> 'TfrmCaixa' then
-          tabMain.TabIndex := NewTab.Index;
+          if Nome <> 'TfrmCaixa' then
+            tabMain.TabIndex := NewTab.Index;
         end;
       end;
     except
@@ -167,7 +170,7 @@ begin
     FORM.FieldByName('TABINDEX').AsInteger := tabMain.TabCount - 1;
     FORM.Post;
     if Nome <> 'TfrmCaixa' then
-    tabMain.TabIndex := tabMain.TabCount - 1;
+      tabMain.TabIndex := tabMain.TabCount - 1;
 
   end;
   if Assigned(fActiveForm[Index].OnActivate) then
@@ -202,6 +205,10 @@ begin
   end;
 
   AbrirForm('TfrmDashBoard');
+
+  FrmResumo := TFrmResumo.Create(Self);
+
+  layPedido.AddObject(TLayout(FrmResumo.FindComponent('layClient')));
 
 end;
 
@@ -316,13 +323,29 @@ begin
 
   if DM.PARAMETRO.RecordCount = 0 then
   begin
-    dm.GetSimples2('/v1/consulta/todos/dados_whatsapp',DM.PARAMETRO);
+    DM.GetSimples2('/v1/consulta/todos/dados_whatsapp', DM.PARAMETRO);
   end;
 
   try
     Result := DM.PARAMETRO.FieldByName(NomeParametro).AsVariant;
   except
 
+  end;
+
+end;
+
+procedure TfrmMain.OpenClose;
+begin
+  if layPedido.Visible then
+  begin
+    layPedido.Visible := False;
+    Layout1.Visible := True;
+  end
+  else
+  begin
+    FrmResumo.LoadMain;
+    layPedido.Visible := True;
+    Layout1.Visible := False;
   end;
 
 end;
@@ -345,7 +368,7 @@ begin
 
   while not Terminated do
   begin
-  Status := dm.GetSimples('v1/versao/app',nil);
+    Status := DM.GetSimples('v1/versao/app', nil);
 
     if Status then
       Sleep(1500)

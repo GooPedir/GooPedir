@@ -3,7 +3,8 @@ unit uFrmClonePadrao;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl,
   FMX.Objects, FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
@@ -24,8 +25,10 @@ type
     procedure imgFiltroClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure imgCloseClick(Sender: TObject);
+
   private
     { Private declarations }
+
   public
     { Public declarations }
   end;
@@ -37,18 +40,35 @@ implementation
 
 {$R *.fmx}
 
-uses uFiltroPadrao, FMXTee.Canvas, uMain;
+uses uFiltroPadrao, FMXTee.Canvas, uMain, uDM;
 
 procedure TfrmPadrao.FormCreate(Sender: TObject);
 begin
-imgFiltro.Visible := Assigned(frmFiltroPadrao);
-rTopo.Stroke.Color := RGB(164,0,27);
-rTopo.Fill.Color := rTopo.Stroke.Color;
+  imgFiltro.Visible := Assigned(frmFiltroPadrao);
+  rTopo.Stroke.Color := RGB(164, 0, 27);
+  rTopo.Fill.Color := rTopo.Stroke.Color;
+  try
+  rTopo.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+  rTopo.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+    .AsString);
+  except
+
+  end;
+
 end;
+
+// function TfrmPadrao.CorSite(sColor: string): TColor;
+// begin
+
+// end;
 
 procedure TfrmPadrao.imgCloseClick(Sender: TObject);
 begin
-frmMain.AbrirForm('T'+self.Name);
+  frmMain.AbrirForm('T' + self.Name);
 end;
 
 procedure TfrmPadrao.imgFiltroClick(Sender: TObject);

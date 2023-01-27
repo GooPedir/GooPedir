@@ -215,7 +215,7 @@ inherited frmDashBoard: TfrmDashBoard
                     Size.Height = 24.000000000000000000
                     Size.PlatformDefault = False
                     Text = '0000'
-                    TabOrder = 3
+                    TabOrder = 4
                   end
                 end
               end
@@ -889,63 +889,63 @@ inherited frmDashBoard: TfrmDashBoard
                       PNG = {
                         89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
                         B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        06F0494441546843ED585B6F5C5715FEF6D9E79CB978C6E3DB38F13876DC3A17
-                        88A2A652804C69B91528173525252DBCF0507828E2A1820A1E40E285A7F212A1
-                        AA3F007843A4855642028A489BF4212E1242A9AA5611A549ADD8899BD8E3713C
-                        3367CE656FBE6DEFD4E378923AED3C38D17CD1F2997D3D7BAD6FADB5D709BAE8
-                        A28B2E6E2B08FBEC281EFFE3E3F2EC99B3E370DCA33AC6A7B4A7FA44822A1CF1
-                        6FA9F59F0BB270EEE4AF4EC6767A47D07145CA4F9733B56C70BF067EE638D887
-                        04450DE10BE8101297F9FB6DA1F01B04C96B6F1C7BA366977D6C48FBEC080E3E
-                        79D00B0692FD42EB6794D69F771CD94F165CE108619EB45B41256AA710621252
-                        9E19FB5E69EEE25F2E2ABBFC63E1233372EFB30F14BD088784549F9131866992
-                        8652622E5C0EC7C2307C524AC9836F84231D6857C7BEE7BDE24831CD9E192A76
-                        1A88FF35F5D3A9053BED96F19114291FFBC22E88E43B749FC342E9DDD0E8E54E
-                        11652189131905F1888A371A5A7A12D277193A0E848656324924C4220D70968C
-                        BD2884FBFCEB4F9F3C6FA7DF126ED9B51E20138952DFA59FFF882EB31F426479
-                        089E4778945EC771F2ECC78A22D4F41A0C135EDA834B65CCB87137078C223859
-                        3232CED89974B45A18F9E2F6FFCDFE73B661976D1A9B66E4F04B87B7E9441E88
-                        A3E87361103FAC23752FAD8FB819837E6F67AD426B8D3888110591EDC1AA1214
-                        46CB0DA1957E2D6E8627C246522365FCA766DC48FC67F73BBBCF1E3F7E3CB1D3
-                        DA62538A3CF2E2237BB5164794C63721D47E244E3F578A38E261EB11C25A08F3
-                        BB158691E06A605B40AA37C5F8BEB90350917A18044118E814AD2348E234B438
-                        2594F3873DEF4C9EBA99321FEA5A8FBEF0E8702CF003EEFB43C711F730FD648C
-                        5B1090AEF1796E4173A848B16DDCC75FB57ECA5A9FEE6518337D66CDCD40DB78
-                        2A460689F2E9A25CE00C4189BDCA41BE3AB4F0E6A55397AED8A91B401FBD3922
-                        477D964C1C7624C66CD73A18DFF7B33ED2BD69640A596407B2E819CC21379443
-                        5FA90FF9E1FCCA786BBCDC1866D275132572D4FFBE44E31BB6A72D6EC8C8A79F
-                        FBF2E08EAF940EF83DA9278490871896693BC4D8063264A3DFF79067F0BA2B29
-                        95ECA4989138D118DE88C952A91EBA14C73C8653319F7686F269E4C80E5D06B1
-                        5A8D2D33CF23838E49044C0126C68C98BD4C8683D469FEAE8D1DDDF7CAEC5FCF
-                        B54D046D15291F2B0F48A51F23D53FF1D2F24B7ECA2BB4465396079BE849634F
-                        6F16A56C0A19FA7E40F7695C17F4D790A332E33D99687FA95FEE1DE917A3FD3D
-                        48F3D0B53081A211D2BD196428692A99227B0EF737306CBB348EEB79AE948EE7
-                        0855197BA874FEC2CB173628D35691B1AF4D3CAC45F24BFAE8413F9B4A993868
-                        F5EFEDE91476E5332B0AB9EC378A98F1B920B433D660568D519103DB0A6E2EE5
-                        3180057CAE2B723D4941C883C2ECCF439B3D0C03C6155DDE3726B60C33A69FE3
-                        8340B2570BF7DCCCDFA7DF5ADD7D0D6D6384317184AE3A6A7E27C66AD7599AA6
-                        A1AC2D953C906FFEDC0013B90CDD71E3F8685F4EE7981C7852DBB30AD3F4D22E
-                        FC0C5DB0052A41899A1DB1CD7568CBC89EFB773EE58562D28F85E33635B22285
-                        ACF6E087B416251391852617071A495DA1B99CA0B21862692982CB8CDB2A1E65
-                        C2498105CCCADC56D1758D4AB529A21A335E435314FC48224DF163B21D90A15A
-                        028F44FB7C27CF24F9FECAF957A77F6F8FFA01DA9AF1E78F3D749A41570EC208
-                        31D9182A1691CBE7ED28CFB4BC8CDAD5AA6D7506CD90775292A07F600085BE3E
-                        DB0B048D3A96172BB6C51CA1D5D4AF9F7FF93EDBFC001F9A7E6F177415D96AE8
-                        2AB2D5D0366B7DFBD0017EB139E55A102066A97ECFBE3DD831B2CD8E023317E7
-                        707E7AC6B63A8346B3899015F42776DD85BB77EEB0BDC0FB97E7F1DF77DFB32D
-                        0335F5A7D7CF6C2E6BC5ACD062A642A3444451BC215B61DA2BE31D14F39ED577
-                        ADBF7CF9ED7FDDDCF6D5675B467EFCAD074FB36028379A1112DE2323A5ED2814
-                        0A7614B8BA5445B5B296DB3B8180F788315C71B888C1C101DB0BD4786755E6D7
-                        AA775EA353CFBE7462738C643C176956B61956A4698A6C29470C5CD6F466BC93
-                        92314FBECB54D2AD60B1B87E1ECFD60E774CB07715D96AB86314699BB59E78B0
-                        CC7B4494EB4193E94E61F7DD13182EF2BBC6E2F295795CBA34675B9D41A319AE
-                        A4DF89B1518C324B5E43A5B2880B33B3B665A0A77E77626A73596B61A94EA961
-                        BEBA8C2B8B57991AD7FE7FCA20605A36E39D946BEF320AB5A2C94B72FDDCBA1D
-                        598FB68C7CFFABE5D38E96BC4756AD3479D7388A436B8CCCCF2F606EEE7DDBEA
-                        0C8230E4CD9E607CAC84D2F6B52A6271B18AD9D98BB6C57B442453BFFDC74646
-                        BA1F565B0D5D45B61AEEEC7BE41747BFFE9C72D4279B4D53916A0C6E1B426F4F
-                        AF1D05EA8D252CB302EE244C9A8D438D81C1C175957633A8A35A9DB72D5A5E39
-                        6F3FF3C2DF9EB2CD2EBAE8A28BDB12C0FF01747B4C443F6FD569000000004945
-                        4E44AE426082}
+                        06F2494441546843ED58DB6F5C4719FFCD997376CFAEF7E2DB3AF6264EDC3A97
+                        12A22652806C69B91528173525252DBCF0507828E2A1820A1E40E285A7F212A1
+                        AA7F00F086480BAD8404149192F4212E1242A910554421C18A9DB8892FEB7877
+                        CF9ECB0CBFB127F56EBC499D761F1CB43FEBF3F137DFCC9CF9AEF31DA3871E7A
+                        E8E1AE82B0CFAEE2C95F3F29CF9F3BBF138E7B5CC7F888F654BF48508523FE26
+                        B5FE6D51162F9CFEC9E9D84EEF0ABAAE48E5D94AA6960D1ED4C00F1C07FB11E9
+                        9286931250213C715543BC25147E862079FDCD136FD6ECB20F0C699F5DC1E1A7
+                        0F7BC160724068FD5C9C249F94D21D80745C2185304FDAAD1847F12EC7712621
+                        E5B9F16F94E72EFFEEB2B2CB3F10DEB7470E3DFF50C98B704448F53119638426
+                        692825E6C295703C0882A73DCFE3C137C2910E1237897D2FFD9A23C534476684
+                        106781F8AF53DF9F5AB0D3EE18EF4B91CA894FED8648BEC6F0392A94DE830405
+                        2A1271B785244E6414C4632ADE6868E949C894CBD471B81C3AF6A2C4835CA201
+                        CE337F5E16C27DF18D674F5FB4D3EF08771C5A0FD11389525F679C7F4738E200
+                        84C8420AC9A7472A306CF21CC7AA22D4F4068C273CDF834B658CDC841BD57228
+                        C9D2233B993B938E560B639F1EFDF7EC9F671B76D9A6B1698F1C7DE5E8369DC8
+                        8371147D220CE24775A40ED1FA889B3154D26E7DAD35E22046144476046B4A90
+                        982DB78456FAF5B8199E0A1B490D42F347CDB891F8FB9EB7F79C3F79F26462A7
+                        75C4A61479ECE5C7F6692D8E298D2F43A803881C2631041317513D42580B61FE
+                        6E85F148703DB01C902EA499DFB70F002A520F833A534CA4B9A1F05C671A5A9C
+                        11CAF9D5DEB727CFDC4E99F70CADC75F7A7C2416F8968AC5B7999CF70B381913
+                        1604A46B629E5BD01C2A52E44DF8A4D6AC9FB6D66778198F9931B3E67660C079
+                        7C4F46242A45A5B9C019462CF629897C7578E11F57CE5CB966A76E0063F4F688
+                        1CF5717AE2288BE7B81D6A8389FD543605BFE02353CC223B9845DF500EB9E11C
+                        FACBFDC88FE457E5ADF9726B9849374DF490A3FE0F241A5FB2231D714B8F7CF4
+                        85CF0EEDF85CF960AA2FFD94D6F208A3C2B722161820436F0CA43CE499BC2E95
+                        D1C63B695624DE82C6F0864C954AF731A428F3984EA5BCEF0CE77DE4E81D860C
+                        62B5965B669E470F3AA61008EEC51C3364F632150E32F11D47D6C68FEF7F6DF6
+                        F7173A16828E8A544E5406A5D24FD0D5DFF37CF199B49F2AB6665396079BE8F3
+                        B1B79045399B46865A060C9FC64D497F03392AB32393893E3C3620EF2B0F88ED
+                        037DF079E85A9840D1087E21830CC9A792697ACFE1FE06C6DB2E8DE37A29574A
+                        C773845A1C7FA47CF1D2AB973628D35191F12F4C3CAA45F263C6E8E154D64F9B
+                        3C688DEF513F8DDDF9CCAA422EC78D22463E178476C63ACCAA712A7268B4E8E6
+                        7D4F48BA93C74289EBE914843C28CCFE3CB4D9C378C084A2CBFBC6E496F18C19
+                        A77C0848F669E15E98F9E3F43FD7765F47C71C614E1C63A86E377F27C66A3759
+                        9AA621AD2F953C50CAFCBA0526721986E346F95821A7732C0E3CA91D5983613D
+                        DF452AC3106C012B61999A1DB36C1B3A7A64EF83BB9E91819E4C278EE33635B2
+                        AC8659ED2115D25AA44C442F34B938D048EA0ACD95048B4B21969723B8ACB8AD
+                        E491269C34D8C0ACCE6D2555D3585A6E8AA8C68AD7D0248554C46424A5627A3B
+                        A0876A093C3A3AC577CA806918C9C58B7F99FEA53DEABBE868C61F3EF1C85926
+                        5D250823C4F4C670A9845C3E6FA53CD3CA0A6AD7AB96EB0E9A21EFA424C1C0E0
+                        208AFDFD7614081A75AC2C2D5A8E3542ABA99FBEF8EA03967D17EF597EEF16F4
+                        14D96AE829B2D5D0B16A7DF5C8417EB139955A102066AB7EFFFEBDD831B6CD4A
+                        8199CB73B8383D63B9EEA0D16C2264077DDFEE7B70EFAE1D761478E7EA3CFEF5
+                        9FFF5ACE404DFDE68D739BAB5A313B347E73AF2A1191146FC856187E55DE4532
+                        EF597B57FBE5ABCCB74DDBDCCEDD67478F7CF72B0F9F65C35069342324BC47C6
+                        CAA328168B560A5C5FAEA2BAB85EDBBB8180F788315C69A484A1A1413B0AD478
+                        672DCEAF77EF6C5AA69E7FE5D4E63C92F15CF8EC6C33EC487D926C69470C5C87
+                        B72FE5DDA48C79F25DA6936E059BC5F6799DFFA7D1AB5A5B0E3D45B61A3A56AD
+                        A71EAEF01E11957AD064B953D873EF04464AFCAEB1B87A6D1E57AECC59AE3B68
+                        34C3D5F23B31BE1DDB59256F607171099766662D67A0A77E716A6A73556B61B9
+                        4EAA61BEBA826B4BD7591AD7FF3F6510B02C1B7937E9C6BB8C42AD68F2926C9F
+                        5BB7927674F4C8373F5F39EB68C97B64CD4A93F7EC446978DD23F3F30B989B7B
+                        C772DD411086BCD913EC1C2FA33CBADE452C2D55313B7BD972BC474432F5F33F
+                        6DF448EFC36AABA1A7C856C3FFF73DF2A3E35F7C4139EA43CDA6E9483586B60D
+                        A3D057B052A0DE58C60A3BE06EC294D938D4181C1A6AEBB49B411DD5EABCE568
+                        79E5BCF5DC4B7F78C6B23DF4D0430F772580FF01AADD50430B9CACB700000000
+                        49454E44AE426082}
                       FileName = 'C:\Users\ifort\Downloads\icons8-pilha-de-compostagem-48.png'
                     end>
                   Align = Left
@@ -1178,7 +1178,7 @@ inherited frmDashBoard: TfrmDashBoard
             Size.Height = 624.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
-            object layHistorico: TLayout
+            object layHistorico1: TLayout
               Align = Top
               Margins.Top = 30.000000000000000000
               Position.Y = 30.000000000000000000
@@ -1186,7 +1186,7 @@ inherited frmDashBoard: TfrmDashBoard
               Size.Height = 204.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
-              object Layout6: TLayout
+              object layHistorico: TLayout
                 Anchors = [akLeft, akTop, akRight]
                 Position.X = 16.000000000000000000
                 Position.Y = 55.000000000000000000
@@ -1212,7 +1212,7 @@ inherited frmDashBoard: TfrmDashBoard
                     Size.PlatformDefault = False
                     TextSettings.HorzAlign = Trailing
                     Text = 'M'#233'dia das '#250'ltimas 4 semanas'
-                    TabOrder = 3
+                    TabOrder = 4
                   end
                 end
                 object HorzScrollBox1: THorzScrollBox
@@ -1266,7 +1266,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label6: TLabel
@@ -1291,7 +1291,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label9: TLabel
@@ -1316,7 +1316,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1364,7 +1364,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label16: TLabel
@@ -1389,7 +1389,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label18: TLabel
@@ -1414,7 +1414,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1462,7 +1462,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label23: TLabel
@@ -1487,7 +1487,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label25: TLabel
@@ -1512,7 +1512,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1560,7 +1560,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label30: TLabel
@@ -1585,7 +1585,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label32: TLabel
@@ -1610,7 +1610,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1658,7 +1658,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label37: TLabel
@@ -1683,7 +1683,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label39: TLabel
@@ -1708,7 +1708,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1756,7 +1756,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label44: TLabel
@@ -1781,7 +1781,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label46: TLabel
@@ -1806,7 +1806,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1854,7 +1854,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label51: TLabel
@@ -1879,7 +1879,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label53: TLabel
@@ -1904,7 +1904,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end

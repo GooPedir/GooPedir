@@ -25,8 +25,8 @@ type
     Label15: TLabel;
     lPedidosMesAnterior: TLabel;
     Layout1: TLayout;
+    layHistorico1: TLayout;
     layHistorico: TLayout;
-    Layout6: TLayout;
     Label11: TLabel;
     Label12: TLabel;
     HorzScrollBox1: THorzScrollBox;
@@ -380,6 +380,18 @@ begin
   end;
   try
     nVemBuscar.Text := dm.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsString;
+  except
+
+  end;
+
+  try
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+    .AsString);
   except
 
   end;

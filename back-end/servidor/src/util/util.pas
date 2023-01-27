@@ -19,7 +19,7 @@ function SQLFormatdaDataMysql(Campo: String): String;
 function SQLFormatdaHoraMysql(Campo: String): String;
 function SQLFormatdaValorMysql(Campo: String): String;
 function ValidaQuantidadeSabores(Sabores, Codigo: String): Integer;
-procedure MovimentacaoProduto(Codigo, Tipo, Quantidade: Integer);
+procedure MovimentacaoProduto(Codigo, Tipo: Integer; Quantidade: Real);
 
 procedure SalvarImagenBase64(base64, Caminho: String);
 
@@ -4608,6 +4608,9 @@ begin
     Parametros('status', Dados.FieldByName('status').AsString);
     Parametros('id', Dados.FieldByName('id').AsString);
     ExecuteSQL;
+    SQL.Add('update pro_adi_personalizado_sabores set modificado_site = 0 where id_pro_adi_personalizado = :id');
+    Parametros('id', Dados.FieldByName('id').AsString);
+    ExecuteSQL;
   end;
 
   conexao.Free;
@@ -4635,6 +4638,9 @@ begin
     SQL.Add('update pro_adi_personalizado_sabores set modificado_site = 0, ativo = 0 where id_pro_adi_personalizado = :id');
     Parametros('id', Dados.FieldByName('id_pro_adi_personalizado').AsString);
     ExecuteSQL;
+    SQL.Add('update pro_adi_personalizado set modificado_site = 0 where id = :id');
+    Parametros('id', Dados.FieldByName('id_pro_adi_personalizado').AsString);
+    ExecuteSQL;
   end;
 
   while not Dados.Eof do
@@ -4649,17 +4655,13 @@ begin
         SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site,id_site,id_ingredientes,quantidade_ingredientes)');
         SQL.Add('values (:id,:extra,:nome,:descricao,:valor,:ativo,0,0,:id_ingredientes,:quantidade_ingredientes)');
         Parametros('id', Codigo);
-        Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado')
-          .AsString);
+        Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado').AsString);
         Parametros('nome', Dados.FieldByName('nome').AsString);
         Parametros('descricao', Dados.FieldByName('descricao').AsString);
         Parametros('valor', Dados.FieldByName('valor').AsString);
         Parametros('ativo', Dados.FieldByName('ativo').AsString);
-        Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
-          .AsString);
-        Parametros('quantidade_ingredientes',
-          StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',
-          [rfReplaceAll]));
+        Parametros('id_ingredientes', Dados.FieldByName('ingredientes').AsString);
+        Parametros('quantidade_ingredientes',StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',[rfReplaceAll]));
         ExecuteSQL;
       end;
 
@@ -4982,11 +4984,9 @@ begin
       end;
     4:
       begin
-        conexao.SQL.Add
-          ('select count(p.valor_total_pedido) as qtd, sum(p.valor_total_pedido) as total, sum(p.valor_taxa_entrega) as taxa, sum(p.valor_pedido) as pedido, sum(p.valor_desconto) as desconto, p.data_pedido, p.status, ss.descricao from pedido as p');
+        conexao.SQL.Add('select count(p.valor_total_pedido) as qtd, sum(p.valor_total_pedido) as total, sum(p.valor_taxa_entrega) as taxa, sum(p.valor_pedido) as pedido, sum(p.valor_desconto) as desconto, p.data_pedido, p.status, ss.descricao from pedido as p');
         conexao.SQL.Add('join status_pedido as ss on ss.id = p.status');
-        conexao.SQL.Add
-          ('where p.status > 0 and p.data_pedido between :ini and :fim');
+        conexao.SQL.Add('where p.status > 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by p.data_pedido');
         conexao.SQL.Add('order by p.data_pedido');
         conexao.Parametros('ini', DataInicio);
@@ -5799,8 +5799,8 @@ begin
       UpperCase(RemoveAcento(Dados.FieldByName('nome_produto').AsString));
     frmServidor.memEstoque.FieldByName('UN').AsString := 'UN';
     if not Dados.FieldByName('estoque').IsNull then
-      frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
-        Dados.FieldByName('estoque').AsFloat;
+      frmServidor.memEstoque.FieldByName('QTD').AsString :=
+        StringReplace(Dados.FieldByName('estoque').AsString, '.', ',', []);
     frmServidor.memEstoque.Post;
 
     Dados.Next;
@@ -5825,8 +5825,8 @@ begin
     frmServidor.memEstoque.FieldByName('UN').AsString :=
       Dados.FieldByName('unidade').AsString;
     if not Dados.FieldByName('estoque').IsNull then
-      frmServidor.memEstoque.FieldByName('QTD').AsFloat :=
-        Dados.FieldByName('estoque').AsFloat;
+      frmServidor.memEstoque.FieldByName('QTD').AsString :=
+        StringReplace(Dados.FieldByName('estoque').AsString, '.', ',', []);
     frmServidor.memEstoque.Post;
 
     Dados.Next;
@@ -5834,6 +5834,93 @@ begin
   Dados.Free;
   Res.Send<TJSONArray>(frmServidor.memEstoque.ToJSONArray);
   conexao.Free;
+end;
+
+procedure DoPostEstoqueProdutoInsulmos(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Dados: TFDMemTable;
+  conexao: TConexao;
+  ID: Integer;
+begin
+  Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON(Req.Body);
+
+  if Dados.RecordCount = 0 then
+  begin
+    Dados.Free;
+    exit;
+  end;
+
+  conexao := TConexao.Create;
+
+  while not Dados.Eof do
+  begin
+    case Dados.FieldByName('TIPO').AsInteger of
+      1:
+        begin
+          // Produto
+          MovimentacaoProduto(Dados.FieldByName('ID').AsInteger, 1,
+            Dados.FieldByName('QTD').AsFloat);
+        end
+    else
+      begin
+
+        ID := conexao.GerarID('ingredientes_estoque', 'id');
+        conexao.SQL.Add
+          ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+        conexao.Parametros('id', ID);
+        conexao.Parametros('id_ingredientes', Dados.FieldByName('ID')
+          .AsInteger);
+        conexao.Parametros('tipo', 1);
+        conexao.Parametros('quantidade', Dados.FieldByName('QTD').AsFloat);
+        conexao.Parametros('custo_total', Dados.FieldByName('CUSTOUN').AsFloat);
+        conexao.Parametros('custo', Dados.FieldByName('CUSTOTOTAL').AsFloat);
+        conexao.ExecuteSQL;
+
+      end;
+    end;
+
+    Dados.Next;
+  end;
+
+  Dados.Free;
+  conexao.Free;
+end;
+
+procedure DoFinalizarServico(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  case Req.Params['tipo'].ToInteger of
+    1:
+      begin
+        // Whatsapp
+        if not frmServidor.FechouWhatsapp then
+        begin
+          frmServidor.FecharExe(frmServidor.WHATSAPP);
+          frmServidor.FechouWhatsapp := True
+        end
+        else
+        begin
+          frmServidor.FechouWhatsapp := false;
+          frmServidor.AbrirExe(frmServidor.WHATSAPP);
+        end;
+      end;
+    2:
+      begin
+        // Site
+        if not frmServidor.FechouSite then
+        begin
+          frmServidor.FecharExe(frmServidor.SITE);
+          frmServidor.FechouSite := True
+        end
+        else
+        begin
+          frmServidor.FechouSite := false;
+          frmServidor.AbrirExe(frmServidor.SITE);
+        end;
+      end;
+  end;
 end;
 
 // THorse.Post('v1/util/fator/conversao/:unde/:unpara/:valor/:tipo/:codigo', DoPostFatorConversao);
@@ -6358,6 +6445,10 @@ begin
   THorse.Post('v1/util/fator/conversao/:unde/:unpara/:valor/:tipo/:codigo',
     DoPostFatorConversao);
 
+  THorse.Post('v1/util/estoque/produto/insumos', DoPostEstoqueProdutoInsulmos);
+
+  THorse.Post('v1/util/finalizar/servico/:tipo', DoFinalizarServico);
+
 end;
 
 function TransformaData(Data: String): TDate;
@@ -6696,7 +6787,7 @@ begin
   FreeMem(VerInfo, VerInfoSize);
 end;
 
-procedure MovimentacaoProduto(Codigo, Tipo, Quantidade: Integer);
+procedure MovimentacaoProduto(Codigo, Tipo: Integer; Quantidade: Real);
 var
   conexao: TConexao;
   ID: Integer;

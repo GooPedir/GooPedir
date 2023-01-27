@@ -35,6 +35,7 @@ type
     procedure rAdicionarMouseEnter(Sender: TObject);
     procedure rAdicionarMouseLeave(Sender: TObject);
     procedure Image1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     procedure SimVoltar;
@@ -49,7 +50,22 @@ implementation
 
 {$R *.fmx}
 
-uses uSimNao, uMain;
+uses uSimNao, uMain, uDM;
+
+procedure TfrmCadastroBase.FormCreate(Sender: TObject);
+begin
+  try
+    Rectangle1.Stroke.Color := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fundo')
+      .AsString);
+    Rectangle1.Fill.Color := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fundo')
+      .AsString);
+
+    lNomeForm.FontColor := dm.CorSite(dm.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
+  except
+
+  end;
+end;
 
 procedure TfrmCadastroBase.Image1Click(Sender: TObject);
 begin

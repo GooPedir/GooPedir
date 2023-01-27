@@ -13,7 +13,7 @@ uses
   FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt, FMX.Bind.Grid,
   System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Components,
   Data.Bind.Grid, Data.Bind.DBScope, FMX.ScrollBox, FMX.Grid, FMXTee.Canvas,
-  FMX.ListBox, FMX.Edit;
+  FMX.ListBox, FMX.Edit, uButton;
 
 type
   TfrmEstoque = class(TfrmPadrao)
@@ -26,7 +26,6 @@ type
     DADOSTIPO: TIntegerField;
     DADOSNOME: TStringField;
     DADOSUN: TStringField;
-    DADOSQTD: TFloatField;
     DADOSENTRADA: TFloatField;
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
@@ -65,7 +64,6 @@ type
     memEntradaEstoqueCUSTOTOTAL: TFloatField;
     memEntradaEstoqueSEQLOCAL: TIntegerField;
     Grid2: TGrid;
-    Button1: TButton;
     BindSourceDB2: TBindSourceDB;
     LinkGridToDataSourceBindSourceDB2: TLinkGridToDataSource;
     Layout3: TLayout;
@@ -77,6 +75,14 @@ type
     memFatorConversaovalor: TFloatField;
     lDescFator: TLabel;
     lQtdEntrada: TLabel;
+    DADOSQTD: TCurrencyField;
+    iButton1: iButton;
+    iButton2: iButton;
+    iButton3: iButton;
+    iButton4: iButton;
+    iButonSelecionar: iButton;
+    iButton5: iButton;
+    iButton6: iButton;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
       const Column: TColumn; const Bounds: TRectF; const Row: Integer;
@@ -87,12 +93,20 @@ type
     procedure edtQuantidadeExit(Sender: TObject);
     procedure edtValorUnitarioExit(Sender: TObject);
     procedure edtValorTotalExit(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure Grid2DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
       const Column: TColumn; const Bounds: TRectF; const Row: Integer;
       const Value: TValue; const State: TGridDrawStates);
     procedure cUnidadeChange(Sender: TObject);
     procedure edtFatorExit(Sender: TObject);
+    procedure iButton2Click(Sender: TObject);
+    procedure iButton1Click(Sender: TObject);
+    procedure iButton3Click(Sender: TObject);
+    procedure iButton4Click(Sender: TObject);
+    procedure edtPesquisaDblClick(Sender: TObject);
+    procedure iButonSelecionarClick(Sender: TObject);
+    procedure iButton5Click(Sender: TObject);
+    procedure iButton6Click(Sender: TObject);
+    procedure imgCloseClick(Sender: TObject);
   private
     FTipoSelecionado: Integer;
     FDescricaoSelecionado: String;
@@ -134,10 +148,47 @@ begin
     memEntradaEstoque.Open;
   end;
 
+  try
+    if StrToFloat(edtQuantidade.Text) = 0 then
+    begin
+      ShowMessageToast(self, 'Quantidade invalida!', 1);
+      edtQuantidade.SetFocus;
+      exit;
+    end;
+  except
+    ShowMessageToast(self, 'Quantidade invalida!', 1);
+    edtQuantidade.SetFocus;
+    exit;
+  end;
+
+  try
+    StrToFloat(edtValorUnitario.Text);
+  except
+    ShowMessageToast(self, 'Valor unitário invalida!', 1);
+    edtValorUnitario.SetFocus;
+    exit;
+  end;
+
+  try
+    StrToFloat(edtValorTotal.Text);
+  except
+    ShowMessageToast(self, 'Valor total invalida!', 1);
+    edtValorTotal.SetFocus;
+    exit;
+  end;
+
+  try
+    StrToFloat(edtQuantidade.Text);
+  except
+    ShowMessageToast(self, 'Quantidade invalida!', 1);
+    edtQuantidade.SetFocus;
+    exit;
+  end;
+
   if edtFator.Visible then
   begin
     PostSimples('v1/util/fator/conversao/' + cUnidade.Items[cUnidade.ItemIndex]
-      + '/' + DADOS.FieldByName('UN').AsString + '/' + edtFator.text + '/' +
+      + '/' + DADOS.FieldByName('UN').AsString + '/' + edtFator.Text + '/' +
       DADOS.FieldByName('TIPO').AsString + '/' + DADOS.FieldByName('ID')
       .AsString, nil);
   end;
@@ -149,16 +200,16 @@ begin
   end;
 
   try
-    Quantidade := StrToFloat(edtQuantidade.text);
+    Quantidade := StrToFloat(edtQuantidade.Text);
     if edtFator.Visible then
-      Quantidade := StrToFloat(edtQuantidade.text) * StrToFloat(edtFator.text);
+      Quantidade := StrToFloat(edtQuantidade.Text) * StrToFloat(edtFator.Text);
 
   except
     Quantidade := 0;
   end;
 
   try
-    Total := StrToFloat(lTotal.text);
+    Total := StrToFloat(lTotal.Text);
   except
     Total := 0;
   end;
@@ -175,23 +226,23 @@ begin
   memEntradaEstoque.FieldByName('UN').AsString :=
     DADOS.FieldByName('UN').AsString;
   memEntradaEstoque.FieldByName('QTD').AsFloat := Quantidade;
-  memEntradaEstoque.FieldByName('CUSTOUN').AsString := edtValorUnitario.text;
-  memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString := edtValorTotal.text;
+  memEntradaEstoque.FieldByName('CUSTOUN').AsString := edtValorUnitario.Text;
+  memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString := edtValorTotal.Text;
   memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger :=
     DADOS.FieldByName('SEQUENCIAL').AsInteger;
   memEntradaEstoque.Post;
 
   Total := Total + memEntradaEstoque.FieldByName('CUSTOTOTAL').AsFloat;
-  Quantidade := StrToFloat(lQuantidade.text) + Quantidade;
+  Quantidade := StrToFloat(lQuantidade.Text) + Quantidade;
 
-  lQuantidade.text := FormatFloat('#0.000', Quantidade);
-  lTotal.text := FormatFloat('#0.000', Total);
+  lQuantidade.Text := FormatFloat('#0.000', Quantidade);
+  lTotal.Text := FormatFloat('#0.000', Total);
 
-  edtQuantidade.text := '0,000';
-  edtValorUnitario.text := '0,000';
-  edtValorTotal.text := '0,000';
+  edtQuantidade.Text := '0,000';
+  edtValorUnitario.Text := '0,000';
+  edtValorTotal.Text := '0,000';
   cUnidade.ItemIndex := 0;
-  EdtNome.text := '';
+  EdtNome.Text := '';
   edtPesquisa.SetFocus;
   edtFator.Visible := False;
   DADOS.Filtered := False;
@@ -204,15 +255,9 @@ procedure TfrmEstoque.AtualizaLabelEntrada;
 var
   Quantidade: Real;
 begin
-  Quantidade := StrToFloat(edtFator.text) * StrToFloat(edtQuantidade.text);
-  lQtdEntrada.text := FormatFloat('#0.000', Quantidade) +
+  Quantidade := StrToFloat(edtFator.Text) * StrToFloat(edtQuantidade.Text);
+  lQtdEntrada.Text := FormatFloat('#0.000', Quantidade) +
     DADOS.FieldByName('UN').AsString;
-end;
-
-procedure TfrmEstoque.Button1Click(Sender: TObject);
-begin
-  inherited;
-  Adicionar;
 end;
 
 procedure TfrmEstoque.CalculaValores(Tipo: Integer);
@@ -222,17 +267,17 @@ var
   ValorTotal: Real;
 begin
   try
-    Quantidade := StrToFloat(edtQuantidade.text);
+    Quantidade := StrToFloat(edtQuantidade.Text);
   except
 
   end;
   try
-    ValorUnitario := StrToFloat(edtValorUnitario.text);
+    ValorUnitario := StrToFloat(edtValorUnitario.Text);
   except
 
   end;
   try
-    ValorTotal := StrToFloat(edtValorTotal.text);
+    ValorTotal := StrToFloat(edtValorTotal.Text);
   except
 
   end;
@@ -248,9 +293,9 @@ begin
   begin
     ValorTotal := Quantidade * ValorUnitario;
   end;
-  edtQuantidade.text := FormatFloat('#0.000', Quantidade);
-  edtValorUnitario.text := FormatFloat('#0.000', ValorUnitario);
-  edtValorTotal.text := FormatFloat('#0.000', ValorTotal);
+  edtQuantidade.Text := FormatFloat('#0.000', Quantidade);
+  edtValorUnitario.Text := FormatFloat('#0.000', ValorUnitario);
+  edtValorTotal.Text := FormatFloat('#0.000', ValorTotal);
 
 end;
 
@@ -272,7 +317,7 @@ begin
     if memFatorConversao.RecordCount > 0 then
     begin
       try
-        edtFator.text := FormatFloat('#0.000',
+        edtFator.Text := FormatFloat('#0.000',
           memFatorConversao.FieldByName('valor').AsFloat);
       except
 
@@ -280,8 +325,8 @@ begin
     end;
 
     AtualizaLabelEntrada;
-    lDescFator.text := 'A cada 1,000' + cUnidade.Items[cUnidade.ItemIndex] +
-      ' converte em ' + edtFator.text + DADOS.FieldByName('UN').AsString;
+    lDescFator.Text := 'A cada 1,000' + cUnidade.Items[cUnidade.ItemIndex] +
+      ' converte em ' + edtFator.Text + DADOS.FieldByName('UN').AsString;
   end;
 
 end;
@@ -292,13 +337,13 @@ var
   Quantidade: Real;
 begin
   try
-    Quantidade := StrToFloat(lQuantidade.text);
+    Quantidade := StrToFloat(lQuantidade.Text);
   except
     Quantidade := 0;
   end;
 
   try
-    Total := StrToFloat(lTotal.text);
+    Total := StrToFloat(lTotal.Text);
   except
     Total := 0;
   end;
@@ -308,22 +353,29 @@ begin
   Total := Total - memEntradaEstoque.FieldByName('CUSTOTOTAL').AsFloat;
   Quantidade := Quantidade - memEntradaEstoque.FieldByName('QTD').AsFloat;
   memEntradaEstoque.Delete;
-  lQuantidade.text := FormatFloat('#0.000', Quantidade);
-  lTotal.text := FormatFloat('#0.000', Total);
+  lQuantidade.Text := FormatFloat('#0.000', Quantidade);
+  lTotal.Text := FormatFloat('#0.000', Total);
 end;
 
 procedure TfrmEstoque.edtFatorExit(Sender: TObject);
 begin
   inherited;
   try
-    edtFator.text := FormatFloat('#0.000', StrToFloat(edtFator.text));
+    edtFator.Text := FormatFloat('#0.000', StrToFloat(edtFator.Text));
   except
     edtFator.SetFocus;
     exit;
   end;
-  lDescFator.text := 'A cada 1,000' + cUnidade.Items[cUnidade.ItemIndex] +
-    ' converte em ' + edtFator.text + DADOS.FieldByName('UN').AsString;
+  lDescFator.Text := 'A cada 1,000' + cUnidade.Items[cUnidade.ItemIndex] +
+    ' converte em ' + edtFator.Text + DADOS.FieldByName('UN').AsString;
   AtualizaLabelEntrada;
+end;
+
+procedure TfrmEstoque.edtPesquisaDblClick(Sender: TObject);
+begin
+  inherited;
+  iButonSelecionar.Visible := True;
+  tabMain.TabIndex := 0;
 end;
 
 procedure TfrmEstoque.edtPesquisaKeyDown(Sender: TObject; var Key: Word;
@@ -335,25 +387,25 @@ begin
   begin
     try
       DADOS.Filter := 'NOME LIKE ' +
-        QuotedStr('%' + UpperCase(edtPesquisa.text) + '%');
-      DADOS.Filtered := Length(edtPesquisa.text) > 0;
+        QuotedStr('%' + UpperCase(edtPesquisa.Text) + '%');
+      DADOS.Filtered := Length(edtPesquisa.Text) > 0;
     except
       DADOS.Filtered := False;
     end;
 
     layUltimos2.Visible := DADOS.RecordCount > 0;
-    lNome1.text := DADOS.FieldByName('NOME').AsString;
-    lUn1.text := DADOS.FieldByName('UN').AsString;
+    lNome1.Text := DADOS.FieldByName('NOME').AsString;
+    lUn1.Text := DADOS.FieldByName('UN').AsString;
     rProd1.Tag := DADOS.FieldByName('SEQUENCIAL').AsInteger;
 
     DADOS.Next;
-    lNome2.text := DADOS.FieldByName('NOME').AsString;
-    lUn2.text := DADOS.FieldByName('UN').AsString;
+    lNome2.Text := DADOS.FieldByName('NOME').AsString;
+    lUn2.Text := DADOS.FieldByName('UN').AsString;
     rProd2.Visible := NOT DADOS.RecordCount = 1;
     rProd2.Tag := DADOS.FieldByName('SEQUENCIAL').AsInteger;
 
-    lNome2.text := DADOS.FieldByName('NOME').AsString;
-    lUn2.text := DADOS.FieldByName('UN').AsString;
+    lNome2.Text := DADOS.FieldByName('NOME').AsString;
+    lUn2.Text := DADOS.FieldByName('UN').AsString;
 
     {
       Id1 : Integer;
@@ -397,6 +449,9 @@ begin
   edtFator.Visible := False;
   lDescFator.Visible := False;
   lQtdEntrada.Visible := False;
+  iButonSelecionar.Visible := False;
+  Layout1.Visible := True;
+  tabMain.TabPosition := TTabPosition.None;
 end;
 
 procedure TfrmEstoque.Grid1DrawColumnCell(Sender: TObject;
@@ -529,25 +584,224 @@ begin
   end;
 end;
 
+procedure TfrmEstoque.iButonSelecionarClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  inherited;
+  edtPesquisa.Text := '';
+  DADOS.Filtered := False;
+  tabMain.TabIndex := 1;
+
+  EdtNome.Text := DADOS.FieldByName('NOME').AsString;
+  for I := 0 to cUnidade.Items.Count - 1 do
+  begin
+    if (cUnidade.Items[I] = DADOS.FieldByName('UN').AsString) then
+      cUnidade.ItemIndex := I;
+  end;
+
+  edtQuantidade.Text := '0,000';
+  edtValorUnitario.Text := '0,000';
+  edtValorTotal.Text := '0,000';
+  layUltimos2.Visible := False;
+  edtQuantidade.SetFocus;
+  edtQuantidade.SelectAll;
+end;
+
+procedure TfrmEstoque.iButton1Click(Sender: TObject);
+begin
+  inherited;
+  PostSimples('v1/util/estoque/produto/insumos', memEntradaEstoque);
+  ShowMessageToast(self, 'Entrada do Estoque Feita Com Sucesso!', 1);
+
+  GetSimples2('v1/util/estoque/geral', DADOS);
+  layUltimos2.Visible := False;
+  edtFator.Visible := False;
+  lDescFator.Visible := False;
+  lQtdEntrada.Visible := False;
+  Layout1.Visible := True;
+  tabMain.TabIndex := 0;
+
+end;
+
+procedure TfrmEstoque.iButton2Click(Sender: TObject);
+begin
+  inherited;
+  Adicionar;
+end;
+
+procedure TfrmEstoque.iButton3Click(Sender: TObject);
+begin
+  inherited;
+  Deletar;
+end;
+
+procedure TfrmEstoque.iButton4Click(Sender: TObject);
+begin
+  inherited;
+  memEntradaEstoque.Close;
+  memEntradaEstoque.Open;
+  lQuantidade.Text := '0,000';
+  lTotal.Text := '0,000';
+  tabMain.TabIndex := 1;
+  Layout1.Visible := False;
+end;
+
+procedure TfrmEstoque.iButton5Click(Sender: TObject);
+var
+  Quantidade: Real;
+begin
+  inherited;
+  memEntradaEstoque.Close;
+  memEntradaEstoque.Open;
+  lQuantidade.Text := '0,000';
+  lTotal.Text := '0,000';
+  DADOS.First;
+  DADOS.DisableControls;
+  Quantidade := 0;
+  while not DADOS.Eof do
+  begin
+
+    if DADOS.FieldByName('QTD').AsInteger < 0 then
+    begin
+      inc(Sequencial);
+      memEntradaEstoque.insert;
+      memEntradaEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
+      memEntradaEstoque.FieldByName('ID').AsInteger := DADOS.FieldByName('ID')
+        .AsInteger;
+      memEntradaEstoque.FieldByName('TIPO').AsInteger :=
+        DADOS.FieldByName('TIPO').AsInteger;
+      memEntradaEstoque.FieldByName('NOME').AsString :=
+        DADOS.FieldByName('NOME').AsString;
+      memEntradaEstoque.FieldByName('UN').AsString :=
+        DADOS.FieldByName('UN').AsString;
+      memEntradaEstoque.FieldByName('QTD').AsFloat := DADOS.FieldByName('QTD')
+        .AsInteger * -1;
+      memEntradaEstoque.FieldByName('CUSTOUN').AsString :=
+        edtValorUnitario.Text;
+      memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString :=
+        edtValorTotal.Text;
+      memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger :=
+        DADOS.FieldByName('SEQUENCIAL').AsInteger;
+      memEntradaEstoque.Post;
+      Quantidade := Quantidade + memEntradaEstoque.FieldByName('QTD').AsFloat;
+    end;
+
+    DADOS.Next;
+  end;
+  DADOS.First;
+  DADOS.EnableControls;
+  lQuantidade.Text := FormatFloat('#0.000', Quantidade);
+
+  tabMain.TabIndex := 1;
+  Layout1.Visible := False;
+end;
+
+procedure TfrmEstoque.iButton6Click(Sender: TObject);
+var
+  Quantidade: Real;
+begin
+  inherited;
+  memEntradaEstoque.Close;
+  memEntradaEstoque.Open;
+  lQuantidade.Text := '0,000';
+  lTotal.Text := '0,000';
+  DADOS.First;
+  DADOS.DisableControls;
+  Quantidade := 0;
+  while not DADOS.Eof do
+  begin
+
+    if DADOS.FieldByName('QTD').AsInteger > 0 then
+    begin
+      inc(Sequencial);
+      memEntradaEstoque.insert;
+      memEntradaEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
+      memEntradaEstoque.FieldByName('ID').AsInteger := DADOS.FieldByName('ID')
+        .AsInteger;
+      memEntradaEstoque.FieldByName('TIPO').AsInteger :=
+        DADOS.FieldByName('TIPO').AsInteger;
+      memEntradaEstoque.FieldByName('NOME').AsString :=
+        DADOS.FieldByName('NOME').AsString;
+      memEntradaEstoque.FieldByName('UN').AsString :=
+        DADOS.FieldByName('UN').AsString;
+      memEntradaEstoque.FieldByName('QTD').AsFloat := DADOS.FieldByName('QTD')
+        .AsInteger;
+      memEntradaEstoque.FieldByName('CUSTOUN').AsString :=
+        edtValorUnitario.Text;
+      memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString :=
+        edtValorTotal.Text;
+      memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger :=
+        DADOS.FieldByName('SEQUENCIAL').AsInteger;
+      memEntradaEstoque.Post;
+      Quantidade := Quantidade + memEntradaEstoque.FieldByName('QTD').AsFloat;
+    end;
+    if DADOS.FieldByName('QTD').AsInteger < 0 then
+    begin
+      inc(Sequencial);
+      memEntradaEstoque.insert;
+      memEntradaEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
+      memEntradaEstoque.FieldByName('ID').AsInteger := DADOS.FieldByName('ID')
+        .AsInteger;
+      memEntradaEstoque.FieldByName('TIPO').AsInteger :=
+        DADOS.FieldByName('TIPO').AsInteger;
+      memEntradaEstoque.FieldByName('NOME').AsString :=
+        DADOS.FieldByName('NOME').AsString;
+      memEntradaEstoque.FieldByName('UN').AsString :=
+        DADOS.FieldByName('UN').AsString;
+      memEntradaEstoque.FieldByName('QTD').AsFloat := DADOS.FieldByName('QTD')
+        .AsInteger * -1;
+      memEntradaEstoque.FieldByName('CUSTOUN').AsString :=
+        edtValorUnitario.Text;
+      memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString :=
+        edtValorTotal.Text;
+      memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger :=
+        DADOS.FieldByName('SEQUENCIAL').AsInteger;
+      memEntradaEstoque.Post;
+      Quantidade := Quantidade + memEntradaEstoque.FieldByName('QTD').AsFloat;
+    end;
+
+    DADOS.Next;
+  end;
+  DADOS.First;
+  DADOS.EnableControls;
+  lQuantidade.Text := FormatFloat('#0.000', Quantidade);
+
+  tabMain.TabIndex := 1;
+  Layout1.Visible := False;
+end;
+
+procedure TfrmEstoque.imgCloseClick(Sender: TObject);
+begin
+  if tabMain.TabIndex = 1 then
+  begin
+    tabMain.TabIndex := 0;
+    exit;
+  end;
+
+  inherited;
+
+end;
+
 procedure TfrmEstoque.rProd1Click(Sender: TObject);
 var
   I: Integer;
 begin
   inherited;
-  edtPesquisa.text := '';
+  edtPesquisa.Text := '';
   DADOS.Filtered := False;
   if (DADOS.Locate('SEQUENCIAL', (Sender AS TRectangle).Tag, [])) then
   begin
-    EdtNome.text := DADOS.FieldByName('NOME').AsString;
+    EdtNome.Text := DADOS.FieldByName('NOME').AsString;
     for I := 0 to cUnidade.Items.Count - 1 do
     begin
       if (cUnidade.Items[I] = DADOS.FieldByName('UN').AsString) then
         cUnidade.ItemIndex := I;
     end;
   end;
-  edtQuantidade.text := '0,000';
-  edtValorUnitario.text := '0,000';
-  edtValorTotal.text := '0,000';
+  edtQuantidade.Text := '0,000';
+  edtValorUnitario.Text := '0,000';
+  edtValorTotal.Text := '0,000';
   layUltimos2.Visible := False;
   edtQuantidade.SetFocus;
   edtQuantidade.SelectAll;

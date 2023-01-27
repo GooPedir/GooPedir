@@ -172,11 +172,10 @@ end;
 
 procedure TframeDadosVBDelivery.lVisualizacaoClick(Sender: TObject);
 begin
-  if not Assigned(FrmResumo) then
-    Application.CreateForm(TFrmResumo, FrmResumo);
+
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := CodigoInterno;
-  FrmResumo.Show;
+  frmMain.OpenClose;
 end;
 
 procedure TframeDadosVBDelivery.SetCaixa(const Value: Integer);
@@ -288,7 +287,7 @@ begin
   Carregando := True;
   FStatus := Value;
   cStatus.ItemIndex := Value;
-  lStatus.Visible := Value < 5;
+  lStatus.Visible := Value <= 5;
   Carregando := False;
 end;
 

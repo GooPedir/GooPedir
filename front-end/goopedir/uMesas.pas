@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, uMemTable, uRequisicao, uComboboxLocal,
-  FMX.DateTimeCtrls, FMX.Ani;
+  FMX.DateTimeCtrls, FMX.Ani, uButton;
 
 type
 
@@ -87,6 +87,19 @@ type
     Label4: TLabel;
     lMesaConsumindo: TLabel;
     imgMenuLateral: TImage;
+    btnFinalizaWhats: iButton;
+    btnFinalizaSite: iButton;
+    Layout9: TLayout;
+    Label12: TLabel;
+    lTotalVDelivery: TLabel;
+    Label15: TLabel;
+    lTotalVTaxa: TLabel;
+    Layout10: TLayout;
+    Label20: TLabel;
+    lTotalvVembuscar: TLabel;
+    Layout11: TLayout;
+    Label24: TLabel;
+    lTotalVMesa: TLabel;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -101,17 +114,22 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Layout8Click(Sender: TObject);
     procedure imgMenuLateralClick(Sender: TObject);
+    procedure btnFinalizaWhatsClick(Sender: TObject);
+    procedure btnFinalizaSiteClick(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
     FValorDelivery: Real;
     FValorMesa: Real;
+    FTaxaTotal: Real;
     { Private declarations }
     procedure BuscaPedido;
     procedure SetValorDelivery(const Value: Real);
     procedure SetValorEmAberto(const Value: Real);
     procedure SetValorMesa(const Value: Real);
     procedure SetValorVB(const Value: Real);
+    procedure SetTaxaTotal(const Value: Real);
+    property TaxaTotal : Real read FTaxaTotal write SetTaxaTotal;
     property ValorMesa: Real read FValorMesa write SetValorMesa;
     property ValorVB: Real read FValorVB write SetValorVB;
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
@@ -308,10 +326,8 @@ end;
 procedure TfrmMesas.ClickLocal(Sender: TObject);
 begin
 
-  if NOT Assigned(FrmResumo) then
-    Application.CreateForm(TFrmResumo, FrmResumo);
   FrmResumo.MESA := (Sender as TRectangle).Tag;
-  FrmResumo.Show;
+  frmMain.OpenClose;
 
 end;
 
@@ -447,6 +463,53 @@ begin
   edtHoraInicial.Time := StrToTime('00:00:00');
   edtHoraFinal.Time := StrToTime('23:59:59');
 
+
+  try
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+    .AsString);
+  except
+
+  end;
+
+
+end;
+
+procedure TfrmMesas.btnFinalizaWhatsClick(Sender: TObject);
+begin
+  inherited;
+  PostSimples('v1/util/finalizar/servico/1', nil);
+  if btnFinalizaWhats.iForthDescricao = 'Fechar Whatsapp' then
+  begin
+    btnFinalizaWhats.iForthDescricao := 'Abrir Whatsapp';
+    ShowMessageToast(self,'Whatsapp Fechado!',2);
+  end
+  else
+  begin
+    btnFinalizaWhats.iForthDescricao := 'Fechar Whatsapp';
+    ShowMessageToast(self,'Whatsapp Aberto, Aguarde!',2);
+  end;
+
+end;
+
+procedure TfrmMesas.btnFinalizaSiteClick(Sender: TObject);
+begin
+  inherited;
+  PostSimples('v1/util/finalizar/servico/2', nil);
+  if btnFinalizaSite.iForthDescricao = 'Fechar Site' then
+  begin
+    btnFinalizaSite.iForthDescricao := 'Abrir Site';
+    ShowMessageToast(self,'Site Fechado!',2);
+  end
+  else
+  begin
+    btnFinalizaSite.iForthDescricao := 'Fechar Site';
+    ShowMessageToast(self,'Site Aberto, Aguarde!',2);
+  end;
 end;
 
 procedure TfrmMesas.imgMenuLateralClick(Sender: TObject);
@@ -455,7 +518,9 @@ begin
   if imgMenuLateral.RotationAngle = 90 then
   begin
     imgMenuLateral.RotationAngle := 0;
-  end else begin
+  end
+  else
+  begin
     imgMenuLateral.RotationAngle := 90;
   end;
   Layout1.Visible := imgMenuLateral.RotationAngle = 0;
@@ -533,11 +598,10 @@ end;
 procedure TfrmMesas.lImpressaoClick(Sender: TObject);
 begin
   inherited;
-  if not Assigned(FrmResumo) then
-    Application.CreateForm(TFrmResumo, FrmResumo);
+
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := -1;
-  FrmResumo.Show;
+  frmMain.OpenClose;
 end;
 
 procedure TfrmMesas.lImpressaoMouseEnter(Sender: TObject);
@@ -573,6 +637,11 @@ begin
       cMotoboy.CodItem + '/', nil);
   end;
   ShowMessageToast(Self, 'Motoboy incluido no(s) pedido(s) com sucesso!', 2);
+end;
+
+procedure TfrmMesas.SetTaxaTotal(const Value: Real);
+begin
+  FTaxaTotal := Value;
 end;
 
 procedure TfrmMesas.SetValorDelivery(const Value: Real);
@@ -636,8 +705,6 @@ begin
   begin
     TThread.CreateAnonymousThread(
       procedure
-      var
-        CONEXAO: iRequisicao;
       begin
         DM.GetSimples('/v1/mesas', MESA);
 
@@ -645,7 +712,7 @@ begin
           procedure
           begin
             // Memo1.Lines.Add('Teste anonymous Thread');
-            CONEXAO.Free;
+
           end);
       end).Start;
   end;
@@ -665,6 +732,8 @@ begin
     ValorVB := 0;
     ValorDelivery := 0;
     ValorMesa := 0;
+    TaxaTotal := 0;
+    DadosPedido.First;
     while not DadosPedido.Eof do
     begin
       if Assigned(tabDeliveryVemBuscar.FindComponent('FrameDados' +
@@ -693,37 +762,6 @@ begin
           else
             begin
               FrameDados.Parent := vertDelivery;
-              if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
-                .AsString) then
-              begin
-                DadosMotoboy.Edit;
-              end
-              else
-              begin
-                DadosMotoboy.Insert;
-                DadosMotoboy.FieldByName('NOME').AsString :=
-                  DadosPedido.FieldByName('motoboy').AsString;
-                DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
-                DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
-              end;
-              DadosMotoboy.FieldByName('TAXA').AsFloat :=
-                DadosMotoboy.FieldByName('TAXA').AsFloat +
-                DadosPedido.FieldByName('taxa').AsFloat;
-              DadosMotoboy.FieldByName('TOTAL').AsFloat :=
-                DadosMotoboy.FieldByName('TOTAL').AsFloat +
-                DadosPedido.FieldByName('total').AsFloat;
-              if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end
-              else
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end;
-              DadosMotoboy.Post;
 
             end;
 
@@ -748,8 +786,40 @@ begin
         else
           begin
 
-            ValorDelivery := ValorDelivery + DadosPedido.FieldByName
-              ('total').AsFloat;
+            if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
+              .AsString) then
+            begin
+              DadosMotoboy.Edit;
+            end
+            else
+            begin
+              DadosMotoboy.Insert;
+              DadosMotoboy.FieldByName('NOME').AsString :=
+                DadosPedido.FieldByName('motoboy').AsString;
+              DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+              DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+            end;
+            DadosMotoboy.FieldByName('TAXA').AsFloat :=
+              DadosMotoboy.FieldByName('TAXA').AsFloat + DadosPedido.FieldByName
+              ('taxa').AsFloat;
+            DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+              DadosMotoboy.FieldByName('TOTAL').AsFloat +
+              DadosPedido.FieldByName('total').AsFloat;
+            if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+            begin
+              DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                DadosPedido.FieldByName('codigo_Dia').AsString;
+            end
+            else
+            begin
+              DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                DadosPedido.FieldByName('codigo_Dia').AsString;
+            end;
+            DadosMotoboy.Post;
+
+            ValorDelivery := ValorDelivery + DadosPedido.FieldByName('total').AsFloat;
+           TaxaTotal := TaxaTotal + DadosPedido.FieldByName('taxa').AsFloat;
           end;
 
         end;
@@ -823,12 +893,15 @@ begin
       FrameDadosMotoboy.Pedido := DadosMotoboy.FieldByName('PEDIDO').AsString;
       FrameDadosMotoboy.Taxa := DadosMotoboy.FieldByName('TAXA').AsFloat;
       FrameDadosMotoboy.Total := DadosMotoboy.FieldByName('TOTAL').AsFloat;
-
       DadosMotoboy.Next;
     end;
     lMesa.Text := FormatFloat('R$ ###,##0.00', ValorMesa);
+    lTotalVMesa.Text := FormatFloat('###,##0.00', ValorMesa);
     lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);
+    lTotalVDelivery.Text := FormatFloat('###,##0.00', ValorDelivery);
+    lTotalVTaxa.Text := FormatFloat('###,##0.00', TaxaTotal);
     lVemBuscar.Text := FormatFloat('R$ ###,##0.00', ValorVB);
+    lTotalvVembuscar.Text := FormatFloat('###,##0.00', ValorVB);
     lTotal.Text := FormatFloat('R$ ###,##0.00',
       (ValorMesa + ValorDelivery + ValorVB));
     DadosPedido.Close;

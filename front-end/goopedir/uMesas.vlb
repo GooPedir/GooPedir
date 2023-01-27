@@ -92,3 +92,12 @@ Coordinates=124,358,88,33
 []
 Coordinates=35,358,82,33
 
+[FrmResumo.MemTaxa]
+Visible=False
+
+[FrmResumo.Pagamento]
+Visible=False
+
+[FrmResumo.mCliente]
+Visible=False
+
