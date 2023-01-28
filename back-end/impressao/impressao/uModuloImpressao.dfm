@@ -1157,6 +1157,7 @@ object dmImpressaoV2: TdmImpressaoV2
     Top = 64
   end
   object COZINHA: TFDQuery
+    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'SELECT '
@@ -1200,6 +1201,10 @@ object dmImpressaoV2: TdmImpressaoV2
       
         '(SELECT driver FROM impressoras where codigo = (select impressor' +
         'a from tipo_produto where codigo = p.codigo_grupo)) as driver,'
+      
+        '(SELECT upper(descricao) FROM impressoras where codigo = (select' +
+        ' impressora from tipo_produto where codigo = p.codigo_grupo)) as' +
+        ' impressora,'
       'c.nome,'
       'c.celular,'
       'ped.data_pedido,'
@@ -1234,8 +1239,8 @@ object dmImpressaoV2: TdmImpressaoV2
     object ppCozinhappField1: TppField
       FieldAlias = 'origem_pedido'
       FieldName = 'origem_pedido'
-      FieldLength = 255
-      DisplayWidth = 255
+      FieldLength = 0
+      DisplayWidth = 0
       Position = 0
     end
     object ppCozinhappField2: TppField
@@ -1334,48 +1339,55 @@ object dmImpressaoV2: TdmImpressaoV2
       Position = 12
     end
     object ppCozinhappField14: TppField
-      FieldAlias = 'nome'
-      FieldName = 'nome'
+      FieldAlias = 'impressora'
+      FieldName = 'impressora'
       FieldLength = 255
       DisplayWidth = 255
       Position = 13
     end
     object ppCozinhappField15: TppField
+      FieldAlias = 'nome'
+      FieldName = 'nome'
+      FieldLength = 255
+      DisplayWidth = 255
+      Position = 14
+    end
+    object ppCozinhappField16: TppField
       FieldAlias = 'celular'
       FieldName = 'celular'
       FieldLength = 14
       DisplayWidth = 14
-      Position = 14
+      Position = 15
     end
-    object ppCozinhappField16: TppField
+    object ppCozinhappField17: TppField
       FieldAlias = 'data_pedido'
       FieldName = 'data_pedido'
       FieldLength = 0
       DataType = dtDate
       DisplayWidth = 10
-      Position = 15
+      Position = 16
     end
-    object ppCozinhappField17: TppField
+    object ppCozinhappField18: TppField
       FieldAlias = 'hora_pedido'
       FieldName = 'hora_pedido'
       FieldLength = 0
       DataType = dtTime
       DisplayWidth = 10
-      Position = 16
+      Position = 17
     end
-    object ppCozinhappField18: TppField
+    object ppCozinhappField19: TppField
       FieldAlias = 'tipo'
       FieldName = 'tipo'
       FieldLength = 10
       DisplayWidth = 10
-      Position = 17
+      Position = 18
     end
-    object ppCozinhappField19: TppField
+    object ppCozinhappField20: TppField
       FieldAlias = 'categoria'
       FieldName = 'categoria'
       FieldLength = 255
       DisplayWidth = 255
-      Position = 18
+      Position = 19
     end
   end
   object dsCozinha: TDataSource
@@ -1856,7 +1868,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Border.mmPadding = 0
       PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 15346
+      mmHeight = 17727
       mmPrintPosition = 0
       object ppSystemVariable5: TppSystemVariable
         DesignLayer = ppDesignLayer13
@@ -1871,7 +1883,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 10583
+        mmTop = 14023
         mmWidth = 35190
         BandType = 7
         LayerName = BandLayer12
@@ -1891,6 +1903,26 @@ object dmImpressaoV2: TdmImpressaoV2
         mmLeft = 1852
         mmTop = 6879
         mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer12
+      end
+      object ppDBText26: TppDBText
+        DesignLayer = ppDesignLayer13
+        UserName = 'DBText26'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3440
+        mmLeft = 1852
+        mmTop = 10583
+        mmWidth = 41275
         BandType = 7
         LayerName = BandLayer12
       end
@@ -3141,7 +3173,28 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3704
         mmLeft = 1852
         mmTop = 6615
-        mmWidth = 38894
+        mmWidth = 35257
+        BandType = 7
+        LayerName = BandLayer21
+      end
+      object ppDBText16: TppDBText
+        DesignLayer = ppDesignLayer4
+        UserName = 'DBText16'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3433
+        mmLeft = 38100
+        mmTop = 10665
+        mmWidth = 41322
         BandType = 7
         LayerName = BandLayer21
       end
@@ -5189,6 +5242,7 @@ object dmImpressaoV2: TdmImpressaoV2
     end
   end
   object CAIXA_RESUMO: TFDQuery
+    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'select'
@@ -5213,6 +5267,10 @@ object dmImpressaoV2: TdmImpressaoV2
         '(select sum(pl.valor_total_pedido) from pedido as pl where pl.id' +
         '_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_deliv' +
         'ery,'
+      
+        '(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id' +
+        '_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entreg' +
+        'a,'
       
         '(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedi' +
         'do as pl where pl.id_caixa = c.id)) as valor_diferenca'
@@ -5332,12 +5390,21 @@ object dmImpressaoV2: TdmImpressaoV2
     end
     object ppResumoppField13: TppField
       Alignment = taRightJustify
+      FieldAlias = 'taxa_entrega'
+      FieldName = 'taxa_entrega'
+      FieldLength = 0
+      DataType = dtDouble
+      DisplayWidth = 10
+      Position = 12
+    end
+    object ppResumoppField14: TppField
+      Alignment = taRightJustify
       FieldAlias = 'valor_diferenca'
       FieldName = 'valor_diferenca'
       FieldLength = 0
       DataType = dtDouble
       DisplayWidth = 10
-      Position = 12
+      Position = 13
     end
   end
   object dsResumo: TDataSource
@@ -5575,7 +5642,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3243
         mmLeft = 44450
         mmTop = -265
-        mmWidth = 29381
+        mmWidth = 25969
         BandType = 4
         LayerName = BandLayer13
       end
@@ -5646,7 +5713,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4498
         mmLeft = 40217
         mmTop = 298
-        mmWidth = 33551
+        mmWidth = 30139
         BandType = 7
         LayerName = BandLayer13
       end
@@ -5729,7 +5796,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 8202
-        mmWidth = 44924
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5816,7 +5883,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 36513
+        mmTop = 39173
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5837,7 +5904,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 31485
+        mmTop = 34145
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5858,7 +5925,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 40746
+        mmTop = 43406
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5885,7 +5952,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 12700
-        mmWidth = 44924
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5915,7 +5982,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44186
         mmTop = 17463
-        mmWidth = 29570
+        mmWidth = 26150
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5945,7 +6012,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44450
         mmTop = 22225
-        mmWidth = 29381
+        mmWidth = 25961
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5974,8 +6041,8 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 31485
-        mmWidth = 44924
+        mmTop = 34145
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6004,8 +6071,8 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 36513
-        mmWidth = 44924
+        mmTop = 39173
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6034,8 +6101,59 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 40746
-        mmWidth = 44924
+        mmTop = 43406
+        mmWidth = 41504
+        BandType = 7
+        LayerName = BandLayer13
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+      object ppLabel68: TppLabel
+        DesignLayer = ppDesignLayer9
+        UserName = 'Label68'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Taxa:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 29648
+        mmWidth = 42069
+        BandType = 7
+        LayerName = BandLayer13
+      end
+      object ppRichText64: TppRichText
+        DesignLayer = ppDesignLayer9
+        UserName = 'RichText1'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText1'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
+          '0.00'#39'>taxa_entrega</dbtext>\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 28840
+        mmTop = 29648
+        mmWidth = 41559
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6703,7 +6821,6 @@ object dmImpressaoV2: TdmImpressaoV2
     end
   end
   object CAIXA_MOTOBOY: TFDQuery
-    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       

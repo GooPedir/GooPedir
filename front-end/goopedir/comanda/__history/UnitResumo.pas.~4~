@@ -393,7 +393,6 @@ var
   Iniciou: Boolean;
   FTask: ITask;
   ConsultaCliente: Boolean;
-  BuscarBairro : Boolean;
 
 const
   MASCARA = 'R$ ###,###,##0.00';
@@ -886,8 +885,7 @@ end;
 
 procedure TFrmResumo.BuscaBairroEdit;
 begin
-  if BuscarBairro then
-  exit;
+  //
   GetSimples('/v1/util/busca/bairro/' + EdtBairro.Text, MemTaxa);
   iBairro1.Text := '';
   iBairro1.Tag := 0;
@@ -1076,13 +1074,9 @@ end;
 
 procedure TFrmResumo.ConsultaTaxa;
 begin
-BuscarBairro := True;
   MemTaxa.Filtered := False;
-  GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
-
   rect_encerrar.Visible := False;
   rConsultaTaxa.Visible := True;
-  BuscarBairro := False;
 end;
 
 procedure TFrmResumo.cTipoChange(Sender: TObject);
@@ -1306,7 +1300,7 @@ var
   CalculoTempo: TCalculaTempo;
 
 begin
-
+  GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
   Impressao := 0;
   ValorProduto := 0;
   ValorAcrescimo := 0;

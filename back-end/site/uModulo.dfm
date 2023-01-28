@@ -6,7 +6,7 @@ object dmModulo: TdmModulo
   PixelsPerInch = 96
   object BANCO: TFDConnection
     Params.Strings = (
-      'Port=2020'
+      'Port=2222'
       'User_Name=sistema'
       'Password=P4P4L3GU45F00D'
       'Database=triangulo_lanches'
@@ -14,6 +14,7 @@ object dmModulo: TdmModulo
       'DriverID=MySQL')
     ResourceOptions.AssignedValues = [rvAutoReconnect]
     ResourceOptions.AutoReconnect = True
+    Connected = True
     LoginPrompt = False
     Left = 304
     Top = 120

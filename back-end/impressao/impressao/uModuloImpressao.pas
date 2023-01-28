@@ -532,6 +532,10 @@ type
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
     ppParameter2: TppParameter;
+    ppDBText16: TppDBText;
+    ppDBText26: TppDBText;
+    ppLabel68: TppLabel;
+    ppRichText64: TppRichText;
     procedure DataModuleCreate(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -862,6 +866,8 @@ begin
               ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha is null) as valor_vem_buscar,');
             CAIXA_RESUMO.SQL.Add
               ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
+            CAIXA_RESUMO.SQL.Add
+              ('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
             CAIXA_RESUMO.SQL.Add
               ('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
             CAIXA_RESUMO.SQL.Add('from caixa as c');
@@ -1438,6 +1444,8 @@ begin
     COZINHA.SQL.Add('sum(pps.valor) as vl_adicional,');
     COZINHA.SQL.Add
       ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver');
+    COZINHA.SQL.Add
+      ('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora,');
     COZINHA.SQL.Add('FROM pedido_produtos as pp');
     COZINHA.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
     COZINHA.SQL.Add

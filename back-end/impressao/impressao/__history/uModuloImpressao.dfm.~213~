@@ -1157,6 +1157,7 @@ object dmImpressaoV2: TdmImpressaoV2
     Top = 64
   end
   object COZINHA: TFDQuery
+    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'SELECT '
@@ -1200,6 +1201,10 @@ object dmImpressaoV2: TdmImpressaoV2
       
         '(SELECT driver FROM impressoras where codigo = (select impressor' +
         'a from tipo_produto where codigo = p.codigo_grupo)) as driver,'
+      
+        '(SELECT upper(descricao) FROM impressoras where codigo = (select' +
+        ' impressora from tipo_produto where codigo = p.codigo_grupo)) as' +
+        ' impressora,'
       'c.nome,'
       'c.celular,'
       'ped.data_pedido,'
@@ -1234,8 +1239,8 @@ object dmImpressaoV2: TdmImpressaoV2
     object ppCozinhappField1: TppField
       FieldAlias = 'origem_pedido'
       FieldName = 'origem_pedido'
-      FieldLength = 255
-      DisplayWidth = 255
+      FieldLength = 0
+      DisplayWidth = 0
       Position = 0
     end
     object ppCozinhappField2: TppField
@@ -1334,48 +1339,55 @@ object dmImpressaoV2: TdmImpressaoV2
       Position = 12
     end
     object ppCozinhappField14: TppField
-      FieldAlias = 'nome'
-      FieldName = 'nome'
+      FieldAlias = 'impressora'
+      FieldName = 'impressora'
       FieldLength = 255
       DisplayWidth = 255
       Position = 13
     end
     object ppCozinhappField15: TppField
+      FieldAlias = 'nome'
+      FieldName = 'nome'
+      FieldLength = 255
+      DisplayWidth = 255
+      Position = 14
+    end
+    object ppCozinhappField16: TppField
       FieldAlias = 'celular'
       FieldName = 'celular'
       FieldLength = 14
       DisplayWidth = 14
-      Position = 14
+      Position = 15
     end
-    object ppCozinhappField16: TppField
+    object ppCozinhappField17: TppField
       FieldAlias = 'data_pedido'
       FieldName = 'data_pedido'
       FieldLength = 0
       DataType = dtDate
       DisplayWidth = 10
-      Position = 15
+      Position = 16
     end
-    object ppCozinhappField17: TppField
+    object ppCozinhappField18: TppField
       FieldAlias = 'hora_pedido'
       FieldName = 'hora_pedido'
       FieldLength = 0
       DataType = dtTime
       DisplayWidth = 10
-      Position = 16
+      Position = 17
     end
-    object ppCozinhappField18: TppField
+    object ppCozinhappField19: TppField
       FieldAlias = 'tipo'
       FieldName = 'tipo'
       FieldLength = 10
       DisplayWidth = 10
-      Position = 17
+      Position = 18
     end
-    object ppCozinhappField19: TppField
+    object ppCozinhappField20: TppField
       FieldAlias = 'categoria'
       FieldName = 'categoria'
       FieldLength = 255
       DisplayWidth = 255
-      Position = 18
+      Position = 19
     end
   end
   object dsCozinha: TDataSource
@@ -1856,7 +1868,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Border.mmPadding = 0
       PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 15346
+      mmHeight = 17727
       mmPrintPosition = 0
       object ppSystemVariable5: TppSystemVariable
         DesignLayer = ppDesignLayer13
@@ -1871,7 +1883,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 10583
+        mmTop = 14023
         mmWidth = 35190
         BandType = 7
         LayerName = BandLayer12
@@ -1891,6 +1903,26 @@ object dmImpressaoV2: TdmImpressaoV2
         mmLeft = 1852
         mmTop = 6879
         mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer12
+      end
+      object ppDBText26: TppDBText
+        DesignLayer = ppDesignLayer13
+        UserName = 'DBText26'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3440
+        mmLeft = 1852
+        mmTop = 10583
+        mmWidth = 41275
         BandType = 7
         LayerName = BandLayer12
       end
@@ -3141,7 +3173,28 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3704
         mmLeft = 1852
         mmTop = 6615
-        mmWidth = 38894
+        mmWidth = 35257
+        BandType = 7
+        LayerName = BandLayer21
+      end
+      object ppDBText16: TppDBText
+        DesignLayer = ppDesignLayer4
+        UserName = 'DBText16'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3433
+        mmLeft = 38100
+        mmTop = 10665
+        mmWidth = 41322
         BandType = 7
         LayerName = BandLayer21
       end
@@ -5189,6 +5242,7 @@ object dmImpressaoV2: TdmImpressaoV2
     end
   end
   object CAIXA_RESUMO: TFDQuery
+    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'select'
@@ -5236,7 +5290,7 @@ object dmImpressaoV2: TdmImpressaoV2
       FieldName = 'id'
       FieldLength = 0
       DataType = dtInteger
-      DisplayWidth = 10
+      DisplayWidth = 0
       Position = 0
     end
     object ppResumoppField2: TppField
@@ -5490,7 +5544,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 16302
         mmLeft = 1896
         mmTop = 0
-        mmWidth = 75726
+        mmWidth = 71840
         BandType = 1
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5515,7 +5569,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 1852
         mmTop = 18785
-        mmWidth = 75631
+        mmWidth = 71840
         BandType = 1
         LayerName = BandLayer13
       end
@@ -5575,7 +5629,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3243
         mmLeft = 44450
         mmTop = -265
-        mmWidth = 33266
+        mmWidth = 29381
         BandType = 4
         LayerName = BandLayer13
       end
@@ -5643,10 +5697,10 @@ object dmImpressaoV2: TdmImpressaoV2
         TextAlignment = taRightJustified
         Transparent = True
         DataPipelineName = 'ppResumo'
-        mmHeight = 4454
-        mmLeft = 39158
-        mmTop = 265
-        mmWidth = 38574
+        mmHeight = 4498
+        mmLeft = 40217
+        mmTop = 298
+        mmWidth = 33551
         BandType = 7
         LayerName = BandLayer13
       end
@@ -5729,7 +5783,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 8202
-        mmWidth = 48948
+        mmWidth = 44924
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5885,7 +5939,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 12700
-        mmWidth = 48948
+        mmWidth = 44924
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5915,7 +5969,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44186
         mmTop = 17463
-        mmWidth = 33338
+        mmWidth = 29570
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5945,7 +5999,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44450
         mmTop = 22225
-        mmWidth = 33338
+        mmWidth = 29381
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5975,7 +6029,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 31485
-        mmWidth = 48948
+        mmWidth = 44924
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6005,7 +6059,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 36513
-        mmWidth = 48948
+        mmWidth = 44924
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6035,7 +6089,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 40746
-        mmWidth = 48948
+        mmWidth = 44924
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6923,7 +6977,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 16302
         mmLeft = 1896
         mmTop = 0
-        mmWidth = 75726
+        mmWidth = 70134
         BandType = 1
         LayerName = BandLayer16
         mmBottomOffset = 0
@@ -6986,7 +7040,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 17628
         mmTop = 840
-        mmWidth = 60467
+        mmWidth = 54402
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7029,7 +7083,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28046
         mmTop = 10116
-        mmWidth = 49473
+        mmWidth = 43976
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7072,7 +7126,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 27296
         mmTop = 14781
-        mmWidth = 50231
+        mmWidth = 44734
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7134,7 +7188,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 17628
         mmTop = 5581
-        mmWidth = 60467
+        mmWidth = 54402
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7250,7 +7304,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4498
         mmLeft = 28046
         mmTop = 9493
-        mmWidth = 49477
+        mmWidth = 43976
         BandType = 7
         LayerName = BandLayer16
       end
@@ -7271,9 +7325,9 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         DataPipelineName = 'ppMotoboy'
         mmHeight = 4498
-        mmLeft = 28046
-        mmTop = 14520
-        mmWidth = 49477
+        mmLeft = 28054
+        mmTop = 14552
+        mmWidth = 43976
         BandType = 7
         LayerName = BandLayer16
       end
@@ -7299,7 +7353,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 5118
         mmLeft = 1852
         mmTop = 529
-        mmWidth = 75631
+        mmWidth = 70134
         BandType = 7
         LayerName = BandLayer16
         mmBottomOffset = 0
@@ -7344,7 +7398,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4763
           mmLeft = 1852
           mmTop = 1058
-          mmWidth = 76200
+          mmWidth = 70134
           BandType = 3
           GroupNo = 0
           LayerName = BandLayer16
@@ -7420,7 +7474,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 28046
           mmTop = 15763
-          mmWidth = 49477
+          mmWidth = 43976
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7444,7 +7498,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 28046
           mmTop = 20410
-          mmWidth = 49477
+          mmWidth = 43976
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7485,7 +7539,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 5118
           mmLeft = 1852
           mmTop = 570
-          mmWidth = 75631
+          mmWidth = 70134
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7536,7 +7590,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 52127
           mmTop = 11004
-          mmWidth = 25400
+          mmWidth = 19903
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7565,6 +7619,18 @@ object dmImpressaoV2: TdmImpressaoV2
   object CAIXA_PRODUTO: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (
+      'SELECT '
+      '   produtos.codigo,'
+      '   produtos.id,'
+      '   produtos.grupo,'
+      '   produtos.descricao,'
+      '   produtos.produto,'
+      '   produtos.nome,'
+      '   sum(produtos.total) as total,'
+      '   sum(produtos.quantidade) as quantidade,'
+      '   produtos.tipo,'
+      '   produtos.adicionais'
+      'FROM('
       'select'
       'pp.codigo,'
       '28 as id,'
@@ -7574,18 +7640,16 @@ object dmImpressaoV2: TdmImpressaoV2
       'upper(prod.nome_produto) as nome,'
       'pp.valor_total as total,'
       'pp.quantidade,'
-      ''
       'CASE'
       '    WHEN p.codigo = 0 THEN "Vem Buscar"'
       '    ELSE "Delivery"'
       'END as tipo,'
-      ''
       'group_concat('
       'CASE'
       '    WHEN pps.valor = 0 THEN ""'
       '    ELSE upper(pps.descricao)'
       'END'
-      'separator '#39'|'#39') as adicionais'
+      'separator '#39';'#39') as adicionais'
       'from pedido as p '
       'join pedido_produtos as pp on pp.codigo_pedido = p.codigo'
       'join produto as prod on prod.codigo = pp.codigo_produto '
@@ -7593,9 +7657,10 @@ object dmImpressaoV2: TdmImpressaoV2
       
         'join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp' +
         '.codigo '
-      'where p.id_caixa = 4'
+      'where p.id_caixa = 148'
       'group by pp.codigo'
-      'order by tp.codigo,prod.codigo')
+      'order by tp.codigo,prod.codigo) as produtos'
+      'group by produtos.produto, produtos.adicionais')
     Left = 496
     Top = 296
   end
@@ -7604,93 +7669,9 @@ object dmImpressaoV2: TdmImpressaoV2
     UserName = 'Produto'
     Left = 496
     Top = 416
-    object ppProdutoppField1: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'produto'
-      FieldName = 'produto'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 0
-    end
-    object ppProdutoppField2: TppField
-      FieldAlias = 'nome'
-      FieldName = 'nome'
-      FieldLength = 255
-      DisplayWidth = 255
-      Position = 1
-    end
-    object ppProdutoppField3: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'total'
-      FieldName = 'total'
-      FieldLength = 0
-      DataType = dtDouble
-      DisplayWidth = 10
-      Position = 2
-    end
-    object ppProdutoppField4: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'quantidade'
-      FieldName = 'quantidade'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 3
-    end
-    object ppProdutoppField5: TppField
-      FieldAlias = 'adicionais'
-      FieldName = 'adicionais'
-      FieldLength = 2000
-      DisplayWidth = 2000
-      Position = 4
-    end
-    object ppProdutoppField6: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'id'
-      FieldName = 'id'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 5
-    end
-    object ppProdutoppField7: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'codigo'
-      FieldName = 'codigo'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 6
-    end
-    object ppProdutoppField8: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'tipo'
-      FieldName = 'tipo'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 7
-    end
-    object ppProdutoppField9: TppField
-      FieldAlias = 'descricao'
-      FieldName = 'descricao'
-      FieldLength = 255
-      DisplayWidth = 255
-      Position = 8
-    end
-    object ppProdutoppField10: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'grupo'
-      FieldName = 'grupo'
-      FieldLength = 0
-      DataType = dtInteger
-      DisplayWidth = 10
-      Position = 9
-    end
   end
   object dsProduto: TDataSource
-    DataSet = DADOS_PRODUTO
+    DataSet = CAIXA_PRODUTO
     Left = 496
     Top = 360
   end
@@ -7840,7 +7821,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 16302
         mmLeft = 1896
         mmTop = 0
-        mmWidth = 75726
+        mmWidth = 71082
         BandType = 1
         LayerName = BandLayer17
         mmBottomOffset = 0
@@ -7863,9 +7844,9 @@ object dmImpressaoV2: TdmImpressaoV2
         TextAlignment = taCentered
         Transparent = True
         mmHeight = 4763
-        mmLeft = 28840
+        mmLeft = 1896
         mmTop = 24342
-        mmWidth = 21167
+        mmWidth = 71082
         BandType = 1
         LayerName = BandLayer17
       end
@@ -7885,31 +7866,35 @@ object dmImpressaoV2: TdmImpressaoV2
       Border.mmPadding = 0
       PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 4233
+      mmHeight = 3969
       mmPrintPosition = 0
-      object ppRichText64: TppRichText
+      object ppRichText63: TppRichText
         DesignLayer = ppDesignLayer11
-        UserName = 'RichText64'
+        UserName = 'RichText1'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Name = 'Arial'
-        Font.Size = 12
-        Font.Style = []
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
         Border.mmPadding = 0
-        Caption = 'RichText64'
+        Caption = 'RichText1'
         ExportRTFAsBitmap = False
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
-          'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>adicionais</dbtext>\par'#13#10'}'#13#10#0
+          '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\f' +
+          'charset0 Arial;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\' +
+          'uc1 '#13#10'\pard\b\f0\fs20 <dbtext>nome</dbtext>\par'#13#10'\b0 <dbtext>adi' +
+          'cionais</dbtext>\b\par'#13#10#13#10'\pard\qr\f1 <dbtext>quantidade</dbtext' +
+          '> x <dbtext displayformat='#39'$#,0.00;-$#,0.00'#39'>total</dbtext>\b0\f' +
+          '2\fs24\par'#13#10#13#10'\pard\b\f0\fs20\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
         Transparent = True
         mmHeight = 3704
-        mmLeft = 2646
-        mmTop = 529
-        mmWidth = 75671
+        mmLeft = 1852
+        mmTop = 265
+        mmWidth = 71173
         BandType = 4
         LayerName = BandLayer17
         mmBottomOffset = 0
@@ -7930,7 +7915,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
       mmBottomOffset = 0
-      mmHeight = 42333
+      mmHeight = 33338
       mmPrintPosition = 0
       object ppSystemVariable22: TppSystemVariable
         DesignLayer = ppDesignLayer11
@@ -8006,7 +7991,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4739
         mmLeft = 47890
         mmTop = 265
-        mmWidth = 29570
+        mmWidth = 25021
         BandType = 7
         LayerName = BandLayer17
       end
@@ -8048,7 +8033,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 47890
         mmTop = 5821
-        mmWidth = 29633
+        mmWidth = 25021
         BandType = 7
         LayerName = BandLayer17
       end
@@ -8096,7 +8081,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 3704
           mmLeft = 1852
           mmTop = 1323
-          mmWidth = 75671
+          mmWidth = 71082
           BandType = 3
           GroupNo = 0
           LayerName = BandLayer17
@@ -8112,8 +8097,22 @@ object dmImpressaoV2: TdmImpressaoV2
         PrintHeight = phDynamic
         HideWhenOneDetail = False
         mmBottomOffset = 0
-        mmHeight = 0
+        mmHeight = 3440
         mmPrintPosition = 0
+        object ppLine26: TppLine
+          DesignLayer = ppDesignLayer11
+          UserName = 'Line1'
+          Border.mmPadding = 0
+          Pen.Style = psDash
+          Weight = 0.750000000000000000
+          mmHeight = 1323
+          mmLeft = 265
+          mmTop = 265
+          mmWidth = 115359
+          BandType = 5
+          GroupNo = 0
+          LayerName = BandLayer17
+        end
       end
     end
     object ppGroup14: TppGroup
@@ -8134,39 +8133,8 @@ object dmImpressaoV2: TdmImpressaoV2
         Border.mmPadding = 0
         PrintHeight = phDynamic
         mmBottomOffset = 0
-        mmHeight = 4233
+        mmHeight = 0
         mmPrintPosition = 0
-        object ppRichText63: TppRichText
-          DesignLayer = ppDesignLayer11
-          UserName = 'RichText1'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Name = 'Courier New'
-          Font.Size = 10
-          Font.Style = [fsBold]
-          Border.mmPadding = 0
-          Caption = 'RichText1'
-          ExportRTFAsBitmap = False
-          MailMerge = True
-          RichText = 
-            '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
-            'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>nome</dbtext>\par'#13#10'}'#13#10#0
-          RemoveEmptyLines = False
-          Stretch = True
-          Transparent = True
-          mmHeight = 3704
-          mmLeft = 1852
-          mmTop = 529
-          mmWidth = 75671
-          BandType = 3
-          GroupNo = 1
-          LayerName = BandLayer17
-          mmBottomOffset = 0
-          mmOverFlowOffset = 0
-          mmStopPosition = 0
-          mmMinHeight = 0
-        end
       end
       object ppGroupFooterBand14: TppGroupFooterBand
         Background.Brush.Style = bsClear
@@ -8174,55 +8142,8 @@ object dmImpressaoV2: TdmImpressaoV2
         PrintHeight = phDynamic
         HideWhenOneDetail = False
         mmBottomOffset = 0
-        mmHeight = 5821
+        mmHeight = 0
         mmPrintPosition = 0
-        object ppRichText86: TppRichText
-          DesignLayer = ppDesignLayer11
-          UserName = 'RichText86'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Name = 'Arial'
-          Font.Size = 12
-          Font.Style = []
-          Border.mmPadding = 0
-          Caption = 'RichText86'
-          ExportRTFAsBitmap = False
-          MailMerge = True
-          RichText = 
-            '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-            'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
-            '0 <dbtext>quantidade</dbtext> x <dbtext displayformat='#39'$#,0.00;-' +
-            '$#,0.00'#39'>total</dbtext>\b0\f1\fs24\par'#13#10'}'#13#10#0
-          RemoveEmptyLines = False
-          Stretch = True
-          Transparent = True
-          mmHeight = 3704
-          mmLeft = 1852
-          mmTop = 1058
-          mmWidth = 75631
-          BandType = 5
-          GroupNo = 1
-          LayerName = BandLayer17
-          mmBottomOffset = 0
-          mmOverFlowOffset = 0
-          mmStopPosition = 0
-          mmMinHeight = 0
-        end
-        object ppLine26: TppLine
-          DesignLayer = ppDesignLayer11
-          UserName = 'Line1'
-          Border.mmPadding = 0
-          Pen.Style = psDash
-          Weight = 0.750000000000000000
-          mmHeight = 1323
-          mmLeft = 0
-          mmTop = 4498
-          mmWidth = 115359
-          BandType = 5
-          GroupNo = 1
-          LayerName = BandLayer17
-        end
       end
     end
     object ppDesignLayers13: TppDesignLayers
@@ -8242,90 +8163,6 @@ object dmImpressaoV2: TdmImpressaoV2
         Value = ''
         UserName = 'Parameter1'
       end
-    end
-  end
-  object DADOS_PRODUTO: TFDMemTable
-    Active = True
-    FieldDefs = <
-      item
-        Name = 'produto'
-        DataType = ftInteger
-      end
-      item
-        Name = 'nome'
-        DataType = ftString
-        Size = 255
-      end
-      item
-        Name = 'total'
-        DataType = ftFloat
-      end
-      item
-        Name = 'quantidade'
-        DataType = ftInteger
-      end
-      item
-        Name = 'adicionais'
-        DataType = ftString
-        Size = 2000
-      end
-      item
-        Name = 'id'
-        DataType = ftInteger
-      end
-      item
-        Name = 'codigo'
-        DataType = ftInteger
-      end>
-    IndexDefs = <>
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    StoreDefs = True
-    Left = 624
-    Top = 296
-    object DADOS_PRODUTOproduto: TIntegerField
-      FieldName = 'produto'
-    end
-    object DADOS_PRODUTOnome: TStringField
-      FieldName = 'nome'
-      Size = 255
-    end
-    object DADOS_PRODUTOtotal: TFloatField
-      FieldName = 'total'
-    end
-    object DADOS_PRODUTOquantidade: TIntegerField
-      FieldName = 'quantidade'
-    end
-    object DADOS_PRODUTOadicionais: TStringField
-      FieldName = 'adicionais'
-      Size = 2000
-    end
-    object DADOS_PRODUTOid: TIntegerField
-      FieldName = 'id'
-    end
-    object DADOS_PRODUTOcodigo: TIntegerField
-      FieldName = 'codigo'
-    end
-    object DADOS_PRODUTOtipo: TIntegerField
-      FieldKind = fkCalculated
-      FieldName = 'tipo'
-      Calculated = True
-    end
-    object DADOS_PRODUTOdescricao: TStringField
-      FieldKind = fkCalculated
-      FieldName = 'descricao'
-      Size = 255
-      Calculated = True
-    end
-    object DADOS_PRODUTOgrupo: TIntegerField
-      FieldKind = fkCalculated
-      FieldName = 'grupo'
-      Calculated = True
     end
   end
   object CAIXA_RESUMO56MM: TppReport

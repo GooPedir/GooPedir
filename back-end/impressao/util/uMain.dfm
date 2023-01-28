@@ -10,7 +10,6 @@ object frmMain: TfrmMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   WindowState = wsMinimized
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -45,11 +44,13 @@ object frmMain: TfrmMain
       item
         Expanded = False
         FieldName = 'DATA_HORA'
+        Width = 125
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'TIPO'
+        Width = 101
         Visible = True
       end
       item

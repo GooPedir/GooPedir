@@ -12,6 +12,9 @@
         <Projects Include="back-end\site\SiteGooPedir.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="SiteGooPedir:Make">
         <MSBuild Projects="back-end\site\SiteGooPedir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ImpressaoGooPedir">
+        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj"/>
+    </Target>
+    <Target Name="ImpressaoGooPedir:Clean">
+        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ImpressaoGooPedir:Make">
+        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir"/>
+        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean"/>
+        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make"/>
+        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

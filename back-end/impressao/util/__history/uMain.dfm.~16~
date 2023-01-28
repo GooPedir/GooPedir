@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Impress'#227'o Papaleguas Sistemas'
-  ClientHeight = 495
-  ClientWidth = 779
+  ClientHeight = 528
+  ClientWidth = 783
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,27 +15,74 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object memLog: TMemo
+  object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 779
-    Height = 495
+    Width = 783
+    Height = 439
     Align = alClient
+    DataSource = dsImpressao
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Courier New'
-    Font.Style = [fsBold]
-    Lines.Strings = (
-      'memLog')
+    Font.Height = -16
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     ParentFont = False
     ReadOnly = True
-    ScrollBars = ssVertical
     TabOrder = 0
+    TitleFont.Charset = ANSI_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -21
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = [fsBold]
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'CODIGO'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DATA_HORA'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'TIPO'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DESCRICAO'
+        Width = 300
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DRIVER'
+        Width = 300
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'OBSERVACAO'
+        Width = 300
+        Visible = True
+      end>
+  end
+  object Memo1: TMemo
+    Left = 0
+    Top = 439
+    Width = 783
+    Height = 89
+    Align = alBottom
+    ScrollBars = ssVertical
+    TabOrder = 1
   end
   object ImageList1: TImageList
-    Left = 400
-    Top = 208
+    Left = 152
+    Top = 552
     Bitmap = {
       494C010102000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
@@ -180,16 +227,18 @@ object frmMain: TfrmMain
     Animate = True
     Icons = ImageList1
     Visible = True
-    Left = 176
-    Top = 240
-  end
-  object ApplicationEvents1: TApplicationEvents
-    Left = 512
-    Top = 112
+    OnClick = TrayIcon1Click
+    Left = 24
+    Top = 552
   end
   object tMinimiza: TTimer
     OnTimer = tMinimizaTimer
-    Left = 384
-    Top = 256
+    Left = 88
+    Top = 552
+  end
+  object dsImpressao: TDataSource
+    DataSet = dmImpressaoV2.IMPRESSAO
+    Left = 448
+    Top = 168
   end
 end
