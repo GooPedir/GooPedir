@@ -3516,6 +3516,7 @@ begin
             begin
               // Insert
 
+
               CodigoPedidoItem := Insert.InserirUpdate('pedido_produtos',
                 ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
                 'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
@@ -3546,13 +3547,13 @@ begin
               if not Novo then
               begin
                 SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                  StringReplace(MemoryDadosItem.FieldByName('valor').AsString,
+                  StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat+ValorDelivery),
                   ',', '.', [rfReplaceAll]) + ' where codigo = ' +
                   CodigoNovoPeiddo.ToString;
                 Insert.ExecutaSQL(SQL);
 
                 SQL := 'update pedido set valor_total_pedido = valor_total_pedido + '
-                  + StringReplace(MemoryDadosItem.FieldByName('valor').AsString,
+                  + StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat+ValorDelivery),
                   ',', '.', [rfReplaceAll]) + ' where codigo = ' +
                   CodigoNovoPeiddo.ToString;
                 Insert.ExecutaSQL(SQL);
@@ -3610,25 +3611,11 @@ begin
                 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1', '',
                 '', '0']);
             end;
-            if ValorDelivery > 0 then
-            begin
-              // Insert.InserirUpdate('pedido_produto_sap',
-              // ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
-              // 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
-              // 'DELIVERY', 'ADICIONAL DELIVERY',
-              // (ValorDelivery * MemoryDadosItem.FieldByName('qtd').AsFloat)
-              // .ToString]);
-              SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
-                ', valor_total_pedido = valor_total_pedido + ' +
-                StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
-                ' where codigo = ' + CodigoNovoPeiddo.ToString;
-              Insert.ExecutaSQL(SQL);
-            end;
             MemoryDadosItem.next;
           end;
-
-
+          SQL := 'update pedido set valor_pedido = (select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo), valor_total_pedido = valor_taxa_entrega + ';
+          SQL := SQL + '(select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo) where codigo = '+CodigoNovoPeiddo.ToString;
+          Insert.ExecutaSQL(SQL);
 
           // try
           //

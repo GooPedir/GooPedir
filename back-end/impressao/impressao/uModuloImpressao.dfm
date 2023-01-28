@@ -1157,7 +1157,6 @@ object dmImpressaoV2: TdmImpressaoV2
     Top = 64
   end
   object COZINHA: TFDQuery
-    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'SELECT '
@@ -5242,7 +5241,6 @@ object dmImpressaoV2: TdmImpressaoV2
     end
   end
   object CAIXA_RESUMO: TFDQuery
-    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'select'

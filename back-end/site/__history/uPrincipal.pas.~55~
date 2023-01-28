@@ -491,7 +491,19 @@ begin
   end;
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT p.saldo_atual, p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
+  // SQL := 'SELECT p.saldo_atual, p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
+  SQL := 'select p.id_site,  p.saldo_atual, ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, pp.valor, 0) as valor, ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, p.ativo, 0) as ativo ';
+  SQL := SQL + 'from produto as p ';
+  SQL := SQL + 'join produto_pizza as ppz on ppz.codigo_produto = p.codigo ';
+  SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
+  SQL := SQL +
+    'where p.codigo = p.codigo and p.usa_tabela_preco = 1  and p.id_site > 0 ';
+  SQL := SQL + 'order by valor ';
+
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   while not Dados.Eof do
@@ -2168,8 +2180,15 @@ begin
 end;
 
 procedure TfrmPrincipal.SetCorFundo(const Value: String);
+var
+  Insert: TInsertUpdate;
 begin
+  Insert := TInsertUpdate.Create;
   FCorFundo := StringReplace(Value, '#', '', [rfReplaceAll]);
+  Insert.ExecutaSQL
+    ('update dados_whatsapp set cor_fundo = '+QuotedStr(FCorFundo));
+  Insert.Free;
+
 
   try
     Color := HexToTColor(CorFundo);
@@ -2179,14 +2198,26 @@ begin
 end;
 
 procedure TfrmPrincipal.SetCOrLetra(const Value: String);
+var
+  Insert: TInsertUpdate;
 begin
-  FCOrLetra := StringReplace(Value, '#', '', [rfReplaceAll]);
+  Insert := TInsertUpdate.Create;
+  FCOrLetra := UpperCase(StringReplace(Value, '#', '', [rfReplaceAll]));
+  Insert.ExecutaSQL
+    ('update dados_whatsapp set cor_fonte = '+QuotedStr(FCOrLetra));
+  Insert.Free;
 
   try
     Color := HexToTColor(COrLetra);
   except
 
   end;
+
+//  lStatus.Font.Color := Color;
+//  lSegundos.Font.Color := Color;
+//  cSincroniza.Font.Color := Color;
+//  cAtualizaPreco.Font.Color := Color;
+//  cImportaPedido.Font.Color := Color;
 
 end;
 
@@ -3170,6 +3201,7 @@ begin
         frmPrincipal.Empresa := X['nome_empresa_link'].AsString;
         frmPrincipal.Logo := X['logo'].AsString;
         frmPrincipal.CorFundo := X['cor_topo'].AsString;
+        frmPrincipal.COrLetra := X['cor_titulo_produtos'].AsString;
         frmPrincipal.lLinkLoja.Caption := X['link'].AsString;
         frmPrincipal.Tray.Hint := frmPrincipal.NomeRestaurante;
       except
@@ -3484,6 +3516,7 @@ begin
             begin
               // Insert
 
+
               CodigoPedidoItem := Insert.InserirUpdate('pedido_produtos',
                 ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
                 'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
@@ -3514,13 +3547,13 @@ begin
               if not Novo then
               begin
                 SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                  StringReplace(MemoryDadosItem.FieldByName('valor').AsString,
+                  StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat+ValorDelivery),
                   ',', '.', [rfReplaceAll]) + ' where codigo = ' +
                   CodigoNovoPeiddo.ToString;
                 Insert.ExecutaSQL(SQL);
 
                 SQL := 'update pedido set valor_total_pedido = valor_total_pedido + '
-                  + StringReplace(MemoryDadosItem.FieldByName('valor').AsString,
+                  + StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat+ValorDelivery),
                   ',', '.', [rfReplaceAll]) + ' where codigo = ' +
                   CodigoNovoPeiddo.ToString;
                 Insert.ExecutaSQL(SQL);
@@ -3529,6 +3562,8 @@ begin
             else
             begin
               CodigoPedidoItem := Dados.FieldByName('codigo').AsInteger;
+
+
             end;
 
             if Assigned(Dados) then
@@ -3577,21 +3612,6 @@ begin
                 ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
                 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1', '',
                 '', '0']);
-            end;
-            if ValorDelivery > 0 then
-            begin
-              // Insert.InserirUpdate('pedido_produto_sap',
-              // ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
-              // 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
-              // 'DELIVERY', 'ADICIONAL DELIVERY',
-              // (ValorDelivery * MemoryDadosItem.FieldByName('qtd').AsFloat)
-              // .ToString]);
-              SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
-                ', valor_total_pedido = valor_total_pedido + ' +
-                StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
-                ' where codigo = ' + CodigoNovoPeiddo.ToString;
-              Insert.ExecutaSQL(SQL);
             end;
             MemoryDadosItem.next;
           end;

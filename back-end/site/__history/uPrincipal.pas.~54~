@@ -441,19 +441,25 @@ begin
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'select p.id_site, pp.valor, p.ativo, p.saldo_atual from produto as p ';
+  { SQL := 'select p.id_site, pp.valor, p.ativo, p.saldo_atual from produto as p ';
+    SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
+    SQL := SQL + 'where p.codigo = p.codigo ';
+    SQL := SQL + 'and p.usa_tabela_preco = 1 ';
+    SQL := SQL + 'and pp.hora_inicial < current_time ';
+    SQL := SQL + 'and pp.hora_inicial <= current_time';
+    SQL := SQL + 'and pp.hora_final >= current_time';
+    SQL := SQL + 'and p.id_site > 0 ';
+    SQL := SQL + 'and (CASE WEEKDAY(current_date) ';
+    SQL := SQL + 'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
+    SQL := SQL + 'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)'; }
+  SQL := 'select p.id_site,  p.saldo_atual, ';
+  SQL := SQL + 'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, pp.valor, 0) as valor, ';
+  SQL := SQL + 'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, p.ativo, 0) as ativo ';
+  SQL := SQL + 'from produto as p ';
   SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
-  SQL := SQL + 'where p.codigo = p.codigo ';
-  SQL := SQL + 'and p.usa_tabela_preco = 1 ';
-  SQL := SQL + 'and pp.hora_inicial < current_time ';
-  SQL := SQL + 'and pp.hora_inicial <= current_time';
-  SQL := SQL + 'and pp.hora_final >= current_time';
-  SQL := SQL + 'and p.id_site > 0 ';
-  SQL := SQL + 'and (CASE WEEKDAY(current_date) ';
-  SQL := SQL +
-    'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
-  SQL := SQL +
-    'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)';
+  SQL := SQL + 'where p.codigo = p.codigo and p.usa_tabela_preco = 1  and p.id_site > 0 ';
+  SQL := SQL + 'order by valor ';
+
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -485,7 +491,19 @@ begin
   end;
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT p.saldo_atual, p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
+  // SQL := 'SELECT p.saldo_atual, p.codigo, p.ativo, p.id_site FROM produto_pizza as pp join produto as p on p.codigo = pp.codigo_produto where p.id_site > 0';
+  SQL := 'select p.id_site,  p.saldo_atual, ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, pp.valor, 0) as valor, ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, p.ativo, 0) as ativo ';
+  SQL := SQL + 'from produto as p ';
+  SQL := SQL + 'join produto_pizza as ppz on ppz.codigo_produto = p.codigo ';
+  SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
+  SQL := SQL +
+    'where p.codigo = p.codigo and p.usa_tabela_preco = 1  and p.id_site > 0 ';
+  SQL := SQL + 'order by valor ';
+
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   while not Dados.Eof do
@@ -2162,8 +2180,15 @@ begin
 end;
 
 procedure TfrmPrincipal.SetCorFundo(const Value: String);
+var
+  Insert: TInsertUpdate;
 begin
+  Insert := TInsertUpdate.Create;
   FCorFundo := StringReplace(Value, '#', '', [rfReplaceAll]);
+  Insert.ExecutaSQL
+    ('update dados_whatsapp set cor_fundo = '+QuotedStr(FCorFundo));
+  Insert.Free;
+
 
   try
     Color := HexToTColor(CorFundo);
@@ -2173,14 +2198,26 @@ begin
 end;
 
 procedure TfrmPrincipal.SetCOrLetra(const Value: String);
+var
+  Insert: TInsertUpdate;
 begin
-  FCOrLetra := StringReplace(Value, '#', '', [rfReplaceAll]);
+  Insert := TInsertUpdate.Create;
+  FCOrLetra := UpperCase(StringReplace(Value, '#', '', [rfReplaceAll]));
+  Insert.ExecutaSQL
+    ('update dados_whatsapp set cor_fonte = '+QuotedStr(FCOrLetra));
+  Insert.Free;
 
   try
     Color := HexToTColor(COrLetra);
   except
 
   end;
+
+//  lStatus.Font.Color := Color;
+//  lSegundos.Font.Color := Color;
+//  cSincroniza.Font.Color := Color;
+//  cAtualizaPreco.Font.Color := Color;
+//  cImportaPedido.Font.Color := Color;
 
 end;
 
@@ -3164,6 +3201,7 @@ begin
         frmPrincipal.Empresa := X['nome_empresa_link'].AsString;
         frmPrincipal.Logo := X['logo'].AsString;
         frmPrincipal.CorFundo := X['cor_topo'].AsString;
+        frmPrincipal.COrLetra := X['cor_titulo_produtos'].AsString;
         frmPrincipal.lLinkLoja.Caption := X['link'].AsString;
         frmPrincipal.Tray.Hint := frmPrincipal.NomeRestaurante;
       except
@@ -3468,7 +3506,8 @@ begin
               ' and codigo_pedido = ' + CodigoNovoPeiddo.ToString;
             Dados := TFDMemTable.Create(nil);
             Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-            ValorDelivery := ValorAdicionalDelivery(MemoryDadosItem.FieldByName('idproduto').AsInteger) *
+            ValorDelivery := ValorAdicionalDelivery
+              (MemoryDadosItem.FieldByName('idproduto').AsInteger) *
               MemoryDadosItem.FieldByName('qtd').AsFloat;
 
             if Endereco = 0 then
@@ -3481,7 +3520,9 @@ begin
                 ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
                 'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
                 ['0', CodigoNovoPeiddo.ToString,
-                CodigoProduto(MemoryDadosItem.FieldByName('idproduto').AsInteger).ToString, MemoryDadosItem.FieldByName('id').AsString,
+                CodigoProduto(MemoryDadosItem.FieldByName('idproduto')
+                .AsInteger).ToString, MemoryDadosItem.FieldByName('id')
+                .AsString,
                 (ValorDelivery + ConverteValor(MemoryDadosItem.FieldByName
                 ('valor').AsString) / MemoryDadosItem.FieldByName('qtd')
                 .AsFloat).ToString, MemoryDadosItem.FieldByName('qtd').AsString,
@@ -3520,6 +3561,13 @@ begin
             else
             begin
               CodigoPedidoItem := Dados.FieldByName('codigo').AsInteger;
+              SQL := 'update pedido set valor_pedido =  ' +
+                StringReplace(FloatToStr((ValorDelivery+MemoryDadosItem.FieldByName('valor').AsFloat)*MemoryDadosItem.FieldByName('qtd').AsFloat), ',', '.', []) +
+                ', valor_total_pedido =  ' +
+                StringReplace(FloatToStr((ValorDelivery+MemoryDadosItem.FieldByName('valor').AsFloat)*MemoryDadosItem.FieldByName('qtd').AsFloat), ',', '.', []) +
+                ' where codigo = ' + CodigoNovoPeiddo.ToString;
+              Insert.ExecutaSQL(SQL);
+
             end;
 
             if Assigned(Dados) then
@@ -3569,6 +3617,7 @@ begin
                 'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1', '',
                 '', '0']);
             end;
+
             if ValorDelivery > 0 then
             begin
               // Insert.InserirUpdate('pedido_produto_sap',
@@ -3583,7 +3632,9 @@ begin
                 StringReplace(FloatToStr(ValorDelivery), ',', '.', []) +
                 ' where codigo = ' + CodigoNovoPeiddo.ToString;
               Insert.ExecutaSQL(SQL);
+
             end;
+
             MemoryDadosItem.next;
           end;
 
@@ -3737,11 +3788,11 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
-  try
-    Result := Dados.FieldByName('valor_embalagem_delivery').AsFloat;
-  except
+    try
+      Result := Dados.FieldByName('valor_embalagem_delivery').AsFloat;
+    except
 
-  end;
+    end;
   end;
 
   Dados.Free;

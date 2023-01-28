@@ -1444,8 +1444,6 @@ begin
     COZINHA.SQL.Add('sum(pps.valor) as vl_adicional,');
     COZINHA.SQL.Add
       ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver');
-    COZINHA.SQL.Add
-      ('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora,');
     COZINHA.SQL.Add('FROM pedido_produtos as pp');
     COZINHA.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
     COZINHA.SQL.Add
