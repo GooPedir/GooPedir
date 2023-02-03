@@ -42,6 +42,9 @@ type
     memEstoqueENTRADA: TFloatField;
     memEstoqueSEQUENCIAL: TIntegerField;
     memEstoqueQTD: TCurrencyField;
+    memTesteImpressao: TFDMemTable;
+    memTesteImpressaoIMPRESSORA: TIntegerField;
+    memTesteImpressaoID: TIntegerField;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
@@ -413,7 +416,7 @@ end;
 
 function TfrmServidor.WHATSAPP: String;
 begin
-  if FechouWhatsapp then
+  if not FechouWhatsapp then
     Result := ExtractFileDir(Application.ExeName) + '\' + 'WhatsappGoPedir.exe';
 end;
 

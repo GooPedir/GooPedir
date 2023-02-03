@@ -134,7 +134,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 72000
-    PrinterSetup.PaperSize = 143
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -268,7 +268,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\co' +
-          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}' +
+          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}' +
           '\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs30 CONFER\'#39'caNCIA\fs24\par'#13 +
           #10'\fs20 #<dbtext displayformat='#39'0000'#39'>codigo</dbtext>\par'#13#10'\fs32 ' +
           '<dbtext>nome</dbtext>\fs20\par'#13#10'\par'#13#10'\par'#13#10#13#10'\pard\cf0\b0\f1\fs' +
@@ -302,7 +302,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * * * PEDIDO <dbtext displayformat='#39'000000'#39'>codigo_comanda</d' +
           'btext> * * *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -333,7 +333,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 <dbtext>nome_estabelecimento' +
           '</dbtext>\par'#13#10'\fs16 <dbtext>origem_1</dbtext>\par'#13#10'\par'#13#10#13#10'\par' +
           'd\f1\fs20 Data Pedido: <dbtext>data_pedido</dbtext> <dbtext>hora' +
@@ -428,7 +428,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 ITENS DO PEDIDO\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -466,7 +466,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs24 [<dbtext>tipo</dbtext>] - <dbtext>desc' +
           'ricao</dbtext>\par'#13#10'\fs20\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -553,7 +553,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 TOTAL\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -731,7 +731,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 FORMA DE PAGAMENTO\f1\par'#13#10'}' +
           #13#10#0
         RemoveEmptyLines = False
@@ -1001,7 +1001,7 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}{\f2\fnil A' +
-            'rial;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\par' +
+            'rial;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\par' +
             'd\b\f0\fs20 <dbtext>tipo_produto_nome</dbtext> - \fs24 <\f1 dbte' +
             'xt>nome_produto</dbtext>\par'#13#10'\b0\f2\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
@@ -1105,7 +1105,7 @@ object dmImpressaoV2: TdmImpressaoV2
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil A' +
             'rial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched2' +
-            '0 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
+            '0 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
             't>\f1 Un X <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_unitario</d' +
             'btext> = \cf1\f0\fs20 <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_' +
             '\f1 total_1\f0 </dbtext>\par'#13#10'\cf0\b0\f2\fs24\par'#13#10'}'#13#10#0
@@ -1200,6 +1200,10 @@ object dmImpressaoV2: TdmImpressaoV2
       
         '(SELECT driver FROM impressoras where codigo = (select impressor' +
         'a from tipo_produto where codigo = p.codigo_grupo)) as driver,'
+      
+        '(SELECT upper(descricao) FROM impressoras where codigo = (select' +
+        ' impressora from tipo_produto where codigo = p.codigo_grupo)) as' +
+        ' impressora,'
       'c.nome,'
       'c.celular,'
       'ped.data_pedido,'
@@ -1234,8 +1238,8 @@ object dmImpressaoV2: TdmImpressaoV2
     object ppCozinhappField1: TppField
       FieldAlias = 'origem_pedido'
       FieldName = 'origem_pedido'
-      FieldLength = 255
-      DisplayWidth = 255
+      FieldLength = 0
+      DisplayWidth = 0
       Position = 0
     end
     object ppCozinhappField2: TppField
@@ -1334,48 +1338,55 @@ object dmImpressaoV2: TdmImpressaoV2
       Position = 12
     end
     object ppCozinhappField14: TppField
-      FieldAlias = 'nome'
-      FieldName = 'nome'
+      FieldAlias = 'impressora'
+      FieldName = 'impressora'
       FieldLength = 255
       DisplayWidth = 255
       Position = 13
     end
     object ppCozinhappField15: TppField
+      FieldAlias = 'nome'
+      FieldName = 'nome'
+      FieldLength = 255
+      DisplayWidth = 255
+      Position = 14
+    end
+    object ppCozinhappField16: TppField
       FieldAlias = 'celular'
       FieldName = 'celular'
       FieldLength = 14
       DisplayWidth = 14
-      Position = 14
+      Position = 15
     end
-    object ppCozinhappField16: TppField
+    object ppCozinhappField17: TppField
       FieldAlias = 'data_pedido'
       FieldName = 'data_pedido'
       FieldLength = 0
       DataType = dtDate
       DisplayWidth = 10
-      Position = 15
+      Position = 16
     end
-    object ppCozinhappField17: TppField
+    object ppCozinhappField18: TppField
       FieldAlias = 'hora_pedido'
       FieldName = 'hora_pedido'
       FieldLength = 0
       DataType = dtTime
       DisplayWidth = 10
-      Position = 16
+      Position = 17
     end
-    object ppCozinhappField18: TppField
+    object ppCozinhappField19: TppField
       FieldAlias = 'tipo'
       FieldName = 'tipo'
       FieldLength = 10
       DisplayWidth = 10
-      Position = 17
+      Position = 18
     end
-    object ppCozinhappField19: TppField
+    object ppCozinhappField20: TppField
       FieldAlias = 'categoria'
       FieldName = 'categoria'
       FieldLength = 255
       DisplayWidth = 255
-      Position = 18
+      Position = 19
     end
   end
   object dsCozinha: TDataSource
@@ -1397,7 +1408,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 304800
     PrinterSetup.mmPaperWidth = 55800
-    PrinterSetup.PaperSize = 119
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1520,7 +1531,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * * * <dbtext datapipeline='#39'ppCozinha'#39'>origem_pedido</dbtext>' +
           ' * * *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -1603,7 +1614,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 304800
           PrinterSetup.mmPaperWidth = 55800
-          PrinterSetup.PaperSize = 119
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -1674,7 +1685,7 @@ object dmImpressaoV2: TdmImpressaoV2
               RichText = 
                 '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
                 '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-                'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 - \f1' +
+                'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 - \f1' +
                 ' <dbtext>descricao</dbtext>\par'#13#10'}'#13#10#0
               RemoveEmptyLines = False
               Stretch = True
@@ -1733,7 +1744,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 RichText = 
                   '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
                   '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}'#13#10'{\*\gene' +
-                  'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs28 <dbte' +
+                  'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs28 <dbte' +
                   'xt>qtd</dbtext>\f1 Un - <dbtext>produto</dbtext>\f0\par'#13#10'}'#13#10#0
                 RemoveEmptyLines = False
                 Stretch = True
@@ -1808,7 +1819,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 MailMerge = True
                 RichText = 
                   '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-                  '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+                  '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
                   'nd4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>nomeclatura</dbtext>\par'#13#10'}'#13#10#0
                 RemoveEmptyLines = False
                 Transparent = True
@@ -1856,7 +1867,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Border.mmPadding = 0
       PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 15346
+      mmHeight = 17727
       mmPrintPosition = 0
       object ppSystemVariable5: TppSystemVariable
         DesignLayer = ppDesignLayer13
@@ -1871,7 +1882,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 10583
+        mmTop = 14023
         mmWidth = 35190
         BandType = 7
         LayerName = BandLayer12
@@ -1891,6 +1902,26 @@ object dmImpressaoV2: TdmImpressaoV2
         mmLeft = 1852
         mmTop = 6879
         mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer12
+      end
+      object ppDBText26: TppDBText
+        DesignLayer = ppDesignLayer13
+        UserName = 'DBText26'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3440
+        mmLeft = 1852
+        mmTop = 10583
+        mmWidth = 41275
         BandType = 7
         LayerName = BandLayer12
       end
@@ -2241,7 +2272,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs28 FECHAMENTO DE CAIXA\par'#13#10#13#10'\' +
           'pard\f1\fs24\par'#13#10#13#10'\pard\qc\f0 CAIXA N\'#39'ba<dbtext displayformat' +
           '='#39'000'#39'>id_1</dbtext>\par'#13#10#13#10'\pard\fs20 ABERTURA\par'#13#10'<dbtext>dat' +
@@ -2296,7 +2327,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs16 ' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs16 ' +
           '<dbtext>descricao_utf8</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
@@ -2326,8 +2357,8 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.190' +
-          '41}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs16 <dbtext displayformat='#39'$#' +
+          '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.226' +
+          '21}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs16 <dbtext displayformat='#39'$#' +
           ',0.00;-$#,0.00'#39'>valor</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
@@ -2373,7 +2404,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\cf1\b\f0\fs20 USU\'#39'c1RIO: <dbtext>nome</dbtex' +
           't>\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -2446,7 +2477,7 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-            'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+            'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
             '20 <dbtext>descricao_tipo</dbtext>\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Stretch = True
@@ -2609,7 +2640,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2732,7 +2763,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * * * <dbtext datapipeline='#39'ppCozinha'#39'>origem_pedido</dbtext>' +
           ' * * *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -2815,7 +2846,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 209900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 144
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2886,7 +2917,7 @@ object dmImpressaoV2: TdmImpressaoV2
               RichText = 
                 '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
                 '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-                'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 - \f1' +
+                'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 - \f1' +
                 ' <dbtext>descricao</dbtext>\par'#13#10'}'#13#10#0
               RemoveEmptyLines = False
               Stretch = True
@@ -2924,8 +2955,8 @@ object dmImpressaoV2: TdmImpressaoV2
               MailMerge = True
               RichText = 
                 '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-                '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.190' +
-                '41}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs24 <dbtext>tipo</dbtext>\fs2' +
+                '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.226' +
+                '21}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs24 <dbtext>tipo</dbtext>\fs2' +
                 '0\par'#13#10#13#10'\pard Cliente: <dbtext>celular</dbtext> - <dbtext>nome<' +
                 '/dbtext>\par'#13#10'Data: <dbtext displayformat='#39'mm/dd/yyyy'#39'>data_pedi' +
                 'do</dbtext> <dbtext displayformat='#39'h:nn'#39'>hora_pedido</dbtext>\pa' +
@@ -2980,7 +3011,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 RichText = 
                   '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
                   '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}'#13#10'{\*\gene' +
-                  'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs28 <dbte' +
+                  'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs28 <dbte' +
                   'xt>qtd</dbtext>\f1 Un - \fs20 <dbtext>categoria</dbtext>\fs28  <' +
                   'dbtext>produto</dbtext>\f0\par'#13#10'}'#13#10#0
                 RemoveEmptyLines = False
@@ -3056,7 +3087,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 MailMerge = True
                 RichText = 
                   '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-                  '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+                  '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
                   'nd4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>nomeclatura</dbtext>\par'#13#10'}'#13#10#0
                 RemoveEmptyLines = False
                 Stretch = True
@@ -3141,7 +3172,28 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3704
         mmLeft = 1852
         mmTop = 6615
-        mmWidth = 38894
+        mmWidth = 35257
+        BandType = 7
+        LayerName = BandLayer21
+      end
+      object ppDBText16: TppDBText
+        DesignLayer = ppDesignLayer4
+        UserName = 'DBText16'
+        Border.mmPadding = 0
+        DataField = 'impressora'
+        DataPipeline = ppCozinha
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = []
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppCozinha'
+        mmHeight = 3433
+        mmLeft = 38100
+        mmTop = 10665
+        mmWidth = 41322
         BandType = 7
         LayerName = BandLayer21
       end
@@ -3182,7 +3234,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3316,7 +3368,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\co' +
-          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}' +
+          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}' +
           '\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs30 CONFER\'#39'caNCIA\fs24\par'#13 +
           #10'\fs20 #<dbtext displayformat='#39'0000'#39'>codigo</dbtext>\par'#13#10'\fs32 ' +
           '<dbtext>nome</dbtext>\fs20\par'#13#10'\par'#13#10'\par'#13#10#13#10'\pard\cf0\b0\f1\fs' +
@@ -3350,7 +3402,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * PEDIDO <dbtext displayformat='#39'000000'#39'>codigo_comanda</dbtex' +
           't> *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -3381,7 +3433,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 <dbtext>nome_estabelecimento' +
           '</dbtext>\par'#13#10'\fs16 <dbtext>origem_1</dbtext>\par'#13#10'\par'#13#10#13#10'\par' +
           'd\f1\fs20 Data Pedido: <dbtext>data_pedido</dbtext> <dbtext>hora' +
@@ -3476,7 +3528,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 PRODUTOS\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -3515,7 +3567,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\generator ' +
-          'Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 [<dbtext>ti' +
+          'Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 [<dbtext>ti' +
           'po</dbtext>] - <dbtext>descricao</dbtext>\par'#13#10'\b0\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
@@ -3581,7 +3633,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 TOTAL\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -3737,7 +3789,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 FORMA DE PAGAMENTO\f1\par'#13#10'}' +
           #13#10#0
         RemoveEmptyLines = False
@@ -3941,7 +3993,7 @@ object dmImpressaoV2: TdmImpressaoV2
           MailMerge = True
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
             'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>qtd</dbtext>un - <dbtext>nome_' +
             'produto</dbtext>\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
@@ -3998,7 +4050,7 @@ object dmImpressaoV2: TdmImpressaoV2
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil A' +
             'rial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched2' +
-            '0 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\cf1\b\f0\fs20 <dbtext dis' +
+            '0 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\cf1\b\f0\fs20 <dbtext dis' +
             'playformat='#39'#,0.00;-#,0.00'#39'>vl_\f1 total_1\f0 </dbtext>\par'#13#10#13#10'\' +
             'pard\cf0\b0\f2\fs24\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
@@ -4052,7 +4104,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 72000
-    PrinterSetup.PaperSize = 143
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4186,7 +4238,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * * * <dbtext>desc_ficha</dbtext> * * *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -4216,7 +4268,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 <dbtext>nome_estabelecimento' +
           '</dbtext>\par'#13#10'\fs16 <dbtext>origem_1</dbtext>\par'#13#10'\par'#13#10#13#10'\par' +
           'd\f1\fs20 Data Pedido: <dbtext>data_pedido</dbtext> <dbtext>hora' +
@@ -4271,7 +4323,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 ITENS DO PEDIDO\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -4309,7 +4361,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs24 [<dbtext>tipo</dbtext>] - <dbtext>desc' +
           'ricao</dbtext>\par'#13#10'\fs20\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -4356,7 +4408,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 TOTAL\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -4485,7 +4537,7 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}{\f2\fnil A' +
-            'rial;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\par' +
+            'rial;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\par' +
             'd\b\f0\fs20 <dbtext>tipo_produto_nome</dbtext> - \fs24 <\f1 dbte' +
             'xt>nome_produto</dbtext>\par'#13#10'\b0\f2\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
@@ -4589,7 +4641,7 @@ object dmImpressaoV2: TdmImpressaoV2
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil A' +
             'rial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched2' +
-            '0 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
+            '0 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
             't>\f1 Un X <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_unitario</d' +
             'btext> = \cf1\f0\fs20 <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_' +
             '\f1 total_1\f0 </dbtext>\par'#13#10'\cf0\b0\f2\fs24\par'#13#10'}'#13#10#0
@@ -4644,7 +4696,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4778,7 +4830,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
-          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
+          'erator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs' +
           '24 * * * <dbtext>desc_ficha</dbtext> * * *\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -4809,7 +4861,7 @@ object dmImpressaoV2: TdmImpressaoV2
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\f' +
           'charset0 Arial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generat' +
-          'or Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 <' +
+          'or Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 <' +
           'dbtext>nome_estabelecimento</dbtext>\par'#13#10'\fs16 <dbtext>origem_1' +
           '</dbtext>\par'#13#10'\par'#13#10#13#10'\pard\f1\fs20 Data Pedido: <dbtext>data_p' +
           'edido</dbtext> <dbtext>hora_pedido</dbtext>\par'#13#10#13#10'\pard\qc\f0\p' +
@@ -4864,7 +4916,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 PRODUTOS\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -4902,7 +4954,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs24 [<dbtext>tipo</dbtext>] - <dbtext>desc' +
           'ricao</dbtext>\par'#13#10'\fs20\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -4949,7 +5001,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
-          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}\vie' +
           'wkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs20 TOTAL\f1\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -5091,7 +5143,7 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}{\f2\fnil A' +
-            'rial;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\par' +
+            'rial;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\par' +
             'd\b\f0\fs24 <\f1 dbtext>nome_produto</dbtext>\par'#13#10'\b0\f2\par'#13#10'}' +
             #13#10#0
           RemoveEmptyLines = False
@@ -5148,7 +5200,7 @@ object dmImpressaoV2: TdmImpressaoV2
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil A' +
             'rial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched2' +
-            '0 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
+            '0 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>qtd</dbtex' +
             't>\f1 Un X <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_unitario</d' +
             'btext> = \cf1\f0\fs20 <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>vl_' +
             '\f1 total_1\f0 </dbtext>\par'#13#10'\cf0\b0\f2\fs24\par'#13#10'}'#13#10#0
@@ -5214,6 +5266,10 @@ object dmImpressaoV2: TdmImpressaoV2
         '_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_deliv' +
         'ery,'
       
+        '(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id' +
+        '_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entreg' +
+        'a,'
+      
         '(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedi' +
         'do as pl where pl.id_caixa = c.id)) as valor_diferenca'
       'from caixa as c'
@@ -5236,7 +5292,7 @@ object dmImpressaoV2: TdmImpressaoV2
       FieldName = 'id'
       FieldLength = 0
       DataType = dtInteger
-      DisplayWidth = 10
+      DisplayWidth = 0
       Position = 0
     end
     object ppResumoppField2: TppField
@@ -5332,12 +5388,21 @@ object dmImpressaoV2: TdmImpressaoV2
     end
     object ppResumoppField13: TppField
       Alignment = taRightJustify
+      FieldAlias = 'taxa_entrega'
+      FieldName = 'taxa_entrega'
+      FieldLength = 0
+      DataType = dtDouble
+      DisplayWidth = 10
+      Position = 12
+    end
+    object ppResumoppField14: TppField
+      Alignment = taRightJustify
       FieldAlias = 'valor_diferenca'
       FieldName = 'valor_diferenca'
       FieldLength = 0
       DataType = dtDouble
       DisplayWidth = 10
-      Position = 12
+      Position = 13
     end
   end
   object dsResumo: TDataSource
@@ -5360,7 +5425,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5481,7 +5546,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Resumido)\par'#13#10'\fs3' +
           '0 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -5490,7 +5555,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 16302
         mmLeft = 1896
         mmTop = 0
-        mmWidth = 75726
+        mmWidth = 71840
         BandType = 1
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5515,7 +5580,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 1852
         mmTop = 18785
-        mmWidth = 75631
+        mmWidth = 71840
         BandType = 1
         LayerName = BandLayer13
       end
@@ -5575,7 +5640,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3243
         mmLeft = 44450
         mmTop = -265
-        mmWidth = 33266
+        mmWidth = 25969
         BandType = 4
         LayerName = BandLayer13
       end
@@ -5643,10 +5708,10 @@ object dmImpressaoV2: TdmImpressaoV2
         TextAlignment = taRightJustified
         Transparent = True
         DataPipelineName = 'ppResumo'
-        mmHeight = 4454
-        mmLeft = 39158
-        mmTop = 265
-        mmWidth = 38574
+        mmHeight = 4498
+        mmLeft = 40217
+        mmTop = 298
+        mmWidth = 30139
         BandType = 7
         LayerName = BandLayer13
       end
@@ -5721,7 +5786,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext>data_abertura</dbtext> <dbt' +
           'ext displayformat='#39'h:nn'#39'>hora_abertura</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -5729,7 +5794,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 8202
-        mmWidth = 48948
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5816,7 +5881,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 36513
+        mmTop = 39173
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5837,7 +5902,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 31485
+        mmTop = 34145
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5858,7 +5923,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 4763
         mmLeft = 1852
-        mmTop = 40746
+        mmTop = 43406
         mmWidth = 42069
         BandType = 7
         LayerName = BandLayer13
@@ -5877,7 +5942,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext>data_fechamento</dbtext> <d' +
           'btext displayformat='#39'h:nn'#39'>hora_fechamento</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -5885,7 +5950,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28840
         mmTop = 12700
-        mmWidth = 48948
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5907,7 +5972,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
           '0.00'#39'>valor_abertura</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -5915,7 +5980,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44186
         mmTop = 17463
-        mmWidth = 33338
+        mmWidth = 26150
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5937,7 +6002,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
           '0.00'#39'>valor_fechamento</dbtext>\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -5945,7 +6010,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44450
         mmTop = 22225
-        mmWidth = 33338
+        mmWidth = 25961
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5967,15 +6032,15 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
           '0.00'#39'>valor_delivery</dbtext>\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 31485
-        mmWidth = 48948
+        mmTop = 34145
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -5997,15 +6062,15 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
           '0.00'#39'>valor_vem_buscar</dbtext>\par'#13#10#13#10'\pard\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 36513
-        mmWidth = 48948
+        mmTop = 39173
+        mmWidth = 41504
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6027,15 +6092,66 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
           '0.00'#39'>valor_mesa</dbtext>\par'#13#10#13#10'\pard\par'#13#10'\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
         mmHeight = 4763
         mmLeft = 28840
-        mmTop = 40746
-        mmWidth = 48948
+        mmTop = 43406
+        mmWidth = 41504
+        BandType = 7
+        LayerName = BandLayer13
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+      object ppLabel68: TppLabel
+        DesignLayer = ppDesignLayer9
+        UserName = 'Label68'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Taxa:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 29648
+        mmWidth = 42069
+        BandType = 7
+        LayerName = BandLayer13
+      end
+      object ppRichText64: TppRichText
+        DesignLayer = ppDesignLayer9
+        UserName = 'RichText1'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText1'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
+          'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,' +
+          '0.00'#39'>taxa_entrega</dbtext>\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 28840
+        mmTop = 29648
+        mmWidth = 41559
         BandType = 7
         LayerName = BandLayer13
         mmBottomOffset = 0
@@ -6250,7 +6366,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6371,7 +6487,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Completo)\par'#13#10'\fs3' +
           '0 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -6456,7 +6572,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-          'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs18 <dbte' +
+          'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs18 <dbte' +
           'xt>transacao_descricao</dbtext>\fs16\par'#13#10#13#10'\pard\qr [\f1 <dbtex' +
           't>transacao_data</dbtext>\f0  <dbtext displayformat='#39'h:nn'#39'>trans' +
           'acao_hora</dbtext>] - <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39 +
@@ -6562,7 +6678,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_computado</db' +
           'text>\b0\f1\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -6635,7 +6751,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_informado</db' +
           'text>\b0\f1\fs24\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -6666,7 +6782,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_diferenca</db' +
           'text>\b0\f1\fs24\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -6793,7 +6909,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6914,7 +7030,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Motoboy)\par'#13#10'\fs30' +
           ' #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -6923,7 +7039,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 16302
         mmLeft = 1896
         mmTop = 0
-        mmWidth = 75726
+        mmWidth = 70134
         BandType = 1
         LayerName = BandLayer16
         mmBottomOffset = 0
@@ -6986,7 +7102,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 17628
         mmTop = 840
-        mmWidth = 60467
+        mmWidth = 54402
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7029,7 +7145,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 28046
         mmTop = 10116
-        mmWidth = 49473
+        mmWidth = 43976
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7072,7 +7188,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 27296
         mmTop = 14781
-        mmWidth = 50231
+        mmWidth = 44734
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7134,7 +7250,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 17628
         mmTop = 5581
-        mmWidth = 60467
+        mmWidth = 54402
         BandType = 4
         LayerName = BandLayer16
       end
@@ -7250,7 +7366,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4498
         mmLeft = 28046
         mmTop = 9493
-        mmWidth = 49477
+        mmWidth = 43976
         BandType = 7
         LayerName = BandLayer16
       end
@@ -7271,9 +7387,9 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         DataPipelineName = 'ppMotoboy'
         mmHeight = 4498
-        mmLeft = 28046
-        mmTop = 14520
-        mmWidth = 49477
+        mmLeft = 28054
+        mmTop = 14552
+        mmWidth = 43976
         BandType = 7
         LayerName = BandLayer16
       end
@@ -7292,14 +7408,14 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-          'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
+          'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
           'tal Geral\f1\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
         mmHeight = 5118
         mmLeft = 1852
         mmTop = 529
-        mmWidth = 75631
+        mmWidth = 70134
         BandType = 7
         LayerName = BandLayer16
         mmBottomOffset = 0
@@ -7344,7 +7460,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4763
           mmLeft = 1852
           mmTop = 1058
-          mmWidth = 76200
+          mmWidth = 70134
           BandType = 3
           GroupNo = 0
           LayerName = BandLayer16
@@ -7420,7 +7536,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 28046
           mmTop = 15763
-          mmWidth = 49477
+          mmWidth = 43976
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7444,7 +7560,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 28046
           mmTop = 20410
-          mmWidth = 49477
+          mmWidth = 43976
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7478,14 +7594,14 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-            'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
+            'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
             'tal <dbtext>motoboy</dbtext>\f1\fs24\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Transparent = True
           mmHeight = 5118
           mmLeft = 1852
           mmTop = 570
-          mmWidth = 75631
+          mmWidth = 70134
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7536,7 +7652,7 @@ object dmImpressaoV2: TdmImpressaoV2
           mmHeight = 4498
           mmLeft = 52127
           mmTop = 11004
-          mmWidth = 25400
+          mmWidth = 19903
           BandType = 5
           GroupNo = 0
           LayerName = BandLayer16
@@ -7636,7 +7752,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -7757,7 +7873,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Produto)\par'#13#10'\fs30' +
           ' #<dbtext displayformat='#39'000'#39'>id</dbtext>\par'#13#10'<dbtext>tipo</dbt' +
           'ext>\par'#13#10'\fs24\par'#13#10'}'#13#10#0
@@ -7812,31 +7928,35 @@ object dmImpressaoV2: TdmImpressaoV2
       Border.mmPadding = 0
       PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 4233
+      mmHeight = 3969
       mmPrintPosition = 0
-      object ppRichText64: TppRichText
+      object ppRichText63: TppRichText
         DesignLayer = ppDesignLayer11
-        UserName = 'RichText64'
+        UserName = 'RichText1'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Name = 'Arial'
-        Font.Size = 12
-        Font.Style = []
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
         Border.mmPadding = 0
-        Caption = 'RichText64'
+        Caption = 'RichText1'
         ExportRTFAsBitmap = False
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
-          'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>adicionais</dbtext>\par'#13#10'}'#13#10#0
+          '0\fnil Courier New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\f' +
+          'charset0 Arial;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\' +
+          'uc1 '#13#10'\pard\b\f0\fs20 <dbtext>nome</dbtext>\par'#13#10'\b0 <dbtext>adi' +
+          'cionais</dbtext>\b\par'#13#10#13#10'\pard\qr\f1 <dbtext>quantidade</dbtext' +
+          '> x <dbtext displayformat='#39'$#,0.00;-$#,0.00'#39'>total</dbtext>\b0\f' +
+          '2\fs24\par'#13#10#13#10'\pard\b\f0\fs20\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
         Transparent = True
         mmHeight = 3704
-        mmLeft = 2646
-        mmTop = 529
-        mmWidth = 70324
+        mmLeft = 1852
+        mmTop = 265
+        mmWidth = 71173
         BandType = 4
         LayerName = BandLayer17
         mmBottomOffset = 0
@@ -7857,7 +7977,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
       mmBottomOffset = 0
-      mmHeight = 42333
+      mmHeight = 33338
       mmPrintPosition = 0
       object ppSystemVariable22: TppSystemVariable
         DesignLayer = ppDesignLayer11
@@ -8014,8 +8134,8 @@ object dmImpressaoV2: TdmImpressaoV2
           MailMerge = True
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.190' +
-            '41}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs24 <dbtext>descricao</dbtext' +
+            '0\fnil\fcharset0 Courier New;}}'#13#10'{\*\generator Riched20 10.0.226' +
+            '21}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs24 <dbtext>descricao</dbtext' +
             '>\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Stretch = True
@@ -8039,8 +8159,22 @@ object dmImpressaoV2: TdmImpressaoV2
         PrintHeight = phDynamic
         HideWhenOneDetail = False
         mmBottomOffset = 0
-        mmHeight = 0
+        mmHeight = 3440
         mmPrintPosition = 0
+        object ppLine26: TppLine
+          DesignLayer = ppDesignLayer11
+          UserName = 'Line1'
+          Border.mmPadding = 0
+          Pen.Style = psDash
+          Weight = 0.750000000000000000
+          mmHeight = 1323
+          mmLeft = 265
+          mmTop = 265
+          mmWidth = 115359
+          BandType = 5
+          GroupNo = 0
+          LayerName = BandLayer17
+        end
       end
     end
     object ppGroup14: TppGroup
@@ -8061,39 +8195,8 @@ object dmImpressaoV2: TdmImpressaoV2
         Border.mmPadding = 0
         PrintHeight = phDynamic
         mmBottomOffset = 0
-        mmHeight = 4233
+        mmHeight = 0
         mmPrintPosition = 0
-        object ppRichText63: TppRichText
-          DesignLayer = ppDesignLayer11
-          UserName = 'RichText1'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Name = 'Courier New'
-          Font.Size = 10
-          Font.Style = [fsBold]
-          Border.mmPadding = 0
-          Caption = 'RichText1'
-          ExportRTFAsBitmap = False
-          MailMerge = True
-          RichText = 
-            '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
-            'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>nome</dbtext>\par'#13#10'}'#13#10#0
-          RemoveEmptyLines = False
-          Stretch = True
-          Transparent = True
-          mmHeight = 3704
-          mmLeft = 1852
-          mmTop = 529
-          mmWidth = 71082
-          BandType = 3
-          GroupNo = 1
-          LayerName = BandLayer17
-          mmBottomOffset = 0
-          mmOverFlowOffset = 0
-          mmStopPosition = 0
-          mmMinHeight = 0
-        end
       end
       object ppGroupFooterBand14: TppGroupFooterBand
         Background.Brush.Style = bsClear
@@ -8101,55 +8204,8 @@ object dmImpressaoV2: TdmImpressaoV2
         PrintHeight = phDynamic
         HideWhenOneDetail = False
         mmBottomOffset = 0
-        mmHeight = 5821
+        mmHeight = 0
         mmPrintPosition = 0
-        object ppRichText86: TppRichText
-          DesignLayer = ppDesignLayer11
-          UserName = 'RichText86'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Name = 'Arial'
-          Font.Size = 12
-          Font.Style = []
-          Border.mmPadding = 0
-          Caption = 'RichText86'
-          ExportRTFAsBitmap = False
-          MailMerge = True
-          RichText = 
-            '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-            'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
-            '0 <dbtext>quantidade</dbtext> x <dbtext displayformat='#39'$#,0.00;-' +
-            '$#,0.00'#39'>total</dbtext>\b0\f1\fs24\par'#13#10'}'#13#10#0
-          RemoveEmptyLines = False
-          Stretch = True
-          Transparent = True
-          mmHeight = 3704
-          mmLeft = 1852
-          mmTop = 1058
-          mmWidth = 71082
-          BandType = 5
-          GroupNo = 1
-          LayerName = BandLayer17
-          mmBottomOffset = 0
-          mmOverFlowOffset = 0
-          mmStopPosition = 0
-          mmMinHeight = 0
-        end
-        object ppLine26: TppLine
-          DesignLayer = ppDesignLayer11
-          UserName = 'Line1'
-          Border.mmPadding = 0
-          Pen.Style = psDash
-          Weight = 0.750000000000000000
-          mmHeight = 1323
-          mmLeft = 0
-          mmTop = 4498
-          mmWidth = 115359
-          BandType = 5
-          GroupNo = 1
-          LayerName = BandLayer17
-        end
       end
     end
     object ppDesignLayers13: TppDesignLayers
@@ -8171,90 +8227,6 @@ object dmImpressaoV2: TdmImpressaoV2
       end
     end
   end
-  object DADOS_PRODUTO: TFDMemTable
-    Active = True
-    FieldDefs = <
-      item
-        Name = 'produto'
-        DataType = ftInteger
-      end
-      item
-        Name = 'nome'
-        DataType = ftString
-        Size = 255
-      end
-      item
-        Name = 'total'
-        DataType = ftFloat
-      end
-      item
-        Name = 'quantidade'
-        DataType = ftInteger
-      end
-      item
-        Name = 'adicionais'
-        DataType = ftString
-        Size = 2000
-      end
-      item
-        Name = 'id'
-        DataType = ftInteger
-      end
-      item
-        Name = 'codigo'
-        DataType = ftInteger
-      end>
-    IndexDefs = <>
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    StoreDefs = True
-    Left = 624
-    Top = 296
-    object DADOS_PRODUTOproduto: TIntegerField
-      FieldName = 'produto'
-    end
-    object DADOS_PRODUTOnome: TStringField
-      FieldName = 'nome'
-      Size = 255
-    end
-    object DADOS_PRODUTOtotal: TFloatField
-      FieldName = 'total'
-    end
-    object DADOS_PRODUTOquantidade: TIntegerField
-      FieldName = 'quantidade'
-    end
-    object DADOS_PRODUTOadicionais: TStringField
-      FieldName = 'adicionais'
-      Size = 2000
-    end
-    object DADOS_PRODUTOid: TIntegerField
-      FieldName = 'id'
-    end
-    object DADOS_PRODUTOcodigo: TIntegerField
-      FieldName = 'codigo'
-    end
-    object DADOS_PRODUTOtipo: TIntegerField
-      FieldKind = fkCalculated
-      FieldName = 'tipo'
-      Calculated = True
-    end
-    object DADOS_PRODUTOdescricao: TStringField
-      FieldKind = fkCalculated
-      FieldName = 'descricao'
-      Size = 255
-      Calculated = True
-    end
-    object DADOS_PRODUTOgrupo: TIntegerField
-      FieldKind = fkCalculated
-      FieldName = 'grupo'
-      Calculated = True
-    end
-  end
   object CAIXA_RESUMO56MM: TppReport
     AutoStop = False
     DataPipeline = ppResumo
@@ -8270,7 +8242,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8391,7 +8363,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Resumido)\par'#13#10'\fs3' +
           '0 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8629,7 +8601,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>data_abertura</dbtext> <dbtext' +
           ' displayformat='#39'h:nn'#39'>hora_abertura</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8785,7 +8757,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>data_fechamento</dbtext> <dbte' +
           'xt displayformat='#39'h:nn'#39'>hora_fechamento</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8815,7 +8787,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,0.0' +
           '0'#39'>valor_abertura</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8845,7 +8817,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,0.0' +
           '0'#39'>valor_fechamento</dbtext>\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8875,7 +8847,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,0.0' +
           '0'#39'>valor_delivery</dbtext>\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8905,7 +8877,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,0.0' +
           '0'#39'>valor_vem_buscar</dbtext>\par'#13#10'\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8935,7 +8907,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext displayformat='#39'$#,0.00;-$#,0.0' +
           '0'#39'>valor_mesa</dbtext>\par'#13#10'\par'#13#10'\par'#13#10'\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -8986,7 +8958,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9107,7 +9079,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Completo)\par'#13#10'\fs3' +
           '0 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -9192,7 +9164,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-          'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs18 <dbte' +
+          'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\b\f0\fs18 <dbte' +
           'xt>transacao_descricao</dbtext>\fs16\par'#13#10#13#10'\pard\qr [\f1 <dbtex' +
           't>transacao_data</dbtext>\f0  <dbtext displayformat='#39'h:nn'#39'>trans' +
           'acao_hora</dbtext>] - <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39 +
@@ -9298,7 +9270,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_computado</db' +
           'text>\b0\f1\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -9371,7 +9343,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_informado</db' +
           'text>\b0\f1\fs24\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -9402,7 +9374,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\' +
-          'generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
+          'generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qr\b\f0\fs2' +
           '0 <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>valor_diferenca</db' +
           'text>\b0\f1\fs24\par'#13#10#13#10'\pard\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -9453,7 +9425,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9574,7 +9546,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\c' +
           'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Motoboy)\par'#13#10'\fs30' +
           ' #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
@@ -9952,7 +9924,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-          'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
+          'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
           'tal Geral\f1\fs24\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Transparent = True
@@ -10138,7 +10110,7 @@ object dmImpressaoV2: TdmImpressaoV2
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
             '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\*\gene' +
-            'rator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
+            'rator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\qc\b\f0\fs22 To' +
             'tal <dbtext>motoboy</dbtext>\f1\fs24\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Transparent = True
@@ -10237,7 +10209,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10358,7 +10330,7 @@ object dmImpressaoV2: TdmImpressaoV2
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
           '0\fnil\fcharset0 Courier New;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\co' +
-          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}' +
+          'lortbl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.22621}' +
           '\viewkind4\uc1 '#13#10'\pard\qc\cf1\b\f0\fs22 Fechamento de Caixa\fs24' +
           '\par'#13#10'\fs18 (Produto)\fs20\par'#13#10'\fs26 #<dbtext displayformat='#39'00' +
           '0'#39'>id</dbtext>\par'#13#10'<dbtext>tipo</dbtext>\par'#13#10'\fs24\par'#13#10#13#10'\par' +
@@ -10430,7 +10402,7 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+          '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
           'nd4\uc1 '#13#10'\pard\b\f0\fs20 <dbtext>adicionais</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
@@ -10616,7 +10588,7 @@ object dmImpressaoV2: TdmImpressaoV2
           MailMerge = True
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
             'nd4\uc1 '#13#10'\pard\b\f0\fs24 <dbtext>nome</dbtext>\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Stretch = True
@@ -10655,7 +10627,7 @@ object dmImpressaoV2: TdmImpressaoV2
           MailMerge = True
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewki' +
+            '0\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.22621}\viewki' +
             'nd4\uc1 '#13#10'\pard\qr\b\f0\fs20 <dbtext displayformat='#39'000'#39'>quantid' +
             'ade</dbtext> x <dbtext displayformat='#39'$ #,0.00;-$ #,0.00'#39'>total<' +
             '/dbtext>\par'#13#10'}'#13#10#0
@@ -10698,6 +10670,316 @@ object dmImpressaoV2: TdmImpressaoV2
     end
     object ppParameterList15: TppParameterList
       object ppParameter14: TppParameter
+        AutoSearchSettings.LogicalPrefix = []
+        AutoSearchSettings.Mandatory = True
+        DataType = dtString
+        LookupSettings.DisplayType = dtNameOnly
+        LookupSettings.SortOrder = soName
+        Value = ''
+        UserName = 'Parameter1'
+      end
+    end
+  end
+  object iReqImpressaoTest: iRequisicao
+    BaseURL = 'localhost:2121/v1/util/teste/impressao'
+    MemTable2 = frmMain.memImpressao
+    eTAG = False
+    Metodo = mGet
+    Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
+    Left = 640
+    Top = 448
+  end
+  object ppTesteImpressao: TppReport
+    PassSetting = psTwoPass
+    PrinterSetup.BinName = 'Default'
+    PrinterSetup.DocumentName = '80mm'
+    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PrinterName = 'Default'
+    PrinterSetup.SaveDeviceSettings = True
+    PrinterSetup.mmMarginBottom = 0
+    PrinterSetup.mmMarginLeft = 0
+    PrinterSetup.mmMarginRight = 0
+    PrinterSetup.mmMarginTop = 0
+    PrinterSetup.mmPaperHeight = 209900
+    PrinterSetup.mmPaperWidth = 80300
+    PrinterSetup.PaperSize = 256
+    PrinterSetup.DevMode = {
+      4004000044006100720075006D00610020004400520000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000001040306DC0064034FEF8005010000013A6202036400010001016400
+      0100010064000200010043007500730074006F006D0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000100000000000000
+      010000000200000001000000FFFFFFFF00000000000000000000000000000000
+      44494E552200080164030000B8225C4F00000000000000000000000000000000
+      0000000000000000000000000800000001000000000001000000050001000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000001000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000008010000
+      534D544A000000001000F80044006100720075006D0061002000440052003700
+      300030002000530070006F006F006C00650072000000496E70757442696E004F
+      50424F42494E4100524553444C4C00556E69726573444C4C004F7269656E7461
+      74696F6E00504F52545241495400466F726D496D7072696D697200434F4E5449
+      4E5541005265736F6C7574696F6E004F7074696F6E546578746F005061706572
+      53697A6500435553544F4D53495A45004465736162696C6974615465636C6164
+      6F005465634E616F486162696C697461646F0048616C66746F6E650050616472
+      616F000000000000000000000000000000000000000000000000000000000000
+      00000000}
+    ArchiveFileName = '($MyDocuments)\ReportArchive.raf'
+    DeviceType = 'Printer'
+    DefaultFileDeviceType = 'PDF'
+    EmailSettings.ReportFormat = 'PDF'
+    EmailSettings.ConnectionSettings.MailService = 'SMTP'
+    EmailSettings.ConnectionSettings.WebMail.GmailSettings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.WebMail.Outlook365Settings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.EnableMultiPlugin = False
+    LanguageID = 'Default'
+    OpenFile = False
+    OutlineSettings.CreateNode = True
+    OutlineSettings.CreatePageNodes = True
+    OutlineSettings.Enabled = True
+    OutlineSettings.Visible = True
+    ThumbnailSettings.Enabled = True
+    ThumbnailSettings.Visible = True
+    ThumbnailSettings.DeadSpace = 30
+    ThumbnailSettings.PageHighlight.Width = 3
+    ThumbnailSettings.ThumbnailSize = tsSmall
+    PDFSettings.EmbedFontOptions = [efUseSubset]
+    PDFSettings.EncryptSettings.AllowCopy = True
+    PDFSettings.EncryptSettings.AllowInteract = True
+    PDFSettings.EncryptSettings.AllowModify = True
+    PDFSettings.EncryptSettings.AllowPrint = True
+    PDFSettings.EncryptSettings.AllowExtract = True
+    PDFSettings.EncryptSettings.AllowAssemble = True
+    PDFSettings.EncryptSettings.AllowQualityPrint = True
+    PDFSettings.EncryptSettings.Enabled = False
+    PDFSettings.EncryptSettings.KeyLength = kl40Bit
+    PDFSettings.EncryptSettings.EncryptionType = etRC4
+    PDFSettings.DigitalSignatureSettings.SignPDF = False
+    PDFSettings.FontEncoding = feAnsi
+    PDFSettings.ImageCompressionLevel = 25
+    PDFSettings.PDFAFormat = pafNone
+    PreviewFormSettings.PageBorder.mmPadding = 0
+    PreviewFormSettings.PageDisplay = pdContinuous
+    RTFSettings.DefaultFont.Charset = DEFAULT_CHARSET
+    RTFSettings.DefaultFont.Color = clWindowText
+    RTFSettings.DefaultFont.Height = -13
+    RTFSettings.DefaultFont.Name = 'Arial'
+    RTFSettings.DefaultFont.Style = []
+    ShowCancelDialog = False
+    ShowPrintDialog = False
+    TextFileName = '($MyDocuments)\Report.pdf'
+    TextSearchSettings.DefaultString = '<Texto a localizar>'
+    TextSearchSettings.Enabled = True
+    XLSSettings.AppName = 'ReportBuilder'
+    XLSSettings.Author = 'ReportBuilder'
+    XLSSettings.Subject = 'Report'
+    XLSSettings.Title = 'Report'
+    XLSSettings.WorksheetName = 'Report'
+    CloudDriveSettings.DropBoxSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.DropBoxSettings.DirectorySupport = True
+    CloudDriveSettings.GoogleDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
+    CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.OneDriveSettings.DirectorySupport = True
+    Left = 640
+    Top = 391
+    Version = '21.02'
+    mmColumnWidth = 72000
+    object ppTitleBand16: TppTitleBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 54504
+      mmPrintPosition = 0
+      object ppRichText86: TppRichText
+        DesignLayer = ppDesignLayer18
+        UserName = 'RichText16'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = []
+        Border.mmPadding = 0
+        Caption = 'RichText16'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
+          '}'#13#10'{\*\generator Riched20 10.0.22621}\viewkind4\uc1 '#13#10'\pard\cf1\' +
+          'b\f0\fs28 Teste de Impress\'#39'e3o GooPedir\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Stretch = True
+        Transparent = True
+        mmHeight = 16302
+        mmLeft = 1896
+        mmTop = 0
+        mmWidth = 71840
+        BandType = 1
+        LayerName = BandLayer24
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+      object pp2DBarCode1: Tpp2DBarCode
+        DesignLayer = ppDesignLayer18
+        UserName = 'TwoDBarCode1'
+        AlignBarcode = ahLeft
+        Border.mmPadding = 0
+        Color = clBlack
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = []
+        Transparent = True
+        BarCodeType = bcQRCode
+        Data = 'https://goopedir.com'
+        MaxiCodeSettings.CarrierPostalCode = '000000000'
+        MaxiCodeSettings.HorPixelsPerMM = 4.000000000000000000
+        MaxiCodeSettings.VerPixelsPerMM = 4.000000000000000000
+        MaxiCodeSettings.mmBarHeight = 1059
+        MaxiCodeSettings.mmBarWidth = 1059
+        MaxiCodeSettings.mmQuietZone = 2118
+        PDF417Settings.mmBarHeight = 2118
+        PDF417Settings.mmBarWidth = 530
+        PDF417Settings.mmQuietZone = 2118
+        QRCodeSettings.IncludeBOM = True
+        QRCodeSettings.mmModuleSize = 1059
+        QRCodeSettings.mmQuietZone = 1059
+        QRCodeSettings.ECICode = -1
+        DataMatrixSettings.mmModuleSize = 1059
+        DataMatrixSettings.mmQuietZone = 1059
+        AztecCodeSettings.mmModuleSize = 1600
+        mmHeight = 33867
+        mmLeft = 1852
+        mmTop = 17727
+        mmWidth = 71967
+        BandType = 1
+        LayerName = BandLayer24
+      end
+      object ppBarCode1: TppBarCode
+        DesignLayer = ppDesignLayer18
+        UserName = 'BarCode1'
+        AlignBarCode = ahLeft
+        BarCodeType = bcEAN_13
+        BarColor = clBlack
+        Border.mmPadding = 0
+        Data = '0012345678905'
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 9
+        Font.Style = []
+        Transparent = True
+        mmHeight = 11642
+        mmLeft = 33073
+        mmTop = 17727
+        mmWidth = 47625
+        BandType = 1
+        LayerName = BandLayer24
+        mmBarWidth = 330
+        mmWideBarRatio = 76200
+      end
+    end
+    object ppHeaderBand16: TppHeaderBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      PrintOnLastPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppDetailBand18: TppDetailBand
+      Background1.Brush.Style = bsClear
+      Background2.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppFooterBand16: TppFooterBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintOnFirstPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppSummaryBand18: TppSummaryBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      mmBottomOffset = 0
+      mmHeight = 8731
+      mmPrintPosition = 0
+      object ppSystemVariable32: TppSystemVariable
+        DesignLayer = ppDesignLayer18
+        UserName = 'SystemVariable1'
+        Border.mmPadding = 0
+        VarType = vtDateTime
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 5027
+        mmWidth = 35190
+        BandType = 7
+        LayerName = BandLayer24
+      end
+      object ppSystemVariable33: TppSystemVariable
+        DesignLayer = ppDesignLayer18
+        UserName = 'SystemVariable12'
+        Border.mmPadding = 0
+        VarType = vtDocumentName
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 1588
+        mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer24
+      end
+    end
+    object ppDesignLayers18: TppDesignLayers
+      object ppDesignLayer18: TppDesignLayer
+        UserName = 'BandLayer24'
+        LayerType = ltBanded
+        Index = 0
+      end
+    end
+    object ppParameterList16: TppParameterList
+      object ppParameter15: TppParameter
         AutoSearchSettings.LogicalPrefix = []
         AutoSearchSettings.Mandatory = True
         DataType = dtString

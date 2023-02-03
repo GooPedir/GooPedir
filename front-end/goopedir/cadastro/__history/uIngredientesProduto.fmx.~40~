@@ -14,14 +14,14 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
             PNG = {
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              00D1494441546843EDD2390EC2301445D1880E042C8CADC176A000D1316C8922
-              36DC886F148BA1408AFC0DEF34961217F7456944A48C18E33C84B0E41CDBA37A
-              74F16DDB9EAF60C4B6AA11FDF88411BB2A46BC8A4F18B1B66B3E7D8ABF80F70B
-              BBEACF2FC49FAC37A3F82129BE14E266C41FAD37A3F82129BE14C597A2F85268
-              9C127FB8E7E614FF85919DFF838F5DEF2F94D0AA112ED0AA112ED0AA112ED0AA
-              112ED0AA112ED0AA112ED0AA112ED0FA7644086163D77CA3F56904F17B8E895D
-              F18FD8C788EAE2936E04F1AB2AE345DC689A1BF2B7BE2A40B3075F0000000049
-              454E44AE426082}
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F138901B
+              0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
+              1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
+              BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
+              DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
+              9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
+              1EC744AFD887D87E84BBF8A21B81F895CB78223342B8011CF9BC59E9B179EF00
+              00000049454E44AE426082}
             FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
           end>
       end
@@ -71,12 +71,31 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
           Size.Height = 542.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
+          Visible = False
           RowHeight = 50.000000000000000000
           RowCount = 0
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-          OnCellClick = StringGrid4CellClick
-          Viewport.Width = 952.000000000000000000
-          Viewport.Height = 517.000000000000000000
+          OnCellDblClick = StringGrid4CellDblClick
+          Viewport.Width = 956.000000000000000000
+          Viewport.Height = 542.000000000000000000
+        end
+        object ListView1: TListView
+          ItemAppearanceClassName = 'TListItemAppearance'
+          ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TCustomizeItemObjects'
+          Align = Client
+          Size.Width = 956.000000000000000000
+          Size.Height = 542.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          ParentShowHint = False
+          ShowHint = False
+          ItemAppearanceObjects.ItemEditObjects.Accessory.Visible = True
+          ItemAppearanceObjects.FooterObjects.Detail.Visible = True
+          ItemAppearanceObjects.FooterObjects.Accessory.Visible = True
+          ItemAppearanceObjects.FooterObjects.GlyphButton.Visible = True
+          SearchVisible = True
         end
       end
       inherited TabDados: TTabItem
@@ -95,15 +114,15 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC9944FF3800
-                    3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
-                    DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
-                    F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
-                    902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
-                    6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
-                    6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
-                    20F8C1FAE80F6744BCE87160BB8D18B2EC09D45D3BDE110B1175000000004945
-                    4E44AE426082}
+                    00EF49444154484BED95510E82301044C104CFA627F0387ECA3DBC9944C315A0
+                    019C5D87A69502AD89C60F5E62BADDD9D9A53668B69144DFF7C7B66DAB2111F8
+                    CE6CB10C9ADFE849266A086B076EA340E3535DD7467CAB43B43B70E325D404A2
+                    87A80BB8F1126A223284692F9F7355463107EF8521A48EA1E2FA3501765C7F83
+                    3C81C06D32B47BFEAF9F206A001E6ADF75DDA5699A877C24961CE578F47C805B
+                    0B52E54BF128295B989FFF8AA94F0AF086DF29592447D942E90FEFA0288A2B43
+                    4B28B70A4F18BA83A84B5633E0760AF5F98215689FBF03634C252BEB92717B04
+                    C10FD6477F3823E2458F03DB6DC490654F0A823BC0E81088990000000049454E
+                    44AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
                 end>
             end
@@ -134,6 +153,181 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
             Size.PlatformDefault = False
             CharCase = ecUpperCase
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -2097,11 +2291,15 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
         StyleLookup = ''
         TabOrder = 0
         Text = 'TabItem1'
+        ExplicitSize.cx = 69.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
         object Rectangle2: TRectangle
           Align = Center
           Size.Width = 448.000000000000000000
           Size.Height = 370.000000000000000000
           Size.PlatformDefault = False
+          XRadius = 10.000000000000000000
+          YRadius = 10.000000000000000000
           object edtIngredienteEstoque: TEdit
             Touch.InteractiveGestures = [LongTap, DoubleTap]
             Align = Top
@@ -2214,7 +2412,6 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
               'UN'
               'KG'
               'CX')
-            ItemIndex = 0
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Margins.Bottom = 5.000000000000000000
@@ -2320,11 +2517,34 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
             Text = 'ser'#225' dado entrada em 15,000kg'
             TabOrder = 2
           end
+          object Button1: TButton
+            Align = Bottom
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 5.000000000000000000
+            Position.Y = 328.000000000000000000
+            Size.Width = 438.000000000000000000
+            Size.Height = 37.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 7
+            Text = 'Salvar'
+            OnClick = Button1Click
+          end
         end
       end
     end
   end
+  object AtualizaTela: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = AtualizaTelaTimer
+    Left = 760
+    Top = 272
+  end
   object memDados: iMemTable
+    Active = True
     IndexFieldNames = 'descricao'
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
@@ -2355,6 +2575,11 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
       FieldName = 'unidade'
       Size = 255
     end
+    object memDadosestoque: TFloatField
+      FieldName = 'estoque'
+      DisplayFormat = '#0.000'
+      currency = True
+    end
   end
   object BindSourceDB1: TBindSourceDB
     DataSet = memDados
@@ -2382,14 +2607,22 @@ inherited frmIngredientesProduto: TfrmIngredientesProduto
         item
           MemberName = 'unidade'
           Width = 50
+        end
+        item
+          MemberName = 'estoque'
+          Header = 'Estoque'
+          DecimalDigits = 3
         end>
     end
-  end
-  object AtualizaTela: TTimer
-    Enabled = False
-    Interval = 100
-    OnTimer = AtualizaTelaTimer
-    Left = 760
-    Top = 272
+    object LinkListControlToField1: TLinkListControlToField
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      FieldName = 'descricao'
+      Control = ListView1
+      FillExpressions = <>
+      FillHeaderExpressions = <>
+      FillHeaderFieldName = 'unidade'
+      FillBreakGroups = <>
+    end
   end
 end

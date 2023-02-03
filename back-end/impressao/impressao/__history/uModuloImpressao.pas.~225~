@@ -367,7 +367,6 @@ type
     ppDesignLayer11: TppDesignLayer;
     ppParameterList11: TppParameterList;
     ppParameter10: TppParameter;
-    ppRichText64: TppRichText;
     ppLabel40: TppLabel;
     ppDBCalc8: TppDBCalc;
     ppLabel41: TppLabel;
@@ -496,7 +495,6 @@ type
     ppGroupFooterBand11: TppGroupFooterBand;
     ppRichText63: TppRichText;
     ppRichText85: TppRichText;
-    ppRichText86: TppRichText;
     ppLine26: TppLine;
     ppGroup14: TppGroup;
     ppGroupHeaderBand14: TppGroupHeaderBand;
@@ -534,6 +532,10 @@ type
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
     ppParameter2: TppParameter;
+    ppDBText16: TppDBText;
+    ppDBText26: TppDBText;
+    ppLabel68: TppLabel;
+    ppRichText64: TppRichText;
     procedure DataModuleCreate(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -865,6 +867,8 @@ begin
             CAIXA_RESUMO.SQL.Add
               ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
             CAIXA_RESUMO.SQL.Add
+              ('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
+            CAIXA_RESUMO.SQL.Add
               ('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
             CAIXA_RESUMO.SQL.Add('from caixa as c');
             CAIXA_RESUMO.SQL.Add
@@ -1063,7 +1067,7 @@ begin
               CAIXA_PRODUTO.ParamByName('id').AsInteger := Codigo;
               CAIXA_PRODUTO.Open;
 
-//              CarregaProdutos;
+              // CarregaProdutos;
               if CAIXA_PRODUTO.RecordCount = 0 then
               begin
                 AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
@@ -1085,66 +1089,39 @@ begin
               end
               else
               begin
-                ConfiguraReport(Relatorio);
+                if I <> 2 then
+                begin
+                  ConfiguraReport(Relatorio);
 
-                Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
+                  Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
 
-                Relatorio.ShowCancelDialog := False;
-                Relatorio.ShowPrintDialog := False;
-                Relatorio.DeviceType := 'Printer';
-                Relatorio.PrinterSetup.PrinterName :=
-                  Impressoras.FieldByName('driver').AsString;
-                ConfiguraVersaoPDV(Relatorio);
-                Relatorio.Print;
+                  Relatorio.ShowCancelDialog := False;
+                  Relatorio.ShowPrintDialog := False;
+                  Relatorio.DeviceType := 'Printer';
+                  Relatorio.PrinterSetup.PrinterName :=
+                    Impressoras.FieldByName('driver').AsString;
+                  ConfiguraVersaoPDV(Relatorio);
+                  Relatorio.Print;
 
-                AddImpressao('CAIXA', Relatorio, Codigo, 1, 'IMPRESSO', '',
-                  Impressoras.FieldByName('driver').AsString);
+                  AddImpressao('CAIXA', Relatorio, Codigo, 1, 'IMPRESSO', '',
+                    Impressoras.FieldByName('driver').AsString);
+                end;
               end;
 
             end;
-            Impressoras.Free;
-            { CAIXA_PRODUTO.SQL.Clear;
-              CAIXA_PRODUTO.SQL.Add('select');
-              CAIXA_PRODUTO.SQL.Add('pp.codigo,');
-              CAIXA_PRODUTO.SQL.Add(Codigo.ToString + ' as id,');
-              CAIXA_PRODUTO.SQL.Add('prod.codigo as produto,');
-              CAIXA_PRODUTO.SQL.Add('upper(prod.nome_produto) as nome,');
-              CAIXA_PRODUTO.SQL.Add('pp.valor_total as total,');
-              CAIXA_PRODUTO.SQL.Add('pp.quantidade,');
-              CAIXA_PRODUTO.SQL.Add('group_concat(');
-              CAIXA_PRODUTO.SQL.Add('CASE');
-              CAIXA_PRODUTO.SQL.Add('WHEN pps.valor = 0 THEN ""');
-              CAIXA_PRODUTO.SQL.Add('ELSE upper(pps.descricao)');
-              CAIXA_PRODUTO.SQL.Add('END');
-              CAIXA_PRODUTO.SQL.Add('separator ' + QuotedStr('|') +
-              ') as adicionais');
-              CAIXA_PRODUTO.SQL.Add('from pedido as p ');
-              CAIXA_PRODUTO.SQL.Add
-              ('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
-              CAIXA_PRODUTO.SQL.Add
-              ('join produto as prod on prod.codigo = pp.codigo_produto ');
-              CAIXA_PRODUTO.SQL.Add
-              ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo ');
-              CAIXA_PRODUTO.SQL.Add('where p.id_caixa = :id');
-              CAIXA_PRODUTO.SQL.Add('group by pp.codigo');
-              CAIXA_PRODUTO.SQL.Add('order by prod.codigo'); }
+            QRYUPDATE := TFDQuery.Create(nil);
+            QRYUPDATE.Connection := dmModulo.BANCO;
+            QRYUPDATE.Close;
+            QRYUPDATE.SQL.Clear;
+            QRYUPDATE.SQL.Add
+              ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
+            QRYUPDATE.ParamByName('data').AsDateTime := Date;
+            QRYUPDATE.ParamByName('hora').AsDateTime := Time;
+            QRYUPDATE.ParamByName('status').AsInteger := 2;
+            QRYUPDATE.ParamByName('id').AsInteger := Codigo;
+            QRYUPDATE.ExecSQL;
+            QRYUPDATE.Free;
 
-            // QRYUPDATE := TFDQuery.Create(nil);
-            // QRYUPDATE.Connection := dmModulo.BANCO;
-            // QRYUPDATE.Close;
-            // QRYUPDATE.SQL.Clear;
-            // QRYUPDATE.SQL.Add
-            // ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-            //
-            // QRYUPDATE.ParamByName('data').AsDateTime := Date;
-            // QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-            // QRYUPDATE.ParamByName('status').AsInteger := 2;
-            // QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-            // QRYUPDATE.ExecSQL;
-            //
-            // QRYUPDATE.Free;
-            // Impressoras.Free;
-            // exit;
           end;
         6:
           begin
@@ -1191,8 +1168,7 @@ begin
               QRYUPDATE.ExecSQL;
 
               QRYUPDATE.Free;
-              Impressoras.Free;
-              exit;
+
             end;
 
           end
@@ -1212,8 +1188,7 @@ begin
           QRYUPDATE.ExecSQL;
 
           QRYUPDATE.Free;
-          Impressoras.Free;
-          exit;
+
         end;
       end;
 

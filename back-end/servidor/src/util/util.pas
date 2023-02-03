@@ -4655,13 +4655,17 @@ begin
         SQL.Add('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,modificado_site,id_site,id_ingredientes,quantidade_ingredientes)');
         SQL.Add('values (:id,:extra,:nome,:descricao,:valor,:ativo,0,0,:id_ingredientes,:quantidade_ingredientes)');
         Parametros('id', Codigo);
-        Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado').AsString);
+        Parametros('extra', Dados.FieldByName('id_pro_adi_personalizado')
+          .AsString);
         Parametros('nome', Dados.FieldByName('nome').AsString);
         Parametros('descricao', Dados.FieldByName('descricao').AsString);
         Parametros('valor', Dados.FieldByName('valor').AsString);
         Parametros('ativo', Dados.FieldByName('ativo').AsString);
-        Parametros('id_ingredientes', Dados.FieldByName('ingredientes').AsString);
-        Parametros('quantidade_ingredientes',StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',[rfReplaceAll]));
+        Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
+          .AsString);
+        Parametros('quantidade_ingredientes',
+          StringReplace(Dados.FieldByName('quantidade').AsString, ',', '.',
+          [rfReplaceAll]));
         ExecuteSQL;
       end;
 
@@ -4984,9 +4988,11 @@ begin
       end;
     4:
       begin
-        conexao.SQL.Add('select count(p.valor_total_pedido) as qtd, sum(p.valor_total_pedido) as total, sum(p.valor_taxa_entrega) as taxa, sum(p.valor_pedido) as pedido, sum(p.valor_desconto) as desconto, p.data_pedido, p.status, ss.descricao from pedido as p');
+        conexao.SQL.Add
+          ('select count(p.valor_total_pedido) as qtd, sum(p.valor_total_pedido) as total, sum(p.valor_taxa_entrega) as taxa, sum(p.valor_pedido) as pedido, sum(p.valor_desconto) as desconto, p.data_pedido, p.status, ss.descricao from pedido as p');
         conexao.SQL.Add('join status_pedido as ss on ss.id = p.status');
-        conexao.SQL.Add('where p.status > 0 and p.data_pedido between :ini and :fim');
+        conexao.SQL.Add
+          ('where p.status > 0 and p.data_pedido between :ini and :fim');
         conexao.SQL.Add('group by p.data_pedido');
         conexao.SQL.Add('order by p.data_pedido');
         conexao.Parametros('ini', DataInicio);
@@ -5888,6 +5894,32 @@ begin
   conexao.Free;
 end;
 
+//
+procedure DoTesteImpressao(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  if not frmServidor.memTesteImpressao.Active then
+    frmServidor.memTesteImpressao.Open;
+  try
+    Req.Params['id'].ToInteger;
+    frmServidor.memTesteImpressao.Insert;
+    frmServidor.memTesteImpressao.FieldByName('IMPRESSORA').AsInteger :=
+      Req.Params['id'].ToInteger;
+    frmServidor.memTesteImpressao.FieldByName('ID').AsInteger :=
+      Req.Params['id'].ToInteger;
+    frmServidor.memTesteImpressao.Post;
+    exit;
+  except
+    on E: Exception do
+    begin
+      Res.Send<TJSONArray>(frmServidor.memTesteImpressao.ToJSONArray);
+      frmServidor.memTesteImpressao.Close;
+
+    end;
+  end;
+
+end;
+
 procedure DoFinalizarServico(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 begin
@@ -6448,6 +6480,10 @@ begin
   THorse.Post('v1/util/estoque/produto/insumos', DoPostEstoqueProdutoInsulmos);
 
   THorse.Post('v1/util/finalizar/servico/:tipo', DoFinalizarServico);
+
+  THorse.Post('v1/util/teste/impressao/:id', DoTesteImpressao);
+
+  THorse.Get('v1/util/teste/impressao', DoTesteImpressao);
 
 end;
 

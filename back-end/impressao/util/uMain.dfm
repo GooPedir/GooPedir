@@ -242,4 +242,21 @@ object frmMain: TfrmMain
     Left = 448
     Top = 168
   end
+  object memImpressao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 312
+    Top = 272
+    object memImpressaoIMPRESSORA: TIntegerField
+      FieldName = 'IMPRESSORA'
+    end
+    object memImpressaoID: TIntegerField
+      FieldName = 'ID'
+    end
+  end
 end

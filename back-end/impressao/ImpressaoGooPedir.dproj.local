@@ -9,8 +9,8 @@
     <Transaction>2021/09/30 19:59:40.000.442,C:\Projeto\papaleguas-backend-site\src\site.dproj=C:\Users\DESENVOLVIMENTO\Documents\Embarcadero\Studio\Projects\site.dproj</Transaction>
     <Transaction>2021/09/30 20:04:15.000.723,=C:\Projeto\papaleguas-backend-site\src\util\requisicao.pas</Transaction>
     <Transaction>2021/09/30 22:00:06.000.189,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
-    <Transaction>2021/09/30 22:00:18.000.671,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\uModulo.pas</Transaction>
     <Transaction>2021/09/30 22:00:18.000.671,C:\Projeto\papaleguas-backend-site\src\Unit1.dfm=C:\Projeto\papaleguas-backend-site\src\uModulo.dfm</Transaction>
+    <Transaction>2021/09/30 22:00:18.000.671,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\uModulo.pas</Transaction>
     <Transaction>2021/09/30 22:00:50.000.679,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
     <Transaction>2021/09/30 22:01:20.000.471,C:\Projeto\papaleguas-backend-site\src\Unit1.pas=C:\Projeto\papaleguas-backend-site\src\util\metodo.api.pas</Transaction>
     <Transaction>2021/10/30 11:20:09.000.131,=C:\Projeto\papaleguas-backend-site\src\Unit1.pas</Transaction>
@@ -24,6 +24,8 @@
     <Transaction>2021/10/30 16:58:03.000.371,C:\Projeto\papaleguas-backend-impressao\src\Unit1.pas=C:\Projeto\papaleguas-backend-impressao\src\util\uMain.pas</Transaction>
     <Transaction>2021/10/30 16:58:03.000.371,C:\Projeto\papaleguas-backend-impressao\src\Unit1.dfm=C:\Projeto\papaleguas-backend-impressao\src\util\uMain.dfm</Transaction>
     <Transaction>2022/05/30 11:34:20.000.741,C:\Projeto\papaleguas-backend-impressao\src\ImpressaoPapaleguas.dproj=C:\Projeto\papaleguas-backend-impressao\src\ImpressaoGooPedir.dproj</Transaction>
+    <Transaction>2023/02/01 14:07:00.000.394,=A:\PROJETOS\ALLAN\GooPedir\back-end\site\outros\XSuperJSON.pas</Transaction>
+    <Transaction>2023/02/01 14:07:00.000.420,=A:\PROJETOS\ALLAN\GooPedir\back-end\site\outros\XSuperObject.pas</Transaction>
   </Transactions>
 	<ActiveMobileDevice>
 		<NoProfile iOSSimulator="iPhone5"/>

@@ -12,7 +12,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.Bind.Components, Data.Bind.DBScope,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, System.Rtti,
   FMX.Grid.Style, FMX.ScrollBox, FMX.Grid, Data.Bind.EngExt, FMX.Bind.DBEngExt,
-  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Grid,FMXTee.Canvas,
+  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors, Data.Bind.Grid,
+  FMXTee.Canvas,
   FMX.Edit, uEdit, FMX.ListBox, uComboBox;
 
 type
@@ -30,7 +31,7 @@ type
     DADOSimpressora_padrao: TIntegerField;
     DADOStipo_impressao: TIntegerField;
     Layout3: TLayout;
-    edtNome: iEdit;
+    edtDescricao: iEdit;
     Label5: TLabel;
     Layout1: TLayout;
     Label3: TLabel;
@@ -41,11 +42,24 @@ type
     memImpressoradriver: TStringField;
     iComboBox1: iComboBox;
     iComboBox2: iComboBox;
+    memTipo: iMemTable;
+    memTipoID: TIntegerField;
+    memTipoDESCRICAO: TStringField;
+    Layout8: TLayout;
+    iEdit7: iEdit;
+    Label10: TLabel;
+    sAtivo: TSwitch;
+    Layout4: TLayout;
+    iEdit1: iEdit;
+    Label4: TLabel;
+    sPadrao: TSwitch;
     procedure FormCreate(Sender: TObject);
     procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
       const Column: TColumn; const Bounds: TRectF; const Row: Integer;
       const Value: TValue; const State: TGridDrawStates);
     procedure rAlterarClick(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAdicionarClick(Sender: TObject);
   private
     { Private declarations }
     function TipoCor(Index: Integer): TColor;
@@ -70,24 +84,87 @@ begin
   GetDados;
   tabPrincipal.TabIndex := 0;
   tabPrincipal.TabPosition := TTabPosition.None;
+  memTipo.Close;
+  memTipo.Open;
+  memTipo.Insert;
+  memTipo.FieldByName('ID').AsInteger := 0;
+  memTipo.FieldByName('DESCRICAO').AsString := '56mm';
+  memTipo.Post;
+  memTipo.Insert;
+  memTipo.FieldByName('ID').AsInteger := 1;
+  memTipo.FieldByName('DESCRICAO').AsString := '80mm';
+  memTipo.Post;
+
 end;
 
 procedure TfrmImpressora.GetDados;
 begin
   dm.GetSimples('/v1/consulta/todos/impressoras', DADOS);
+  tabPrincipal.TabIndex := 0;
+end;
+
+procedure TfrmImpressora.rAdicionarClick(Sender: TObject);
+begin
+  inherited;
+  dm.GetSimples('/v1/impressora/servidor/', memImpressora);
+
+  if memImpressora.RecordCount = 0 then
+  begin
+    ShowMessageToast(self,
+      'Não há nenhuma impressora instalada, no servidor!', 1);
+    exit;
+  end;
+
+  if not memImpressora.Active then
+    memImpressora.Open;
+
+  tabPrincipal.TabIndex := 1;
+  DADOS.Insert;
 end;
 
 procedure TfrmImpressora.rAlterarClick(Sender: TObject);
 begin
   inherited;
-    dm.GetSimples('/v1/impressora/servidor/',memImpressora);
+  if DADOS.RecordCount = 0 then
+    exit;
 
-    if memImpressora.RecordCount = 0 then
-    begin
-      ShowMessageToast(self,'Não há nenhuma impressora instalada, no servidor!',1);
-      exit;
-    end;
-    tabPrincipal.TabIndex := 1;
+  dm.GetSimples('/v1/impressora/servidor/', memImpressora);
+
+  if memImpressora.RecordCount = 0 then
+  begin
+    ShowMessageToast(self,
+      'Não há nenhuma impressora instalada, no servidor!', 1);
+    exit;
+  end;
+  tabPrincipal.TabIndex := 1;
+  iComboBox1.LocalizaIndex('');
+  iComboBox2.LocalizaIndex('');
+  edtDescricao.Text := DADOS.FieldByName('descricao').AsString;
+  sAtivo.IsChecked := DADOS.FieldByName('ativo').AsInteger = 1;
+  sPadrao.IsChecked := DADOS.FieldByName('impressora_padrao').AsInteger = 1;
+end;
+
+procedure TfrmImpressora.rSalvarClick(Sender: TObject);
+begin
+  inherited;
+  DADOS.Edit;
+  DADOS.FieldByName('descricao').AsString := edtDescricao.Text;
+  DADOS.FieldByName('driver').AsString := memImpressora.FieldByName
+    ('driver').AsString;
+  DADOS.FieldByName('tipo_impressao').AsInteger := memTipo.FieldByName('id')
+    .AsInteger;
+
+  if sAtivo.IsChecked then
+    DADOS.FieldByName('ativo').AsInteger := 1
+  else
+    DADOS.FieldByName('ativo').AsInteger := 0;
+  if sPadrao.IsChecked then
+    DADOS.FieldByName('impressora_padrao').AsInteger := 1
+  else
+    DADOS.FieldByName('impressora_padrao').AsInteger := 0;
+
+  dm.PostSimplesUnico('/v1/impressora/servidor/', DADOS);
+  GetDados;
 end;
 
 procedure TfrmImpressora.StringGrid4DrawColumnCell(Sender: TObject;
@@ -179,7 +256,6 @@ begin
       end;
   end;
 end;
-
 
 function TfrmImpressora.TipoCor(Index: Integer): TColor;
 begin

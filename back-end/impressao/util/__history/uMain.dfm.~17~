@@ -2,40 +2,84 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Impress'#227'o Papaleguas Sistemas'
-  ClientHeight = 461
-  ClientWidth = 679
+  ClientHeight = 528
+  ClientWidth = 783
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   WindowState = wsMinimized
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object memLog: TMemo
+  object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 679
-    Height = 461
+    Width = 783
+    Height = 439
     Align = alClient
+    DataSource = dsImpressao
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Courier New'
-    Font.Style = [fsBold]
-    Lines.Strings = (
-      'memLog')
+    Font.Height = -16
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     ParentFont = False
     ReadOnly = True
-    ScrollBars = ssVertical
     TabOrder = 0
-    ExplicitLeft = 16
-    ExplicitTop = -40
-    ExplicitWidth = 791
-    ExplicitHeight = 669
+    TitleFont.Charset = ANSI_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -21
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = [fsBold]
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'CODIGO'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DATA_HORA'
+        Width = 125
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'TIPO'
+        Width = 101
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DESCRICAO'
+        Width = 300
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'DRIVER'
+        Width = 300
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'OBSERVACAO'
+        Width = 300
+        Visible = True
+      end>
+  end
+  object Memo1: TMemo
+    Left = 0
+    Top = 439
+    Width = 783
+    Height = 89
+    Align = alBottom
+    ScrollBars = ssVertical
+    TabOrder = 1
   end
   object ImageList1: TImageList
     Left = 152
@@ -192,5 +236,10 @@ object frmMain: TfrmMain
     OnTimer = tMinimizaTimer
     Left = 88
     Top = 552
+  end
+  object dsImpressao: TDataSource
+    DataSet = dmImpressaoV2.IMPRESSAO
+    Left = 448
+    Top = 168
   end
 end

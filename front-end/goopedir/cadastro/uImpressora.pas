@@ -60,6 +60,7 @@ type
     procedure rAlterarClick(Sender: TObject);
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
+    procedure rAtivarDesativarClick(Sender: TObject);
   private
     { Private declarations }
     function TipoCor(Index: Integer): TColor;
@@ -142,6 +143,13 @@ begin
   edtDescricao.Text := DADOS.FieldByName('descricao').AsString;
   sAtivo.IsChecked := DADOS.FieldByName('ativo').AsInteger = 1;
   sPadrao.IsChecked := DADOS.FieldByName('impressora_padrao').AsInteger = 1;
+end;
+
+procedure TfrmImpressora.rAtivarDesativarClick(Sender: TObject);
+begin
+  inherited;
+  DM.PostSimplesUnico('v1/util/teste/impressao/'+DADOS.FieldByName('codigo').AsString,nil);
+  ShowMessageToast(self,'Teste de impressão enviado com sucesso!',2);
 end;
 
 procedure TfrmImpressora.rSalvarClick(Sender: TObject);

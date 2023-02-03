@@ -1,15 +1,15 @@
 program ImpressaoGooPedir;
-
 uses
   Vcl.Forms,
   requisicao in 'util\requisicao.pas',
   uModulo in 'uModulo.pas' {dmModulo: TDataModule},
   metodo.api in 'util\metodo.api.pas',
   uModuloImpressao in 'impressao\uModuloImpressao.pas' {dmImpressaoV2: TDataModule},
-  uMain in 'util\uMain.pas' {frmMain};
+  uMain in 'util\uMain.pas' {frmMain},
+  XSuperJSON in '..\site\outros\XSuperJSON.pas',
+  XSuperObject in '..\site\outros\XSuperObject.pas';
 
 {$R *.res}
-
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;

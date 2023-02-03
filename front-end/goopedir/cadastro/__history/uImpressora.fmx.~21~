@@ -56,7 +56,6 @@ inherited frmImpressora: TfrmImpressora
             OnClick = rAtivarDesativarClick
             inherited lTipoAtivo: TLabel
               TextSettings.Font.StyleExt = {00060000000000000004000000}
-              Text = 'Impress'#227'o Test'
             end
           end
         end

@@ -11,7 +11,6 @@ object frmPrincipal: TfrmPrincipal
   Font.Height = -13
   Font.Name = 'Segoe UI Semibold'
   Font.Style = [fsBold]
-  OldCreateOrder = False
   WindowState = wsMaximized
   OnCreate = FormCreate
   PixelsPerInch = 96

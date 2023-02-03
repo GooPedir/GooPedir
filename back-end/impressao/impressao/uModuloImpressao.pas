@@ -9,7 +9,7 @@ uses
   ppCtrls, ppBands, ppDB, ppClass, ppPrnabl, ppStrtch, ppRichTx, ppCache,
   ppDesignLayer, ppParameter, Data.DB, ppDBPipe, ppDBBDE, ppComm, ppRelatv,
   ppProd, ppReport, FireDAC.Comp.DataSet, FireDAC.Comp.Client, ppSubRpt,
-  ppModule, raCodMod, uModulo;
+  ppModule, raCodMod, uModulo, uRequisicao, ppBarCod;
 
 type
   TImpressaoPedidos = class(TThread)
@@ -536,6 +536,22 @@ type
     ppDBText26: TppDBText;
     ppLabel68: TppLabel;
     ppRichText64: TppRichText;
+    iReqImpressaoTest: iRequisicao;
+    ppTesteImpressao: TppReport;
+    ppTitleBand16: TppTitleBand;
+    ppRichText86: TppRichText;
+    ppHeaderBand16: TppHeaderBand;
+    ppDetailBand18: TppDetailBand;
+    ppFooterBand16: TppFooterBand;
+    ppSummaryBand18: TppSummaryBand;
+    ppSystemVariable32: TppSystemVariable;
+    ppSystemVariable33: TppSystemVariable;
+    ppDesignLayers18: TppDesignLayers;
+    ppDesignLayer18: TppDesignLayer;
+    ppParameterList16: TppParameterList;
+    ppParameter15: TppParameter;
+    pp2DBarCode1: Tpp2DBarCode;
+    ppBarCode1: TppBarCode;
     procedure DataModuleCreate(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -557,6 +573,8 @@ type
       CodigoPedido: String): Boolean;
 
     procedure ImprimirCaixa(Tipo, Codigo: integer);
+
+    procedure ImprimeTeste(CodigoImpressora: integer);
 
     property CodigoImpressao: integer read GetCodigo;
     procedure AddImpressao(Tipo: String; Relatorio: TppReport;
@@ -793,6 +811,45 @@ procedure TdmImpressaoV2.IMPRESSAOAfterInsert(DataSet: TDataSet);
 begin
   DataSet.FieldByName('ID').AsInteger := CodigoImpressao;
   DataSet.FieldByName('DATA_HORA').AsDateTime := now;
+end;
+
+procedure TdmImpressaoV2.ImprimeTeste(CodigoImpressora: integer);
+var
+  Impressoras: TFDQuery;
+begin
+  try
+    Impressoras := TFDQuery.Create(nil);
+    Impressoras.Connection := dmModulo.BANCO;
+    Impressoras.SQL.Add('SELECT * FROM impressoras where codigo = :codigo');
+    Impressoras.ParamByName('codigo').AsInteger := CodigoImpressora;
+    Impressoras.Open;
+    if Impressoras.RecordCount = 0 then
+    begin
+
+      AddImpressao('TESTE IMPRESSAO', nil, Codigo, 2, 'ERRO',
+        'Impressora não cadastrada!', '');
+
+      Impressoras.Free;
+      exit;
+    end;
+    ConfiguraReport(ppTesteImpressao);
+
+    ppTesteImpressao.PreviewFormSettings.PageDisplay := pdContinuous;
+
+    ppTesteImpressao.ShowCancelDialog := False;
+    ppTesteImpressao.ShowPrintDialog := False;
+    ppTesteImpressao.DeviceType := 'Printer';
+    ppTesteImpressao.PrinterSetup.PrinterName :=
+      Impressoras.FieldByName('driver').AsString;
+    ConfiguraVersaoPDV(ppTesteImpressao);
+    ppTesteImpressao.Print;
+
+    AddImpressao('TESTE IMPRESSAO', ppTesteImpressao, Codigo, 1, 'IMPRESSO', '',
+      Impressoras.FieldByName('driver').AsString);
+    Impressoras.Free;
+  except
+
+  end;
 end;
 
 procedure TdmImpressaoV2.ImprimirCaixa(Tipo, Codigo: integer);
@@ -1651,6 +1708,30 @@ begin
       QRYCAIXA.Next;
     end;
     QRYCAIXA.Close;
+
+    try
+    dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
+      dmImpressaoV2.iReqImpressaoTest.Execute;
+
+      if frmMain.memImpressao.RecordCount > 0 then
+      begin
+        frmMain.memImpressao.First;
+        while not frmMain.memImpressao.Eof do
+        begin
+          dmImpressaoV2.ImprimeTeste
+            (frmMain.memImpressao.FieldByName('IMPRESSORA').AsInteger);
+          frmMain.memImpressao.Next;
+        end;
+
+      end;
+      frmMain.memImpressao.Close;
+    except
+    on E : Exception do
+    begin
+      ShowMessage(e.Message)
+    end;
+
+    end;
 
     Sleep(5000);
   end;

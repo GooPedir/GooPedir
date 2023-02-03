@@ -9,7 +9,7 @@ uses
   ppCtrls, ppBands, ppDB, ppClass, ppPrnabl, ppStrtch, ppRichTx, ppCache,
   ppDesignLayer, ppParameter, Data.DB, ppDBPipe, ppDBBDE, ppComm, ppRelatv,
   ppProd, ppReport, FireDAC.Comp.DataSet, FireDAC.Comp.Client, ppSubRpt,
-  ppModule, raCodMod, uModulo;
+  ppModule, raCodMod, uModulo, uRequisicao;
 
 type
   TImpressaoPedidos = class(TThread)
@@ -532,6 +532,11 @@ type
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
     ppParameter2: TppParameter;
+    ppDBText16: TppDBText;
+    ppDBText26: TppDBText;
+    ppLabel68: TppLabel;
+    ppRichText64: TppRichText;
+    iReqImpressaoTest: iRequisicao;
     procedure DataModuleCreate(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -862,6 +867,8 @@ begin
               ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha is null) as valor_vem_buscar,');
             CAIXA_RESUMO.SQL.Add
               ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
+            CAIXA_RESUMO.SQL.Add
+              ('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
             CAIXA_RESUMO.SQL.Add
               ('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
             CAIXA_RESUMO.SQL.Add('from caixa as c');
@@ -1645,6 +1652,12 @@ begin
       QRYCAIXA.Next;
     end;
     QRYCAIXA.Close;
+
+    try
+//    iReqImpressaoTest.execute;
+    except
+
+    end;
 
     Sleep(5000);
   end;

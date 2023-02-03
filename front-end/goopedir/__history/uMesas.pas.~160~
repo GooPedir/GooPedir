@@ -87,8 +87,19 @@ type
     Label4: TLabel;
     lMesaConsumindo: TLabel;
     imgMenuLateral: TImage;
-    iButton1: iButton;
-    iButton2: iButton;
+    btnFinalizaWhats: iButton;
+    btnFinalizaSite: iButton;
+    Layout9: TLayout;
+    Label12: TLabel;
+    lTotalVDelivery: TLabel;
+    Label15: TLabel;
+    lTotalVTaxa: TLabel;
+    Layout10: TLayout;
+    Label20: TLabel;
+    lTotalvVembuscar: TLabel;
+    Layout11: TLayout;
+    Label24: TLabel;
+    lTotalVMesa: TLabel;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -103,17 +114,22 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Layout8Click(Sender: TObject);
     procedure imgMenuLateralClick(Sender: TObject);
+    procedure btnFinalizaWhatsClick(Sender: TObject);
+    procedure btnFinalizaSiteClick(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
     FValorDelivery: Real;
     FValorMesa: Real;
+    FTaxaTotal: Real;
     { Private declarations }
     procedure BuscaPedido;
     procedure SetValorDelivery(const Value: Real);
     procedure SetValorEmAberto(const Value: Real);
     procedure SetValorMesa(const Value: Real);
     procedure SetValorVB(const Value: Real);
+    procedure SetTaxaTotal(const Value: Real);
+    property TaxaTotal : Real read FTaxaTotal write SetTaxaTotal;
     property ValorMesa: Real read FValorMesa write SetValorMesa;
     property ValorVB: Real read FValorVB write SetValorVB;
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
@@ -447,6 +463,53 @@ begin
   edtHoraInicial.Time := StrToTime('00:00:00');
   edtHoraFinal.Time := StrToTime('23:59:59');
 
+
+  try
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
+    .AsString);
+
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+    .AsString);
+  except
+
+  end;
+
+
+end;
+
+procedure TfrmMesas.btnFinalizaWhatsClick(Sender: TObject);
+begin
+  inherited;
+  PostSimples('v1/util/finalizar/servico/1', nil);
+  if btnFinalizaWhats.iForthDescricao = 'Fechar Whatsapp' then
+  begin
+    btnFinalizaWhats.iForthDescricao := 'Abrir Whatsapp';
+    ShowMessageToast(self,'Whatsapp Fechado!',2);
+  end
+  else
+  begin
+    btnFinalizaWhats.iForthDescricao := 'Fechar Whatsapp';
+    ShowMessageToast(self,'Whatsapp Aberto, Aguarde!',2);
+  end;
+
+end;
+
+procedure TfrmMesas.btnFinalizaSiteClick(Sender: TObject);
+begin
+  inherited;
+  PostSimples('v1/util/finalizar/servico/2', nil);
+  if btnFinalizaSite.iForthDescricao = 'Fechar Site' then
+  begin
+    btnFinalizaSite.iForthDescricao := 'Abrir Site';
+    ShowMessageToast(self,'Site Fechado!',2);
+  end
+  else
+  begin
+    btnFinalizaSite.iForthDescricao := 'Fechar Site';
+    ShowMessageToast(self,'Site Aberto, Aguarde!',2);
+  end;
 end;
 
 procedure TfrmMesas.imgMenuLateralClick(Sender: TObject);
@@ -576,6 +639,11 @@ begin
   ShowMessageToast(Self, 'Motoboy incluido no(s) pedido(s) com sucesso!', 2);
 end;
 
+procedure TfrmMesas.SetTaxaTotal(const Value: Real);
+begin
+  FTaxaTotal := Value;
+end;
+
 procedure TfrmMesas.SetValorDelivery(const Value: Real);
 begin
   FValorDelivery := Value;
@@ -664,6 +732,7 @@ begin
     ValorVB := 0;
     ValorDelivery := 0;
     ValorMesa := 0;
+    TaxaTotal := 0;
     DadosPedido.First;
     while not DadosPedido.Eof do
     begin
@@ -749,8 +818,8 @@ begin
             end;
             DadosMotoboy.Post;
 
-            ValorDelivery := ValorDelivery + DadosPedido.FieldByName
-              ('total').AsFloat;
+            ValorDelivery := ValorDelivery + DadosPedido.FieldByName('total').AsFloat;
+           TaxaTotal := TaxaTotal + DadosPedido.FieldByName('taxa').AsFloat;
           end;
 
         end;
@@ -827,8 +896,12 @@ begin
       DadosMotoboy.Next;
     end;
     lMesa.Text := FormatFloat('R$ ###,##0.00', ValorMesa);
+    lTotalVMesa.Text := FormatFloat('###,##0.00', ValorMesa);
     lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);
+    lTotalVDelivery.Text := FormatFloat('###,##0.00', ValorDelivery);
+    lTotalVTaxa.Text := FormatFloat('###,##0.00', TaxaTotal);
     lVemBuscar.Text := FormatFloat('R$ ###,##0.00', ValorVB);
+    lTotalvVembuscar.Text := FormatFloat('###,##0.00', ValorVB);
     lTotal.Text := FormatFloat('R$ ###,##0.00',
       (ValorMesa + ValorDelivery + ValorVB));
     DadosPedido.Close;

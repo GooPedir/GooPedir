@@ -421,4 +421,21 @@ object frmServidor: TfrmServidor
       FieldName = 'QTD'
     end
   end
+  object memTesteImpressao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 616
+    Top = 200
+    object memTesteImpressaoIMPRESSORA: TIntegerField
+      FieldName = 'IMPRESSORA'
+    end
+    object memTesteImpressaoID: TIntegerField
+      FieldName = 'ID'
+    end
+  end
 end

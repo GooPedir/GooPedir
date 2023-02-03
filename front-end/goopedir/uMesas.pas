@@ -116,6 +116,7 @@ type
     procedure imgMenuLateralClick(Sender: TObject);
     procedure btnFinalizaWhatsClick(Sender: TObject);
     procedure btnFinalizaSiteClick(Sender: TObject);
+    procedure Layout5Click(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
@@ -587,6 +588,18 @@ begin
   cMotoboy.SubTitleMenuText := 'Slecione o Motoboy';
 
   cMotoboy.ShowMenu;
+end;
+
+procedure TfrmMesas.Layout5Click(Sender: TObject);
+begin
+  inherited;
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
 end;
 
 procedure TfrmMesas.Layout8Click(Sender: TObject);
