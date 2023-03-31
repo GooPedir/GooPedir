@@ -174,8 +174,6 @@ object dmPrincipal: TdmPrincipal
     OnConnected = iWhatsappConnected
     OnDisconnected = iWhatsappDisconnected
     OnDisconnectedBrute = iWhatsappDisconnectedBrute
-    CEF = CEFWindowParent1
-    NomeArquivoIni = 'ConfTInject.ini'
     Left = 280
     Top = 200
   end
@@ -259,8 +257,8 @@ object dmPrincipal: TdmPrincipal
   end
   object tMinimize: TTimer
     OnTimer = tMinimizeTimer
-    Left = 708
-    Top = 64
+    Left = 572
+    Top = 80
   end
   object ApplicationEvents1: TApplicationEvents
     OnException = ApplicationEvents1Exception

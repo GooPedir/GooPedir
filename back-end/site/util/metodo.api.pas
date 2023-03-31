@@ -8,6 +8,7 @@ type
     function InserirUpdate(Tabela: String;
       ArrayCampos, ArrayValores: Array of String): Integer;
     function ConsultaSQL(SQL: String): String;
+    function BuscaDadosDados(Campo, SQL: String): Integer;
 
     procedure ExecutaSQL(SQL: String);
   end;
@@ -17,6 +18,30 @@ implementation
 { TInsertUpdate }
 
 uses FireDAC.Comp.Client, SysUtils, uModulo, DataSet.Serialize, Vcl.Dialogs;
+
+function TInsertUpdate.BuscaDadosDados(Campo, SQL: String): Integer;
+var
+  qry: TFDquery;
+begin
+  try
+    qry := dmModulo.CriaQry('API');
+    qry.SQL.Clear;
+    qry.SQL.Add(SQL);
+    qry.Open;
+
+    Result := qry.FieldByName(Campo).AsInteger;
+    qry.Free;
+
+  except
+    on E: Exception do
+    begin
+      qry.Free;
+      Result := 0;
+    end;
+    // Showmessage(E.message);
+
+  end;
+end;
 
 function TInsertUpdate.ConsultaSQL(SQL: String): String;
 var

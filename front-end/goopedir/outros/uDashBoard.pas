@@ -139,6 +139,7 @@ type
     Layout15: TLayout;
     Label36: TLabel;
     Image5: TImage;
+    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -158,6 +159,7 @@ type
       const Point: TPointF);
     procedure Layout8DragLeave(Sender: TObject);
     procedure Layout15Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     FMesesPrevisao: Integer;
     FPrevisaoHoje: Integer;
@@ -202,7 +204,15 @@ implementation
 
 {$R *.fmx}
 
-uses uMain, uFrameTitulo;
+uses uMain, uFrameTitulo, uCadastroAlteroProduto;
+
+procedure TfrmDashBoard.Button2Click(Sender: TObject);
+begin
+  inherited;
+frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
+frmCadastroAlteraProduto.ShowModal;
+
+end;
 
 procedure TfrmDashBoard.DadosMedia;
 var

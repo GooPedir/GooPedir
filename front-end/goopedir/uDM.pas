@@ -230,7 +230,7 @@ type
     procedure ExtornoPedido(Pedido: Integer);
 
     function IntegracaoPIX: Boolean;
-           function CorSite(sColor: string): TColor;
+    function CorSite(sColor: string): TColor;
 
   end;
 
@@ -1165,15 +1165,15 @@ var
   Campo: String;
   Valor: String;
 begin
-  if FUserId = 0 then
-  begin
-    DadosSite;
-  end;
-  Campo := 'user';
-  Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
-  Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
-
   try
+    if FUserId = 0 then
+    begin
+      DadosSite;
+    end;
+    Campo := 'user';
+    Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
+    Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
+
     Result := Valor.ToInteger;
   except
     Result := 0;

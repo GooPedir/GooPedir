@@ -13,7 +13,7 @@ uses
   FMX.Grid, FMX.Layouts, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, FMX.ListView, System.Bindings.Outputs,
   FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
-  Data.Bind.DBScope;
+  Data.Bind.DBScope,uProduto;
 
 type
   TfrmExtraItem = class(TForm)
@@ -74,17 +74,21 @@ type
     property Min: Integer read FMin write SetMin;
     property Max: Integer read FMax write SetMax;
     property Tipo: Integer read FTipo write SetTipo;
+    var
+    frmProduto : tfrmProduto;
   end;
 
 var
   frmExtraItem: TfrmExtraItem;
   ExtraID: Integer;
 
+
+
 implementation
 
 {$R *.fmx}
 
-uses uDM, uframeExtraItensAdd, uSimNao, util, uProduto;
+uses uDM, uframeExtraItensAdd, uSimNao, util ;
 
 { TfrmExtraItem }
 

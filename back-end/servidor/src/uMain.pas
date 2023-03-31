@@ -9,7 +9,7 @@ uses
   Winapi.TlHelp32, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, conexao, Vcl.Menus,
-  FMX.Printer;
+  FMX.Printer, uRequisicao;
 
 type
   TAbrirServicos = class(TThread)

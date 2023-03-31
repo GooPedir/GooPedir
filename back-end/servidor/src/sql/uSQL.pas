@@ -214,6 +214,8 @@ var
 begin
   ExecultaSQL
     ('create table geradores ( tabela varchar(255) not null, sequencial integer);');
+  ExecultaSQL('SET sql_mode=(SELECT REPLACE(@@sql_mode,' +
+    QuotedStr('ONLY_FULL_GROUP_BY') + ',' + QuotedStr('') + '));');
   case Versao of
     1:
       begin

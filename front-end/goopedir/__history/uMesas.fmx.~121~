@@ -1,0 +1,1615 @@
+inherited frmMesas: TfrmMesas
+  Caption = 'frmCadastroBase1'
+  ClientHeight = 582
+  ClientWidth = 726
+  OnActivate = FormActivate
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 726.000000000000000000
+    Size.Height = 582.000000000000000000
+    inherited Rectangle1: TRectangle
+      Size.Width = 726.000000000000000000
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88C0F
+              40E1354CC43AC2E2512045DE85F91A4B898B7FA204226A23E73C179125CEB13E
+              F2A38B4F299DAF80115B57231EE30B8CD8B918F12ABEC088B55EB3E9537C8CF1
+              82F70BBD6ACF2FC49FB4B7C2F82131BE15C4CD107FD4DE0AE387C4F85618DF0A
+              E35B41E314F1877B6E8DF15F18E9F93FF0B1FDFE42055A39C204B472840968E5
+              0813D0CA1126A095234C402B479880568E3001AD6F4788C846AFD986D6A71188
+              DFE398E815FB10DB8F70175F742310BF72194F6446083724DDB9CEFAB3997E00
+              00000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+        Visible = False
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 666.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'Mesas / Pedidos'
+      end
+      object imgMenuLateral: TImage
+        MultiResBitmap = <
+          item
+            Width = 50
+            Height = 50
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+              B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0064494441546843EDD6310A80301045C1E0E9D4FBD70AE23D740362A59D908D
+              CCC0C32A1062F30B007C688ED6E8485EBDE314BDDAA2A78319DBA3DB707D7FA7
+              FEAE257A7A814CD53B8E1100404FCCF80699F19932E301801E99F10D32E33365
+              C603F0A1524EF4967FD4B08282230000000049454E44AE426082}
+            FileName = 'C:\Users\ifort\Downloads\icons8-menu-arredondado-50 (1).png'
+          end>
+        Align = Right
+        Cursor = crHandPoint
+        Position.X = 676.000000000000000000
+        OnClick = imgMenuLateralClick
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Visible = False
+      Sizes = (
+        956s
+        592s
+        956s
+        592s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          inherited rAdicionar: TRectangle
+            inherited Label1: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            inherited Label2: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            inherited lTipoAtivo: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3D3C188944EF00
+                    0DE0EC3A34450A6D4D347EF012D3EDCECE2EB541B38D24FABE3FB66D5B0F89C0
+                    77668B75D0FC464F325143583B701B051A9FAAAA32E20B0ED1EEC08DD7501388
+                    1EA22EE0C66BA889C810A627F99CAB328A39782FF421750C15D7AF09B0E3FA1B
+                    E409046E93A17DE2FFFA09A206E0A1F65DD75D9AA679C84762C9518E47CF07B8
+                    B52055BE940925650BF3CB5F31F55901DEF03B258BE4285B28FDE11D14457165
+                    68F1E582F084BE3B88BA6435036EE7505F2E0840FBF21D18636A5959978CDBC3
+                    0B7EB03EFAC319112F7A1CD86E23862C7B029F0D3B8ABA7440FC000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+      end
+    end
+    object tabMesas: TTabControl
+      Align = Client
+      Size.Width = 276.000000000000000000
+      Size.Height = 532.000000000000000000
+      Size.PlatformDefault = False
+      TabIndex = 0
+      TabOrder = 2
+      TabPosition = PlatformDefault
+    end
+    object Layout1: TLayout
+      Align = Right
+      Position.X = 276.000000000000000000
+      Position.Y = 50.000000000000000000
+      Size.Width = 450.000000000000000000
+      Size.Height = 532.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object tabDeliveryVemBuscar: TTabControl
+        Align = Client
+        Size.Width = 450.000000000000000000
+        Size.Height = 320.000000000000000000
+        Size.PlatformDefault = False
+        TabIndex = 0
+        TabOrder = 2
+        TabPosition = PlatformDefault
+        Sizes = (
+          450s
+          294s
+          450s
+          294s
+          450s
+          294s
+          450s
+          294s)
+        object tabDelivery: TTabItem
+          CustomIcon = <
+            item
+            end>
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFF7A57FD
+          StyledSettings = [Family, Size]
+          IsSelected = True
+          Size.Width = 65.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = ''
+          TabOrder = 0
+          Text = 'Delivery'
+          ExplicitSize.cx = 69.000000000000000000
+          ExplicitSize.cy = 26.000000000000000000
+          object vertDelivery: TVertScrollBox
+            Align = Client
+            Size.Width = 450.000000000000000000
+            Size.Height = 264.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Viewport.Width = 450.000000000000000000
+            Viewport.Height = 264.000000000000000000
+          end
+          object Layout9: TLayout
+            Align = Bottom
+            Position.Y = 264.000000000000000000
+            Size.Width = 450.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object Label12: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Margins.Left = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Size.Width = 84.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = 'Total R$: '
+              TabOrder = 3
+            end
+            object lTotalVDelivery: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Position.X = 89.000000000000000000
+              Size.Width = 130.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = '0,00'
+              TabOrder = 1
+            end
+            object Label15: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Margins.Left = 5.000000000000000000
+              Position.X = 224.000000000000000000
+              Size.Width = 113.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = 'Total Taxa R$: '
+              TabOrder = 2
+            end
+            object lTotalVTaxa: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Margins.Left = 5.000000000000000000
+              Position.X = 342.000000000000000000
+              Size.Width = 130.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = '0,00'
+              TabOrder = 0
+            end
+          end
+        end
+        object tabVemBuscar: TTabItem
+          CustomIcon = <
+            item
+            end>
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFFFD0B0B
+          StyledSettings = [Family, Size]
+          IsSelected = False
+          Size.Width = 84.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = ''
+          TabOrder = 0
+          Text = 'Vem Buscar'
+          ExplicitSize.cx = 82.000000000000000000
+          ExplicitSize.cy = 26.000000000000000000
+          object vertVemBuscar: TVertScrollBox
+            Align = Client
+            Size.Width = 450.000000000000000000
+            Size.Height = 264.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            Viewport.Width = 450.000000000000000000
+            Viewport.Height = 264.000000000000000000
+          end
+          object Layout10: TLayout
+            Align = Bottom
+            Position.Y = 264.000000000000000000
+            Size.Width = 450.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object Label20: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Margins.Left = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Size.Width = 84.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = 'Total R$: '
+              TabOrder = 1
+            end
+            object lTotalvVembuscar: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Position.X = 89.000000000000000000
+              Size.Width = 130.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = '0,00'
+              TabOrder = 0
+            end
+          end
+        end
+        object TabMesa: TTabItem
+          CustomIcon = <
+            item
+            end>
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFF007E09
+          StyledSettings = [Family, Size]
+          IsSelected = False
+          Size.Width = 100.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = ''
+          TabOrder = 0
+          Text = 'Mesa Faturada'
+          ExplicitSize.cx = 98.000000000000000000
+          ExplicitSize.cy = 26.000000000000000000
+          object vertMesa: TVertScrollBox
+            Align = Client
+            Size.Width = 450.000000000000000000
+            Size.Height = 264.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Viewport.Width = 450.000000000000000000
+            Viewport.Height = 264.000000000000000000
+          end
+          object Layout11: TLayout
+            Align = Bottom
+            Position.Y = 264.000000000000000000
+            Size.Width = 450.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object Label24: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Margins.Left = 5.000000000000000000
+              Position.X = 5.000000000000000000
+              Size.Width = 84.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = 'Total R$: '
+              TabOrder = 1
+            end
+            object lTotalVMesa: TLabel
+              Align = Left
+              StyledSettings = [Family, FontColor]
+              Position.X = 89.000000000000000000
+              Size.Width = 130.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = '0,00'
+              TabOrder = 0
+            end
+          end
+        end
+        object TabItem4: TTabItem
+          CustomIcon = <
+            item
+            end>
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.FontColor = xFFFF8E32
+          StyledSettings = [Family, Size]
+          IsSelected = False
+          Size.Width = 73.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = ''
+          TabOrder = 0
+          Text = 'Motoboy'
+          ExplicitSize.cx = 73.000000000000000000
+          ExplicitSize.cy = 26.000000000000000000
+          object vertMotoboy: TVertScrollBox
+            Align = Client
+            Size.Width = 450.000000000000000000
+            Size.Height = 294.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Viewport.Width = 450.000000000000000000
+            Viewport.Height = 294.000000000000000000
+          end
+        end
+      end
+      object Layout6: TLayout
+        Align = Top
+        Size.Width = 450.000000000000000000
+        Size.Height = 212.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 3
+        object TabControl1: TTabControl
+          Align = Client
+          Size.Width = 450.000000000000000000
+          Size.Height = 212.000000000000000000
+          Size.PlatformDefault = False
+          TabIndex = 0
+          TabOrder = 0
+          TabPosition = PlatformDefault
+          Sizes = (
+            450s
+            186s
+            450s
+            186s
+            450s
+            186s
+            450s
+            186s)
+          object TabItem1: TTabItem
+            CustomIcon = <
+              item
+              end>
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            StyledSettings = [Family, Size, FontColor]
+            IsSelected = True
+            Size.Width = 67.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = ''
+            TabOrder = 0
+            Text = 'Principal'
+            ExplicitSize.cx = 67.000000000000000000
+            ExplicitSize.cy = 26.000000000000000000
+            object Layout2: TLayout
+              Align = Top
+              Size.Width = 450.000000000000000000
+              Size.Height = 185.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              object lImpressao: TLayout
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Position.X = 8.000000000000000000
+                Position.Y = 116.000000000000000000
+                Size.Width = 169.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 12
+                OnClick = lImpressaoClick
+                OnMouseEnter = lImpressaoMouseEnter
+                OnMouseLeave = lImpressaoMouseLeave
+                object Image2: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        02A9494441546843ED9AC96A15411486AF030E88A2C6A83B0507D457D0E84612
+                        7C03876710C5C710178A82B8151F4111C54D300111D70E4970E1B05014C461E1
+                        80FAFDB7ABE1563CB7D35D5DDD7D4BF2C1C7692CBAAACBEAAE5B752ABD65468C
+                        152EC6600B1EC3C37808F7E076DC80E21BBEC397F81467701A3F61E7ACC53378
+                        0F7FE19F8AEA9EBB781A5557EBACC70BF816AD070CF10D9EC775D80A277001AD
+                        8789E13C4E616368E8AFA0D57813DE448D7C5476E013B41A6CD2C7A809230ABB
+                        51C36D35D48673A867A8C5383E47AB8136D537B91383D0ECD1C5EB344CBD6641
+                        53F475B42AECD2AB58094DB15645A3E0249642C3F702AD4A42CCB1CA42D4C453
+                        EA4753BFD85605A1E65865A19EC342341A5A2A5837879A639585FA1A0B3F7C2D
+                        00AD1BEB986395D5F1140E45AB58EBA63AE6586575BC8326DA4F842CC59732C7
+                        2AABE34FDC847D56BA28B4295A955D26C16A3C9A5DFA1D39E2624A981D39E862
+                        4A1C70D1EBC83E175362BF8B5E47C65C4C89AD2E7A5994EFB826BB5C9298D917
+                        0BCD4A65D033F7972B83239234831DF9EA621916CFE945E65865C32CCB6717BD
+                        8E7C7031253EBAE87544DBC9D4D092BECF604794C64C8D672E7A1D997531251E
+                        BAE8B119535A34FE4073D1A8ACF883EC3209EEA3396B09A52953E1968B26296D
+                        75BD55C8E211D14FFEA5EC72A4B988FA460AD1A8C44C93E65865212A175C9878
+                        1844E71356255DFB1B8F6325AEA15559975EC6CA68F89438B62AECC24758769B
+                        F10FDB70548E1574D8540B1DB2E803B31A6843E5A177611474FCD5C56BA6D749
+                        874D51D137A3C350CD1C56A3B1BD81A5A7D910743ED1E4ABA66FB2F2141B8AFE
+                        A794DAD752C17A98105FE1596C741486A1469515574259B958EB018BD43DB7F1
+                        24064FAD22665A477B03E58F275059CBBDA80F75238A2FF81E35956A67A74D91
+                        FEA846FFBECC7F46AFF7173E8BECA1AC9CF5450000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-mais-50.png'
+                    end>
+                  Align = Left
+                  HitTest = False
+                  Size.Width = 48.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object lImprimir: TLabel
+                  Align = Client
+                  StyledSettings = [Family, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 116.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 14.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Adicionar Pedido'
+                  TabOrder = 0
+                end
+              end
+              object Layout4: TLayout
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Position.X = 8.000000000000000000
+                Position.Y = 4.000000000000000000
+                Size.Width = 169.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 11
+                OnClick = Layout4Click
+                OnMouseEnter = lImpressaoMouseEnter
+                OnMouseLeave = lImpressaoMouseLeave
+                object Image4: TImage
+                  MultiResBitmap = <
+                    item
+                      Width = 48
+                      Height = 48
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                        87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        05E9494441546843ED986B6C145514C7FFB38F76DB6DD9EDF6450BB694474901
+                        41823151D4602A502A9140DA0F9A6844D068816050E3073F10357CF11123E0AB
+                        34318050115A8ABC84424AB51F88E15554B0508AD016287D6CB7FBE8EECECE5C
+                        CFEE5EA6ACDD6EDBED169BB8BFE4ECBDE7CC63EF7FE69C3B770651A24489F29F
+                        22F0362C58350C6E151651773E9331974E96250306FF564025C30535FEA4EE45
+                        FAA70B5A11875405E8F26F8D0C6109E83D8E7C950A25DDC0522310C3C38342FB
+                        BB8D0CC798801DB1BFA252F800A477640C4B80BB1A8FCB0C9FD041F379286C68
+                        E417C0F05EDC621CE7A1B0189200F908629D2A7CDC2E606D3A65060F47040654
+                        E85458252C84858786C5A002EC473091465C250898C74311C7C37055AB42716C
+                        01EA7968C88414E03C88695484D5D4CDF647460F09B052B3485F88D3FEC8D018
+                        5080FD2026509ED669044CE2A1518766320B53215FBF1467796850D4BC0D80D5
+                        4027B9719252278F871E0894A63ABAA2CBD27317FD929A5BA8AB3FF79B996F1A
+                        90A077C071005BA959E3F71E1C7F5BD271A8E1315C6ACFF2BA8CD8B87DDB571F
+                        F9360E403F018E4A3CD9A6426DA4679B50DCB29A70F8EAA338777B0A8D9A0789
+                        AE36888674CDE45D655B5A78A81FFD07C9F069BA4C71EF236694ED962509DF9D
+                        7D061FD614E14C4B0E6449A63AE8B3A454592BC8AE3768EF0109B803B60A1450
+                        E02877478D0E47227E6E7C047537A743A6C7724898BBC3653765EDDBF7792F8F
+                        0410700798849260572A52D6694BC08EF3F3F1FEC9229CBA9E0B8FC420D3950E
+                        694C93A289B3BC4067088A22BF7B0F4C6607DAD2F4D0F050C4E8EAD5D3159F85
+                        DA1BD321CA4127BED048F21F7BCAB7CFA6DE7D15E24711602DC78B348DEDE2EE
+                        B01011079BA100526C26D4CE5624588E432B38D0E3D6E158E34C5437E58537F0
+                        FB604C5EB0AF7C672D77151401B6727C494D89DF1B3AF6981930E79581E9A7FA
+                        7C9AFA20DB5B71E1E8261C3E1F03B734B2812BC8D85FF1E3F72BB8A7D0276017
+                        EAA819D62A536471B833F7047AE4341CF9A90ACD2D3731F1A12C2C79EE79D8ED
+                        367CBB75333C1E91EF3D32DA2891C67B905B59B9BB89877C28454CF594ED9D83
+                        876356E362C8F15370A0722F1AFEBA0487CD862B972FE16055055252D2302D97
+                        669960851986A5CAB2DA2348FD324411C07A91FCEF59633013B513480843D3B5
+                        6B70BB45C5AE93EF8D271A0C410713AEB9185B555C5C9C40FFAED0272006C2FD
+                        577728A676364392246464644214DD8A8DCFCCA4879204736767D081846B1A59
+                        363A44F6121FB20F4580DA4E2BDA2057399425765583D99AB16C7911727226D3
+                        C968E94AEDD2652B60EDBA8996C6F3014FD648982C4B4FD0BF2B2845DC538646
+                        1AC114EE0E195B4C1EEE4EDF028FDE7FA83775045B2332AEAC83DE7D054D6623
+                        EAEFA6E19A39C9D7EF72EA7CFB850B037BEDD8A10365DCED136029C5091290CF
+                        DD612142078B211F223D07B4CE16187A6AA085936F0DC42E6A71D71E8F76473C
+                        EE785B32B34B0787A821A3A3A8F5D04B81179DC6038D4A8631D605535C2F66A4
+                        745A0B27B5A6092BFB4EAE08E8DE86CFC8D9C0DDB18B80970DABB1937B7D3520
+                        C8A80D96E763CD641101AB53E50E747C81711A51B88D04C4F3D0984596D81CD3
+                        1A5CF4F6953B90B21E3DF460DD1F4CF558339AED5652CF8722C08B5A625F073B
+                        60CC99070BE9D7879242F7D8B07A49C72D7746327747845EEDA219C48EECF80E
+                        3C6C6CC12C633334546C11A027691DF37D83ED27A0F4ED7945356D33F74A83BD
+                        2985C138AD138599BFE3E9B406A847208416016DA6F56CBCB71F74949BDE7CAA
+                        E69C397B0177234EB6BE0BAF4FAB439ACEFB2D6BF89080AAE4B7D8726F3FA006
+                        EE315577BD3045D7DEED5DE78C8635F518B0A9FE59DCB02605CFF1C18CB16FE8
+                        D7C7807952BA7A764EAD63E265AB33219687224E82D68D8D734E2095EA64C830
+                        FC607A8729EFC821137DF3DA9973EA9B279CBE83C4912D60423029C14C224E51
+                        4D50620C02EDB1DB14C35E55AD878B87420BF052569297DD60319D6CB4254DEE
+                        95B491AF6CE295A917B13033E045CB479B1D2C5D8F56EA9EA1C57E69F2BBA3FF
+                        C9274A942851FE5700FF001C235223F61AAD350000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-capacete-de-moto-48.png'
+                    end>
+                  Align = Left
+                  HitTest = False
+                  Size.Width = 48.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object Label6: TLabel
+                  Align = Client
+                  StyledSettings = [Family, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 116.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 14.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Motoboy'
+                  TabOrder = 0
+                end
+              end
+              object Layout5: TLayout
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Position.X = 185.000000000000000000
+                Position.Y = 4.000000000000000000
+                Size.Width = 169.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 10
+                OnClick = Layout5Click
+                OnMouseEnter = lImpressaoMouseEnter
+                OnMouseLeave = lImpressaoMouseLeave
+                object Image5: TImage
+                  MultiResBitmap = <
+                    item
+                      Width = 48
+                      Height = 48
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                        87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0575494441546843ED584B4C1B57147DF3636C6CB0F9158BCF02A94AA5F28914
+                        8217511375D55DD3B4126AABAE2AB96247C3AE8B2294AA959058B0405DB48A4A
+                        3654EDA2AAC4824AA8CA82D4A8102050D3454120484C28D8061AFCF70CEEBDCF
+                        CFC338B1EC49E5014BE54887F79961EE3DEFBE7BE78DC9052EF03F07C75A4358
+                        5B5B6B9065F9321B961C82203C6A696909B1A121BC9480CDCDCDF7799EFF810D
+                        4B8E743AFD5E5B5BDBCF6C68083C6B0D019CAF625D530002AA59D7305E4A0018
+                        3055C07F592081B505D1D7D7F77A57571779030022DE04A21833E80D87C31B6E
+                        B7DBB5B8B878C0CC1784A1089C9C9C7C0DCD678F1F3FEE56559598C58D8D8D1E
+                        68BF04215F652C1787D12DE4383A3AF26C6D6DBD9D48248859DCDEDEBE158FC7
+                        3F80057330BB45615880AA2A95D8C967B85464CFB7701CE7A40303302AC0198B
+                        C544DCA7CF1B2D2511F1788C8308D4D081011812B0BBBB5B158B452117540242
+                        4C633A7D0202E2F842335C4E8B0A181818B03635354991480404A4F31A2E1561
+                        E549341AC1842E9D00082D4DA8E3E3635AEAF2192E157181C2E10846C03A3434
+                        2452078AA0A800AC08C0246E2145510846C22C42A180F698DAF5FBFD86A25054
+                        00ACBA03A21043E7A13A906432691A398EA739003655B065A894E63DCCDDBB77
+                        F72D97AB65F2FEFD5FE5D5D53FD9ECD9A0A3A39DDCBC798B8D32080402F15028
+                        F48EC7E39966531AF24640966D3F5A2C16D9E75B2592249D2971C130DA878787
+                        D0F751DAED768BD3E9CC7B0A7E41C0E8E8687F7D7DBDF3E9D31D228A425E2366
+                        92E739B2B3B383EF03E274D690F6F60EB2BCFC88381C8E9AB1B1B14F999B1A5E
+                        1000CEDF49A55264616181D86C5520423A53DAEDD560FB21D8B613AFF737F2E0
+                        C10CD9DBDBA339525D5D7D87B9A921E7343A3232D2DFDCDCFC2ED6E3999919D8
+                        4A162C6967CE50E880747676529F1425452A2A2A6872BB5C2E4B7777F7D1F4F4
+                        F41CBD08C88900EC35BAFAA8162149E2B9108A37413F5A5B5BE9CBEDD2A5D7C8
+                        FE7E80CE4114BEA0CE316855687878F863F89CFB8E0D21890EC8C181A1233905
+                        861A6B793ED86C3672FDFA0D362A8EDADA5A5253534BFB700A86B7739446A6B1
+                        B191CE4D4E4E7E3231317117FB9A80C1C1412F84E81A28A4F5BE1C8127014CF0
+                        A9A9A925D8E2DD38A713F0791C565CC655C7FD566EC05C40BF9070564ACECEFE
+                        2EE3BC9603A04EC6FD56CEC40820E1CC54C1DC3E158007A9CCC5FCFF7CDE3CF5
+                        2DE367163A01AA7673F61BB5DC98F50F99857E0BE5DC50AEC48F9EBC1150D567
+                        917CFF505ECC6C9F68143E1E1834018A62D92FF72864571FDECC41E6F66919BD
+                        7DBBDF0B27C06BC160907E1DE98173C16080EEC3B300BEB41A1A5E217575756C
+                        067788022784CC2901842C2E2DAD5CC5795D0452BBAA9A861B31894F994824A9
+                        F308FD79C54C2202817DFA4B45D60FDC3E9948E036E2FEA63701745528EDC710
+                        3D1F367C882088E7425CBC5C7FD0792A6887B9AD17A03EC994D25C62E844513C
+                        17A26DBD2FF0A54905401E6C33B7F55B48D9CE6679AE6A151E26500A0207E724
+                        481C13298ABC662FD70F24FA862554DDCA78AD1300F9B99E6F0BC972A5677D7D
+                        9343729CB48A6773332908FC37597BB26CF5E87D61AB0FDE0A7F65BCD609181F
+                        1FFF03AACC4F7EBF5FC9FD27C58FD7E103E34665A5A5033F72CC65E5476EF7AB
+                        F42715B4ADF72591505410F18BCFE75BC4EB08089A31F4F45CFD1E42FC211B9A
+                        0AB0D33737B7F02D1B16842101BDBDBD0244E61FD8973636652A60B51F7ABDB3
+                        6E362C08A311E0AE5CB9BC0C4D171BD25F0F680F334F4326C90B030B05EBD116
+                        FF6072E2B3700EDF45E9B19595957EBC5A0C46052038C803ED777B49922C3C9F
+                        B2B2213A80D7E8F3D269B1021CC98916CFAB616852D857555E95A49367D84724
+                        935C18EEA7D7AC56AB3A3F3FAF5DBBC0052E500884FC0BB2789010CCB608CA00
+                        00000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-impressora-48.png'
+                    end>
+                  Align = Left
+                  HitTest = False
+                  Size.Width = 48.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object Label9: TLabel
+                  Align = Client
+                  StyledSettings = [Family, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 116.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 14.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Gerencial'
+                  TabOrder = 0
+                end
+              end
+              object Layout8: TLayout
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Position.X = 8.000000000000000000
+                Position.Y = 60.000000000000000000
+                Size.Width = 169.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 9
+                OnClick = Layout8Click
+                OnMouseEnter = lImpressaoMouseEnter
+                OnMouseLeave = lImpressaoMouseLeave
+                object Image6: TImage
+                  MultiResBitmap = <
+                    item
+                      Width = 48
+                      Height = 48
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                        87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0576494441546843ED584B4C1B57147DF3636C6CC0FC8AC5678154A552F9440A
+                        C18BA889BAEAAE695A09B55557955CB1A361D745114AD54A482C58A02E5A4525
+                        1BAA7651556241255465416A540810A8E9A220101F130AB68106FF3D837BEFF3
+                        B31927237B5279C05239D2E17D66987BCFBBEFDE796372894BFCCFC1B1D61056
+                        5757EB6559BECA86458720084F9A9B9B836C68082F25606363E37D9EE77F60C3
+                        A223954ABDD7DADAFA331B1A02CF5A4300E72B58D71480804AD6358C97120006
+                        4C15F05F1648606D5EF4F6F6BEDED9D949DE008088378128C60C7A42A1D0BACB
+                        E5722E2C2C1C32F379612802A7A7A75F43F3D9F6F67697AAAAC42CAEAFAF7743
+                        FB2508F92A6DB9308C6EA1AAE3E363F7E6E6E6DBF1789C98C5ADADAD3BB158EC
+                        0358B02A66B7200C0B5055A51C3B7A868B45F67C0BC7710E3A3000A3021CD168
+                        54C47DFABCD16212118B45398840351D188021017B7B7B15D1680472412520C4
+                        34A652A72020862F34C3E5B4A080FEFE7E6B6363A3140E8741404AD770B1082B
+                        4F2291302674F104406869429D9C9CD052A767B858C4050A85C21801EBE0E0A0
+                        481D28808202B0220013B8851445211809B3088502DA136AD7E7F3198A424101
+                        B0EA551085283A0FD581241209D3C8713CCD01B0A9822D43A554F730F7E0C1FD
+                        B79CCEE689870F7F955756FE64B3E783F6F63672FBF61D364AC3EFF7C782C1E0
+                        3B6EB77B8A4D65A11B0159B6FD68B15864AF7785489274AEC405C3681F1D1D41
+                        DF4B69B7DB2D0E8743F714FC8280919191BEBABA3AC7D3A7BB4414055D236692
+                        E739B2BBBB8BEF03E2705493B6B676B2B4F484545555558F8E8E7ECADCCCE205
+                        01E0FCBD643249E6E7E789CD560122A473A5DD5E09B61F836D3BF1787E238F1E
+                        4D93FDFD7D9A23959595F7989B59E49C46878787FB9A9A9ADEC57A3C3D3D0D5B
+                        C98225EDDC190C1E928E8E0EEA93A224495959194D6EA7D369E9EAEA3A9E9A9A
+                        9AA51701391180BD46571FD5222449BC1042F126E8474B4B0B7DB95DB9F21A39
+                        38F0D33988C217D439866C151A1A1AFA183EE7BE634348A243727868E8484E81
+                        A1C65AAE079BCD466EDEBCC5468551535343AAAB6B681F4EC1F0768ED0C83434
+                        34D0B98989894FC6C7C7EF633F2B606060C00321BA010A69BD2F45E04900137C
+                        72727211B67817CE69047C1E83159771D571BF951A3017D02F249C95123333BF
+                        CB389FCD015027E37E2B6562049070662A636E9F09C08354FAA2FE3F5F34CF7C
+                        4BFB998146809ABD39F38D5A6ACCF887CC40BB85726E2855E2478F6E0454F559
+                        58EF1F4A8BE9ED1389C0C703435680A2580E4A3D0A99D587377380B97D5646EF
+                        DEEDF3C009F0462010A05F475AE05C20E0A7FBF03C802FADFAFA57486D6D2D9B
+                        C11DA2C009217D4A00210B8B8BCBD7715E1381E49EAAA6E0464CE233C6E309EA
+                        3C427B5E319308BFFF80FE5291F103B74F3A12B88DB8BFE94D004D154AF93044
+                        CF870D1F2208E28510172FD71F749E0ADA656E6B05A83BE9529A4B0C9D288A17
+                        42B4ADF505BE34A900C8832DE6B6760B295B992CCF55ADC2C3044A41E0E09C04
+                        8963224591CFDACBF50389BE61095537D35E6B04407EAEE96D21592E77AFAD6D
+                        70488E9356F06C6E260581FF26634F96AD6EAD2F6CF5C15BE1AFB4D71A016363
+                        637F4095F969676747C9FD27C587D7E103E35679B9A51D3F72CC65F9472ED7AB
+                        F42715B4ADF5251E575410F18BD7EB5DC0EB08089A3174775FFF1E42FC211B9A
+                        0AB0D33B3B3BFF2D1BE68521013D3D3D82CFE7FB07F6A58D4D990A58EDC71ECF
+                        8C8B0DF3C26804B86BD7AE2E41D3C986F4D703DAC3CCCB229DE4F9818582F568
+                        8B7F3039F1593887EFA2D4E8F2F2721F5E2D04A302101CE441F6777B49922C3C
+                        9FB4B2213A80D7E8F35229B10C1CC98916CFAB216892D857555E95A4D367D847
+                        24125C08EEA7D7AC56AB3A373797BD76894B5C221F08F9179E53900DCB9507A9
+                        0000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-impressora-48.png'
+                    end>
+                  Align = Left
+                  HitTest = False
+                  Size.Width = 48.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object Label11: TLabel
+                  Align = Client
+                  StyledSettings = [Family, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 116.000000000000000000
+                  Size.Height = 48.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 14.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Visualizar Todos'
+                  TabOrder = 0
+                end
+              end
+            end
+          end
+          object TabItem2: TTabItem
+            CustomIcon = <
+              item
+              end>
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            StyledSettings = [Family, Size, FontColor]
+            IsSelected = False
+            Size.Width = 50.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = ''
+            TabOrder = 0
+            Text = 'Caixa'
+            ExplicitSize.cx = 50.000000000000000000
+            ExplicitSize.cy = 26.000000000000000000
+          end
+          object TabItem3: TTabItem
+            CustomIcon = <
+              item
+              end>
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            StyledSettings = [Family, Size, FontColor]
+            IsSelected = False
+            Size.Width = 58.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = ''
+            TabOrder = 0
+            Text = 'Outros'
+            ExplicitSize.cx = 58.000000000000000000
+            ExplicitSize.cy = 26.000000000000000000
+            object Layout7: TLayout
+              Position.X = 9.000000000000000000
+              Position.Y = 8.000000000000000000
+              Size.Width = 161.000000000000000000
+              Size.Height = 57.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 7
+              object Label14: TLabel
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 5.000000000000000000
+                Size.Width = 156.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                Text = 'Data Inicial'
+                TabOrder = 0
+              end
+              object edtDataInicial: TDateEdit
+                Date = 44596.000000000000000000
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 27.000000000000000000
+                Size.Width = 151.000000000000000000
+                Size.Height = 22.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+              end
+            end
+            object Layout22: TLayout
+              Position.X = 178.000000000000000000
+              Position.Y = 8.000000000000000000
+              Size.Width = 161.000000000000000000
+              Size.Height = 57.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 6
+              object Label16: TLabel
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 5.000000000000000000
+                Size.Width = 156.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                Text = 'Data Final'
+                TabOrder = 0
+              end
+              object edtDataFinal: TDateEdit
+                Date = 44596.000000000000000000
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 27.000000000000000000
+                Size.Width = 151.000000000000000000
+                Size.Height = 22.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+              end
+            end
+            object Layout23: TLayout
+              Position.X = 9.000000000000000000
+              Position.Y = 73.000000000000000000
+              Size.Width = 161.000000000000000000
+              Size.Height = 57.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 5
+              object Label17: TLabel
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 5.000000000000000000
+                Size.Width = 156.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                Text = 'Hora Inicial'
+                TabOrder = 0
+              end
+              object edtHoraInicial: TTimeEdit
+                Time = 0.526704386574074000
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 27.000000000000000000
+                Size.Width = 151.000000000000000000
+                Size.Height = 22.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+              end
+            end
+            object Layout24: TLayout
+              Position.X = 178.000000000000000000
+              Position.Y = 73.000000000000000000
+              Size.Width = 161.000000000000000000
+              Size.Height = 57.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              object Label19: TLabel
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 5.000000000000000000
+                Size.Width = 156.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                Text = 'Hora Final'
+                TabOrder = 0
+              end
+              object edtHoraFinal: TTimeEdit
+                Time = 0.526704386574074000
+                Align = Top
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 27.000000000000000000
+                Size.Width = 151.000000000000000000
+                Size.Height = 22.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+              end
+            end
+            object btnFinalizaWhats: iButton
+              Position.X = 8.000000000000000000
+              Position.Y = 138.000000000000000000
+              Size.Width = 162.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 9
+              Text = 'btnFinalizaWhats'
+              OnClick = btnFinalizaWhatsClick
+              iForthTipoBotao = tSalvar
+              iForthCorFonte = cBranca
+              iForthDescricao = 'Fechar Whatsapp'
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF31CCAF
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF31CCAF
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Whatsapp'
+                  TabOrder = 0
+                end
+              end
+            end
+            object btnFinalizaSite: iButton
+              Position.X = 178.000000000000000000
+              Position.Y = 138.000000000000000000
+              Size.Width = 162.000000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 8
+              Text = 'iButton1'
+              OnClick = btnFinalizaSiteClick
+              iForthTipoBotao = tIncluir
+              iForthCorFonte = cBranca
+              iForthDescricao = 'Fechar Site'
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF900BFA
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF900BFA
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Fechar Site'
+                  TabOrder = 0
+                end
+              end
+            end
+          end
+          object TabItem5: TTabItem
+            CustomIcon = <
+              item
+              end>
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            StyledSettings = [Family, Size, FontColor]
+            IsSelected = False
+            Size.Width = 47.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = ''
+            TabOrder = 0
+            Text = 'Total'
+            ExplicitSize.cx = 46.000000000000000000
+            ExplicitSize.cy = 26.000000000000000000
+            object Layout3: TLayout
+              Anchors = [akTop, akRight]
+              Position.X = 321.000000000000000000
+              Position.Y = 8.000000000000000000
+              Size.Width = 121.000000000000000000
+              Size.Height = 169.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              object Label3: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Mesa'
+                TabOrder = 10
+              end
+              object lMesa: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 17.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 7
+              end
+              object Label5: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 34.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Delivery'
+                TabOrder = 8
+              end
+              object lDelivery: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 51.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 6
+              end
+              object Label8: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 68.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Vem Buscar'
+                TabOrder = 2
+              end
+              object lVemBuscar: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 85.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 5
+              end
+              object Label10: TLabel
+                Align = Bottom
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 135.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Total'
+                TabOrder = 0
+              end
+              object lTotal: TLabel
+                Align = Bottom
+                StyledSettings = [FontColor]
+                Position.Y = 152.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 3
+              end
+              object Label4: TLabel
+                Align = Top
+                StyledSettings = [Size, Style, FontColor]
+                Position.Y = 102.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.HorzAlign = Trailing
+                Text = 'Consumindo'
+                TabOrder = 1
+              end
+              object lMesaConsumindo: TLabel
+                Align = Top
+                StyledSettings = [FontColor]
+                Position.Y = 119.000000000000000000
+                Size.Width = 121.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Family = 'Courier New'
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'R$ 0,00'
+                TabOrder = 4
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  object DadosTela: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = DadosTelaTimer
+    Left = 608
+    Top = 386
+  end
+  object MESA: iMemTable
+    IndexFieldNames = 'fk_tipo_mesa;nr_mesa'
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 920
+    Top = 352
+    object MESAid_mesa: TIntegerField
+      FieldName = 'id_mesa'
+    end
+    object MESAnr_mesa: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'nr_mesa'
+    end
+    object MESAdescricao: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'descricao'
+      Size = 255
+    end
+    object MESAsts_mesa: TIntegerField
+      FieldName = 'sts_mesa'
+    end
+    object MESAtot_mesa: TFloatField
+      FieldName = 'tot_mesa'
+      currency = True
+    end
+    object MESAfk_tipo_mesa: TIntegerField
+      FieldName = 'fk_tipo_mesa'
+    end
+  end
+  object DadosPedido: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 920
+    Top = 298
+  end
+  object MOTOBOY: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 920
+    Top = 406
+    object MOTOBOYcodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object MOTOBOYnome: TStringField
+      FieldName = 'nome'
+      Size = 255
+    end
+  end
+  object DadosMotoboy: TFDMemTable
+    FieldDefs = <>
+    IndexDefs = <>
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    StoreDefs = True
+    Left = 616
+    Top = 322
+    object DadosMotoboyNOME: TStringField
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object DadosMotoboyPEDIDO: TStringField
+      FieldName = 'PEDIDO'
+      Size = 255
+    end
+    object DadosMotoboyTAXA: TFloatField
+      FieldName = 'TAXA'
+    end
+    object DadosMotoboyTOTAL: TFloatField
+      FieldName = 'TOTAL'
+    end
+  end
+end

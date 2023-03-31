@@ -1,0 +1,237 @@
+unit uCadastroAlteroProduto;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl,
+  FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
+  FMX.Memo.Types, FMX.ScrollBox, FMX.Memo, FMX.Edit, FMX.ListBox,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  System.Rtti, System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.EngExt,
+  Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable;
+
+type
+  TfrmCadastroAlteraProduto = class(TForm)
+    Rectangle1: TRectangle;
+    lNomeDoProduto: TLabel;
+    Layout1: TLayout;
+    lDetalhe: TLabel;
+    lDisponibilidade: TLabel;
+    lComplemento: TLabel;
+    lPreco: TLabel;
+    Layout2: TLayout;
+    Rectangle2: TRectangle;
+    rDetalhe: TRectangle;
+    rPreco: TRectangle;
+    rComplemento: TRectangle;
+    rDisponibilidade: TRectangle;
+    Layout3: TLayout;
+    Rectangle7: TRectangle;
+    rSalvar: TRectangle;
+    Label5: TLabel;
+    lSalvar: TLabel;
+    tabPrincipal: TTabControl;
+    tabDetalhes: TTabItem;
+    tabPrecoEstoque: TTabItem;
+    tabComplemento: TTabItem;
+    tabDisponibilidade: TTabItem;
+    Layout4: TLayout;
+    Rectangle3: TRectangle;
+    Label1: TLabel;
+    Label2: TLabel;
+    Layout5: TLayout;
+    Label3: TLabel;
+    cCategoria: TComboBox;
+    Label4: TLabel;
+    Layout6: TLayout;
+    Label6: TLabel;
+    Label7: TLabel;
+    Edit1: TEdit;
+    Layout7: TLayout;
+    Label8: TLabel;
+    Memo1: TMemo;
+    Image1: TImage;
+    Rectangle4: TRectangle;
+    Label9: TLabel;
+    Image2: TImage;
+    Image3: TImage;
+    Categoria: iMemTable;
+    Categoriacodigo: TIntegerField;
+    Categoriadescricao: TStringField;
+    bdsCategoria: TBindSourceDB;
+    BindingsList1: TBindingsList;
+    LinkListControlToField1: TLinkListControlToField;
+    Layout8: TLayout;
+    Label10: TLabel;
+    Label11: TLabel;
+    edtValor: TEdit;
+    Layout9: TLayout;
+    Label12: TLabel;
+    Rectangle5: TRectangle;
+    Label13: TLabel;
+    Switch1: TSwitch;
+    Label14: TLabel;
+    Label15: TLabel;
+    Rectangle6: TRectangle;
+    Label16: TLabel;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
+    Layout10: TLayout;
+    Label17: TLabel;
+    Label18: TLabel;
+    RadioButton3: TRadioButton;
+    RadioButton4: TRadioButton;
+    Label19: TLabel;
+    Label20: TLabel;
+    procedure lDetalheMouseEnter(Sender: TObject);
+    procedure lDetalheMouseLeave(Sender: TObject);
+    procedure lDetalheClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure rSalvarMouseEnter(Sender: TObject);
+    procedure rSalvarMouseLeave(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+  private
+    FTipo: Integer;
+    FCodigo: Integer;
+    procedure SetTipo(const Value: Integer);
+    procedure SetCodigo(const Value: Integer);
+    { Private declarations }
+
+    procedure Selecionou(Index: Integer);
+
+  public
+    { Public declarations }
+    property Codigo: Integer read FCodigo write SetCodigo;
+    property Tipo: Integer read FTipo write SetTipo;
+
+  end;
+
+var
+  frmCadastroAlteraProduto: TfrmCadastroAlteraProduto;
+
+implementation
+
+
+{$R *.fmx}
+
+uses Funcoes;
+
+procedure TfrmCadastroAlteraProduto.FormCreate(Sender: TObject);
+begin
+  Codigo := 0;
+  Tipo := 1;
+  Selecionou(Tipo);
+
+
+  GetSimples('/v1/categorias/',Categoria)
+
+end;
+
+procedure TfrmCadastroAlteraProduto.lDetalheClick(Sender: TObject);
+begin
+  if Codigo <> 0 then
+  Selecionou((Sender as TLabel).tag);
+end;
+
+procedure TfrmCadastroAlteraProduto.lDetalheMouseEnter(Sender: TObject);
+begin
+  (Sender as TLabel).FontColor := $FFA4001B;
+end;
+
+procedure TfrmCadastroAlteraProduto.lDetalheMouseLeave(Sender: TObject);
+begin
+  (Sender as TLabel).FontColor := $FFCCCBCB;
+end;
+
+procedure TfrmCadastroAlteraProduto.rSalvarClick(Sender: TObject);
+begin
+if Codigo = 0 then
+begin
+  Tipo := Tipo + 1;
+  Selecionou(Tipo);
+
+end;
+end;
+
+procedure TfrmCadastroAlteraProduto.rSalvarMouseEnter(Sender: TObject);
+begin
+rSalvar.Opacity := rSalvar.DefaultDisabledOpacity;
+end;
+
+procedure TfrmCadastroAlteraProduto.rSalvarMouseLeave(Sender: TObject);
+begin
+rSalvar.Opacity := 1;
+end;
+
+procedure TfrmCadastroAlteraProduto.Selecionou(Index: Integer);
+begin
+  Tipo := Index;
+  lDetalhe.FontColor := $FFCCCBCB;
+  lPreco.FontColor := $FFCCCBCB;
+  lComplemento.FontColor := $FFCCCBCB;
+  lDisponibilidade.FontColor := $FFCCCBCB;
+
+  rDetalhe.Fill.Color := $FFCCCBCB;
+  rPreco.Fill.Color := $FFCCCBCB;
+  rComplemento.Fill.Color := $FFCCCBCB;
+  rDisponibilidade.Fill.Color := $FFCCCBCB;
+
+  Rectangle2.Fill.Color := $FFCCCBCB;
+
+  tabPrincipal.TabIndex := Index - 1;
+  case Index of
+    1:
+      begin
+        lDetalhe.FontColor := $FFA4001B;
+        rDetalhe.Fill.Color := $FFA4001B;
+      end;
+    2:
+      begin
+        lPreco.FontColor := $FFA4001B;
+        rPreco.Fill.Color := $FFA4001B;
+      end;
+    3:
+      begin
+        lComplemento.FontColor := $FFA4001B;
+        rComplemento.Fill.Color := $FFA4001B;
+      end;
+    4:
+      begin
+        lDisponibilidade.FontColor := $FFA4001B;
+        rDisponibilidade.Fill.Color := $FFA4001B;
+        lSalvar.Text := 'Salvar';
+      end
+  else
+    begin
+      Tipo := 1;
+      Selecionou(Tipo);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroAlteraProduto.SetCodigo(const Value: Integer);
+begin
+  FCodigo := Value;
+  if Value = 0 then
+  begin
+    // Novo Produto
+    lSalvar.Text := 'Proximo';
+  end
+  else
+  begin
+    // Produto Já Cadastrado
+    lSalvar.Text := 'Salvar';
+  end;
+
+end;
+
+procedure TfrmCadastroAlteraProduto.SetTipo(const Value: Integer);
+begin
+  FTipo := Value;
+end;
+
+end.

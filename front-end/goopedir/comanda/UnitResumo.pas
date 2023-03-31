@@ -258,6 +258,7 @@ type
     Layout9: TLayout;
     DadosPedidos: TVertScrollBox;
     layClient: TLayout;
+    Button2: TButton;
     procedure img_fecharClick(Sender: TObject);
     procedure img_add_itemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -291,6 +292,7 @@ type
     procedure ListBox1ItemClick(const Sender: TCustomListBox;
       const Item: TListBoxItem);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
 
   private
     Fmesa: Integer;
@@ -393,7 +395,7 @@ var
   Iniciou: Boolean;
   FTask: ITask;
   ConsultaCliente: Boolean;
-  BuscarBairro : Boolean;
+  BuscarBairro: Boolean;
 
 const
   MASCARA = 'R$ ###,###,##0.00';
@@ -607,11 +609,7 @@ end;
 
 procedure TFrmResumo.LoadMain;
 begin
-  if not dm.TestaConexao then
-  begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
-    exit;
-  end;
+
   rFundoPreto.Visible := True;
   rFundoPreto1.Visible := True;
   if mesa > 0 then
@@ -619,7 +617,6 @@ begin
     rect_encerrar.Visible := dm.encerra;
     FrmResumo.MESAS.Close;
     GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
-
     if FrmResumo.MESAS.RecordCount > 0 then
     begin
       FrmResumo.BeginUpdate;
@@ -630,7 +627,6 @@ begin
         FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
       FrmResumo.EndUpdate;
     end;
-
   end
   else
   begin
@@ -727,7 +723,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 2', 1);
     exit;
   end
   else
@@ -887,7 +883,7 @@ end;
 procedure TFrmResumo.BuscaBairroEdit;
 begin
   if BuscarBairro then
-  exit;
+    exit;
   GetSimples('/v1/util/busca/bairro/' + EdtBairro.Text, MemTaxa);
   iBairro1.Text := '';
   iBairro1.Tag := 0;
@@ -978,6 +974,12 @@ begin
   // end;
   //
   // FrmPrincipal.AlterarItem(mesa, CodigoPedido,ProdCompleto.FieldByName('codigo').AsInteger);
+end;
+
+procedure TFrmResumo.Button2Click(Sender: TObject);
+begin
+  CodigoPedido := -1;
+  LoadMain;
 end;
 
 function TFrmResumo.calcularDiferencaHoras(Dataf, datai: Tdate;
@@ -1076,7 +1078,7 @@ end;
 
 procedure TFrmResumo.ConsultaTaxa;
 begin
-BuscarBairro := True;
+  BuscarBairro := True;
   MemTaxa.Filtered := False;
   GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
 
@@ -1270,7 +1272,7 @@ procedure TFrmResumo.FormActivate(Sender: TObject);
 begin
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 3', 1);
   end
   else
   begin
@@ -1327,7 +1329,7 @@ var
 begin
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 4', 1);
     exit;
   end
   else
@@ -1388,7 +1390,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 5', 1);
     exit;
   end;
   Delivery := 0;
@@ -1471,7 +1473,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 6', 1);
 
   end
   else
@@ -1491,7 +1493,7 @@ begin
     begin
       if not dm.TestaConexao then
       begin
-        ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+        ShowMessageToast(Self, 'Sem conexão com servidor! 7', 1);
         exit;
       end;
 
@@ -1521,7 +1523,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 8', 1);
 
   end
   else
@@ -1551,7 +1553,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+    ShowMessageToast(Self, 'Sem conexão com servidor! 9', 1);
 
   end
   else
@@ -1693,8 +1695,7 @@ begin
     if Value = -1 then
     begin
       FCodigoPedido := 0;
-      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString,
-        mDadosPedido);
+      GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
       AtualizaDadosPedido;
       exit;
     end;
@@ -1705,6 +1706,12 @@ begin
       Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString,
         mDadosPedido);
       AtualizaDadosPedido;
+      // if mDadosPedido.RecordCount = 0 then
+      // begin
+      // SetCodigoPedido(Value);
+      // end else begin
+      // AtualizaDadosPedido;
+      // end;
 
     end;
 
@@ -1848,7 +1855,11 @@ end;
 
 procedure TFrmResumo.TipoPagamento;
 begin
-  GetSimples('/v1/consulta/generica/tipo_pagamento/*/ativo = 1/*', Pagamento);
+  if not Pagamento.Active then
+    GetSimples('/v1/tipo/pagamento/', Pagamento);
+
+  while not Pagamento.RecordCount = 0 do
+    GetSimples('/v1/tipo/pagamento/', Pagamento);
 end;
 
 procedure TFrmResumo.TipoPedido;

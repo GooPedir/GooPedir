@@ -552,8 +552,9 @@ begin
   end
   else
   begin
-    Result := 'A sua versão do mysql (' + VersaoMYSQL +
-      ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
+//    Result := 'A sua versão do mysql (' + VersaoMYSQL +
+//      ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
+       Result := '';
   end;
 
 end;

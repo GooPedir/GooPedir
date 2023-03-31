@@ -130,7 +130,7 @@ type
     procedure SetValorMesa(const Value: Real);
     procedure SetValorVB(const Value: Real);
     procedure SetTaxaTotal(const Value: Real);
-    property TaxaTotal : Real read FTaxaTotal write SetTaxaTotal;
+    property TaxaTotal: Real read FTaxaTotal write SetTaxaTotal;
     property ValorMesa: Real read FValorMesa write SetValorMesa;
     property ValorVB: Real read FValorVB write SetValorVB;
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
@@ -464,19 +464,17 @@ begin
   edtHoraInicial.Time := StrToTime('00:00:00');
   edtHoraFinal.Time := StrToTime('23:59:59');
 
-
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
+    Rectangle1.Stroke.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle1.Fill.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
-    .AsString);
+    lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
   except
 
   end;
-
 
 end;
 
@@ -487,12 +485,12 @@ begin
   if btnFinalizaWhats.iForthDescricao = 'Fechar Whatsapp' then
   begin
     btnFinalizaWhats.iForthDescricao := 'Abrir Whatsapp';
-    ShowMessageToast(self,'Whatsapp Fechado!',2);
+    ShowMessageToast(Self, 'Whatsapp Fechado!', 2);
   end
   else
   begin
     btnFinalizaWhats.iForthDescricao := 'Fechar Whatsapp';
-    ShowMessageToast(self,'Whatsapp Aberto, Aguarde!',2);
+    ShowMessageToast(Self, 'Whatsapp Aberto, Aguarde!', 2);
   end;
 
 end;
@@ -504,12 +502,12 @@ begin
   if btnFinalizaSite.iForthDescricao = 'Fechar Site' then
   begin
     btnFinalizaSite.iForthDescricao := 'Abrir Site';
-    ShowMessageToast(self,'Site Fechado!',2);
+    ShowMessageToast(Self, 'Site Fechado!', 2);
   end
   else
   begin
     btnFinalizaSite.iForthDescricao := 'Fechar Site';
-    ShowMessageToast(self,'Site Aberto, Aguarde!',2);
+    ShowMessageToast(Self, 'Site Aberto, Aguarde!', 2);
   end;
 end;
 
@@ -614,6 +612,11 @@ begin
 
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := -1;
+  // while FrmResumo.CodigoPedido = 0 do
+  // begin
+  // FrmResumo.CodigoPedido := -1;
+  // end;
+
   frmMain.OpenClose;
 end;
 
@@ -793,8 +796,8 @@ begin
         case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
           0:
             begin
-
-              ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
+              if DadosPedido.FieldByName('status').AsInteger <> 0 then
+                ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
             end
         else
           begin
@@ -831,8 +834,12 @@ begin
             end;
             DadosMotoboy.Post;
 
-            ValorDelivery := ValorDelivery + DadosPedido.FieldByName('total').AsFloat;
-           TaxaTotal := TaxaTotal + DadosPedido.FieldByName('taxa').AsFloat;
+            if DadosPedido.FieldByName('status').AsInteger <> 0 then
+            begin
+              ValorDelivery := ValorDelivery + DadosPedido.FieldByName
+                ('total').AsFloat;
+              TaxaTotal := TaxaTotal + DadosPedido.FieldByName('taxa').AsFloat;
+            end;
           end;
 
         end;

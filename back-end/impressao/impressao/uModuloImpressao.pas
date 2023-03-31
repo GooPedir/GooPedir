@@ -552,6 +552,17 @@ type
     ppParameter15: TppParameter;
     pp2DBarCode1: Tpp2DBarCode;
     ppBarCode1: TppBarCode;
+    ppReport1: TppReport;
+    ppParameterList17: TppParameterList;
+    ppDesignLayers19: TppDesignLayers;
+    ppDesignLayer19: TppDesignLayer;
+    ppHeaderBand17: TppHeaderBand;
+    ppDetailBand19: TppDetailBand;
+    ppFooterBand17: TppFooterBand;
+    ppShape2: TppShape;
+    qryMesas: TFDQuery;
+    ppMesa: TppBDEPipeline;
+    dsMesa: TDataSource;
     procedure DataModuleCreate(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -1728,7 +1739,7 @@ begin
     except
     on E : Exception do
     begin
-      ShowMessage(e.Message)
+//      ShowMessage(e.Message)
     end;
 
     end;

@@ -17,7 +17,8 @@ uses
   System.NetEncoding, FMX.Memo.Types, FMX.Memo, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase, IdFTP,
   Soap.EncdDecd, uRequisicao, FMX.ListView.Types, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base, uButton, FMX.ListView
+  FMX.ListView.Adapters.Base, uButton, FMX.ListView,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent
 {$IFDEF Android}
 {$ELSE}
     , WinInet
@@ -497,6 +498,9 @@ type
     procedure CalculaCustoFicha;
     procedure EnviarTodasFotos;
 
+    function EncodeStringToBase64(const Input: string): string;
+    procedure CarregarImagemDaURL(URL: string; Image: TImage);
+
   end;
 
 var
@@ -537,7 +541,11 @@ begin
         except
 
         end;
-        TabExtra.TabIndex := 1;
+        try
+          TabExtra.TabIndex := 1;
+        except
+
+        end;
         CarregaExtra;
       end;
     3:
@@ -605,6 +613,10 @@ begin
   except
 
   end;
+
+
+
+  // CarregarImagemDaURL('https://fotos.goopedir.com/fotos/MTc2MzQ=', Image15);
 
 end;
 
@@ -861,6 +873,7 @@ begin
   frmExtraItem.Codigo := CodigoProduto;
   frmExtraItem.Min := 0;
   frmExtraItem.Max := 0;
+  frmExtraItem.frmProduto := self;
 
   frmExtraItem.Show;
 end;
@@ -1437,6 +1450,30 @@ begin
   end;
 end;
 
+procedure TfrmProduto.CarregarImagemDaURL(URL: string; Image: TImage);
+var
+  Bitmap: TBitmap;
+  HttpClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    HttpClient := THTTPClient.Create;
+    try
+      HTTPResponse := HttpClient.Get(URL);
+      if HTTPResponse.StatusCode = 200 then
+      begin
+        Bitmap.LoadFromStream(HTTPResponse.ContentStream);
+        Image.Bitmap.Assign(Bitmap);
+      end;
+    finally
+      HttpClient.Free;
+    end;
+  finally
+    Bitmap.Free;
+  end;
+end;
+
 procedure TfrmProduto.CarregaSabor;
 var
   FrameSabores: TframeSabores;
@@ -1526,7 +1563,7 @@ begin
           ('id').AsString, DADOS_PRODUTO);
         Tamanho := sDadosExtra.Width - 200;
         Tamanho := (Tamanho / 2);
-        GetImagem(BDSPRODUTOS.DataSet.FieldByName('id').AsString);
+        GetImagem(BDSPRODUTOS.DataSet.FieldByName('site').AsString);
 
         TThread.Synchronize(TThread.CurrentThread,
           procedure
@@ -1636,6 +1673,17 @@ begin
   end;
 end;
 
+function TfrmProduto.EncodeStringToBase64(const Input: string): string;
+var
+  Base64: TBase64Encoding;
+begin
+  // Encoding := TEncoding.UTF8; // use a codificação que você precisa
+  // Result := TNetEncoding.Base64.Encode(Encoding.GetBytes(Input));
+
+  Base64 := TBase64Encoding.Create(10, '');
+  Result := Base64.Encode(Input);
+end;
+
 procedure TfrmProduto.EntradaEstoque(Tipo: Integer);
 begin
   cEntrada.IsChecked := Tipo = 1;
@@ -1661,21 +1709,22 @@ begin
   begin
     try
       imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
+      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
+        ExtractFileExt(DIALOG.FileName) + ';base64;';
       DM.CONEXAO.TempoExpiracao := 150000;
       DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
-        ('id').AsString;
+        ('id').AsString + '/' + NomeArquivo;
       Body := Base64FromBitmap(imgProduto.Bitmap);
       DM.CONEXAO.Body(Body);
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
-
-      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
-        ExtractFileExt(DIALOG.FileName) + ';base64;';
-
-      EnvioImagem.Body(NomeArquivo + Body);
-
       try
+        EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
+          .AsString);
+        EnvioImagem.Body(Body);
         EnvioImagem.Execute;
+        // https://fotos.goopedir.com/fotos/MTc2MzQ=
+
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
         then
         begin

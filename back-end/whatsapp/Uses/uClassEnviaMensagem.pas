@@ -176,6 +176,7 @@ begin
           dmPrincipal.AguardarEnvioMensagem := True;
           GravaTest('While');
           Enviar := True;
+
           NrPedido := FQRY.FieldByName('codigo_pedido_dia').AsInteger;
           TotalPedido := FQRY.FieldByName('valor_total_pedido').AsFloat;
           Celular := FQRY.FieldByName('celular').AsString;
@@ -775,46 +776,46 @@ var
   Valor: String;
 begin
 
-  Requisicao := iRequisicao.Create(nil);
-  Requisicao.BASEURL := URL_SITE;
-
-  Requisicao.URL := 'insert/' + Tabela + '/' + User + '/a';
-
-  Montado := '';
-
-  for I := 0 to length(ArrayCampos) - 1 do
-  begin
-    Valor := ArrayValores[I];
-
-    try
-      StrToFloat(Valor);
-      Valor := StringReplace(Valor, ',', '.', [rfReplaceAll]);
-    except
-
-    end;
-
-    if I = 0 then
-    begin
-      Montado := '"' + ArrayCampos[I] + '":"' + Valor + '"';
-    end
-    else
-    begin
-      Montado := Montado + ',"' + ArrayCampos[I] + '":"' + Valor + '"';
-    end;
-  end;
-  Montado := '{' + Montado + '}';
-
-  // frmPrincipal.AdicionaLog(Montado);
-  Requisicao.Body(Montado);
-  Requisicao.Metodo:= mPost;
-  Requisicao.Execute;
-  try
-    Result := StrToInt(Requisicao.Retorno);
-  except
-    Result := 0;
-
-  end;
-  Requisicao.Free;
+  //Requisicao := iRequisicao.Create(nil);
+  //Requisicao.BASEURL := URL_SITE;
+  //
+  //Requisicao.URL := 'insert/' + Tabela + '/' + User + '/a';
+  //
+  //Montado := '';
+  //
+  //for I := 0 to length(ArrayCampos) - 1 do
+  //begin
+  //  Valor := ArrayValores[I];
+  //
+  //  try
+  //    StrToFloat(Valor);
+  //    Valor := StringReplace(Valor, ',', '.', [rfReplaceAll]);
+  //  except
+  //
+  //  end;
+  //
+  //  if I = 0 then
+  //  begin
+  //    Montado := '"' + ArrayCampos[I] + '":"' + Valor + '"';
+  //  end
+  //  else
+  //  begin
+  //    Montado := Montado + ',"' + ArrayCampos[I] + '":"' + Valor + '"';
+  //  end;
+  //end;
+  //Montado := '{' + Montado + '}';
+  //
+  //// frmPrincipal.AdicionaLog(Montado);
+  //Requisicao.Body(Montado);
+  //Requisicao.Metodo:= mPost;
+  //Requisicao.Execute;
+  //try
+  //  Result := StrToInt(Requisicao.Retorno);
+  //except
+  //  Result := 0;
+  //
+  //end;
+  //Requisicao.Free;
 end;
 
 procedure TWppThreed.SetClientID(const Value: String);
