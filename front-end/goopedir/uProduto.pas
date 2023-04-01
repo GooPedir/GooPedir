@@ -21,7 +21,7 @@ uses
   System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent
 {$IFDEF Android}
 {$ELSE}
-    , WinInet
+    , WinInet, REST.Types, REST.Client, Data.Bind.ObjectScope
 {$ENDIF}
     ;
 
@@ -366,6 +366,9 @@ type
     gridIngredientes: TStringGrid;
     LinkGridToDataSourceBindSourceDB22: TLinkGridToDataSource;
     rCusto: TLabel;
+    RESTResponse1: TRESTResponse;
+    RESTClient1: TRESTClient;
+    RESTRequest1: TRESTRequest;
 
 {$IFDEF Android}
 {$ELSE}
@@ -874,7 +877,6 @@ begin
   frmExtraItem.Min := 0;
   frmExtraItem.Max := 0;
   frmExtraItem.frmProduto := self;
-
   frmExtraItem.Show;
 end;
 
@@ -1719,10 +1721,14 @@ begin
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
       try
-        EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
-          .AsString);
-        EnvioImagem.Body(Body);
-        EnvioImagem.Execute;
+      RESTRequest1.Params.AddHeader('nome',
+        BDSPRODUTOS.DataSet.FieldByName('site').AsString);
+      RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
+      RESTRequest1.Execute;
+//        EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
+//          .AsString);
+//        EnvioImagem.Body(Body);
+//        EnvioImagem.Execute;
         // https://fotos.goopedir.com/fotos/MTc2MzQ=
 
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString

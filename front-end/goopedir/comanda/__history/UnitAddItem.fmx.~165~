@@ -1075,7 +1075,7 @@ object FrmAddItem: TFrmAddItem
           Size.Width = 370.000000000000000000
           Size.Height = 145.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 55
+          TabOrder = 54
           Visible = False
           ItemAppearanceObjects.ItemObjects.ObjectsCollection = <
             item
@@ -1278,6 +1278,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 248
     Top = 608
     object memInsertmesa: TIntegerField
@@ -1318,6 +1322,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 152
     Top = 602
     object CATEGORIAcodigo: TIntegerField
@@ -1338,6 +1346,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 104
     Top = 610
     object PRODUTOcodigo: TIntegerField
@@ -1388,6 +1400,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 32
     Top = 616
     object MESAid_mesa: TIntegerField
@@ -1417,6 +1433,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 248
     Top = 712
     object ADICIONALcategoria: TStringField
@@ -1453,6 +1473,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 288
     Top = 242
     object SABORESquantidade_sabores: TIntegerField
@@ -1527,6 +1551,10 @@ object FrmAddItem: TFrmAddItem
     UpdateOptions.AutoCommitUpdates = True
     iforthAtualizaCampoForm = True
     iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
     Left = 112
     Top = 196
     object dadosSelecionadocodigo_produto: TIntegerField

@@ -16,11 +16,12 @@ uses
   FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid, uDM, FMXTee.Canvas,
   System.NetEncoding, FMX.Memo.Types, FMX.Memo, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase, IdFTP,
-  Soap.EncdDecd, uRequisicao
+  Soap.EncdDecd, uRequisicao, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, uButton, FMX.ListView,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent
 {$IFDEF Android}
 {$ELSE}
-    , WinInet, uButton, FMX.ListView.Types, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base, FMX.ListView
+    , WinInet
 {$ENDIF}
     ;
 
@@ -362,8 +363,9 @@ type
     BindSourceDB2: TBindSourceDB;
     memFichaTecnicaProdutocusto: TFloatField;
     memDadosFichacusto: TFloatField;
-    StringGrid2: TStringGrid;
+    gridIngredientes: TStringGrid;
     LinkGridToDataSourceBindSourceDB22: TLinkGridToDataSource;
+    rCusto: TLabel;
 
 {$IFDEF Android}
 {$ELSE}
@@ -440,7 +442,12 @@ type
     procedure cEntradaClick(Sender: TObject);
     procedure cSaidaChange(Sender: TObject);
     procedure ListView1DblClick(Sender: TObject);
-    procedure Grid1CellDblClick(const Column: TColumn; const Row: Integer);
+    procedure gridIngredientesDrawColumnCell(Sender: TObject;
+      const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+      const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+    procedure gridIngredientesCellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure rCustoClick(Sender: TObject);
   private
     FTipo: TTipo;
     FCodigoProduto: Integer;
@@ -488,6 +495,11 @@ type
     procedure CarregaExtra;
     procedure CarregaSabor;
     procedure GetFicha;
+    procedure CalculaCustoFicha;
+    procedure EnviarTodasFotos;
+
+    function EncodeStringToBase64(const Input: string): string;
+    procedure CarregarImagemDaURL(URL: string; Image: TImage);
 
   end;
 
@@ -529,7 +541,11 @@ begin
         except
 
         end;
-        TabExtra.TabIndex := 1;
+        try
+          TabExtra.TabIndex := 1;
+        except
+
+        end;
         CarregaExtra;
       end;
     3:
@@ -586,6 +602,22 @@ begin
   IdFTP1.Passive := false; { usa modo ativo }
   RemoveDir(ExtractFilePath(ParamStr(0)) + 'img\');
 
+  try
+    Rectangle6.Stroke.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle6.Fill.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+
+    lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
+  except
+
+  end;
+
+
+
+  // CarregarImagemDaURL('https://fotos.goopedir.com/fotos/MTc2MzQ=', Image15);
+
 end;
 
 procedure TfrmProduto.GetFicha;
@@ -608,6 +640,7 @@ begin
   end;
 
   lIngredientes.Text := 'Ficha Técnica (' + edtNome.Text + ')';
+  CalculaCustoFicha;
 end;
 
 procedure TfrmProduto.GetImagem(Codigo: String);
@@ -740,7 +773,7 @@ begin
     TABELA.Open;
 end;
 
-procedure TfrmProduto.Grid1CellDblClick(const Column: TColumn;
+procedure TfrmProduto.gridIngredientesCellDblClick(const Column: TColumn;
 const Row: Integer);
 begin
   if memFichaTecnicaProduto.RecordCount = 0 then
@@ -753,10 +786,40 @@ begin
     memFichaTecnicaProduto.FieldByName('descricao').AsString;
   memDadosFicha.FieldByName('unidade').AsString :=
     memFichaTecnicaProduto.FieldByName('unidade').AsString;
+  memDadosFicha.FieldByName('custo').AsFloat :=
+    memFichaTecnicaProduto.FieldByName('custo').AsFloat;
 
   memDadosFicha.Post;
   memFichaTecnicaProduto.Delete;
+end;
 
+procedure TfrmProduto.gridIngredientesDrawColumnCell(Sender: TObject;
+const Canvas: TCanvas; const Column: TColumn; const Bounds: TRectF;
+const Row: Integer; const Value: TValue; const State: TGridDrawStates);
+var
+  Custo: Real;
+  Teste: String;
+begin
+  try
+
+    Custo := StrToFloat((Sender as TStringGrid).Cells[3, Row]) *
+      StrToFloat((Sender as TStringGrid).Cells[0, Row]);
+  except
+    Custo := 0;
+  end;
+  // case StrToInt((Sender as TStringGrid).Cells[7, Row]) of
+  case Column.Index of
+    3:
+      begin
+        Canvas.Fill.Color := TipoCor(3);
+        Canvas.Stroke.Color := TipoCor(3);
+        Canvas.FillRect(Bounds, 0, 0, [], 1);
+        Canvas.Fill.Color := TipoCor(9);
+        Canvas.FillText(Bounds, FormatFloat('R$ #0.00', Custo), false, 1,
+          [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
+          TTextAlign.Center);
+      end;
+  end;
 end;
 
 procedure TfrmProduto.Image10Click(Sender: TObject);
@@ -810,6 +873,7 @@ begin
   frmExtraItem.Codigo := CodigoProduto;
   frmExtraItem.Min := 0;
   frmExtraItem.Max := 0;
+  frmExtraItem.frmProduto := self;
 
   frmExtraItem.Show;
 end;
@@ -921,6 +985,8 @@ begin
       memDadosFicha.FieldByName('descricao').AsString;
     memFichaTecnicaProduto.FieldByName('unidade').AsString :=
       memDadosFicha.FieldByName('unidade').AsString;
+    memFichaTecnicaProduto.FieldByName('custo').AsFloat :=
+      memDadosFicha.FieldByName('custo').AsFloat;
     memFichaTecnicaProduto.Post;
     memDadosFicha.Delete;
   end;
@@ -1062,6 +1128,28 @@ procedure TfrmProduto.Button1Click(Sender: TObject);
 begin
   GetSabores;
   tabMain.TabIndex := 3;
+end;
+
+procedure TfrmProduto.CalculaCustoFicha;
+var
+  Custo: Real;
+begin
+  Custo := 0;
+  if memFichaTecnicaProduto.RecordCount > 0 then
+  begin
+    memFichaTecnicaProduto.DisableControls;
+    memFichaTecnicaProduto.First;
+    while not memFichaTecnicaProduto.Eof do
+    begin
+      Custo := Custo + (memFichaTecnicaProduto.FieldByName('custo').AsFloat *
+        memFichaTecnicaProduto.FieldByName('quantidade').AsFloat);
+      memFichaTecnicaProduto.Next;
+    end;
+    memFichaTecnicaProduto.First;
+    memFichaTecnicaProduto.EnableControls;
+  end;
+  rCusto.Text := FormatFloat('R$ #0.00', Custo);
+
 end;
 
 procedure TfrmProduto.CarregaExtra;
@@ -1362,6 +1450,30 @@ begin
   end;
 end;
 
+procedure TfrmProduto.CarregarImagemDaURL(URL: string; Image: TImage);
+var
+  Bitmap: TBitmap;
+  HttpClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    HttpClient := THTTPClient.Create;
+    try
+      HTTPResponse := HttpClient.Get(URL);
+      if HTTPResponse.StatusCode = 200 then
+      begin
+        Bitmap.LoadFromStream(HTTPResponse.ContentStream);
+        Image.Bitmap.Assign(Bitmap);
+      end;
+    finally
+      HttpClient.Free;
+    end;
+  finally
+    Bitmap.Free;
+  end;
+end;
+
 procedure TfrmProduto.CarregaSabor;
 var
   FrameSabores: TframeSabores;
@@ -1451,7 +1563,7 @@ begin
           ('id').AsString, DADOS_PRODUTO);
         Tamanho := sDadosExtra.Width - 200;
         Tamanho := (Tamanho / 2);
-        GetImagem(BDSPRODUTOS.DataSet.FieldByName('id').AsString);
+        GetImagem(BDSPRODUTOS.DataSet.FieldByName('site').AsString);
 
         TThread.Synchronize(TThread.CurrentThread,
           procedure
@@ -1561,6 +1673,17 @@ begin
   end;
 end;
 
+function TfrmProduto.EncodeStringToBase64(const Input: string): string;
+var
+  Base64: TBase64Encoding;
+begin
+  // Encoding := TEncoding.UTF8; // use a codificação que você precisa
+  // Result := TNetEncoding.Base64.Encode(Encoding.GetBytes(Input));
+
+  Base64 := TBase64Encoding.Create(10, '');
+  Result := Base64.Encode(Input);
+end;
+
 procedure TfrmProduto.EntradaEstoque(Tipo: Integer);
 begin
   cEntrada.IsChecked := Tipo = 1;
@@ -1586,21 +1709,22 @@ begin
   begin
     try
       imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
+      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
+        ExtractFileExt(DIALOG.FileName) + ';base64;';
       DM.CONEXAO.TempoExpiracao := 150000;
       DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
-        ('id').AsString;
+        ('id').AsString + '/' + NomeArquivo;
       Body := Base64FromBitmap(imgProduto.Bitmap);
       DM.CONEXAO.Body(Body);
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
-
-      NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
-        ExtractFileExt(DIALOG.FileName) + ';base64;';
-
-      EnvioImagem.Body(NomeArquivo + Body);
-
       try
+        EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
+          .AsString);
+        EnvioImagem.Body(Body);
         EnvioImagem.Execute;
+        // https://fotos.goopedir.com/fotos/MTc2MzQ=
+
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
         then
         begin
@@ -1625,6 +1749,66 @@ begin
 
   end;
 {$ENDIF}
+end;
+
+procedure TfrmProduto.EnviarTodasFotos;
+begin
+
+  DM.GetSimples('v1/produto/all', ALL_PRODUTOS);
+
+  if ALL_PRODUTOS.RecordCount = 0 then
+    exit;
+
+  while not ALL_PRODUTOS.Eof do
+  begin
+    ALL_PRODUTOS.Next;
+  end;
+
+  {
+    if DIALOG.Execute then
+    begin
+    try
+    imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
+    DM.CONEXAO.TempoExpiracao := 150000;
+    DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
+    ('id').AsString;
+    Body := Base64FromBitmap(imgProduto.Bitmap);
+    DM.CONEXAO.Body(Body);
+    DM.CONEXAO.Metodo := mPost;
+    DM.CONEXAO.Execute;
+
+    NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
+    ExtractFileExt(DIALOG.FileName) + ';base64;';
+
+    EnvioImagem.Body(NomeArquivo + Body);
+
+    try
+    EnvioImagem.Execute;
+    if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
+    then
+    begin
+    ShowMessageToast(self,
+    'Foto do produto atualizada com sucesso no servidor!', 3);
+    end
+    else
+    begin
+    ShowMessageToast(self,
+    'Erro ao enviar a foto ao servidor! Código invalido!', 1);
+    end;
+
+    except
+    ShowMessageToast(self,
+    'Erro ao enviar a foto ao servidor! Tempo excedido.', 1);
+    end;
+
+    except
+    on E: Exception do
+    ShowMessage(E.Message);
+    end;
+
+    end;
+
+  }
 end;
 
 procedure TfrmProduto.Pagina(Tag: Integer);
@@ -1703,6 +1887,11 @@ begin
     Abrir(2);
     frmExtra.Free;
   end;
+end;
+
+procedure TfrmProduto.rCustoClick(Sender: TObject);
+begin
+  CalculaCustoFicha;
 end;
 
 procedure TfrmProduto.rDeletarClick(Sender: TObject);
@@ -1808,8 +1997,10 @@ begin
 
   TABELA.FieldByName('VALOR').AsFloat := edtValorTabela.Text.ToDouble;
 
-  TABELA.FieldByName('HORA_INICIO').AsDateTime := tInicial.DateTime;
-  TABELA.FieldByName('HORA_FIM').AsDateTime := tFinal.DateTime;
+  TABELA.FieldByName('HORA_INICIO').AsString :=
+    FormatDateTime('hh:nn:ss', tInicial.DateTime);
+  TABELA.FieldByName('HORA_FIM').AsString := FormatDateTime('hh:nn:ss',
+    tFinal.DateTime);
   TABELA.Post;
   DM.PostSimples('/v1/tabela/produto/', TABELA);
 

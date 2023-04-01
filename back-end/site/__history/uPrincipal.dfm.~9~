@@ -657,6 +657,8 @@ object frmPrincipal: TfrmPrincipal
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 412
     Top = 274
   end

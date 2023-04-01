@@ -940,7 +940,7 @@ var
 begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT tp.*, (select count(*) from produto where codigo_grupo = tp.codigo) as total FROM tipo_produto as tp where tp.modificado_site = 0 order by tp.ordem';
+  SQL := 'SELECT tp.*, (select count(*) from produto where codigo_grupo = tp.codigo) as total FROM tipo_produto as tp where (tp.modificado_site = 0 or tp.modificado_site is null) order by tp.ordem';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1018,7 +1018,7 @@ begin
     SQL := SQL + ' join produto as p on p.codigo = pap.id_produto';
     SQL := SQL + ' join tipo_produto as tp on tp.codigo = p.codigo_grupo';
     SQL := SQL +
-      ' where pap.id_site > 0 and paps.modificado_site = 0 and paps.id_pro_adi_personalizado = '
+      ' where pap.id_site > 0 and (paps.modificado_site = 0 or paps.modificado_site is null) and paps.id_pro_adi_personalizado = '
       + Dados.FieldByName('id').AsString;
     DadosAdicionais.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
@@ -1071,10 +1071,14 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'SELECT p.saldo_atual as estoque, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
-  SQL := SQL + 'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
-  SQL := SQL + 'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
-  SQL := SQL + ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
-  SQL := SQL + ' where p.modificado_site = 0 and tipo_produto.id_site > 0 ';
+  SQL := SQL +
+    'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
+  SQL := SQL +
+    'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
+  SQL := SQL +
+    ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
+  SQL := SQL +
+    ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1407,7 +1411,7 @@ begin
   SQL := SQL + ' join tipo_sabor as ts on ts.id = cs.id_tipo_sabor';
   SQL := SQL + ' join produto as p on p.codigo = cs.id_produto';
   SQL := SQL + ' join produto_pizza as pp on pp.codigo_produto = p.codigo';
-  SQL := SQL + ' where cs.modificado_site = 0';
+  SQL := SQL + ' where (cs.modificado_site = 0 or cs.modificado_site is null)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1470,7 +1474,7 @@ var
 begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT * FROM taxa_entrega where modificado_site = 0';
+  SQL := 'SELECT * FROM taxa_entrega where (modificado_site = 0 or modificado_site is null)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1527,7 +1531,7 @@ var
 begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT * FROM tipo_pagamento where modificado_site = 0 and apenas_delivery = 1';
+  SQL := 'SELECT * FROM tipo_pagamento where (modificado_site = 0 or modificado_site is null) and apenas_delivery = 1';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -3349,10 +3353,9 @@ begin
         if MemoryDadosItem.RecordCount > 0 then
         begin
 
-          if Insert.BuscaDadosDados
-            ('id_pedido_site','select * from pedido where pedido.id_pedido_site =  ' +
-            MemoryTablePedidos.FieldByName('id').AsString) = 0
-          then
+          if Insert.BuscaDadosDados('id_pedido_site',
+            'select * from pedido where pedido.id_pedido_site =  ' +
+            MemoryTablePedidos.FieldByName('id').AsString) = 0 then
           begin
 
             FRequest.URLI := 'rua/' + MemoryTablePedidos.FieldByName('id')
