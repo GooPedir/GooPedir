@@ -395,8 +395,8 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 424
-    Top = 192
+    Left = 640
+    Top = 200
     object memEstoqueID: TIntegerField
       FieldName = 'ID'
     end
@@ -429,8 +429,8 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 616
-    Top = 200
+    Left = 640
+    Top = 136
     object memTesteImpressaoIMPRESSORA: TIntegerField
       FieldName = 'IMPRESSORA'
     end

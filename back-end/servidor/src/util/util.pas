@@ -1588,107 +1588,123 @@ begin
     conexao.ExecuteSQL;
 
     Dados.Free;
-    Dados := TFDMemTable.Create(nil);
-    conexao.SQL.Add
-      ('select pedido_produtos.codigo_produto, pedido_produtos.quantidade  from pedido');
-    conexao.SQL.Add
-      ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-    conexao.SQL.Add('where pedido.id_caixa = :caixa');
-    conexao.Parametros('caixa', Caixa);
-    Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-    if Dados.RecordCount > 0 then
-    begin
-      while not Dados.Eof do
+    try
+      if frmServidor.Configuracoes.FieldByName('controle_estoque').AsInteger = 1
+      then
       begin
-        MovimentacaoProduto(Dados.FieldByName('codigo_produto').AsInteger, 2,
-          Dados.FieldByName('quantidade').AsInteger);
-        Dados.Next;
+        Dados := TFDMemTable.Create(nil);
+        conexao.SQL.Add
+          ('select pedido_produtos.codigo_produto, pedido_produtos.quantidade  from pedido');
+        conexao.SQL.Add
+          ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+        conexao.SQL.Add('where pedido.id_caixa = :caixa');
+        conexao.Parametros('caixa', Caixa);
+        Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+        if Dados.RecordCount > 0 then
+        begin
+          while not Dados.Eof do
+          begin
+            MovimentacaoProduto(Dados.FieldByName('codigo_produto').AsInteger,
+              2, Dados.FieldByName('quantidade').AsInteger);
+            Dados.Next;
+          end;
+        end;
+        Dados.Free;
       end;
+    except
+
     end;
-    Dados.Free;
-    {
-      Dados := TFDMemTable.Create(nil);
-
-      conexao.SQL.Add
-      ('select produto_ingredientes.id_ingredientes, (produto_ingredientes.quantidade * pedido_produtos.quantidade) as quantidade, produto_ingredientes.id_produto as produto  from pedido');
-      conexao.SQL.Add
-      ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-      conexao.SQL.Add
-      ('join produto_ingredientes on produto_ingredientes.id_produto = pedido_produtos.codigo_produto');
-      conexao.SQL.Add('where id_caixa = :id_caixa');
-      conexao.Parametros('id_caixa', Caixa);
-      Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-      if Dados.RecordCount > 0 then
+    try
+      if frmServidor.Configuracoes.FieldByName('controle_estoque').AsInteger = 1
+      then
       begin
-      while not Dados.Eof do
-      begin
-      ID := conexao.GerarID('ingredientes_estoque', 'id');
-      conexao.SQL.Add
-      ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
-      conexao.Parametros('id', ID);
-      conexao.Parametros('id_ingredientes',
-      Dados.FieldByName('id_ingredientes').AsInteger);
-      conexao.Parametros('tipo', 2);
-      conexao.Parametros('quantidade',
-      (Dados.FieldByName('quantidade').AsFloat * -1));
-      conexao.Parametros('custo_total', 0);
-      conexao.Parametros('custo', 0);
-      conexao.ExecuteSQL;
-      Dados.Next;
+
+        Dados := TFDMemTable.Create(nil);
+
+        conexao.SQL.Add
+          ('select produto_ingredientes.id_ingredientes, (produto_ingredientes.quantidade * pedido_produtos.quantidade) as quantidade, produto_ingredientes.id_produto as produto  from pedido');
+        conexao.SQL.Add
+          ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+        conexao.SQL.Add
+          ('join produto_ingredientes on produto_ingredientes.id_produto = pedido_produtos.codigo_produto');
+        conexao.SQL.Add('where id_caixa = :id_caixa');
+        conexao.Parametros('id_caixa', Caixa);
+        Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+        if Dados.RecordCount > 0 then
+        begin
+          while not Dados.Eof do
+          begin
+            ID := conexao.GerarID('ingredientes_estoque', 'id');
+            conexao.SQL.Add
+              ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+            conexao.Parametros('id', ID);
+            conexao.Parametros('id_ingredientes',
+              Dados.FieldByName('id_ingredientes').AsInteger);
+            conexao.Parametros('tipo', 2);
+            conexao.Parametros('quantidade',
+              (Dados.FieldByName('quantidade').AsFloat * -1));
+            conexao.Parametros('custo_total', 0);
+            conexao.Parametros('custo', 0);
+            conexao.ExecuteSQL;
+            Dados.Next;
+          end;
+        end;
+        Dados.Free;
+        Dados := TFDMemTable.Create(nil);
+
+        conexao.SQL.Add
+          ('select pro_adi_personalizado_sabores.id_ingredientes as ingredientes, pro_adi_personalizado_sabores.quantidade_ingredientes as quantidade from pedido');
+        conexao.SQL.Add
+          ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+        conexao.SQL.Add
+          ('join pedido_produto_sap on pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo');
+        conexao.SQL.Add
+          ('join pro_adi_personalizado on pro_adi_personalizado.id_produto = pedido_produtos.codigo_produto and upper(pro_adi_personalizado.descricao) = upper(pedido_produto_sap.nomeclatura)');
+        conexao.SQL.Add
+          ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id and');
+        conexao.SQL.Add
+          ('upper(pro_adi_personalizado_sabores.nome) = upper(pedido_produto_sap.descricao) and pro_adi_personalizado_sabores.id_ingredientes <> 0');
+        conexao.SQL.Add
+          ('and pro_adi_personalizado_sabores.quantidade_ingredientes <> 0');
+        conexao.SQL.Add('where id_caixa = :id_caixa');
+        conexao.Parametros('id_caixa', Caixa);
+        Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+        if Dados.RecordCount > 0 then
+        begin
+          while not Dados.Eof do
+          begin
+            ID := conexao.GerarID('ingredientes_estoque', 'id');
+            conexao.SQL.Add
+              ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
+            conexao.Parametros('id', ID);
+            conexao.Parametros('id_ingredientes',
+              Dados.FieldByName('ingredientes').AsInteger);
+
+            if Dados.FieldByName('quantidade').AsFloat < 0 then
+            begin
+              conexao.Parametros('tipo', 2);
+            end
+            else
+            begin
+              conexao.Parametros('tipo', 1);
+            end;
+
+            conexao.Parametros('quantidade',
+              (Dados.FieldByName('quantidade').AsFloat));
+            conexao.Parametros('custo_total', 0);
+            conexao.Parametros('custo', 0);
+            conexao.ExecuteSQL;
+            Dados.Next;
+          end;
+        end;
+        Dados.Free;
       end;
-      end;
-      Dados.Free;
-      Dados := TFDMemTable.Create(nil);
+    except
 
-      conexao.SQL.Add
-      ('select pro_adi_personalizado_sabores.id_ingredientes as ingredientes, pro_adi_personalizado_sabores.quantidade_ingredientes as quantidade from pedido');
-      conexao.SQL.Add
-      ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-      conexao.SQL.Add
-      ('join pedido_produto_sap on pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo');
-      conexao.SQL.Add
-      ('join pro_adi_personalizado on pro_adi_personalizado.id_produto = pedido_produtos.codigo_produto and upper(pro_adi_personalizado.descricao) = upper(pedido_produto_sap.nomeclatura)');
-      conexao.SQL.Add
-      ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id and');
-      conexao.SQL.Add
-      ('upper(pro_adi_personalizado_sabores.nome) = upper(pedido_produto_sap.descricao) and pro_adi_personalizado_sabores.id_ingredientes <> 0');
-      conexao.SQL.Add
-      ('and pro_adi_personalizado_sabores.quantidade_ingredientes <> 0');
-      conexao.SQL.Add('where id_caixa = :id_caixa');
-      conexao.Parametros('id_caixa', Caixa);
-      Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-      if Dados.RecordCount > 0 then
-      begin
-      while not Dados.Eof do
-      begin
-      ID := conexao.GerarID('ingredientes_estoque', 'id');
-      conexao.SQL.Add
-      ('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo) values (:id,:id_ingredientes,current_date,current_time,:tipo,:quantidade,:custo_total,:custo)');
-      conexao.Parametros('id', ID);
-      conexao.Parametros('id_ingredientes', Dados.FieldByName('ingredientes')
-      .AsInteger);
-
-      if Dados.FieldByName('quantidade').AsFloat < 0 then
-      begin
-      conexao.Parametros('tipo', 2);
-      end
-      else
-      begin
-      conexao.Parametros('tipo', 1);
-      end;
-
-      conexao.Parametros('quantidade',
-      (Dados.FieldByName('quantidade').AsFloat));
-      conexao.Parametros('custo_total', 0);
-      conexao.Parametros('custo', 0);
-      conexao.ExecuteSQL;
-      Dados.Next;
-      end;
-      end;
-      Dados.Free; }
+    end;
   except
     on e: exception do
     begin
@@ -1716,17 +1732,14 @@ begin
   conexao := TConexao.Create;
   conexao.SQL.Add('select ');
   conexao.SQL.Add('cr.*,');
-  conexao.SQL.Add
-    ('cr.id as codigo, c.nome, c.celular, (select sum(valor) from caixa_receber where id_cliente = cr.id_cliente and status = 1) as a_receber,');
-  conexao.SQL.Add
-    ('caixa.id, caixa.data_abertura, caixa.data_fechamento, caixa.data_fechamento, caixa.hora_fechamento, caixa.valor_fechamento,');
+  conexao.SQL.Add('cr.id as codigo, c.nome, c.celular, (select sum(valor) from caixa_receber where id_cliente = cr.id_cliente and status = 1) as a_receber,');
+  conexao.SQL.Add('caixa.id, caixa.data_abertura, caixa.data_fechamento, caixa.data_fechamento, caixa.hora_fechamento, caixa.valor_fechamento,');
   conexao.SQL.Add('u.nome as usuario, tp.descricao as tipo_pagamento');
   conexao.SQL.Add('from caixa_receber as cr');
   conexao.SQL.Add('join cliente as c on c.codigo = cr.id_cliente');
   conexao.SQL.Add('join caixa on caixa.id = cr.id_caixa');
   conexao.SQL.Add('join usuario as u on u.codigo = caixa.id_usuario');
-  conexao.SQL.Add
-    ('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento');
+  conexao.SQL.Add('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento');
   if Cliente > 0 then
   begin
     conexao.SQL.Add('where cr.id_cliente = :cliente');
@@ -2091,7 +2104,8 @@ begin
     ('CTE.id,CTE.observacaopro,CTE.ativo,CTE.interno,CTE.descricao,CTE.nome,CTE.venda,CTE.site,CTE.modificado,CTE.delivery,CTE.vb,CTE.descpro,CTE.categoria,CTE.quantidade, CTE.estoque');
   conexao.SQL.Add('from CTE');
   conexao.SQL.Add(where);
-  conexao.SQL.Add('group by CTE.id');
+  conexao.SQL.Add
+    ('group by CTE.id,CTE.observacaopro,CTE.ativo,CTE.interno,CTE.descricao,CTE.nome,CTE.venda,CTE.site,CTE.modificado,CTE.delivery,CTE.vb,CTE.descpro,CTE.categoria,CTE.quantidade, CTE.estoque');
   conexao.SQL.Add('order by  CTE.interno, CTE.ativo');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;

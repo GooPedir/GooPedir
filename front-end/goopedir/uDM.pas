@@ -151,6 +151,8 @@ type
     DADOS_WHATSAPPfat_integra_pix: TIntegerField;
     DADOS_WHATSAPPcor_fundo: TStringField;
     DADOS_WHATSAPPcor_fonte: TStringField;
+    DADOS_WHATSAPPcontrole_estoque: TIntegerField;
+    DADOS_WHATSAPPficha_tecnica: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -224,6 +226,8 @@ type
     function CaixaCompleto: Integer;
     function CaixaProduto: Integer;
     function CaixaMotoboy: Integer;
+    function ControleEstoque : Integer;
+    function FichaTecnica: Integer;
 
     procedure BuscaFaturas(Pai: TFmxObject);
 
@@ -399,12 +403,12 @@ var
 
 begin
   try
-    // TThread.CreateAnonymousThread(
-    // procedure
-    // var
-    // I: Integer;
-    // FATURAS: TFDMemTable;
-    // begin
+     TThread.CreateAnonymousThread(
+     procedure
+     var
+     I: Integer;
+     FATURAS: TFDMemTable;
+     begin
     FATURAS := TFDMemTable.Create(nil);
     DM.DadosSite;
     if DM.UserId > 0 then
@@ -465,7 +469,7 @@ begin
       // HorzScrollBoxFatura
     end;
     FATURAS.Free;
-    // end).Start;
+     end).Start;
 
   except
 
@@ -512,6 +516,11 @@ end;
 function TDM.CodigoUsuario: Integer;
 begin
   Result := USUARIO.FieldByName('codigo').AsInteger;
+end;
+
+function TDM.ControleEstoque: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('controle_estoque').AsInteger;
 end;
 
 function TDM.CorSite(sColor: string): TColor;
@@ -615,6 +624,11 @@ end;
 procedure TDM.FecharSite;
 begin
   //
+end;
+
+function TDM.FichaTecnica: Integer;
+begin
+Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
 end;
 
 function TDM.GetCelular: String;

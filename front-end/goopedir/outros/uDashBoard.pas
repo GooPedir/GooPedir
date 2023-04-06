@@ -405,6 +405,8 @@ begin
 
   end;
 
+  Layout15.Visible := dm.FichaTecnica = 1;
+
 end;
 
 procedure TfrmDashBoard.Image2Click(Sender: TObject);

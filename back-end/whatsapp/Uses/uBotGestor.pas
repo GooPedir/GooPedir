@@ -218,7 +218,7 @@ begin
       AConversa.Resposta := '';
     end;
 
-    AConversa.ValorBotao := trim(AMessagem.selectedButtonId);
+//    AConversa.ValorBotao := trim(AMessagem.selectedButtonId);
 
     if AConversa.ValorBotao = '' then
     begin

@@ -107,8 +107,8 @@ begin
   DADOS.FieldByName('valor_taxa').AsFloat := 0;
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('ativo').AsInteger := 1;
-  DADOS.FieldByName('modificado_site').AsInteger := 1;
-  DADOS.FieldByName('id_site').AsInteger := 1;
+  DADOS.FieldByName('modificado_site').AsInteger := 0;
+//  DADOS.FieldByName('id_site').AsInteger := 1;
   DADOS.AtualizaCampos;
   edtBairro.SetFocus;
 end;

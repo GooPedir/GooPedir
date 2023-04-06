@@ -164,6 +164,9 @@ begin
   AdicionaParametroEdit(Empresa, 'longitude', '');
 
   // Geral
+  AdicionaTitulo(Geral, 'Configuração Produto');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'controle_estoque', 'Controle de Estoque (Produto / Insulmos)', '1', '0');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'ficha_tecnica', 'Ficha Técnica do Produto', '1', '0');
   AdicionaTitulo(Geral, 'Configuração API Site');
   AdicionaParametroEdit(Geral, 'client_id', '');
   AdicionaParametroEdit(Geral, 'client_security', '');

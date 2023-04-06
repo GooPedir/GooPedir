@@ -179,95 +179,103 @@ var
   I: integer;
 begin
   conexao := Tconexao.Create;
-  Dados := TFDMemTable.Create(nil);
-  DadosProduto := TFDMemTable.Create(nil);
-  conexao.SQL.Add
-    ('SELECT group_concat(pro_adi_personalizado.id_produto) as produtos, group_concat(pro_adi_personalizado_sabores.id) as ids, upper(pro_adi_personalizado_sabores.nome) as nome  FROM pro_adi_personalizado');
-  conexao.SQL.Add
-    ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id');
-  conexao.SQL.Add('where pro_adi_personalizado_sabores.valor = 0');
-  conexao.SQL.Add('group by upper(pro_adi_personalizado_sabores.nome)');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-  if Dados.RecordCount > 0 then
-  begin
-
-    while not Dados.Eof do
+  try
+    if frmServidor.Configuracoes.FieldByName('ficha_tecnica').AsInteger = 1 then
     begin
-      DadosProduto.Close;
-      conexao.SQL.Add('select * from produto where codigo in (' +
-        Dados.FieldByName('produtos').AsString + ')');
-      DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
 
-      Ingrediente := RemoveAcento(Dados.FieldByName('nome').AsString);
-      Ingrediente := StringReplace(Ingrediente, 'SEM ', '', [rfReplaceAll]);
-      for I := 0 to 9 do
-      begin
-        Ingrediente := StringReplace(Ingrediente, I.ToString, '',
-          [rfReplaceAll]);
-      end;
-      Ingrediente := trim(Ingrediente);
-
-      conexao.SQL.Add('select * from ingredientes where descricao = ' +
-        QuotedStr(Ingrediente));
-      try
-        CodigoIngrediente := conexao.FieldByName('id');
-      except
-        CodigoIngrediente := 0
-      end;
-      if CodigoIngrediente = 0 then
-      begin
-        CodigoIngrediente := conexao.GerarID('ingredientes', 'id');
-        conexao.SQL.Add
-          ('insert into ingredientes (id,descricao,unidade) values (:id,:descricao,:unidade)');
-        conexao.Parametros('id', CodigoIngrediente);
-        conexao.Parametros('descricao', Ingrediente);
-        conexao.Parametros('unidade', 'UN');
-
-        conexao.ExecuteSQL;
-      end;
-      while not DadosProduto.Eof do
-      begin
-        conexao.SQL.Add
-          ('select * from produto_ingredientes where id_produto = :id_produto and id_ingredientes = :id_ingredientes');
-        conexao.Parametros('id_ingredientes', CodigoIngrediente);
-        conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
-          .AsInteger);
-
-        try
-          Codigo := conexao.FieldByName('id');
-
-        except
-          Codigo := 0;
-
-        end;
-
-        if Codigo = 0 then
-        begin
-          Codigo := conexao.GerarID('produto_ingredientes', 'id');
-          conexao.SQL.Add
-            ('insert into produto_ingredientes (id,id_produto,id_ingredientes,quantidade) values (:id,:id_produto,:id_ingredientes,:quantidade)');
-          conexao.Parametros('id', Codigo);
-          conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
-            .AsInteger);
-          conexao.Parametros('id_ingredientes', CodigoIngrediente);
-          conexao.Parametros('quantidade', 1);
-          conexao.ExecuteSQL;
-        end;
-
-        DadosProduto.Next;
-      end;
-
+      Dados := TFDMemTable.Create(nil);
+      DadosProduto := TFDMemTable.Create(nil);
       conexao.SQL.Add
-        ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes where id in('
-        + Dados.FieldByName('ids').AsString + ')');
+        ('SELECT group_concat(pro_adi_personalizado.id_produto) as produtos, group_concat(pro_adi_personalizado_sabores.id) as ids, upper(pro_adi_personalizado_sabores.nome) as nome  FROM pro_adi_personalizado');
+      conexao.SQL.Add
+        ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id');
+      conexao.SQL.Add('where pro_adi_personalizado_sabores.valor = 0');
+      conexao.SQL.Add('group by upper(pro_adi_personalizado_sabores.nome)');
+      Dados.LoadFromJSON(conexao.ConsultaSQL);
+      if Dados.RecordCount > 0 then
+      begin
 
-      conexao.Parametros('id_ingredientes', CodigoIngrediente);
-      conexao.ExecuteSQL;
+        while not Dados.Eof do
+        begin
+          DadosProduto.Close;
+          conexao.SQL.Add('select * from produto where codigo in (' +
+            Dados.FieldByName('produtos').AsString + ')');
+          DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
 
-      Dados.Next;
+          Ingrediente := RemoveAcento(Dados.FieldByName('nome').AsString);
+          Ingrediente := StringReplace(Ingrediente, 'SEM ', '', [rfReplaceAll]);
+          for I := 0 to 9 do
+          begin
+            Ingrediente := StringReplace(Ingrediente, I.ToString, '',
+              [rfReplaceAll]);
+          end;
+          Ingrediente := trim(Ingrediente);
+
+          conexao.SQL.Add('select * from ingredientes where descricao = ' +
+            QuotedStr(Ingrediente));
+          try
+            CodigoIngrediente := conexao.FieldByName('id');
+          except
+            CodigoIngrediente := 0
+          end;
+          if CodigoIngrediente = 0 then
+          begin
+            CodigoIngrediente := conexao.GerarID('ingredientes', 'id');
+            conexao.SQL.Add
+              ('insert into ingredientes (id,descricao,unidade) values (:id,:descricao,:unidade)');
+            conexao.Parametros('id', CodigoIngrediente);
+            conexao.Parametros('descricao', Ingrediente);
+            conexao.Parametros('unidade', 'UN');
+
+            conexao.ExecuteSQL;
+          end;
+          while not DadosProduto.Eof do
+          begin
+            conexao.SQL.Add
+              ('select * from produto_ingredientes where id_produto = :id_produto and id_ingredientes = :id_ingredientes');
+            conexao.Parametros('id_ingredientes', CodigoIngrediente);
+            conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
+              .AsInteger);
+
+            try
+              Codigo := conexao.FieldByName('id');
+
+            except
+              Codigo := 0;
+
+            end;
+
+            if Codigo = 0 then
+            begin
+              Codigo := conexao.GerarID('produto_ingredientes', 'id');
+              conexao.SQL.Add
+                ('insert into produto_ingredientes (id,id_produto,id_ingredientes,quantidade) values (:id,:id_produto,:id_ingredientes,:quantidade)');
+              conexao.Parametros('id', Codigo);
+              conexao.Parametros('id_produto',
+                DadosProduto.FieldByName('codigo').AsInteger);
+              conexao.Parametros('id_ingredientes', CodigoIngrediente);
+              conexao.Parametros('quantidade', 1);
+              conexao.ExecuteSQL;
+            end;
+
+            DadosProduto.Next;
+          end;
+
+          conexao.SQL.Add
+            ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes where id in('
+            + Dados.FieldByName('ids').AsString + ')');
+
+          conexao.Parametros('id_ingredientes', CodigoIngrediente);
+          conexao.ExecuteSQL;
+
+          Dados.Next;
+        end;
+      end;
+      Dados.Free;
     end;
+  except
+
   end;
-  Dados.Free;
   conexao.Free;
 end;
 

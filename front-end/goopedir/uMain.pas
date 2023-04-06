@@ -182,7 +182,10 @@ begin
   // AbrirForm('TfrmPedido');
   AbrirForm('TfrmMesas');
   AbrirForm('TfrmProduto');
-  AbrirForm('TfrmEstoque');
+  if dm.ControleEstoque = 1 then
+  begin
+    AbrirForm('TfrmEstoque');
+  end;
   AbrirFormVisivel('TfrmCaixa', False);
   tabMain.TabIndex := 0;
 
@@ -191,12 +194,23 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
 
-  DM.LogUsuario;
+  dm.LogUsuario;
 
   tabMain.TabIndex := 0;
-  frmMain.Caption := frmMain.Caption + DM.GetNomeEmpresa;
-  // DM.IniciaVerificacao;
-  DM.UserId;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+      // DM.IniciaVerificacao;
+      dm.UserId;
+      // Thread.Sleep(5000);
+      // TThread.Synchronize(TThread.CurrentThread,
+      // procedure
+      // begin
+      // Memo1.Lines.Add('Teste anonymous Thread');
+      // end);
+    end).Start;
+
   if NOT Assigned(FrmAddItem) then
   begin
     Application.CreateForm(TFrmAddItem, FrmAddItem);
@@ -321,13 +335,13 @@ end;
 function TfrmMain.GetParametros(NomeParametro: String): Variant;
 begin
 
-  if DM.PARAMETRO.RecordCount = 0 then
+  if dm.PARAMETRO.RecordCount = 0 then
   begin
-    DM.GetSimples2('/v1/consulta/todos/dados_whatsapp', DM.PARAMETRO);
+    dm.GetSimples2('/v1/consulta/todos/dados_whatsapp', dm.PARAMETRO);
   end;
 
   try
-    Result := DM.PARAMETRO.FieldByName(NomeParametro).AsVariant;
+    Result := dm.PARAMETRO.FieldByName(NomeParametro).AsVariant;
   except
 
   end;
@@ -368,7 +382,7 @@ begin
 
   while not Terminated do
   begin
-    Status := DM.GetSimples('v1/versao/app', nil);
+    Status := dm.GetSimples('v1/versao/app', nil);
 
     if Status then
       Sleep(1500)

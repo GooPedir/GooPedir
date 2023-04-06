@@ -479,6 +479,7 @@ type
     procedure AtualizaValores;
     procedure SimAlteracaoPrecos;
     procedure EntradaEstoque(Tipo: Integer);
+    function EncodeBase64(const Input: string): string;
 
   public
     { Public declarations }
@@ -617,7 +618,7 @@ begin
 
   end;
 
-
+  rFicha.Visible := dm.FichaTecnica = 1;
 
   // CarregarImagemDaURL('https://fotos.goopedir.com/fotos/MTc2MzQ=', Image15);
 
@@ -652,15 +653,36 @@ var
   NomeArquivo: String;
   CaminhoHttp: String;
   Base64: TBase64Encoding;
+
+  HttpClient: THTTPClient;
+  Response: IHTTPResponse;
+  Stream: TMemoryStream;
 begin
 
   try
-    Base64 := TBase64Encoding.Create(10, '');
+//    Base64 := TBase64Encoding.Create(10, '');
+//
+//    DM.CONEXAO.URL := '/v1/imagem/produto/' + Codigo;
+//    DM.CONEXAO.Metodo := mGet;
+//    DM.CONEXAO.Execute;
+//    imgProduto.Bitmap := DM.BitmapFromBase64(DM.CONEXAO.Retorno);
+       imgProduto.Bitmap := imSemFoto.Bitmap;
+    HttpClient := THTTPClient.Create;
+    Stream := TMemoryStream.Create;
+    try
+      Response := HttpClient.Get
+        ('https://fotos.goopedir.com/fotos/'+EncodeBase64(Codigo), Stream);
+      if Response.StatusCode = 200 then
+      begin
+        Stream.Position := 0;
+        imgProduto.Bitmap.LoadFromStream(Stream);
+      end;
+    finally
+      Stream.Free;
+      HttpClient.Free;
+    end;
 
-    DM.CONEXAO.URL := '/v1/imagem/produto/' + Codigo;
-    DM.CONEXAO.Metodo := mGet;
-    DM.CONEXAO.Execute;
-    imgProduto.Bitmap := DM.BitmapFromBase64(DM.CONEXAO.Retorno);
+
     // exit;
     // NomeArquivo := DM.CONEXAO.Retorno;
     // NomeArquivo := Base64.Decode(NomeArquivo);
@@ -1675,6 +1697,18 @@ begin
   end;
 end;
 
+function TfrmProduto.EncodeBase64(const Input: string): string;
+var
+  Encoder: TBase64Encoding;
+begin
+  Encoder := TBase64Encoding.Create;
+  try
+    Result := Encoder.Encode(Input);
+  finally
+    Encoder.Free;
+  end;
+end;
+
 function TfrmProduto.EncodeStringToBase64(const Input: string): string;
 var
   Base64: TBase64Encoding;
@@ -1721,14 +1755,14 @@ begin
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
       try
-      RESTRequest1.Params.AddHeader('nome',
-        BDSPRODUTOS.DataSet.FieldByName('site').AsString);
-      RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
-      RESTRequest1.Execute;
-//        EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
-//          .AsString);
-//        EnvioImagem.Body(Body);
-//        EnvioImagem.Execute;
+        RESTRequest1.Params.AddHeader('nome',
+          BDSPRODUTOS.DataSet.FieldByName('site').AsString);
+        RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
+        RESTRequest1.Execute;
+        // EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
+        // .AsString);
+        // EnvioImagem.Body(Body);
+        // EnvioImagem.Execute;
         // https://fotos.goopedir.com/fotos/MTc2MzQ=
 
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString

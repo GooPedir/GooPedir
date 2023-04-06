@@ -4,31 +4,10 @@ Visible=False
 [frmMotoboy.DADOS]
 Visible=False
 
-[frmProduto.CATEGORIA]
-Visible=False
-
-[frmProduto.ALL_PRODUTOS]
-Visible=False
-
-[frmProduto.EXTRA]
-Visible=False
-
-[frmProduto.TABELA]
-Visible=False
-
-[frmProduto.DADOS_PRODUTO]
-Visible=False
-
 [frmCategoria.DADOS]
 Visible=False
 
 [frmCategoria.IMPRESSORA]
-Visible=False
-
-[frmProduto.SABORES]
-Visible=False
-
-[frmProduto.SABORES_PRODUTOS]
 Visible=False
 
 [FrmAddItem.SABORES]

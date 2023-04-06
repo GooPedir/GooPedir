@@ -18,10 +18,10 @@ inherited frmEstoque: TfrmEstoque
             PNG = {
               89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
               F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF4F9E3C
-              F90D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF8F1F3F
+              FE0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
               340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
-              50EE281812808101008F5DF9ECC6C587580000000049454E44AE426082}
+              50EE28181280810100EA6CF9C852EA1B1B0000000049454E44AE426082}
             FileName = 
               'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
               'row_back_white_24dp.png'
@@ -43,23 +43,23 @@ inherited frmEstoque: TfrmEstoque
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
               0227494441546843ED96CB4EC2401486690D10127D009FC1952B790AA30BBCC4
-              07F2B2F511344477C6B7D0F8005E125D79094B8545A980FF99FE344081434B29
-              A8F3259399CEF9E7EF39745A2667B1582C168BC5F28F71D8CF844EA79347B7D5
-              6EB737D1363CCF5B95F962B1F8EEBAEE0DDA352EAF1CC7F1657EA140C2DBBEEF
-              3FA188B18846B45C363DF455A13C02426EABD53A0E5493C3352E6D9213D8E950
-              1E01899C50121B594B9BE4D04B85F23E642B301C52ABD53C24768A581997CBD2
-              642C731233A21EA6DE4EF451A13C0453F9C13DDF6C365F91D03A251124261ACA
-              0DF490973F5B70D38AC980C8AF3B2EF92EA219F2242A0C6707B6C4396F6E902D
-              C2908A68B9CC205E0C65071EFD3DEF6FC02F5B664845B45C66102F86B2A3D168
-              7CF2FE0624B5C2908A68B9CC205E0CA94CFFDD9D01D8424B1CAAA45640A15078
-              E3B0CB1AFB49E8D3964AA50F0E552205F029AA501E8273CD1D8706480E385419
-              D4C2EB96C3F898EC2680F2104C2DC66794062A9487602AAD3FB26774054AE213
-              D8E850DE07129AFA28018E68371F9058E2C39C80A2BE51E03EEDB20739243A4E
-              F7C222F668391F643B0DBE13C380E605051F22699F5306B99E7B11C8238F5641
-              826748F4B15EAF7FC9BEC7F80173171243332FAC8C4714B16BCC7E03C8F94F17
-              B143C978B82635681B0B2C1B5A043AFD0F2E90A7076D6383A59122F0DE54191E
-              0DB5A941DB446079580492BF44A79F52459C26B44D0C2CE42B56453FF111DB62
-              B1582C164B36E4723FB1F58C78880AD2270000000049454E44AE426082}
+              07F2B2F511344477C6B7D0F8005E125D7961ABB02815F03FD39F062870682905
+              75BE6432D339FFFC3D874ECBE42C168BC562B158FE310EFB99D0E974F2E8B6DA
+              EDF626DA86E779AB325F2C16DF5DD7BD41BBC6E595E338BECC2F144878DBF7FD
+              27143116D18896CBA687BE2A944740C86DB55AC7816A72B8C6A54D72023B1DCA
+              232091134A62236B69931C7AA950DE876C0586436AB59A87C44E112BE372599A
+              8C654E6246D4C3D4DB893E2A9487602A3FB8E79BCDE62B125AA72482C44443B9
+              811EF2F2670B6E5A311910F975C725DF4534439E4485E1ECC09638E7CD0DB245
+              1852112D9719C48BA1ECC0A3BFE7FD0DF865CB0CA98896CB0CE2C55076341A8D
+              4FDEDF80A4561852112D9719C48B2195E9BFBB33005B68894395D40A28140A6F
+              1C7659633F097DDA52A9F4C1A14AA4003E4515CA4370AEB9E3D000C901872A83
+              5A78DD72181F93DD04501E82A9C5F88CD24085F2104CA5F547F68CAE40497C02
+              1B1DCAFB4042531F25C011EDE603124B7C981350D4370ADCA75DF6208744C7E9
+              5E58C41E2DE7836CA7C1776218D0BCA0E04324ED73CA20D7732F0279E4D12A48
+              F00C893ED6EBF52FD9F7183F60EE426268E68595F18822768DD96F0039FFE922
+              7628190FD7A4066D638165438B40A7FFC105F2F4A06D6CB0345204DE9B2AC3A3
+              A13635689B082C0F8B40F297E8F453AA88D384B68981857CC5AAE8273E625B2C
+              168BC562C9865CEE07D6448C3339ECB28E0000000049454E44AE426082}
             FileName = 
               'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
               'nage_search_white_24dp.png'
@@ -108,6 +108,28 @@ inherited frmEstoque: TfrmEstoque
             iForthTipoBotao = tSalvar
             iForthCorFonte = cBranca
             iForthDescricao = 'Entrada de Estoque Produto/Ingredientes'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 241.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 241.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Entrada de Estoque Produto/Ingredientes'
+                TabOrder = 0
+              end
+            end
             object TRectangle
               Align = Client
               Fill.Color = xFF31CCAF
@@ -209,6 +231,28 @@ inherited frmEstoque: TfrmEstoque
                 TabOrder = 0
               end
             end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFF77273
+              HitTest = False
+              Size.Width = 224.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFF77273
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 224.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Arrumar Estoque Negativo'
+                TabOrder = 0
+              end
+            end
           end
           object iButton6: iButton
             Position.X = 489.000000000000000000
@@ -222,6 +266,28 @@ inherited frmEstoque: TfrmEstoque
             iForthTipoBotao = tAmarelo
             iForthCorFonte = cBranca
             iForthDescricao = 'Zerar Estoque'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFFFC726
+              HitTest = False
+              Size.Width = 184.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFFFC726
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 184.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Zerar Estoque'
+                TabOrder = 0
+              end
+            end
             object TRectangle
               Align = Client
               Fill.Color = xFFFFC726
@@ -280,8 +346,8 @@ inherited frmEstoque: TfrmEstoque
           RowCount = 0
           Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
           OnDrawColumnCell = Grid1DrawColumnCell
-          Viewport.Width = 1015.000000000000000000
-          Viewport.Height = 500.000000000000000000
+          Viewport.Width = 1019.000000000000000000
+          Viewport.Height = 525.000000000000000000
         end
         object iButonSelecionar: iButton
           Align = Bottom
@@ -295,6 +361,28 @@ inherited frmEstoque: TfrmEstoque
           iForthTipoBotao = tSalvar
           iForthCorFonte = cBranca
           iForthDescricao = 'Selecionar'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 1019.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 1019.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Selecionar'
+              TabOrder = 0
+            end
+          end
           object TRectangle
             Align = Client
             Fill.Color = xFF31CCAF
@@ -693,18 +781,62 @@ inherited frmEstoque: TfrmEstoque
                 TabOrder = 0
               end
             end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 128.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Adicionar'
+                TabOrder = 0
+              end
+            end
             object iButton3: iButton
               Anchors = [akTop, akRight]
               Position.Y = 34.000000000000000000
               Size.Width = 128.000000000000000000
               Size.Height = 30.000000000000000000
               Size.PlatformDefault = False
-              TabOrder = 5
+              TabOrder = 4
               Text = 'iButton3'
               OnClick = iButton3Click
               iForthTipoBotao = tCancelar
               iForthCorFonte = cBranca
               iForthDescricao = 'Deletar Selecionado'
+              object TRectangle
+                Align = Client
+                Fill.Color = xFFF77273
+                HitTest = False
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFFF77273
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 128.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Deletar Selecionado'
+                  TabOrder = 0
+                end
+              end
               object TRectangle
                 Align = Client
                 Fill.Color = xFFF77273
@@ -767,8 +899,8 @@ inherited frmEstoque: TfrmEstoque
           RowCount = 0
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
           OnDrawColumnCell = Grid2DrawColumnCell
-          Viewport.Width = 1003.000000000000000000
-          Viewport.Height = 327.000000000000000000
+          Viewport.Width = 1007.000000000000000000
+          Viewport.Height = 352.000000000000000000
         end
         object Layout3: TLayout
           Align = Bottom
@@ -841,6 +973,28 @@ inherited frmEstoque: TfrmEstoque
             iForthTipoBotao = tIncluir
             iForthCorFonte = cBranca
             iForthDescricao = 'Executar Entrada do Estoque'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF900BFA
+              HitTest = False
+              Size.Width = 259.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF900BFA
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 259.000000000000000000
+                Size.Height = 42.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Executar Entrada do Estoque'
+                TabOrder = 0
+              end
+            end
             object TRectangle
               Align = Client
               Fill.Color = xFF900BFA

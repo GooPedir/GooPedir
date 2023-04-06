@@ -120,6 +120,7 @@ type
     procedure rReceberClick(Sender: TObject);
     procedure StringGrid1CellDblClick(const Column: TColumn;
       const Row: Integer);
+    procedure FormCreate(Sender: TObject);
   private
     FcodigoUsuario: Integer;
     FAReceber: Real;
@@ -164,6 +165,8 @@ begin
   DADOS.DisableControls;
   AReceber := 0;
   Recebido := 0;
+  if DADOS.RecordCount = 0 then
+    exit;
   while not DADOS.Eof do
   begin
     if DADOS.FieldByName('status').AsInteger = 1 then
@@ -176,6 +179,7 @@ begin
     end;
     DADOS.Next;
   end;
+
   DADOS.First;
   DADOS.EnableControls;
   DadosCaixa;
@@ -257,6 +261,12 @@ begin
   BuscarCliente;
 end;
 
+procedure TfrmAReceber.FormCreate(Sender: TObject);
+begin
+  codigoUsuario := 0;
+  Buscar;
+end;
+
 procedure TfrmAReceber.Recebimento;
 begin
   //
@@ -322,7 +332,7 @@ procedure TfrmAReceber.SetAReceber(const Value: Real);
 begin
   FAReceber := Value;
 
-  lReceber.Text := 'R$ '+FormatarMoeda(Value);
+  lReceber.Text := 'R$ ' + FormatarMoeda(Value);
 end;
 
 procedure TfrmAReceber.SetcodigoUsuario(const Value: Integer);
@@ -344,7 +354,7 @@ end;
 procedure TfrmAReceber.SetRecebido(const Value: Real);
 begin
   FRecebido := Value;
-  LRecebido.Text := 'R$ '+FormatarMoeda(Value);
+  LRecebido.Text := 'R$ ' + FormatarMoeda(Value);
 end;
 
 procedure TfrmAReceber.StringGrid1CellDblClick(const Column: TColumn;

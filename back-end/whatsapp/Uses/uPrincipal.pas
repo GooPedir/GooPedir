@@ -445,8 +445,7 @@ begin
   end;
   Conversa.IDMensagem := 0;
 
-  iWhatsapp.EnviaBotao(Conversa.ID, Mensagem, Descricao, ArrayBotao,
-    ArrayBotaoID);
+//  iWhatsapp.EnviaBotao(Conversa.ID, Mensagem, Descricao, ArrayBotao,    ArrayBotaoID);
   GravaConversa(Conversa);
 
 end;

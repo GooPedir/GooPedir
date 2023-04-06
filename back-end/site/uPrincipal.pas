@@ -420,7 +420,7 @@ begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'select * from produto where usa_tabela_preco = 1';
+  SQL := 'select produto.* from produto join produto_preco as pp on pp.id_produto = codigo where usa_tabela_preco = 1';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   InsertSite := TInsertUpdateSite.Create;
@@ -469,14 +469,6 @@ begin
   SQL := SQL + 'order by valor ';
 
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-
-  if Dados.RecordCount = 0 then
-  begin
-    cAtualizaPreco.Checked := True;
-    Insert.Free;
-    Dados.Free;
-    exit;
-  end;
 
   Dados.First;
   InsertSite := TInsertUpdateSite.Create;

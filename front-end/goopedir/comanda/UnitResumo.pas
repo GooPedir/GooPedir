@@ -1382,6 +1382,11 @@ end;
 
 procedure TFrmResumo.img_add_itemClick(Sender: TObject);
 begin
+  if lCodigoInterno.Text = '#0' then
+  begin
+    ShowMessageToast(Self, 'Feche e abra novamente a tela de pedido!', 1);
+    exit;
+  end;
   if (lFaturado.Visible = True) then
   begin
     ShowMessageToast(Self, 'Pedido já faturado!', 1);

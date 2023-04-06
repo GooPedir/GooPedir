@@ -1,0 +1,2091 @@
+inherited frmDashBoard: TfrmDashBoard
+  Caption = 'frmCadastroBase1'
+  ClientHeight = 854
+  ClientWidth = 1454
+  OnActivate = FormActivate
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 1454.000000000000000000
+    Size.Height = 854.000000000000000000
+    inherited Rectangle1: TRectangle
+      Size.Width = 1454.000000000000000000
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88C0F
+              40E1354CC43AC2E2512045DE85F91A4B898B7FA204226A23E73C179125CEB13E
+              F2A38B4F299DAF80115B57231EE30B8CD8B918F12ABEC088B55EB3E9537C8CF1
+              82F70BBD6ACF2FC49FB4B7C2F82131BE15C4CD107FD4DE0AE387C4F85618DF0A
+              E35B41E314F1877B6E8DF15F18E9F93FF0B1FDFE42055A39C204B472840968E5
+              0813D0CA1126A095234C402B479880568E3001AD6F4788C846AFD986D6A71188
+              DFE398E815FB10DB8F70175F742310BF72194F6446083724DDB9CEFAB3997E00
+              00000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+        Visible = False
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 1444.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'Inicio'
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Size.Width = 1454.000000000000000000
+      Size.Height = 804.000000000000000000
+      Sizes = (
+        1454s
+        778s
+        1454s
+        778s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          Size.Width = 1172.000000000000000000
+          Visible = False
+          inherited rAdicionar: TRectangle
+            Size.Width = 391.889648437500000000
+            inherited Label1: TLabel
+              Size.Width = 391.889648437500000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            Size.Width = 389.892517089843800000
+            inherited Label2: TLabel
+              Size.Width = 389.892517089843800000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            Size.Width = 390.217834472656300000
+            Visible = False
+            inherited lTipoAtivo: TLabel
+              Size.Width = 390.217834472656300000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout4: TLayout
+          Align = Client
+          Margins.Left = 10.000000000000000000
+          Size.Width = 1444.000000000000000000
+          Size.Height = 778.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object Layout5: TLayout
+            Align = Left
+            Size.Width = 260.000000000000000000
+            Size.Height = 778.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object Layout2: TLayout
+              Align = Top
+              Position.Y = 289.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 304.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 4
+              object Label5: TLabel
+                Align = Top
+                StyledSettings = [Family, Style, FontColor]
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 20.000000000000000000
+                Text = 'Itens pausados no card'#225'pio'
+                TabOrder = 0
+              end
+              object lProdutoPausado: TLabel
+                Align = Top
+                Cursor = crHandPoint
+                StyledSettings = [Family, FontColor]
+                HitTest = True
+                Position.Y = 33.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 25.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 28.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0'
+                TabOrder = 1
+              end
+              object Layout8: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 63.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 10
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgMotoboyClick
+                object imgMotoboy: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        051B494441546843ED9979A8156518876F992D46D96EBB90922D089692ED3B51
+                        50480A1995DA4611052564052DB46841CB1FFD11141451B451A84165FE514119
+                        5A246D16D9BE60A694B6D8BE3FCF695E98F4DCB93367BEB9F708FEE061CE7C67
+                        66BEF9B6F77BDF777A36A8CBB45176ACA3FDE038180FFBC070D8123683EF6135
+                        7C006FC14B193F41576828CC8077E19F8AFC080FC1913060DA02AE87EF205EEC
+                        2B7800CE03476527F0BA8D615BD81B26C02C7805FE86B877211C0DFD2A2BFC04
+                        E225E6C3493008AAC8A97723E43BE331B0D18DCA757435FC0956BA180E86BADA
+                        0E6E8635E0733F87C3A111D9DBF78015D9906BB3B294DA135E06EBF8032E87A4
+                        7224A2112ED013A1296D0237418CBAEB29999C4ED188432CE8079D06BF83F5DE
+                        61415DB9B0ED1D697224DAE964F80D6CCC4516742A4DE7C7E0835C1303A1B3C1
+                        FA1D9D8ECDB3FB840FD13AA55ED855741BF81E9F829E42256D0361DF5398D83A
+                        DA14DE04DFE5760BAA48B7C31BDDECBA41E3404FE057D8D982B20ADFC91DBB5B
+                        34077C27BD815E95F77EF787776005EC015AACB2D2D24C077DAD5FE075B8159E
+                        07D7D9D610DA1C3428B2558653DA6BF4D3ECF95D6037189995293D669DD5BF5A
+                        6705BA046CB90E6015CD04EF6B0AA7959DE3EF43A1ADF223A26B7D269C0FF759
+                        50428EC453A0DDBF061E067516B8531B93684223FEF0E8B9D2A8F8DB98C5DF1E
+                        BF8595E0AC5896F105B8D82F032DD9155028CDADADAE62AD5E00EFD13FD26DB7
+                        01620759A1FF3D0775752CF8ACF75B677DC89EF0E261ADB372FA01BCC7396D03
+                        FC2D8EECAED96F7BBAAE0643D4E5FA5D47F662C845A7BCA1ACF2F7F726A75D5D
+                        E915BFFADFCFF67E5FFE456CB5F2A6B28A873B1AAE0F8F8EC623300594533685
+                        1665C73E1DD855E0D0690ACBEA08880DCB35E174922BC191F0BF6320850C977D
+                        3F931785FA0CBC70F7D65979E90DE4E3F0C0B29441D2BEE073BF6E9D15E86DF0
+                        42533A5565AFCF856890A3713CA494A63C02AF1D2CE84D0BC08BEAC4CD93C040
+                        CCE7D831F6624A45F2E3B0D6594EF9C56EF0AF4664C74E341B5C374ED3D1F01A
+                        4C8554FA303B9A89F99FF20D898BF6CA8E9DEA0D38109E04E3085D1E2DDAF650
+                        57F18EEBEC25F9867C941D4DA8D595AEC644B818744BCE001D52CBEA6879762C
+                        344863C1F9170D4A25A76AAC3F79262BEB441780CF709FEA556E883F83966747
+                        0B12CA91D7BB76A47C11BD59937355F62CE5887AFFB3ADB30245CFE9D53621B3
+                        8B774298513761374F6393323A0ABCCF1C72A10C86BC5037FA5230086A420781
+                        5EB175890EEB7550B83F20833FAF5FDA3A2B908B28DC793116B810C20F4B2D4D
+                        758402E2D4BE1B8C34DB49B3EB7536BC4F194B3817974054609ECBFDA0A9F490
+                        DF4A34D73AAC51A7BD6EB0360A42AE5DFF33F15D5A2E50CDA65F9BE2E1DA712D
+                        87EE4213D2E1F4E5C3EF0BDCACEF8573B2F38E420313CCE742641F457BEE22CD
+                        271552CA4E3C014CA25B57D41B68592B27ED424EABD3C10C493CD058FB16A894
+                        73AA281B3506343EEF81F5DAB808046B49C7D2A443DEDB7D103AF19CCB4A8BA6
+                        0B6F7DA758905266021F07734D56E0FEF00468EF53CA51791AAC639E054DC944
+                        9A6633F24FE2E768534B43A0AEE25BCD37A041685C6660B43A5F4234C8DDDB8F
+                        367E8FEF44D3C011771A9F6A417FCA0D7432C4B7C1C0CFD18E52596BA7F90F77
+                        C60E1A501D007741388C6214F928D8D8768D724DF89129D65EE5CF0A4D4AC7D0
+                        54912E49583B3103A3377B15F899CF784857DFFFBCEE06E85AE93399CB7D1162
+                        EAAC8D6E880D5F6FE467033D87FBC18485D3CE066A0937683D554FCFBFA6558B
+                        9CD2A5764E0000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-capacete-de-moto-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  HitTest = False
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgMotoboyClick
+                end
+                object Label31: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 221.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Motoboy'
+                  TabOrder = 1
+                  object lTotalMotoboy: TLabel
+                    Align = Right
+                    Position.X = 193.000000000000000000
+                    Size.Width = 28.000000000000000000
+                    Size.Height = 24.000000000000000000
+                    Size.PlatformDefault = False
+                    Text = '0000'
+                    TabOrder = 4
+                  end
+                end
+              end
+              object Layout9: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 208.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 9
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgTipoPagClick
+                object Label33: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 193.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Tipo de Pagamento'
+                  TabOrder = 1
+                end
+                object imgTipoPag: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0583494441546843ED9977A81C5514875FECBD9B28D812FB3FD618D1D850510C
+                        188D1DB16257140B6289C12836502CA0624B14512CB1251614147BC1861D15B1
+                        1B7B62D768A2F9BEC91CDE75D8DD2CFBEEDBB70BEF071F6FEF99D9D93B33F79E
+                        F3BBF7F50C6A5035B50ADC01C38A5617EB41F80FBE837106BA51478137F14FF9
+                        5726C332D0351A01BF809DDF070E815FCBF6A7B00374BC1680A7C14EDF62A0D4
+                        5AF00C18FF17AE8245A163750ED8D92F60790389168433601678CE3BB029749C
+                        EC949D9C033B1AA8A38DE02DF066FE8689E04D76841C266F839DBBC2C07CB418
+                        5C02DEB4DF7901D68101D7956087DE83C50DD4D1505871DEC742BBC257E0777F
+                        86C360C0B41338811D26230DD4D101301BFE84ED0D94F2C6EE066F46EE8595A0
+                        AD5A0E9CD876E05C030DF4184467AF3350D1C1F01378FC6B18036DD3EDE00FBF
+                        0C0BC16AB039AC5FB653396C9C132604DF622D99A6A3064D35D00EED0FFEA0C3
+                        CA9AF179D90EFE8029B00D845607E7493D9D047E575BD3168FB605FC0869C7E5
+                        4B7815DE07E743C46F8525A19136006FDEF3F734D01F5A027607C776CC8994D7
+                        602B48B5329C0D614F3CC739554B0BC32BE0797AB2AC5A038E8387219E542D3E
+                        804666703DF00D79EEA33004AA3A0F3CFE09643396C3E101483BEB3CF089F9B4
+                        22F643F9F708989F4C02D3C1F33591A946812ED944B09D811CF226A240FD06F7
+                        C391B02AA85863DC09CE053F6F06CDC83AE2F97AAC9043D6376AFC520339A473
+                        7D1EBCE8E3E0184FB51F786C06B8FA8B739BB5E5FAA9782B5A7D7535D8D67B65
+                        73C391FACC3CD549A993B54879DC37A46E00DB9A3EE55B735E35D234F03B16BB
+                        5DC0216B5DD918B2C84214D965AC818A6E048F3D053159770363DF8005D1CFF2
+                        19B8A0AAA5987B56711F989FB5F65964C7C23E38F6ABD217F9E4FE022B76C8EF
+                        7D0471030EB9B4281E0BA94CB131B4627E3D0BD92CBCD6C18B9A85AA5557BB1D
+                        A97382815276EA5A302ED740B8DE58AFCF8474DCFBFD385FB4223157FA2C276D
+                        54E8830C54743E78CC4CB38801A4337D128CEB640F85AAE289EB86B5252E6D7D
+                        ABC682986B59740F78D1478AD6FFE5DBB1A31E773C9BB55CDD59B422660DA825
+                        D7259E130650D21D15277D36ED05F163F5B28D4FF425880E847F32F5466DA9CA
+                        3714E78B43EC3688A198D5109A4E63E29D60A081AC2F566F3BE0F966B07A397F
+                        13F81D3CEF4470189A14D6050BACF12C86704DD81AC26A9835EC68335A01F69E
+                        F7B1A65CE97D0C71B321D7252F82F19B0DB4223BB9255C086F8017334D3AF11C
+                        FF693AED8B4CA191C21D8AE91B1B0FC65B328456CE49F02D78915A9C09B97411
+                        784D8BA30631A40F732DAF214CD7E94DEB09880E5B694D7FEE35B93B6ECCA195
+                        AB1099347CC3763875AFD6A077C1DF6BD9109E025EE0BEA2D5AB70A0DE680E6D
+                        089162F56AA92E07E3EE77B56C08D7062F62A6499FFCB2E093937AABB566B534
+                        C41337BDA6DA1662A3A1CF8630AC4575091A55D902D7AA4CA9514C4D22AE2B42
+                        3E2C77DD3D96C5105E065ECC8C95EA3430EE8640AB8ACD6A791DD2ECE78E8AF1
+                        E720CB3C344B78C1378B56AFFC51E3DF432B3F64E576723B74E2C95B048F8170
+                        0B2E09B219420B9135C30B572DC887607C74D16A4E5E4F13E90DF85D2BB75B3C
+                        D7976D093F95D510AA48B7C717AD5E4546B9B868359636E368889BD76F9D0AA9
+                        5C8C45CD725D9F5D078217AFBA5B6B8A71536355FA22773A34794EE474A34D57
+                        5B6FA74323E8837369905DFA235FB77624DDE97361141BC6FBC259A0B50E6398
+                        E29E964B54B7489BF565FDA2F89F5ED575DE05D54E8BAED8E161EA74DFD60ADD
+                        113A1DECE04D45AB576E0018F71F2CFE97C9BA92FAA48E9336C20E6BE8D2A1E1
+                        B073FCBBA9B094816E50EC76B88B6EEDB0C658306329BB077485E27F7CEEE8C5
+                        9E6DE016E9E1D015DA19D2CE7B4317806F2836DCBA426EE53C0427831BD5836A
+                        9F7A7AE6026428C768F12D874E0000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-dinheiro-na-m'#227'o-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgTipoPagClick
+                end
+                object lTipoPagamento: TLabel
+                  Align = Right
+                  Position.X = 222.000000000000000000
+                  Size.Width = 28.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Text = '0000'
+                  TabOrder = 3
+                end
+              end
+              object Layout10: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 179.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 5
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgMesasClick
+                object Label38: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 193.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Mesas'
+                  TabOrder = 1
+                end
+                object imgMesas: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        00D4494441546843ED98610AC2300C85AB7710F40CDEFF22A2781C4D0781D231
+                        E262595FC2FBE08DF64FD7AF21505A0821841042E272913C249F83F396DC2443
+                        9825A11922D34AD405AF92A3E8FFED969929A1FC2D8320A1B865902494DD3288
+                        12CACF32C8128A29134142D9948924A1AC644EF2794AEE92C8BCAA48B50A4F2B
+                        52C71159F67F5E8609482392A647D254A4A756A7ADD0DEB9176B5D6BCE668783
+                        226850040D8AA0411134288286576475691B847BDD3415E9E94FC47D428331F7
+                        C56647832268F48F725B8D3DFBF1CEDC57928A94F205B7ED8EB3248F69950000
+                        000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-mesa-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgMesasClick
+                end
+                object lMesas: TLabel
+                  Align = Right
+                  Position.X = 222.000000000000000000
+                  Size.Width = 28.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Text = '0000'
+                  TabOrder = 3
+                end
+              end
+              object Layout11: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 150.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 4
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgImpressoraClick
+                object Label43: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 193.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Configura'#231#227'o de Impressora'
+                  TabOrder = 1
+                end
+                object imgImpressora: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        01FD494441546843ED994D2F24411C87DB0ACB1971715D5CC41507BE8497832C
+                        370E7C0E6F272791704290485CF8028864373E028944C21507F11AFC9E9EEE49
+                        A755CF3449B7EADD7A92474DFDA77BFA57A9EE9ACAF01C8E6CA809DAB4BC056D
+                        5EA4CEF72368FF3B98913C66E5D3D7F96766C40DC436DC406CC30DC436DC406C
+                        233E907A392FAF64F8ED1A356F4C192EE5AC246B2273D27472DCAC315D33EE8C
+                        4C84D17250AFDFFB48FCC3B2D6449FE43DB296896F93C39393B6CF491F9E15D5
+                        72246EF33920EFB05FE1434EB7FCDA861B886DA419C8B10C1FAEEFF2485624CD
+                        F21BD6BE1B53A64F2DBFA65A9EA4CAE41E7687A33A87327C788AEA01CF489B2C
+                        3A6D0C64ABF4DA5B91ACCB457255C2267FDA25D373231B29148406792DC9DE49
+                        014E248541BF570C862499FFD209BF47D683F677D0168130EB46D0FAB4C8A7C0
+                        660A96D3241FE5B36CA510655F3255537ECF6EA62559F7FC5E8C11C99B7FFC9E
+                        DDF05C9075D8EFC588AE021D142CE5977C95B7B2BCCA46378D0F72B7F4D21B0D
+                        5A1B19937C87ECC87B0A26062433722E6B29580699C84646B226C20C9D490E9C
+                        A4601913926CA7327A371919971CCC3DD84FC112F81997DD07D9B8BDAAC2FDC7
+                        FE8B13B8071765B7FC29F3866B76C9057927C9B42DC9988A3AB924591D38D906
+                        C9B22C2BFE3B21891EB9262FE48B345D204BB926D7661BC2AFF08E82E079EF50
+                        6827345E6E77A30000000049454E44AE426082}
+                      FileName = 
+                        'C:\Users\ifort\Downloads\icons8-impressora-de-porta-aberta-50.pn' +
+                        'g'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgImpressoraClick
+                end
+                object lImpressora: TLabel
+                  Align = Right
+                  Position.X = 222.000000000000000000
+                  Size.Width = 28.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Text = '0000'
+                  TabOrder = 3
+                end
+              end
+              object Layout12: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 121.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 3
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgTaxaClick
+                object Label47: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 193.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Taxa de Entrega'
+                  TabOrder = 1
+                end
+                object imgTaxa: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0595494441546843CDDA55A8BC4518C7F1632726D8608B6277A098D88A2276A0
+                        578A880D2658175E885E79A322885D28B658D875658B5DD88A62B7FE3EAF3B7F
+                        F6ECBEBB67F76C9CF3832FBB33EFECCCF3CE3BEFF34CEC5C13C3D7AA61BFB05D
+                        5821AC18E8D3F0597832DC153E08B3523B85E7C2BF2DFCD1A035FFD9B0639835
+                        5A36DC178A81AF840BC296C1354F1DBE6F152E0CAF8652FEDEB04C98516D100C
+                        1106BD190E0CBD0ED75DC2CBC16F3F099B8619D146E1C7C0902BC27CA15FCD1F
+                        AE0AEAF8216C18C62AC3E4A3C08033650CA8B382BA3E0C631D66E59DB8B24A0D
+                        47E5C9DC5DA5C620DE4983AF87E90CA74E32CCBC67EADE41C6A8555CECBE55AA
+                        5E4B86B3C3F3E1CB06BE1B424B844EDA3FA8FB992A3542AD1634C4C576D29EE1
+                        DBA05C1DDF843D4227BD16945BA54A8D4827078D88137572137F05656E085B04
+                        4306E2CA4DC13565760F75BA28287352951A91EE081A11D85A6538952771BC8C
+                        0E3A2128F375585C468BB609AEDF5EA546A4178246EA5CA477C2354F622ADD1C
+                        94AD73DD5CBB6BDEA991E9E360DE3477959AACE2040CA1A9B47550B6EEA556B7
+                        36B435327D117EFBFF6B9B0C957F422F2ED93BA3EC5755AA5DDA3053EE59753D
+                        DB4DDF8705C282556AB2F430F532D72A65CA6F9AB570D086B67A56BF37C275D2
+                        F28DCF66BD1718B87195EAAE4D82B2EF56A9C92AEB174FB867F57B23222FADD7
+                        F86C56995A70D153E994C667DD7464FDC6E71B8DCF91886F371CCEAD52932562
+                        7B62AE73B19D746250A693FB2D71A49B0B1F58029C461EAD52ED12B14B40E462
+                        C59B121079AA5B836BCAEC16EAC4932933D229FD3CC14BF86B5848468D446CBD
+                        CD983A5CEB74138B853F83B959AF0BB469AB44771B0C9D64C89C11ACCBB96CE8
+                        697975C3A9E8B0A0EE6BABD4887568D0D88D556AB8B2BBA2EE7DAAD488B568F8
+                        3958E676EBDD7E65DA23109658D597FA75BFF453B825B8A1A3650C49C7063770
+                        4DF85DC638248E1802EF84E97446AB4C6BECA498B6AC25639C7A22B8196B9041
+                        754850D73D556ACC3A2068FC812A35989E0EEADAB54A8D59F3065B4286432FF3
+                        AB4EDA3EB8099B19238F1D9D745C60846DCFE9EAF1A08E83ABD40CC94BEA8567
+                        889EED57DE2FBFB599310CA731904A347EAA4AF52EC3E8C5E0B77BC99869E9C9
+                        970283FAF1608692DF78D1678DCC7A19F576A85B3DB64A302D71635B19E394A1
+                        B04E38265C161E0A763ACA8AAECC93CEAB52DD754950F6FA2A3531B152B043A3
+                        CE4B8336B435342F66B17444B82DD828D07833D615E55CC391DB2FC1147F0D19
+                        1D64566097C43182A339DA2CFC1D5AEBD7A6B60F0FDDB65A3BCA02EABA6012D7
+                        5AF19D41AF0B882B8766C957EEC12AD52E3D5C6604A7CB6892BAD4A90E6DB476
+                        1C5BD8C4B629B57A5049F9B15E7278796AF0A8A792F7A3B8E38364B4E8A8E09A
+                        A3B75EB68DB4A96D36343F316B22B6D6CACACE145A41335CE3D8A675BF124F34
+                        EA147729190D99A65BF9198EBD6CE2B58A2D6C621B1BD9DAB67F6CDC1ADBE56E
+                        CBD89DAE2E0FEAB2462F2A4FDACB3C883897B24A65F3BA618E1E092E380B1C86
+                        A7E05ECB21E991C1BAC577C3CE06DCA062235BD5F9B08C22DE4666F3501854E2
+                        83616408C0A642DD2EFE74B5746033DBE7A8F4DECE556A78728EA25E9C2F6388
+                        72BCADDEF7AB5443E70499DF8561465A537D33630B26DF872536B295CD8E33E6
+                        4823E5A496C7B93AD4EDEFCEB43821B61557CCE6B60EE2D72F0E16FE0A89BEBC
+                        C3DEA1179F3F2A699B0D6C29FF69111CD9DAD52ED30BD3022FA71FC1D68FBB3F
+                        2D88AC8B845149DDDA10F9EF0FE5DF15601397DE3605EAE66A970BE65968DD87
+                        356BE5209CC072A9829FDD449FA6161A3486A97C3A632C9F7A5280345974D426
+                        36AC19C43373B6D64596FFAC9860423B6DEA3566B8297F14E0D5360F6B87510D
+                        37C3E7AD60D1F558B0616E46D055D30D7E6EC2FE931E347570A39C03F4B0CDEE
+                        E62740CD4FC8CBCAB8CF9B284FD89AC613ED431313FF01E267886EA008706800
+                        00000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-per'#237'metro-virtual-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgTaxaClick
+                end
+                object lTaxa: TLabel
+                  Align = Right
+                  Position.X = 222.000000000000000000
+                  Size.Width = 28.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Text = '0000'
+                  TabOrder = 3
+                end
+              end
+              object Layout13: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 92.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 2
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = imgCategoriaClick
+                object Label52: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 193.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Categorias'
+                  TabOrder = 1
+                end
+                object imgCategoria: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        034F494441546843ED9949A84D611CC01F998A8832CF4319539452F6E6A95848
+                        64A39064A3EC947163672165D89887C8C242C4025910612D122B43E679FAFD3E
+                        E7E3BEFBCE7DF73DDCF7CE799D5FFD3AF7FBEEB9DFF97FE71BCFB97505050505
+                        B9A25D72ACC6105C807370380EC4AE580BDEE1137C80E7F02C3EC27F6230EEC7
+                        AFF8A395FC82FBD058FE8AF9F81A2DEC131EC425380A6BD51A62D95EC36B1D46
+                        AF6D0CAFD0989AC53AFC861670041BBB1B3BF02D6E0FA9FFCF503C86C6624C6B
+                        B1492C447FA06BCC28212DE837E8456CBD5A62058CC96E3ECF8CC6E887B13BA5
+                        D53C2D682B65FEB690AA2DF614AFFF12FB985189BDE8892743AA212D1974254E
+                        A331EE09A914FAA2CDE6E0727AAD46ADC746251CAF9FD1D9ACB719E5381EACE9
+                        8990AA4E4B8D8D344EA1D75E1552D03E39CACCE468D335855D688B786C69CE24
+                        C719C9B11EF7D05A8E0EA96C33168DF54E4841DCA274C1A7D82DA4F2833DC299
+                        F65DEC5A3B316F95106376C7111A642E7EC78F38D98C327A2656C342FBFFFAD8
+                        24BAA3336535EC2D69E58E41B72D76B10D663C4E12D7719C1909EE7837A3CDA7
+                        9B30ADD53AE37A7C864E8907700456C29BB2050DC2A9DEDED00BCBE9802BD0F8
+                        5CD12D7702C6E130005DEF8CFD8B99BB7135C6133EA00179C7C442EC827EEFC5
+                        0FA183CC02C6E3528CABAC2DEBB9FEDEFD919BBEBBE8FA341217E34AEC8112CF
+                        7F8F47F126DA331CCC963B08C5DF5B31F1A6FABB189FD80881A96860A53E442B
+                        E92C36052F63F939D16BE8F46DB06EFB5DB0D2CE8B9EC76938119DEEBD5969E7
+                        DDC6456817DC8ACEACE5652FC3F6B115C44CB1E96D725BA69C49381D0D58EEE3
+                        05BC15527F1886760B1FC4FC6CF7F3E1E812DAA237B014BBA25B74B7EF8E09CB
+                        BD8257B19C8ED8096D1929AD4320D6302FD48BB77465CF35B122367F24D634EB
+                        467EC76E7F77EA4C3B390FBA2309D37DDC49BAEB75B9CF0BC61AD791B0637F91
+                        24F25489882BBEB13F6F33835D62F3786CCE5EA9B531D6382C8E9BE14071C098
+                        91478DDDB79F01A7B0B493F260E9D211885FE4857AF1B6B9953DF71415C91AA5
+                        15F1859BF8089975E29B509F5803A515890F3BCB9363968931FA68DC009FE69C
+                        CE7C3ADC88596C196332B6F8E7CF2C4CC5B71B717ECEBABEE16994D97811E3FF
+                        2459D2988CAD624B14141414E481BABA9F2716F88CC5D1910E0000000049454E
+                        44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-hamb'#250'rguer-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = imgCategoriaClick
+                end
+                object lCategoria: TLabel
+                  Align = Right
+                  Position.X = 222.000000000000000000
+                  Size.Width = 28.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Text = '0000'
+                  TabOrder = 3
+                end
+              end
+              object Layout14: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 237.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 8
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = Image4Click
+                object Label40: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 221.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cupom de Desconto Site'
+                  TabOrder = 1
+                end
+                object Image4: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        0367494441546843ED9849A84D711CC79F799EC7324699494928AC9571218924
+                        168692696145D9B062A1888D6C240B59980A896C2CC8BC2199334F99673E9F77
+                        EFB9CE3B0EC7BDF7BCBCFB3ADFFA74FEEFBCFF39F7FFFBFF7FD3BD55993265CA
+                        942953A67AA406F96BA01EB003C640536FD4417D86B3B0026E7823AA21F01C7E
+                        54082FC03557AB61FEAA164387DCB022D41E16E586350DE9035157ABCB72AD7D
+                        73C39A8684C795A2C29ACB5DBCBEFA008EC13E380E8F2049EFE02A5CCE5F5F43
+                        6A3A00D1804AE23ACC864ED0083AC374D098B8F9019B61240C8759F004E2E625
+                        E19A7F53B1867C81B5A00161E9BBF320EE19F1D45A816A09E7E03BC4CD4D2215
+                        43DEC20850668F6B606EB7FE48F4545CEC450832636BD805E139C5928A21E6F1
+                        E6E0EE5A98BC770ACC7E9E92E3F0FC9B30093C319F5B09C646784EB1140C2927
+                        D80DD88FE00EB7F50632B7B7C80DAB5EE6AFCAB95BE024B880F1B00ADA402A2A
+                        C7107755698C6EA33EC1D7DCB0468B7308B682FFF704B7416F484DE51AD2136C
+                        6B4E833173019E81EEE342DD7D5D6C097C83AE609A1E00B5A66263C493980BAA
+                        1F381E041A310C3EC079081282EE67DAF5F4C4FF6B5CDCBBFF955482DDC51C05
+                        3BE6B09AC109306BCD044FDDE05F00C68D457032F4078DDC046E4ADC6724918A
+                        21E28E1E8189E0A94C8083608DD9008D4159FC6E83AE67DA0DCB585A07B6E771
+                        9FF137523324CC7B085C652FB403656377065CE842D0F5BAC11C180B4A43AF40
+                        F49D49D48A2101A65817AA3AC27EF0FE3D18076A195843ECB33C11E3E73044DF
+                        9544C190729BC6A8EEC01A780CBAD572301E9405F44D6E586D9035642898DD34
+                        EA1594AC340D71211BC14CA5FBCC00BFAC05F524C8562A5C6382B171E52E97A4
+                        340DD9097BC0381908EBA13B04B2100645F456FEEA09DD078D3109B80165AB9C
+                        18F1D9A04DE90297203AC78269AFA54681D96E75F55FB9C26A518D3E93446AC1
+                        AEABB8E860E7DDD5DD1037576C4D9A40589EC25448FA0E13476AC1EE2EDB72F4
+                        82D160473B05FEA4F960DC18E0BA93016FEDF1B920D395A4B04F6A9D3B538CAC
+                        C80FC166D077D94B25FD12E3337E997A0A1A633C59E54B890F8BEFB4DCF0974A
+                        71ADFF4DAC6B05A9B192545873D890BBA0959522D71AA4F11AB2DFB1FA868FAE
+                        2EE3F7A0C150AD6880D9926F079BB970F5AD4BB2F9B4095D0AFEA6962953A64C
+                        993265AA67AAAAFA09E93B6022347AF3140000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-cart'#227'o-de-fidelidade-64.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = Image4Click
+                end
+              end
+              object lCLienteInativo: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 237.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                Visible = False
+                TabOrder = 6
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = img_clienteClick
+                object Label50: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 221.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Cadastro de Cliente'
+                  TabOrder = 1
+                end
+                object imgCliente: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        00D4494441546843ED98610AC2300C85AB7710F40CDEFF22A2781C4D0781D231
+                        E262595FC2FBE08DF64FD7AF21505A0821841042E272913C249F83F396DC2443
+                        9825A11922D34AD405AF92A3E8FFED969929A1FC2D8320A1B865902494DD3288
+                        12CACF32C8128A29134142D9948924A1AC644EF2794AEE92C8BCAA48B50A4F2B
+                        52C71159F67F5E8609482392A647D254A4A756A7ADD0DEB9176B5D6BCE668783
+                        226850040D8AA0411134288286576475691B847BDD3415E9E94FC47D428331F7
+                        C56647832268F48F725B8D3DFBF1CEDC57928A94F205B7ED8EB3248F69950000
+                        000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-mesa-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Position.X = 100.000000000000000000
+                  Position.Y = 130.000000000000000000
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  OnClick = imgClienteClick
+                  object lCliente: TLabel
+                    Position.X = 32.000000000000000000
+                    Position.Y = 3.000000000000000000
+                    Size.Width = 28.000000000000000000
+                    Size.Height = 17.000000000000000000
+                    Size.PlatformDefault = False
+                    Text = '0000'
+                    TabOrder = 3
+                  end
+                end
+                object img_cliente: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        047C494441546843ED9A5BC84E5918C75F8CC3182224C708394734C5504A0AC9
+                        4C864CE3500E1724172E5CA029AE0811490ECD8DE34CB970A8D1B8609070C1C8
+                        718CB3D25C388D530EE334FEBFF75B4F6DBEEFDDEFDE6B6F7BBF17DFBF7EAD77
+                        AFEFD97BAFD35EEB59CFFA0AB5AA55AD4255C7A54935487C2B8689F6A2AD782F
+                        EE8B93629B38202A5603C451F17F0476882F45C5891EF84F50C8BB6295182D3A
+                        0B0ADC58F410F3C52381DD73B15D741215A121C22AB15E3415611A2E2E887782
+                        7B18720345AEE2BB3A2F28D01A3262889EF84D70EF4DD148E4A6118282DC160D
+                        C988A906E2ACE019B3C94843755D1A47635DBA5530BCE2EAB5585DF5B3F0BD4B
+                        73D161416BD233BEEA2878C6BDE2554EFA4B5088AEC52B3F31ABF10CD69AFA64
+                        2495CFD0A2004965439289E38BAA9FC9E453115A11B14EF88A49820679215E92
+                        91543E1579E6D2726B47981896F4C69DE2550AF2A908DF08EAED521F75772953
+                        782AF2A9C82597265999712ED1099726565E1519E5D2632E4D2C9F8A586BE2AE
+                        FB6C03DA091C4BF4B54B73D1DF8219873D88AFC6099E91DA1EC5A747EC9E572E
+                        F5D16397A6B63FF1A9C89F2EFDCEA53E32F7E6A24B73111F2AC302E76F371931
+                        7550BC113C632819796AB9A020FF14AFA20B179E218977B0888CBCC5907C28A8
+                        4C1CE7F11BC13D978B5729CAE71B41B4E8FEAA9F85992E8DA2492EFDDDA51521
+                        6BDDA782B5A19C3A08820F34425F322A497CEC54E6AA28B7386283EDCEE25579
+                        315A5271F1A3A895A070504E66D7A278152ED6172A7E5D6416A0885B91289A22
+                        CCFE0732B250D40246B543AC35669FD9C410B58051ED887D11C8635260CD792B
+                        982842E53BFD9AA6B9148D74694D0A867DA6BBB494F83BE5C2C5DF2BEA89E07B
+                        5215B3C902616153A0150915913FD5F19360F344EB62B345F411A54405884062
+                        4BE1892FF3FB9AF0D932945413314FB045B50A2C158B056B84E57D0ADEEE42F1
+                        6961BE12AC41BDC460315760FF4410DCC0A579E0F27E140CBBE6C25BBC6C9930
+                        B704AE08A2EF262A3959AC141C211075E79E89223885D22B14CE1CC79AD82C4C
+                        1B454D3644F869D073C2229725C50A4CA18243E8B8982018BB3E3A258205A242
+                        FF0A222AAC1B8744F0D8A19BE00CE686C0CE86699092D118423D9B04330686B8
+                        ECBF8824BB42534BF187E0B9B837EC16E38AAD04C39567F04DF517D5C4E18CB9
+                        137CC054288A2F154784493708DE410B2F11513FE6198269997BE93DBC8B6AEA
+                        22D8636074467CEEC3983982DEE67DF86D61413F66CA75025B58EBF2AA8916B1
+                        483B356546C9429C66D9CC442F95D20A810D21D6D0B5688CC090F340C67196E2
+                        FC9177B3F32C25DB95D22BA162BAC490F93E6B9D16BC3BE81DF01D056746FE86
+                        0DB6A1B27855BFE25576C2AD6752E103B6083F5E01C3ED96B0B58ABF61836DE8
+                        5680283B15C98A9F05624DE2FA88E01F0DF6B8EB20BB04B3939DE98F171F29E8
+                        34B2326729D61264312E5C0FBC05D6155A9E280B87A5AC357807C4C06CA82539
+                        F6FB6CB235CBC0EBED294CF4D23E11B4493D0A9354AD85158E957A9628B53012
+                        ADB1FFA08036A2628433C9DAF5AB88E23D7002C01E855E6C4646950A850FEE4B
+                        529FF356E5020000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-homem-popular-50.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = img_clienteClick
+                end
+              end
+              object Layout15: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 266.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 7
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = Layout15Click
+                object Label36: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 221.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Ingredientes'
+                  TabOrder = 1
+                end
+                object Image5: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        06E3494441546843ED58CB8F1CC519FF5555774FF73CF735EBDD598F59F02B58
+                        160619E28110C223210F616262482E39901C88728812140E89C485135C2C84F8
+                        03926384210129520808239B839748113242415648EC58DEB5C7F63E667767A6
+                        9F55F96AB6CCCE78C7660D73585BF3B3BEEDA9FAAAAAEB7B7F6DF4D1471F7DDC
+                        5060E6D9533CF5DA53E2E489935BC0AD832AC6DDCA96032C410D9CFD5328F597
+                        82289C3AFAC2D1D82CEF097A2E48E5D98A574FFBDF50C0739C63177C5554E00E
+                        830CE1B28B0AEC5326F132FCE4838F0F7D5C37DBBE328479F6047B9FD96BFB43
+                        C96EA6D48B41183E6059F6202C6E318B31FD24BD15023FB845086B2B843851FE
+                        69A97AEEAFE7A4D9FE95F0A52D72E72BF717ED08FB98905F17314649254D2959
+                        355C0ECBF57AFD19D775E9E26BC10547688571C64EBFCF053B4333D38CB1E340
+                        FC8FA9DF4ECD9965D78D2F2548E5D0B7B681253F26F7D9CFA4DA8E10793888E8
+                        B4B9244E44E4C7E3325EAB68610B08C7A2D0E1602154E0FA890B6781147092E2
+                        E74DC6ACD73F7CF6E869B3FCBA70DDAE753F592291F227E4E7BF649CED066369
+                        584CD0D326CA73CE73348F962024E965684BD8AE0D8B84D17CED6E166C4E9C34
+                        59640BC5CE56AEE4DCF88363FF99796FA669B6AD1BEBB6C8FEB7F66F5289D813
+                        47D137433F7E4C45F24ED23EE220864C3AB5AF9442ECC788FCC8CC604508228A
+                        96AB4249F5411C8447C266520753F44F4E5B11FB68FB67DB4F1E3E7C3831CBBA
+                        625D823CFEE6E33B956207A4C20FC0E46EF87C905C89C5115DB61121AC87D0BF
+                        DBA12DE22FF96604A4F2298AEF6B3B0009D208FD865FF7590A81CFDC947D068A
+                        1D6392FF69C7675B8F5D4B982F74AD27DE78623466F8B98CD92F2838EF60E09E
+                        760B0284A57D9E8E2075C848D258BB8FB3A2FD94D13EB997B6989ED37BAE0572
+                        389BDEE3F1443A16A53CF2C111046CA7B490AB8DCC7D72FED8F94B66E91A908F
+                        5E1B1197F79125F653F22C9BA90E68DF77D20EDCBC0BAF90467A288DCC7016D9
+                        912C064A03C88DE65AFCF678B93AF4A22B16BAC892FCF7260ADF37335D71558B
+                        DCF3EA23C39BBF5DDAE364524FAB58EC13161D6940B10A8FAC31E8D8C851F05A
+                        248CD2D6495146A22AA815AF4967A954865C8A7836855331E7F2911CDD8CAC43
+                        2E8358AEC4965E679305B94E048CCEA218D3A4CFD2190E22763917F5F2C15DEF
+                        CFFCED54D744D05590CAA1CA9090EA4932F56F6C170FA53CA7D01E4D69BAD864
+                        C6C58E7C1AA5740A1EF9BE4FEED3BC22E82F234BC28C3B5E74FBD8A0D83531C8
+                        26063370E9D2F530812425B8790F1E914B42A6C87A9CCED7D0D6B6483996ED58
+                        42709B33395F7EB474FAEC3B67D708D35590F277271F532C799E7C74AF937653
+                        3A0EDAFD7BCC4D615BCE6B09A48BB61644F3AB7E6856AC42EF2A932077950A56
+                        3E6D3341E6A46BA148FBC92808E9A2D0E7D3A5F519DA02DA152DAA373AB6B465
+                        F43CF1878164A762D6A9E9BF9FF9D7CAE9ABE81A23141307C85527F4EF446BED
+                        0A4D936A8856B70ABA90A3FF5C0593598FDC712D7F349355594A0E745333B302
+                        3DB4A931703C72C136C8382E916407CCB0035D0549D759C95A942E3D615D8AE0
+                        CE937B2C8BCF49CE4B2C5503841729F512352F1055A9275C505DC99A9388CCDA
+                        7612748EBBA0492145BF9DB904DE226BBD23E73B28442EF2818D6C83B72855E7
+                        5E6699B7147C25BAAAF1774F3E7A9C82AEE2871162B2C648B1886C2E67B84073
+                        7919F5A59A19F506414835294930383484C2C0809905FC6603CB0BA44903A5E4
+                        D44BAFBF73AF197E8E2F4CBF370AFA826C34F405D968E89AB57EB46F0F7DB1F1
+                        4ADDF71153AB7EC7AE1DD83CBEC97081E973559C3E336D46BD4133A0744E1DF4
+                        D7B6DD8ADB6ED96C66810B1767F1EFFFFECF8C34E4D49F3F3CB1BEAC15538716
+                        532AD4424444922A643BF4B8C5EF21E9F7ACBCABB3F84AFD6DD3B1B67BF7D9D5
+                        22BFFEE1C3C7A961A834830809D591F1D2180A8582E1024B8B35D4E657737B2F
+                        E0531DD18A2B8E16313C3C6466813AD5ACF9D9D5EE9D9A96A957DE3AB23E8B78
+                        36B5BAD4D97AD491D2C70D445B3BA26171D1E2F7923CFDA477E94EBA1DD42C76
+                        AEA3BB75C34D13EC7D41361A6E1A41BA66ADA71FAE501D6195861F50BA93D87E
+                        DB24468BF45D6370F1D22CCE9FAF9A516FD00CC256FA9D2C4F6082B2E465CCCF
+                        2FE0ECF48C1969A8A93F1E995A5FD69A5B6C10D5315B5BC6A585254A8DABFF3F
+                        A5E1535AD6FC5ED2E5776981DA115091EC5CDB309C4E74B5C8CFBE5339CE95A0
+                        3AB2A2A5ADB76E417164D522B3B373A8562F98516FE0872155F6045BCA2594C6
+                        56BB8885851A6666CE9911D511964CFDE1DDB516E97F586D34F405D968B8B9EB
+                        C8EF0F7EEF55C9E5ED41A03B5285E14D23C867F2860B349A8B58A60EB897D069
+                        360E158686873B3AEDC06FA0569B3523D2BCE49FBEF8C6DBBF32C33EFAE8A38F
+                        1B12C0FF0194A45449F763892C0000000049454E44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-pilha-de-compostagem-48.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = Image4Click
+                end
+              end
+            end
+            object Layout3: TLayout
+              Align = Top
+              Position.Y = 593.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 144.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              object Label8: TLabel
+                Align = Top
+                StyledSettings = [Family, Style, FontColor]
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 20.000000000000000000
+                Text = 'Pedidos concluidos no m'#234's'
+                TabOrder = 3
+              end
+              object lPedidosMesAtual: TLabel
+                Align = Top
+                StyledSettings = [Family, FontColor]
+                Position.Y = 33.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 25.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 28.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0'
+                TabOrder = 4
+              end
+              object Label15: TLabel
+                Align = Top
+                StyledSettings = [Family, Style]
+                Margins.Top = -5.000000000000000000
+                Position.Y = 53.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.FontColor = xFFA29D9D
+                Text = 'M'#234's Atual'
+                TabOrder = 2
+              end
+              object lPedidosMesAnterior: TLabel
+                Align = Top
+                StyledSettings = [Family, FontColor]
+                Position.Y = 86.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0'
+                TabOrder = 0
+              end
+              object Label19: TLabel
+                Align = Top
+                StyledSettings = [Family, Style]
+                Margins.Top = -10.000000000000000000
+                Position.Y = 109.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.FontColor = xFFA29D9D
+                Text = 'Mesmo periodo do m'#234's anterior'
+                TabOrder = 1
+              end
+            end
+            object Layout7: TLayout
+              Align = Top
+              Size.Width = 260.000000000000000000
+              Size.Height = 201.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              object Label10: TLabel
+                Align = Top
+                StyledSettings = [Family, Style, FontColor]
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 20.000000000000000000
+                Text = 'Previs'#227'o Pedidos'
+                TabOrder = 0
+              end
+              object lPedidoHoje: TLabel
+                Align = Top
+                StyledSettings = [Family, FontColor]
+                Margins.Top = 5.000000000000000000
+                Position.Y = 38.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 25.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 28.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0'
+                TabOrder = 3
+              end
+              object lPrevisaoHoje: TLabel
+                Align = Top
+                StyledSettings = [Family, Style]
+                Margins.Top = -5.000000000000000000
+                Position.Y = 58.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.FontColor = xFFA29D9D
+                Text = 'Hoje'
+                TabOrder = 6
+              end
+              object lUltimosMeses: TLabel
+                Align = Top
+                StyledSettings = [Family, FontColor]
+                Margins.Top = 5.000000000000000000
+                Position.Y = 96.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 25.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 28.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0'
+                TabOrder = 1
+              end
+              object lUltimosMesesText: TLabel
+                Align = Top
+                StyledSettings = [Family, Style]
+                Margins.Top = -5.000000000000000000
+                Position.Y = 116.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.FontColor = xFFA29D9D
+                Text = 'Ultimos X meses'
+                TabOrder = 4
+              end
+              object lPercentual: TLabel
+                Align = Top
+                StyledSettings = [Family, FontColor]
+                Position.Y = 149.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 25.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 28.000000000000000000
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                Text = '0,00 %'
+                TabOrder = 2
+              end
+              object Label24: TLabel
+                Align = Top
+                StyledSettings = [Family, Style]
+                Margins.Top = -5.000000000000000000
+                Position.Y = 169.000000000000000000
+                Size.Width = 260.000000000000000000
+                Size.Height = 33.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 16.000000000000000000
+                TextSettings.FontColor = xFFA29D9D
+                Text = '% Alcan'#231'ado'
+                TabOrder = 5
+              end
+            end
+            object Label26: TLabel
+              Align = Top
+              StyledSettings = [Family, FontColor]
+              Margins.Bottom = 5.000000000000000000
+              Position.Y = 201.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Text = 'Tempo Delivery'
+              TabOrder = 6
+            end
+            object nDelivery: TNumberBox
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              TabOrder = 8
+              Cursor = crIBeam
+              TextSettings.HorzAlign = Center
+              Position.Y = 223.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              OnExit = nDeliveryExit
+            end
+            object Label29: TLabel
+              Align = Top
+              StyledSettings = [Family, FontColor]
+              Margins.Bottom = 5.000000000000000000
+              Position.Y = 245.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 18.000000000000000000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              TextSettings.HorzAlign = Center
+              Text = 'Tempo Vem Buscar'
+              TabOrder = 5
+            end
+            object nVemBuscar: TNumberBox
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              Align = Top
+              TabOrder = 7
+              Cursor = crIBeam
+              TextSettings.HorzAlign = Center
+              Position.Y = 267.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              OnExit = nVemBuscarExit
+            end
+          end
+          object Layout1: TLayout
+            Align = Client
+            Size.Width = 1184.000000000000000000
+            Size.Height = 778.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object layHistorico1: TLayout
+              Align = Top
+              Margins.Top = 30.000000000000000000
+              Position.Y = 30.000000000000000000
+              Size.Width = 1184.000000000000000000
+              Size.Height = 204.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              object layHistorico: TLayout
+                Anchors = [akLeft, akTop, akRight]
+                Position.X = 16.000000000000000000
+                Position.Y = 55.000000000000000000
+                Size.Width = 1155.000000000000000000
+                Size.Height = 140.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+                object Label11: TLabel
+                  Align = Top
+                  StyledSettings = [Family, FontColor]
+                  Size.Width = 1155.000000000000000000
+                  Size.Height = 17.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 16.000000000000000000
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Hist'#243'rico de pedidos'
+                  TabOrder = 0
+                  object Label12: TLabel
+                    Anchors = [akTop, akRight]
+                    Position.X = 922.000000000000000000
+                    Size.Width = 233.000000000000000000
+                    Size.Height = 17.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.HorzAlign = Trailing
+                    Text = 'M'#233'dia das '#250'ltimas 4 semanas'
+                    TabOrder = 4
+                  end
+                end
+                object HorzScrollBox1: THorzScrollBox
+                  Align = Client
+                  Size.Width = 1155.000000000000000000
+                  Size.Height = 123.000000000000000000
+                  Size.PlatformDefault = False
+                  TabOrder = 1
+                  Viewport.Width = 1155.000000000000000000
+                  Viewport.Height = 123.000000000000000000
+                  object rSegunda: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label3: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Segunda'
+                      TabOrder = 0
+                    end
+                    object Label4: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaSegunda: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label6: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaSegundaCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label9: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaSegundaConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 80.000000000000000000
+                        Size.Width = 64.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rDomingo: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 960.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label13: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Domingo'
+                      TabOrder = 0
+                    end
+                    object Label14: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaDomingo: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label16: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaDomingoCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label18: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaDomingoConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 88.000000000000000000
+                        Size.Width = 56.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rSabado: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 800.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label20: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Sabado'
+                      TabOrder = 0
+                    end
+                    object Label21: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaSabado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label23: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaSabadoCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label25: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaSabadoConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 80.000000000000000000
+                        Size.Width = 64.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rSexta: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 640.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label27: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Sexta'
+                      TabOrder = 0
+                    end
+                    object Label28: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaSexta: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label30: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaSextaCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label32: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaSextaConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 88.000000000000000000
+                        Size.Width = 56.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rQuinta: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 480.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label34: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Quinta'
+                      TabOrder = 0
+                    end
+                    object Label35: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaQuinta: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label37: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaQuintaCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label39: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaQuintaConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 72.000000000000000000
+                        Size.Width = 72.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rQuarta: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 320.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label41: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Quarta'
+                      TabOrder = 0
+                    end
+                    object Label42: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaQuarta: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label44: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaQuartaCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label46: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaQuartaConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 88.000000000000000000
+                        Size.Width = 56.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                  object rTerca: TRectangle
+                    Align = Left
+                    Fill.Kind = None
+                    Position.X = 160.000000000000000000
+                    Size.Width = 160.000000000000000000
+                    Size.Height = 123.000000000000000000
+                    Size.PlatformDefault = False
+                    Stroke.Kind = None
+                    object Label48: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Top = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Margins.Bottom = 20.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 3.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Ter'#231'a'
+                      TabOrder = 0
+                    end
+                    object Label49: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 40.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Pedidos (m'#233'dia)'
+                      TabOrder = 3
+                      object lMediaTerca: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label51: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 57.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Cancelamento'
+                      TabOrder = 2
+                      object lMediaTercaCancelado: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 103.000000000000000000
+                        Size.Width = 41.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                    object Label53: TLabel
+                      Align = Top
+                      Margins.Left = 3.000000000000000000
+                      Margins.Right = 3.000000000000000000
+                      Position.X = 3.000000000000000000
+                      Position.Y = 74.000000000000000000
+                      Size.Width = 154.000000000000000000
+                      Size.Height = 17.000000000000000000
+                      Size.PlatformDefault = False
+                      Text = 'Concluido'
+                      TabOrder = 1
+                      object lMediaTercaConcluido: TLabel
+                        Align = Right
+                        StyledSettings = [Family, Size, FontColor]
+                        Margins.Right = 10.000000000000000000
+                        Position.X = 88.000000000000000000
+                        Size.Width = 56.000000000000000000
+                        Size.Height = 17.000000000000000000
+                        Size.PlatformDefault = False
+                        TextSettings.Font.StyleExt = {00060000000000000004000000}
+                        TextSettings.HorzAlign = Trailing
+                        Text = '0,00%'
+                        TabOrder = 4
+                      end
+                    end
+                  end
+                end
+              end
+              object Image2: TImage
+                MultiResBitmap.Height = 50
+                MultiResBitmap.Width = 50
+                MultiResBitmap = <
+                  item
+                    Width = 50
+                    Height = 50
+                    PNG = {
+                      89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                      B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                      0189494441546843ED99414EC3301045036C58C01190D8B006B1E404455C8D15
+                      2B240E85B802452C802B20F87F9A91CC3052439391C6C64FFAAD6DB9CEFCC493
+                      B8CED049C80A5A435F95EA195AED8D8513A866D634425784E51A91F8F7A5D800
+                      9E91EC39233901FD423B28EC58FE30A318A3226D5E8ED87A36DC789BCE912AE9
+                      4626720C7D8E62398C682307108F41B11C469F5AD9E846B2D18D64A31BC94633
+                      46A297F11CE362531C1EC7EFB9B8F1461B89C08D377A6A717D75392A74AD45E8
+                      485D125B9FC329A4E3B1BC04363EA9F7649F08A7D3F9A6383C41FC5F321737DE
+                      682311B8F1F60762363C23DC6524BC64194534C61F941D08B72333EF36DA2D53
+                      69F792BD3624FE5A72E4067A8138A5AED9E0A1972C33E5DB8172039B487B3377
+                      2D52C315E174E255B1894E24FE66929DC1D365F52F43F991FDB9B14DDE749B8D
+                      0EBE8DA9FD26F3AF178D47D003F401E999B567D8B65B29B6FD0DBA830EA170EE
+                      211BC0D2BA85C2798778B033A92DCB15C4B15FA5168C9EB528761A7F978760A4
+                      89923FC5D6C85D6B18BE015BD2814C6C27E9060000000049454E44AE426082}
+                    FileName = 'C:\Users\ifort\Downloads\icons8-relat'#243'rio-de-sistema-50.png'
+                  end>
+                Cursor = crHandPoint
+                Position.X = 16.000000000000000000
+                Position.Y = 4.000000000000000000
+                Size.Width = 48.000000000000000000
+                Size.Height = 48.000000000000000000
+                Size.PlatformDefault = False
+                OnClick = Image2Click
+                object Label22: TLabel
+                  StyledSettings = [Family, FontColor]
+                  Position.X = 56.000000000000000000
+                  Position.Y = 15.000000000000000000
+                  Size.Width = 233.000000000000000000
+                  Size.Height = 17.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 16.000000000000000000
+                  TextSettings.Font.StyleExt = {00070000000000000004000000}
+                  Text = 'Acessar Relat'#243'rio de Vendas'
+                  TabOrder = 3
+                end
+              end
+            end
+            object imgConfig: TImage
+              MultiResBitmap.Height = 50
+              MultiResBitmap.Width = 50
+              MultiResBitmap = <
+                item
+                  Width = 50
+                  Height = 50
+                  PNG = {
+                    89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                    B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    05BF494441546843D59A4788E4451487C7EC9A3087356346C50482A2AE5E4CC8
+                    0A06101433287810518FE68317F52208625654F4AC222A7A1054CC39AE0AA635
+                    8B69CDE1FB7AA786B2FA554FFD7BBADD9E1F7C43F77FAAEA5FAF5ED5AB573533
+                    5568011C06B7C3FBF00BFC3321D817FB741B1C0AF6B54F2BC136702FFC055143
+                    93847DBC07B606FB3E238D7806A24A93CCD3A0313DE9223D11159C0FDC0DBD69
+                    E69A980FD3A9C69FB068157E5C017BC3A8F507BC081FC327B0143605DF394AAD
+                    0C1A34F5C1F4875163BBEB42929FC7F5AE255AB3058C43AF825336C9CFAF2DFF
+                    38722DD49035977F1EB95E87D2109F8D430B34A48BECCC97F05DEFDB6039FAC3
+                    78C48D6F1938659AD5C510A3C3CB703DDC0876EA378864D9B7A034E44DF07791
+                    FCFD47703FB87BBF079D8CC9174D0D5FFE3C9C0CEBC006701CDC077AE86F4865
+                    F5D613B03194DA081E05235859E7413817B6874DE07C7817F272550C8597C36C
+                    FA1AEE843BE027F815DE0147D84E6898CF1F018D337D302FCA3DA21C9025A0B7
+                    3E07D7E7A760BB7AF961F8069C5A1FC27AB01BAC05B32AB4B0E05BB81A368452
+                    BEEC08D0433BC2AA309B1CC02DE158380A1C88527AFE327010A33E95840F235C
+                    132740D700318C4C0435F059689A5A103E8C70613B6D7687716B6770BAA5E835
+                    2B5AEE87567D05D7C10DF0830F2ADA150E008D76E12AEBBE0166AC6FFBA02233
+                    8073E022D8CC07ADEAB36E00BAD9E8E59A88642E753118B55CAC1AEB02173F9B
+                    A23C0E96B16CA4C3A1CB944A840F07E1EEBC184AED00B7C06760B48AEA8ABFB3
+                    8C65AD53EA783022467507113EAC61276E02234E2E47D78E7D0F2D236919CB5A
+                    A7F4CC2EE05A8CEA55E91A81DCFC5E00F7805CA78151C6F9FD9FA3674596B1EC
+                    D170C6F4F724A79FD357439BD53545715A95C9A00BDB0EB9305B8C48B2ACDE38
+                    12F44292E798E7E025F09D4DB2315D53CA8E3AFAEEDCAF80399606784872A47C
+                    59D29970096CD7FBD65D0685ABC0FC2A6975D063A6391AB91778F813CFE8AB41
+                    9FFAE61B18356C686D5803DCAD6BDEBB068C48513B2D58D7362239D066011A66
+                    9A629FEC5B5F3BB5CEE9911FE1677023D4C52ED0488E5A78C7D428EB4609A6B2
+                    93F6E5777073B44FF9B49ED1FF916EB4C80ECF4935437467EBD432A9F33034AC
+                    AC6BC61B299A5A7EEFD3308BDD39ADAB930C9F97C25C16FB95E0356D928BD94E
+                    9BDECC69B14718A94C3DBC77CD65F835EDD0F8A8DE20AC635DDBC875103C06BE
+                    33AAD7479735E2F4DA17F6877C444C003DDDB949DA68AB2CFB053C047912E9D4
+                    D913F68096B34D4F5D17BB87A8FDC0E368AEBBC0D39D51A5C518CB384535C274
+                    3D97D753BEA3965456D5734D074CE84CEC4A754D1A6F862869F4D468BA1FD51D
+                    44F8B0867B891B92A9762447D114DD796FCEE4A84769BC678D744E2965CE667A
+                    12BDBF4A2D6AD5E43AB816BC28701AD534978395E7776F50647D1FB4AACFBA0A
+                    EEACCEE79D60DC728D3C007A32EA4B44F8B0244D29DDAE17C72DA3E2D9D07CE9
+                    DD1AB5BC0E32C23C0956CCE554D04017A907AE70E72D6447DDE80C1AAE3737BF
+                    5CEE1FDE91B96F35650DBEB4E582CE69E50EEFA1CA4452D9997DE054380FEC90
+                    F75A0BC18BB7749B98CB54E360D08053A639104C1C4D751CB024DB706374570F
+                    77F2527D6E0AB043DEC55E089BC3567016B8117AD398973320782DEAF56829B3
+                    5C47D9334D5E47A3BDC93C06DCAB8C7E1780EFF4F7A96C952E51CB72E645BADC
+                    11F24F76DB4234955CA42E582FF552FBBECB1D5BAF463BB6D7B0463507C7F64F
+                    04F799E635396355038E8E53ABE5E2EC24C83BEC679F456513B6EF1433543779
+                    22D1354571744CA75B0E528E7EEEAD94430D92ED3B259D82CD9E501A3297B3C4
+                    2099F4753564582DD31017DA38147944E3C6A1A5BACFDB8BD37B5F472BF7020F
+                    6426894A433C183585D28EBAD51F1E948639144D0A46C843A0B770FD0B535468
+                    3EE0596826F8780E362B8D0A4E324FC1CC3FD528D78A0FFC07952E19E78AC23E
+                    EA09FB1C86695DE49A71F1F8474B4373D4D08AC0BED8274FA18B20DBCBA6A6FE
+                    0592D78DB5FAF6F0F20000000049454E44AE426082}
+                  FileName = 'C:\Users\ifort\Downloads\icons8-autom'#225'tico-52.png'
+                end>
+              Anchors = [akTop, akRight]
+              Cursor = crHandPoint
+              Position.X = 1153.000000000000000000
+              Position.Y = 3.000000000000000000
+              Size.Width = 24.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              OnClick = imgConfigClick
+              object Label17: TLabel
+                Position.X = 32.000000000000000000
+                Position.Y = 3.000000000000000000
+                Size.Width = 28.000000000000000000
+                Size.Height = 17.000000000000000000
+                Size.PlatformDefault = False
+                Text = '0000'
+                TabOrder = 3
+              end
+            end
+            object HorzScrollBoxFatura: THorzScrollBox
+              Anchors = [akLeft, akTop, akRight]
+              Position.Y = 233.000000000000000000
+              Size.Width = 1187.000000000000000000
+              Size.Height = 121.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Viewport.Width = 1187.000000000000000000
+              Viewport.Height = 121.000000000000000000
+            end
+            object Button1: TButton
+              Position.X = 19.000000000000000000
+              Position.Y = 362.000000000000000000
+              TabOrder = 2
+              Text = 'Button1'
+              Visible = False
+            end
+          end
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          Position.Y = 728.000000000000000000
+          Size.Width = 1454.000000000000000000
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3D3C188944EF00
+                    0DE0EC3A34450A6D4D347EF012D3EDCECE2EB541B38D24FABE3FB66D5B0F89C0
+                    77668B75D0FC464F325143583B701B051A9FAAAA32E20B0ED1EEC08DD7501388
+                    1EA22EE0C66BA889C810A627F99CAB328A39782FF421750C15D7AF09B0E3FA1B
+                    E409046E93A17DE2FFFA09A206E0A1F65DD75D9AA679C84762C9518E47CF07B8
+                    B52055BE940925650BF3CB5F31F55901DEF03B258BE4285B28FDE11D14457165
+                    68F1E582F084BE3B88BA6435036EE7505F2E0840FBF21D18636A5959978CDBC3
+                    0B7EB03EFAC319112F7A1CD86E23862C7B029F0D3B8ABA7440FC000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+      end
+    end
+  end
+end
