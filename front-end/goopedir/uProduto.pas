@@ -1754,7 +1754,7 @@ begin
       DM.CONEXAO.Body(Body);
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
-      try
+
         RESTRequest1.Params.AddHeader('nome',
           BDSPRODUTOS.DataSet.FieldByName('site').AsString);
         RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
@@ -1764,7 +1764,7 @@ begin
         // EnvioImagem.Body(Body);
         // EnvioImagem.Execute;
         // https://fotos.goopedir.com/fotos/MTc2MzQ=
-
+        try
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
         then
         begin
