@@ -2899,6 +2899,7 @@ begin
   inherited;
   while not Terminated do
   begin
+  try
     if UserID = -1 then
     begin
       frmPrincipal.lStatus.Caption := 'Crédencias API - Incorretas';
@@ -3063,6 +3064,13 @@ begin
       end;
 
     end;
+  except
+  on E : Exception do
+  begin
+//    ShowMessage(e.Message);
+  end;
+
+  end;
 
     Sleep(Segundos * 1000);
   end;
