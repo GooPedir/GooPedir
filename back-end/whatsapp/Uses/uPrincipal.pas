@@ -457,6 +457,7 @@ begin
   begin
     AdicionaMsgTest(Conversa.Pergunta);
   end;
+  Conversa.ID := '554898111156@c.us';
 
   iWhatsapp.ReadMessages(Conversa.ID);
   iWhatsapp.Send(Conversa.ID, Mensagem);
@@ -613,10 +614,6 @@ var
   Resposta: String;
   Backup: TBackup;
 begin
-if Conversa.Telefone <> '4896185516' then
-begin
-  exit;
-end;
 
 
   if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_auto_bot').AsInteger <> 1 then
@@ -1290,320 +1287,325 @@ begin
   while not Terminated do
   begin
 
-    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_confirmacao').AsInteger = 1 then
-    begin
-      Requisicao.URL := 'v1/util/whatsapp/status';
-      Requisicao.Metodo := mGet;
-      try
-        Requisicao.Execute;
-
-        Dados := TFDMemTable.Create(nil);
-        Dados.LoadFromJSON(Requisicao.Retorno);
-        if Dados.RecordCount > 0 then
-          while not Dados.Eof do
-          begin
-            Dados.Edit;
-            if dmPrincipal.SerialNum = '90FC9F1F' then
-            begin
-              Dados.FieldByName('celular').AsString := '4898111156';
-            end;
-
-            if Dados.FieldByName('wpp_status').IsNull then
-            begin
-              Dados.FieldByName('wpp_status').AsInteger := 0;
-            end;
-
-            Celular := Dados.FieldByName('celular').AsString;
-            CelularSemNove := Celular;
-
-            if length(Celular) = 10 then
-            begin
-              CelularSemNove := Celular;
-              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
-            end
-            else
-            begin
-              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
-            end;
-
-            // 48998111156
-
-            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
-              '*, recebemos o seu pedido código *#' +
-              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
-              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
-              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
-              MENSAGEM_QUEBRA_LINHA_DUPLA;
-            Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
-            if Dados.FieldByName('wpp_status').AsInteger <>
-              Dados.FieldByName('status').AsInteger then
-            begin
-              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
-              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
-            end;
-            Requisicao.URL := 'v1/util/whatsapp/status/' +
-              Dados.FieldByName('codigo').AsString;
-            Requisicao.Metodo := mPost;
-            try
-              Requisicao.Execute;
-            except
-
-            end;
-
-            Dados.Next;
-            sleep(500);
-          end;
-      except
-
-      end;
-      Dados.Free;
-    end;
-
-    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_status').AsInteger = 1 then
-    begin
-      Requisicao.URL := 'v1/util/whatsapp/status/alterado';
-      Requisicao.Metodo := mGet;
-      try
-        Requisicao.Execute;
-
-        Dados := TFDMemTable.Create(nil);
-        Dados.LoadFromJSON(Requisicao.Retorno);
-        if Dados.RecordCount > 0 then
-          while not Dados.Eof do
-          begin
-            Dados.Edit;
-            if dmPrincipal.SerialNum = '90FC9F1F' then
-            begin
-              Dados.FieldByName('celular').AsString := '4898111156';
-            end;
-
-            if Dados.FieldByName('wpp_status').IsNull then
-            begin
-              Dados.FieldByName('wpp_status').AsInteger := 0;
-            end;
-
-            Celular := Dados.FieldByName('celular').AsString;
-            CelularSemNove := Celular;
-
-            if length(Celular) = 10 then
-            begin
-              CelularSemNove := Celular;
-              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
-            end
-            else
-            begin
-              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
-            end;
-
-            // 48998111156
-
-            Mensagem := '*' + trim(Dados.FieldByName('nome').AsString) +
-              '* seu pedido Nº *#' + FormatFloat('000',
-              Dados.FieldByName('codigo_pedido_dia').AsInteger) +
-              '* no valor de *R$ ' + FormatFloat('#0.00',
-              Dados.FieldByName('valor_total_pedido').AsFloat) + '*';
-
-            if length(Dados.FieldByName('status_anterior').AsString) = 0 then
-            begin
-              Mensagem := Mensagem + ' teve uma alteração no status para *' +
-                trim(Dados.FieldByName('status_atual').AsString) + '*.';
-            end
-            else
-            begin
-              Mensagem := Mensagem + ' teve uma alteração no status de *' +
-                trim(Dados.FieldByName('status_anterior').AsString) + '* para *'
-                + trim(Dados.FieldByName('status_atual').AsString) + '*.';
-            end;
-
-            Mensagem := Mensagem + MENSAGEM_QUEBRA_LINHA_DUPLA +
-              'Agradeçemos a preferência e bom apetite.';
-
-            if Dados.FieldByName('status').AsInteger <> 6 then
-            begin
-              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
-              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
-            end;
-
-            Requisicao.URL := 'v1/util/whatsapp/status/' +
-              Dados.FieldByName('codigo').AsString;
-            Requisicao.Metodo := mPost;
-            try
-              Requisicao.Execute;
-            except
-
-            end;
-
-            Dados.Next;
-            sleep(500);
-          end;
-      except
-
-      end;
-      Dados.Free;
-    end;
-
-    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_confirmacao').AsInteger = 1 then
-    begin
-      Requisicao.URL := 'v1/util/whatsapp/status';
-      Requisicao.Metodo := mGet;
-      try
-        Requisicao.Execute;
-
-        Dados := TFDMemTable.Create(nil);
-        Dados.LoadFromJSON(Requisicao.Retorno);
-        if Dados.RecordCount > 0 then
-          while not Dados.Eof do
-          begin
-            Dados.Edit;
-
-            if Dados.FieldByName('wpp_status').IsNull then
-            begin
-              Dados.FieldByName('wpp_status').AsInteger := 0;
-            end;
-
-            Celular := Dados.FieldByName('celular').AsString;
-            CelularSemNove := Celular;
-
-            if length(Celular) = 10 then
-            begin
-              CelularSemNove := Celular;
-              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
-            end
-            else
-            begin
-              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
-            end;
-
-            // 48998111156
-
-            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
-              '*, recebemos o seu pedido Nº *#' +
-              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
-              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
-              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
-              MENSAGEM_QUEBRA_LINHA_DUPLA;
-            Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
-            if Dados.FieldByName('wpp_status').AsInteger <>
-              Dados.FieldByName('status').AsInteger then
-            begin
-              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
-              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
-            end;
-            Requisicao.URL := 'v1/util/whatsapp/status/' +
-              Dados.FieldByName('codigo').AsString;
-            Requisicao.Metodo := mPost;
-            try
-              Requisicao.Execute;
-            except
-
-            end;
-
-            Dados.Next;
-            sleep(500);
-          end;
-      except
-
-      end;
-      Dados.Free;
-    end;
-
-    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_pix').AsInteger = 1 then
-    begin
-
-      Requisicao.URL := 'v1/util/whatsapp/pix';
-      Requisicao.Metodo := mGet;
-      try
-        Requisicao.Execute;
-
-        Dados := TFDMemTable.Create(nil);
-        Dados.LoadFromJSON(Requisicao.Retorno);
-        if Dados.RecordCount > 0 then
-          while not Dados.Eof do
-          begin
-            Celular := Dados.FieldByName('celular').AsString;
-            CelularSemNove := Celular;
-
-            if length(Celular) = 10 then
-            begin
-              CelularSemNove := Celular;
-              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
-            end
-            else
-            begin
-              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
-            end;
-
-            // 48998111156
-
-            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
-              '*, recebemos o seu pedido Nº *#' +
-              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
-              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
-              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
-              MENSAGEM_QUEBRA_LINHA;
-
-            case Dados.FieldByName('tipo_chave_pix').AsInteger of
-              2:
-                begin
-                  Tipo := 'CPF';
-                end;
-              3:
-                begin
-                  Tipo := 'CNPJ';
-                end;
-              4:
-                begin
-                  Tipo := 'Celular';
-                end;
-              5:
-                begin
-                  Tipo := 'E-Mail';
-                end;
-              6:
-                begin
-                  Tipo := 'Aleatoria';
-                end
-            else
-              begin
-                Tipo := '';
-              end;
-
-            end;
-
-            if Tipo <> '' then
-            begin
-              Celular := '55' + Celular + '@c.us';
-
-              Mensagem := Mensagem +
-                'A forma de pagamento escolhida foi o *PIX*, para que possamos confirmar seu pedido nos envie o comprovante de pagamento no formato de *PDF*.'
-                + MENSAGEM_QUEBRA_LINHA_DUPLA;
-              Mensagem := Mensagem + 'Dados para o *PIX*' +
-                MENSAGEM_QUEBRA_LINHA;
-              Mensagem := Mensagem + 'Tipo: ' + Tipo + MENSAGEM_QUEBRA_LINHA;
-              Mensagem := Mensagem + 'Chave: ' + Dados.FieldByName('chave_pix')
-                .AsString + MENSAGEM_QUEBRA_LINHA;
-              Mensagem := Mensagem + Dados.FieldByName('chave_recebedor')
-                .AsString + MENSAGEM_QUEBRA_LINHA_DUPLA;
-              Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
-              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
-              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
-            end;
-            Requisicao.URL := 'v1/util/whatsapp/pix/' +
-              Dados.FieldByName('codigo').AsString;
-            Requisicao.Metodo := mPost;
-            try
-              Requisicao.Execute;
-            except
-
-            end;
-            Dados.Next;
-            sleep(500);
-          end;
-      except
-
-      end;
-      Dados.Free;
-    end;
+//    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_confirmacao').AsInteger = 1 then
+//    begin
+//      Requisicao.URL := 'v1/util/whatsapp/status';
+//      Requisicao.Metodo := mGet;
+//      try
+//        Requisicao.Execute;
+//
+//        Dados := TFDMemTable.Create(nil);
+//        Dados.LoadFromJSON(Requisicao.Retorno);
+//        if Dados.RecordCount > 0 then
+//          while not Dados.Eof do
+//          begin
+//            Dados.Edit;
+//            if dmPrincipal.SerialNum = '90FC9F1F' then
+//            begin
+//              Dados.FieldByName('celular').AsString := '4898111156';
+//            end;
+//
+//            if Dados.FieldByName('wpp_status').IsNull then
+//            begin
+//              Dados.FieldByName('wpp_status').AsInteger := 0;
+//            end;
+//
+//            Celular := Dados.FieldByName('celular').AsString;
+//            CelularSemNove := Celular;
+//
+//            if length(Celular) = 10 then
+//            begin
+//              CelularSemNove := Celular;
+//              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
+//            end
+//            else
+//            begin
+//              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
+//            end;
+//
+//            // 48998111156
+//
+//            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
+//              '*, recebemos o seu pedido código *#' +
+//              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
+//              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
+//              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
+//              MENSAGEM_QUEBRA_LINHA_DUPLA;
+//            Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
+//            if Dados.FieldByName('wpp_status').AsInteger <>
+//              Dados.FieldByName('status').AsInteger then
+//            begin
+//              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
+//              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
+//            end;
+//            Requisicao.URL := 'v1/util/whatsapp/status/' +
+//              Dados.FieldByName('codigo').AsString;
+//            Requisicao.Metodo := mPost;
+//            try
+//              Requisicao.Execute;
+//            except
+//
+//            end;
+//
+//            Dados.Next;
+//            sleep(500);
+//          end;
+//      except
+//
+//      end;
+//      Dados.Free;
+//    end;
+//
+//    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_status').AsInteger = 1 then
+//    begin
+//      Requisicao.URL := 'v1/util/whatsapp/status/alterado';
+//      Requisicao.Metodo := mGet;
+//      try
+//        Requisicao.Execute;
+//
+//        Dados := TFDMemTable.Create(nil);
+//        Dados.LoadFromJSON(Requisicao.Retorno);
+//        if Dados.RecordCount > 0 then
+//          while not Dados.Eof do
+//          begin
+//            Dados.Edit;
+//            if dmPrincipal.SerialNum = '90FC9F1F' then
+//            begin
+//              Dados.FieldByName('celular').AsString := '4898111156';
+//            end;
+//
+//            if Dados.FieldByName('wpp_status').IsNull then
+//            begin
+//              Dados.FieldByName('wpp_status').AsInteger := 0;
+//            end;
+//
+//            Celular := Dados.FieldByName('celular').AsString;
+//            CelularSemNove := Celular;
+//
+//            if length(Celular) = 10 then
+//            begin
+//              CelularSemNove := Celular;
+//              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
+//            end
+//            else
+//            begin
+//              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
+//            end;
+//
+//            // 48998111156
+//            Celular := '48998111156';
+//            CelularSemNove := '4898111156';
+//
+//            Mensagem := '*' + trim(Dados.FieldByName('nome').AsString) +
+//              '* seu pedido Nº *#' + FormatFloat('000',
+//              Dados.FieldByName('codigo_pedido_dia').AsInteger) +
+//              '* no valor de *R$ ' + FormatFloat('#0.00',
+//              Dados.FieldByName('valor_total_pedido').AsFloat) + '*';
+//
+//            if length(Dados.FieldByName('status_anterior').AsString) = 0 then
+//            begin
+//              Mensagem := Mensagem + ' teve uma alteração no status para *' +
+//                trim(Dados.FieldByName('status_atual').AsString) + '*.';
+//            end
+//            else
+//            begin
+//              Mensagem := Mensagem + ' teve uma alteração no status de *' +
+//                trim(Dados.FieldByName('status_anterior').AsString) + '* para *'
+//                + trim(Dados.FieldByName('status_atual').AsString) + '*.';
+//            end;
+//
+//            Mensagem := Mensagem + MENSAGEM_QUEBRA_LINHA_DUPLA +
+//              'Agradeçemos a preferência e bom apetite.';
+//
+//            if Dados.FieldByName('status').AsInteger <> 6 then
+//            begin
+//              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
+//              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
+//            end;
+//
+//            Requisicao.URL := 'v1/util/whatsapp/status/' +
+//              Dados.FieldByName('codigo').AsString;
+//            Requisicao.Metodo := mPost;
+//            try
+//              Requisicao.Execute;
+//            except
+//
+//            end;
+//
+//            Dados.Next;
+//            sleep(500);
+//          end;
+//      except
+//
+//      end;
+//      Dados.Free;
+//    end;
+//
+//    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_confirmacao').AsInteger = 1 then
+//    begin
+//      Requisicao.URL := 'v1/util/whatsapp/status';
+//      Requisicao.Metodo := mGet;
+//      try
+//        Requisicao.Execute;
+//
+//        Dados := TFDMemTable.Create(nil);
+//        Dados.LoadFromJSON(Requisicao.Retorno);
+//        if Dados.RecordCount > 0 then
+//          while not Dados.Eof do
+//          begin
+//            Dados.Edit;
+//
+//            if Dados.FieldByName('wpp_status').IsNull then
+//            begin
+//              Dados.FieldByName('wpp_status').AsInteger := 0;
+//            end;
+//
+//            Celular := Dados.FieldByName('celular').AsString;
+//            CelularSemNove := Celular;
+//
+//            if length(Celular) = 10 then
+//            begin
+//              CelularSemNove := Celular;
+//              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
+//            end
+//            else
+//            begin
+//              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
+//            end;
+//
+//            // 48998111156
+//            Celular := '48998111156';
+//            CelularSemNove := '4898111156';
+//
+//            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
+//              '*, recebemos o seu pedido Nº *#' +
+//              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
+//              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
+//              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
+//              MENSAGEM_QUEBRA_LINHA_DUPLA;
+//            Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
+//            if Dados.FieldByName('wpp_status').AsInteger <>
+//              Dados.FieldByName('status').AsInteger then
+//            begin
+//              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
+//              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
+//            end;
+//            Requisicao.URL := 'v1/util/whatsapp/status/' +
+//              Dados.FieldByName('codigo').AsString;
+//            Requisicao.Metodo := mPost;
+//            try
+//              Requisicao.Execute;
+//            except
+//
+//            end;
+//
+//            Dados.Next;
+//            sleep(500);
+//          end;
+//      except
+//
+//      end;
+//      Dados.Free;
+//    end;
+//
+//    if dm.DADOS_EMPRESA.FieldByName('tipo_wpp_pix').AsInteger = 1 then
+//    begin
+//
+//      Requisicao.URL := 'v1/util/whatsapp/pix';
+//      Requisicao.Metodo := mGet;
+//      try
+//        Requisicao.Execute;
+//
+//        Dados := TFDMemTable.Create(nil);
+//        Dados.LoadFromJSON(Requisicao.Retorno);
+//        if Dados.RecordCount > 0 then
+//          while not Dados.Eof do
+//          begin
+//            Celular := Dados.FieldByName('celular').AsString;
+//            CelularSemNove := Celular;
+//
+//            if length(Celular) = 10 then
+//            begin
+//              CelularSemNove := Celular;
+//              Celular := copy(Celular, 0, 2) + '9' + copy(Celular, 3, 8);
+//            end
+//            else
+//            begin
+//              CelularSemNove := copy(Celular, 0, 2) + copy(Celular, 4, 8);
+//            end;
+//
+//            Celular := '48998111156';
+//            CelularSemNove := '4898111156';
+//
+//            Mensagem := 'Olá *' + trim(Dados.FieldByName('nome').AsString) +
+//              '*, recebemos o seu pedido Nº *#' +
+//              FormatFloat('000', Dados.FieldByName('codigo_pedido_dia')
+//              .AsInteger) + '* no valor de *R$ ' + FormatFloat('#0.00',
+//              Dados.FieldByName('valor_total_pedido').AsFloat) + '*.' +
+//              MENSAGEM_QUEBRA_LINHA;
+//
+//            case Dados.FieldByName('tipo_chave_pix').AsInteger of
+//              2:
+//                begin
+//                  Tipo := 'CPF';
+//                end;
+//              3:
+//                begin
+//                  Tipo := 'CNPJ';
+//                end;
+//              4:
+//                begin
+//                  Tipo := 'Celular';
+//                end;
+//              5:
+//                begin
+//                  Tipo := 'E-Mail';
+//                end;
+//              6:
+//                begin
+//                  Tipo := 'Aleatoria';
+//                end
+//            else
+//              begin
+//                Tipo := '';
+//              end;
+//
+//            end;
+//
+//            if Tipo <> '' then
+//            begin
+//              Celular := '55' + Celular + '@c.us';
+//
+//              Mensagem := Mensagem +
+//                'A forma de pagamento escolhida foi o *PIX*, para que possamos confirmar seu pedido nos envie o comprovante de pagamento no formato de *PDF*.'
+//                + MENSAGEM_QUEBRA_LINHA_DUPLA;
+//              Mensagem := Mensagem + 'Dados para o *PIX*' +
+//                MENSAGEM_QUEBRA_LINHA;
+//              Mensagem := Mensagem + 'Tipo: ' + Tipo + MENSAGEM_QUEBRA_LINHA;
+//              Mensagem := Mensagem + 'Chave: ' + Dados.FieldByName('chave_pix')
+//                .AsString + MENSAGEM_QUEBRA_LINHA;
+//              Mensagem := Mensagem + Dados.FieldByName('chave_recebedor')
+//                .AsString + MENSAGEM_QUEBRA_LINHA_DUPLA;
+//              Mensagem := Mensagem + 'Agradeçemos a preferência e bom apetite.';
+//              dmPrincipal.iWhatsapp.Send(Celular, Mensagem);
+//              dmPrincipal.iWhatsapp.Send(CelularSemNove, Mensagem);
+//            end;
+//            Requisicao.URL := 'v1/util/whatsapp/pix/' +
+//              Dados.FieldByName('codigo').AsString;
+//            Requisicao.Metodo := mPost;
+//            try
+//              Requisicao.Execute;
+//            except
+//
+//            end;
+//            Dados.Next;
+//            sleep(500);
+//          end;
+//      except
+//
+//      end;
+//      Dados.Free;
+//    end;
 
     sleep(60 * 1000);
   end;

@@ -174,6 +174,7 @@ object dmPrincipal: TdmPrincipal
     OnConnected = iWhatsappConnected
     OnDisconnected = iWhatsappDisconnected
     OnDisconnectedBrute = iWhatsappDisconnectedBrute
+    CEF = CEFWindowParent1
     Left = 280
     Top = 200
   end
@@ -258,7 +259,7 @@ object dmPrincipal: TdmPrincipal
   object tMinimize: TTimer
     OnTimer = tMinimizeTimer
     Left = 572
-    Top = 80
+    Top = 112
   end
   object ApplicationEvents1: TApplicationEvents
     OnException = ApplicationEvents1Exception
@@ -555,16 +556,14 @@ object dmPrincipal: TdmPrincipal
     Enabled = False
     Interval = 10000
     OnTimer = tNotificaPedidoTimer
-    Left = 156
-    Top = 152
+    Left = 572
+    Top = 40
   end
   object RequisicaoLocal: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 2000
     Left = 308
     Top = 296
   end

@@ -1,7 +1,7 @@
 object dm: Tdm
   OnCreate = DataModuleCreate
-  Height = 791
-  Width = 1180
+  Height = 671
+  Width = 389
   PixelsPerInch = 96
   object DADOS_EMPRESA: TFDMemTable
     AfterPost = DADOS_EMPRESAAfterPost
@@ -189,8 +189,6 @@ object dm: Tdm
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 2000
     Left = 944
     Top = 144
   end
