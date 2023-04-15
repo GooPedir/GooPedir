@@ -1732,14 +1732,17 @@ begin
   conexao := TConexao.Create;
   conexao.SQL.Add('select ');
   conexao.SQL.Add('cr.*,');
-  conexao.SQL.Add('cr.id as codigo, c.nome, c.celular, (select sum(valor) from caixa_receber where id_cliente = cr.id_cliente and status = 1) as a_receber,');
-  conexao.SQL.Add('caixa.id, caixa.data_abertura, caixa.data_fechamento, caixa.data_fechamento, caixa.hora_fechamento, caixa.valor_fechamento,');
+  conexao.SQL.Add
+    ('cr.id as codigo, c.nome, c.celular, (select sum(valor) from caixa_receber where id_cliente = cr.id_cliente and status = 1) as a_receber,');
+  conexao.SQL.Add
+    ('caixa.id, caixa.data_abertura, caixa.data_fechamento, caixa.data_fechamento, caixa.hora_fechamento, caixa.valor_fechamento,');
   conexao.SQL.Add('u.nome as usuario, tp.descricao as tipo_pagamento');
   conexao.SQL.Add('from caixa_receber as cr');
   conexao.SQL.Add('join cliente as c on c.codigo = cr.id_cliente');
   conexao.SQL.Add('join caixa on caixa.id = cr.id_caixa');
   conexao.SQL.Add('join usuario as u on u.codigo = caixa.id_usuario');
-  conexao.SQL.Add('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento');
+  conexao.SQL.Add
+    ('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento');
   if Cliente > 0 then
   begin
     conexao.SQL.Add('where cr.id_cliente = :cliente');
@@ -6024,15 +6027,23 @@ begin
   conexao := TConexao.Create;
   conexao.SQL.Add
     ('select 0 as zero, group_concat(pedido.codigo) as codigo from pedido where pedido.data_pedido = current_date() and (pedido.status <> pedido.wpp_status or pedido.wpp_status is null)');
-  Codigo := conexao.FieldByName('codigo');
+  try
+    Codigo := conexao.FieldByName('codigo');
+  except
+    Codigo := '';
+  end;
+  if length(Codigo) > 0 then
+  begin
+    conexao.SQL.Add
+      ('select *, (select c.celular from cliente as c where c.codigo = codigo_cliente) as celular, (select c.celular_wpp from cliente as c where c.codigo = codigo_cliente) as celular_wpp from pedido where pedido.codigo in ('
+      + Codigo + ')');
 
-  conexao.SQL.Add
-    ('select *, (select c.celular from cliente as c where c.codigo = codigo_cliente) as celular, (select c.celular_wpp from cliente as c where c.codigo = codigo_cliente) as celular_wpp from pedido where pedido.codigo in ('
-    + Codigo + ')');
+    Res.Send<TJSONArray>(conexao.ConsultaSQL);
+    conexao.SQL.Add('update pedido set status = wpp_status where codigo in (' +
+      Codigo + ')');
+    conexao.ExecuteSQL;
 
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  // conexao.SQL.Add('update pedido set status = wpp_status where codigo in ('+Codigo+')');
-
+  end;
   conexao.Free;
 end;
 
