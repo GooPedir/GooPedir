@@ -174,7 +174,6 @@ object dmPrincipal: TdmPrincipal
     OnConnected = iWhatsappConnected
     OnDisconnected = iWhatsappDisconnected
     OnDisconnectedBrute = iWhatsappDisconnectedBrute
-    CEF = CEFWindowParent1
     Left = 280
     Top = 200
   end
