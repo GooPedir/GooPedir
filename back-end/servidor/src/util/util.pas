@@ -3364,6 +3364,11 @@ begin
   conexao.Parametros('status', Status);
   conexao.ExecuteSQL;
 
+  conexao.SQL.Add('delete from pedido_motoboy where codigo = :codigo');
+  conexao.Parametros('codigo', Pedido);
+  conexao.ExecuteSQL;
+
+
   try
     conexao.SQL.Add('select * from pedido where codigo = :codigo');
     conexao.Parametros('codigo', Pedido);
@@ -5428,6 +5433,11 @@ begin
   conexao.SQL.Add('update pedido set id_caixa = null where codigo = :id');
   conexao.Parametros('id', Pedido);
   conexao.ExecuteSQL;
+
+  conexao.SQL.Add('update pedido set status = 1 where codigo = :id');
+  conexao.Parametros('id', Pedido);
+  conexao.ExecuteSQL;
+
   conexao.Free;
 
 end;
@@ -6026,7 +6036,7 @@ var
 begin
   conexao := TConexao.Create;
   conexao.SQL.Add
-    ('select 0 as zero, group_concat(pedido.codigo) as codigo from pedido where pedido.data_pedido = current_date() and (pedido.status <> pedido.wpp_status or pedido.wpp_status is null)');
+    ('select 0 as zero, group_concat(pedido.codigo) as codigo from pedido where pedido.data_pedido = current_date() and pedido.status > 0 and (pedido.status <> pedido.wpp_status or pedido.wpp_status is null)');
   try
     Codigo := conexao.FieldByName('codigo');
   except
@@ -6039,7 +6049,7 @@ begin
       + Codigo + ')');
 
     Res.Send<TJSONArray>(conexao.ConsultaSQL);
-    conexao.SQL.Add('update pedido set status = wpp_status where codigo in (' +
+    conexao.SQL.Add('update pedido set wpp_status = status where codigo in (' +
       Codigo + ')');
     conexao.ExecuteSQL;
 

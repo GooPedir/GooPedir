@@ -549,14 +549,14 @@ begin
   end;
   if Length(ArrayMotoboy) = 0 then
   begin
-    ShowMessageToast(Self, 'Você deve selecionar os pedidos!', 2);
+    ShowMessageToast(Self, 'VocÃª deve selecionar os pedidos!', 2);
     exit;
   end;
   DM.GetSimples('/v1/motoboy/ativo/all/', MOTOBOY);
 
   if MOTOBOY.RecordCount = 0 then
   begin
-    ShowMessageToast(Self, 'Não há motoboys ativo!', 1);
+    ShowMessageToast(Self, 'NÃ£o hÃ¡ motoboys ativo!', 1);
     exit;
   end;
 
@@ -790,67 +790,64 @@ begin
         end;
 
       end;
-      if DadosPedido.FieldByName('status').AsInteger <> 0 then
+
+      if DadosPedido.FieldByName('ficha').IsNull then
       begin
-        if DadosPedido.FieldByName('ficha').IsNull then
-        begin
-          case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
-            0:
-              begin
-
-                ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
-              end
-          else
+        case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+          0:
             begin
-
-              if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
-                .AsString) then
-              begin
-                DadosMotoboy.Edit;
-              end
-              else
-              begin
-                DadosMotoboy.Insert;
-                DadosMotoboy.FieldByName('NOME').AsString :=
-                  DadosPedido.FieldByName('motoboy').AsString;
-                DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
-                DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
-              end;
-              DadosMotoboy.FieldByName('TAXA').AsFloat :=
-                DadosMotoboy.FieldByName('TAXA').AsFloat +
-                DadosPedido.FieldByName('taxa').AsFloat;
-              DadosMotoboy.FieldByName('TOTAL').AsFloat :=
-                DadosMotoboy.FieldByName('TOTAL').AsFloat +
-                DadosPedido.FieldByName('total').AsFloat;
-              if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end
-              else
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end;
-              DadosMotoboy.Post;
-
               if DadosPedido.FieldByName('status').AsInteger <> 0 then
-              begin
-                ValorDelivery := ValorDelivery + DadosPedido.FieldByName
-                  ('total').AsFloat;
-                TaxaTotal := TaxaTotal + DadosPedido.FieldByName
-                  ('taxa').AsFloat;
-              end;
-            end;
-
-          end;
-        end
+                ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
+            end
         else
-        begin
+          begin
 
-          ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
+            if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
+              .AsString) then
+            begin
+              DadosMotoboy.Edit;
+            end
+            else
+            begin
+              DadosMotoboy.Insert;
+              DadosMotoboy.FieldByName('NOME').AsString :=
+                DadosPedido.FieldByName('motoboy').AsString;
+              DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+              DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+            end;
+            DadosMotoboy.FieldByName('TAXA').AsFloat :=
+              DadosMotoboy.FieldByName('TAXA').AsFloat + DadosPedido.FieldByName
+              ('taxa').AsFloat;
+            DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+              DadosMotoboy.FieldByName('TOTAL').AsFloat +
+              DadosPedido.FieldByName('total').AsFloat;
+            if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+            begin
+              DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                DadosPedido.FieldByName('codigo_Dia').AsString;
+            end
+            else
+            begin
+              DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                DadosPedido.FieldByName('codigo_Dia').AsString;
+            end;
+            DadosMotoboy.Post;
+
+            if DadosPedido.FieldByName('status').AsInteger <> 0 then
+            begin
+              ValorDelivery := ValorDelivery + DadosPedido.FieldByName
+                ('total').AsFloat;
+              TaxaTotal := TaxaTotal + DadosPedido.FieldByName('taxa').AsFloat;
+            end;
+          end;
+
         end;
+      end
+      else
+      begin
+
+        ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
       end;
 
       FrameDados.CodigoDia := DadosPedido.FieldByName('codigo_Dia').AsInteger;

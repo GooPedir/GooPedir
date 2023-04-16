@@ -1,15 +1,13 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 609
-  Width = 1980
+  Height = 201
+  Width = 389
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 20000
     Left = 96
     Top = 48
   end
@@ -362,8 +360,6 @@ object DM: TDM
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 60000
     Left = 224
     Top = 210
   end
