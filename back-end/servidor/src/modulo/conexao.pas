@@ -46,7 +46,7 @@ type
     function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
 
     procedure GerarLog(Erro: String);
-    function SoNumero(fField : String): String;
+    function SoNumero(fField: String): String;
 
     // Para um insert
     {
@@ -464,8 +464,22 @@ var
   QRY: TFDQuery;
   I: integer;
   New: String;
+  Update: Boolean;
+  SqlUpdate: String;
+  QryUpdate: TFDQuery;
 begin
+SQL := UpperCase(SQL);
   try
+    Update := UpperCase(copy(trim(SQL), 0, 6)) = 'UPDATE';
+    if Update then
+    begin
+      SqlUpdate := copy(SQL, 0, pos('SET', SQL) + 2) + ' modificado_site = 0 ' +
+        copy(SQL, pos('WHERE', SQL), length(SQL));
+      QryUpdate := DataModulo.CriaQRY;
+      QryUpdate.SQL.Add(SqlUpdate);
+
+    end;
+
     QRY := DataModulo.CriaQRY;
     Result := True;
     QRY.Close;
@@ -474,9 +488,39 @@ begin
     for I := 0 to length(FParametros) - 1 do
     begin
       QRY.ParamByName(FParametros[I]).Value := FValores[I];
+      try
+        if Update then
+        begin
+
+          // if IsInteger(FValores[I]) then
+          // begin
+          // QryUpdate.ParamByName(FParametros[I]).Value := StrToInt(FValores[I]);
+          // end else begin
+          try
+            QryUpdate.ParamByName(FParametros[I]).AsFloat :=
+              StrToFloat(FValores[I]);
+          except
+            QryUpdate.ParamByName(FParametros[I]).Value := FValores[I];
+          end;
+          // end;
+        end;
+      except
+
+      end;
     end;
 
+    if Update then
+    begin
+      try
+        QryUpdate.ExecSQL;
+      except
+
+      end;
+
+    end;
+      QryUpdate.Free;
     QRY.ExecSQL;
+
   except
     on E: Exception do
     begin
@@ -527,12 +571,12 @@ end;
 
 function TConexao.SoNumero(fField: String): String;
 var
-  I : Byte;
+  I: Byte;
 begin
-   Result := '';
-   for I := 1 To Length(fField) do
-       if fField [I] In ['0'..'9'] Then
-            Result := Result + fField [I];
+  Result := '';
+  for I := 1 To length(fField) do
+    if fField[I] In ['0' .. '9'] Then
+      Result := Result + fField[I];
 end;
 
 function TConexao.ValidaVersao: string;
@@ -541,8 +585,8 @@ Var
   VersaoNumber: integer;
 begin
   MYSQL := SoNumero(VersaoMYSQL);
-//  MYSQL := SoNumero('5.7.37-log');
-//  ShowMessage(MYSQL);
+  // MYSQL := SoNumero('5.7.37-log');
+  // ShowMessage(MYSQL);
 
   VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
 
@@ -552,9 +596,9 @@ begin
   end
   else
   begin
-//    Result := 'A sua versão do mysql (' + VersaoMYSQL +
-//      ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
-       Result := '';
+    // Result := 'A sua versão do mysql (' + VersaoMYSQL +
+    // ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
+    Result := '';
   end;
 
 end;

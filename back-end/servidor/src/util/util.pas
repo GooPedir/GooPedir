@@ -2558,7 +2558,7 @@ begin
     if Dados.FieldByName('id').AsInteger = 0 then
     begin
       conexao.SQL.Add
-        ('insert into produto_preco values (:id,:produto,:segunda,:terca,:quarta,:quinta,:sexta,:sabado,:domingo,:valor,:inicial,:final)');
+        ('insert into produto_preco (id,id_produto,segunda,terca,quarta,quinta,sexta,sabado,domingo,valor,hora_inicial,hora_final) values (:id,:produto,:segunda,:terca,:quarta,:quinta,:sexta,:sabado,:domingo,:valor,:inicial,:final)');
       conexao.Parametros('id', Codigo);
       conexao.Parametros('produto', Dados.FieldByName('ID_PRODUTO').AsInteger);
       conexao.Parametros('valor', Dados.FieldByName('VALOR').AsCurrency);
@@ -3476,14 +3476,19 @@ begin
       end;
     end;
     SQL.Add(MySQL);
+Dados.Edit;
+    if Dados.FieldByName('pizza').IsNull then
+begin
+
+  Dados.FieldByName('pizza').AsInteger := 0;
+end;
+
     Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
     Parametros('descricao', Dados.FieldByName('descricao').AsString);
     Parametros('impressora', Dados.FieldByName('impressora').AsInteger);
     Parametros('pizza', Dados.FieldByName('pizza').AsInteger);
-    Parametros('visivel_vem_buscar', Dados.FieldByName('visivel_vem_buscar')
-      .AsInteger);
-    Parametros('visivel_delivery', Dados.FieldByName('visivel_delivery')
-      .AsInteger);
+    Parametros('visivel_vem_buscar', Dados.FieldByName('visivel_vem_buscar').AsInteger);
+    Parametros('visivel_delivery', Dados.FieldByName('visivel_delivery').AsInteger);
     // Parametros('id_site', Dados.FieldByName('id_site').AsInteger);
     Parametros('ordem', Dados.FieldByName('ordem').AsInteger);
     Parametros('modificado_site', Dados.FieldByName('modificado_site')
