@@ -194,6 +194,9 @@ begin
   AdicionaCombo(Geral, 'aceitar_pedidos_site', 'Pedidos Site',
     ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',
     'Cancelar Automaticamente'], False);
+  AdicionaCombo(Geral, 'status_pedidos_site', 'Status Pedido Site',
+    ['Não Aplicado', 'Em Espera','Em Produção','Pronto','Cancelado'], False);
+
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressaotipopro',
     'Impressão Cozinha', '1', '0');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressao_agrupada',

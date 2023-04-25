@@ -93,6 +93,7 @@ type
 
     property UserID: Integer read getUser;
     function TipoPedido: Integer;
+    function StatusPedidoNovo: Integer;
   protected
     function GetLocalIP: String;
     procedure Execute; override;
@@ -453,14 +454,19 @@ begin
     SQL := SQL + 'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
     SQL := SQL + 'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END)'; }
   SQL := 'select p.id_site,  p.saldo_atual, ';
-  SQL := SQL +'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, pp.valor, 0) as valor, ';
-  SQL := SQL +'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, p.ativo, 0) as ativo ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, pp.valor, 0) as valor, ';
+  SQL := SQL +
+    'IF(pp.hora_inicial < current_time and pp.hora_inicial <= current_time and pp.hora_final >= current_time, p.ativo, 0) as ativo ';
   SQL := SQL + 'from produto as p ';
   SQL := SQL + 'join produto_preco as pp on pp.id_produto = p.codigo ';
-  SQL := SQL +'where p.codigo = p.codigo and p.usa_tabela_preco = 1  and p.id_site > 0 ';
+  SQL := SQL +
+    'where p.codigo = p.codigo and p.usa_tabela_preco = 1  and p.id_site > 0 ';
   SQL := SQL + 'and (CASE WEEKDAY(current_date) ';
-  SQL := SQL +'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
-  SQL := SQL +'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END) ';
+  SQL := SQL +
+    'when 0 then pp.segunda = 1 when 1 then pp.terca = 1 when 2 then pp.quarta = 1 ';
+  SQL := SQL +
+    'when 3 then pp.quinta = 1 when 4 then pp.sexta = 1 when 5 then pp.sabado = 1 when 6 then pp.domingo = 1 END) ';
   SQL := SQL + 'order by valor ';
 
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
@@ -2894,178 +2900,179 @@ begin
   inherited;
   while not Terminated do
   begin
-  try
-    if UserID = -1 then
-    begin
-      frmPrincipal.lStatus.Caption := 'Crédencias API - Incorretas';
-      frmPrincipal.BuscarPedido := False;
-      frmPrincipal.Tray.Icons := frmPrincipal.imagemDesconectado;
-    end
-    else
-    begin
-      frmPrincipal.Tray.Icons := frmPrincipal.imagemConectado;
-      // Colocar o nome da empresa logada
-      frmPrincipal.lStatus.Caption := frmPrincipal.NomeRestaurante;
-      if GetPedidos then
-        frmPrincipal.BuscarPedido := True;
-      try
-        if not IP then
-        begin
-          requisicao := TRequest.Create;
-          requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
-            GetLocalIP;
-          requisicao.Get;
-          requisicao.Free;
-          IP := True;
-        end;
-      except
-
-      end;
-
-    end;
-
-    if frmPrincipal.BuscarPedido then
-    begin
-      GetPedidos := False;
-      FRequest.URLI := 'pedidos/' + UserID.ToString + '/a';
-      FRequest.Get;
-
-      case FRequest.Status of
-        999:
-          begin
-
-            ConexaoSite := TConexaoSite.Create;
-            ConexaoSite.Start;
-            Free;
-          end;
-        200:
-          begin
-            // Sucesso
-            MemoryTablePedidos.Close;
-            if FRequest.Retorno <> 'null' then
-            begin
-              try
-                MemoryTablePedidos.LoadFromJSON(FRequest.Retorno);
-                frmPrincipal.AdicionaLog(FRequest.Retorno);
-              except
-                on E: Exception do
-                begin
-                  // ShowMessage(E.Message);
-                end;
-              end;
-            end;
-
-          end;
-        304:
-          begin
-            // Nada Mudou ou sem pedidos
-            // try
-            // MemoryTablePedidos.First;
-            // except
-            //
-            // end;
-          end
-      else
-        begin
-          // Erro
-          // Token := '';
-          // Dados.ClearToken;
-          // FUserID := -1;
-
-        end;
-      end;
-
-      if (MemoryTablePedidos.RecordCount > 0) and
-        (frmPrincipal.cImportaPedido.Checked) then
+    try
+      if UserID = -1 then
       begin
+        frmPrincipal.lStatus.Caption := 'Crédencias API - Incorretas';
         frmPrincipal.BuscarPedido := False;
-        InserirPedidos;
-      end;
-      frmPrincipal.AtualizaSite;
-      if not frmPrincipal.RecebeuProdutos then
+        frmPrincipal.Tray.Icons := frmPrincipal.imagemDesconectado;
+      end
+      else
       begin
-        frmPrincipal.RecebeuProdutos := True;
-        frmPrincipal.ReceberProduto;
-      end;
-      //
-      FRequest.URLI := 'pedidospm/' + UserID.ToString + '/a';
-      FRequest.Get;
-
-      case FRequest.Status of
-        999:
+        frmPrincipal.Tray.Icons := frmPrincipal.imagemConectado;
+        // Colocar o nome da empresa logada
+        frmPrincipal.lStatus.Caption := frmPrincipal.NomeRestaurante;
+        if GetPedidos then
+          frmPrincipal.BuscarPedido := True;
+        try
+          if not IP then
           begin
-
+            requisicao := TRequest.Create;
+            requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
+              GetLocalIP;
+            requisicao.Get;
+            requisicao.Free;
+            IP := True;
           end;
-        200:
-          begin
-            // Sucesso
-            MemoryPedidosMotoboy.Close;
-            if FRequest.Retorno <> 'null' then
+        except
+
+        end;
+
+      end;
+
+      if frmPrincipal.BuscarPedido then
+      begin
+        GetPedidos := False;
+        FRequest.URLI := 'pedidos/' + UserID.ToString + '/a';
+        FRequest.Get;
+
+        case FRequest.Status of
+          999:
             begin
-              try
-                MemoryPedidosMotoboy.LoadFromJSON(FRequest.Retorno);
-                Insert := TInsertUpdate.Create;
-                if MemoryPedidosMotoboy.RecordCount > 0 then
-                begin
-                  while not MemoryPedidosMotoboy.Eof do
+
+              ConexaoSite := TConexaoSite.Create;
+              ConexaoSite.Start;
+              Free;
+            end;
+          200:
+            begin
+              // Sucesso
+              MemoryTablePedidos.Close;
+              if FRequest.Retorno <> 'null' then
+              begin
+                try
+                  MemoryTablePedidos.LoadFromJSON(FRequest.Retorno);
+                  frmPrincipal.AdicionaLog(FRequest.Retorno);
+                except
+                  on E: Exception do
                   begin
-
-                    Insert.InserirUpdate('pedido_motoboy',
-                      ['codigo', 'codigo_motoboy', 'codigo_pedido',
-                      'hora_pego_motoboy', 'status'],
-                      ['0', MemoryPedidosMotoboy.FieldByName('motoboy')
-                      .AsString, MemoryPedidosMotoboy.FieldByName('codigo')
-                      .AsString, MemoryPedidosMotoboy.FieldByName('hora')
-                      .AsString, '0']);
-
-                    Insert.InserirUpdate('pedido', ['codigo', 'status'],
-                      [MemoryPedidosMotoboy.FieldByName('codigo')
-                      .AsString, '5']);
-
-                    ExecutaSQLSite
-                      ('update ws_pedidos_motoboy set status = 2 where codigo = '
-                      + MemoryPedidosMotoboy.FieldByName('codigoupd').AsString);
-
-                    MemoryPedidosMotoboy.next;
+                    // ShowMessage(E.Message);
                   end;
                 end;
-
-              except
-                on E: Exception do
-                begin
-                  // ShowMessage(E.Message);
-                end;
               end;
+
             end;
+          304:
+            begin
+              // Nada Mudou ou sem pedidos
+              // try
+              // MemoryTablePedidos.First;
+              // except
+              //
+              // end;
+            end
+        else
+          begin
+            // Erro
+            // Token := '';
+            // Dados.ClearToken;
+            // FUserID := -1;
 
           end;
-        304:
-          begin
-            // Nada Mudou ou sem pedidos
-            // try
-            // MemoryTablePedidos.First;
-            // except
-            //
-            // end;
-          end
-      else
-        begin
-          // Erro
-          // Token := '';
-          // Dados.ClearToken;
-          // FUserID := -1;
-
         end;
+
+        if (MemoryTablePedidos.RecordCount > 0) and
+          (frmPrincipal.cImportaPedido.Checked) then
+        begin
+          frmPrincipal.BuscarPedido := False;
+          InserirPedidos;
+        end;
+        frmPrincipal.AtualizaSite;
+        if not frmPrincipal.RecebeuProdutos then
+        begin
+          frmPrincipal.RecebeuProdutos := True;
+          frmPrincipal.ReceberProduto;
+        end;
+        //
+        FRequest.URLI := 'pedidospm/' + UserID.ToString + '/a';
+        FRequest.Get;
+
+        case FRequest.Status of
+          999:
+            begin
+
+            end;
+          200:
+            begin
+              // Sucesso
+              MemoryPedidosMotoboy.Close;
+              if FRequest.Retorno <> 'null' then
+              begin
+                try
+                  MemoryPedidosMotoboy.LoadFromJSON(FRequest.Retorno);
+                  Insert := TInsertUpdate.Create;
+                  if MemoryPedidosMotoboy.RecordCount > 0 then
+                  begin
+                    while not MemoryPedidosMotoboy.Eof do
+                    begin
+
+                      Insert.InserirUpdate('pedido_motoboy',
+                        ['codigo', 'codigo_motoboy', 'codigo_pedido',
+                        'hora_pego_motoboy', 'status'],
+                        ['0', MemoryPedidosMotoboy.FieldByName('motoboy')
+                        .AsString, MemoryPedidosMotoboy.FieldByName('codigo')
+                        .AsString, MemoryPedidosMotoboy.FieldByName('hora')
+                        .AsString, '0']);
+
+                      Insert.InserirUpdate('pedido', ['codigo', 'status'],
+                        [MemoryPedidosMotoboy.FieldByName('codigo')
+                        .AsString, '5']);
+
+                      ExecutaSQLSite
+                        ('update ws_pedidos_motoboy set status = 2 where codigo = '
+                        + MemoryPedidosMotoboy.FieldByName('codigoupd')
+                        .AsString);
+
+                      MemoryPedidosMotoboy.next;
+                    end;
+                  end;
+
+                except
+                  on E: Exception do
+                  begin
+                    // ShowMessage(E.Message);
+                  end;
+                end;
+              end;
+
+            end;
+          304:
+            begin
+              // Nada Mudou ou sem pedidos
+              // try
+              // MemoryTablePedidos.First;
+              // except
+              //
+              // end;
+            end
+        else
+          begin
+            // Erro
+            // Token := '';
+            // Dados.ClearToken;
+            // FUserID := -1;
+
+          end;
+        end;
+
+      end;
+    except
+      on E: Exception do
+      begin
+        // ShowMessage(e.Message);
       end;
 
     end;
-  except
-  on E : Exception do
-  begin
-//    ShowMessage(e.Message);
-  end;
-
-  end;
 
     Sleep(Segundos * 1000);
   end;
@@ -3331,6 +3338,27 @@ begin
         StatusPedido := 0;
       end;
   end;
+  case StatusPedidoNovo of
+    1:
+      begin
+        // ['Não Aplicado', 'Em Espera','Em Produção','Pronto','Cancelado'
+        StatusPedido := 1;
+      end;
+    2:
+      begin
+        StatusPedido := 2;
+      end;
+    3:
+      begin
+        StatusPedido := 3;
+      end;
+    4:
+      begin
+        StatusPedido := 9;
+      end;
+  end;
+
+  // status_pedidos_site
   try
     if MemoryTablePedidos.RecordCount > 0 then
     begin
@@ -3783,6 +3811,25 @@ begin
       end;
     end;
   end;
+end;
+
+function TBuscaPedidos.StatusPedidoNovo: Integer;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from dados_whatsapp';
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  try
+    Result := Dados.FieldByName('status_pedidos_site').AsInteger;
+  except
+    Result := 0;
+  end;
+  Dados.Free;
+  Insert.Free;
 end;
 
 function TBuscaPedidos.TipoPedido: Integer;

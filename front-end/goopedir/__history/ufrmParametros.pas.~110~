@@ -164,6 +164,9 @@ begin
   AdicionaParametroEdit(Empresa, 'longitude', '');
 
   // Geral
+  AdicionaTitulo(Geral, 'Configuração Produto');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'controle_estoque', 'Controle de Estoque (Produto / Insulmos)', '1', '0');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'ficha_tecnica', 'Ficha Técnica do Produto', '1', '0');
   AdicionaTitulo(Geral, 'Configuração API Site');
   AdicionaParametroEdit(Geral, 'client_id', '');
   AdicionaParametroEdit(Geral, 'client_security', '');
@@ -250,16 +253,27 @@ begin
   AdicionaSelecao(Faturamento, TAlignLayout.Top, 'imp_caixa_motoboy', 'Motoboy',
     '1', '0');
 
+  AdicionaTitulo(Faturamento, 'Integração PIX');
+  AdicionaSelecao(Faturamento, TAlignLayout.Top, 'fat_integra_pix',
+    'Integrar PIX', '1', '0');
+  AdicionaParametroEdit(Faturamento, 'token_mp', '');
+
   // Fidelidade
 
   AdicionaTitulo(Fidelidade, 'Pontos de Fidelidade');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade',
-    'Programa de Fidelidade', '1', '0');
-  AdicionaCombo(Geral, 'tipo_preco_pizza', 'Tipo Pontos Fidelidade',
-    ['Ponto Por Vlaor', 'Ponto Por Pedido'], False);
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_pontos_eq_valor', '');
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_eq_pontos', '');
+  // AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade','Programa de Fidelidade', '1', '0');
+  AdicionaCombo(Fidelidade, 'fidelidade', 'Programa de Fidelidade',
+    ['Desativado', 'Ponto Por Real Gasto', 'Ponto Por Pedido'], False);
+
+
+
+
+  // AdicionaParametroEdit(Fidelidade, 'fidelidade_pontos_eq_valor', '');
+  // AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_eq_pontos', '');
+
   AdicionaParametroEdit(Fidelidade, 'fidelidade_pedido_minimo', '');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_desconto', '');
+
   AdicionaTitulo(Fidelidade, 'Quais as Formas de Pedidos Geram Pontos');
   AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_pedido',
     'Pedidos PDV', '1', '0');
@@ -267,6 +281,12 @@ begin
     'Pedidos Whatsapp', '1', '0');
   AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_site',
     'Pedidos Site', '1', '0');
+  AdicionaTitulo(Fidelidade, '');
+  AdicionaTitulo(Fidelidade, 'Parametros Por Pedido');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_qtd_resgate', '');
+
+  AdicionaTitulo(Fidelidade, 'Parametros Por Real Gasto');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_real', '');
 end;
 
 procedure TfrmParametros.SenhaCadastrada;
