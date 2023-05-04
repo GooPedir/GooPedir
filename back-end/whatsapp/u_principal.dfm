@@ -2,7 +2,7 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'GooPedir'
-  ClientHeight = 671
+  ClientHeight = 623
   ClientWidth = 909
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,12 +17,12 @@ object frmPrincipal: TfrmPrincipal
   TextHeight = 13
   object Lbl_Avisos: TLabel
     Left = 0
-    Top = 639
+    Top = 591
     Width = 909
     Height = 13
     Align = alBottom
     Caption = ' '
-    ExplicitTop = 409
+    ExplicitTop = 639
     ExplicitWidth = 3
   end
   object lblStatus: TLabel
@@ -2639,7 +2639,7 @@ object frmPrincipal: TfrmPrincipal
   end
   object lStatusFaturamento: TLabel
     Left = 0
-    Top = 622
+    Top = 574
     Width = 909
     Height = 17
     Align = alBottom
@@ -2649,7 +2649,7 @@ object frmPrincipal: TfrmPrincipal
     Font.Name = 'Segoe UI'
     Font.Style = [fsBold]
     ParentFont = False
-    ExplicitTop = 392
+    ExplicitTop = 622
     ExplicitWidth = 4
   end
   object PageControl1: TPageControl
@@ -5421,7 +5421,7 @@ object frmPrincipal: TfrmPrincipal
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 652
+    Top = 604
     Width = 909
     Height = 19
     Panels = <
@@ -5434,7 +5434,7 @@ object frmPrincipal: TfrmPrincipal
         Width = 50
       end>
     Visible = False
-    ExplicitTop = 422
+    ExplicitTop = 652
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Imagens|*jpg;*.jpg;*.bmp;*.png;*.pdf;*.mp4;*.mp3;*.rar'
@@ -5533,14 +5533,16 @@ object frmPrincipal: TfrmPrincipal
     OnGetMe = TInject1GetMe
     OnNewGetNumber = TInject1NewGetNumber
     OnGetIncomingCall = TInject1GetIncomingCall
-    Left = 616
-    Top = 400
+    Left = 720
+    Top = 280
   end
   object RequisicaoVencidas: iRequisicao
     BaseURL = 'https://goopedir.com/ws/v1/notifica/a'
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 434
     Top = 118
   end
@@ -5566,6 +5568,8 @@ object frmPrincipal: TfrmPrincipal
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 546
     Top = 342
   end
@@ -5581,6 +5585,8 @@ object frmPrincipal: TfrmPrincipal
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 8
     Top = 312
   end
@@ -5600,6 +5606,8 @@ object frmPrincipal: TfrmPrincipal
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 48
     Top = 168
   end
@@ -5631,6 +5639,8 @@ object frmPrincipal: TfrmPrincipal
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 128
     Top = 464
   end
