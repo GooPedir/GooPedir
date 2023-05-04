@@ -1,15 +1,13 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 652
-  Width = 1980
+  Height = 201
+  Width = 389
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 20000
     Left = 96
     Top = 48
   end
@@ -59,8 +57,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 216
-    Top = 152
+    Left = 224
+    Top = 96
     object CAIXAdata_abertura: TDateField
       FieldName = 'data_abertura'
     end
@@ -82,8 +80,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 200
-    Top = 232
+    Left = 224
+    Top = 152
     object DADOS_WHATSAPPnome: TStringField
       DisplayLabel = 'Nome Estabelecimento'
       FieldName = 'nome'
@@ -305,6 +303,28 @@ object DM: TDM
     object DADOS_WHATSAPPtemp_delivery: TIntegerField
       FieldName = 'temp_delivery'
     end
+    object DADOS_WHATSAPPtoken_mp: TStringField
+      DisplayLabel = 'Token Mercado Pago'
+      FieldName = 'token_mp'
+      Size = 2555
+    end
+    object DADOS_WHATSAPPfat_integra_pix: TIntegerField
+      FieldName = 'fat_integra_pix'
+    end
+    object DADOS_WHATSAPPcor_fundo: TStringField
+      FieldName = 'cor_fundo'
+      Size = 255
+    end
+    object DADOS_WHATSAPPcor_fonte: TStringField
+      FieldName = 'cor_fonte'
+      Size = 255
+    end
+    object DADOS_WHATSAPPcontrole_estoque: TIntegerField
+      FieldName = 'controle_estoque'
+    end
+    object DADOS_WHATSAPPficha_tecnica: TIntegerField
+      FieldName = 'ficha_tecnica'
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -314,8 +334,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 360
-    Top = 256
+    Left = 224
+    Top = 264
     object FATURAS2codigo_cliente: TIntegerField
       FieldName = 'codigo_cliente'
     end
@@ -340,10 +360,8 @@ object DM: TDM
     eTAG = False
     Metodo = mGet
     Status = 0
-    MostrarAguarde = False
-    TempoExpiracao = 60000
-    Left = 360
-    Top = 194
+    Left = 224
+    Top = 210
   end
   object DADOS_MOTOBOY_SITE: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -353,8 +371,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 568
-    Top = 240
+    Left = 584
+    Top = 224
     object DADOS_MOTOBOY_SITEdeliveryman_name: TStringField
       FieldName = 'deliveryman_name'
       Size = 255
@@ -474,16 +492,5 @@ object DM: TDM
       FieldName = 'data_formatada'
       Size = 255
     end
-  end
-  object VersaoConexao: TFDConnection
-    Params.Strings = (
-      'Port=2020'
-      'Server=localhost'
-      'Password=root'
-      'User_Name=root'
-      'Database=sys'
-      'DriverID=MySQL')
-    Left = 912
-    Top = 224
   end
 end

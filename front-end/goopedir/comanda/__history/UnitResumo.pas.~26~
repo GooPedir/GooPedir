@@ -644,7 +644,7 @@ begin
 
   if not dm.deleta then
   begin
-    ShowMessageToast(Self, 'Usu√°rio n√£o tem permis√£o!', 1);
+    ShowMessageToast(Self, 'Usu·rio n„o tem permis„o!', 1);
     exit;
   end;
 
@@ -723,7 +723,7 @@ begin
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 2', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 2', 1);
     exit;
   end
   else
@@ -738,7 +738,7 @@ begin
           if StatusPedido < 0 then
           begin
             SalvarDadosPedido;
-            ShowMessageToast(Self, 'Pedido Lan√ßado Com Sucesso!', 2);
+            ShowMessageToast(Self, 'Pedido LanÁado Com Sucesso!', 2);
             FCodigoPedido := 0;
 
             frmMain.OpenClose;
@@ -963,13 +963,13 @@ procedure TFrmResumo.Button1Click(Sender: TObject);
 begin
   // if (lFaturado.Visible = True) then
   // begin
-  // ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+  // ShowMessageToast(Self, 'Pedido j· faturado!', 1);
   // exit;
   // end;
   //
   // if not dm.TestaConexao then
   // begin
-  // ShowMessageToast(Self, 'Sem conex√£o com servidor!', 1);
+  // ShowMessageToast(Self, 'Sem conex„o com servidor!', 1);
   // exit;
   // end;
   //
@@ -1049,7 +1049,7 @@ procedure TFrmResumo.Conluir;
 begin
   if dm.CodigoCaixa = 0 then
   begin
-    ShowMessageToast(Self, 'Caixa n√£o foi aberto!', 1);
+    ShowMessageToast(Self, 'Caixa n„o foi aberto!', 1);
     exit;
   end;
 
@@ -1169,7 +1169,7 @@ begin
   if length(EdtCelular.Text) < 10 then
   begin
     ShowMessageToast(Self,
-      'N√∫mero de telefone invalido, formatos aceitos (00)0000-0000 e (00)00000-0000, apenas n√∫meros!',
+      'N˙mero de telefone invalido, formatos aceitos (00)0000-0000 e (00)00000-0000, apenas n˙meros!',
       1);
     EdtCelular.SetFocus;
     exit;
@@ -1272,7 +1272,7 @@ procedure TFrmResumo.FormActivate(Sender: TObject);
 begin
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 3', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 3', 1);
   end
   else
   begin
@@ -1329,26 +1329,26 @@ var
 begin
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 4', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 4', 1);
     exit;
   end
   else
   begin
     if (lFaturado.Visible = True) then
     begin
-      ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+      ShowMessageToast(Self, 'Pedido j· faturado!', 1);
       exit;
     end;
 
     if lApenasVisualizacao.Visible = True then
     begin
-      ShowMessageToast(Self, 'Apenas visualiza√ß√£o do pedido!', 1);
+      ShowMessageToast(Self, 'Apenas visualizaÁ„o do pedido!', 1);
       exit;
     end;
 
     if not dm.deleta then
     begin
-      ShowMessageToast(Self, 'Usu√°rio n√£o tem permis√£o!', 1);
+      ShowMessageToast(Self, 'Usu·rio n„o tem permis„o!', 1);
       exit;
     end;
 
@@ -1389,13 +1389,13 @@ begin
   end;
   if (lFaturado.Visible = True) then
   begin
-    ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+    ShowMessageToast(Self, 'Pedido j· faturado!', 1);
     exit;
   end;
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 5', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 5', 1);
     exit;
   end;
   Delivery := 0;
@@ -1427,15 +1427,15 @@ begin
       end;
     1:
       begin
-        lHiden.Text := 'Impress√£o';
+        lHiden.Text := 'Impress„o';
       end;
     2:
       begin
-        lHiden.Text := 'Confer√™ncia';
+        lHiden.Text := 'ConferÍncia';
       end;
     3:
       begin
-        lHiden.Text := 'Transfer√™ncia';
+        lHiden.Text := 'TransferÍncia';
       end;
     4:
       begin
@@ -1472,18 +1472,18 @@ procedure TFrmResumo.img_faturaClick(Sender: TObject);
 begin
   if (lFaturado.Visible = True) then
   begin
-    ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+    ShowMessageToast(Self, 'Pedido j· faturado!', 1);
     exit;
   end;
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 6', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 6', 1);
 
   end
   else
   begin
-    frmSimNao.titulo := 'confer√™ncia';
+    frmSimNao.titulo := 'conferÍncia';
     frmSimNao.descricao := 'Deseja imprimir?';
     frmSimNao.Sim := ImpressaoSim;
     frmSimNao.Show;
@@ -1498,7 +1498,7 @@ begin
     begin
       if not dm.TestaConexao then
       begin
-        ShowMessageToast(Self, 'Sem conex√£o com servidor! 7', 1);
+        ShowMessageToast(Self, 'Sem conex„o com servidor! 7', 1);
         exit;
       end;
 
@@ -1522,13 +1522,13 @@ procedure TFrmResumo.img_imprimirClick(Sender: TObject);
 begin
   if (lFaturado.Visible = True) then
   begin
-    ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+    ShowMessageToast(Self, 'Pedido j· faturado!', 1);
     exit;
   end;
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 8', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 8', 1);
 
   end
   else
@@ -1552,13 +1552,13 @@ procedure TFrmResumo.img_transferenciaClick(Sender: TObject);
 begin
   if (lFaturado.Visible = True) then
   begin
-    ShowMessageToast(Self, 'Pedido j√° faturado!', 1);
+    ShowMessageToast(Self, 'Pedido j· faturado!', 1);
     exit;
   end;
 
   if not dm.TestaConexao then
   begin
-    ShowMessageToast(Self, 'Sem conex√£o com servidor! 9', 1);
+    ShowMessageToast(Self, 'Sem conex„o com servidor! 9', 1);
 
   end
   else
@@ -1896,7 +1896,7 @@ procedure TFrmResumo.TransferenciaConcluida;
 begin
   // if Assigned(frmTransferenciaItem) then
   frmTransferenciaItem.Hide;
-  ShowMessageToast(Self, 'Transfer√™ncia concluida!', 3);
+  ShowMessageToast(Self, 'TransferÍncia concluida!', 3);
 end;
 
 function TFrmResumo.ValidaCampo: Boolean;
@@ -1905,14 +1905,14 @@ begin
 
   if length(EdtCelular.Text) < 10 then
   begin
-    ShowMessageToast(Self, 'Celular n√£o informado!', 1);
+    ShowMessageToast(Self, 'Celular n„o informado!', 1);
     EdtCelular.SetFocus;
     exit;
   end;
 
   if length(EdtNome.Text) < 3 then
   begin
-    ShowMessageToast(Self, 'Nome n√£o informado!', 1);
+    ShowMessageToast(Self, 'Nome n„o informado!', 1);
     EdtNome.SetFocus;
     exit;
   end;
@@ -1921,35 +1921,35 @@ begin
   begin
     if length(EdtRua.Text) = 0 then
     begin
-      ShowMessageToast(Self, 'Rua n√£o informado!', 1);
+      ShowMessageToast(Self, 'Rua n„o informado!', 1);
       EdtRua.SetFocus;
       exit;
     end;
 
     if length(EdtNumero.Text) = 0 then
     begin
-      ShowMessageToast(Self, 'N√∫mero n√£o informado!', 1);
+      ShowMessageToast(Self, 'N˙mero n„o informado!', 1);
       EdtNumero.SetFocus;
       exit;
     end;
 
     if length(EdtBairro.Text) = 0 then
     begin
-      ShowMessageToast(Self, 'Bairro n√£o informado!', 1);
+      ShowMessageToast(Self, 'Bairro n„o informado!', 1);
       EdtBairro.SetFocus;
       exit;
     end;
 
     if length(EdtCidade.Text) = 0 then
     begin
-      ShowMessageToast(Self, 'Cidade n√£o informado!', 1);
+      ShowMessageToast(Self, 'Cidade n„o informado!', 1);
       EdtCidade.SetFocus;
       exit;
     end;
 
     if length(EdtEstado.Text) = 0 then
     begin
-      ShowMessageToast(Self, 'Estado n√£o informado!', 1);
+      ShowMessageToast(Self, 'Estado n„o informado!', 1);
       EdtEstado.SetFocus;
       exit;
     end;

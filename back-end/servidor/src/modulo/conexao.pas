@@ -608,7 +608,7 @@ Var
   Banco: String;
   Query: TFDQuery;
 begin
-
+  try
   Banco := DataModulo.Banco.Params.Database;
   DataModulo.Banco.Close;
   DataModulo.Banco.Params.Database := 'sys';
@@ -624,6 +624,9 @@ begin
   DataModulo.Banco.Open;
 
   Query.Free;
+  except
+     Result := '8027';
+  end;
 
 end;
 

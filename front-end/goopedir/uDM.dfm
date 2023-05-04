@@ -1,13 +1,15 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 201
-  Width = 389
+  Height = 507
+  Width = 933
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 96
     Top = 48
   end
@@ -325,6 +327,9 @@ object DM: TDM
     object DADOS_WHATSAPPficha_tecnica: TIntegerField
       FieldName = 'ficha_tecnica'
     end
+    object DADOS_WHATSAPPstatus_pedidos_site: TIntegerField
+      FieldName = 'status_pedidos_site'
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -360,6 +365,8 @@ object DM: TDM
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 224
     Top = 210
   end

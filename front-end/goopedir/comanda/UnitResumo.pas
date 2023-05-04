@@ -951,6 +951,22 @@ begin
       GetSimples('v1/dados/consulta/cliente/celular/' + EdtCelular.Text,
         mConsultaCliente);
       PegaDadosCliente;
+      if cTipo.ItemIndex = 0 then
+      begin
+        GetSimples('/v1/consulta/generica/taxa_entrega/*/bairro = "' +
+          EdtBairro.Text + '"/*', MemTaxa);
+
+        if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+        begin
+          EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+          EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+          EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+          ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+        end;
+        CalcularTotal;
+
+      end;
       TThread.Synchronize(TThread.CurrentThread,
         procedure
         begin

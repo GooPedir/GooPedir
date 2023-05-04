@@ -153,6 +153,7 @@ type
     DADOS_WHATSAPPcor_fonte: TStringField;
     DADOS_WHATSAPPcontrole_estoque: TIntegerField;
     DADOS_WHATSAPPficha_tecnica: TIntegerField;
+    DADOS_WHATSAPPstatus_pedidos_site: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
