@@ -39,7 +39,6 @@ uses
   uSenha in 'outros\uSenha.pas' {frmSenha},
   uPedidoAdicionaAlterar in 'uPedidoAdicionaAlterar.pas' {frmCadastroBase1},
   uCaixa in 'uCaixa.pas' {frmCaixa},
-  uPrincipalMotoboy in 'uPrincipalMotoboy.pas' {frmPrincipalMotoboy},
   uFrameConfiguracaoEdit in 'frame\uFrameConfiguracaoEdit.pas' {FrameConfiguracaoEdit: TFrame},
   ufrmParametros in 'ufrmParametros.pas' {frmParametros},
   uFrameTitulo in 'frame\uFrameTitulo.pas' {FrameTitulo: TFrame},

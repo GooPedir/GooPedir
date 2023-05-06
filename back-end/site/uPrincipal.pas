@@ -2439,6 +2439,7 @@ var
   J: Integer;
   TotalSabores: Integer;
   Resultado: String;
+  DadosBusca : TFDMemTable;
 begin
 
   if codigo = 0 then
@@ -2454,6 +2455,7 @@ begin
 
     MemoryPedidoItem := TFDMemTable.Create(nil);
     MemoryPedidoItem.LoadFromJSON(FRequest.Retorno);
+    DadosBusca := TFDMemTable.Create(nil);
 
     MemoryDados := TFDMemTable.Create(nil);
     MemoryDados.FieldDefs.Add('id', ftInteger);
@@ -2477,20 +2479,12 @@ begin
 
       end;
 
-      SetLength(ArrayAdicionais, 0);
-      Adicional := MemoryPedidoItem.FieldByName('adicionais').AsString;
-      Aux := '';
-
       MemoryDados.Insert;
-      MemoryDados.FieldByName('id').AsInteger := MemoryPedidoItem.FieldByName
-        ('tabela').AsInteger;
-      MemoryDados.FieldByName('idproduto').AsInteger :=
-        MemoryPedidoItem.FieldByName('produto').AsInteger;
-      MemoryDados.FieldByName('qtd').AsInteger :=
-        MemoryPedidoItem.FieldByName('qtde').AsInteger;
+      MemoryDados.FieldByName('id').AsInteger := MemoryPedidoItem.FieldByName('tabela').AsInteger;
+      MemoryDados.FieldByName('idproduto').AsInteger :=  MemoryPedidoItem.FieldByName('produto').AsInteger;
+      MemoryDados.FieldByName('qtd').AsInteger := MemoryPedidoItem.FieldByName('qtde').AsInteger;
       try
-        MemoryDados.FieldByName('valor').AsString :=
-          StringReplace(MemoryPedidoItem.FieldByName('valor').AsString, '.',
+        MemoryDados.FieldByName('valor').AsString := StringReplace(MemoryPedidoItem.FieldByName('valor').AsString, '.',
           ',', [rfReplaceAll]);
       except
         MemoryDados.FieldByName('valor').AsString := '0';
@@ -2511,165 +2505,203 @@ begin
       end;
       MemoryDados.Post;
 
-      for I := 1 to length(Adicional) do
+    FRequest.URLI := 'itens_pedido.php?codigo='+MemoryPedidoItem.FieldByName('tabela').AsString;
+    FRequest.Get;
+    DadosBusca.LoadFromJSON(FRequest.Retorno);
+    if DadosBusca.RecordCount > 0 then
+    begin
+      while not DadosBusca.Eof do
       begin
-        if Adicional[I] = ',' then
-        begin
-          SetLength(ArrayAdicionais, length(ArrayAdicionais) + 1);
-          ArrayAdicionais[length(ArrayAdicionais) - 1] := trim(Aux);
-          Aux := '';
-        end
-        else
-        begin
-          Aux := Aux + Adicional[I];
-        end;
-      end;
-      try
-        for I := 0 to length(ArrayAdicionais) - 1 do
-        begin
-          memoryItemAdicionaisSabors := TFDMemTable.Create(nil);
-          try
-            FRequest.URLI := 'Itemcat/' + User.ToString + '/' + ArrayAdicionais
-              [I] + '/' + MemoryPedidoItem.FieldByName('produto')
-              .AsString + '/a';
-            FRequest.Get;
-
-            if FRequest.Retorno <> 'null' then
-            begin
-              memoryItemAdicionaisSabors.LoadFromJSON(FRequest.Retorno);
-            end
-            else
-            begin
-              FRequest.URLI := 'pizza/' + User.ToString + '/' + ArrayAdicionais
-                [I] + '/' + MemoryPedidoItem.FieldByName('produto')
-                .AsString + '/a';
-              FRequest.Get;
-
-              memoryItemAdicionaisSabors.LoadFromJSON(FRequest.Retorno);
-            end;
-          except
-          end;
-          while not memoryItemAdicionaisSabors.Eof do
-          begin
-            memoryItemAdicionaisSabors.Edit;
-            TotalSabores := 1;
-            if memoryItemAdicionaisSabors.FieldByName('idcat').AsInteger > 0
-            then
-            begin
-              FRequest.URLI := 'catadicional/' +
-                memoryItemAdicionaisSabors.FieldByName('idcat').AsString + '/a';
-              FRequest.Get;
-              memoryItemAdicionaisSabors.FieldByName('categoria').AsString :=
-                trim(FRequest.Retorno);
-            end
-            else
-            begin
-              TotalSabores := QtdSabores(ArrayAdicionais[I]);
-            end;
-
-            if memoryItemAdicionaisSabors.FieldByName('idadc').AsInteger > 0
-            then
-            begin
-              FRequest.URLI := 'adicional/' +
-                memoryItemAdicionaisSabors.FieldByName('idadc').AsString + '/a';
-              FRequest.Get;
-              memoryItemAdicionaisSabors.FieldByName('nome').AsString :=
-                trim(FRequest.Retorno);
-            end;
-            memoryItemAdicionaisSabors.Post;
-
-            for J := 0 to TotalSabores - 1 do
-            begin
               MemoryDados.Insert;
-              MemoryDados.FieldByName('id').AsInteger :=
-                MemoryPedidoItem.FieldByName('tabela').AsInteger;
-              MemoryDados.FieldByName('idproduto').AsInteger :=
-                MemoryPedidoItem.FieldByName('produto').AsInteger;
-              MemoryDados.FieldByName('qtd').AsInteger :=
-                MemoryPedidoItem.FieldByName('qtde').AsInteger;
-              MemoryDados.FieldByName('valor').AsString :=
-                StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,
-                '.', ',', [rfReplaceAll]);
+              MemoryDados.FieldByName('id').AsInteger := MemoryPedidoItem.FieldByName('tabela').AsInteger;
+              MemoryDados.FieldByName('idproduto').AsInteger := MemoryPedidoItem.FieldByName('produto').AsInteger;
+              MemoryDados.FieldByName('qtd').AsInteger := MemoryPedidoItem.FieldByName('qtde').AsInteger;
+              MemoryDados.FieldByName('valor').AsString := StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,'.', ',', [rfReplaceAll]);
               // MemoryPedidoItem.FieldByName('valor').AsFloat;
               try
-                MemoryDados.FieldByName('valor').AsString :=
-                  StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,
-                  '.', ',', [rfReplaceAll]);
+                MemoryDados.FieldByName('valor').AsString := StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,'.', ',', [rfReplaceAll]);
               except
                 MemoryDados.FieldByName('valor').AsString := '0';
               end;
 
-              MemoryDados.FieldByName('categoria').AsString :=
-                memoryItemAdicionaisSabors.FieldByName('categoria').AsString;
-              MemoryDados.FieldByName('adicional').AsString :=
-                memoryItemAdicionaisSabors.FieldByName('nome').AsString;
-              // MemoryDados.FieldByName('valoradicional').AsFloat :=
-              // memoryItemAdicionaisSabors.FieldByName('valor').AsFloat;
+              MemoryDados.FieldByName('categoria').AsString := DadosBusca.FieldByName('categoria').AsString;
+              MemoryDados.FieldByName('adicional').AsString := DadosBusca.FieldByName('descricao').AsString;
 
+              if DadosBusca.FieldByName('valor_pizza').IsNull then
+              begin
               try
-                MemoryDados.FieldByName('valoradicional').AsString :=
-                  StringReplace(memoryItemAdicionaisSabors.FieldByName('valor')
-                  .AsString, '.', ',', [rfReplaceAll]);
+                MemoryDados.FieldByName('valoradicional').AsString := StringReplace(DadosBusca.FieldByName('valor').AsString, '.', ',', [rfReplaceAll]);
               except
                 MemoryDados.FieldByName('valoradicional').AsString := '0';
               end;
+              end else begin
+              try
+                MemoryDados.FieldByName('valoradicional').AsString := StringReplace(DadosBusca.FieldByName('valor_pizza').AsString, '.', ',', [rfReplaceAll]);
+              except
+                MemoryDados.FieldByName('valoradicional').AsString := '0';
+              end;
+              end;
+
+
 
               MemoryDados.Post;
-            end;
-            memoryItemAdicionaisSabors.next;
-          end;
-          if memoryItemAdicionaisSabors.RecordCount = 0 then
-          begin
-            MemoryDados.Insert;
-            MemoryDados.FieldByName('id').AsInteger :=
-              MemoryPedidoItem.FieldByName('tabela').AsInteger;
-            MemoryDados.FieldByName('idproduto').AsInteger :=
-              MemoryPedidoItem.FieldByName('produto').AsInteger;
-            MemoryDados.FieldByName('qtd').AsInteger :=
-              MemoryPedidoItem.FieldByName('qtde').AsInteger;
-            try
-              MemoryDados.FieldByName('valor').AsString :=
-                StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,
-                '.', ',', [rfReplaceAll]);
-            except
-              MemoryDados.FieldByName('valor').AsString := '0';
-            end;
-            MemoryDados.FieldByName('categoria').AsString := 'Categoria';
-
-            for K := 1 to length(ArrayAdicionais[I]) - 1 do
-            begin
-              if ArrayAdicionais[I] = '-' then
-              begin
-
-              end
-              else
-              begin
-                MemoryDados.FieldByName('categoria').AsString :=
-                  trim(MemoryDados.FieldByName('categoria').AsString +
-                  ArrayAdicionais[I]);
-                break
-              end;
-            end;
-
-            ArrayAdicionais[I] := StringReplace(ArrayAdicionais[I],
-              trim(MemoryDados.FieldByName('categoria').AsString) + ' -', '',
-              [rfReplaceAll]);
-
-            MemoryDados.FieldByName('adicional').AsString := ArrayAdicionais[I];
-            MemoryDados.FieldByName('valoradicional').AsFloat := 0;
-            MemoryDados.Post;
-          end;
-
-        end;
-
-      except
-        on E: Exception do
-        begin
-          Result := E.Message;
-          exit;
-        end;
-
+       DadosBusca.Next;
       end;
+    end;
+
+
+
+//
+//      SetLength(ArrayAdicionais, 0);
+//      Adicional := MemoryPedidoItem.FieldByName('adicionais').AsString;
+//      Aux := '';
+//
+
+//
+//      for I := 1 to length(Adicional) do
+//      begin
+//        if Adicional[I] = ',' then
+//        begin
+//          SetLength(ArrayAdicionais, length(ArrayAdicionais) + 1);
+//          ArrayAdicionais[length(ArrayAdicionais) - 1] := trim(Aux);
+//          Aux := '';
+//        end
+//        else
+//        begin
+//          Aux := Aux + Adicional[I];
+//        end;
+//      end;
+//      try
+//        for I := 0 to length(ArrayAdicionais) - 1 do
+//        begin
+//          memoryItemAdicionaisSabors := TFDMemTable.Create(nil);
+//          try
+//            FRequest.URLI := 'Itemcat/' + User.ToString + '/' + ArrayAdicionais
+//              [I] + '/' + MemoryPedidoItem.FieldByName('produto')
+//              .AsString + '/a';
+//            FRequest.Get;
+//
+//            if FRequest.Retorno <> 'null' then
+//            begin
+//              memoryItemAdicionaisSabors.LoadFromJSON(FRequest.Retorno);
+//            end
+//            else
+//            begin
+//              FRequest.URLI := 'pizza/' + User.ToString + '/' + ArrayAdicionais[I] + '/' + MemoryPedidoItem.FieldByName('produto').AsString + '/a';
+//              FRequest.Get;
+//
+//              memoryItemAdicionaisSabors.LoadFromJSON(FRequest.Retorno);
+//            end;
+//          except
+//          end;
+//          while not memoryItemAdicionaisSabors.Eof do
+//          begin
+//            memoryItemAdicionaisSabors.Edit;
+//            TotalSabores := 1;
+//            if memoryItemAdicionaisSabors.FieldByName('idcat').AsInteger > 0
+//            then
+//            begin
+//              FRequest.URLI := 'catadicional/' +
+//                memoryItemAdicionaisSabors.FieldByName('idcat').AsString + '/a';
+//              FRequest.Get;
+//              memoryItemAdicionaisSabors.FieldByName('categoria').AsString :=
+//                trim(FRequest.Retorno);
+//            end
+//            else
+//            begin
+//              TotalSabores := QtdSabores(ArrayAdicionais[I]);
+//            end;
+//
+//            if memoryItemAdicionaisSabors.FieldByName('idadc').AsInteger > 0
+//            then
+//            begin
+//              FRequest.URLI := 'adicional/' +
+//                memoryItemAdicionaisSabors.FieldByName('idadc').AsString + '/a';
+//              FRequest.Get;
+//              memoryItemAdicionaisSabors.FieldByName('nome').AsString :=
+//                trim(FRequest.Retorno);
+//            end;
+//            memoryItemAdicionaisSabors.Post;
+//
+//            for J := 0 to TotalSabores - 1 do
+//            begin
+//              MemoryDados.Insert;
+//              MemoryDados.FieldByName('id').AsInteger := MemoryPedidoItem.FieldByName('tabela').AsInteger;
+//              MemoryDados.FieldByName('idproduto').AsInteger := MemoryPedidoItem.FieldByName('produto').AsInteger;
+//              MemoryDados.FieldByName('qtd').AsInteger := MemoryPedidoItem.FieldByName('qtde').AsInteger;
+//              MemoryDados.FieldByName('valor').AsString := StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,'.', ',', [rfReplaceAll]);
+//              // MemoryPedidoItem.FieldByName('valor').AsFloat;
+//              try
+//                MemoryDados.FieldByName('valor').AsString := StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,'.', ',', [rfReplaceAll]);
+//              except
+//                MemoryDados.FieldByName('valor').AsString := '0';
+//              end;
+//
+//              MemoryDados.FieldByName('categoria').AsString := memoryItemAdicionaisSabors.FieldByName('categoria').AsString;
+//              MemoryDados.FieldByName('adicional').AsString := memoryItemAdicionaisSabors.FieldByName('nome').AsString;
+//
+//              try
+//                MemoryDados.FieldByName('valoradicional').AsString := StringReplace(memoryItemAdicionaisSabors.FieldByName('valor').AsString, '.', ',', [rfReplaceAll]);
+//              except
+//                MemoryDados.FieldByName('valoradicional').AsString := '0';
+//              end;
+//
+//              MemoryDados.Post;
+//            end;
+//            memoryItemAdicionaisSabors.next;
+//          end;
+//          if memoryItemAdicionaisSabors.RecordCount = 0 then
+//          begin
+//            MemoryDados.Insert;
+//            MemoryDados.FieldByName('id').AsInteger :=
+//              MemoryPedidoItem.FieldByName('tabela').AsInteger;
+//            MemoryDados.FieldByName('idproduto').AsInteger :=
+//              MemoryPedidoItem.FieldByName('produto').AsInteger;
+//            MemoryDados.FieldByName('qtd').AsInteger :=
+//              MemoryPedidoItem.FieldByName('qtde').AsInteger;
+//            try
+//              MemoryDados.FieldByName('valor').AsString :=
+//                StringReplace(MemoryPedidoItem.FieldByName('valor').AsString,
+//                '.', ',', [rfReplaceAll]);
+//            except
+//              MemoryDados.FieldByName('valor').AsString := '0';
+//            end;
+//            MemoryDados.FieldByName('categoria').AsString := 'Categoria';
+//
+//            for K := 1 to length(ArrayAdicionais[I]) - 1 do
+//            begin
+//              if ArrayAdicionais[I] = '-' then
+//              begin
+//
+//              end
+//              else
+//              begin
+//                MemoryDados.FieldByName('categoria').AsString :=
+//                  trim(MemoryDados.FieldByName('categoria').AsString +
+//                  ArrayAdicionais[I]);
+//                break
+//              end;
+//            end;
+//
+//            ArrayAdicionais[I] := StringReplace(ArrayAdicionais[I],
+//              trim(MemoryDados.FieldByName('categoria').AsString) + ' -', '',
+//              [rfReplaceAll]);
+//
+//            MemoryDados.FieldByName('adicional').AsString := ArrayAdicionais[I];
+//            MemoryDados.FieldByName('valoradicional').AsFloat := 0;
+//            MemoryDados.Post;
+//          end;
+//
+//        end;
+//
+//      except
+//        on E: Exception do
+//        begin
+//          Result := E.Message;
+//          exit;
+//        end;
+//
+//      end;
 
       MemoryPedidoItem.next;
     end;
@@ -3517,7 +3549,7 @@ begin
                     'status', 'valor_pedido', 'valor_desconto',
                     'valor_taxa_entrega', 'valor_total_pedido', 'troco',
                     'impresso_site', 'pedido_impresso', 'origem',
-                    'id_pedido_site', 'tipo_pagamento', 'pedido_site'],
+                    'id_pedido_site', 'tipo_pagamento', 'pedido_site','mp'],
                     ['0', CodigoPedidoDia.ToString, CodigoCliente.ToString,
                     Endereco.ToString, FormatDateTime('yyyy-mm-dd', Date),
                     TimeToStr(Time), StatusPedido.ToString,
@@ -3529,7 +3561,8 @@ begin
                     '2', MemoryTablePedidos.FieldByName('id').AsString,
                     CodigoFormaPagamento(MemoryTablePedidos.FieldByName
                     ('forma_pagamento').AsString).ToString,
-                    MemoryTablePedidos.FieldByName('pedido').AsString]);
+                    MemoryTablePedidos.FieldByName('id').AsString,
+                    MemoryTablePedidos.FieldByName('mp').AsString]);
                   //
 
                   if Messa then
@@ -3696,15 +3729,6 @@ begin
               CodigoMesa.ToString;
             Insert.ExecutaSQL(SQL);
 
-            // try
-            //
-            // frmPrincipal.NotificaPedidoWindows('Pedido ' + FormatFloat('000000',
-            // CodigoPedidoDia), 'R$: ' + FormatFloat('#.00',
-            // StrToFloat(StringReplace(MemoryTablePedidos.FieldByName('total')
-            // .AsString, '.', ',', []))));
-            // except
-            //
-            // end;
 
             Insert.InserirUpdate('impressao_pedido', ['id', 'data_solicitacao',
               'hora_solicitacao', 'id_pedido', 'status', 'vias'],
@@ -3741,9 +3765,7 @@ begin
                     StatusPedido.ToString]);
 
                 end;
-                // Insert.InserirUpdate('pedido', ['codigo', 'view',
-                // 'impresso_site'], [CodigoNovoPeiddo.ToString, '1',
-                // StatusPedido.ToString]);
+
               end;
             9:
               begin

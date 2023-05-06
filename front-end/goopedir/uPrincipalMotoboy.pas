@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.Classes,
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.TabControl, FMX.CodeReader, FireDAC.Stan.Intf,
+  FMX.Objects, FMX.TabControl,  FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
@@ -23,7 +23,7 @@ type
     TabControl1: TTabControl;
     TabItem1: TTabItem;
     TabItem2: TTabItem;
-    CodeReader1: TCodeReader;
+
     rQRCod: TRectangle;
     memDados: iMemTable;
     memDadoscodigo: TIntegerField;
@@ -410,7 +410,7 @@ begin
   rStatus.Visible := True;
   rEntrega.Visible := True;
 
-  CodeReader1.Stop;
+
   Base64 := TBase64Encoding.Create(0);
   QRCOD := Base64.Decode(QRCOD);
 
@@ -468,12 +468,12 @@ begin
 
   if not Status then
   begin
-    CodeReader1.Start;
+
     TabControl1.TabIndex := 1;
   end
   else
   begin
-    CodeReader1.Stop;
+
     TabControl1.TabIndex := 0;
   end;
 

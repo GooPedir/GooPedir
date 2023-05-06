@@ -2,7 +2,6 @@ object dm: Tdm
   OnCreate = DataModuleCreate
   Height = 485
   Width = 872
-  PixelsPerInch = 96
   object SQLite: TFDConnection
     Params.Strings = (
       'Password=root'

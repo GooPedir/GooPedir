@@ -13,7 +13,6 @@ object frmPrincipal: TfrmPrincipal
   Font.Style = [fsBold]
   WindowState = wsMaximized
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 17
   object PageControl1: TPageControl
     Left = 0
@@ -23,6 +22,8 @@ object frmPrincipal: TfrmPrincipal
     ActivePage = tabPrincipal
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 1370
+    ExplicitHeight = 547
     object tabPrincipal: TTabSheet
       Caption = 'Principal'
       object DBGrid1: TDBGrid
@@ -167,6 +168,7 @@ object frmPrincipal: TfrmPrincipal
     Height = 102
     Align = alTop
     TabOrder = 1
+    ExplicitWidth = 1370
     DesignSize = (
       1374
       102)

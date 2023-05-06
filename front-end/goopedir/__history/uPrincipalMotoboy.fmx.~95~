@@ -275,23 +275,6 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         Text = 'TabItem2'
         ExplicitSize.cx = 69.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
-        object CodeReader1: TCodeReader
-          CodeType = Code2D
-          ShowMask = True
-          ShowIconTypes = False
-          PlaySound = True
-          BeepVolume = 1.000000000000000000
-          IConColor = claWhite
-          MaxImageWidth = 2100
-          ValidSamples = 2
-          OnCodeReady = CodeReader1CodeReady
-          OnStart = CodeReader1Start
-          OnStop = CodeReader1Stop
-          Size.Width = 991.000000000000000000
-          Size.Height = 472.000000000000000000
-          Size.PlatformDefault = False
-          Align = Client
-        end
       end
     end
   end
@@ -422,6 +405,8 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         StyleLookup = ''
         TabOrder = 0
         Text = 'TabItem3'
+        ExplicitSize.cx = 8.000000000000000000
+        ExplicitSize.cy = 8.000000000000000000
         object Label6: TLabel
           Align = Top
           Margins.Top = 5.000000000000000000
@@ -465,6 +450,9 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           object Label7: TLabel
             Align = Center
             StyledSettings = [Family]
+            Size.Width = 188.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
             TextSettings.Font.Size = 14.000000000000000000
             TextSettings.Font.StyleExt = {00060000000000000004000000}
             TextSettings.FontColor = xFFFEFEFE
@@ -499,6 +487,9 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           object Label8: TLabel
             Align = Center
             StyledSettings = [Family]
+            Size.Width = 180.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
             TextSettings.Font.Size = 14.000000000000000000
             TextSettings.Font.StyleExt = {00060000000000000004000000}
             TextSettings.FontColor = xFFFEFEFE
@@ -522,25 +513,26 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
                 PNG = {
                   89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
                   B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  0238494441546843ED9A4B4EC340104443EE00E2731C96E1081C03C201E05A20
-                  B141E2B7810577604958C08240D5F08290A021B6676C83FCA4D6D09372BB4A76
-                  2288190D0C0CD4633E9FEFA88E558FAF1D230F33BC4CB0B71C3AE08819BD43DE
-                  0EB1F93312EE70C0936A4FB5C14B9D610FAA7D7BC2DBEF5746A213C47B6CF506
-                  799AE2ED98AD188966168B75B67A833DD9983C3EB01563A1A1ED1DD8FBE26FCC
-                  FAE71982D445F7F79AEA4C75CA5619B8058BBC470871EBF95ACFD9AE44322768
-                  63D0650F22E3ABAA1BCFD67AA7A5D6A7A28F37B431E8B206C915C27886A18D41
-                  972D48CE10C6730C6D0CBA2C417287309E656863D0350E522284F13C431B83AE
-                  519052218C671ADA1874B583940C613CD7D0C6A0AB15A47408E3D98636065DE5
-                  206D84309E6F6863D0550AD25608E37318DA18744B07693384F1790CED07D97F
-                  69D43956F8B15BDEF336BBB554C5FECE4FE6046D0CBA4A414C5B619239411B83
-                  AE7210D34698644ED0C6A0AB15C4940E93CC09DA1874B5839892619239411B83
-                  AE5110532A4C32276863D0350E624A8449E6046D0CBA2C414CEE30C99CA08D41
-                  972D88C919269913B431E8B20631B9C224738236065DF62046E63F7F1D74C176
-                  25923941FB41AB5FD08DC7E37B2DDBAA6BD58BF78A41E022572407D8EBF68A94
-                  E4FF06D1559B79ADFBA9521279DAF22A8F5F1EF47C77452E597759FBC4C2D315
-                  6B8C524FFC66D2EA87A153D5262F75863DA80E54CF785BEE31B584873EA08FD8
-                  1B3697C3A9557E48BF7838DA19F680976AFF3030303000A3D11B61E51BE46297
-                  D3250000000049454E44AE426082}
+                  0251494441546843ED994F4EDB401C85437286A2961EA74B3802C7007A8072AD
+                  22B1A904850D5D700796A48B36FFE07DC32B428D7E21B6676C83FC4923FB4D9E
+                  27EF613B0AF1686060A01EABD5EA60B95C7E9FCD66BF1F3A4619A66451A67DC7
+                  DB0E1D74EA357A87B27D73CCCD702638407F853FDA3FD2F8E4973A830C1AC764
+                  229BF65F3F336A7C66F391A77A83329D908DCBCC53315C8F98C5474FF5063211
+                  4C19EF3D1583112C7B87E3ADE51B7BFBE6198AD44537ECEE62B1F8A171EEA932
+                  F8122C728FB8C42FD6D7F6C2D39548E184658C7DD98BA8C40785BF61EDF97C7E
+                  AB4DAD4F458E07CB18FBB216C9550258032C63ECCB56246709601DB08CB12F4B
+                  91DC2580B5C032C6BEC6454A9400D603CB18FB1A1529550258132C63ECAB5DA4
+                  6409605DB08CB1AF5691D22580B5C132C6BECA45DA2801AC0F9631F6552AD256
+                  09E03DC032C6BEAD8BB45902781FB07C26FB9746BDC78E77BBE5A96FB34B4BBA
+                  D8FFF9299CB08CB1AF521168AB4C0A272C63ECAB5C04DA2893C209CB18FB6A15
+                  81D26552386119635FED2250B24C0A272C63EC6B54044A9549E184658C7D8D8B
+                  408932299CB08CB12F4B11C85D2685139631F6652B0239CBA470C232C6BEAC45
+                  205799144E58C6D897BD0828FCCB9F832E3D5D89144E583ED3EA0F74E3F1F84E
+                  E38B76AF359669B2142E5CE48CE4C0F1BA3D232579BF45F4893265DBE423B214
+                  CAF499AD32AE3DE8592B32994C7E7AF7D0DB3E913229E355529B50EB7D6E263F
+                  0C3DD1D8F34B9D41068DAFCAF4976C64F44B9BE1113007F491AD1F4FFF83D63C
+                  3D7DF170B433C84096ADCFC4C0C0C07F8C468FF13019EF88A7ED0D0000000049
+                  454E44AE426082}
                 FileName = 
                   'C:\Users\ifort\Downloads\icons8-para-a-esquerda-com-quadrado-50.' +
                   'png'
@@ -567,25 +559,26 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
                 PNG = {
                   89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
                   B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  0239494441546843ED9A414E1B4114446DAF72812008C7C81158C21138069003
-                  C0B5C8822DB081057760895980844CAA3A0F24041F4CCF6FCF80E6495FADDFAE
-                  6E55B93DD8783C191919A963B158ECA88E55B78F3D230F73BC6C636F39B4E088
-                  3D0687BC1D62F37D24DC61C19D6A4FB5C143BD610FAA7D7BC2DBC72723D15FC4
-                  7B4C0D06793AC0DB31533112CD2D16EB4C0D067BB23179BC612AC642433B38B0
-                  F7CADF8CF1CB3306790BBD764F74EA671AD7985A19D927F243F55BE537AF9587
-                  79C1FF4BA9EE6297F99FAA0BAFD778A54A7F0F2AE6046D0CBAEABF5AADC31473
-                  8236065D7510D3324C31276863D0750A625A8529E6046D0CBACE414C8B30C59C
-                  A08D419712C4648729E6046D0CBAB42026334C31276863D0A5063159618A3941
-                  1B832E3D88C90853CC09DA18744D8298AE618A39411B83AE5910D3254C312768
-                  9F19C4A7DFE9749AFFC41178652F2D0D9FFA4FD4EB0C6D0CBA2641BA86305E6B
-                  6863D0A507C90861BCDED0C6A04B0D9215C2780F431B832E2D486608E37D0C6D
-                  0CBA9420D9218CF732B431E83A076911C2783F431B83AE539056218CF734B431
-                  E8AA83B40C61BCAFA18D415715A47508E3BD0D6D0CBADA20A75EABF152D5E4EB
-                  A0624ED03E93FD59EB4175AEDA9ACD66D765A62F085C7522AB007BCD4FA437BE
-                  6F109DDADCA32ED6EA2F085A214F9B1EE5F1D58D9EB74EE494719771483C793A
-                  638C51EA6D5F4C1A7D33F440F58B877AC31E547F54F7785BEE36B584875E3044
-                  EC0D9BCBE1D42ADFE778BA39DA1BF68097CFFD606064640426937F6F02FF5FA4
-                  C2144F0000000049454E44AE426082}
+                  0253494441546843ED993B7213411445F549D800940DCB60098466092CC3D80B
+                  30DB8280D42681803D106202A39FB9A77D7101E209D1F35A335073AABA466FF4
+                  BAEB1EB7469235939191913A369BCDF3F57AFD7AB1587CB9ED1965B8268B329D
+                  38DE7E68D22BAF313894EDC23177C34E30417F851B3D3ED538F653BD41068D97
+                  64229B1EFF796764FCC6CDA73E351894E98C6CBCCC7C2A86D723CDE2C8A70603
+                  9908A68C9F7D2A86467039381C6F2BDFCCC77F9E51E477AC56ABB7DAF52B5D94
+                  8F7CEA6064EFC8038DA712E1C3EBE0323F717729D55DEC0AFF50BBF29EF9CBE5
+                  F2A3EAF4CFA0124EB88C715FF5BB566B99124EB88C715FB508B49429E184CB18
+                  F77512815632259C7019E3BECE22D042A684132E63DC972202D932259C7019E3
+                  BE3411C89429E184CB18F7A58A40964C09275CC6B82F5D0432644A38E132C67D
+                  4D44A0AB4C09275CC6B8AF9908749129E184CB7B06F1ED773A9DE6FFE12C7CB0
+                  97960E7FF59F28F3C0658CFB9A88749500E682CB18F7A58B644800F3C1658CFB
+                  5245B2248035C0658CFBD24432258075C0658CFB5244B22580B5C0658CFB3A8B
+                  B49000D6039731EEEB24D24A0258135CC6B8AF5AA4A504B02EB88C715F95486B
+                  09606D7019E3BE2A11495C3257C70F926AF2735009275CDE93FD5D6BA5F16E36
+                  9B3DD3F87477AA272C5CB52387C0F19AEF486FFCBF227AB7B9E6A88BB5FA0782
+                  5628D3138ECAB875A3674B643E9F5FFAE10B1F8744C9A48C57A5DA85AC4FB898
+                  7C33F44CE3B19FEA0D32689C2BD357B291D14FED865BC04C18227BDF9EFE0ED6
+                  DC3DFDE1E6686F90812C7BEFC4C8C8C82F4C26DF008DDB0085A93531B2000000
+                  0049454E44AE426082}
                 FileName = 
                   'C:\Users\ifort\Downloads\icons8-para-a-direita-com-quadrado-50.p' +
                   'ng'
@@ -607,17 +600,18 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         object VertScrollBox1: TVertScrollBox
           Align = Client
           Size.Width = 281.000000000000000000
-          Size.Height = 143.000000000000000000
+          Size.Height = 121.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 4
           Viewport.Width = 265.000000000000000000
-          Viewport.Height = 143.000000000000000000
-          object Edit1: TEdit
+          Viewport.Height = 121.000000000000000000
+          object edtNome: TEdit
             Touch.InteractiveGestures = [LongTap, DoubleTap]
             Align = Top
             TabOrder = 4
             Position.X = 5.000000000000000000
             Position.Y = 17.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -651,6 +645,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 3
             Position.X = 5.000000000000000000
             Position.Y = 56.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -674,6 +669,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 2
             Position.X = 5.000000000000000000
             Position.Y = 95.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -697,6 +693,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 1
             Position.X = 5.000000000000000000
             Position.Y = 134.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -720,6 +717,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 0
             Position.X = 5.000000000000000000
             Position.Y = 173.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -729,12 +727,13 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           object Memo1: TMemo
             Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
             DataDetectorTypes = []
+            ReadOnly = True
             Align = Client
             Size.Width = 265.000000000000000000
             Size.Height = 0.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 6
-            Viewport.Width = 265.000000000000000000
+            Viewport.Width = 261.000000000000000000
             Viewport.Height = 0.000000000000000000
           end
         end
@@ -742,7 +741,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           Align = Top
           Position.Y = 132.000000000000000000
           Size.Width = 281.000000000000000000
-          Size.Height = 102.000000000000000000
+          Size.Height = 124.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 5
           object lCodigoPedido: TLabel
@@ -755,12 +754,12 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TextSettings.Font.StyleExt = {00070000000000000004000000}
             TextSettings.HorzAlign = Center
             TabOrder = 4
-            object Label14: TLabel
+            object lData: TLabel
               Align = Left
               StyledSettings = [Size, FontColor]
               Margins.Left = 5.000000000000000000
               Position.X = 5.000000000000000000
-              Size.Width = 156.000000000000000000
+              Size.Width = 196.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
               TextSettings.Font.Family = 'Courier New'
@@ -768,7 +767,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
               TabOrder = 4
             end
           end
-          object Label15: TLabel
+          object lSub: TLabel
             Align = Top
             StyledSettings = [FontColor]
             Margins.Left = 5.000000000000000000
@@ -776,7 +775,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             Position.X = 5.000000000000000000
             Position.Y = 22.000000000000000000
             Size.Width = 271.000000000000000000
-            Size.Height = 17.000000000000000000
+            Size.Height = 20.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.Family = 'Courier New'
             TextSettings.Font.Size = 16.000000000000000000
@@ -786,21 +785,24 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             object Label16: TLabel
               Align = Left
               StyledSettings = [Size, FontColor]
+              Size.Width = 120.000000000000000000
+              Size.Height = 20.000000000000000000
+              Size.PlatformDefault = False
               TextSettings.Font.Family = 'Courier New'
               TextSettings.Font.StyleExt = {00070000000000000004000000}
               Text = 'Sub-Total:'
               TabOrder = 4
             end
           end
-          object Label17: TLabel
+          object lTaxa: TLabel
             Align = Top
             StyledSettings = []
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Position.X = 5.000000000000000000
-            Position.Y = 39.000000000000000000
+            Position.Y = 42.000000000000000000
             Size.Width = 271.000000000000000000
-            Size.Height = 17.000000000000000000
+            Size.Height = 20.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.Family = 'Courier New'
             TextSettings.Font.Size = 16.000000000000000000
@@ -811,21 +813,24 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             object Label18: TLabel
               Align = Left
               StyledSettings = [Size, FontColor]
+              Size.Width = 120.000000000000000000
+              Size.Height = 20.000000000000000000
+              Size.PlatformDefault = False
               TextSettings.Font.Family = 'Courier New'
               TextSettings.Font.StyleExt = {00070000000000000004000000}
               Text = 'Entrega  :'
               TabOrder = 4
             end
           end
-          object Label21: TLabel
+          object lTotal: TLabel
             Align = Top
             StyledSettings = []
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Position.X = 5.000000000000000000
-            Position.Y = 56.000000000000000000
+            Position.Y = 62.000000000000000000
             Size.Width = 271.000000000000000000
-            Size.Height = 17.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.Family = 'Courier New'
             TextSettings.Font.Size = 20.000000000000000000
@@ -833,22 +838,25 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TextSettings.FontColor = xFF218A00
             TextSettings.HorzAlign = Trailing
             TabOrder = 0
-            object Label22: TLabel
+            object lTotal1: TLabel
               Align = Left
               StyledSettings = [Size, FontColor]
+              Size.Width = 120.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
               TextSettings.Font.Family = 'Courier New'
               TextSettings.Font.StyleExt = {00070000000000000004000000}
               Text = 'Total    :'
               TabOrder = 4
             end
           end
-          object Label13: TLabel
+          object lMotoboy: TLabel
             Align = Top
             StyledSettings = [FontColor]
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Position.X = 5.000000000000000000
-            Position.Y = 73.000000000000000000
+            Position.Y = 84.000000000000000000
             Size.Width = 271.000000000000000000
             Size.Height = 17.000000000000000000
             Size.PlatformDefault = False
@@ -871,6 +879,8 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         StyleLookup = ''
         TabOrder = 0
         Text = 'TabItem4'
+        ExplicitSize.cx = 8.000000000000000000
+        ExplicitSize.cy = 8.000000000000000000
       end
     end
     object rTitulo: TRectangle
@@ -1095,90 +1105,6 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
       FillHeaderExpressions = <>
       FillBreakGroups = <>
     end
-    object LinkControlToField1: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'nome'
-      Control = Edit1
-      Track = False
-    end
-    object LinkControlToField2: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'telefone'
-      Control = edtNumero
-      Track = False
-    end
-    object LinkControlToField3: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'rua'
-      Control = edtRua
-      Track = False
-    end
-    object LinkControlToField4: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'bairro'
-      Control = edtBairro
-      Track = False
-    end
-    object LinkControlToField5: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'cidade'
-      Control = edtCidade
-      Track = False
-    end
-    object LinkPropertyToFieldText: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'codigo_pedido'
-      Component = lCodigoPedido
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText2: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'sub_total'
-      Component = Label15
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText3: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'valor_taxa'
-      Component = Label17
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText4: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'total'
-      Component = Label21
-      ComponentProperty = 'Text'
-    end
-    object LinkControlToField7: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'resumo_pedidos'
-      Control = Memo1
-      Track = False
-    end
-    object LinkPropertyToFieldText5: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'deliveryman_name'
-      Component = Label13
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText6: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'data'
-      Component = Label14
-      ComponentProperty = 'Text'
-    end
   end
   object Requisicao: iRequisicao
     BaseURL = 'https://papaleguasfood.com.br/ws/v1/'
@@ -1251,11 +1177,5 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
       FieldName = 'deliveryman_name'
       Size = 255
     end
-  end
-  object BindSourceDB3: TBindSourceDB
-    DataSet = DM.DADOS_MOTOBOY_PEDIDO
-    ScopeMappings = <>
-    Left = 232
-    Top = 120
   end
 end

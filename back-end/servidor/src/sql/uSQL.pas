@@ -329,6 +329,10 @@ begin
         ExecultaSQL
           ('alter table pro_adi_personalizado_sabores add quantidade_ingredientes float');
       end;
+      17: begin
+        ExecultaSQL('alter table pedido add mp varchar(255)')
+      end;
+
 
     // Deve-se Rodar manual esses sql
     99999999:

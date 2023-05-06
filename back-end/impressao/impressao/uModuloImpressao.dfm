@@ -2,7 +2,6 @@ object dmImpressaoV2: TdmImpressaoV2
   OnCreate = DataModuleCreate
   Height = 708
   Width = 827
-  PixelsPerInch = 96
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (
@@ -12,7 +11,7 @@ object dmImpressaoV2: TdmImpressaoV2
         'vl_pedido,p.valor_desconto as vl_desconto,p.valor_taxa_entrega a' +
         's vl_taxa, p.valor_total_pedido as vl_total,p.troco,p.origem,tp.' +
         'descricao as tipo_pagamento, '
-      'c.codigo as codigo_cliente, '
+      'c.codigo as codigo_cliente, p.mp,'
       'c.nome, c.celular, '
       'CASE '
       ' when p.origem = 1 then "ORIGEM WHATSAPP"'
@@ -112,7 +111,7 @@ object dmImpressaoV2: TdmImpressaoV2
         'group by pp.codigo, pps.codigo_pedido_produto,pps.nomeclatura, p' +
         'ps.codigo_pedido_produto, tp.descricao')
     Left = 16
-    Top = 120
+    Top = 136
     ParamData = <
       item
         Name = 'CODIGO_PEDIDO'
@@ -134,7 +133,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 72000
-    PrinterSetup.PaperSize = 143
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -496,28 +495,8 @@ object dmImpressaoV2: TdmImpressaoV2
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
       mmBottomOffset = 0
-      mmHeight = 67204
+      mmHeight = 55563
       mmPrintPosition = 0
-      object ppShape5: TppShape
-        DesignLayer = ppDesignLayer1
-        UserName = 'Shape5'
-        mmHeight = 15875
-        mmLeft = 12703
-        mmTop = 34131
-        mmWidth = 15610
-        BandType = 7
-        LayerName = Foreground
-      end
-      object ppShape1: TppShape
-        DesignLayer = ppDesignLayer1
-        UserName = 'Shape1'
-        mmHeight = 15875
-        mmLeft = 39939
-        mmTop = 34130
-        mmWidth = 15611
-        BandType = 7
-        LayerName = Foreground
-      end
       object ppLabel31: TppLabel
         DesignLayer = ppDesignLayer1
         UserName = 'Label31'
@@ -747,51 +726,6 @@ object dmImpressaoV2: TdmImpressaoV2
         mmStopPosition = 0
         mmMinHeight = 0
       end
-      object ppDB2DBarCode2: TppDB2DBarCode
-        DesignLayer = ppDesignLayer1
-        UserName = 'DB2DBarCode2'
-        AlignBarcode = ahLeft
-        AutoScale = True
-        AutoSize = False
-        Border.mmPadding = 0
-        Color = clBlack
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 10
-        Font.Style = [fsBold]
-        Transparent = True
-        BarCodeType = bcQRCode
-        DataPipeline = ppDados
-        DataField = 'endereco_qrcod'
-        PrintHumanReadable = False
-        MaxiCodeSettings.CarrierPostalCode = '000000000'
-        MaxiCodeSettings.HorPixelsPerMM = 4.000000000000000000
-        MaxiCodeSettings.VerPixelsPerMM = 4.000000000000000000
-        MaxiCodeSettings.mmBarHeight = 1059
-        MaxiCodeSettings.mmBarWidth = 1059
-        MaxiCodeSettings.mmQuietZone = 2118
-        PDF417Settings.RelativeBarHeight = True
-        PDF417Settings.mmBarHeight = 2118
-        PDF417Settings.mmBarWidth = 530
-        PDF417Settings.mmQuietZone = 2118
-        QRCodeSettings.CharEncoding = bceUTF8
-        QRCodeSettings.ErrorCorrection = ecHigh
-        QRCodeSettings.IncludeBOM = True
-        QRCodeSettings.mmModuleSize = 1059
-        QRCodeSettings.mmQuietZone = 1059
-        QRCodeSettings.ECICode = -1
-        DataMatrixSettings.mmModuleSize = 1059
-        DataMatrixSettings.mmQuietZone = 1059
-        AztecCodeSettings.mmModuleSize = 1600
-        DataPipelineName = 'ppDados'
-        mmHeight = 15080
-        mmLeft = 39952
-        mmTop = 34264
-        mmWidth = 15611
-        BandType = 7
-        LayerName = Foreground
-      end
       object ppDBText29: TppDBText
         DesignLayer = ppDesignLayer1
         UserName = 'DBText29'
@@ -855,48 +789,6 @@ object dmImpressaoV2: TdmImpressaoV2
         BandType = 7
         LayerName = Foreground
       end
-      object ppLabel2: TppLabel
-        DesignLayer = ppDesignLayer1
-        UserName = 'Label2'
-        Border.mmPadding = 0
-        Caption = 'Motoboy'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 10
-        Font.Style = [fsBold]
-        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
-        FormFieldSettings.FormFieldType = fftNone
-        TextAlignment = taCentered
-        Transparent = True
-        mmHeight = 4233
-        mmLeft = 12700
-        mmTop = 49874
-        mmWidth = 15638
-        BandType = 7
-        LayerName = Foreground
-      end
-      object ppLabel3: TppLabel
-        DesignLayer = ppDesignLayer1
-        UserName = 'Label3'
-        Border.mmPadding = 0
-        Caption = 'Maps'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 10
-        Font.Style = [fsBold]
-        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
-        FormFieldSettings.FormFieldType = fftNone
-        TextAlignment = taCentered
-        Transparent = True
-        mmHeight = 4233
-        mmLeft = 39952
-        mmTop = 50006
-        mmWidth = 15638
-        BandType = 7
-        LayerName = Foreground
-      end
       object ppLine16: TppLine
         DesignLayer = ppDesignLayer1
         UserName = 'Line16'
@@ -904,8 +796,8 @@ object dmImpressaoV2: TdmImpressaoV2
         Pen.Style = psDot
         Weight = 0.750000000000000000
         mmHeight = 2117
-        mmLeft = 0
-        mmTop = 65088
+        mmLeft = 1588
+        mmTop = 53446
         mmWidth = 85196
         BandType = 7
         LayerName = Foreground
@@ -942,7 +834,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 60363
+        mmTop = 48683
         mmWidth = 35190
         BandType = 7
         LayerName = Foreground
@@ -960,10 +852,40 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 56659
+        mmTop = 43656
         mmWidth = 38894
         BandType = 7
         LayerName = Foreground
+      end
+      object ppRichText88: TppRichText
+        DesignLayer = ppDesignLayer1
+        UserName = 'RichText4'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText4'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
+          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs20 ' +
+          '<dbtext>mp</dbtext>\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Transparent = True
+        mmHeight = 8731
+        mmLeft = 1852
+        mmTop = 34660
+        mmWidth = 65617
+        BandType = 7
+        LayerName = Foreground
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
       end
     end
     object ppGroup2: TppGroup
@@ -1157,7 +1079,6 @@ object dmImpressaoV2: TdmImpressaoV2
     Top = 64
   end
   object COZINHA: TFDQuery
-    Active = True
     Connection = dmModulo.BANCO
     SQL.Strings = (
       'SELECT '
@@ -2641,7 +2562,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2847,7 +2768,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 209900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 144
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -3235,7 +3156,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3597,7 +3518,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
       mmBottomOffset = 0
-      mmHeight = 60590
+      mmHeight = 61913
       mmPrintPosition = 0
       object ppLabel1: TppLabel
         DesignLayer = ppDesignLayer6
@@ -3842,7 +3763,7 @@ object dmImpressaoV2: TdmImpressaoV2
         TextAlignment = taCentered
         Transparent = True
         DataPipelineName = 'ppDados'
-        mmHeight = 9667
+        mmHeight = 4763
         mmLeft = 1588
         mmTop = 30602
         mmWidth = 47388
@@ -3877,7 +3798,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Weight = 0.750000000000000000
         mmHeight = 2117
         mmLeft = 0
-        mmTop = 49825
+        mmTop = 59796
         mmWidth = 85196
         BandType = 7
         LayerName = Foreground1
@@ -3914,7 +3835,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 45543
+        mmTop = 55563
         mmWidth = 35190
         BandType = 7
         LayerName = Foreground1
@@ -3932,7 +3853,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 41839
+        mmTop = 51858
         mmWidth = 38894
         BandType = 7
         LayerName = Foreground1
@@ -3958,6 +3879,36 @@ object dmImpressaoV2: TdmImpressaoV2
         mmWidth = 35446
         BandType = 7
         LayerName = Foreground1
+      end
+      object ppRichText89: TppRichText
+        DesignLayer = ppDesignLayer6
+        UserName = 'RichText89'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText89'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\gen' +
+          'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs20 ' +
+          '<dbtext>mp</dbtext>\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Transparent = True
+        mmHeight = 15610
+        mmLeft = 1852
+        mmTop = 35719
+        mmWidth = 47096
+        BandType = 7
+        LayerName = Foreground1
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
       end
     end
     object ppGroup7: TppGroup
@@ -4105,7 +4056,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 72000
-    PrinterSetup.PaperSize = 143
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4697,7 +4648,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5426,7 +5377,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6367,7 +6318,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -6910,7 +6861,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -7753,7 +7704,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8243,7 +8194,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8959,7 +8910,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9426,7 +9377,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10210,7 +10161,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 140
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10686,6 +10637,8 @@ object dmImpressaoV2: TdmImpressaoV2
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 640
     Top = 448
   end
@@ -10702,7 +10655,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 144
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

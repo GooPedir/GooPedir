@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.Classes,
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.TabControl, FMX.CodeReader, FireDAC.Stan.Intf,
+  FMX.Objects, FMX.TabControl,  FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
@@ -23,7 +23,7 @@ type
     TabControl1: TTabControl;
     TabItem1: TTabItem;
     TabItem2: TTabItem;
-    CodeReader1: TCodeReader;
+
     rQRCod: TRectangle;
     memDados: iMemTable;
     memDadoscodigo: TIntegerField;
@@ -85,10 +85,8 @@ type
     Rectangle6: TRectangle;
     Label8: TLabel;
     VertScrollBox1: TVertScrollBox;
-    Edit1: TEdit;
+    edtNome: TEdit;
     Label9: TLabel;
-    BindSourceDB3: TBindSourceDB;
-    LinkControlToField1: TLinkControlToField;
     Label10: TLabel;
     edtNumero: TEdit;
     Label11: TLabel;
@@ -97,30 +95,21 @@ type
     edtBairro: TEdit;
     edtCidadesd: TLabel;
     edtCidade: TEdit;
-    LinkControlToField2: TLinkControlToField;
-    LinkControlToField3: TLinkControlToField;
-    LinkControlToField4: TLinkControlToField;
-    LinkControlToField5: TLinkControlToField;
     Layout4: TLayout;
     lCodigoPedido: TLabel;
-    LinkPropertyToFieldText: TLinkPropertyToField;
     ShadowEffect1: TShadowEffect;
     ShadowEffect2: TShadowEffect;
-    Label15: TLabel;
+    lSub: TLabel;
     Label16: TLabel;
-    Label17: TLabel;
+    lTaxa: TLabel;
     Label18: TLabel;
-    Label21: TLabel;
-    Label22: TLabel;
-    LinkPropertyToFieldText2: TLinkPropertyToField;
-    LinkPropertyToFieldText3: TLinkPropertyToField;
-    LinkPropertyToFieldText4: TLinkPropertyToField;
+    lTotal: TLabel;
+    lTotal1: TLabel;
     Memo1: TMemo;
-    LinkControlToField7: TLinkControlToField;
     btnVoltar: TImage;
     BtnProximo: TImage;
-    Label13: TLabel;
-    LinkPropertyToFieldText5: TLinkPropertyToField;
+    lMotoboy: TLabel;
+    lData: TLabel;
     procedure CodeReader1Start(Sender: TObject);
     procedure CodeReader1Stop(Sender: TObject);
     procedure CodeReader1CodeReady(aCode: string);
@@ -172,29 +161,51 @@ uses
 
 procedure TfrmPrincipalMotoboy.AjustaMemo;
 begin
-  Memo1.Text := StringReplace(Memo1.Text, '<b>', '', [rfReplaceAll]);
+  lCodigoPedido.Text := FormatFloat('00000',
+    dm.DADOS_MOTOBOY_PEDIDO.FieldByName('codigo_pedido').AsInteger);
+  lData.Text := dm.DADOS_MOTOBOY_PEDIDO.FieldByName('data_formatada').AsString;
+  lSub.Text := FormatFloat('R$ #0.00',
+    dm.DADOS_MOTOBOY_PEDIDO.FieldByName('sub_total').AsFloat);
+  lTaxa.Text := FormatFloat('R$ #0.00',
+    dm.DADOS_MOTOBOY_PEDIDO.FieldByName('valor_taxa').AsFloat);
+  lTotal.Text := FormatFloat('R$ #0.00',
+    dm.DADOS_MOTOBOY_PEDIDO.FieldByName('total').AsFloat);
+  lMotoboy.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName
+    ('deliveryman_name').AsString);
+  edtNome.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('nome')
+    .AsString);
+  edtRua.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('rua').AsString);
+  edtBairro.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('bairro')
+    .AsString);
+  edtCidade.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('cidade')
+    .AsString);
+  edtNumero.Text := UpperCase(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('unidade')
+    .AsString);
+
+  Memo1.Text := StringReplace(dm.DADOS_MOTOBOY_PEDIDO.FieldByName
+    ('resumo_pedidos').AsString, '<b>', '', [rfReplaceAll]);
   Memo1.Text := StringReplace(Memo1.Text, '/<b>', '', [rfReplaceAll]);
   Memo1.Text := StringReplace(Memo1.Text, '<br />', #13, [rfReplaceAll]);
   Memo1.Text := StringReplace(Memo1.Text, '<br/>', #13, [rfReplaceAll]);
 
   rSaiuEntrega.Visible :=
-    length(DM.DADOS_MOTOBOY_PEDIDO.FieldByName('deliveryman_name')
+    length(dm.DADOS_MOTOBOY_PEDIDO.FieldByName('deliveryman_name')
     .AsString) = 0;
 
-  Edit1.Text := StringReplace(Edit1.Text, '%20', ' ', [rfReplaceAll]);
-  Edit1.Text := StringReplace(Edit1.Text, '%', ' ', [rfReplaceAll]);
+  edtNome.Text := StringReplace(edtNome.Text, '%20', ' ', [rfReplaceAll]);
+  edtNome.Text := StringReplace(edtNome.Text, '%', ' ', [rfReplaceAll]);
   rSaiuEntrega.Enabled := rSaiuEntrega.Visible;
 end;
 
 procedure TfrmPrincipalMotoboy.BtnProximoClick(Sender: TObject);
 begin
-  DM.DADOS_MOTOBOY_PEDIDO.Next;
+  dm.DADOS_MOTOBOY_PEDIDO.Next;
   AjustaMemo;
 end;
 
 procedure TfrmPrincipalMotoboy.btnVoltarClick(Sender: TObject);
 begin
-  DM.DADOS_MOTOBOY_PEDIDO.Prior;
+  dm.DADOS_MOTOBOY_PEDIDO.Prior;
   AjustaMemo;
 end;
 
@@ -234,15 +245,15 @@ var
   CorFundo: String;
   CorLetra: String;
 begin
-  lNomeEmpresa.Text := DM.DADOS_MOTOBOY_SITE.FieldByName
+  lNomeEmpresa.Text := dm.DADOS_MOTOBOY_SITE.FieldByName
     ('nome_empresa').AsString;
-  lNumero.Text := DM.DADOS_MOTOBOY_SITE.FieldByName('telefone_wpp').AsString;
-  lNomeMotoboy1.Text := DM.DADOS_MOTOBOY_SITE.FieldByName
+  lNumero.Text := dm.DADOS_MOTOBOY_SITE.FieldByName('telefone_wpp').AsString;
+  lNomeMotoboy1.Text := dm.DADOS_MOTOBOY_SITE.FieldByName
     ('deliveryman_name').AsString;
 
-  CorFundo := StringReplace(DM.DADOS_MOTOBOY_SITE.FieldByName('cor_topo')
+  CorFundo := StringReplace(dm.DADOS_MOTOBOY_SITE.FieldByName('cor_topo')
     .AsString, '#', '', [rfReplaceAll]);
-  CorLetra := StringReplace(DM.DADOS_MOTOBOY_SITE.FieldByName
+  CorLetra := StringReplace(dm.DADOS_MOTOBOY_SITE.FieldByName
     ('cor_titulo_produtos').AsString, '#', '', [rfReplaceAll]);
   rTitulo.Stroke.Color := HexToTColor(CorFundo);
   rTitulo.Fill.Color := HexToTColor(CorFundo);
@@ -273,21 +284,21 @@ end;
 
 procedure TfrmPrincipalMotoboy.GetDadosPedidos;
 begin
-  DM.DADOS_MOTOBOY_PEDIDO.Close;
+  dm.DADOS_MOTOBOY_PEDIDO.Close;
   btnVoltar.Visible := False;
   BtnProximo.Visible := False;
-  DM.Requisicao.Metodo := mGet;
-  DM.Requisicao.URL := 'pedidosm/' + DM.DADOS_MOTOBOY_SITE.FieldByName
-    ('user_id').AsString + '-' + edtCodigoPedido.Text + '/a';
-  DM.Requisicao.Metodo := mGet;
-  DM.Requisicao.MemTable2 := DM.DADOS_MOTOBOY_PEDIDO;
-  DM.Requisicao.Execute;
+  dm.Requisicao.Metodo := mGet;
+  dm.Requisicao.URL := 'pedidosm/' + dm.DADOS_MOTOBOY_SITE.FieldByName('user_id').AsString + '-' + edtCodigoPedido.Text + '/a';
+  ShowMessage(dm.Requisicao.BaseURL+dm.Requisicao.URL);
+  dm.Requisicao.Metodo := mGet;
+  dm.Requisicao.MemTable2 := dm.DADOS_MOTOBOY_PEDIDO;
+  dm.Requisicao.Execute;
   AjustaMemo;
 
   // rSaiuEntrega.Enabled := DM.DADOS_MOTOBOY_PEDIDO.RecordCount = 1;
-  rSaiuEntrega.Enabled := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
-  btnVoltar.Visible := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
-  BtnProximo.Visible := DM.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  rSaiuEntrega.Enabled := dm.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  btnVoltar.Visible := dm.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
+  BtnProximo.Visible := dm.DADOS_MOTOBOY_PEDIDO.RecordCount > 1;
   edtCodigoPedido.Text := '';
 end;
 
@@ -300,12 +311,12 @@ end;
 
 procedure TfrmPrincipalMotoboy.Image3Click(Sender: TObject);
 begin
-  DM.DADOS_MOTOBOY_PEDIDO.Prior;
+  dm.DADOS_MOTOBOY_PEDIDO.Prior;
 end;
 
 procedure TfrmPrincipalMotoboy.Image4Click(Sender: TObject);
 begin
-  DM.DADOS_MOTOBOY_PEDIDO.Next;
+  dm.DADOS_MOTOBOY_PEDIDO.Next;
 end;
 
 procedure TfrmPrincipalMotoboy.InserirStatus(Status: Integer);
@@ -482,33 +493,34 @@ begin
   DadosBody.AddPair('dia', FormatDateTime('dd', now));
   DadosBody.AddPair('data', FormatDateTime('yyyy-mm-dd', now));
   DadosBody.AddPair('hora', FormatDateTime('hh:nn', now));
-  DadosBody.AddPair('celular', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('telefone')
+  DadosBody.AddPair('celular', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('telefone')
     .AsString);
-  DadosBody.AddPair('nome', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('nome')
+  DadosBody.AddPair('nome', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('nome')
     .AsString);
-  DadosBody.AddPair('bairro', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('bairro')
+  DadosBody.AddPair('bairro', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('bairro')
     .AsString);
-  DadosBody.AddPair('taxa', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('valor_taxa')
+  DadosBody.AddPair('taxa', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('valor_taxa')
     .AsString);
-  DadosBody.AddPair('total', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('total')
+  DadosBody.AddPair('total', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('total')
     .AsString);
-  DadosBody.AddPair('user_id', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('user_id')
+  DadosBody.AddPair('user_id', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('user_id')
     .AsString);
-  DadosBody.AddPair('motoboy', DM.DADOS_MOTOBOY_SITE.FieldByName('id')
+  DadosBody.AddPair('motoboy', dm.DADOS_MOTOBOY_SITE.FieldByName('id')
     .AsString);
   DadosBody.AddPair('status', '1');
-  DadosBody.AddPair('codigo_pedido', DM.DADOS_MOTOBOY_PEDIDO.FieldByName
+  DadosBody.AddPair('codigo_pedido', dm.DADOS_MOTOBOY_PEDIDO.FieldByName
     ('codigo_pedido').AsString);
   DadosBody.AddPair('data_apontado', FormatDateTime('yyyy-mm-dd', now));
   DadosBody.AddPair('hora_apontado', FormatDateTime('hh:nn', now));
-  DadosBody.AddPair('id_pedido', DM.DADOS_MOTOBOY_PEDIDO.FieldByName('id')
+  DadosBody.AddPair('id_pedido', dm.DADOS_MOTOBOY_PEDIDO.FieldByName('id')
     .AsString);
 
-  DM.Requisicao.URL := 'insert/ws_pedidos_motoboy/' + DM.UserId.ToString + '/a';
-  DM.Requisicao.Metodo := mPost;
+  dm.Requisicao.URL := 'insert/ws_pedidos_motoboy/' + dm.UserId.ToString + '/a';
+  dm.Requisicao.Metodo := mPost;
 
-  DM.Requisicao.BODY(DadosBody.ToString);
-  DM.Requisicao.Execute;
+  ShowMessage(DadosBody.ToString);
+//  dm.Requisicao.BODY(DadosBody.ToString);
+  dm.Requisicao.Execute;
   ShowMessageToast(self, 'Pedido saiu para entrega!', 2);
   rSaiuEntrega.Visible := False;
 end;

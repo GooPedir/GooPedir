@@ -11,7 +11,6 @@ object frmServidor: TfrmServidor
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 15
   object memoHistorico: TMemo
     Left = 8

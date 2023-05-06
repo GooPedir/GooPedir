@@ -66,6 +66,7 @@ type
     function SITE: String;
     procedure LoadImpressora;
     procedure FichaTecnica;
+    function PathExe : String;
 
   var
     FechouWhatsapp: Boolean;
@@ -373,6 +374,11 @@ begin
     end;
   end;
 
+end;
+
+function TfrmServidor.PathExe: String;
+begin
+Result := ExtractFilePath(Application.ExeName);
 end;
 
 procedure TfrmServidor.SemAtualizacao;

@@ -7,7 +7,7 @@ uses
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
   FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
-  FMX.TabControl, System.IOUtils, Inifiles, FMX.CodeReader, System.JSON,
+  FMX.TabControl, System.IOUtils, Inifiles,  System.JSON,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, uRequisicao;

@@ -3,13 +3,12 @@ object dmModulo: TdmModulo
   OnDestroy = DataModuleDestroy
   Height = 379
   Width = 712
-  PixelsPerInch = 96
   object BANCO: TFDConnection
     Params.Strings = (
-      'Port=2222'
-      'User_Name=sistema'
-      'Password=P4P4L3GU45F00D'
-      'Database=triangulo_lanches'
+      'Port=2626'
+      'User_Name=root'
+      'Password=root'
+      'Database=viapian_forquilhinha'
       'Server=localhost'
       'DriverID=MySQL')
     ResourceOptions.AssignedValues = [rvAutoReconnect]

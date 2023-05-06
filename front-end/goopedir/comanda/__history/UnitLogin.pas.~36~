@@ -7,7 +7,10 @@ uses
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
   FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
-  FMX.TabControl, System.IOUtils, Inifiles, FMX.CodeReader, System.JSON;
+  FMX.TabControl, System.IOUtils, Inifiles, FMX.CodeReader, System.JSON,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, uRequisicao;
 
 type
   TFrmLogin = class(TForm)
@@ -45,6 +48,9 @@ type
     Layout5: TLayout;
     rect_botao: TRectangle;
     btn_update: TSpeedButton;
+    IPS: iMemTable;
+    IPSIP: TStringField;
+    RequisicaoIP: iRequisicao;
     procedure rect_loginClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbl_configClick(Sender: TObject);
@@ -72,7 +78,7 @@ type
     property Host: String read GetHost write SetHost;
     property Usuario: String read GetUsuario write SetUsuario;
     property Senha: String read GetSenha write SetSenha;
-    property Celular: String read FCelular write SetCelular;
+    property Celular: String read GetCelular write SetCelular;
     function TestaConexao: Boolean;
     procedure Validacao;
     procedure OnFinishUpdate(Sender: TObject);
@@ -90,8 +96,8 @@ implementation
 
 {$R *.fmx}
 
-uses UnitPrincipal, uDM, uRequisicao, Funcoes, uLoginWindows,
-  uPrincipalMotoboy, uOpenViewUrl;
+uses UnitPrincipal, uDM, Funcoes, uLoginWindows,
+  uPrincipalMotoboy {, uOpenViewUrl};
 
 procedure TFrmLogin.btn_updateClick(Sender: TObject);
 var
@@ -107,14 +113,14 @@ begin
 
   // url := 'https://play.google.com/store/apps/details?id=com.embarcadero.icep';
 
-  OpenURL(url, false);
+  // OpenURL(url, false);
 end;
 
 procedure TFrmLogin.FormActivate(Sender: TObject);
 var
   t: TThread;
 begin
-    exit;
+  exit;
   t := TThread.CreateAnonymousThread(
     procedure
     var
@@ -124,8 +130,7 @@ begin
 
       // Tenta consumir servico...
       try
-        // RESTRequest1.Execute;
-        // dm.r
+
         dm.Conexao.BaseURL := 'http://' + GetHost + ':2121/';
         dm.Conexao.url := 'v1/versao/app';
         dm.Conexao.Metodo := mGet;
@@ -188,6 +193,10 @@ begin
   dm.Conexao.BaseURL := Host;
   lbl_titulo.Text := Usuario;
 
+  rect_motoboy.Visible := length(Celular) > 0;
+  edtUsuario.Text := Usuario;
+  edtSenha.Text := Senha;
+
 end;
 
 function TFrmLogin.GetCelular: String;
@@ -226,8 +235,42 @@ end;
 
 procedure TFrmLogin.lbl_configClick(Sender: TObject);
 begin
-  TabControl.GotoVisibleTab(1, TTabTransition.Slide);
-  lbl_titulo.Text := 'Configurações';
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      IPS.Close;
+      RequisicaoIP.MemTable := IPS;
+      RequisicaoIP.Execute;
+
+      if IPS.RecordCount > 0 then
+      begin
+
+        while not IPS.Eof do
+        begin
+          dm.Conexao.TempoExpiracao := 500;
+          dm.Conexao.BaseURL := 'http://' + IPS.FieldByName('IP').AsString
+            + ':2121/';
+            try
+          if TestaConexao then
+          begin
+            edtHost.Text := IPS.FieldByName('IP').AsString;
+          end;
+            except
+
+            end;
+
+          IPS.Next;
+        end;
+      end;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+          lbl_titulo.Text := 'Configurações';
+        end);
+    end).Start;
+
 end;
 
 function TFrmLogin.LerIni(Secao, Indice, ValorPadrao: String): String;
@@ -286,10 +329,7 @@ begin
     exit;
   end;
 
-  dm.Conexao.url := '/v1/usuario/' + Usuario + '/' + Senha;
-  dm.Conexao.Metodo := mGet;
-  dm.Conexao.MemTable2 := dm.Usuario;
-  dm.Conexao.Execute;
+  dm.GetSimples2('/v1/usuario/' + Usuario + '/' + Senha,dm.Usuario);
 
   if dm.Usuario.RecordCount = 0 then
   begin
@@ -314,9 +354,15 @@ end;
 
 procedure TFrmLogin.rect_motoboyClick(Sender: TObject);
 begin
+  if not dm.LoginMotoboy then
+  begin
+    ShowMessageToast(self, 'Acesso negado!', 1);
+    exit;
+  end;
+
   if NOT Assigned(frmPrincipalMotoboy) then
     Application.CreateForm(TfrmPrincipalMotoboy, frmPrincipalMotoboy);
-  frmPrincipalMotoboy.Celular := dm.GetCelular;
+  // frmPrincipalMotoboy.Celular := dm.GetCelular;
 
   frmPrincipalMotoboy.Show;
   Application.MainForm := frmPrincipalMotoboy;
@@ -394,7 +440,12 @@ begin
   try
     dm.Conexao.Execute;
   except
-    Result := false;
+    on E: exception do
+    begin
+      showmessage(E.Message);
+      Result := false;
+    end;
+
   end;
 
   Result := dm.Conexao.Status = 200;

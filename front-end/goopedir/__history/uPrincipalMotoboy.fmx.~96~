@@ -205,8 +205,8 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           TabOrder = 0
           RowHeight = 30.000000000000000000
           RowCount = 0
-          Viewport.Width = 987.000000000000000000
-          Viewport.Height = 350.000000000000000000
+          Viewport.Width = 991.000000000000000000
+          Viewport.Height = 375.000000000000000000
         end
         object lFiltro: TLayout
           Align = Top
@@ -275,23 +275,6 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         Text = 'TabItem2'
         ExplicitSize.cx = 69.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
-        object CodeReader1: TCodeReader
-          CodeType = Code2D
-          ShowMask = True
-          ShowIconTypes = False
-          PlaySound = True
-          BeepVolume = 1.000000000000000000
-          IConColor = claWhite
-          MaxImageWidth = 2100
-          ValidSamples = 2
-          OnCodeReady = CodeReader1CodeReady
-          OnStart = CodeReader1Start
-          OnStop = CodeReader1Stop
-          Size.Width = 991.000000000000000000
-          Size.Height = 472.000000000000000000
-          Size.PlatformDefault = False
-          Align = Client
-        end
       end
     end
   end
@@ -530,25 +513,26 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
                 PNG = {
                   89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
                   B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  024A494441546843ED9A414EDB40188593DC0144E1385DD223F418140E00D7A2
-                  121BA496B2A18BDE8165C3021609BC377CA0AAF487D8FEC736953F69347E93E7
-                  C97B721C2061363131D18EF57AFD69B55A9D6ADCDC0F8C322C9D4599F689B719
-                  3AE9843D4687B21D13F3757C2538E156C7071A1F7868309C41E38B33399B8EDF
-                  BE32327FC57CC0D26850A6436753C6539662645ADA2C76581A0DCEE460CAF89B
-                  A5181B0D727410EF45BE05F3BB672AD216DDB0DB7A8D9F6B9CB154075E8255EE
-                  114AFCF4FE9ABFB1DC88124E2063F0A51751892D85BFF2DE9A7F696AF5AEE8F3
-                  0D32065F6A91AC12C67B18640CBEB42299258CF731C8187C2945B24B18EF6590
-                  31F83A17A951C2783F838CC1D7A948AD12C67B1A640CBED6456A9630DED72063
-                  F0B52A52BB84F1DE061983AF71913E4A18EF6F9031F81A15E9AB84F17318640C
-                  BE8D8BF459C2F8790CF299F45F1AF51C730E87E5B16FB7979674B5BFF34B3881
-                  8CC1D7A888E9AB4C09279031F81A17317D9429E10432065FAB22A67699124E20
-                  63F0B52E626A9629E10432065FA722A65699124E2063F0752E626A9429E10432
-                  065F4A11935DA68413C8187C69454C6699124E2063F0A5163159654A38818CC1
-                  975EC428FC9F1F077D67B911259C403ED3EB07748BC5E27A3E9F7FD4E1A5C6AA
-                  2CD682C255AE4806C41BF68AD4E4FF2DA21B72C99CF293381365DA637EF145CF
-                  BFAEC805F367E631F194E907738CDAEEFB66D2DBA3BF0C3DD4D8E5A1C170068D
-                  2365BA733667E4A1D7D109C73E618C381B3137C3AD7592FF61E0E9CBD1C17006
-                  67D9F84A4C4C4CFCC56CF600D2D91B153965DAF90000000049454E44AE426082}
+                  0252494441546843ED994F4EDB401C8543942B1415384E9770841E833F07806B
+                  81C4A612B4DDB48BDEA14B6041FEC2FB8657841AFDD2D89EB15DE44F1AD96FF2
+                  3C790FDB518847030303F558AD5647CBE5F2723A9D3E3C758C32DC9345990E1D
+                  6F3B74D085D7E81DCA76EE989BE14C7080FE0A8FDA3FD6D8F34B9D41068D1332
+                  914DFBFF3E336A7C65F3B1A77A83329D928DCBCC53315C8F98C5474FF5063211
+                  4C19EF3C1583112C7B87E3ADE51B7BFBDF3314A98B6ED8DDC562F145E3DA5365
+                  F02558E41E71899FACAFED8DA72B91C209CB18FBB21751890F0AFF83B5E7F3F9
+                  2F6D6A7D2A723C58C6D897B548AE12C01A6019635FB622394B00EB80658C7D59
+                  8AE42E01AC059631F6352E52A204B01E58C6D8D7A848A912C09A6019635FED22
+                  254B00EB82658C7DB58A942E01AC0D9631F6552ED24609607DB08CB1AF5291B6
+                  4A00EF019631F66D5DA4CD12C0FB80E52BD9BF34EA3D76BCDB2D2F7D9B5D5AD2
+                  C5FECF4FE184658C7D958A405B6552386119635FE522D04699144E58C6D857AB
+                  08942E93C209CB18FB6A1781926552386119635FA32250AA4C0A272C63EC6B5C
+                  044A9449E184658C7D598A40EE32299CB08CB12F5B11C8592685139631F6652D
+                  02B9CAA470C232C6BEEC4540E1DFFE1C74EBE94AA470C2F295567FA01B8FC7BF
+                  353E69F7BBC6324D96C2858B9C911C385EB767A424EFB7C86C36BB67DBE423B2
+                  14CA74C05619D71EF4AC15994C265FBDFBD9DB3E913229E3B7A436A1D687DC4C
+                  7E187AAAB1EF973A830C1A67CA34251B19FDD2667804CC017D64EBC7D37FA035
+                  4F4FDF3C1CED0C329065EB33313030F017A3D13351B419D179E651F900000000
+                  49454E44AE426082}
                 FileName = 
                   'C:\Users\ifort\Downloads\icons8-para-a-esquerda-com-quadrado-50.' +
                   'png'
@@ -575,25 +559,26 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
                 PNG = {
                   89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
                   B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  0249494441546843ED9A4D4E1B4114846DAFB8002809C7E0082C9D23E418841C
-                  00AE058B6C814DB2E00E2C631620614355F3D9128107F6CC6BCF249A4F1AB56B
-                  5CDDAAA23DFE65343030D08CC562F1753E9F9FE9B87DEC186598398B324D89B7
-                  1E9A74CA1ABD43D94E88F93EDE0926DCE9F6918ECFDCD519CEA0E3BB33399B6E
-                  7FBC33329F633EE2546F50A6636753C6334EC5C834B3597CE2546F70260753C6
-                  3F9C8AB1D1207B07F15EE59B30FEF30C45DE428FDD9FDAF54B5D947B9CDA1AD9
-                  3BB2A3E34065FCE2B5F5322F285792406E84C2EF6A577E79BEC66BE9F4D7A012
-                  4E2063F0357ED6AA5DA68413C8187C8D8B989A654A38818CC1D7AA88A955A684
-                  13C8187CAD8B981A654A38818CC19752C4649729E10432065F5A119359A68413
-                  C8187CA9454C5699124E2063F0A5173119654A38818CC157A588695BA68413C8
-                  187CD58A9836654A38815CD18B77BFE3F138FF0F47E1AD3DB4346CF449D4F30C
-                  32065F95226D4B18CF35C8187CE945324A18CF37C8187CA945B24A18AF619031
-                  F8D28A6496305EC72063F0A514C92E61BC9641C6E06B5DA44609E3F50C32065F
-                  AB22B54A18AF699031F81A17A959C2785D838CC1D7A848ED12C66B1B640CBE46
-                  4514FEC27335FE56A92A5F07957002B922FBBDD6838E2BBD773A9C4C2637CFA7
-                  3A82C28D76641B10AFFA8E74C6FF5B4417E98CB1F11704B550A67DC6573FF4BC
-                  B523178CDF18FBC432D325638CDA4E7D31E929D43F861EEBF8C25D9DE10C3A7E
-                  28D3BDB3392377BD8F269C78421F713662AE875B6B92FF6160F9E368673883B3
-                  ACBD130303037F311A3D01BB8401A50362093B0000000049454E44AE426082}
+                  0253494441546843ED993B721341144525950236006560192C81D02C816518B3
+                  00D81604A4360904ECC1217680BE704FFBE202C413A2E7B566A0E654758DDEE8
+                  75D73D6A8D256B26232323756CB7DB679BCDE6CD62B1B8F9DA33CA704D16653A
+                  75BCC3D0A4D75E637028DB2BC7DC0F3BC104BD0A5FF4F84CE3A19FEA0D3268BC
+                  2013D9F4F8CF3B23E3B76E3EF3A9C1A04CE764E36DE65331BC1F6916273E3518
+                  C8443065FCEC53313482CBC1E1783BF9663EFEF38C22BF63BD5EBFD3AE5FEAA2
+                  7CE05347237B47EE693C91081F5E4797F989DB4BA9EE6257F8FBDA950FCC5FAD
+                  569F54A77F069570C2658CFBAAFF6AB59629E184CB18F7558B404B99124EB88C
+                  715F2711682553C2099731EEEB2C022D644A38E132C67D2922902D53C2099731
+                  EE4B13814C99124EB88C715FAA0864C99470C2658CFBD2452043A684132E63DC
+                  D74404BACA9470C2658CFB9A89401799124EB8BC6310DF7EA7D369FE0B67E1A3
+                  BDB574F8ABFF4499072E63DCD744A4AB0430175CC6B82F5D244302980F2E63DC
+                  972A922501AC012E63DC9726922901AC032E63DC9722922D01AC052E63DCD759
+                  A48504B01EB88C715F27915612C09AE032C67DD5222D258075C1658CFBAA445A
+                  4B006B83CB18F7558948E282B93A7E9454939F834A38E1F28EECEF5A6B8DF7B3
+                  D9ECA9C6D5EDA99EB070D58E1C03C76BBE23BDF1FF8A2C97CB6B8EBA58AB7F20
+                  6885323DE6A88C3B377A7644E6F3F9851F3EF77148944CCA7859AA7DC8FA948B
+                  C93743CF351EF9A9DE2083C64B655A908D8C7E6A3FDC0266C21039F8F6F477B0
+                  E6EEE90F37477B830C643978274646467E6132F906EE50006709CE0A2A000000
+                  0049454E44AE426082}
                 FileName = 
                   'C:\Users\ifort\Downloads\icons8-para-a-direita-com-quadrado-50.p' +
                   'ng'
@@ -615,17 +600,18 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
         object VertScrollBox1: TVertScrollBox
           Align = Client
           Size.Width = 281.000000000000000000
-          Size.Height = 143.000000000000000000
+          Size.Height = 121.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 4
           Viewport.Width = 265.000000000000000000
-          Viewport.Height = 143.000000000000000000
+          Viewport.Height = 121.000000000000000000
           object edtNome: TEdit
             Touch.InteractiveGestures = [LongTap, DoubleTap]
             Align = Top
             TabOrder = 4
             Position.X = 5.000000000000000000
             Position.Y = 17.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -659,6 +645,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 3
             Position.X = 5.000000000000000000
             Position.Y = 56.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -682,6 +669,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 2
             Position.X = 5.000000000000000000
             Position.Y = 95.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -705,6 +693,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 1
             Position.X = 5.000000000000000000
             Position.Y = 134.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -728,6 +717,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TabOrder = 0
             Position.X = 5.000000000000000000
             Position.Y = 173.000000000000000000
+            Enabled = False
             Margins.Left = 5.000000000000000000
             Margins.Right = 5.000000000000000000
             Size.Width = 255.000000000000000000
@@ -737,6 +727,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           object Memo1: TMemo
             Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
             DataDetectorTypes = []
+            ReadOnly = True
             Align = Client
             Size.Width = 265.000000000000000000
             Size.Height = 0.000000000000000000
@@ -750,7 +741,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
           Align = Top
           Position.Y = 132.000000000000000000
           Size.Width = 281.000000000000000000
-          Size.Height = 102.000000000000000000
+          Size.Height = 124.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 5
           object lCodigoPedido: TLabel
@@ -768,7 +759,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
               StyledSettings = [Size, FontColor]
               Margins.Left = 5.000000000000000000
               Position.X = 5.000000000000000000
-              Size.Width = 156.000000000000000000
+              Size.Width = 196.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
               TextSettings.Font.Family = 'Courier New'
@@ -831,7 +822,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
               TabOrder = 4
             end
           end
-          object Label21: TLabel
+          object lTotal: TLabel
             Align = Top
             StyledSettings = []
             Margins.Left = 5.000000000000000000
@@ -847,7 +838,7 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
             TextSettings.FontColor = xFF218A00
             TextSettings.HorzAlign = Trailing
             TabOrder = 0
-            object lTotal: TLabel
+            object lTotal1: TLabel
               Align = Left
               StyledSettings = [Size, FontColor]
               Size.Width = 120.000000000000000000
@@ -1114,90 +1105,6 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
       FillHeaderExpressions = <>
       FillBreakGroups = <>
     end
-    object LinkControlToField1: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'nome'
-      Control = edtNome
-      Track = False
-    end
-    object LinkControlToField2: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'telefone'
-      Control = edtNumero
-      Track = False
-    end
-    object LinkControlToField3: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'rua'
-      Control = edtRua
-      Track = False
-    end
-    object LinkControlToField4: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'bairro'
-      Control = edtBairro
-      Track = False
-    end
-    object LinkControlToField5: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'cidade'
-      Control = edtCidade
-      Track = False
-    end
-    object LinkPropertyToFieldText: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'codigo_pedido'
-      Component = lCodigoPedido
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText2: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'sub_total'
-      Component = lSub
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText3: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'valor_taxa'
-      Component = lTaxa
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText4: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'total'
-      Component = Label21
-      ComponentProperty = 'Text'
-    end
-    object LinkControlToField7: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'resumo_pedidos'
-      Control = Memo1
-      Track = False
-    end
-    object LinkPropertyToFieldText5: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'deliveryman_name'
-      Component = lMotoboy
-      ComponentProperty = 'Text'
-    end
-    object LinkPropertyToFieldText6: TLinkPropertyToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB3
-      FieldName = 'data'
-      Component = lData
-      ComponentProperty = 'Text'
-    end
   end
   object Requisicao: iRequisicao
     BaseURL = 'https://papaleguasfood.com.br/ws/v1/'
@@ -1270,10 +1177,5 @@ object frmPrincipalMotoboy: TfrmPrincipalMotoboy
       FieldName = 'deliveryman_name'
       Size = 255
     end
-  end
-  object BindSourceDB3: TBindSourceDB
-    ScopeMappings = <>
-    Left = 232
-    Top = 120
   end
 end

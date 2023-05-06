@@ -52,6 +52,8 @@ var
 implementation
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
+
+uses uMain;
 {$R *.dfm}
 { Tdm }
 
@@ -94,7 +96,17 @@ begin
   // Banco.Params.a
   // Banco.Params.DataBase := Caminho + '\database\database.db';   ,
 
-  Banco.Params.LoadFromFile('CONFIGURACAO\Confi.dados');
+  if FileExists('CONFIGURACAO\Confi.dados') then
+  begin
+    Banco.Params.LoadFromFile('configuracao\Confi.dados');
+  end
+  else begin
+    ForceDirectories(frmServidor.PathExe+'configuracao');
+
+    Banco.Params.SaveToFile('configuracao\Confi.dados');
+  end;
+
+
 end;
 
 function Tdm.GerarID(Tabela, ID: String): integer;
