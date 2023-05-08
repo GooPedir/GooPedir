@@ -915,6 +915,7 @@ var
   Enviar: Boolean;
   mensagemResumo: String;
 begin
+try
   RequisicaoDados := iRequisicao.Create(self);
   Dados := TFDMemTable.Create(self);
   RequisicaoDados.URL := 'http://localhost:2121/v1/util/status/pedido';
@@ -976,6 +977,16 @@ begin
 
           Status := 'Saiu para entrega';
         end;
+        6:begin
+         exit;
+        end;
+        2:begin
+          Status := 'Em Produção';
+        end;
+        3:begin
+          Status := 'Pronto';
+        end;
+
       // Apenas quando site
       1:
         begin
@@ -1058,6 +1069,9 @@ begin
 
     Dados.Next;
   end;
+except
+
+end;
 
   Dados.Free;
   RequisicaoDados.Free;
@@ -1553,7 +1567,7 @@ begin
   end
   else
   begin
-
+    exit;
     if (time > StrToTime('08:00:00')) and (time < StrToTime('18:00:00')) then
     begin
       lStatusFaturamento.Caption := 'Buscando Faturas';

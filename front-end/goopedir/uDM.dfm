@@ -2,7 +2,6 @@ object DM: TDM
   OnCreate = DataModuleCreate
   Height = 507
   Width = 933
-  PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False

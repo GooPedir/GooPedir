@@ -1742,7 +1742,7 @@ begin
   conexao.SQL.Add('join caixa on caixa.id = cr.id_caixa');
   conexao.SQL.Add('join usuario as u on u.codigo = caixa.id_usuario');
   conexao.SQL.Add
-    ('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento');
+    ('join tipo_pagamento as tp on tp.codigo = cr.id_tipo_pagamento and tp.movimentacao = 2');
   if Cliente > 0 then
   begin
     conexao.SQL.Add('where cr.id_cliente = :cliente');
@@ -3339,6 +3339,7 @@ var
   conexao: TConexao;
   Pedido: Integer;
   Status: Integer;
+  StatusDescricao: String;
   CodigoSite: Integer;
 
   Requisicao: iRequisicao;
@@ -3368,7 +3369,6 @@ begin
   conexao.Parametros('codigo', Pedido);
   conexao.ExecuteSQL;
 
-
   try
     conexao.SQL.Add('select * from pedido where codigo = :codigo');
     conexao.Parametros('codigo', Pedido);
@@ -3377,13 +3377,16 @@ begin
     CodigoSite := 0;
   end;
 
+  conexao.SQL.Add('SELECT * FROM status_pedido where id = ' + Status.ToString);
+  StatusDescricao := conexao.FieldByName('descricao');
+
   if CodigoSite > 0 then
   begin
     try
       Requisicao := iRequisicao.Create(nil);
       Requisicao.BaseURL :=
         'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
-        CodigoSite.ToString + '&status=' + Status.ToString;
+        CodigoSite.ToString + '&status=' + StatusDescricao;
       Requisicao.Execute;
     except
 
@@ -3476,19 +3479,21 @@ begin
       end;
     end;
     SQL.Add(MySQL);
-Dados.Edit;
+    Dados.Edit;
     if Dados.FieldByName('pizza').IsNull then
-begin
+    begin
 
-  Dados.FieldByName('pizza').AsInteger := 0;
-end;
+      Dados.FieldByName('pizza').AsInteger := 0;
+    end;
 
     Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
     Parametros('descricao', Dados.FieldByName('descricao').AsString);
     Parametros('impressora', Dados.FieldByName('impressora').AsInteger);
     Parametros('pizza', Dados.FieldByName('pizza').AsInteger);
-    Parametros('visivel_vem_buscar', Dados.FieldByName('visivel_vem_buscar').AsInteger);
-    Parametros('visivel_delivery', Dados.FieldByName('visivel_delivery').AsInteger);
+    Parametros('visivel_vem_buscar', Dados.FieldByName('visivel_vem_buscar')
+      .AsInteger);
+    Parametros('visivel_delivery', Dados.FieldByName('visivel_delivery')
+      .AsInteger);
     // Parametros('id_site', Dados.FieldByName('id_site').AsInteger);
     Parametros('ordem', Dados.FieldByName('ordem').AsInteger);
     Parametros('modificado_site', Dados.FieldByName('modificado_site')
@@ -5305,9 +5310,10 @@ begin
       begin
         conexao := TConexao.Create;
         conexao.SQL.Add
-          ('update sabores_completo set id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :venda, modificado_site = 0 where id = :id');
+          ('update sabores_completo set ativo = :ativo, id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :venda, modificado_site = 0 where id = :id');
         conexao.Parametros('sabor', Dados.FieldByName('tipo').AsInteger);
         conexao.Parametros('nome', Dados.FieldByName('sabor').AsString);
+        conexao.Parametros('ativo', Dados.FieldByName('status').AsString);
         conexao.Parametros('descricao', Dados.FieldByName('descricao')
           .AsString);
         conexao.Parametros('venda', Dados.FieldByName('valor').AsFloat);
@@ -6033,6 +6039,46 @@ begin
 
 end;
 
+procedure DoPostTaxaEntrega(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+begin
+  Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON(Req.Body);
+  if Dados.RecordCount = 0 then
+  begin
+    Dados.Free;
+    exit;
+  end;
+  conexao := TConexao.Create;
+  if Dados.FieldByName('codigo').AsInteger = 0 then
+  begin
+    Dados.Edit;
+    // codigo,cidade,bairro,valor_taxa,ativo,estado
+    Dados.FieldByName('codigo').AsInteger := conexao.GerarID('taxa_entrega',
+      'codigo');
+    conexao.SQL.Add
+      ('insert into taxa_entrega (codigo,cidade,bairro,valor_taxa,ativo,estado) values (:codigo,:cidade,:bairro,:valor_taxa,:ativo,:estado)');
+
+  end
+  else
+  begin
+    conexao.SQL.Add
+      ('update taxa_entrega set cidade = :cidade, bairro = :bairro, valor_taxa = :valor_taxa, ativo = :ativo, estado = :estado where codigo = :codigo');
+  end;
+  conexao.Parametros('codigo', Dados.FieldByName('codigo').AsString);
+  conexao.Parametros('cidade', UpperCase(Dados.FieldByName('cidade').AsString));
+  conexao.Parametros('bairro', UpperCase(Dados.FieldByName('bairro').AsString));
+  conexao.Parametros('valor_taxa', Dados.FieldByName('valor_taxa').AsString);
+  conexao.Parametros('ativo', Dados.FieldByName('ativo').AsString);
+  conexao.Parametros('estado', UpperCase(Dados.FieldByName('estado').AsString));
+  conexao.ExecuteSQL;
+  conexao.Free;
+  Dados.Free;
+end;
+
 procedure DoGetStatusPedido(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -6629,6 +6675,7 @@ begin
 
   // whatsapp
   THorse.Get('v1/util/status/pedido', DoGetStatusPedido);
+  THorse.Post('v1/util/taxa/entrega', DoPostTaxaEntrega);
 
 end;
 

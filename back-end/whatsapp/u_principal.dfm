@@ -13,7 +13,6 @@ object frmPrincipal: TfrmPrincipal
   Position = poOwnerFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object Lbl_Avisos: TLabel
     Left = 0
@@ -22,7 +21,6 @@ object frmPrincipal: TfrmPrincipal
     Height = 13
     Align = alBottom
     Caption = ' '
-    ExplicitTop = 639
     ExplicitWidth = 3
   end
   object lblStatus: TLabel
@@ -2649,7 +2647,6 @@ object frmPrincipal: TfrmPrincipal
     Font.Name = 'Segoe UI'
     Font.Style = [fsBold]
     ParentFont = False
-    ExplicitTop = 622
     ExplicitWidth = 4
   end
   object PageControl1: TPageControl
@@ -5434,7 +5431,8 @@ object frmPrincipal: TfrmPrincipal
         Width = 50
       end>
     Visible = False
-    ExplicitTop = 652
+    ExplicitTop = 603
+    ExplicitWidth = 905
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Imagens|*jpg;*.jpg;*.bmp;*.png;*.pdf;*.mp4;*.mp3;*.rar'

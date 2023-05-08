@@ -15,6 +15,9 @@
         <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\whatsapp\WhatsappGopedir.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="ImpressaoGooPedir:Make">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="WhatsappGopedir">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj"/>
+    </Target>
+    <Target Name="WhatsappGopedir:Clean">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WhatsappGopedir:Make">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir"/>
+        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir;WhatsappGopedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean"/>
+        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean;WhatsappGopedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make"/>
+        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make;WhatsappGopedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

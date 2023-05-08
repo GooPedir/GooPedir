@@ -1,55 +1,45 @@
-program WhatsappGoPedir;
+program WhatsappGopedir;
 
 uses
   Vcl.Forms,
-  Vcl.Themes,
-  Vcl.Styles,
-  Dialogs,
+  Windows,
   uTInject.ConfigCEF,
-  uPrincipal in 'Uses\uPrincipal.pas' {dmPrincipal},
-  uBotConversa in 'Uses\uBotConversa.pas',
-  uBotGestor in 'Uses\uBotGestor.pas',
-  uConversa in 'Uses\uConversa.pas',
-  uClassPedido in 'Uses\uClassPedido.pas',
-  uClassProduto in 'Uses\uClassProduto.pas',
-  uClassEndereco in 'Uses\uClassEndereco.pas',
-  uClassEnderecoUtil in 'Uses\uClassEnderecoUtil.pas',
-  uDM in 'Uses\uDM.pas' {dm: TDataModule},
-  uClassFinalizarPedido in 'Uses\uClassFinalizarPedido.pas',
-  uAlteracaoCancelamento in 'Uses\uAlteracaoCancelamento.pas',
-  uClassPedidoRecente in 'Uses\uClassPedidoRecente.pas',
-  uClassFuncoes in 'Uses\uClassFuncoes.pas',
-  uClassAPIGooleLocalizacao in 'Uses\uClassAPIGooleLocalizacao.pas',
-  uClassPizza in 'Uses\uClassPizza.pas',
-  uClassEnviaMensagem in 'Uses\uClassEnviaMensagem.pas',
-  uClassCronometro in 'Uses\uClassCronometro.pas',
-  uClassThreeConversa in 'Uses\uClassThreeConversa.pas',
-  uClassAdicionais in 'Uses\uClassAdicionais.pas',
-  udmProdutos in 'Uses\udmProdutos.pas' {dmProdutos: TDataModule},
-  uBackup in 'Uses\uBackup.pas' {,
-  uFuncoes in 'Uses\uFuncoes.pas',
-  uGravaConversaMemoria in 'Uses\uGravaConversaMemoria.pas'},
-  uGravaConversaMemoria in 'Uses\uGravaConversaMemoria.pas',
-  XSuperJSON in 'Uses\Superobject\XSuperJSON.pas',
-  XSuperObject in 'Uses\Superobject\XSuperObject.pas';
+  u_principal in 'u_principal.pas' {frmPrincipal};
 
 {$R *.res}
 
+//var arqIni: TInifile;
+
 begin
+  {##########################################################################################
+  Colocar arquivos CEFLib junto a pasta binária da aplicação (Nao definir ou passar vazio)
+  Caso deseja informar.. segue exemplo abaixo
+  ##########################################################################################}
+
+  {
+  arqIni  := Tinifile.Create(ExtractFilePath(Application.ExeName)+ 'config.ini');
+
+  GlobalCEFApp.PathLogFile          := '';
+  GlobalCEFApp.PathFrameworkDirPath := arqIni.ReadString('CONFIG', 'FRAMEWORK', '');  //'C:\TInject\Projeto-TInject-master\Demo\BIN';
+  GlobalCEFApp.PathResourcesDirPath := arqIni.ReadString('CONFIG', 'RESOURCES', ''); //'C:\TInject\Projeto-TInject-master\Demo\BIN';
+  GlobalCEFApp.PathLocalesDirPath   := arqIni.ReadString('CONFIG', 'LOCALES', '');  //'C:\TInject\Projeto-TInject-master\Demo\BIN\locales';
+  GlobalCEFApp.Pathcache            := arqIni.ReadString('CONFIG', 'CACHE', ''); //'C:\TInject\Projeto-TInject-master\Demo\BIN\Cache';
+  GlobalCEFApp.PathUserDataPath     := arqIni.ReadString('CONFIG', 'USERDATA', ''); //'C:\TInject\Projeto-TInject-master\Demo\BIN\User Data';
+ }
+
+  //Forma 1 GlobalCEFApp.Pathxx       := '';                        //Irá procurar o Arquivo PADRAO no mesmo local do EXE
+  //Forma 2 GlobalCEFApp.Pathxx       := 'C:\Componentes\demo\bin'; //<-  NOME do ARQUIVO INFORMADO
+  //Forma 3 GlobalCEFApp.Pathxx       := 'BIN';                     //<-  NOME do ARQUIVO INFORMADO
+  //Forma 4 GlobalCEFApp.Pathx         := '..\Source\;              //<-  NOME do ARQUIVO INFORMADO
+  //Exemplo se aplica para todos os PATH
+
 
   If not GlobalCEFApp.StartMainProcess then
-    exit;
+     Exit;
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-
-   TStyleManager.TrySetStyle('Windows10 Dark');
-  Application.CreateForm(Tdm, dm);
-  //  Application.CreateForm(TdmProdutos, dmProdutos);
-  Application.CreateForm(TdmPrincipal, dmPrincipal);
-
-
-  Application.Title := 'PapaLéguas Food';
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
   Application.Run;
 
 end.

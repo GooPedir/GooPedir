@@ -1,0 +1,4240 @@
+inherited frmTaxaEntrega: TfrmTaxaEntrega
+  Caption = 'frmCadastroBase1'
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    inherited Rectangle1: TRectangle
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88F2B
+              0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
+              1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
+              BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
+              DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
+              9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
+              1EC744AFD887D87E84BBF8A21B81F895CB78223342B8018BCABBFCDD5D647700
+              00000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'Taxa de Entrega'
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Sizes = (
+        956s
+        592s
+        956s
+        592s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          TabOrder = 1
+          inherited rAdicionar: TRectangle
+            OnClick = rAdicionarClick
+            inherited Label1: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            OnClick = rAlterarClick
+            inherited Label2: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            inherited lTipoAtivo: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+              Text = 'Excluir'
+            end
+          end
+        end
+        object StringGrid4: TStringGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 956.000000000000000000
+          Size.Height = 542.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          RowHeight = 50.000000000000000000
+          RowCount = 0
+          Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
+          Viewport.Width = 952.000000000000000000
+          Viewport.Height = 517.000000000000000000
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          OnClick = rSalvarClick
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00EF49444154484BED95510E82301044C104CFA627F0387ECA3DBC9944390334
+                    80B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402DF
+                    992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40F4
+                    107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F90
+                    2710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F706B
+                    41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D1445716568
+                    09E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F20
+                    F8C1FAE80F6744BCE87160BB8D18B2EC09E2143BBAB0197C0F0000000049454E
+                    44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout1: TLayout
+          Position.X = 8.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 451.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object edtBairro: iEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 0
+            KeyboardType = Alphabet
+            ReturnKeyType = Next
+            Position.Y = 17.000000000000000000
+            Size.Width = 451.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            CharCase = ecUpperCase
+            OnExit = edtBairroExit
+            iForthMemInsert = DADOS
+            iForthCampoInser = 'bairro'
+            iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+          end
+          object Label3: TLabel
+            Align = Top
+            Size.Width = 451.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Bairro'
+            TabOrder = 1
+          end
+        end
+        object Layout2: TLayout
+          Position.X = 467.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 273.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object iEdit1: iEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 0
+            KeyboardType = Alphabet
+            ReturnKeyType = Next
+            Position.Y = 17.000000000000000000
+            Size.Width = 273.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            CharCase = ecUpperCase
+            OnExit = edtBairroExit
+            iForthMemInsert = DADOS
+            iForthCampoInser = 'cidade'
+            iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+          end
+          object Label4: TLabel
+            Align = Top
+            Size.Width = 273.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Cidade'
+            TabOrder = 1
+          end
+        end
+        object Layout3: TLayout
+          Position.X = 748.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 95.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object iEdit2: iEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 0
+            KeyboardType = Alphabet
+            ReturnKeyType = Next
+            Position.Y = 17.000000000000000000
+            Size.Width = 95.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            CharCase = ecUpperCase
+            OnExit = edtBairroExit
+            iForthMemInsert = DADOS
+            iForthCampoInser = 'estado'
+            iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+          end
+          object Label5: TLabel
+            Align = Top
+            Size.Width = 95.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Estado'
+            TabOrder = 1
+          end
+        end
+        object Layout4: TLayout
+          Position.X = 851.000000000000000000
+          Position.Y = 8.000000000000000000
+          Size.Width = 95.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          object iEdit3: iEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 0
+            KeyboardType = Alphabet
+            ReturnKeyType = Next
+            Position.Y = 17.000000000000000000
+            Size.Width = 95.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            OnExit = iEdit3Exit
+            iForthMemInsert = DADOS
+            iForthCampoInser = 'valor_taxa'
+            iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+          end
+          object Label6: TLabel
+            Align = Top
+            Size.Width = 95.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Valor'
+            TabOrder = 1
+          end
+        end
+      end
+    end
+  end
+  object DADOS: iMemTable
+    Active = True
+    IndexFieldNames = 'bairro;cidade;estado;valor_taxa'
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 880
+    Top = 562
+    object DADOScodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object DADOScidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Size = 255
+    end
+    object DADOSbairro: TStringField
+      DisplayLabel = 'Bairro'
+      FieldName = 'bairro'
+      Size = 255
+    end
+    object DADOSvalor_taxa: TFloatField
+      DisplayLabel = 'Taxa'
+      FieldName = 'valor_taxa'
+      currency = True
+    end
+    object DADOSativo: TIntegerField
+      DisplayLabel = 'Status'
+      FieldName = 'ativo'
+    end
+    object DADOSestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object DADOSmodificado_site: TIntegerField
+      FieldName = 'modificado_site'
+    end
+    object DADOSid_site: TIntegerField
+      FieldName = 'id_site'
+    end
+  end
+  object BDSDADOS: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 880
+    Top = 504
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 20
+    Top = 5
+    object LinkGridToDataSourceBDSDADOS: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BDSDADOS
+      GridControl = StringGrid4
+      Columns = <
+        item
+          MemberName = 'bairro'
+          Width = 250
+        end
+        item
+          MemberName = 'cidade'
+          Width = 100
+        end
+        item
+          MemberName = 'estado'
+          Width = 45
+        end
+        item
+          MemberName = 'valor_taxa'
+          Width = 90
+        end>
+    end
+  end
+end

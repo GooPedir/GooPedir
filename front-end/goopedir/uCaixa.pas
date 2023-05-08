@@ -392,6 +392,8 @@ begin
 
   DADOSCAIXA.Close;
   DADOSPAGAMENTO.Close;
+  if CodigoDoCaixa = 0 then
+    exit;
   dm.GetSimples('/v1/caixa/pedidos/dados/' + CodigoDoCaixa.toString,
     DADOSCAIXA);
   dm.GetSimples('/v1/caixa/pedidos/pagamento/' + CodigoDoCaixa.toString,
@@ -481,7 +483,11 @@ begin
     dm.Caixa.FieldByName('DATA_ABERTURA').AsDateTime), HISTORICOMOTOBOY);
 
   BuscandoDados := False;
-  test.Enabled := True;
+ if not Load then
+  begin
+    Load := True;
+    frmMain.AbrirForm('TfrmCaixa');
+  end;
 end;
 
 procedure TfrmCaixa.Button1Click(Sender: TObject);
@@ -613,7 +619,7 @@ end;
 
 procedure TfrmCaixa.FormActivate(Sender: TObject);
 begin
-  BuscaDadosCaixa;
+  // BuscaDadosCaixa;
 
 end;
 
@@ -626,8 +632,8 @@ begin
       BuscaCaixa;
 
       Visualizacao := False;
-      FormReceber := TfrmAReceber.Create(self);
-      layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
+       FormReceber := TfrmAReceber.Create(self);
+       layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
 
     end).Start;
 

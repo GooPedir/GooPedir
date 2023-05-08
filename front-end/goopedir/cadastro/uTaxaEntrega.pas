@@ -108,7 +108,7 @@ begin
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('ativo').AsInteger := 1;
   DADOS.FieldByName('modificado_site').AsInteger := 0;
-//  DADOS.FieldByName('id_site').AsInteger := 1;
+  DADOS.FieldByName('id_site').AsInteger := 0;
   DADOS.AtualizaCampos;
   edtBairro.SetFocus;
 end;
@@ -127,7 +127,7 @@ begin
   inherited;
   edtBairro.SetFocus;
   DADOS.Post;
-  dm.PostSimplesUnico('/v1/insert/generico/taxa_entrega/codigo', DADOS);
+  dm.PostSimplesUnico('v1/util/taxa/entrega', DADOS);
   GetDados;
   tabPrincipal.TabIndex := 0;
   ShowMessageToast(self, 'Registro Salvo Com Sucesso', 2);

@@ -942,7 +942,7 @@ begin
             CAIXA_RESUMO.SQL.Add
               ('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
             CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
-            CAIXA_RESUMO.SQL.Add('group by tp.codigo');
+            CAIXA_RESUMO.SQL.Add('group by tp.codigo, tp.descricao');
             CAIXA_RESUMO.ParamByName('id').AsInteger := Codigo;
             CAIXA_RESUMO.Open;
             if CAIXA_RESUMO.RecordCount = 0 then
@@ -1127,7 +1127,7 @@ begin
               CAIXA_PRODUTO.SQL.Add
                 ('order by tp.codigo,prod.codigo) as produtos');
               CAIXA_PRODUTO.SQL.Add
-                ('group by produtos.produto, produtos.adicionais');
+                ('group by produtos.produto, produtos.adicionais, produtos.codigo');
 
               CAIXA_PRODUTO.ParamByName('id').AsInteger := Codigo;
               CAIXA_PRODUTO.Open;

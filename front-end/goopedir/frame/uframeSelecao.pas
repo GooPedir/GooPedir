@@ -45,35 +45,43 @@ uses uDM, util;
 
 procedure TframeSelecao.SetCampo(const Value: String);
 begin
-  Dm.GetNomeEmpresa;
-  FCampo := Value;
+  try
+    Dm.GetNomeEmpresa;
+  except
 
-  if Assigned(Dm.DADOS_WHATSAPP.FindField(Value)) then
-  begin
-    if length(ValorTrue) = 0 then
-      ValorTrue := '1';
+  end;
+  try
+    FCampo := Value;
 
-    if Dm.DADOS_WHATSAPP.FieldByName(Value).IsNull then
+    if Assigned(Dm.DADOS_WHATSAPP.FindField(Value)) then
     begin
-      Dm.CriaCampo(Campo + ' integer');
+      if length(ValorTrue) = 0 then
+        ValorTrue := '1';
+
+      if Dm.DADOS_WHATSAPP.FieldByName(Value).IsNull then
+      begin
+        Dm.CriaCampo(Campo + ' integer');
+      end;
+
+      try
+        sSelecao.IsChecked := (ValorTrue = Dm.DADOS_WHATSAPP.FieldByName(Value)
+          .AsVariant);
+      except
+        sSelecao.IsChecked := False;
+      end;
+
+      Valor := sSelecao.IsChecked;
+      // btnSalvar.Visible := False;
+      Titulo := Dm.DADOS_WHATSAPP.FindField(Value).DisplayName;
+
+    end
+    else
+    begin
+      ShowMessage('campo "' + Value +
+        '" não foi declarado na memorytable "DADOS_WHATSAPP" no datamodule!');
     end;
+  except
 
-    try
-      sSelecao.IsChecked := (ValorTrue = Dm.DADOS_WHATSAPP.FieldByName(Value)
-        .AsVariant);
-    except
-      sSelecao.IsChecked := False;
-    end;
-
-    Valor := sSelecao.IsChecked;
-    // btnSalvar.Visible := False;
-    Titulo := Dm.DADOS_WHATSAPP.FindField(Value).DisplayName;
-
-  end
-  else
-  begin
-    ShowMessage('campo "' + Value +
-      '" não foi declarado na memorytable "DADOS_WHATSAPP" no datamodule!');
   end;
 end;
 

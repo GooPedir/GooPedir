@@ -227,7 +227,7 @@ type
     function CaixaCompleto: Integer;
     function CaixaProduto: Integer;
     function CaixaMotoboy: Integer;
-    function ControleEstoque : Integer;
+    function ControleEstoque: Integer;
     function FichaTecnica: Integer;
 
     procedure BuscaFaturas(Pai: TFmxObject);
@@ -404,73 +404,72 @@ var
 
 begin
   try
-     TThread.CreateAnonymousThread(
-     procedure
-     var
-     I: Integer;
-     FATURAS: TFDMemTable;
-     begin
-    FATURAS := TFDMemTable.Create(nil);
-    DM.DadosSite;
-    if DM.UserId > 0 then
-    begin
-      try
-        FATURAS.Close;
-        ConexaoLocal := iRequisicao.Create(self);
-        ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
-        Token := '';
-        ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
-        ConexaoLocal.Metodo := mGet;
-        ConexaoLocal.Token(Token);
-        ConexaoLocal.MemTable2 := FATURAS;
-        ConexaoLocal.TempoExpiracao := 60 * 1000;
-        ConexaoLocal.Execute;
-
-        for I := 0 to Pai.ComponentCount - 1 do
+    TThread.CreateAnonymousThread(
+      procedure
+      var
+        I: Integer;
+        FATURAS: TFDMemTable;
+      begin
+        FATURAS := TFDMemTable.Create(nil);
+        DM.DadosSite;
+        if DM.UserId > 0 then
         begin
-          if (Pai.Components[I] is TframeFaturas) then
-          begin
-            (Pai.Components[I] as TframeFaturas).Visible := False;
-          end;
-        end;
+          try
+            FATURAS.Close;
+            ConexaoLocal := iRequisicao.Create(self);
+            ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
+            Token := '';
+            ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
+            ConexaoLocal.Metodo := mGet;
+            ConexaoLocal.Token(Token);
+            ConexaoLocal.MemTable2 := FATURAS;
+            ConexaoLocal.TempoExpiracao := 60 * 1000;
+            ConexaoLocal.Execute;
 
-        if FATURAS.RecordCount = 0 then
-          FATURAS.Open
-        else
-        begin
-
-          FATURAS.First;
-          while not FATURAS.Eof do
-          begin
-            inc(ID);
-            Fatura := TframeFaturas.Create(Pai);
-            Fatura.Parent := Pai;
-            Fatura.Valor :=
-              StrToFloat
-              (StringReplace(FATURAS.FieldByName(FATURAS.Fields[3].FieldName)
-              .AsString, '.', ',', []));
-            try
-              Fatura.DataVencimento :=
-                FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
-            except
-              Fatura.DataVencimento := now;
+            for I := 0 to Pai.ComponentCount - 1 do
+            begin
+              if (Pai.Components[I] is TframeFaturas) then
+              begin
+                (Pai.Components[I] as TframeFaturas).Visible := False;
+              end;
             end;
-            Fatura.Link := FATURAS.FieldByName('link').AsString;
-            Fatura.Name := 'Fatura' + ID.ToString;
-            Fatura.Align := TAlignLayout.Left;
-            FATURAS.Next;
+
+            if FATURAS.RecordCount = 0 then
+              FATURAS.Open
+            else
+            begin
+
+              FATURAS.First;
+              while not FATURAS.Eof do
+              begin
+                inc(ID);
+                Fatura := TframeFaturas.Create(Pai);
+                Fatura.Parent := Pai;
+                Fatura.Valor :=
+                  StrToFloat(StringReplace(FATURAS.FieldByName(FATURAS.Fields[3]
+                  .FieldName).AsString, '.', ',', []));
+                try
+                  Fatura.DataVencimento :=
+                    FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
+                except
+                  Fatura.DataVencimento := now;
+                end;
+                Fatura.Link := FATURAS.FieldByName('link').AsString;
+                Fatura.Name := 'Fatura' + ID.ToString;
+                Fatura.Align := TAlignLayout.Left;
+                FATURAS.Next;
+              end;
+            end;
+          except
+
           end;
+
+          ConexaoLocal.Free;
+
+          // HorzScrollBoxFatura
         end;
-      except
-
-      end;
-
-      ConexaoLocal.Free;
-
-      // HorzScrollBoxFatura
-    end;
-    FATURAS.Free;
-     end).Start;
+        FATURAS.Free;
+      end).Start;
 
   except
 
@@ -629,7 +628,7 @@ end;
 
 function TDM.FichaTecnica: Integer;
 begin
-Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
+  Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
 end;
 
 function TDM.GetCelular: String;
@@ -651,8 +650,11 @@ begin
     GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
     DadosSite;
   end;
+  try
+    Result := DADOS_WHATSAPP.FieldByName('nome').AsString;
+  except
 
-  Result := DADOS_WHATSAPP.FieldByName('nome').AsString;
+  end;
 
 end;
 
@@ -724,7 +726,7 @@ begin
 end;
 
 function TDM.GetSimples(URL: String; Dados: IMemTable;
-  Paginacao: Boolean): Boolean;
+Paginacao: Boolean): Boolean;
 var
   Conexao: iRequisicao;
 begin

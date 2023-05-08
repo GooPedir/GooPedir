@@ -517,6 +517,7 @@ var
   AlteraValorDadosProduto: Boolean;
   BuscandoDados: Boolean;
   CodigoProdutoEstoque: Integer;
+  CodigoProdutoSelecionado: Integer;
 
 implementation
 
@@ -618,7 +619,7 @@ begin
 
   end;
 
-  rFicha.Visible := dm.FichaTecnica = 1;
+  rFicha.Visible := DM.FichaTecnica = 1;
 
   // CarregarImagemDaURL('https://fotos.goopedir.com/fotos/MTc2MzQ=', Image15);
 
@@ -660,18 +661,18 @@ var
 begin
 
   try
-//    Base64 := TBase64Encoding.Create(10, '');
-//
-//    DM.CONEXAO.URL := '/v1/imagem/produto/' + Codigo;
-//    DM.CONEXAO.Metodo := mGet;
-//    DM.CONEXAO.Execute;
-//    imgProduto.Bitmap := DM.BitmapFromBase64(DM.CONEXAO.Retorno);
-       imgProduto.Bitmap := imSemFoto.Bitmap;
+    // Base64 := TBase64Encoding.Create(10, '');
+    //
+    // DM.CONEXAO.URL := '/v1/imagem/produto/' + Codigo;
+    // DM.CONEXAO.Metodo := mGet;
+    // DM.CONEXAO.Execute;
+    // imgProduto.Bitmap := DM.BitmapFromBase64(DM.CONEXAO.Retorno);
+    imgProduto.Bitmap := imSemFoto.Bitmap;
     HttpClient := THTTPClient.Create;
     Stream := TMemoryStream.Create;
     try
-      Response := HttpClient.Get
-        ('https://fotos.goopedir.com/fotos/'+EncodeBase64(Codigo), Stream);
+      Response := HttpClient.Get('https://fotos.goopedir.com/fotos/' +
+        EncodeBase64(Codigo), Stream);
       if Response.StatusCode = 200 then
       begin
         Stream.Position := 0;
@@ -736,6 +737,8 @@ begin
         TThread.Synchronize(TThread.CurrentThread,
           procedure
           begin
+            ALL_PRODUTOS.Locate('ID', CodigoProdutoSelecionado);
+            CodigoProdutoSelecionado := 0;
             BDSPRODUTOS.DataSet := ALL_PRODUTOS;
             CarregandoProduto := false;
             // DadosProduto;
@@ -1027,7 +1030,11 @@ begin
   edtAdcVB.Text := ALL_PRODUTOS.FieldByName('VB').AsString;
   sAtivo.IsChecked := ALL_PRODUTOS.FieldByName('ATIVO').AsInteger = 1;
   edtSabores.Text := ALL_PRODUTOS.FieldByName('quantidade').AsString;
-  sPizza.IsChecked := ALL_PRODUTOS.FieldByName('pizza').AsInteger > 0;
+  try
+    sPizza.IsChecked := ALL_PRODUTOS.FieldByName('quantidade').AsInteger > 0;
+  except
+    sPizza.IsChecked := false;
+  end;
   ChangePizza;
 
   CATEGORIA.Locate('codigo', ALL_PRODUTOS.FieldByName('CATEGORIA')
@@ -1538,10 +1545,8 @@ begin
     FrameSabores.Codigo := SABORES_PRODUTOS.FieldByName('id').AsInteger;
     FrameSabores.Valor := SABORES_PRODUTOS.FieldByName('vl_venda').AsFloat;
     FrameSabores.Sabor := SABORES_PRODUTOS.FieldByName('nome').AsString;
-    FrameSabores.Descricao := SABORES_PRODUTOS.FieldByName('descricao')
-      .AsString;
-    FrameSabores.CodigoSabor := SABORES_PRODUTOS.FieldByName('id_tipo_sabor')
-      .AsInteger;
+    FrameSabores.Descricao := SABORES_PRODUTOS.FieldByName('descricao').AsString;
+    FrameSabores.CodigoSabor := SABORES_PRODUTOS.FieldByName('id_tipo_sabor').AsInteger;
     FrameSabores.Status := SABORES_PRODUTOS.FieldByName('ativo').AsInteger;
     FrameSabores.StatusAtual := SABORES_PRODUTOS.FieldByName('ativo').AsInteger;
     FrameSabores.Visible := True;
@@ -1755,16 +1760,16 @@ begin
       DM.CONEXAO.Metodo := mPost;
       DM.CONEXAO.Execute;
 
-        RESTRequest1.Params.AddHeader('nome',
-          BDSPRODUTOS.DataSet.FieldByName('site').AsString);
-        RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
-        RESTRequest1.Execute;
-        // EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
-        // .AsString);
-        // EnvioImagem.Body(Body);
-        // EnvioImagem.Execute;
-        // https://fotos.goopedir.com/fotos/MTc2MzQ=
-        try
+      RESTRequest1.Params.AddHeader('nome',
+        BDSPRODUTOS.DataSet.FieldByName('site').AsString);
+      RESTRequest1.AddBody(Body, ctAPPLICATION_JSON);
+      RESTRequest1.Execute;
+      // EnvioImagem.AddHEader('nome', BDSPRODUTOS.DataSet.FieldByName('site')
+      // .AsString);
+      // EnvioImagem.Body(Body);
+      // EnvioImagem.Execute;
+      // https://fotos.goopedir.com/fotos/MTc2MzQ=
+      try
         if EnvioImagem.Retorno = BDSPRODUTOS.DataSet.FieldByName('site').AsString
         then
         begin
@@ -2077,6 +2082,7 @@ begin
   PRODUTO.Close;
   PRODUTO.Open;
   PRODUTO.insert;
+  CodigoProdutoSelecionado := CodigoProduto;
   PRODUTO.FieldByName('CODIGO').AsInteger := CodigoProduto;
   PRODUTO.FieldByName('INTERNO').AsInteger := edtCodigo.Text.ToInteger;
   PRODUTO.FieldByName('CATEGORIA').AsInteger := BDSCATEGORIA.DataSet.FieldByName
@@ -2217,13 +2223,9 @@ begin
         begin
           if (vertSabores.Components[I] as TframeSabores).Visible then
           begin
-            if (vertSabores.Components[I] as TframeSabores).imgSalvar.Visible
-            then
-            begin
               (vertSabores.Components[I] as TframeSabores)
                 .imgSalvar.OnClick((vertSabores.Components[I] as TframeSabores)
                 .imgSalvar)
-            end;
           end;
         end;
       end;
@@ -2246,6 +2248,7 @@ end;
 
 procedure TfrmProduto.SimStatus;
 begin
+  CodigoProdutoSelecionado := ALL_PRODUTOS.FieldByName('ID').AsInteger;
   Tipo := Alterar;
   Zerar;
   ZerarTabela;
