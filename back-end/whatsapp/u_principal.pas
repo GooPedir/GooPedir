@@ -1506,7 +1506,7 @@ begin
                 memCliente.LoadFromJSON(RequisicaoCelular.Retorno);
               end;
 
-              TInject1.send('554898111156@c.us',
+              TInject1.send(AChat.id,
                 MenuInicial(memDadosWhatsapp.FieldByName('mensagem_Inicio')
                 .AsString, memCliente.FieldByName('nome').AsString));
               Exit;

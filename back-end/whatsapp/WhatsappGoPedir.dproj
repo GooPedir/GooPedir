@@ -3,7 +3,7 @@
         <ProjectGuid>{18AA9C4B-78DB-476B-96ED-1647F1C392DF}</ProjectGuid>
         <MainSource>WhatsappGopedir.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
