@@ -149,6 +149,11 @@ type
     DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
     DADOS_WHATSAPPtoken_mp: TStringField;
     DADOS_WHATSAPPfat_integra_pix: TIntegerField;
+    DADOS_WHATSAPPcor_fundo: TStringField;
+    DADOS_WHATSAPPcor_fonte: TStringField;
+    DADOS_WHATSAPPcontrole_estoque: TIntegerField;
+    DADOS_WHATSAPPficha_tecnica: TIntegerField;
+    DADOS_WHATSAPPstatus_pedidos_site: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -222,12 +227,15 @@ type
     function CaixaCompleto: Integer;
     function CaixaProduto: Integer;
     function CaixaMotoboy: Integer;
+    function ControleEstoque: Integer;
+    function FichaTecnica: Integer;
 
     procedure BuscaFaturas(Pai: TFmxObject);
 
     procedure ExtornoPedido(Pedido: Integer);
 
     function IntegracaoPIX: Boolean;
+    function CorSite(sColor: string): TColor;
 
   end;
 
@@ -241,6 +249,7 @@ var
   StatusConexao: TConexaoServidor;
   JSonDadosSite: TJsonObject;
   ID: Integer;
+  ErrosBusca : Integer;
 
 implementation
 
@@ -396,73 +405,72 @@ var
 
 begin
   try
-    // TThread.CreateAnonymousThread(
-    // procedure
-    // var
-    // I: Integer;
-    // FATURAS: TFDMemTable;
-    // begin
-    FATURAS := TFDMemTable.Create(nil);
-    DM.DadosSite;
-    if DM.UserId > 0 then
-    begin
-      try
-        FATURAS.Close;
-        ConexaoLocal := iRequisicao.Create(self);
-        ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
-        Token := '';
-        ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
-        ConexaoLocal.Metodo := mGet;
-        ConexaoLocal.Token(Token);
-        ConexaoLocal.MemTable2 := FATURAS;
-        ConexaoLocal.TempoExpiracao := 60 * 1000;
-        ConexaoLocal.Execute;
-
-        for I := 0 to Pai.ComponentCount - 1 do
+    TThread.CreateAnonymousThread(
+      procedure
+      var
+        I: Integer;
+        FATURAS: TFDMemTable;
+      begin
+        FATURAS := TFDMemTable.Create(nil);
+        DM.DadosSite;
+        if DM.UserId > 0 then
         begin
-          if (Pai.Components[I] is TframeFaturas) then
-          begin
-            (Pai.Components[I] as TframeFaturas).Visible := False;
-          end;
-        end;
+          try
+            FATURAS.Close;
+            ConexaoLocal := iRequisicao.Create(self);
+            ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
+            Token := '';
+            ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
+            ConexaoLocal.Metodo := mGet;
+            ConexaoLocal.Token(Token);
+            ConexaoLocal.MemTable2 := FATURAS;
+            ConexaoLocal.TempoExpiracao := 60 * 1000;
+            ConexaoLocal.Execute;
 
-        if FATURAS.RecordCount = 0 then
-          FATURAS.Open
-        else
-        begin
-
-          FATURAS.First;
-          while not FATURAS.Eof do
-          begin
-            inc(ID);
-            Fatura := TframeFaturas.Create(Pai);
-            Fatura.Parent := Pai;
-            Fatura.Valor :=
-              StrToFloat
-              (StringReplace(FATURAS.FieldByName(FATURAS.Fields[3].FieldName)
-              .AsString, '.', ',', []));
-            try
-              Fatura.DataVencimento :=
-                FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
-            except
-              Fatura.DataVencimento := now;
+            for I := 0 to Pai.ComponentCount - 1 do
+            begin
+              if (Pai.Components[I] is TframeFaturas) then
+              begin
+                (Pai.Components[I] as TframeFaturas).Visible := False;
+              end;
             end;
-            Fatura.Link := FATURAS.FieldByName('link').AsString;
-            Fatura.Name := 'Fatura' + ID.ToString;
-            Fatura.Align := TAlignLayout.Left;
-            FATURAS.Next;
+
+            if FATURAS.RecordCount = 0 then
+              FATURAS.Open
+            else
+            begin
+
+              FATURAS.First;
+              while not FATURAS.Eof do
+              begin
+                inc(ID);
+                Fatura := TframeFaturas.Create(Pai);
+                Fatura.Parent := Pai;
+                Fatura.Valor :=
+                  StrToFloat(StringReplace(FATURAS.FieldByName(FATURAS.Fields[3]
+                  .FieldName).AsString, '.', ',', []));
+                try
+                  Fatura.DataVencimento :=
+                    FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
+                except
+                  Fatura.DataVencimento := now;
+                end;
+                Fatura.Link := FATURAS.FieldByName('link').AsString;
+                Fatura.Name := 'Fatura' + ID.ToString;
+                Fatura.Align := TAlignLayout.Left;
+                FATURAS.Next;
+              end;
+            end;
+          except
+
           end;
+
+          ConexaoLocal.Free;
+
+          // HorzScrollBoxFatura
         end;
-      except
-
-      end;
-
-      ConexaoLocal.Free;
-
-      // HorzScrollBoxFatura
-    end;
-    FATURAS.Free;
-    // end).Start;
+        FATURAS.Free;
+      end).Start;
 
   except
 
@@ -511,6 +519,17 @@ begin
   Result := USUARIO.FieldByName('codigo').AsInteger;
 end;
 
+function TDM.ControleEstoque: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('controle_estoque').AsInteger;
+end;
+
+function TDM.CorSite(sColor: string): TColor;
+begin
+  Result := RGB(StrToInt('$' + Copy(sColor, 1, 2)),
+    StrToInt('$' + Copy(sColor, 3, 2)), StrToInt('$' + Copy(sColor, 5, 2)));
+end;
+
 procedure TDM.CriaCampo(Campo: String);
 var
   SQL: String;
@@ -526,6 +545,10 @@ var
   Body: String;
   Requisicao: iRequisicao;
 begin
+if ErrosBusca >= 3 then
+exit;
+if Assigned(JSonDadosSite) then
+exit;
   try
     Requisicao := iRequisicao.Create(self);
     Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
@@ -535,13 +558,12 @@ begin
       DADOS_WHATSAPP.FieldByName('client_security').AsString + '"' + #13 + '}';
     Requisicao.Body(Body);
     Requisicao.Metodo := mPost;
-    Requisicao.TempoExpiracao := 60 * 1000;
+    Requisicao.TempoExpiracao := 5 * 1000;
     Requisicao.Execute;
 
-    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
-      as TJsonObject;
+    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)as TJsonObject;
   except
-
+   inc(ErrosBusca);
   end;
 
   Requisicao.Free;
@@ -549,7 +571,10 @@ end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
 begin
+GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
   ID := 0;
+  ErrosBusca := 0;
+  DadosSite;
 end;
 
 function TDM.Deleta: Boolean;
@@ -561,20 +586,29 @@ procedure TDM.DeleteSimples(URL: String; Dados: IMemTable);
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mDelete;
-  Conexao.Token(Token);
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mDelete;
+    Conexao.Token(Token);
 
-  Conexao.Execute;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -599,6 +633,11 @@ begin
   //
 end;
 
+function TDM.FichaTecnica: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
+end;
+
 function TDM.GetCelular: String;
 begin
   Result := LerIni('USER', 'CELL', '');
@@ -618,8 +657,11 @@ begin
     GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
     DadosSite;
   end;
+  try
+    Result := DADOS_WHATSAPP.FieldByName('nome').AsString;
+  except
 
-  Result := DADOS_WHATSAPP.FieldByName('nome').AsString;
+  end;
 
 end;
 
@@ -632,19 +674,28 @@ function TDM.GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  Conexao.Body(Body);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    Conexao.Body(Body.ToJSONArray());
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -668,10 +719,11 @@ begin
     Conexao.Token(Token);
     Conexao.MemTable := Dados;
     Conexao.Execute;
+    Result := Conexao.Status = 200;
   except
     on E: Exception do
     begin
-//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -681,25 +733,34 @@ begin
 end;
 
 function TDM.GetSimples(URL: String; Dados: IMemTable;
-  Paginacao: Boolean): Boolean;
+Paginacao: Boolean): Boolean;
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.Paginacao := Paginacao;
-  Conexao.MemTable := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Paginacao := Paginacao;
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -708,20 +769,29 @@ function TDM.GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  Dados.Close;
-  if Assigned(Dados) then
-    Conexao.Body(Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mGet;
-  Conexao.Token(Token);
-  Conexao.MemTable2 := Dados;
-  Conexao.Execute;
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.MemTable2 := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -838,21 +908,30 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := Dados.ToJSONArray().ToString;
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := Dados.ToJSONArray().ToString;
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -862,19 +941,28 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := Conexao.Retorno;
   Conexao.Free;
@@ -885,19 +973,28 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONObject().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
-  Conexao.Execute;
+    URL := Parametros(URL);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONObject().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := DM.Conexao.Status = 200;
   Conexao.Free;
@@ -908,21 +1005,30 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPost;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Result := DM.Conexao.Status = 200;
   Conexao.Free;
@@ -933,21 +1039,30 @@ var
   Conexao: iRequisicao;
   Body: String;
 begin
-  Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
-  Conexao.TempoExpiracao := 50 * 1000;
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
 
-  URL := Parametros(URL);
+    URL := Parametros(URL);
 
-  if Assigned(Dados) then
-    Body := (Dados.ToJSONArray().ToString);
-  Conexao.eTAG := False;
-  Conexao.URL := URL;
-  Conexao.Metodo := mPut;
-  Conexao.Token(Token);
-  Conexao.Body(Body);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPut;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
 
-  Conexao.Execute;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
 
   Conexao.Free;
 end;
@@ -1074,15 +1189,15 @@ var
   Campo: String;
   Valor: String;
 begin
-  if FUserId = 0 then
-  begin
-    DadosSite;
-  end;
-  Campo := 'user';
-  Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
-  Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
-
   try
+    if FUserId = 0 then
+    begin
+      DadosSite;
+    end;
+    Campo := 'user';
+    Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
+    Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
+
     Result := Valor.ToInteger;
   except
     Result := 0;

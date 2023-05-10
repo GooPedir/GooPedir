@@ -330,7 +330,8 @@ begin
           ('alter table pro_adi_personalizado_sabores add quantidade_ingredientes float');
       end;
       17: begin
-        ExecultaSQL('alter table pedido add mp varchar(255)')
+        ExecultaSQL('alter table pedido add mp varchar(255)');
+        ExecultaSQL('alter table motoboy add acesso_site varchar(50)');
       end;
 
 
@@ -348,7 +349,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '16';
+  Result := '17';
 end;
 
 end.

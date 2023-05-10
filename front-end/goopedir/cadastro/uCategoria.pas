@@ -65,6 +65,7 @@ type
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rAlterarClick(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
   private
     { Private declarations }
     procedure Insert;
@@ -117,6 +118,12 @@ end;
 procedure TfrmCategoria.getCategoria;
 begin
   DM.GetSimples('v1/categoria/all/', DADOS);
+end;
+
+procedure TfrmCategoria.Image1Click(Sender: TObject);
+begin
+  inherited;
+getCategoria;
 end;
 
 procedure TfrmCategoria.Insert;

@@ -1,5 +1,5 @@
 object dmImpressaoV2: TdmImpressaoV2
-  OnCreate = DataModuleCreate
+  OnCreate = C
   Height = 708
   Width = 827
   object DADOS: TFDQuery
@@ -73,17 +73,16 @@ object dmImpressaoV2: TdmImpressaoV2
         'r_separado,'
       ''
       
-        '(select count(driver) from impressoras  where upper(descricao) =' +
-        ' '#39'DELIVERY'#39' and ativo = 1 group by descricao limit 1) as via_imp' +
-        'ressao,'
+        '(select count(driver) from impressoras  where impressora_padrao ' +
+        '= 1 and ativo = 1 group by descricao limit 1) as via_impressao,'
       
         '(select CONCAT(group_concat(codigo),'#39','#39') from impressoras where ' +
         'upper(descricao) = '#39'COMANDA'#39' and ativo = 1 group by descricao li' +
         'mit 1) as impressora_separado,'
       
         '(select CONCAT(group_concat(codigo),'#39','#39') descricao from impresso' +
-        'ras  where upper(descricao) = '#39'DELIVERY'#39' and ativo = 1 group by ' +
-        'descricao limit 1) as impressora_delivery,'
+        'ras  where impressora_padrao = 1 and ativo = 1 group by descrica' +
+        'o limit 1) as impressora_delivery,'
       ''
       
         'TO_BASE64(upper(concat(p.codigo,'#39'|'#39',p.codigo_pedido_dia,'#39'|'#39',p.da' +

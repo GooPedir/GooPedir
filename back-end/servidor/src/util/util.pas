@@ -2133,7 +2133,7 @@ begin
   ID := conexao.GerarID('pro_adi_personalizado', 'id');
 
   conexao.SQL.Add
-    ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima,modificado_site) values (:id,:id_produto,:descricao,1,0,:qtd_maxima,1)');
+    ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima,modificado_site) values (:id,:id_produto,:descricao,1,0,:qtd_maxima,0)');
   conexao.Parametros('id', ID);
   conexao.Parametros('id_produto', Dados.FieldByName('IDPRODUTO').AsInteger);
   conexao.Parametros('descricao', 'INGREDIENTES');
@@ -2151,7 +2151,7 @@ begin
     conexao.Parametros('nome', Dados.FieldByName('DESCRICAO').AsString);
     conexao.Parametros('descricao', '');
     conexao.Parametros('valor', 0);
-    conexao.Parametros('modificado_site', 1);
+    conexao.Parametros('modificado_site', 0);
     conexao.Parametros('ativo', 1);
     conexao.ExecuteSQL;
     //
@@ -4901,7 +4901,7 @@ begin
   begin
     Codigo := conexao.GerarID('tipo_pagamento', 'codigo');
     conexao.SQL.Add
-      ('insert into tipo_pagamento (codigo,descricao,troco_delivery,ativo,movimentacao) values (:codigo,:descricao,:troco_delivery,:ativo,:movimentacao)');
+      ('insert into tipo_pagamento (codigo) values (:codigo)');
     conexao.Parametros('codigo', Codigo);
     conexao.ExecuteSQL;
   end;
@@ -5120,19 +5120,15 @@ begin
   // conexao.SQL.Add('group by pap.id_produto');
   // conexao.SQL.Add('order by p.codigo');
   conexao.SQL.Add('WITH CTE AS (');
-  conexao.SQL.Add
-    ('select p.codigo, pap.id as extra_id, upper(CONCAT(pap.descricao)) as juncao, upper(p.nome_produto) as produto, upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.nome)) as itens from produto as p');
-  conexao.SQL.Add
-    ('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
-  conexao.SQL.Add
-    ('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id');
+  conexao.SQL.Add('select p.codigo, pap.id as extra_id, upper(CONCAT(pap.descricao)) as juncao, upper(p.nome_produto) as produto, upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.nome)) as itens from produto as p');
+  conexao.SQL.Add('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
+  conexao.SQL.Add('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id');
   conexao.SQL.Add('where paps.valor > 0');
   conexao.SQL.Add('group by pap.id');
   conexao.SQL.Add('order by p.codigo)');
-  conexao.SQL.Add
-    ('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens');
+  conexao.SQL.Add('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens');
   conexao.SQL.Add('from CTE');
-  conexao.SQL.Add('GROUP BY CTE.ITENS');
+//  conexao.SQL.Add('GROUP BY CTE.ITENS');
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -5165,8 +5161,7 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   conexao.SQL.Add('select * from pro_adi_personalizado as p');
-  conexao.SQL.Add
-    ('join pro_adi_personalizado_sabores as ps on ps.id_pro_adi_personalizado = p.id');
+  conexao.SQL.Add('join pro_adi_personalizado_sabores as ps on ps.id_pro_adi_personalizado = p.id');
   conexao.SQL.Add('where p.id = :id');
   conexao.Parametros('id', Extra);
   Dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -5487,10 +5482,8 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create;
-  conexao.SQL.Add
-    ('select *, (select custo from ingredientes_estoque where ingredientes_estoque.id_ingredientes = ingredientes.id order by id desc limit 1) as custo,');
-  conexao.SQL.Add
-    (' (select sum(quantidade) from ingredientes_estoque where id_ingredientes = ingredientes.id) as estoque from ingredientes');
+  conexao.SQL.Add('select *, (select custo from ingredientes_estoque where ingredientes_estoque.id_ingredientes = ingredientes.id order by id desc limit 1) as custo,');
+  conexao.SQL.Add (' (select sum(quantidade) from ingredientes_estoque where id_ingredientes = ingredientes.id) as estoque from ingredientes');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 

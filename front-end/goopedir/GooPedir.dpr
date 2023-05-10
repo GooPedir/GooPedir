@@ -97,17 +97,18 @@ begin
     1:
       begin
         // Windows
-        FrmLoginNovo := TFrmLoginNovo.Create(Application);
-        try
-          FrmLoginNovo.ShowModal;
-        finally
-          Login := FrmLoginNovo.Logado;
-          Usuario := FrmLoginNovo.edtUsuario.Text;
-          Senha := FrmLoginNovo.edtSenha.Text;
-          URL := DM.GetHost;
-
-          FrmLoginNovo.Free;
-        end;
+        Login := true;
+//        FrmLoginNovo := TFrmLoginNovo.Create(Application);
+//        try
+//          FrmLoginNovo.ShowModal;
+//        finally
+//          Login := FrmLoginNovo.Logado;
+//          Usuario := FrmLoginNovo.edtUsuario.Text;
+//          Senha := FrmLoginNovo.edtSenha.Text;
+//          URL := DM.GetHost;
+//
+//          FrmLoginNovo.Free;
+//        end;
 
         {
           frmLoginWindows := TfrmLoginWindows.Create(Application);

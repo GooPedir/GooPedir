@@ -168,6 +168,7 @@ var
   frmMesas: TfrmMesas;
   cMotoboy: TCustomCombo;
   ArrayMotoboy: Array of Integer;
+  Carregando: Boolean;
 
 implementation
 
@@ -441,10 +442,12 @@ end;
 procedure TfrmMesas.FormActivate(Sender: TObject);
 begin
   inherited;
-
+  if Carregando then
+    exit;
   TThread.CreateAnonymousThread(
     procedure
     begin
+      Carregando := True;
       CarregaMesas;
 
       TThread.Synchronize(TThread.CurrentThread,
@@ -452,6 +455,7 @@ begin
         begin
           // Memo1.Lines.Add('Teste anonymous Thread');
           DadosTela.Enabled := True;
+          Carregando := False;
         end);
     end).Start;
 end;

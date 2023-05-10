@@ -232,7 +232,7 @@ begin
       DiaDaSemana: String;
 
     begin
-    {
+
       CONEXAO := iRequisicao.Create(nil);
       CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
 
@@ -355,7 +355,7 @@ begin
               Dados.FieldByName('media_concluido').AsFloat);
         end;
 
-      end; }
+      end;
 
       layHistorico.Visible := True;
     end);

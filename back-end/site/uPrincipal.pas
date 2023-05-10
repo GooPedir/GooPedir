@@ -1527,7 +1527,7 @@ var
 begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT * FROM tipo_pagamento where (modificado_site = 0 or modificado_site is null) and apenas_delivery = 1';
+  SQL := 'SELECT * FROM tipo_pagamento where (modificado_site = 0 or modificado_site is null) and ativo = 1';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then

@@ -13,7 +13,8 @@ uses
   FireDAC.Comp.Client, uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt,
   FMX.Bind.DBEngExt, FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
   Data.Bind.Components, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid,
-  Data.Bind.DBScope, FMX.Edit, uEdit, FMX.ListBox;
+  Data.Bind.DBScope, FMX.Edit, uEdit, FMX.ListBox, System.ImageList,
+  FMX.ImgList;
 
 type
   TfrmCategoria = class(TfrmCadastroBase)
@@ -55,6 +56,7 @@ type
     iEdit3: iEdit;
     Label6: TLabel;
     SVV: TSwitch;
+    ImageList1: TImageList;
     procedure FormCreate(Sender: TObject);
     procedure StringGrid4DrawColumnCell(Sender: TObject; const Canvas: TCanvas;
       const Column: TColumn; const Bounds: TRectF; const Row: Integer;
@@ -80,7 +82,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM;
+uses uDM, util, uMain;
 
 { TfrmCategoria }
 
@@ -89,7 +91,7 @@ begin
   sVD.IsChecked := DADOS.FieldByName('visivel_delivery').AsInteger = 1;
   SVV.IsChecked := DADOS.FieldByName('visivel_vem_buscar').AsInteger = 1;
 
-  IMPRESSORA.Locate('codigo',DADOS.FieldByName('impressora').AsInteger,[]);
+  IMPRESSORA.Locate('codigo', DADOS.FieldByName('impressora').AsInteger, []);
 
 end;
 
@@ -106,7 +108,7 @@ end;
 procedure TfrmCategoria.FormCreate(Sender: TObject);
 begin
   inherited;
-tabPrincipal.TabPosition := TTabPosition.None;
+  tabPrincipal.TabPosition := TTabPosition.None;
   DM.GetSimples('/v1/consulta/todos/impressoras', IMPRESSORA);
   getCategoria;
 
@@ -119,6 +121,9 @@ end;
 
 procedure TfrmCategoria.Insert;
 begin
+  if not DADOS.Active then
+    DADOS.Open;
+
   DADOS.Insert;
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('pizza').AsInteger := 0;
@@ -142,6 +147,8 @@ end;
 procedure TfrmCategoria.rAlterarClick(Sender: TObject);
 begin
   inherited;
+  if DADOS.RecordCount = 0 then
+    exit;
   DADOS.Edit;
   tabPrincipal.TabIndex := 1;
   Controller;
@@ -150,11 +157,18 @@ end;
 procedure TfrmCategoria.rSalvarClick(Sender: TObject);
 begin
   inherited;
+  if length(trim(edtDescricao.text)) = 0 then
+  begin
+    ShowMessageToast(self, 'Descrição Obrigatoria!', 1);
+    exit;
+  end;
+
   SaveController;
   DADOS.Post;
   DM.PostSimplesUnico('/v1/categoria/post/', DADOS);
   tabPrincipal.TabIndex := 0;
   getCategoria;
+  ShowMessageToast(self, 'Categoria Salva!', 2);
 end;
 
 procedure TfrmCategoria.SaveController;
@@ -171,7 +185,7 @@ begin
     end;
   end;
 
-    case SVV.IsChecked of
+  case SVV.IsChecked of
     True:
       begin
         DADOS.FieldByName('visivel_vem_buscar').AsInteger := 1;
@@ -182,11 +196,16 @@ begin
     end;
   end;
 
-  DADOS.FieldByName('impressora').AsInteger := IMPRESSORA.FieldByName('codigo').AsInteger;
+  DADOS.FieldByName('impressora').AsInteger := IMPRESSORA.FieldByName('codigo')
+    .AsInteger;
 
-  DADOS.FieldByName('descricao').AsString := edtDescricao.Text;
-  DADOS.FieldByName('ordem').AsString := edtCodigo.Text;
-
+  DADOS.FieldByName('descricao').AsString := edtDescricao.text;
+  try
+    DADOS.FieldByName('ordem').AsInteger := edtCodigo.text.ToInteger;
+  except
+    DADOS.FieldByName('ordem').AsInteger := 0;
+  end;
+  DADOS.FieldByName('modificado_site').AsInteger := 0;
 
 end;
 
@@ -284,5 +303,9 @@ begin
       end;
   end;
 end;
+
+initialization
+
+RegisterClass(TfrmCategoria);
 
 end.

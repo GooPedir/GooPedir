@@ -74,6 +74,7 @@ begin
   DADOS.insert;
   DADOS.FieldByName('codigo').AsInteger := 0;
   DADOS.FieldByName('ativo').AsInteger := 1;
+  DADOS.FieldByName('acesso_site').AsString := '';
   tabPrincipal.TabIndex := 1;
 
 end;

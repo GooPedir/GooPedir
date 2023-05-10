@@ -560,7 +560,7 @@ type
     ppParameter2: TppParameter;
     ppRichText88: TppRichText;
     ppRichText89: TppRichText;
-    procedure DataModuleCreate(Sender: TObject);
+    procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
     { Private declarations }
@@ -757,7 +757,7 @@ begin
   Relatorio.PrinterSetup.DocumentName := VersaoPDV;
 end;
 
-procedure TdmImpressaoV2.DataModuleCreate(Sender: TObject);
+procedure TdmImpressaoV2.C(Sender: TObject);
 var
   Thread: TImpressaoPedidos;
 begin

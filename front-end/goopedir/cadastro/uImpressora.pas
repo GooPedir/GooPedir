@@ -61,6 +61,7 @@ type
     procedure rSalvarClick(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rAtivarDesativarClick(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
   private
     { Private declarations }
     function TipoCor(Index: Integer): TColor;
@@ -104,6 +105,13 @@ begin
   tabPrincipal.TabIndex := 0;
 end;
 
+procedure TfrmImpressora.Image1Click(Sender: TObject);
+begin
+  inherited;
+  if DADOS.State = dsInsert then
+    DADOS.Cancel;
+end;
+
 procedure TfrmImpressora.rAdicionarClick(Sender: TObject);
 begin
   inherited;
@@ -116,11 +124,13 @@ begin
     exit;
   end;
 
-  if not memImpressora.Active then
-    memImpressora.Open;
+  if not DADOS.Active then
+    DADOS.Open;
 
   tabPrincipal.TabIndex := 1;
   DADOS.Insert;
+  edtDescricao.Text := '';
+  sPadrao.IsChecked := False;
 end;
 
 procedure TfrmImpressora.rAlterarClick(Sender: TObject);
@@ -148,8 +158,9 @@ end;
 procedure TfrmImpressora.rAtivarDesativarClick(Sender: TObject);
 begin
   inherited;
-  DM.PostSimplesUnico('v1/util/teste/impressao/'+DADOS.FieldByName('codigo').AsString,nil);
-  ShowMessageToast(self,'Teste de impressão enviado com sucesso!',2);
+  dm.PostSimplesUnico('v1/util/teste/impressao/' + DADOS.FieldByName('codigo')
+    .AsString, nil);
+  ShowMessageToast(self, 'Teste de impressão enviado com sucesso!', 2);
 end;
 
 procedure TfrmImpressora.rSalvarClick(Sender: TObject);
@@ -192,7 +203,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(3);
-          Canvas.FillText(Bounds, Value.ToString, false, 1,
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end
@@ -203,7 +214,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(2);
-          Canvas.FillText(Bounds, Value.ToString, false, 1,
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end;
@@ -219,7 +230,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(3);
-          Canvas.FillText(Bounds, Value.ToString, false, 1,
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end
@@ -230,7 +241,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(2);
-          Canvas.FillText(Bounds, Value.ToString, false, 1,
+          Canvas.FillText(Bounds, Value.ToString, False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end;
@@ -246,7 +257,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(18);
-          Canvas.FillText(Bounds, '80mm', false, 1,
+          Canvas.FillText(Bounds, '80mm', False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end
@@ -257,7 +268,7 @@ begin
 
           Canvas.FillRect(Bounds, 0, 0, [], 1);
           Canvas.Fill.Color := TipoCor(18);
-          Canvas.FillText(Bounds, '56mm', false, 1,
+          Canvas.FillText(Bounds, '56mm', False, 1,
             [ { TFillTextFlag.RightToLef } ], TTextAlign.Center,
             TTextAlign.Center);
         end;
