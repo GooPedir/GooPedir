@@ -249,6 +249,7 @@ var
   StatusConexao: TConexaoServidor;
   JSonDadosSite: TJsonObject;
   ID: Integer;
+  ErrosBusca : Integer;
 
 implementation
 
@@ -544,6 +545,11 @@ var
   Body: String;
   Requisicao: iRequisicao;
 begin
+exit;
+if ErrosBusca >= 3 then
+exit;
+if Assigned(JSonDadosSite) then
+exit;
   try
     Requisicao := iRequisicao.Create(self);
     Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
@@ -553,13 +559,12 @@ begin
       DADOS_WHATSAPP.FieldByName('client_security').AsString + '"' + #13 + '}';
     Requisicao.Body(Body);
     Requisicao.Metodo := mPost;
-    Requisicao.TempoExpiracao := 60 * 1000;
+    Requisicao.TempoExpiracao := 5 * 1000;
     Requisicao.Execute;
 
-    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
-      as TJsonObject;
+    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)as TJsonObject;
   except
-
+   inc(ErrosBusca);
   end;
 
   Requisicao.Free;
@@ -567,7 +572,10 @@ end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
 begin
+GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
   ID := 0;
+  ErrosBusca := 0;
+  DadosSite;
 end;
 
 function TDM.Deleta: Boolean;
