@@ -1,7 +1,8 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 507
-  Width = 933
+  Height = 377
+  Width = 855
+  PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
     eTAG = False
@@ -20,8 +21,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 1368
-    Top = 8
+    Left = 768
+    Top = 296
   end
   object USUARIO: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -497,6 +498,10 @@ object DM: TDM
     object DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField
       FieldName = 'data_formatada'
       Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField
+      FieldName = 'ddd_padrao'
+      Size = 2
     end
   end
 end

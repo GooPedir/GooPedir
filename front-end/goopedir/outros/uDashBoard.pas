@@ -139,6 +139,7 @@ type
     Layout15: TLayout;
     Label36: TLabel;
     Image5: TImage;
+    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -210,6 +211,7 @@ begin
   inherited;
 frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
 frmCadastroAlteraProduto.ShowModal;
+//TfrmCliente
 
 end;
 
