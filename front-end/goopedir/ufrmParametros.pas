@@ -25,6 +25,8 @@ type
     verWhatsapp: TVertScrollBox;
     tabPontosFidelidade: TTabItem;
     Fidelidade: TVertScrollBox;
+    TabItem1: TTabItem;
+    VertIfood: TVertScrollBox;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -290,6 +292,13 @@ begin
 
   AdicionaTitulo(Fidelidade, 'Parametros Por Real Gasto');
   AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_real', '');
+
+  //Integração iFood
+  AdicionaTitulo(VertIfood, 'Dados Integração API iFood');
+  // AdicionaParametroEdit(Empresa, 'allan', 'Teste');
+  AdicionaParametroEdit(VertIfood, 'merchant', 'Merchant ID');
+
+
 end;
 
 procedure TfrmParametros.SenhaCadastrada;

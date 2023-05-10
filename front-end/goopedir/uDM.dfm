@@ -329,6 +329,10 @@ object DM: TDM
     object DADOS_WHATSAPPstatus_pedidos_site: TIntegerField
       FieldName = 'status_pedidos_site'
     end
+    object DADOS_WHATSAPPmerchant: TStringField
+      FieldName = 'merchant'
+      Size = 255
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

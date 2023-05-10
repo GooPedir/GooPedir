@@ -72,6 +72,8 @@ inherited frmParametros: TfrmParametros
         820s
         496s
         820s
+        496s
+        820s
         496s)
       object tabEmpresa: TTabItem
         CustomIcon = <
@@ -179,6 +181,27 @@ inherited frmParametros: TfrmParametros
         ExplicitSize.cx = 131.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object Fidelidade: TVertScrollBox
+          Align = Client
+          Size.Width = 820.000000000000000000
+          Size.Height = 496.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Viewport.Width = 820.000000000000000000
+          Viewport.Height = 496.000000000000000000
+        end
+      end
+      object TabItem1: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 110.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Integra'#231#227'o iFood'
+        object VertIfood: TVertScrollBox
           Align = Client
           Size.Width = 820.000000000000000000
           Size.Height = 496.000000000000000000
