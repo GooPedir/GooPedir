@@ -22,11 +22,25 @@ type
     DADOSnome: TStringField;
     DADOScelular: TStringField;
     DADOSativo: TIntegerField;
-    ListView1: TListView;
+    lDados: TListView;
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
     LinkListControlToField1: TLinkListControlToField;
+    DADOSendereco: TStringField;
+    DADOSrua: TStringField;
+    DADOSbairro: TStringField;
+    DADOScidade: TStringField;
+    DADOSestado: TStringField;
+    DADOScomplemento: TStringField;
+    DADOSnumero: TStringField;
+    MemTaxa: iMemTable;
+    MemTaxabairro: TStringField;
+    MemTaxacidade: TStringField;
+    MemTaxaestado: TStringField;
+    MemTaxacodigo: TIntegerField;
+    MemTaxavalor_taxa: TFloatField;
     procedure FormCreate(Sender: TObject);
+    procedure rAdicionarClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -50,6 +64,7 @@ procedure TfrmCliente.FormCreate(Sender: TObject);
 begin
   inherited;
   GetDados;
+ dm.GetSimples('/v1/consulta/todos/taxa_entrega', MemTaxa);
 end;
 
 procedure TfrmCliente.GetDados;
@@ -61,20 +76,42 @@ begin
     TThread.CreateAnonymousThread(
       procedure
       begin
-        dm.GetSimples('/v1/consulta/todos/cliente', DADOS);
+        lDados.Visible := False;
+        dm.GetSimples('/v1/consulta/todos/clientes', DADOS,True);
 
         TThread.Synchronize(TThread.CurrentThread,
           procedure
           begin
             Carregando := False;
+            lDados.Visible := True;
           end);
       end).Start;
   except
-    Carregando := False;
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Carregando := False;
+      lDados.Visible := False;
+    end;
+
   end;
 
   tabPrincipal.TabIndex := 0;
 
 end;
+
+procedure TfrmCliente.rAdicionarClick(Sender: TObject);
+begin
+  inherited;
+if MemTaxa.RecordCount = 0 then
+begin
+ShowMessage('Deve-se cadastrar as taxas primeiro!');
+  exit;
+end;
+end;
+
+initialization
+
+RegisterClass(TfrmCliente);
 
 end.

@@ -26,6 +26,19 @@ type
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
     LinkListControlToField1: TLinkListControlToField;
+    DADOSendereco: TStringField;
+    DADOSrua: TStringField;
+    DADOSbairro: TStringField;
+    DADOScidade: TStringField;
+    DADOSestado: TStringField;
+    DADOScomplemento: TStringField;
+    DADOSnumero: TStringField;
+    MemTaxa: iMemTable;
+    MemTaxabairro: TStringField;
+    MemTaxacidade: TStringField;
+    MemTaxaestado: TStringField;
+    MemTaxacodigo: TIntegerField;
+    MemTaxavalor_taxa: TFloatField;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -50,6 +63,7 @@ procedure TfrmCliente.FormCreate(Sender: TObject);
 begin
   inherited;
   GetDados;
+ dm.GetSimples('/v1/consulta/todos/taxa_entrega', MemTaxa);
 end;
 
 procedure TfrmCliente.GetDados;
@@ -61,8 +75,8 @@ begin
     TThread.CreateAnonymousThread(
       procedure
       begin
-      lDados.Visible := False;
-        dm.GetSimples('/v1/consulta/todos/cliente', DADOS);
+        lDados.Visible := False;
+        dm.GetSimples('/v1/consulta/todos/clientes', DADOS,True);
 
         TThread.Synchronize(TThread.CurrentThread,
           procedure
@@ -72,12 +86,21 @@ begin
           end);
       end).Start;
   except
-    Carregando := False;
-    lDados.Visible := False;
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Carregando := False;
+      lDados.Visible := False;
+    end;
+
   end;
 
   tabPrincipal.TabIndex := 0;
 
 end;
+
+initialization
+
+RegisterClass(TfrmCliente);
 
 end.

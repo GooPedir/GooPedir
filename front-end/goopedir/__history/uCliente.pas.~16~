@@ -13,8 +13,7 @@ uses
   FireDAC.Comp.Client, uMemTable, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
   FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
-  Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit, FMX.Grid.Style,
-  Fmx.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
+  Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit;
 
 type
   TfrmCliente = class(TfrmCadastroBase)
@@ -71,8 +70,6 @@ type
     LinkControlToField7: TLinkControlToField;
     LinkControlToField8: TLinkControlToField;
     Edit1: TEdit;
-    StringGrid4: TStringGrid;
-    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
   private
