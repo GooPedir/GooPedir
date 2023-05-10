@@ -4,7 +4,7 @@
         <ProjectVersion>19.3</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>32787</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -529,15 +529,15 @@
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Android64\Debug\GooPedir.classes" Configuration="Debug" Class="AndroidClasses"/>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi-v7a\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeArmeabiv7aFile"/>
                 <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi-v7a\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeArmeabiv7aFile"/>
+                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi-v7a\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeArmeabiv7aFile"/>
                 <DeployFile LocalName="Android\Debug\libGooPedir.so" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="Android\Debug\splash_image_def.xml" Configuration="Debug" Class="AndroidSplashImageDef"/>
                 <DeployFile LocalName="Android64\Release\colors.xml" Configuration="Release" Class="Android_Colors"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Debug" Class="Android_LauncherIcon144"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Release" Class="Android_LauncherIcon144"/>
-                <DeployFile LocalName="images\72.png" Configuration="Release" Class="Android_NotificationIcon72"/>
                 <DeployFile LocalName="images\72.png" Configuration="Debug" Class="Android_NotificationIcon72"/>
+                <DeployFile LocalName="images\72.png" Configuration="Release" Class="Android_NotificationIcon72"/>
                 <DeployFile LocalName="Android\Release\splash_image_def.xml" Configuration="Release" Class="AndroidSplashImageDef"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Debug" Class="Android_NotificationIcon96"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Release" Class="Android_NotificationIcon96"/>
@@ -562,11 +562,11 @@
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Release" Class="Android_SplashImage470"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Release" Class="Android_SplashImage426"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Debug" Class="Android_NotificationIcon48"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Release" Class="Android_NotificationIcon48"/>
                 <DeployFile LocalName="Android64\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest"/>
                 <DeployFile LocalName="images\icon-72.png" Configuration="Debug" Class="Android_LauncherIcon72"/>
                 <DeployFile LocalName="images\icon-72.png" Configuration="Release" Class="Android_LauncherIcon72"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Release" Class="Android_NotificationIcon48"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Debug" Class="Android_NotificationIcon48"/>
                 <DeployFile LocalName="Android64\Release\splash_image_def.xml" Configuration="Release" Class="AndroidSplashImageDef"/>
                 <DeployFile LocalName="Android\Release\strings.xml" Configuration="Release" Class="Android_Strings"/>
                 <DeployFile LocalName="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Configuration="Release" Class="AndroidGDBServer"/>
@@ -591,9 +591,9 @@
                 <DeployFile LocalName="Android64\Debug\styles.xml" Configuration="Debug" Class="AndroidSplashStyles"/>
                 <DeployFile LocalName="Android64\Release\styles-v21.xml" Configuration="Release" Class="AndroidSplashStylesV21"/>
                 <DeployFile LocalName="Android64\Debug\splash_image_def.xml" Configuration="Debug" Class="AndroidSplashImageDef"/>
-                <DeployFile LocalName="images\36.png" Configuration="Release" Class="Android_NotificationIcon36"/>
                 <DeployFile LocalName="Android\Release\libGooPedir.so" Configuration="Release" Class="ProjectOutput"/>
                 <DeployFile LocalName="images\36.png" Configuration="Debug" Class="Android_NotificationIcon36"/>
+                <DeployFile LocalName="images\36.png" Configuration="Release" Class="Android_NotificationIcon36"/>
                 <DeployFile LocalName="Android64\Debug\strings.xml" Configuration="Debug" Class="Android_Strings"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Debug" Class="Android_LauncherIcon48"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Release" Class="Android_LauncherIcon48"/>
@@ -1453,8 +1453,8 @@
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>

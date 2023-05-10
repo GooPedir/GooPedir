@@ -39,7 +39,6 @@ uses
   uSenha in 'outros\uSenha.pas' {frmSenha},
   uPedidoAdicionaAlterar in 'uPedidoAdicionaAlterar.pas' {frmCadastroBase1},
   uCaixa in 'uCaixa.pas' {frmCaixa},
-  uPrincipalMotoboy in 'uPrincipalMotoboy.pas' {frmPrincipalMotoboy},
   uFrameConfiguracaoEdit in 'frame\uFrameConfiguracaoEdit.pas' {FrameConfiguracaoEdit: TFrame},
   ufrmParametros in 'ufrmParametros.pas' {frmParametros},
   uFrameTitulo in 'frame\uFrameTitulo.pas' {FrameTitulo: TFrame},
@@ -71,7 +70,9 @@ uses
   uframeDadosItens in 'uframeDadosItens.pas' {frameDadosItens: TFrame},
   uframeDadosVBDelivery in 'uframeDadosVBDelivery.pas' {frameDadosVBDelivery: TFrame},
   ufrmDadosPedidoMotoboy in 'ufrmDadosPedidoMotoboy.pas' {frmDadosPedidoMotoboy: TFrame},
-  uIngredientesProduto in 'cadastro\uIngredientesProduto.pas' {frmIngredientesProduto};
+  uIngredientesProduto in 'cadastro\uIngredientesProduto.pas' {frmIngredientesProduto},
+  ufrmPIXMP in 'ufrmPIXMP.pas' {frmPIXMP},
+  uEstoque in 'uEstoque.pas' {frmEstoque};
 
 {$R *.res}
 
@@ -85,7 +86,7 @@ var
 begin
   Application.Initialize;
   Application.CreateForm(TDM, DM);
-
+  //  Application.CreateForm(TfrmPIXMP, frmPIXMP);
   TipoVersao :=1;
 {$IFDEF Android}
   TipoVersao := 2;
@@ -96,17 +97,18 @@ begin
     1:
       begin
         // Windows
-        FrmLoginNovo := TFrmLoginNovo.Create(Application);
-        try
-          FrmLoginNovo.ShowModal;
-        finally
-          Login := FrmLoginNovo.Logado;
-          Usuario := FrmLoginNovo.edtUsuario.Text;
-          Senha := FrmLoginNovo.edtSenha.Text;
-          URL := DM.GetHost;
-
-          FrmLoginNovo.Free;
-        end;
+        Login := true;
+//        FrmLoginNovo := TFrmLoginNovo.Create(Application);
+//        try
+//          FrmLoginNovo.ShowModal;
+//        finally
+//          Login := FrmLoginNovo.Logado;
+//          Usuario := FrmLoginNovo.edtUsuario.Text;
+//          Senha := FrmLoginNovo.edtSenha.Text;
+//          URL := DM.GetHost;
+//
+//          FrmLoginNovo.Free;
+//        end;
 
         {
           frmLoginWindows := TfrmLoginWindows.Create(Application);
