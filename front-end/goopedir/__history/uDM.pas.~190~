@@ -245,8 +245,6 @@ type
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
 
-
-
   end;
 
   { Caixa Rapido
@@ -357,7 +355,6 @@ begin
 
   end;
 end;
-
 
 procedure TDM.AtualizaSite(SQL: String);
 var

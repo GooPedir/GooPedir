@@ -158,10 +158,6 @@ type
     DADOS_WHATSAPPmerchant: TStringField;
 
     DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField;
-    DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField;
-    DADOS_WHATSAPPifood_percentual: TFloatField;
-    DADOS_WHATSAPPddd_padrao: TStringField;
-    DADOS_WHATSAPPifood_integracao: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -244,8 +240,6 @@ type
 
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
-
-
 
   end;
 
@@ -357,7 +351,6 @@ begin
 
   end;
 end;
-
 
 procedure TDM.AtualizaSite(SQL: String);
 var

@@ -345,9 +345,6 @@ object DM: TDM
       FieldName = 'ddd_padrao'
       Size = 2
     end
-    object DADOS_WHATSAPPifood_integracao: TIntegerField
-      FieldName = 'ifood_integracao'
-    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

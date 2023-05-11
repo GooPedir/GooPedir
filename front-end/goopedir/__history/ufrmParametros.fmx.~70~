@@ -1,5 +1,4 @@
 inherited frmParametros: TfrmParametros
-  ActiveControl = tabParametros
   Caption = 'frmPadrao1'
   DesignerMasterStyle = 0
   inherited layClient: TLayout
@@ -62,7 +61,7 @@ inherited frmParametros: TfrmParametros
       end
     end
     inherited tabMain: TTabControl
-      TabIndex = 0
+      TabIndex = 5
       Sizes = (
         820s
         496s
@@ -80,7 +79,7 @@ inherited frmParametros: TfrmParametros
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 66.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -110,7 +109,6 @@ inherited frmParametros: TfrmParametros
         StyleLookup = ''
         TabOrder = 0
         Text = 'Whatsapp'
-        OnClick = tabMensagemClick
         ExplicitSize.cx = 136.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object verWhatsapp: TVertScrollBox
@@ -134,7 +132,6 @@ inherited frmParametros: TfrmParametros
         StyleLookup = ''
         TabOrder = 0
         Text = 'Configura'#231#227'o Geral'
-        OnClick = tabParametrosClick
         ExplicitSize.cx = 122.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object Geral: TVertScrollBox
@@ -158,7 +155,6 @@ inherited frmParametros: TfrmParametros
         StyleLookup = ''
         TabOrder = 0
         Text = 'Caixa'
-        OnClick = tabFaturamentoClick
         ExplicitSize.cx = 105.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object Faturamento: TVertScrollBox
@@ -182,7 +178,6 @@ inherited frmParametros: TfrmParametros
         StyleLookup = ''
         TabOrder = 0
         Text = 'Pontos de Fidelidade'
-        OnClick = tabPontosFidelidadeClick
         ExplicitSize.cx = 131.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object Fidelidade: TVertScrollBox
@@ -199,14 +194,13 @@ inherited frmParametros: TfrmParametros
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 110.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
         TabOrder = 0
         Text = 'Integra'#231#227'o iFood'
-        OnClick = TabItem1Click
         ExplicitSize.cx = 110.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         object VertIfood: TVertScrollBox

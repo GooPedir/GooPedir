@@ -245,7 +245,7 @@ type
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
 
-
+    procedure atualizaPrecoiFood;
 
   end;
 
@@ -358,6 +358,10 @@ begin
   end;
 end;
 
+procedure TDM.atualizaPrecoiFood;
+begin
+//update produto set valor_ifood = (valor_venda + ((valor_venda*X)/100)), atualizado = 0 where valor_venda <> (valor_venda + ((valor_venda*X)/100))
+end;
 
 procedure TDM.AtualizaSite(SQL: String);
 var

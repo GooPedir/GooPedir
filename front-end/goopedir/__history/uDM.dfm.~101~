@@ -1,6 +1,6 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 500
+  Height = 377
   Width = 855
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
@@ -344,9 +344,6 @@ object DM: TDM
     object DADOS_WHATSAPPddd_padrao: TStringField
       FieldName = 'ddd_padrao'
       Size = 2
-    end
-    object DADOS_WHATSAPPifood_integracao: TIntegerField
-      FieldName = 'ifood_integracao'
     end
   end
   object FATURAS2: TFDMemTable

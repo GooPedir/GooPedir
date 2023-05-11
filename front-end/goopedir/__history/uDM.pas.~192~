@@ -245,7 +245,7 @@ type
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
 
-
+    procedure atualizaPrecoiFood;
 
   end;
 

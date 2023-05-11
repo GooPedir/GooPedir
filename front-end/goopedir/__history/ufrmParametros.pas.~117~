@@ -28,22 +28,11 @@ type
     TabItem1: TTabItem;
     VertIfood: TVertScrollBox;
     procedure FormCreate(Sender: TObject);
-    procedure tabMensagemClick(Sender: TObject);
-    procedure tabParametrosClick(Sender: TObject);
-    procedure tabFaturamentoClick(Sender: TObject);
-    procedure tabPontosFidelidadeClick(Sender: TObject);
-    procedure TabItem1Click(Sender: TObject);
   private
     { Private declarations }
     procedure TestarConexao;
     procedure SenhaGerente;
     procedure SenhaCadastrada;
-
-    procedure WhatsappLoad;
-    procedure ConfLoad;
-    procedure CaixaLoad;
-    procedure PontoFidelidadeLoad;
-    procedure iFoodLoad;
   public
     { Public declarations }
     procedure AdicionaParametroEdit(Local: TVertScrollBox;
@@ -58,7 +47,6 @@ type
 var
   frmParametros: TfrmParametros;
   FrameTituloContador: Integer;
-  Carregou: Array of Boolean;
 
 implementation
 
@@ -130,15 +118,55 @@ begin
   Frame.Align := TAlignLayout.Top;
 end;
 
-procedure TfrmParametros.CaixaLoad;
-begin
-
-end;
-
-procedure TfrmParametros.ConfLoad;
+procedure TfrmParametros.FormCreate(Sender: TObject);
 var
+  LayoutDiaDaSemana: THorzScrollBox;
+  Mensagem: TframeMensagemWhatsapp;
   Botoes: TframeBotao;
+
 begin
+  inherited;
+
+  AdicionaTitulo(Empresa, 'Dados Empresa');
+  // AdicionaParametroEdit(Empresa, 'allan', 'Teste');
+  AdicionaParametroEdit(Empresa, 'nome', '');
+  AdicionaParametroEdit(Empresa, 'cep', '');
+  AdicionaParametroEdit(Empresa, 'rua', '');
+  AdicionaParametroEdit(Empresa, 'numero', '');
+  AdicionaParametroEdit(Empresa, 'bairro', '');
+  AdicionaParametroEdit(Empresa, 'cidade', '');
+  AdicionaParametroEdit(Empresa, 'estado', '');
+
+  AdicionaTitulo(Empresa, 'Horário');
+
+  LayoutDiaDaSemana := THorzScrollBox.Create(Empresa);
+  LayoutDiaDaSemana.Height := 60;
+  LayoutDiaDaSemana.Align := TAlignLayout.Top;
+  LayoutDiaDaSemana.Parent := Empresa;
+
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'segunda',
+    'Segunda-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'terca', 'Terca-Feira',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quarta',
+    'Quarta-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quinta',
+    'Quinta-Feira', '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sexta', 'Sexta-Feira',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sabado', 'Sabado',
+    '1', '0');
+  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'domingo', 'Domingo',
+    '1', '0');
+
+  AdicionaParametroEdit(Empresa, 'horario_abertura', '');
+  AdicionaParametroEdit(Empresa, 'horario_fechamento', '');
+
+  AdicionaTitulo(Empresa, 'Localização No Google Maps');
+  AdicionaParametroEdit(Empresa, 'latitude', '');
+  AdicionaParametroEdit(Empresa, 'longitude', '');
+
+  // Geral
   AdicionaTitulo(Geral, 'Configuração Produto');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'controle_estoque',
     'Controle de Estoque (Produto / Insulmos)', '1', '0');
@@ -194,180 +222,7 @@ begin
   Botoes.Name := 'senha_gerente';
   Botoes.Align := TAlignLayout.Top;
   Botoes.Sim := SenhaGerente;
-end;
-
-procedure TfrmParametros.FormCreate(Sender: TObject);
-var
-  LayoutDiaDaSemana: THorzScrollBox;
-
-  Botoes: TframeBotao;
-
-begin
-  inherited;
-  SetLength(Carregou, 10);
-  tabPontosFidelidade.Visible := False;
-  AdicionaTitulo(Empresa, 'Dados Empresa');
-  // AdicionaParametroEdit(Empresa, 'allan', 'Teste');
-  AdicionaParametroEdit(Empresa, 'nome', '');
-  AdicionaParametroEdit(Empresa, 'cep', '');
-  AdicionaParametroEdit(Empresa, 'rua', '');
-  AdicionaParametroEdit(Empresa, 'numero', '');
-  AdicionaParametroEdit(Empresa, 'bairro', '');
-  AdicionaParametroEdit(Empresa, 'cidade', '');
-  AdicionaParametroEdit(Empresa, 'estado', '');
-
-  AdicionaTitulo(Empresa, 'Horário');
-
-  LayoutDiaDaSemana := THorzScrollBox.Create(Empresa);
-  LayoutDiaDaSemana.Height := 60;
-  LayoutDiaDaSemana.Align := TAlignLayout.Top;
-  LayoutDiaDaSemana.Parent := Empresa;
-
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'segunda',
-    'Segunda-Feira', '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'terca', 'Terca-Feira',
-    '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quarta',
-    'Quarta-Feira', '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'quinta',
-    'Quinta-Feira', '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sexta', 'Sexta-Feira',
-    '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'sabado', 'Sabado',
-    '1', '0');
-  AdicionaSelecao(LayoutDiaDaSemana, TAlignLayout.Left, 'domingo', 'Domingo',
-    '1', '0');
-
-  AdicionaParametroEdit(Empresa, 'horario_abertura', '');
-  AdicionaParametroEdit(Empresa, 'horario_fechamento', '');
-
-  AdicionaTitulo(Empresa, 'Localização No Google Maps');
-  AdicionaParametroEdit(Empresa, 'latitude', '');
-  AdicionaParametroEdit(Empresa, 'longitude', '');
-end;
-
-procedure TfrmParametros.iFoodLoad;
-begin
-  // Integração iFood
-  AdicionaTitulo(VertIfood, 'Dados Integração API iFood');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'ifood_integracao','Utilizar Integração', '1', '0');
-  AdicionaParametroEdit(VertIfood, 'merchant', 'Merchant ID');
-  AdicionaCombo(VertIfood, 'aceitar_pedidos_ifood', 'Pedidos Site',
-    ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',
-    'Cancelar Automaticamente'], False);
-  AdicionaParametroEdit(VertIfood, 'ifood_percentual', '% Produto iFood');
-
-end;
-
-procedure TfrmParametros.PontoFidelidadeLoad;
-begin
-  AdicionaTitulo(Fidelidade, 'Pontos de Fidelidade');
-  // AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade','Programa de Fidelidade', '1', '0');
-  AdicionaCombo(Fidelidade, 'fidelidade', 'Programa de Fidelidade',
-    ['Desativado', 'Ponto Por Real Gasto', 'Ponto Por Pedido'], False);
-  // AdicionaParametroEdit(Fidelidade, 'fidelidade_pontos_eq_valor', '');
-  // AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_eq_pontos', '');
-
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_pedido_minimo', '');
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_desconto', '');
-
-  AdicionaTitulo(Fidelidade, 'Quais as Formas de Pedidos Geram Pontos');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_pedido','Pedidos PDV', '1', '0');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_wpp',
-    'Pedidos Whatsapp', '1', '0');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_site',
-    'Pedidos Site', '1', '0');
-  AdicionaTitulo(Fidelidade, '');
-  AdicionaTitulo(Fidelidade, 'Parametros Por Pedido');
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_qtd_resgate', '');
-
-  AdicionaTitulo(Fidelidade, 'Parametros Por Real Gasto');
-  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_real', '');
-end;
-
-procedure TfrmParametros.SenhaCadastrada;
-begin
-  ShowMessageToast(frmMain, 'Senha Cadastrada Com Sucesso!', 2);
-end;
-
-procedure TfrmParametros.SenhaGerente;
-begin
-  if not Assigned(frmSenha) then
-    frmSenha := TfrmSenha.Create(frmMain);
-  frmSenha.Sim := SenhaCadastrada;
-  frmSenha.Tipo := Cadastrar;
-  frmSenha.Show;
-end;
-
-procedure TfrmParametros.tabFaturamentoClick(Sender: TObject);
-begin
-  inherited;
-  if not Carregou[3] then
-  begin
-    CaixaLoad;
-    Carregou[3] := True;
-  end;
-end;
-
-procedure TfrmParametros.TabItem1Click(Sender: TObject);
-begin
-  inherited;
-  if not Carregou[5] then
-  begin
-    iFoodLoad;
-    Carregou[5] := True;
-  end;
-end;
-
-procedure TfrmParametros.tabMensagemClick(Sender: TObject);
-begin
-  inherited;
-  if not Carregou[1] then
-  begin
-    WhatsappLoad;
-    Carregou[1] := True;
-  end;
-
-end;
-
-procedure TfrmParametros.tabParametrosClick(Sender: TObject);
-begin
-  inherited;
-  if not Carregou[2] then
-  begin
-    ConfLoad;
-    Carregou[2] := True;
-  end;
-end;
-
-procedure TfrmParametros.tabPontosFidelidadeClick(Sender: TObject);
-begin
-  inherited;
-  if not Carregou[4] then
-  begin
-    PontoFidelidadeLoad;
-    Carregou[4] := True;
-  end;
-end;
-
-procedure TfrmParametros.TestarConexao;
-begin
-
-  dm.DadosSite;
-  if dm.UserId > 0 then
-  begin
-    ShowMessageToast(frmMain, 'Conectado Com Sucesso! ' + dm.Link, 3);
-  end
-  else
-  begin
-    ShowMessageToast(frmMain, 'Sem Conexão Com o Servidor!', 1);
-  end;
-end;
-
-procedure TfrmParametros.WhatsappLoad;
-var
-  Mensagem: TframeMensagemWhatsapp;
-begin
+    exit;
   AdicionaTitulo(verWhatsapp, 'Configurações');
   AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_confirmacao',
     'Enviar Confirmação De Recebimento do Pedido', '1', '0'); // Feito
@@ -380,12 +235,12 @@ begin
   AdicionaSelecao(verWhatsapp, TAlignLayout.Top, 'tipo_wpp_auto_bot',
     'Auto Atendimento', '1', '0');
 
-  AdicionaTitulo(verWhatsapp, 'Mensagem de Saudação');
-  Mensagem := TframeMensagemWhatsapp.Create(verWhatsapp);
-  Mensagem.Parent := verWhatsapp;
-  Mensagem.Campo := 'mensagem_inicio';
-  Mensagem.Align := TAlignLayout.Client;
-  // Caixa
+//  AdicionaTitulo(verWhatsapp, 'Mensagem de Saudação');
+//  Mensagem := TframeMensagemWhatsapp.Create(verWhatsapp);
+//  Mensagem.Parent := verWhatsapp;
+//  Mensagem.Campo := 'mensagem_inicio';
+//  Mensagem.Align := TAlignLayout.Client;
+
   AdicionaTitulo(Faturamento, 'Configurações de Caixa');
   AdicionaSelecao(Faturamento, TAlignLayout.Top, 'auto_abrir_fechar_caixa',
     'Abrir / Fechar Caixa Automatico', '1', '0');
@@ -411,6 +266,73 @@ begin
   AdicionaSelecao(Faturamento, TAlignLayout.Top, 'fat_integra_pix',
     'Integrar PIX', '1', '0');
   AdicionaParametroEdit(Faturamento, 'token_mp', '');
+
+  // Fidelidade
+
+  AdicionaTitulo(Fidelidade, 'Pontos de Fidelidade');
+  // AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade','Programa de Fidelidade', '1', '0');
+  AdicionaCombo(Fidelidade, 'fidelidade', 'Programa de Fidelidade',
+    ['Desativado', 'Ponto Por Real Gasto', 'Ponto Por Pedido'], False);
+
+
+
+
+  // AdicionaParametroEdit(Fidelidade, 'fidelidade_pontos_eq_valor', '');
+  // AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_eq_pontos', '');
+
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_pedido_minimo', '');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_desconto', '');
+
+  AdicionaTitulo(Fidelidade, 'Quais as Formas de Pedidos Geram Pontos');
+  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_pedido',
+    'Pedidos PDV', '1', '0');
+  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_wpp',
+    'Pedidos Whatsapp', '1', '0');
+  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'fidelidade_site',
+    'Pedidos Site', '1', '0');
+  AdicionaTitulo(Fidelidade, '');
+  AdicionaTitulo(Fidelidade, 'Parametros Por Pedido');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_qtd_resgate', '');
+
+  AdicionaTitulo(Fidelidade, 'Parametros Por Real Gasto');
+  AdicionaParametroEdit(Fidelidade, 'fidelidade_valor_real', '');
+
+  // Integração iFood
+  AdicionaTitulo(VertIfood, 'Dados Integração API iFood');
+  AdicionaParametroEdit(VertIfood, 'merchant', 'Merchant ID');
+  AdicionaCombo(Geral, 'aceitar_pedidos_ifood', 'Pedidos Site',
+    ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',
+    'Cancelar Automaticamente'], False);
+  AdicionaParametroEdit(VertIfood, 'ifood_percentual', '% Produto iFood');
+
+end;
+
+procedure TfrmParametros.SenhaCadastrada;
+begin
+  ShowMessageToast(frmMain, 'Senha Cadastrada Com Sucesso!', 2);
+end;
+
+procedure TfrmParametros.SenhaGerente;
+begin
+  if not Assigned(frmSenha) then
+    frmSenha := TfrmSenha.Create(frmMain);
+  frmSenha.Sim := SenhaCadastrada;
+  frmSenha.Tipo := Cadastrar;
+  frmSenha.Show;
+end;
+
+procedure TfrmParametros.TestarConexao;
+begin
+
+  dm.DadosSite;
+  if dm.UserId > 0 then
+  begin
+    ShowMessageToast(frmMain, 'Conectado Com Sucesso! ' + dm.Link, 3);
+  end
+  else
+  begin
+    ShowMessageToast(frmMain, 'Sem Conexão Com o Servidor!', 1);
+  end;
 end;
 
 initialization

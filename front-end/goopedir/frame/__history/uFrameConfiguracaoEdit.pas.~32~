@@ -133,7 +133,7 @@ var
   CriaCampo: String;
   TamanhoCampo: Integer;
 begin
-//  DM.GetNomeEmpresa;
+  DM.GetNomeEmpresa;
   FCampo := Value;
 
   if Assigned(DM.DADOS_WHATSAPP.FindField(Value)) then

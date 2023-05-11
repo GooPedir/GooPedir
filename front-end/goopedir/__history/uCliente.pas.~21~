@@ -14,7 +14,7 @@ uses
   FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
   FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
   Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit, FMX.Grid.Style,
-  FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
+  Fmx.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
 
 type
   TfrmCliente = class(TfrmCadastroBase)
@@ -86,7 +86,7 @@ type
 var
   frmCliente: TfrmCliente;
   Carregando: Boolean;
-  CodigoCliente: Integer;
+  CodigoCliente : Integer;
 
 implementation
 
@@ -108,11 +108,6 @@ begin
   if Carregando then
     exit;
   Carregando := True;
-  dm.GetSimples('/v1/consulta/todos/clientes', DADOS, True);
-  lDados.Visible := True;
-  Carregando := False;
-  tabPrincipal.TabIndex := 0;
-  exit;
   try
     TThread.CreateAnonymousThread(
       procedure
@@ -149,17 +144,13 @@ begin
     ShowMessage('Deve-se cadastrar as taxas primeiro!');
     exit;
   end;
-  DADOS.insert;
   CodigoCliente := 0;
 end;
 
 procedure TfrmCliente.rSalvarClick(Sender: TObject);
 begin
   inherited;
-  dm.PostSimples('v1/cliente/cadastro/' + CodigoCliente.ToString + '/' +
-    edtCell.Text + '/' + EdtNome.Text + '/' + EdtRua.Text + '/' + EdtNumero.Text
-    + '/' + EdtComplemento.Text + '/' + EdtBairro.Text + '/' + EdtCidade.Text +
-    '/' + EdtEstado.Text + '/0', nil);
+  DM.PostSimples('v1/cliente/cadastro/'+CodigoCliente.ToString+'/'+edtCell.Text+'/'+EdtNome.Text+'/'+edtRua.Text+'/'+edtNumero.Text+'/'+edtComplemento.Text+'/'+edtBairro.Text+'/'+edtCidade.Text+'/'+EdtEstado.Text+'/0',nil);
   GetDados;
 end;
 

@@ -11,6 +11,7 @@ object frmServidor: TfrmServidor
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
+  PixelsPerInch = 96
   TextHeight = 15
   object memoHistorico: TMemo
     Left = 8
@@ -436,25 +437,6 @@ object frmServidor: TfrmServidor
     object memTesteImpressaoID: TIntegerField
       FieldName = 'ID'
     end
-  end
-  object iFood: TADRIFood
-    Credentials.AuthorizationType = ctCentralized
-    Credentials.ClientId = 'f070acdf-4833-4f17-b443-0e3bc7135856'
-    Credentials.ClientSecret = 
-      '141oprfvxqmroyrys1zk8t6p5vmnsswq5n9mi8t6hmwlk8kaxk4ps4cakelg5fao' +
-      'visqzk4mlq6qypu2yslndrxomugnhrkouk8d'
-    Servers.IFoodAPI = cMerchantAPI
-    SoftwareHouse.Id = '09071157997'
-    SoftwareHouse.DiasAlerta = 15
-    Polling.AutoPolling = True
-    Polling.DataSource = dsPolling
-    Polling.Interval = 30
-    Polling.InvokeEvents = True
-    MerchantStatus.AutoStatus = False
-    MerchantStatus.Interval = 30
-    OnPollingEnd = iFoodPollingEnd
-    Left = 32
-    Top = 392
   end
   object dataSetPolling: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

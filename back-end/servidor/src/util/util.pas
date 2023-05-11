@@ -1952,6 +1952,7 @@ var
   SQL: String;
   CodigoAux: Integer;
   Novo: Boolean;
+
 begin
 
   Dados := TFDMemTable.Create(nil);
@@ -2002,7 +2003,7 @@ begin
 
     SQL := 'update produto set codigo_interno = :interno, nome_produto = :nome, descricao = :descricao, codigo_grupo = :grupo, valor_venda = :venda, ativo = :ativo,';
     SQL := SQL +
-      'valor_embalagem_delivery = :delivery, valor_embalagem_vembusca = :vb, atualizado = 0, modificado_site = 0 where codigo = :codigo';
+      'valor_embalagem_delivery = :delivery, valor_embalagem_vembusca = :vb, atualizado = 0, modificado_site = 0, valor_ifood = :valor_ifood where codigo = :codigo';
   end;
   conexao.SQL.Add(SQL);
   conexao.Parametros('codigo', Dados.FieldByName('CODIGO').AsInteger);
@@ -2013,6 +2014,8 @@ begin
   conexao.Parametros('descricao', Dados.FieldByName('DESCRICAO').AsString);
   conexao.Parametros('grupo', Dados.FieldByName('CATEGORIA').AsInteger);
   conexao.Parametros('venda', Dados.FieldByName('VENDA').AsCurrency);
+  conexao.Parametros('valor_ifood', Dados.FieldByName('VENDA').AsCurrency +
+    ((Dados.FieldByName('VENDA').AsCurrency * frmServidor.TaxaiFood) / 100));
   conexao.Parametros('delivery', Dados.FieldByName('DELIVERY').AsCurrency);
   conexao.Parametros('vb', Dados.FieldByName('VEMBUSCAR').AsCurrency);
   conexao.ExecuteSQL;
@@ -3420,15 +3423,18 @@ begin
     ('join cliente_endereco on cliente_endereco.codigo =  (select codigo from cliente_endereco as ce where ce.codigo_cliente = c.codigo order by codigo desc limit 1 )');
   if length(Cliente) > 0 then
   begin
-    conexao.SQL.Add('where c.celular > 99999 and concat(upper(c.nome),c.celular) like '+QuotedStr('%'+UpperCase(Cliente)+'%')+'  order by c.codigo desc limit 50');
+    conexao.SQL.Add
+      ('where c.celular > 99999 and concat(upper(c.nome),c.celular) like ' +
+      QuotedStr('%' + UpperCase(Cliente) + '%') +
+      '  order by c.codigo desc limit 50');
   end
   else
   begin
-  conexao.SQL.Add('where c.celular > 99999 order by c.codigo desc limit 50 ');
+    conexao.SQL.Add('where c.celular > 99999 order by c.codigo desc limit 50 ');
   end;
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
-//Res.Send(conexao.SQL.Text);
+  // Res.Send(conexao.SQL.Text);
 
   conexao.Free;
 end;
@@ -6425,6 +6431,94 @@ begin
   Dados.Free;
 end;
 
+procedure DoPostCadastroCliente(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Codigo: Integer;
+  Celular: string;
+  nome: string;
+  rua: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cpf: string;
+  conexao: TConexao;
+CodigoEndereco : Integer;
+begin
+  try
+    Codigo := Req.Params['codigo'].ToInteger;
+  except
+    Codigo := 0;
+  end;
+  conexao := TConexao.Create;
+  Celular := Req.Params['celular'];
+  nome := Req.Params['nome'];
+  rua := Req.Params['rua'];
+  numero := Req.Params['numero'];
+  complemento := Req.Params['complemento'];
+  bairro := Req.Params['bairro'];
+  cidade := Req.Params['cidade'];
+  estado := Req.Params['estado'];
+  cpf := Req.Params['cpf'];
+
+  if Codigo = 0 then
+  begin
+    Codigo := conexao.GerarID('cliente', 'codigo');
+    conexao.SQL.Add
+      ('insert into cliente (codigo,nome,celular,celular_wpp,ativo) values  (:codigo,:nome,:celular,:celular_wpp,1)');
+    conexao.Parametros('codigo', Codigo);
+    conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
+    conexao.Parametros('celular', Celular);
+    conexao.Parametros('celular_wpp', NonoDigito(Celular));
+    conexao.ExecuteSQL;
+
+  end;
+  conexao.SQL.Add('update cliente set nome = :nome, cpf = :cpf, celular = :celular, celular_wpp = :celular_wpp where codigo = :codigo');
+    conexao.Parametros('codigo', Codigo);
+    conexao.Parametros('cpf', cpf);
+    conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
+    conexao.Parametros('celular', Celular);
+    conexao.Parametros('celular_wpp', NonoDigito(Celular));
+    conexao.ExecuteSQL;
+  if length(rua) > 0 then
+  begin
+    // Cadastra Endereço
+    conexao.SQL.Add('select max(codigo) as codigo, 0 as zero from cliente_endereco where  cliente_endereco.codigo_cliente = :cliente');
+    conexao.Parametros('cliente',Codigo);
+    try
+      CodigoEndereco := conexao.FieldByName('codigo');
+    finally
+      CodigoEndereco := conexao.GerarID('cliente_endereco','codigo');
+      conexao.SQL.Add('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
+      conexao.SQL.Add('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
+      conexao.Parametros('codigo', CodigoEndereco);
+      conexao.Parametros('codigo_cliente', Codigo);
+      conexao.Parametros('descricao', 'Principal');
+      conexao.Parametros('tipo', 1);
+      conexao.Parametros('rua', UpperCase(RemoveAcento(rua)));
+      conexao.Parametros('bairro', UpperCase(RemoveAcento(bairro)));
+      conexao.Parametros('cidade', UpperCase(RemoveAcento(cidade)));
+      conexao.Parametros('estado', UpperCase(RemoveAcento(estado)));
+      conexao.Parametros('complemento', UpperCase(RemoveAcento(complemento)));
+      conexao.Parametros('numero', numero);
+      conexao.ExecuteSQL;
+
+    end;
+     conexao.SQL.Add('update cliente_endereco set numero = :numero, rua = :rua, bairro = :bairro, cidade = :cidade, estado = :estado, complemento = :complemento where codigo = :codigo');
+      conexao.Parametros('codigo', CodigoEndereco);
+      conexao.Parametros('rua', UpperCase(RemoveAcento(rua)));
+      conexao.Parametros('bairro', UpperCase(RemoveAcento(bairro)));
+      conexao.Parametros('cidade', UpperCase(RemoveAcento(cidade)));
+      conexao.Parametros('estado', UpperCase(RemoveAcento(estado)));
+      conexao.Parametros('complemento', UpperCase(RemoveAcento(complemento)));
+      conexao.Parametros('numero', numero);
+
+  end;
+
+  conexao.Free;
+end;
 
 
 
@@ -6697,6 +6791,10 @@ begin
   // whatsapp
   THorse.Get('v1/util/status/pedido', DoGetStatusPedido);
   THorse.Post('v1/util/taxa/entrega', DoPostTaxaEntrega);
+
+  THorse.Post
+    ('v1/cliente/cadastro/:codigo/:celular/:nome/:rua/:numero/:complemento/:bairro/:cidade/:estado/:cpf',
+    DoPostCadastroCliente);
 
 end;
 

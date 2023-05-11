@@ -149,7 +149,6 @@ begin
     ShowMessage('Deve-se cadastrar as taxas primeiro!');
     exit;
   end;
-  DADOS.insert;
   CodigoCliente := 0;
 end;
 

@@ -1,6 +1,6 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 500
+  Height = 377
   Width = 855
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
@@ -333,20 +333,6 @@ object DM: TDM
     object DADOS_WHATSAPPmerchant: TStringField
       FieldName = 'merchant'
       Size = 255
-    end
-    object DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField
-      DisplayLabel = 'Situa'#231#227'o do Pedido iFood'
-      FieldName = 'aceitar_pedidos_ifood'
-    end
-    object DADOS_WHATSAPPifood_percentual: TFloatField
-      FieldName = 'ifood_percentual'
-    end
-    object DADOS_WHATSAPPddd_padrao: TStringField
-      FieldName = 'ddd_padrao'
-      Size = 2
-    end
-    object DADOS_WHATSAPPifood_integracao: TIntegerField
-      FieldName = 'ifood_integracao'
     end
   end
   object FATURAS2: TFDMemTable
