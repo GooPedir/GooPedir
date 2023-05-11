@@ -9,7 +9,8 @@ uses
   Winapi.TlHelp32, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, conexao, Vcl.Menus,
-  FMX.Printer, uRequisicao;
+  FMX.Printer, uRequisicao, ADRIFood.Model.Interfaces, ADRIFood.Model.Types,
+  ADRIFood.Component.Events, ADRIFood.Component;
 
 type
   TAbrirServicos = class(TThread)
@@ -45,6 +46,9 @@ type
     memTesteImpressao: TFDMemTable;
     memTesteImpressaoIMPRESSORA: TIntegerField;
     memTesteImpressaoID: TIntegerField;
+    ADRIFood1: TADRIFood;
+    dataSetPolling: TFDMemTable;
+    dsPolling: TDataSource;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
@@ -67,6 +71,8 @@ type
     procedure LoadImpressora;
     procedure FichaTecnica;
     function PathExe : String;
+
+    function IDiFood:String;
 
   var
     FechouWhatsapp: Boolean;
@@ -333,6 +339,11 @@ begin
 
   FichaTecnica;
 
+end;
+
+function TfrmServidor.IDiFood: String;
+begin
+   Result := '155cc414-36d0-4ec2-9d06-f85fad9e782a';
 end;
 
 function TfrmServidor.IMPRESSAO: String;

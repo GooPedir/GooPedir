@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 390
-  ClientWidth = 791
+  ClientHeight = 786
+  ClientWidth = 781
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -436,5 +436,39 @@ object frmServidor: TfrmServidor
     object memTesteImpressaoID: TIntegerField
       FieldName = 'ID'
     end
+  end
+  object ADRIFood1: TADRIFood
+    Credentials.AuthorizationType = ctCentralized
+    Credentials.ClientId = 'f070acdf-4833-4f17-b443-0e3bc7135856'
+    Credentials.ClientSecret = 
+      '141oprfvxqmroyrys1zk8t6p5vmnsswq5n9mi8t6hmwlk8kaxk4ps4cakelg5fao' +
+      'visqzk4mlq6qypu2yslndrxomugnhrkouk8d'
+    Servers.IFoodAPI = cMerchantAPI
+    SoftwareHouse.Id = '09071157997'
+    SoftwareHouse.DiasAlerta = 30
+    Polling.AutoPolling = True
+    Polling.DataSource = dsPolling
+    Polling.Interval = 30
+    Polling.InvokeEvents = True
+    MerchantStatus.AutoStatus = False
+    MerchantStatus.Interval = 30
+    Left = 32
+    Top = 392
+  end
+  object dataSetPolling: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 32
+    Top = 504
+  end
+  object dsPolling: TDataSource
+    DataSet = dataSetPolling
+    Left = 32
+    Top = 448
   end
 end

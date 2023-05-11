@@ -71,7 +71,7 @@ type
     LinkControlToField7: TLinkControlToField;
     LinkControlToField8: TLinkControlToField;
     Edit1: TEdit;
-    lDados: TStringGrid;
+    StringGrid4: TStringGrid;
     LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);

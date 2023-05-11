@@ -208,7 +208,7 @@ Coordinates=0,380,94,33
 [Edit1]
 Coordinates=0,0,40,51
 
-[StringGrid4]
+[lDados]
 Coordinates=760,50,70,51
 Visible=True
 
