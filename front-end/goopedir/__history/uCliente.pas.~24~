@@ -76,7 +76,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rSalvarClick(Sender: TObject);
-    procedure rAlterarClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -152,14 +151,6 @@ begin
   end;
   DADOS.insert;
   CodigoCliente := 0;
-tabPrincipal.TabIndex := 1;
-end;
-
-procedure TfrmCliente.rAlterarClick(Sender: TObject);
-begin
-  inherited;
-CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
-tabPrincipal.TabIndex := 1;
 end;
 
 procedure TfrmCliente.rSalvarClick(Sender: TObject);

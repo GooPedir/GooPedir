@@ -50,33 +50,24 @@ inherited frmCliente: TfrmCliente
           Position.Y = 506.000000000000000000
           Size.Width = 917.000000000000000000
           TabOrder = 1
-          ColumnCollection = <
-            item
-              Value = 50.127729604282990000
-            end
-            item
-              Value = 49.872270395717010000
-            end
-            item
-            end>
           inherited rAdicionar: TRectangle
-            Size.Width = 459.671295166015600000
+            Size.Width = 306.623535156250000000
             OnClick = rAdicionarClick
             inherited Label1: TLabel
-              Size.Width = 459.671295166015600000
+              Size.Width = 306.623535156250000000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAlterar: TRectangle
-            Size.Width = 457.328704833984400000
+            Size.Width = 305.060913085937500000
             OnClick = rAlterarClick
             inherited Label2: TLabel
-              Size.Width = 457.328704833984400000
+              Size.Width = 305.060913085937500000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAtivarDesativar: TRectangle
-            Size.Width = 0.000000000000000000
+            Size.Width = 305.315551757812500000
             inherited lTipoAtivo: TLabel
               Size.Width = 305.315551757812500000
               TextSettings.Font.StyleExt = {00060000000000000004000000}

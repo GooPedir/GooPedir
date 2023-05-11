@@ -18,13 +18,13 @@ inherited frmCliente: TfrmCliente
             PNG = {
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88E4B
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1388F3B
               0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
               1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
               BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
               DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
               9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
-              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801697BBB427FD993B400
+              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801FA9BBB9FB6B5889200
               00000049454E44AE426082}
             FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
           end>
@@ -50,33 +50,23 @@ inherited frmCliente: TfrmCliente
           Position.Y = 506.000000000000000000
           Size.Width = 917.000000000000000000
           TabOrder = 1
-          ColumnCollection = <
-            item
-              Value = 50.127729604282990000
-            end
-            item
-              Value = 49.872270395717010000
-            end
-            item
-            end>
           inherited rAdicionar: TRectangle
-            Size.Width = 459.671295166015600000
+            Size.Width = 306.623535156250000000
             OnClick = rAdicionarClick
             inherited Label1: TLabel
-              Size.Width = 459.671295166015600000
+              Size.Width = 306.623535156250000000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAlterar: TRectangle
-            Size.Width = 457.328704833984400000
-            OnClick = rAlterarClick
+            Size.Width = 305.060913085937500000
             inherited Label2: TLabel
-              Size.Width = 457.328704833984400000
+              Size.Width = 305.060913085937500000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAtivarDesativar: TRectangle
-            Size.Width = 0.000000000000000000
+            Size.Width = 305.315551757812500000
             inherited lTipoAtivo: TLabel
               Size.Width = 305.315551757812500000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
@@ -124,14 +114,14 @@ inherited frmCliente: TfrmCliente
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00EE49444154484BED95510E82301044C104CFA627F0387ECA3DBC99A4DE011A
+                    00EE49444154484BED95510E82301044C104CFA627F0387ECA3DBC99C4DE011A
                     C0D975680A14684D347EF012D3EDCECE2EB541B39D24BAAE3B374D53F589C077
                     658B75D0FC414F32514358DB731B051A5F8C31567C9B43B43BF0E335D404A287
                     A80BF8F11A6A223284E9513EE7AA0C620EA68521A48EA1E2FB35010E5C7F833C
-                    81C06D32B48FFC5F3F41D4003CD4B16DDB5B5DD74FF9482C39CAF1E8F900B70E
-                    A4CAB732A2A4EC607EF92BA63E2BC01B6E28392447D941E90FEFA0288A3B4347
+                    81C06D32B48FFC5F3F41D4003CD4B16DDB5B5DD7463E124B8E723C7A3EC0AD03
+                    A9F2AD8C28293B985FFE8AA9CF0AF0863F29392447D941E90FEFA0288A3B4347
                     28B7094F18BA83A84B5633E0760EF5E5820D685FBE036B6D252BEB92F17B04C1
-                    0FD6477F3803E2458F13DBEDC490652F91563BAE3B0D2B710000000049454E44
+                    0FD6477F3803E2458F13DBEDC490652FB9B53BB4729CA98A0000000049454E44
                     AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
                 end>
@@ -163,41 +153,6 @@ inherited frmCliente: TfrmCliente
             iForthMemInsert = DADOS
             iForthCampoInser = 'cidade'
             iForthTipoEdit = Texto
-            object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -1436,41 +1391,6 @@ inherited frmCliente: TfrmCliente
             iForthMemInsert = DADOS
             iForthCampoInser = 'cidade'
             iForthTipoEdit = Texto
-            object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -3235,41 +3155,6 @@ inherited frmCliente: TfrmCliente
               end
             end
             object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
-            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -4543,41 +4428,6 @@ inherited frmCliente: TfrmCliente
               end
             end
             object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
-            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -5360,41 +5210,6 @@ inherited frmCliente: TfrmCliente
             iForthMemInsert = DADOS
             iForthCampoInser = 'cidade'
             iForthTipoEdit = Texto
-            object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -7264,41 +7079,6 @@ inherited frmCliente: TfrmCliente
               end
             end
             object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
-            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -8607,41 +8387,6 @@ inherited frmCliente: TfrmCliente
               end
             end
             object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
-            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -9424,41 +9169,6 @@ inherited frmCliente: TfrmCliente
             iForthMemInsert = DADOS
             iForthCampoInser = 'cidade'
             iForthTipoEdit = Texto
-            object TRectangle
-              Tag = 1
-              Align = Right
-              Opacity = 0.699999988079071000
-              Position.X = 50.000000000000000000
-              Size.Width = 100.000000000000000000
-              Size.Height = 30.000000000000000000
-              Size.PlatformDefault = False
-              Visible = False
-              object TLabel
-                Tag = 2
-                Align = Bottom
-                StyledSettings = []
-                Position.Y = 15.000000000000000000
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 0
-              end
-              object TLabel
-                Tag = 3
-                Align = Client
-                StyledSettings = []
-                Size.Width = 100.000000000000000000
-                Size.Height = 15.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.Font.StyleExt = {00070000000000000004000000}
-                TextSettings.FontColor = claWhite
-                TextSettings.HorzAlign = Center
-                TabOrder = 1
-              end
-            end
             object TRectangle
               Tag = 1
               Align = Right
