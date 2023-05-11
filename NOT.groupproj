@@ -15,7 +15,7 @@
         <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\whatsapp\WhatsappGopedir.dproj">
+        <Projects Include="back-end\whatsapp\WhatsappGoPedir.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -62,23 +62,23 @@
     <Target Name="ImpressaoGooPedir:Make">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
     </Target>
-    <Target Name="WhatsappGopedir">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj"/>
+    <Target Name="WhatsappGoPedir">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGoPedir.dproj"/>
     </Target>
-    <Target Name="WhatsappGopedir:Clean">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Clean"/>
+    <Target Name="WhatsappGoPedir:Clean">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGoPedir.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="WhatsappGopedir:Make">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Make"/>
+    <Target Name="WhatsappGoPedir:Make">
+        <MSBuild Projects="back-end\whatsapp\WhatsappGoPedir.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir;WhatsappGopedir"/>
+        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir;WhatsappGoPedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean;WhatsappGopedir:Clean"/>
+        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean;WhatsappGoPedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make;WhatsappGopedir:Make"/>
+        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make;WhatsappGoPedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

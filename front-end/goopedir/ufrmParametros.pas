@@ -193,12 +193,10 @@ begin
   AdicionaCombo(Geral, 'tipo_preco_pizza', 'Tipo Valor Pizza',
     ['Média', 'Maior Valor', 'Soma Dos Valores'], False);
 
-  AdicionaCombo(Geral, 'aceitar_pedidos_site', 'Pedidos Site',
-    ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',
-    'Cancelar Automaticamente'], False);
+  AdicionaCombo(Geral, 'aceitar_pedidos_site', 'Pedidos Site', ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)','Cancelar Automaticamente'], False);
   AdicionaCombo(Geral, 'status_pedidos_site', 'Status Pedido Site',
     ['Não Aplicado', 'Em Espera','Em Produção','Pronto','Cancelado'], False);
-
+  AdicionaParametroEdit(Geral, 'ddd_padrao', 'Informe o ddd para os campos telefone padrão');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressaotipopro',
     'Impressão Cozinha', '1', '0');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressao_agrupada',

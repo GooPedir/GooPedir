@@ -210,6 +210,7 @@ begin
   inherited;
 frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
 frmCadastroAlteraProduto.ShowModal;
+//TfrmCliente
 
 end;
 

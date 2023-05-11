@@ -22,10 +22,11 @@ type
     DADOSnome: TStringField;
     DADOScelular: TStringField;
     DADOSativo: TIntegerField;
-    ListView1: TListView;
+    lDados: TListView;
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
     LinkListControlToField1: TLinkListControlToField;
+    DADOSendereco: TStringField;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -36,6 +37,7 @@ type
 
 var
   frmCliente: TfrmCliente;
+  Carregando: Boolean;
 
 implementation
 
@@ -53,8 +55,39 @@ end;
 
 procedure TfrmCliente.GetDados;
 begin
-  dm.GetSimples('/v1/consulta/todos/cliente', DADOS);
+  if Carregando then
+    exit;
+  Carregando := True;
+  try
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        lDados.Visible := False;
+        dm.GetSimples('/v1/consulta/todos/clientes', DADOS,True);
+
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            Carregando := False;
+            lDados.Visible := True;
+          end);
+      end).Start;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Carregando := False;
+      lDados.Visible := False;
+    end;
+
+  end;
+
   tabPrincipal.TabIndex := 0;
+
 end;
+
+initialization
+
+RegisterClass(TfrmCliente);
 
 end.
