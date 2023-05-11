@@ -329,11 +329,20 @@ begin
         ExecultaSQL
           ('alter table pro_adi_personalizado_sabores add quantidade_ingredientes float');
       end;
-      17: begin
+    17:
+      begin
         ExecultaSQL('alter table pedido add mp varchar(255)');
         ExecultaSQL('alter table motoboy add acesso_site varchar(50)');
       end;
-
+    18:
+      begin
+        ExecultaSQL('alter table pedido add id_ifood varchar(255);');
+        ExecultaSQL('alter table pedido add status_ifood varchar(255);');
+        // alter table tipo_produto add id_ifood varchar(255);
+        // alter table produto add id_ifood varchar(255);
+        // alter table produto add valor_ifood real;
+        //alter table pedido add status_ifood_descricao varchar(255);
+      end;
 
     // Deve-se Rodar manual esses sql
     99999999:
@@ -349,7 +358,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '17';
+  Result := '18';
 end;
 
 end.

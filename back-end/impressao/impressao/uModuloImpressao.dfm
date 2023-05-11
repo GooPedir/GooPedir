@@ -16,7 +16,8 @@ object dmImpressaoV2: TdmImpressaoV2
       'CASE '
       ' when p.origem = 1 then "ORIGEM WHATSAPP"'
       ' when p.origem = 2 then "ORIGEM SITE"'
-      ' when p.origem = 3 then "ORIGEM APP" '
+      ' when p.origem = 3 then "ORIGEM APP"'
+      ' when p.origem = 4 then "ORIGEM IFOOD" '
       ' else "ORIGEM OUTROS"'
       'END as origem, '
       'CASE '
@@ -1329,7 +1330,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 304800
     PrinterSetup.mmPaperWidth = 55800
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 119
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1535,7 +1536,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 304800
           PrinterSetup.mmPaperWidth = 55800
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 119
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000

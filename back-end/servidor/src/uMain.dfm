@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 786
-  ClientWidth = 781
+  ClientHeight = 825
+  ClientWidth = 1030
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -437,7 +437,7 @@ object frmServidor: TfrmServidor
       FieldName = 'ID'
     end
   end
-  object ADRIFood1: TADRIFood
+  object iFood: TADRIFood
     Credentials.AuthorizationType = ctCentralized
     Credentials.ClientId = 'f070acdf-4833-4f17-b443-0e3bc7135856'
     Credentials.ClientSecret = 
@@ -445,13 +445,14 @@ object frmServidor: TfrmServidor
       'visqzk4mlq6qypu2yslndrxomugnhrkouk8d'
     Servers.IFoodAPI = cMerchantAPI
     SoftwareHouse.Id = '09071157997'
-    SoftwareHouse.DiasAlerta = 30
+    SoftwareHouse.DiasAlerta = 15
     Polling.AutoPolling = True
     Polling.DataSource = dsPolling
     Polling.Interval = 30
     Polling.InvokeEvents = True
     MerchantStatus.AutoStatus = False
     MerchantStatus.Interval = 30
+    OnPollingEnd = iFoodPollingEnd
     Left = 32
     Top = 392
   end
@@ -470,5 +471,132 @@ object frmServidor: TfrmServidor
     DataSet = dataSetPolling
     Left = 32
     Top = 448
+  end
+  object dataSetOrders: TFDMemTable
+    FieldDefs = <>
+    IndexDefs = <>
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvPersistent, rvSilentMode]
+    ResourceOptions.Persistent = True
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    StoreDefs = True
+    Left = 776
+    Top = 448
+  end
+  object dataSetOrderItems: TFDMemTable
+    MasterSource = dsOrders
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 776
+    Top = 504
+  end
+  object dsOrderItems: TDataSource
+    DataSet = dataSetOrderItems
+    Left = 832
+    Top = 504
+  end
+  object dsOrders: TDataSource
+    DataSet = dataSetOrders
+    Left = 832
+    Top = 448
+  end
+  object dataSetOrderBenefits: TFDMemTable
+    MasterSource = dsOrders
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 776
+    Top = 624
+  end
+  object dataSetOrderSubItems: TFDMemTable
+    MasterSource = dsOrderItems
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 776
+    Top = 680
+  end
+  object dsOrderSubItems: TDataSource
+    DataSet = dataSetOrderSubItems
+    Left = 832
+    Top = 616
+  end
+  object dsOrderBenefits: TDataSource
+    DataSet = dataSetOrderBenefits
+    Left = 832
+    Top = 680
+  end
+  object dsOrderPayments: TDataSource
+    DataSet = dataSetOrderPayments
+    Left = 832
+    Top = 560
+  end
+  object dataSetOrderPayments: TFDMemTable
+    MasterSource = dsOrders
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 776
+    Top = 560
+  end
+  object dataSetCategoy: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 32
+    Top = 752
+  end
+  object memItens: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 32
+    Top = 688
+  end
+  object memCategoriaExtra: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 32
+    Top = 640
+  end
+  object memItensPreco: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 24
+    Top = 592
   end
 end
