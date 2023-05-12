@@ -10,39 +10,59 @@ uses
 
 type
   TframeDadosVBDelivery = class(TFrame)
+    rBottom: TRectangle;
+    rLateral: TRectangle;
+    tImprimindo: TTimer;
+    Layout3: TLayout;
+    Layout1: TLayout;
+    lOrigem: TLabel;
     lCodigoDia: TLabel;
-    lCodigo: TLabel;
+    GridPanelLayout1: TGridPanelLayout;
+    edtCelular: TEdit;
+    Label5: TLabel;
     edtNome: TEdit;
     Label3: TLabel;
     edtEndereco: TEdit;
     Label4: TLabel;
-    edtCelular: TEdit;
-    Label5: TLabel;
-    cStatus: TComboBox;
-    Label6: TLabel;
-    lOrigem: TLabel;
-    lImpressao: TLayout;
-    lVisualizacao: TLayout;
-    Image1: TImage;
-    lImprimir: TLabel;
-    Image2: TImage;
-    Label9: TLabel;
-    lDataHora: TLabel;
-    lTempo: TLabel;
-    cSelecionar: TCheckBox;
-    rBottom: TRectangle;
+    GridPanelLayout2: TGridPanelLayout;
+    edtPedido: TEdit;
+    Label8: TLabel;
+    edtDesconto: TEdit;
+    Label10: TLabel;
     edtTaxa: TEdit;
     Label1: TLabel;
     edtTotal: TEdit;
     Label7: TLabel;
-    rLateral: TRectangle;
-    tImprimindo: TTimer;
-    layMotoboy: TLayout;
-    Image3: TImage;
-    lMotoboy: TLabel;
+    layDescontoIfood: TLayout;
+    Image5: TImage;
+    lDescricaoDesconto: TLabel;
+    cStatus: TComboBox;
+    Label6: TLabel;
+    lDescricaoStatusiFood: TLabel;
+    edtCpfCnpj: TEdit;
+    Label11: TLabel;
+    lDataAgendada: TLabel;
+    lDataEstimada: TLabel;
+    edtTipoPagamento: TEdit;
+    Label12: TLabel;
+    cSelecionar: TCheckBox;
+    lDataHora: TLabel;
+    lTempo: TLabel;
+    lCodigo: TLabel;
+    GridPanelLayout3: TGridPanelLayout;
+    lImpressao: TLayout;
+    Image1: TImage;
+    lImprimir: TLabel;
+    lVisualizacao: TLayout;
+    Image2: TImage;
+    Label9: TLabel;
     lStatus: TLayout;
     Image4: TImage;
     Label2: TLabel;
+    layMotoboy: TLayout;
+    Image3: TImage;
+    lMotoboy: TLabel;
+    Rectangle1: TRectangle;
     procedure lImpressaoMouseEnter(Sender: TObject);
     procedure lImpressaoMouseLeave(Sender: TObject);
     procedure lVisualizacaoClick(Sender: TObject);
@@ -66,6 +86,15 @@ type
     FTempo: String;
     FMotoboy: String;
     FCaixa: Integer;
+    FDesconto: Real;
+    FTroco: Real;
+    FDataEstimada: TDateTime;
+    FCodigoiFood: String;
+    FDescricaoDescontoiFood: String;
+    FDocumento: String;
+    FStatusiFood: String;
+    FDataAgendamento: TDateTime;
+    FTipoPagamento: String;
     procedure SetCelular(const Value: String);
     procedure SetCodigoDia(const Value: Integer);
     procedure SetCodigoEndereco(const Value: Integer);
@@ -82,6 +111,16 @@ type
     procedure CancelaPedido;
     procedure SetCaixa(const Value: Integer);
     procedure SetMotoboy(const Value: String);
+    procedure SetCodigoiFood(const Value: String);
+    procedure SetDataAgendamento(const Value: TDateTime);
+    procedure SetDataEstimada(const Value: TDateTime);
+    procedure SetDesconto(const Value: Real);
+    procedure SetDescricaoDescontoiFood(const Value: String);
+    procedure SetDocumento(const Value: String);
+    procedure SetStatusiFood(const Value: String);
+    procedure SetTroco(const Value: Real);
+    procedure SetTipoPagamento(const Value: String);
+    procedure Calcula;
 
   var
     Carregando: Boolean;
@@ -100,10 +139,22 @@ type
     property Status: Integer read FStatus write SetStatus;
     property Taxa: Real read FTaxa write SetTaxa;
     property Total: Real read FTotal write SetTotal;
+    property Troco: Real read FTroco write SetTroco;
+    property Desconto: Real read FDesconto write SetDesconto;
+    property Documento: String read FDocumento write SetDocumento;
     property Origem: Integer read FOrigem write SetOrigem;
     property Tempo: String read FTempo write SetTempo;
     property Motoboy: String read FMotoboy write SetMotoboy;
     property Caixa: Integer read FCaixa write SetCaixa;
+    property CodigoiFood: String read FCodigoiFood write SetCodigoiFood;
+    property DataAgendamento: TDateTime read FDataAgendamento
+      write SetDataAgendamento;
+    property DataEstimada: TDateTime read FDataEstimada write SetDataEstimada;
+    property StatusiFood: String read FStatusiFood write SetStatusiFood;
+    property DescricaoDescontoiFood: String read FDescricaoDescontoiFood
+      write SetDescricaoDescontoiFood;
+    property TipoPagamento: String read FTipoPagamento write SetTipoPagamento;
+
   end;
 
 implementation
@@ -113,6 +164,11 @@ uses
 
 {$R *.fmx}
 { TframeDadosVBDelivery }
+
+procedure TframeDadosVBDelivery.Calcula;
+begin
+  edtPedido.Text := FormatFloat('R$ ###,##0.00', Total - Taxa - Desconto);
+end;
 
 procedure TframeDadosVBDelivery.CancelaPedido;
 begin
@@ -187,6 +243,7 @@ procedure TframeDadosVBDelivery.SetCelular(const Value: String);
 begin
   FCelular := Value;
   edtCelular.Text := Value;
+  CodigoiFood := '';
 end;
 
 procedure TframeDadosVBDelivery.SetCodigoDia(const Value: Integer);
@@ -200,7 +257,19 @@ begin
   FCodigoEndereco := Value;
   cSelecionar.Visible := Value > 0;
   edtEndereco.Visible := Value > 0;
-  edtTaxa.Visible := Value > 0;
+  // edtTaxa.Visible := Value > 0;
+end;
+
+procedure TframeDadosVBDelivery.SetCodigoiFood(const Value: String);
+begin
+  FCodigoiFood := Value;
+
+  lDataEstimada.Visible := length(Value) > 0;
+  lDataAgendada.Visible := length(Value) > 0;
+  edtCpfCnpj.Visible := length(Value) > 0;
+  layDescontoIfood.Visible := length(Value) > 0;
+  lDescricaoStatusiFood.Visible := length(Value) > 0;
+
 end;
 
 procedure TframeDadosVBDelivery.SetCodigoInterno(const Value: Integer);
@@ -209,10 +278,43 @@ begin
   lCodigo.Text := FormatFloat('#000', Value);
 end;
 
+procedure TframeDadosVBDelivery.SetDataAgendamento(const Value: TDateTime);
+begin
+  FDataAgendamento := Value;
+  lDataAgendada.Text := FormatDateTime('dd/mm/yyyy hh:nn:ss', Value);
+  lDataAgendada.Visible := True;
+end;
+
+procedure TframeDadosVBDelivery.SetDataEstimada(const Value: TDateTime);
+begin
+  FDataEstimada := Value;
+  lDataEstimada.Text := FormatDateTime('dd/mm/yyyy hh:nn:ss', Value);
+  lDataEstimada.Visible := True;
+end;
+
 procedure TframeDadosVBDelivery.SetDataPedido(const Value: TDate);
 begin
   FDataPedido := Value;
 
+end;
+
+procedure TframeDadosVBDelivery.SetDesconto(const Value: Real);
+begin
+  FDesconto := Value;
+  edtDesconto.Text := FormatFloat('R$ ###,##0.00', Value);
+end;
+
+procedure TframeDadosVBDelivery.SetDescricaoDescontoiFood(const Value: String);
+begin
+  FDescricaoDescontoiFood := Value;
+  lDescricaoDesconto.Text := Value;
+  layDescontoIfood.Visible := (length(Value) > 0);
+
+end;
+
+procedure TframeDadosVBDelivery.SetDocumento(const Value: String);
+begin
+  FDocumento := Value;
 end;
 
 procedure TframeDadosVBDelivery.SetEndereco(const Value: String);
@@ -229,16 +331,16 @@ end;
 procedure TframeDadosVBDelivery.SetMotoboy(const Value: String);
 begin
   FMotoboy := Value;
-  if length(Value) > 0 then
-  begin
-    self.Height := 260;
-  end
-  else
-  begin
-    self.Height := 220;
-  end;
+  // if length(Value) > 0 then
+  // begin
+  // self.Height := 260;
+  // end
+  // else
+  // begin
+  // self.Height := 220;
+  // end;
   lMotoboy.Text := UpperCase(Value);
-  layMotoboy.Visible := self.Height > 220;
+  // layMotoboy.Visible := self.Height > 220;
 end;
 
 procedure TframeDadosVBDelivery.SetNome(const Value: String);
@@ -272,9 +374,14 @@ begin
       end;
     4:
       begin
-        lOrigem.Text := 'Pedido Local';
+        lOrigem.Text := 'iFood';
         Cor := RGB(227, 210, 244);
       end;
+  else
+    begin
+      lOrigem.Text := 'Pedido Local';
+      Cor := RGB(227, 210, 244);
+    end;
   end;
   rLateral.Fill.Color := Cor;
   rLateral.Stroke.Color := Cor;
@@ -291,10 +398,18 @@ begin
   Carregando := False;
 end;
 
+procedure TframeDadosVBDelivery.SetStatusiFood(const Value: String);
+begin
+  FStatusiFood := Value;
+  lDescricaoStatusiFood.Text := Value;
+  lDescricaoStatusiFood.Visible := True;
+end;
+
 procedure TframeDadosVBDelivery.SetTaxa(const Value: Real);
 begin
   FTaxa := Value;
   edtTaxa.Text := FormatFloat('R$ ###,##0.00', Value);
+  Calcula;
 end;
 
 procedure TframeDadosVBDelivery.SetTempo(const Value: String);
@@ -304,10 +419,22 @@ begin
   lDataHora.Text := DateToStr(DataPedido) + ' ' + TimeToStr(HoraPedido);
 end;
 
+procedure TframeDadosVBDelivery.SetTipoPagamento(const Value: String);
+begin
+  FTipoPagamento := Value;
+  edtTipoPagamento.Text := Value;
+end;
+
 procedure TframeDadosVBDelivery.SetTotal(const Value: Real);
 begin
   FTotal := Value;
   edtTotal.Text := FormatFloat('R$ ###,##0.00', Value);
+end;
+
+procedure TframeDadosVBDelivery.SetTroco(const Value: Real);
+begin
+  FTroco := Value;
+  Calcula;
 end;
 
 procedure TframeDadosVBDelivery.tImprimindoTimer(Sender: TObject);
