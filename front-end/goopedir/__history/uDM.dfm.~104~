@@ -1,7 +1,7 @@
 object DM: TDM
   OnCreate = DataModuleCreate
-  Height = 507
-  Width = 933
+  Height = 500
+  Width = 855
   PixelsPerInch = 96
   object CONEXAO: iRequisicao
     BaseURL = 'http://localhost:2121/'
@@ -21,8 +21,8 @@ object DM: TDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 1368
-    Top = 8
+    Left = 768
+    Top = 296
   end
   object USUARIO: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -330,6 +330,24 @@ object DM: TDM
     object DADOS_WHATSAPPstatus_pedidos_site: TIntegerField
       FieldName = 'status_pedidos_site'
     end
+    object DADOS_WHATSAPPmerchant: TStringField
+      FieldName = 'merchant'
+      Size = 255
+    end
+    object DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField
+      DisplayLabel = 'Situa'#231#227'o do Pedido iFood'
+      FieldName = 'aceitar_pedidos_ifood'
+    end
+    object DADOS_WHATSAPPifood_percentual: TFloatField
+      FieldName = 'ifood_percentual'
+    end
+    object DADOS_WHATSAPPddd_padrao: TStringField
+      FieldName = 'ddd_padrao'
+      Size = 2
+    end
+    object DADOS_WHATSAPPifood_integracao: TIntegerField
+      FieldName = 'ifood_integracao'
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -498,6 +516,10 @@ object DM: TDM
     object DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField
       FieldName = 'data_formatada'
       Size = 255
+    end
+    object DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField
+      FieldName = 'ddd_padrao'
+      Size = 2
     end
   end
 end

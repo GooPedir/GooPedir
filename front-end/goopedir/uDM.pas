@@ -245,8 +245,6 @@ type
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
 
-
-
   end;
 
   { Caixa Rapido
@@ -259,7 +257,7 @@ var
   StatusConexao: TConexaoServidor;
   JSonDadosSite: TJsonObject;
   ID: Integer;
-  ErrosBusca : Integer;
+  ErrosBusca: Integer;
 
 implementation
 
@@ -357,7 +355,6 @@ begin
 
   end;
 end;
-
 
 procedure TDM.AtualizaSite(SQL: String);
 var
@@ -556,11 +553,11 @@ var
   Body: String;
   Requisicao: iRequisicao;
 begin
-exit;
-if ErrosBusca >= 3 then
-exit;
-if Assigned(JSonDadosSite) then
-exit;
+
+  if ErrosBusca >= 3 then
+    exit;
+  if Assigned(JSonDadosSite) then
+    exit;
   try
     Requisicao := iRequisicao.Create(self);
     Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
@@ -573,9 +570,10 @@ exit;
     Requisicao.TempoExpiracao := 5 * 1000;
     Requisicao.Execute;
 
-    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)as TJsonObject;
+    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+      as TJsonObject;
   except
-   inc(ErrosBusca);
+    inc(ErrosBusca);
   end;
 
   Requisicao.Free;
@@ -583,7 +581,7 @@ end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
 begin
-GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
+  GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
   ID := 0;
   ErrosBusca := 0;
   DadosSite;

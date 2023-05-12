@@ -11,7 +11,6 @@ object frmServidor: TfrmServidor
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 15
   object memoHistorico: TMemo
     Left = 8
@@ -580,5 +579,60 @@ object frmServidor: TfrmServidor
     UpdateOptions.AutoCommitUpdates = True
     Left = 24
     Top = 592
+  end
+  object IFood: TADRIFood
+    Credentials.AuthorizationType = ctCentralized
+    Credentials.ClientId = 'f070acdf-4833-4f17-b443-0e3bc7135856'
+    Credentials.ClientSecret = 
+      '141oprfvxqmroyrys1zk8t6p5vmnsswq5n9mi8t6hmwlk8kaxk4ps4cakelg5fao' +
+      'visqzk4mlq6qypu2yslndrxomugnhrkouk8d'
+    Servers.IFoodAPI = cMerchantAPI
+    SoftwareHouse.Id = '09071157997'
+    SoftwareHouse.DiasAlerta = 30
+    Polling.AutoPolling = True
+    Polling.DataSource = dsPolling
+    Polling.Interval = 30
+    Polling.InvokeEvents = True
+    MerchantStatus.AutoStatus = True
+    MerchantStatus.Interval = 30
+    MerchantStatus.DataSource = dsMerchantStatus
+    OnPollingEnd = iFoodPollingEnd
+    Left = 424
+    Top = 392
+  end
+  object dataSetProductsItemsOptions: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 224
+    Top = 696
+  end
+  object dataSetProductsItemsOptionGroup: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 224
+    Top = 640
+  end
+  object dataSetMerchantStatus: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 112
+    Top = 561
+  end
+  object dsMerchantStatus: TDataSource
+    DataSet = dataSetMerchantStatus
+    Left = 248
+    Top = 568
   end
 end

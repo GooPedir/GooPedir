@@ -62,10 +62,16 @@ type
     memItens: TFDMemTable;
     memCategoriaExtra: TFDMemTable;
     memItensPreco: TFDMemTable;
+    IFood: TADRIFood;
+    dataSetProductsItemsOptions: TFDMemTable;
+    dataSetProductsItemsOptionGroup: TFDMemTable;
+    dataSetMerchantStatus: TFDMemTable;
+    dsMerchantStatus: TDataSource;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
-    // procedure iFoodPollingEnd(EndPooling: TDateTime;OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
+    procedure iFoodPollingEnd(EndPooling: TDateTime;
+      OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
   private
     { Private declarations }
     procedure TemAtualizacao;
@@ -143,10 +149,10 @@ begin
 
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
 end;
-{
-  procedure TfrmServidor.iFoodPollingEnd(EndPooling: TDateTime;
+
+procedure TfrmServidor.iFoodPollingEnd(EndPooling: TDateTime;
   OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
-  var
+var
   conexao: Tconexao;
   DadosPedido: TFDMemTable;
   CodigoIntermo: Integer;
@@ -155,224 +161,325 @@ end;
   CodigoEndereco: Integer;
   DadosCli: TFDMemTable;
   CodigoProduto: Integer;
+  CodigoTipoPagamento: Integer;
   Codigo: Integer;
   CodigoItem: Integer;
   I: Integer;
-  begin
-  iFood.Polling.AutoPolling := False;
+  NomeTipoPagamento: String;
+begin
+  IFood.Polling.AutoPolling := False;
   conexao := Tconexao.Create;
   DadosPedido := TFDMemTable.Create(nil);
   DadosCli := TFDMemTable.Create(nil);
   if dataSetPolling.RecordCount > 0 then
   begin
-  dataSetPolling.First;
-  while not dataSetPolling.Eof do
-  begin
-  DadosPedido.Close;
-  iFood.Order.GetOrder(dataSetPolling.FieldByName('orderId').AsString,
-  dataSetOrders, dataSetOrderItems, dataSetOrderPayments,
-  dataSetOrderSubItems, dataSetOrderBenefits);
+    dataSetPolling.First;
+    while not dataSetPolling.Eof do
+    begin
+      DadosPedido.Close;
+      IFood.Order.GetOrder(dataSetPolling.FieldByName('orderId').AsString,
+        dataSetOrders, dataSetOrderItems, dataSetOrderPayments,
+        dataSetOrderSubItems, dataSetOrderBenefits);
 
-  conexao.SQL.Add('select * from pedido where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-  .AsString);
-  DadosPedido.LoadFromJSON(conexao.ConsultaSQL);
-  if DadosPedido.RecordCount = 0 then
-  begin
-  CodigoIntermo := conexao.GerarID('pedido', 'codigo');
-  conexao.SQL.Add
-  ('SELECT max(codigo_pedido_dia)+1 as max, 0 as zero FROM pedido where data_pedido = curdate()');
-  try
-  CodigoPedidoDia := conexao.FieldByName('max');
-  except
-  CodigoPedidoDia := 1;
-  end;
-  DadosCli.Close;
-  conexao.SQL.Add('select * from cliente where cpf = :cpf');
-  conexao.Parametros('cpf',
-  dataSetOrders.FieldByName('customerDocumentNumber').AsString);
+      // ShowMessage(dataSetOrderPayments.ToJSONArray().ToString);
+      conexao.SQL.Add('select * from pedido where id_ifood = :id_ifood');
+      conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+        .AsString);
+      DadosPedido.LoadFromJSON(conexao.ConsultaSQL);
+      if DadosPedido.RecordCount = 0 then
+      begin
+        CodigoIntermo := conexao.GerarID('pedido', 'codigo');
+        conexao.SQL.Add
+          ('SELECT max(codigo_pedido_dia)+1 as max, 0 as zero FROM pedido where data_pedido = curdate()');
+        try
+          CodigoPedidoDia := conexao.FieldByName('max');
+        except
+          CodigoPedidoDia := 1;
+        end;
+        DadosCli.Close;
+        conexao.SQL.Add('select * from cliente where cpf = :cpf');
+        conexao.Parametros('cpf',
+          dataSetOrders.FieldByName('customerDocumentNumber').AsString);
 
-  DadosCli.LoadFromJSON(conexao.ConsultaSQL);
-  if DadosCli.RecordCount = 0 then
-  begin
-  CodigoCliente := conexao.GerarID('cliente', 'codigo');;
-  conexao.SQL.Add('insert into cliente (codigo,nome,ativo,cpf,origem,bloqueado) values (:codigo,:nome,1,:cpf,''ifood'',0)');
-  conexao.Parametros('codigo', CodigoCliente);
-  conexao.Parametros('cpf',
-  dataSetOrders.FieldByName('customerDocumentNumber').AsString);
-  conexao.Parametros('nome',
-  UpperCase(dataSetOrders.FieldByName('customerName').AsString));
-  conexao.ExecuteSQL;
+        DadosCli.LoadFromJSON(conexao.ConsultaSQL);
+        if DadosCli.RecordCount = 0 then
+        begin
+          CodigoCliente := conexao.GerarID('cliente', 'codigo');;
+          conexao.SQL.Add
+            ('insert into cliente (codigo,nome,ativo,cpf,origem,bloqueado) values (:codigo,:nome,1,:cpf,''ifood'',0)');
+          conexao.Parametros('codigo', CodigoCliente);
+          conexao.Parametros('cpf',
+            dataSetOrders.FieldByName('customerDocumentNumber').AsString);
+          conexao.Parametros('nome',
+            UpperCase(dataSetOrders.FieldByName('customerName').AsString));
+          conexao.ExecuteSQL;
 
-  end
-  else
-  begin
-  CodigoCliente := DadosCli.FieldByName('codigo').AsInteger;
-  end;
-  CodigoEndereco := 0;
+        end
+        else
+        begin
+          CodigoCliente := DadosCli.FieldByName('codigo').AsInteger;
+        end;
+        CodigoEndereco := 0;
 
-  //caso for delivery
-      Dados.FieldByName('endereco').AsInteger :=  conexao.GerarID('cliente_endereco', 'codigo');
-      conexao.SQL.Add('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
-      conexao.SQL.Add('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
-      conexao.Parametros('codigo', Dados.FieldByName('endereco').AsInteger);
-      conexao.Parametros('codigo_cliente', Dados.FieldByName('cliente').AsString);
-      conexao.Parametros('descricao', 'Principal');
-      conexao.Parametros('tipo', 1);
-      conexao.Parametros('rua', Dados.FieldByName('rua').AsString);
-      conexao.Parametros('bairro', Dados.FieldByName('bairro').AsString);
-      conexao.Parametros('cidade', Dados.FieldByName('cidade').AsString);
-      conexao.Parametros('estado', Dados.FieldByName('estado').AsString);
-      conexao.Parametros('complemento', Dados.FieldByName('complemento').AsString);
-      conexao.Parametros('numero', Dados.FieldByName('numero').AsString);
-      conexao.Parametros('codigo', Dados.FieldByName('endereco').AsString);
+        if dataSetOrders.FieldByName('type').AsString = 'DELIVERY_TYPE' then
+        begin
+          CodigoEndereco := conexao.GerarID('cliente_endereco', 'codigo');
+          conexao.SQL.Add
+            ('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
+          conexao.SQL.Add
+            ('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
+          conexao.Parametros('codigo', CodigoEndereco);
+          conexao.Parametros('codigo_cliente', CodigoCliente);
+          conexao.Parametros('descricao', 'Principal');
+          conexao.Parametros('tipo', 1);
+          conexao.Parametros('rua',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddressstreetname').AsString)));
+          conexao.Parametros('bairro',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddressneighborhood').AsString)));
+          conexao.Parametros('cidade',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddresscity').AsString)));
+          conexao.Parametros('estado',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddressstate').AsString)));
+          conexao.Parametros('complemento',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddresscomplement').AsString)));
+          conexao.Parametros('numero',
+            UpperCase(RemoveAcento(dataSetOrders.FieldByName
+            ('deliveryaddressstreetnumber').AsString)));
+          conexao.ExecuteSQL;
+        end;
+
+        if dataSetOrderPayments.FieldByName('name').AsString = 'CASH' then
+        begin
+          NomeTipoPagamento := 'iFood - Dinheiro';
+        end
+        else if dataSetOrderPayments.FieldByName('name').AsString = 'CREDIT'
+        then
+        begin
+          NomeTipoPagamento := 'iFood - Cartão de Crédito';
+          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
+            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
+        end
+        else if dataSetOrderPayments.FieldByName('name').AsString = 'DEBIT' then
+        begin
+          NomeTipoPagamento := 'iFood - Cartão de Débito';
+          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
+            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
+        end
+        else
+        begin
+          NomeTipoPagamento := 'iFood - ' + dataSetOrderPayments.FieldByName
+            ('method').AsString;
+          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
+            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
+        end;
+        conexao.SQL.Add
+          ('select * from tipo_pagamento where descricao = :descricao');
+        conexao.Parametros('descricao', NomeTipoPagamento);
+
+        try
+          CodigoTipoPagamento := conexao.FieldByName('codigo');
+        except
+          conexao.SQL.Add
+            ('insert into tipo_pagamento (codigo,descricao,ativo) values (:codigo,:descricao,1)');
+          conexao.Parametros('codigo', CodigoTipoPagamento);
+          conexao.Parametros('descricao', NomeTipoPagamento);
+          conexao.ExecuteSQL;
+        end;
+
+        conexao.SQL.Add
+          ('insert into pedido (codigo,codigo_pedido_dia,codigo_cliente,codigo_cliente_endereco,data_pedido,hora_pedido,status,valor_pedido,valor_desconto,valor_taxa_entrega,valor_total_pedido,troco,tipo_pagamento,id_ifood,origem)');
+        conexao.SQL.Add
+          ('values (:codigo,:codigo_pedido_dia,:codigo_cliente,:codigo_cliente_endereco,:data_pedido,:hora_pedido,:status,:valor_pedido,:valor_desconto,:valor_taxa_entrega,:valor_total_pedido,:troco,:tipo_pagamento,:id_ifood,4,)');
+        conexao.Parametros('codigo', CodigoIntermo);
+        conexao.Parametros('codigo_pedido_dia', CodigoPedidoDia);
+        conexao.Parametros('codigo_cliente', CodigoCliente);
+        conexao.Parametros('codigo_cliente_endereco', CodigoEndereco);
+        conexao.Parametros('data_pedido',
+          dataSetOrders.FieldByName('createdatlocal').AsDateTime);
+        conexao.Parametros('hora_pedido',
+          dataSetOrders.FieldByName('createdatlocal').AsDateTime);
+        conexao.Parametros('status', 0);
+        conexao.Parametros('valor_pedido',
+          (dataSetOrders.FieldByName('subTotal').AsFloat));
+        conexao.Parametros('valor_taxa_entrega',
+          (dataSetOrders.FieldByName('deliveryFee').AsFloat));
+        conexao.Parametros('valor_desconto',
+          (dataSetOrders.FieldByName('totalBenefits').AsFloat));
+        conexao.Parametros('valor_total_pedido',
+          (dataSetOrders.FieldByName('totalPrice').AsFloat));
+        conexao.Parametros('troco', 0);
+        conexao.Parametros('tipo_pagamento', CodigoTipoPagamento);
+        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+          .AsString);
+
+        conexao.ExecuteSQL;
+
+        dataSetOrderItems.First;
+        while not dataSetOrderItems.Eof do
+        begin
+          conexao.SQL.Add('select * from produto where id_ifood = :ifood');
+          conexao.Parametros('ifood', dataSetOrderItems.FieldByName('id')
+            .AsString);
+          try
+            CodigoProduto := conexao.FieldByName('codigo');
+          except
+            CodigoProduto := 0;
+          end;
+
+          Codigo := conexao.GerarID('pedido_produtos', 'codigo_pedido');
+          conexao.SQL.Add
+            ('insert into pedido_produtos (codigo,codigo_produto,codigo_pedido,valor_unitario,valor_total,quantidade,observacao,valor_adicional)');
+          conexao.SQL.Add
+            ('values (:codigo,:codigo_produto,:codigo_pedido,:valor_unitario,:valor_total,:quantidade,:observacao,:valor_adicional)');
+          conexao.Parametros('codigo', Codigo);
+          conexao.Parametros('codigo_pedido', CodigoIntermo);
+          conexao.Parametros('codigo_produto', CodigoProduto);
+          conexao.Parametros('valor_unitario',
+            dataSetOrderItems.FieldByName('unitPrice').AsFloat);
+          conexao.Parametros('valor_total',
+            dataSetOrderItems.FieldByName('totalPrice').AsFloat);
+          conexao.Parametros('quantidade',
+            dataSetOrderItems.FieldByName('quantity').AsInteger);
+
+          conexao.Parametros('observacao',
+            UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
+            .AsString)));
+          conexao.Parametros('valor_adicional',
+            dataSetOrderItems.FieldByName('addition').AsFloat);
+          conexao.ExecuteSQL;
+          CodigoItem := Codigo;
+          Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+          conexao.SQL.Add
+            ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
+          conexao.SQL.Add
+            ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
+          conexao.Parametros('id', Codigo);
+          conexao.Parametros('codigo_pedido_produto', CodigoItem);
+          conexao.Parametros('nomeclatura', 'OBSERVAÇÃO');
+          conexao.Parametros('descricao',
+            UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
+            .AsString)));
+          conexao.Parametros('valor', 0);
+          conexao.ExecuteSQL;
+
+          while not dataSetOrderItems.Eof do
+          begin
+            // Aki devo pegar o pro_adi_personalizado_sabores
+
+            for I := 1 to dataSetOrderItems.FieldByName('quantity').AsInteger do
+            begin
+              Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+              conexao.SQL.Add
+                ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
+              conexao.SQL.Add
+                ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
+              conexao.Parametros('id', Codigo);
+              conexao.Parametros('codigo_pedido_produto', CodigoItem);
+              conexao.Parametros('nomeclatura', 'IFOOD');
+              conexao.Parametros('descricao',
+                UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('name')
+                .AsString)));
+              conexao.Parametros('valor',
+                dataSetOrderItems.FieldByName('unitPrice').AsFloat);
+              conexao.ExecuteSQL;
+            end;
+
+            dataSetOrderItems.Next;
+          end;
+
+          dataSetOrderItems.Next;
+        end;
+
+        // Validar qual o status
+        case StatusPedidoiFood of
+          1:
+            begin
+              // Aceitar o Pedido
+              IFood.Order.Confirmation(dataSetPolling.FieldByName('orderId')
+                .AsString);
+              // CFM
+
+              //
+            end;
+          2:
+            begin
+              // Cancelar o Pedido
+              IFood.Order.Confirmation(dataSetPolling.FieldByName('orderId')
+                .AsString);
+            end;
+        end;
+
+      end
+      else
+      begin
+        CodigoIntermo := DadosPedido.FieldByName('codigo').AsInteger;
+      end;
+      conexao.SQL.Add
+        ('update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood');
+      conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+        .AsString);
+      conexao.Parametros('status_ifood', dataSetPolling.FieldByName('code')
+        .AsString);
+      conexao.Parametros('status_ifood_descricao',
+        dataSetPolling.FieldByName('Description').AsString);
       conexao.ExecuteSQL;
 
-
-
-  conexao.SQL.Add
-  ('insert into pedido (codigo,codigo_pedido_dia,codigo_cliente,codigo_cliente_endereco,data_pedido,hora_pedido,status,valor_pedido,valor_desconto,valor_taxa_entrega,valor_total_pedido,troco,tipo_pagamento,id_ifood,origem)');
-  conexao.SQL.Add
-  ('values (:codigo,:codigo_pedido_dia,:codigo_cliente,:codigo_cliente_endereco,:data_pedido,:hora_pedido,:status,:valor_pedido,:valor_desconto,:valor_taxa_entrega,:valor_total_pedido,:troco,:tipo_pagamento,:id_ifood,4)');
-  conexao.Parametros('codigo', CodigoIntermo);
-  conexao.Parametros('codigo_pedido_dia', CodigoPedidoDia);
-  conexao.Parametros('codigo_cliente', CodigoCliente);
-  conexao.Parametros('codigo_cliente_endereco', CodigoEndereco);
-  conexao.Parametros('data_pedido', dataSetOrders.FieldByName('createdAt')
-  .AsDateTime);
-  conexao.Parametros('hora_pedido', dataSetOrders.FieldByName('createdAt')
-  .AsDateTime);
-  conexao.Parametros('status', 0);
-  conexao.Parametros('valor_pedido',
-  (dataSetOrders.FieldByName('subTotal').AsFloat));
-  conexao.Parametros('valor_taxa_entrega',
-  (dataSetOrders.FieldByName('deliveryFee').AsFloat));
-  conexao.Parametros('valor_desconto',
-  (dataSetOrders.FieldByName('totalBenefits').AsFloat));
-  conexao.Parametros('valor_total_pedido',
-  (dataSetOrders.FieldByName('totalPrice').AsFloat));
-  conexao.Parametros('troco', 0);
-  conexao.Parametros('tipo_pagamento', 0);
-  conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-  .AsString);
-
-  conexao.ExecuteSQL;
-
-  dataSetOrderItems.First;
-  while not dataSetOrderItems.Eof do
-  begin
-  conexao.SQL.Add('select * from produto where id_ifood = :ifood');
-  conexao.Parametros('ifood', dataSetOrderItems.FieldByName('id')
-  .AsString);
-  try
-  CodigoProduto := conexao.FieldByName('codigo');
-  except
-  CodigoProduto := 0;
-  end;
-  Codigo := conexao.GerarID('pedido_produtos', 'codigo_pedido');
-  conexao.SQL.Add
-  ('insert into pedido_produtos (codigo,codigo_produto,codigo_pedido,valor_unitario,valor_total,quantidade,observacao,valor_adicional)');
-  conexao.SQL.Add
-  ('values (:codigo,:codigo_produto,:codigo_pedido,:valor_unitario,:valor_total,:quantidade,:observacao,:valor_adicional)');
-  conexao.Parametros('codigo', Codigo);
-  conexao.Parametros('codigo_pedido', CodigoIntermo);
-  conexao.Parametros('codigo_produto', CodigoProduto);
-  conexao.Parametros('valor_unitario',
-  dataSetOrderItems.FieldByName('unitPrice').AsFloat);
-  conexao.Parametros('valor_total',
-  dataSetOrderItems.FieldByName('totalPrice').AsFloat);
-  conexao.Parametros('quantidade',
-  dataSetOrderItems.FieldByName('quantity').AsInteger);
-
-  conexao.Parametros('observacao',
-  UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
-  .AsString)));
-  conexao.Parametros('valor_adicional',
-  dataSetOrderItems.FieldByName('addition').AsFloat);
-  conexao.ExecuteSQL;
-  CodigoItem := Codigo;
-  Codigo := conexao.GerarID('pedido_produto_sap', 'id');
-  conexao.SQL.Add
-  ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
-  conexao.SQL.Add
-  ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
-  conexao.Parametros('id', Codigo);
-  conexao.Parametros('codigo_pedido_produto', CodigoItem);
-  conexao.Parametros('nomeclatura', 'OBSERVAÇÃO');
-  conexao.Parametros('descricao',
-  UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
-  .AsString)));
-  conexao.Parametros('valor', 0);
-  conexao.ExecuteSQL;
-
-  while not dataSetOrderItems.Eof do
-  begin
-  // Aki devo pegar o pro_adi_personalizado_sabores
-
-  for I := 1 to dataSetOrderItems.FieldByName('quantity').AsInteger do
-  begin
-  Codigo := conexao.GerarID('pedido_produto_sap', 'id');
-  conexao.SQL.Add
-  ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
-  conexao.SQL.Add
-  ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
-  conexao.Parametros('id', Codigo);
-  conexao.Parametros('codigo_pedido_produto', CodigoItem);
-  conexao.Parametros('nomeclatura', 'IFOOD');
-  conexao.Parametros('descricao',
-  UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('name')
-  .AsString)));
-  conexao.Parametros('valor',
-  dataSetOrderItems.FieldByName('unitPrice').AsFloat);
-  conexao.ExecuteSQL;
-  end;
-
-  dataSetOrderItems.Next;
-  end;
-
-  dataSetOrderItems.Next;
-  end;
-
-
-  //Validar qual o status
-  case StatusPedidoiFood of
-    1: begin
-      //Aceitar o Pedido
-        conexao.SQL.Add('update pedido set status = 1 where id_ifood = :id_ifood');
-        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId').AsString);
+      if dataSetPolling.FieldByName('code').AsString = 'CAN' then
+      begin
+        conexao.SQL.Add
+          ('update pedido set status = 0 where id_ifood = :id_ifood');
+        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+          .AsString);
         conexao.ExecuteSQL;
-        Codigo := conexao.GerarID('impressao_pedido', 'id');
-        conexao.SQL.Add('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
-        conexao.Parametros('id', CodigoCliente);
-        conexao.Parametros('pedido', CodigoIntermo);
+      end;
+      if dataSetPolling.FieldByName('code').AsString = 'CON' then
+      begin
+        conexao.SQL.Add
+          ('update pedido set status = 6 where id_ifood = :id_ifood');
+        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+          .AsString);
         conexao.ExecuteSQL;
-    end;
-    2:begin
-      //Cancelar o Pedido
+      end;
+
+      if dataSetPolling.FieldByName('code').AsString = 'CFM' then
+      begin
+        conexao.SQL.Add
+          ('update pedido set status = 2 where id_ifood = :id_ifood');
+        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
+          .AsString);
+        conexao.ExecuteSQL;
+
+        conexao.SQL.Add
+          ('select count(*) as tot, 0 as zero from impressao_pedido where id_pedido = :id_pedido ');
+        conexao.Parametros('id_pedido', CodigoIntermo);
+        try
+          Codigo := conexao.FieldByName('tot');
+        except
+          Codigo := 0;
+        end;
+
+        if Codigo = 0 then
+        begin
+          Codigo := conexao.GerarID('impressao_pedido', 'id');
+          conexao.SQL.Add
+            ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
+          conexao.Parametros('id', CodigoCliente);
+          conexao.Parametros('pedido', CodigoIntermo);
+          conexao.ExecuteSQL;
+        end;
+      end;
+
+      dataSetPolling.Next;
     end;
   end;
-
-
-  end
-  else
-  begin
-  CodigoIntermo := DadosPedido.FieldByName('codigo').AsInteger;
-  end;
-  conexao.SQL.Add('update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId').AsString);
-  conexao.Parametros('status_ifood', dataSetPolling.FieldByName('code').AsString);
-  conexao.Parametros('status_ifood_descricao',dataSetPolling.FieldByName('Description').AsString);
-  conexao.ExecuteSQL;
-
-
-
-
-
-  dataSetPolling.Next;
-  end;
-  end;
-  iFood.Polling.AutoPolling := True;
-  end; }
+  conexao.Free;
+  IFood.Polling.AutoPolling := True;
+end;
 
 procedure TfrmServidor.AtualizaDadosiFood;
 var
@@ -397,108 +504,249 @@ var
   Dados: TFDMemTable;
   Codigo: Integer;
   Categoria: Integer;
+  CodigoProduto: Integer;
 begin
-  // iFood.MerchantID(IDiFood);
-  // conexao := Tconexao.Create;
-  // iFood.Category.List(dataSetCategoy);
-  // Dados := TFDMemTable.Create(self);
-  // //
-  // if dataSetCategoy.RecordCount > 0 then
-  // begin
-  // dataSetCategoy.First;
-  // while not dataSetCategoy.Eof do
-  // begin
-  // Dados.Close;
+  IFood.MerchantID(IDiFood);
+  conexao := Tconexao.Create;
+  IFood.Category.List(dataSetCategoy);
+  Dados := TFDMemTable.Create(self);
   //
-  // conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '
-  // + QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName
-  // ('name').AsString)) + '%') + ' or id_ifood = :ifood');
-  // conexao.Parametros('ifood', dataSetCategoy.FieldByName('id').AsString);
-  // Dados.LoadFromJSON(conexao.ConsultaSQL);
-  // if Dados.RecordCount = 0 then
-  // begin
-  // Codigo := conexao.GerarID('tipo_produto', 'codigo');
-  // conexao.SQL.Add
-  // ('insert into tipo_produto (codigo,descricao,modificado_site,id_ifood) values (:codigo,:descricao,1,:id_ifood)');
-  // conexao.Parametros('codigo', Codigo);
-  // conexao.Parametros('descricao',
-  // UpperCase(RemoveAcento(dataSetCategoy.FieldByName('name').AsString)));
-  // conexao.Parametros('id_ifood', dataSetCategoy.FieldByName('id')
-  // .AsString);
-  // conexao.ExecuteSQL;
-  // end
-  // else
-  // begin
-  // Codigo := Dados.FieldByName('codigo').AsInteger;
-  // end;
-  // Categoria := Codigo;
-  // iFood.Item.List(dataSetCategoy.FieldByName('id').AsString, memItens,
-  // memCategoriaExtra, memItensPreco);
-  // memItens.First;
-  // while not memItens.Eof do
-  // begin
-  // Dados.Close;
-  // try
-  // conexao.SQL.Add
-  // ('select * from produto where codigo_interno = :external or id_ifood = :ifood');
-  // conexao.Parametros('external', FormatFloat('000000',
-  // memItens.FieldByName('externalCode').AsInteger));
-  // conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
-  // Dados.LoadFromJSON(conexao.ConsultaSQL);
-  // except
-  // conexao.SQL.Add('select * from produto where id_ifood = :ifood');
-  // conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
-  // Dados.LoadFromJSON(conexao.ConsultaSQL);
-  // end;
-  // if Dados.RecordCount = 0 then
-  // begin
-  // Codigo := conexao.GerarID('produto', 'codigo');
-  // conexao.SQL.Add
-  // ('insert into produto (codigo,codigo_interno,data_cadastro,nome_produto,descricao,codigo_grupo,valor_venda,valor_ifood,ativo,observacao,modificado_site,id_ifood)');
-  // conexao.SQL.Add
-  // ('values (:codigo,:codigo_interno,current_date,:nome_produto,:descricao,:codigo_grupo,:valor_venda,:valor_ifood,1,1,1,:id_ifood)');
-  // conexao.Parametros('codigo', Codigo);
-  // conexao.Parametros('codigo_interno', FormatFloat('000000', Codigo));
-  // conexao.Parametros('nome_produto',
-  // UpperCase(RemoveAcento(memItens.FieldByName('productName')
-  // .AsString)));
-  // conexao.Parametros('descricao',
-  // UpperCase(RemoveAcento(memItens.FieldByName('productDescription')
-  // .AsString)));
-  // conexao.Parametros('codigo_grupo', Categoria);
-  // conexao.Parametros('valor_venda',
-  // memItens.FieldByName('value').AsFloat);
-  // conexao.Parametros('valor_ifood',
-  // memItens.FieldByName('value').AsFloat);
-  // conexao.Parametros('id_ifood', memItens.FieldByName('id').AsString);
-  // conexao.ExecuteSQL;
-  // end;
-  //
-  // conexao.SQL.Add
-  // ('update produto set nome_produto = :nome_produto, descricao = :descricao, valor_venda = :valor_venda, valor_ifood = :valor_ifood, codigo_grupo = :codigo_grupo where id_ifood = :id_ifood');
-  // conexao.Parametros('nome_produto',
-  // UpperCase(RemoveAcento(memItens.FieldByName('productName')
-  // .AsString)));
-  // conexao.Parametros('descricao',
-  // UpperCase(RemoveAcento(memItens.FieldByName('productDescription')
-  // .AsString)));
-  // conexao.Parametros('codigo_grupo', Categoria);
-  //
-  // conexao.Parametros('valor_venda', memItens.FieldByName('value').AsFloat
-  // - ((memItens.FieldByName('value').AsFloat * TaxaiFood) / 100));
-  // conexao.Parametros('valor_ifood', memItens.FieldByName('value')
-  // .AsFloat);
-  // conexao.Parametros('id_ifood', memItens.FieldByName('id').AsString);
-  // conexao.ExecuteSQL;
-  //
-  //
-  // memItens.Next;
-  // end;
-  //
-  // dataSetCategoy.Next;
-  // end;
-  //
-  // end;
+  if dataSetCategoy.RecordCount > 0 then
+  begin
+    dataSetCategoy.First;
+    while not dataSetCategoy.Eof do
+    begin
+      Dados.Close;
+
+      conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '
+        + QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName
+        ('name').AsString)) + '%') + ' or id_ifood = :ifood');
+      conexao.Parametros('ifood', dataSetCategoy.FieldByName('id').AsString);
+      Dados.LoadFromJSON(conexao.ConsultaSQL);
+      if Dados.RecordCount = 0 then
+      begin
+        Codigo := conexao.GerarID('tipo_produto', 'codigo');
+        conexao.SQL.Add
+          ('insert into tipo_produto (codigo,descricao,modificado_site,id_ifood) values (:codigo,:descricao,1,:id_ifood)');
+        conexao.Parametros('codigo', Codigo);
+        conexao.Parametros('descricao',
+          UpperCase(RemoveAcento(dataSetCategoy.FieldByName('name').AsString)));
+        conexao.Parametros('id_ifood', dataSetCategoy.FieldByName('id')
+          .AsString);
+        conexao.ExecuteSQL;
+      end
+      else
+      begin
+        Codigo := Dados.FieldByName('codigo').AsInteger;
+      end;
+      Categoria := Codigo;
+
+      IFood.ProductItem.List(dataSetCategoy.FieldByName('id').AsString,
+        memItens, memItensPreco, memCategoriaExtra,
+        dataSetProductsItemsOptions);
+
+      memItens.First;
+      while not memItens.Eof do
+      begin
+        Dados.Close;
+        try
+          conexao.SQL.Add
+            ('select * from produto where codigo_interno = :external or id_ifood = :ifood');
+          conexao.Parametros('external', FormatFloat('000000',
+            memItens.FieldByName('externalCode').AsInteger));
+          conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
+          Dados.LoadFromJSON(conexao.ConsultaSQL);
+        except
+          conexao.SQL.Add('select * from produto where id_ifood = :ifood');
+          conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
+          Dados.LoadFromJSON(conexao.ConsultaSQL);
+        end;
+        if Dados.RecordCount = 0 then
+        begin
+          Codigo := conexao.GerarID('produto', 'codigo');
+          conexao.SQL.Add
+            ('insert into produto (codigo,codigo_interno,data_cadastro,nome_produto,descricao,codigo_grupo,valor_venda,valor_ifood,ativo,observacao,modificado_site,id_ifood)');
+          conexao.SQL.Add
+            ('values (:codigo,:codigo_interno,current_date,:nome_produto,:descricao,:codigo_grupo,:valor_venda,:valor_ifood,1,1,1,:id_ifood)');
+          conexao.Parametros('codigo', Codigo);
+          conexao.Parametros('codigo_interno', FormatFloat('000000', Codigo));
+          conexao.Parametros('nome_produto',
+            UpperCase(RemoveAcento(memItens.FieldByName('name').AsString)));
+          conexao.Parametros('descricao',
+            UpperCase(RemoveAcento(memItens.FieldByName('description')
+            .AsString)));
+          conexao.Parametros('codigo_grupo', Categoria);
+          conexao.Parametros('valor_venda',
+            memItens.FieldByName('value').AsFloat);
+          conexao.Parametros('valor_ifood',
+            memItens.FieldByName('value').AsFloat);
+          conexao.Parametros('id_ifood', memItens.FieldByName('id').AsString);
+          conexao.ExecuteSQL;
+        end;
+
+        conexao.SQL.Add
+          ('update produto set nome_produto = :nome_produto, descricao = :descricao, valor_venda = :valor_venda, valor_ifood = :valor_ifood, codigo_grupo = :codigo_grupo, ativo = :ativo, foto_ifood = :foto_ifood where id_ifood = :id_ifood');
+        conexao.Parametros('nome_produto',
+          UpperCase(RemoveAcento(memItens.FieldByName('Name').AsString)));
+        conexao.Parametros('descricao',
+          UpperCase(RemoveAcento(memItens.FieldByName('Description')
+          .AsString)));
+        conexao.Parametros('codigo_grupo', Categoria);
+
+        conexao.Parametros('valor_venda', memItens.FieldByName('value').AsFloat
+          - ((memItens.FieldByName('value').AsFloat * TaxaiFood) / 100));
+        conexao.Parametros('valor_ifood', memItens.FieldByName('value')
+          .AsFloat);
+        conexao.Parametros('id_ifood', memItens.FieldByName('id').AsString);
+        if memItens.FieldByName('available').AsBoolean then
+          conexao.Parametros('ativo', '1')
+        else
+          conexao.Parametros('ativo', '0');
+        conexao.Parametros('foto_ifood',
+          ((memItens.FieldByName('imagepath').AsString)));
+        /// foto_ifood
+        /// available
+
+        conexao.ExecuteSQL;
+
+        memItens.Next;
+      end;
+
+      memCategoriaExtra.First;
+      while not memCategoriaExtra.Eof do
+      begin
+
+        conexao.SQL.Add('select * from produto where id_ifood = ' +
+          QuotedStr(memCategoriaExtra.FieldByName('productitemid').AsString));
+        try
+          CodigoProduto := conexao.FieldByName('codigo');
+        except
+
+        end;
+        if Codigo > 0 then
+        begin
+          conexao.SQL.Add
+            ('select * from pro_adi_personalizado where id_ifood = ' +
+            QuotedStr(memCategoriaExtra.FieldByName('optiongroupid').AsString));
+          try
+            Codigo := conexao.FieldByName('id');
+          except
+            Codigo := conexao.GerarID('pro_adi_personalizado', 'id');
+            conexao.SQL.Add
+              ('insert into pro_adi_personalizado (id,id_produto,descricao,ativo,qtd_minima,qtd_maxima,id_ifood)');
+            conexao.SQL.Add
+              ('values (:id,:id_produto,:descricao,1,:qtd_minima,:qtd_maxima,:id_ifood)');
+            conexao.Parametros('id', Codigo);
+            conexao.Parametros('id_produto', CodigoProduto);
+            conexao.Parametros('descricao',
+              UpperCase(RemoveAcento(memCategoriaExtra.FieldByName
+              ('optiongroupname').AsString)));
+            conexao.Parametros('qtd_minima',
+              memCategoriaExtra.FieldByName('min').AsInteger);
+            conexao.Parametros('qtd_maxima',
+              memCategoriaExtra.FieldByName('max').AsInteger);
+            conexao.Parametros('id_ifood',
+              memCategoriaExtra.FieldByName('optiongroupid').AsString);
+            conexao.ExecuteSQL;
+          end;
+          conexao.SQL.Add
+            ('update pro_adi_personalizado set descricao = :descricao, qtd_minima = :qtd_minima, qtd_maxima = :qtd_maxima where id_ifood = :id_ifood');
+          conexao.Parametros('descricao',
+            UpperCase(RemoveAcento(memCategoriaExtra.FieldByName
+            ('optiongroupname').AsString)));
+          conexao.Parametros('qtd_minima', memCategoriaExtra.FieldByName('min')
+            .AsInteger);
+          conexao.Parametros('qtd_maxima', memCategoriaExtra.FieldByName('max')
+            .AsInteger);
+          conexao.Parametros('id_ifood',
+            memCategoriaExtra.FieldByName('optiongroupid').AsString);
+          conexao.ExecuteSQL;
+        end;
+
+        memCategoriaExtra.Next;
+      end;
+      dataSetProductsItemsOptions.First;
+      while not dataSetProductsItemsOptions.Eof do
+      begin
+        conexao.SQL.Add('select * from pro_adi_personalizado where id_ifood = '
+          + QuotedStr(dataSetProductsItemsOptions.FieldByName('optiongroupid')
+          .AsString));
+        try
+          CodigoProduto := conexao.FieldByName('id');
+        except
+          CodigoProduto := 0;
+        end;
+
+        if CodigoProduto > 0 then
+        begin
+          conexao.SQL.Add
+            ('select * from pro_adi_personalizado_sabores where id_ifood = ' +
+            QuotedStr(dataSetProductsItemsOptions.FieldByName('optiongroupid')
+            .AsString));
+          try
+            Codigo := conexao.FieldByName('id');
+          except
+            Codigo := 0;
+          end;
+          if Codigo = 0 then
+          begin
+            Codigo := conexao.GerarID('pro_adi_personalizado_sabores', 'id');
+            conexao.SQL.Add
+              ('insert into pro_adi_personalizado_sabores (id,id_pro_adi_personalizado,nome,descricao,valor,ativo,id_ifood)');
+            conexao.SQL.Add
+              ('values (:id,:id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,:id_ifood)');
+            conexao.Parametros('id', Codigo);
+            conexao.Parametros('id_pro_adi_personalizado', CodigoProduto);
+            conexao.Parametros('nome',
+              UpperCase(RemoveAcento(dataSetProductsItemsOptions.FieldByName
+              ('productname').AsString)));
+
+            conexao.Parametros('descricao',
+              UpperCase(RemoveAcento(dataSetProductsItemsOptions.FieldByName
+              ('productdescription').AsString)));
+            conexao.Parametros('valor', dataSetProductsItemsOptions.FieldByName
+              ('value').AsFloat);
+            if dataSetProductsItemsOptions.FieldByName('available').AsBoolean
+            then
+              conexao.Parametros('ativo', '1')
+            else
+              conexao.Parametros('ativo', '0');
+            conexao.Parametros('id_ifood',
+              dataSetProductsItemsOptions.FieldByName('optiongroupid')
+              .AsString);
+            conexao.ExecuteSQL;
+          end;
+
+          conexao.SQL.Add
+            ('update pro_adi_personalizado_sabores set nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo where id_ifood = :id_ifood');
+          conexao.Parametros('nome',
+            UpperCase(RemoveAcento(dataSetProductsItemsOptions.FieldByName
+            ('productname').AsString)));
+
+          conexao.Parametros('descricao',
+            UpperCase(RemoveAcento(dataSetProductsItemsOptions.FieldByName
+            ('productdescription').AsString)));
+          conexao.Parametros('valor', dataSetProductsItemsOptions.FieldByName
+            ('value').AsFloat);
+          if dataSetProductsItemsOptions.FieldByName('available').AsBoolean then
+            conexao.Parametros('ativo', '1')
+          else
+            conexao.Parametros('ativo', '0');
+          conexao.Parametros('id_ifood', dataSetProductsItemsOptions.FieldByName
+            ('optiongroupid').AsString);
+          conexao.ExecuteSQL;
+
+        end;
+
+        dataSetProductsItemsOptions.Next;
+      end;
+
+      // ShowMessage(memCategoriaExtra.ToJSONArray().ToString);
+
+      dataSetCategoy.Next;
+    end;
+
+  end;
 
 end;
 
@@ -722,7 +970,7 @@ begin
   Servicos.Start;
 
   FichaTecnica;
-  BuscaDadosiFood;
+  // BuscaDadosiFood;
 
 end;
 
@@ -731,7 +979,7 @@ begin
   try
     Result := frmServidor.Configuracoes.FieldByName('merchant').AsString
   except
-    Result := '';
+    Result := '155cc414-36d0-4ec2-9d06-f85fad9e782a';
   end;
   // '155cc414-36d0-4ec2-9d06-f85fad9e782a';
 end;
@@ -754,7 +1002,7 @@ begin
     if Result then
     begin
       if IDiFood = '' then
-        Result := false;
+        Result := False;
     end;
   except
 
@@ -814,7 +1062,7 @@ begin
     Result := frmServidor.Configuracoes.FieldByName('aceitar_pedidos_ifood')
       .AsInteger;
   except
-
+    Result := 1;
   end;
 end;
 
@@ -835,7 +1083,7 @@ end;
 
 procedure TfrmServidor.tMinimizaTimer(Sender: TObject);
 begin
-  tMinimiza.Enabled := false;
+  tMinimiza.Enabled := False;
   self.Hide();
   self.WindowState := wsMinimized;
   // StatusForm := sOcuto;
@@ -851,7 +1099,7 @@ begin
   FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
   FProcessEntry32.dwSize := sizeof(FProcessEntry32);
   ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
-  Result := false;
+  Result := False;
   while Integer(ContinueLoop) <> 0 do
   begin
     if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile)) = UpperCase(Nome)
@@ -911,13 +1159,13 @@ begin
       ServicoImpressao := frmServidor.Configuracoes.FieldByName('a_impressora')
         .AsInteger = 1;
     except
-      ServicoImpressao := false;
+      ServicoImpressao := False;
     end;
     try
       ServicoWhatsapp := frmServidor.Configuracoes.FieldByName('a_whatsapp')
         .AsInteger = 1;
     except
-      ServicoWhatsapp := false;
+      ServicoWhatsapp := False;
     end;
     // ImpressaoGooPedir
     // ServidorGooPedir

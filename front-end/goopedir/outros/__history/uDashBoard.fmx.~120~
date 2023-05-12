@@ -1,13 +1,12 @@
 inherited frmDashBoard: TfrmDashBoard
   Caption = 'frmCadastroBase1'
-  ClientHeight = 700
+  ClientHeight = 854
   ClientWidth = 1454
   OnActivate = FormActivate
-  OnCreate = FormCreate
   DesignerMasterStyle = 0
   inherited layClient: TLayout
     Size.Width = 1454.000000000000000000
-    Size.Height = 700.000000000000000000
+    Size.Height = 854.000000000000000000
     inherited Rectangle1: TRectangle
       Size.Width = 1454.000000000000000000
       inherited Image1: TImage
@@ -40,12 +39,12 @@ inherited frmDashBoard: TfrmDashBoard
     end
     inherited tabPrincipal: TTabControl
       Size.Width = 1454.000000000000000000
-      Size.Height = 650.000000000000000000
+      Size.Height = 804.000000000000000000
       Sizes = (
         1454s
-        624s
+        778s
         1454s
-        624s)
+        778s)
       inherited tabConsulta: TTabItem
         ExplicitSize.cx = 84.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
@@ -79,20 +78,20 @@ inherited frmDashBoard: TfrmDashBoard
           Align = Client
           Margins.Left = 10.000000000000000000
           Size.Width = 1444.000000000000000000
-          Size.Height = 624.000000000000000000
+          Size.Height = 778.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
           object Layout5: TLayout
             Align = Left
             Size.Width = 260.000000000000000000
-            Size.Height = 624.000000000000000000
+            Size.Height = 778.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             object Layout2: TLayout
               Align = Top
-              Position.Y = 201.000000000000000000
+              Position.Y = 289.000000000000000000
               Size.Width = 260.000000000000000000
-              Size.Height = 304.000000000000000000
+              Size.Height = 329.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 4
               object Label5: TLabel
@@ -118,7 +117,6 @@ inherited frmDashBoard: TfrmDashBoard
                 TextSettings.Font.StyleExt = {00070000000000000004000000}
                 Text = '0'
                 TabOrder = 1
-                OnClick = lProdutoPausadoClick
               end
               object Layout8: TLayout
                 Align = Top
@@ -133,7 +131,7 @@ inherited frmDashBoard: TfrmDashBoard
                 Size.Width = 250.000000000000000000
                 Size.Height = 24.000000000000000000
                 Size.PlatformDefault = False
-                TabOrder = 9
+                TabOrder = 10
                 OnDragEnter = Layout8DragEnter
                 OnDragLeave = Layout8DragLeave
                 OnClick = imgMotoboyClick
@@ -216,7 +214,7 @@ inherited frmDashBoard: TfrmDashBoard
                     Size.Height = 24.000000000000000000
                     Size.PlatformDefault = False
                     Text = '0000'
-                    TabOrder = 3
+                    TabOrder = 4
                   end
                 end
               end
@@ -233,7 +231,7 @@ inherited frmDashBoard: TfrmDashBoard
                 Size.Width = 250.000000000000000000
                 Size.Height = 24.000000000000000000
                 Size.PlatformDefault = False
-                TabOrder = 8
+                TabOrder = 9
                 OnDragEnter = Layout8DragEnter
                 OnDragLeave = Layout8DragLeave
                 OnClick = imgTipoPagClick
@@ -664,7 +662,7 @@ inherited frmDashBoard: TfrmDashBoard
                 Size.Width = 250.000000000000000000
                 Size.Height = 24.000000000000000000
                 Size.PlatformDefault = False
-                TabOrder = 7
+                TabOrder = 8
                 OnDragEnter = Layout8DragEnter
                 OnDragLeave = Layout8DragLeave
                 OnClick = Image4Click
@@ -736,11 +734,10 @@ inherited frmDashBoard: TfrmDashBoard
                 Margins.Top = 5.000000000000000000
                 Margins.Right = 5.000000000000000000
                 Position.X = 5.000000000000000000
-                Position.Y = 237.000000000000000000
+                Position.Y = 266.000000000000000000
                 Size.Width = 250.000000000000000000
                 Size.Height = 24.000000000000000000
                 Size.PlatformDefault = False
-                Visible = False
                 TabOrder = 6
                 OnDragEnter = Layout8DragEnter
                 OnDragLeave = Layout8DragLeave
@@ -852,10 +849,115 @@ inherited frmDashBoard: TfrmDashBoard
                   OnClick = img_clienteClick
                 end
               end
+              object Layout15: TLayout
+                Align = Top
+                Cursor = crHandPoint
+                HitTest = True
+                Opacity = 0.500000000000000000
+                Margins.Left = 5.000000000000000000
+                Margins.Top = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Position.X = 5.000000000000000000
+                Position.Y = 295.000000000000000000
+                Size.Width = 250.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 7
+                OnDragEnter = Layout8DragEnter
+                OnDragLeave = Layout8DragLeave
+                OnClick = Layout15Click
+                object Label36: TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size, FontColor]
+                  Margins.Left = 5.000000000000000000
+                  Size.Width = 221.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00060000000000000004000000}
+                  Text = 'Ingredientes'
+                  TabOrder = 1
+                end
+                object Image5: TImage
+                  MultiResBitmap.Height = 50
+                  MultiResBitmap.Width = 50
+                  MultiResBitmap = <
+                    item
+                      Width = 50
+                      Height = 50
+                      PNG = {
+                        89504E470D0A1A0A0000000D49484452000000320000003208060000001E3F88
+                        B1000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                        06EF494441546843ED585B6F1BC715FE666677B94BF12291A26CD1A6ADC476DC
+                        18461CC04DCDB46E9A266DDAA2716ECEA50F79C80548D087A20DDA8716E84B9F
+                        D217A308F203DAE73A6913A040DB1475E0E4C14A81A2705038307AB1E358B269
+                        5B142FA2B8E4EECEE40C350E49894EE4840FB2C14F385ACD9C99D939E73BE7CC
+                        AC30C208238C70438199E750F1C4EF9F10A74F9EDE066E1D5621BEAC6C39CE22
+                        54C1D93F85527F4C8BF499E3BF3A1E9AE143C1D00D29BE54F41A71FF6B0AF819
+                        E7D8839ACA29C51DC6641B297659817DC0247E033F7AF7FD23EF37CCB42F0C61
+                        9E43C1FE17F6DB7E26DACB947AB956AFDFE3BADE0462DC622E63FA497E4BD7AA
+                        B5EDB1586C07843859783A5FBAF0A70BD24CFF42F8DC8CDCF9CAC19C1DE00013
+                        F22B22C414B9A429252BB597DA8572B9FC423A9DA68DAF05171C75AB1E66EC89
+                        B7B960E7A8678E31760208FF31FBD3D9B21976DDF85C86148F7C632758F42485
+                        CF2126D52ED491421201AD568EC248047E382DC3B58E16B680702C4A1D0E5687
+                        AAA5AB511AC90A39E034E5CF1B8C59AFBDF7D2F1B366F875E1BA43EB20311149
+                        F914C5F90F19677BC1581C2E13F4B449529CF324F5A36308597A159A09DBB561
+                        91315AAFC3CD85CB49132746B651EEECE04A96A7EFDDFCBFF9BFCF37CDB47563
+                        DD8C1C7AF3D02615897D61107CBDED870FAA40DE49DE47D80A21A37EEF2BA510
+                        FA21023F303D58318284B2E59A5052BD1BB6DAC7DACDA801A6E847CE5901FBD7
+                        AEFFEE3A7DF4E8D1C80C1B887531F2D01B0FED86E23F20073F4F29FB7DDBB767
+                        ECB4CD8423400C40450A52768D210F77246C772BAC1DB73B633F150AB9306CED
+                        AF87EC7EB5DCB8D7B6EC7D8AB1E9F244A57ECFF4C18F4E9D3AD5C3713F3ED390
+                        475F7F742A64784E86EC454ACE3B18B8A7C3426F54583AE66909F2B20C24B575
+                        F8382BDE8F19EFD3AB3563BA4FCFF93490F936BDC7B322E9588E4313F8247CB6
+                        5BDA485627CBFFBEF8CEC52B66E81A7C868B8080CBAF4A8543C444C174F541C7
+                        BE1377E0A65C78E938E29938C6B20924261318CF8F233995ECE87BF3E5DAD083
+                        560DF49020FBEF26D2BF677A06E29A8CDCF5EAFDD9ADDFCAEF73C662CFA8501C
+                        10165CA3A20243EB131B13E4B42425AF45C628CD4E8C2A12858F76BC165DA562
+                        63B10E7336A5532EE9F2C9A48B04B10345A167C2518FB38941AE0B01A3B528C7
+                        B4E8B5748583085DCE45A37078CFDBF37F3E33B0100C34A478A49811523D4E54
+                        FFC476F1CD98E7A47BCB429C363633E6E2B6541CF9780C9E1074504B345725FD
+                        5524C8980CF382DBB31362EFF609B665620C2E6DBAD18E20C9096ECA8347E292
+                        9131628FD3FA1A9A6D8B9C63D98E2504B739938B8507F267CFBF757E8D31030D
+                        297C67E641C5A25F528CEE77E26E4CE7416F7C6F7663D899F43A0659D4AF0DD1
+                        FA92DF3623BAD0B30A64C85D5BD3D678920A04D149DB428EE6132968D346A1D7
+                        A74DEB3534033A142D3A6F746E6966743FE9B340B45B31EBCCDC5FCF9D5A59BD
+                        8B81394239F10885EA16FD77A4BDB6CAD3E41A92EE54411B72F4AF6B6026E151
+                        38AED5A7AD844A5071A09D9A9E15E8A6ED5A703C0AC11EC830CC93658F98661F
+                        061A126FB07C546BBAF484752580BB48E1B1243E11B928512FB5D0BE1C74A479
+                        89A4D4865B5103C52A4B04666CAF085AC7AD685188D1DF4E398257639D77247D
+                        07E9C045AA6523B1CC3B8246E08D2DF18E835763A01B7FFEF8032728E98A7E3B
+                        40486C4CE672482493460B349796D0A8574D6B3868D199134411263219A4C7C7
+                        4D2FE03797B154214F1A2825677FFDDA5B779BE62718C8C88D8891211B0D2343
+                        361A0656ADC70EECA32F365E6CF83E42BAAADFB1E7366C9DDE64B4C0DC8512CE
+                        9E9B33ADE1A0D9A2721E84F8D2CE5B70EBF6ADA617B8747901FFF9FF87A6A521
+                        67FFF0DEC9F555AD906E682195426D444022E984EC856E77F44314FD9E9577F5
+                        1FBE527FDBF48D1D7CFB1CC8C88F1FBEEF045D188ACD568088CE91E9FC66D037
+                        B8D102F55A15D5C56E6D1F067C3A47B4E372533964B319D34B67209D598B0BDD
+                        DB3B5D5A665F79F3D8FA18F16CBAEAD2CDD6A31BA94B22567D10595C74F4C314
+                        4F3FE95DFA26DD0BBA2CF68FA3BD0DC24D93EC2343361A6E1A430656AD67EE2B
+                        D239C28ACB7E8BCA9DC4AE5B673095A3EF1A83CB571670F162C9B4868366ABDD
+                        29BF33852DD84255F22A16172B383F376F5A1A6AF677C766D757B5CAB5659206
+                        16AA4BB852A95369ECFE7F4AC3A7B2ACF5C394ABEFD206F5A2458764FFD865A3
+                        E9C740469EFD76F1045782CE91152FEDB8651B72935D461616CA28952E99D670
+                        E0B7DB74B247D856C823BFB97B8BA854AA989FBF605A748EB068F6B77F5BCBC8
+                        E8C36AA36164C846C3CD7D8EFCE2F0775F955CDEDE6AE91BA94276D324526329
+                        A305969B352CD10D7898D065366C2B64B2D9BE9B76CB5F46B5BA605AE479C93F
+                        78F9F5BFFCC83447186184116E48001F03173F49CB6DEF31800000000049454E
+                        44AE426082}
+                      FileName = 'C:\Users\ifort\Downloads\icons8-pilha-de-compostagem-48.png'
+                    end>
+                  Align = Left
+                  Cursor = crHandPoint
+                  Size.Width = 24.000000000000000000
+                  Size.Height = 24.000000000000000000
+                  Size.PlatformDefault = False
+                  OnClick = Image4Click
+                end
+              end
             end
             object Layout3: TLayout
               Align = Top
-              Position.Y = 505.000000000000000000
+              Position.Y = 618.000000000000000000
               Size.Width = 260.000000000000000000
               Size.Height = 144.000000000000000000
               Size.PlatformDefault = False
@@ -1019,7 +1121,7 @@ inherited frmDashBoard: TfrmDashBoard
               Align = Top
               StyledSettings = [Family, FontColor]
               Margins.Bottom = 5.000000000000000000
-              Position.Y = 649.000000000000000000
+              Position.Y = 201.000000000000000000
               Size.Width = 260.000000000000000000
               Size.Height = 17.000000000000000000
               Size.PlatformDefault = False
@@ -1035,7 +1137,7 @@ inherited frmDashBoard: TfrmDashBoard
               TabOrder = 8
               Cursor = crIBeam
               TextSettings.HorzAlign = Center
-              Position.Y = 671.000000000000000000
+              Position.Y = 223.000000000000000000
               Size.Width = 260.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
@@ -1045,7 +1147,7 @@ inherited frmDashBoard: TfrmDashBoard
               Align = Top
               StyledSettings = [Family, FontColor]
               Margins.Bottom = 5.000000000000000000
-              Position.Y = 693.000000000000000000
+              Position.Y = 245.000000000000000000
               Size.Width = 260.000000000000000000
               Size.Height = 17.000000000000000000
               Size.PlatformDefault = False
@@ -1061,7 +1163,7 @@ inherited frmDashBoard: TfrmDashBoard
               TabOrder = 7
               Cursor = crIBeam
               TextSettings.HorzAlign = Center
-              Position.Y = 715.000000000000000000
+              Position.Y = 267.000000000000000000
               Size.Width = 260.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
@@ -1071,10 +1173,10 @@ inherited frmDashBoard: TfrmDashBoard
           object Layout1: TLayout
             Align = Client
             Size.Width = 1184.000000000000000000
-            Size.Height = 624.000000000000000000
+            Size.Height = 778.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 1
-            object layHistorico: TLayout
+            object layHistorico1: TLayout
               Align = Top
               Margins.Top = 30.000000000000000000
               Position.Y = 30.000000000000000000
@@ -1082,7 +1184,7 @@ inherited frmDashBoard: TfrmDashBoard
               Size.Height = 204.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
-              object Layout6: TLayout
+              object layHistorico: TLayout
                 Anchors = [akLeft, akTop, akRight]
                 Position.X = 16.000000000000000000
                 Position.Y = 55.000000000000000000
@@ -1108,7 +1210,7 @@ inherited frmDashBoard: TfrmDashBoard
                     Size.PlatformDefault = False
                     TextSettings.HorzAlign = Trailing
                     Text = 'M'#233'dia das '#250'ltimas 4 semanas'
-                    TabOrder = 3
+                    TabOrder = 4
                   end
                 end
                 object HorzScrollBox1: THorzScrollBox
@@ -1162,7 +1264,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label6: TLabel
@@ -1187,7 +1289,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label9: TLabel
@@ -1212,7 +1314,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1260,7 +1362,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label16: TLabel
@@ -1285,7 +1387,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label18: TLabel
@@ -1310,7 +1412,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1358,7 +1460,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label23: TLabel
@@ -1383,7 +1485,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label25: TLabel
@@ -1408,7 +1510,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1456,7 +1558,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label30: TLabel
@@ -1481,7 +1583,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label32: TLabel
@@ -1506,7 +1608,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1554,7 +1656,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label37: TLabel
@@ -1579,7 +1681,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label39: TLabel
@@ -1604,7 +1706,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1652,7 +1754,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label44: TLabel
@@ -1677,7 +1779,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label46: TLabel
@@ -1702,7 +1804,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1750,7 +1852,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label51: TLabel
@@ -1775,7 +1877,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                     object Label53: TLabel
@@ -1800,7 +1902,7 @@ inherited frmDashBoard: TfrmDashBoard
                         TextSettings.Font.StyleExt = {00060000000000000004000000}
                         TextSettings.HorzAlign = Trailing
                         Text = '0,00%'
-                        TabOrder = 3
+                        TabOrder = 4
                       end
                     end
                   end
@@ -1945,7 +2047,6 @@ inherited frmDashBoard: TfrmDashBoard
               TabOrder = 2
               Text = 'Button1'
               Visible = False
-              OnClick = Button1Click
             end
           end
         end
@@ -1954,7 +2055,7 @@ inherited frmDashBoard: TfrmDashBoard
         ExplicitSize.cx = 72.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         inherited rSalvar: TRectangle
-          Position.Y = 574.000000000000000000
+          Position.Y = 728.000000000000000000
           Size.Width = 1454.000000000000000000
           inherited Layout21: TLayout
             inherited Image3: TImage

@@ -145,13 +145,15 @@ inherited frmMesas: TfrmMesas
         TabPosition = PlatformDefault
         Sizes = (
           450s
-          294s
+          291s
           450s
-          294s
+          291s
           450s
-          294s
+          291s
           450s
-          294s)
+          291s
+          450s
+          291s)
         object tabDelivery: TTabItem
           CustomIcon = <
             item
@@ -161,7 +163,7 @@ inherited frmMesas: TfrmMesas
           StyledSettings = [Family, Size]
           IsSelected = True
           Size.Width = 65.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 29.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -171,15 +173,15 @@ inherited frmMesas: TfrmMesas
           object vertDelivery: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 264.000000000000000000
+            Size.Height = 261.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 264.000000000000000000
+            Viewport.Height = 261.000000000000000000
           end
           object Layout9: TLayout
             Align = Bottom
-            Position.Y = 264.000000000000000000
+            Position.Y = 261.000000000000000000
             Size.Width = 450.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
@@ -246,7 +248,7 @@ inherited frmMesas: TfrmMesas
           StyledSettings = [Family, Size]
           IsSelected = False
           Size.Width = 84.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 29.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -256,15 +258,15 @@ inherited frmMesas: TfrmMesas
           object vertVemBuscar: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 264.000000000000000000
+            Size.Height = 261.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 2
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 264.000000000000000000
+            Viewport.Height = 261.000000000000000000
           end
           object Layout10: TLayout
             Align = Bottom
-            Position.Y = 264.000000000000000000
+            Position.Y = 261.000000000000000000
             Size.Width = 450.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
@@ -305,7 +307,7 @@ inherited frmMesas: TfrmMesas
           StyledSettings = [Family, Size]
           IsSelected = False
           Size.Width = 100.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 29.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -315,15 +317,15 @@ inherited frmMesas: TfrmMesas
           object vertMesa: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 264.000000000000000000
+            Size.Height = 261.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 264.000000000000000000
+            Viewport.Height = 261.000000000000000000
           end
           object Layout11: TLayout
             Align = Bottom
-            Position.Y = 264.000000000000000000
+            Position.Y = 261.000000000000000000
             Size.Width = 450.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
@@ -364,7 +366,7 @@ inherited frmMesas: TfrmMesas
           StyledSettings = [Family, Size]
           IsSelected = False
           Size.Width = 73.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 29.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -374,11 +376,36 @@ inherited frmMesas: TfrmMesas
           object vertMotoboy: TVertScrollBox
             Align = Client
             Size.Width = 450.000000000000000000
-            Size.Height = 294.000000000000000000
+            Size.Height = 291.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
             Viewport.Width = 450.000000000000000000
-            Viewport.Height = 294.000000000000000000
+            Viewport.Height = 291.000000000000000000
+          end
+        end
+        object iFood: TTabItem
+          CustomIcon = <
+            item
+            end>
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.FontColor = xFFFF0C0C
+          StyledSettings = [Family]
+          IsSelected = False
+          Size.Width = 58.000000000000000000
+          Size.Height = 29.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = ''
+          TabOrder = 0
+          Text = 'iFood'
+          object VertScrollBox1: TVertScrollBox
+            Align = Client
+            Size.Width = 450.000000000000000000
+            Size.Height = 291.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            Viewport.Width = 450.000000000000000000
+            Viewport.Height = 291.000000000000000000
           end
         end
       end
@@ -513,54 +540,54 @@ inherited frmMesas: TfrmMesas
                       PNG = {
                         89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
                         87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        05E9494441546843ED986D4C535718C7FFB72F5028D852B00A3A11540CEA74C6
-                        65C9E6B6B830159999D1C0872DD932A75B36D4B8B82DFBB00F665BFCB2972C53
-                        F786248B3A654E419C6F5334C8C607B3F886DB7428C2145054A094BED0F6F6DE
-                        B3A7EDF1624729508A23597FC9D3739EE7BEF4FCEF7D9E73CFBD881123468CFF
-                        1481B711C1AA60F0A8B088BAF3998CB974B2493260086C055432DC50E34FEA5E
-                        A47FBAA0157148958FCEC0D6E81091809EE3C853A950DC052C3502713C3C20B4
-                        BFC7C8708C09D811FF2B2A840F407A87C7900478AAF0B8CCF0091D349F872286
-                        467E010CEF252CC6711E8A884109908F20DEA5C2C7D705ACCDA2CCE0E1A8C080
-                        729D0AAB8485B0F2D090185080E30826D2882B0501F37828EA7819AE6A55288A
-                        CF471D0F0D9AB0025C07318D8AB08ABA9981C8C82101366A16E90B703A10191C
-                        FD0A701CC404CAD35A8D80C93C34E2D04C66652AE4E997E22C0F0D889AB741B0
-                        6AE8240F4E52EAE4F2D00381D254475774D9B89C45BF8CCD29D0D59DFBCDC237
-                        F54BC83BE03C80ADD4AC09780F8EBFADE370A8FE315CBA3BC9E73262E3F66D5F
-                        7DE4DFD80F7D04382BF064930A35D19E6DC271D366C2E1AB8FE2DCAD29346A1E
-                        243ADB201AC66BB277956E69E1A13EF41D24C3A75932C57D8F9811B69BD6147C
-                        77F6197C585D88332D59902599EAA0D752CCB25690DD6FD0DEFD127407ECE5C8
-                        A7C051EE8E18EDCE64FCDCF0086A6F4C874C8FE5B0304FBBDB619AB46FDFE73D
-                        3C1244D01D60128A435DA96859873D093BCECFC7FB270B71AA29075E8941A62B
-                        1DD698264D93607D81CE1012457ED71E982C4EDC36EBA1E1A1A8D1D9A3A72B3E
-                        0B35D7A74394434E7CE191E43FF6946D9F4DBDFB2A248022C0568617691ADBC5
-                        DD2121220176433EA4F80CA85DAD48B21E875670A2DBA3C3B18699A86ACC8D6C
-                        E0F7C198BC605FD9CE1AEE2A2802EC65F8929AE28037781C713360C92D05D34F
-                        F5FB34F54176B4E2C2D14D387C3E0E1E6978035790B1BFFCC7EF57704FA157C0
-                        2ED45233A455A6C812D036F704BA65338EFC5489E6961B98F8D0242C79EE7938
-                        1C767CBB7533BC5E91EF3D3C9A2891B2BDC8A9A8D8DDC8437E9422A67ACAF4CD
-                        C143319B7131E4C4293850B117F57F5D82D36EC795CB9770B0B21C6969664CCB
-                        A159265461466099B2ACF60A529F0C5104B01EA4FE7BD618C844ED0412C2D078
-                        ED1A3C1E51B126F27DF1648321E46022353763AB8A8A8A92E8DF157A05C441B8
-                        FFEA0EC6D4AE66489284F4F40C88A247B1F11919F4509260E9E8083990484D23
-                        CB46A7C85EE243F6A308503B68451BE22A87B3E4CE2A307B33962D2F44565636
-                        9D8C96AED42E5DB602B6CE1B6869381FF4648D86C9B2F404FDBB8252C4DDA568
-                        A0114CE1EEA0B1C7E5E2CEF42DF0EA0387FA5247B03720FDCA3AE83D57D06831
-                        A2EE8E19D72C29FE7EA74BE7DF2F5218D86BC70E1D28E56EAF006B094E90803C
-                        EE0E09113A580D7910E939A075B5C0D05D0D2D5C7C6B300E518B3B8E44DC7526
-                        A2CDD79259DC3A38450D191D45AD975E0A7CE8345E6854328CF16E98127A3023
-                        ADC35630B9D52CACEC3DB922A06B1B3E23670377472F025E36ACC64EEEF5D680
-                        20A326549E8F36934504AD4E953BD0FE05C66844E1169290C843A3165962734C
-                        6B70D1D757EE40DA7A74D383757F28D5A3CD68B65B493D3F8A001F6A897D1DEA
-                        8051675E2CA45F3F4A0ADD63C3EA25ED373DE9A9DC1D167AB59B6610073213DB
-                        F1B0B105B38CCDD050B14581EE9475CCFF0DB68F8092B7E71556DF9EB9571AE8
-                        4D2902C6685D28C8F81D4F9BEBA11E86105A04DC36AD67E37DFD90A3DCF4E653
-                        D5E72C990BB81B7532F59D787D5A2DCC3ADFB7ACA143022A53DF62CB7DFDA01A
-                        B8C7545D53419AEE6E976F9D3312D6D86DC0A6BA6771DD96123AC70732C6BEA1
-                        5F3FFDE649C9EAD95935CE89976DAEA4781E8A3A495A0F36CE3981B154278386
-                        E107D33B4C79470E9BE89BD7CE9C53D73CE1741B9287B78009C3E4240B893845
-                        3541893100B4C76E531C7B55B51E6E1E0A2FC04769716E66BDD574B2C19E92DD
-                        2369A35FD9C42B532F626146D08B969F260758961EADD43D438BFD92D47747FE
-                        934F8C183162FCAF00FE01D95E52383966A32F0000000049454E44AE426082}
+                        05E8494441546843ED986B6C145514C7FFB38F76DB6DD9EDB62CB4609F505240
+                        90604C1435980A944A2490F683261A11345A2018D4F8C10F440D5F7CC408F82A
+                        4D0C28548496222FA19052ED07627815152C94F2680B05DA6EB7FBE8766767AE
+                        67772F53D66EB7ED768B4DDC5F72F6DE73E6B1F73F73CE9D3B832851A244F94F
+                        11781B16AC1A06B70A0BA93B8FC99843274B9701837F2BA092D10B35FEA2EE79
+                        FAA7735A11075405E8F46F8D0C6109E8398A7C950A255DC0122310C3C38342FB
+                        BB8D0C479880EDB1BFA152F800A477640C4B80BB1A8FCB0C9FD041F378286C68
+                        E4E7C0F05EDC221CE5A1B0189200F910625D2A7C7C4DC09A6CCA0C1E8E080CA8
+                        D0A9B05258002B0F0D8B4105380E61328DB84A10309787228E87E1B25685E2D8
+                        02D4F3D0900929C0B51F53A908ABA99BE18F8C1E1260A366A1BE1027FD91A131
+                        A000C77E4CA23CADD308C8E4A1518766322B53215FBF04A7796850D4BC0D80D5
+                        4027B9719C52278F871E0894A63ABAA24B27E42EFC757C6EA1AEFECCEF16BE69
+                        4082DE01E73E6CA166B5DF7B705CB34EC08186C770E16EBAD765C4866D5BBFFA
+                        C8B77100FA097056E2C926156A233DDB84E2A6CD8483971FC5995B39346A1E24
+                        3ADB201A266AB277946D6EE1A17EF41F24C3A7D932C5BD8F9851B69BD6247C77
+                        FA197C585384532D59902599EAA0CF92CCB256907BDFA0BD0724E00ED82B5040
+                        81C3DC1D35DA9D89F8A5F111D4DD9806991ECB2161EEF65E87297DCF9ECF7B78
+                        2480803BC0249404BB5291B20E7B02B69F9D87F78F17E1C4D55C78240699AE74
+                        48639A144D9CF5053A435014F95DBB60B23871DBAC8786872246678F9EAEF84C
+                        D45E9F06510E3AF1854692FFDC55BE6D16F5EEAB103F8A005B395EA4696C0777
+                        87858838D80D059062D3A076B522C17A145AC1896EB70E471A67A0BA292FBC81
+                        DF0763F2FC3DE5DFD772574111602FC797D494F8BDA1E388990E4B5E19987E8A
+                        CFA7A90FB2A315E70E6FC4C1B331704B231BB8828CBD153FFDB09C7B0A7D0276
+                        A08E9A61AD32451687B639C7D02D9B71E8E72A34B7DCC0E487D2B1F8B9E7E170
+                        D8F1ED964DF07844BEF7C868A244CAF120B7B2722775FB508A98EA29C33B070F
+                        C76CC64590E373B0AF72371AFEBE00A7DD8E4B172F607F55055252CC989A4BB3
+                        4CB0C20CC3326559ED11A47E19A208603D48FEF7AC319889DA492484A1E9CA15
+                        B8DDA26257C9F7C6130D86A08309D77A195B595C5C9C40FFAED0272006C2FD57
+                        7728A67635439224A4A6A64114DD8A4D4C4BA38792044B4747D081846B1A5936
+                        3A45F6121FB20F4580DA412BDA2057399425765683D99BB1745911B2B2B2E964
+                        B474A576C9D2E5B075DE404BE3D980276B244C96A527E8DF159422EE2E43238D
+                        2087BB43C61E93873BD336C3A3F71FEA4D1DC1DE88D44B6BA1775F4293C588FA
+                        3B665CB124F9FA9D2E9D6FBF706160AF1D39B0AF8CBB7D02ACA5384602F2B93B
+                        2C44E86035E443A4E780D6D50243770DB470F1AD8138442DEE38E271D7198F36
+                        6F4B66E9D5C1296AC8E8286A3DF452E045A7F140A392618CED8529AE07D3533A
+                        6C8599AD666145DFC915015D5BF11939EBB93B7611F0B26115BEE75E5F0D0832
+                        6A83E5F958335944C0EA54B903ED5F609C46146E2101F13C3466912536DBB41A
+                        E7BD7DE50EA4AC43373D58F706533DD68C66BB15D4F3A108F0A296D8D7C10E18
+                        73E6C102FAF5A1A4D03DD6AF5ADC7ED39D9ACCDD11A157F7D20CE240467C3B1E
+                        36B660A6B1191A2AB608D09DB496F9BEC1F61350FAF6DCA29ADB33764B83BD29
+                        85C138AD0B85697FE0697303D42310428B80DBA6756CA2B71F74941BDF7CAAE6
+                        8C25633E77234E86BE13AF4FAD8359E7FD96357C484055F25B6C99B71F5003F7
+                        98A2BB5A98A2BBDBE55DE78C8635751BB0B1FE595CB72505CFF1C18CB16FE8D7
+                        C7807952BA6A5656AD73F2459B2B219687224E82D68D0DB38F613CD5C99061F8
+                        D1F40E53DE914326FAA6353366D7374F3AD986C4912D6042909960211127A826
+                        28310681F6D8698A61AFAAD6A19787420BF052569297D160351D6FB42765F748
+                        DAC85736F1CA94F3589016F0A2E5A3C90196AD472B754FD162BF34F9DDD1FFE4
+                        13254A9428FF2B807F000398523A35EB2A370000000049454E44AE426082}
                       FileName = 'C:\Users\ifort\Downloads\icons8-capacete-de-moto-48.png'
                     end>
                   Align = Left
@@ -978,6 +1005,28 @@ inherited frmMesas: TfrmMesas
               end
               object TRectangle
                 Align = Client
+                Fill.Color = xFF6DB2FD
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF6DB2FD
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'DESCRICAO'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
                 Fill.Color = xFF31CCAF
                 HitTest = False
                 Size.Width = 162.000000000000000000
@@ -1318,6 +1367,28 @@ inherited frmMesas: TfrmMesas
               OnClick = btnFinalizaSiteClick
               iForthTipoBotao = tAdicionar
               iForthCorFonte = cBranca
+              object TRectangle
+                Align = Client
+                Fill.Color = xFF6DB2FD
+                HitTest = False
+                Size.Width = 162.000000000000000000
+                Size.Height = 40.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFF6DB2FD
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 162.000000000000000000
+                  Size.Height = 40.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'DESCRICAO'
+                  TabOrder = 0
+                end
+              end
               object TRectangle
                 Align = Client
                 Fill.Color = xFF6DB2FD

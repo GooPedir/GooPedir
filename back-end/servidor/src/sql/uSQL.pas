@@ -341,7 +341,11 @@ begin
         ExecultaSQL('alter table tipo_produto add id_ifood varchar(255);');
         ExecultaSQL('alter table produto add id_ifood varchar(255);');
         ExecultaSQL('alter table produto add valor_ifood real;');
-        ExecultaSQL('alter table pedido add status_ifood_descricao varchar(255);');
+        ExecultaSQL
+          ('alter table pedido add status_ifood_descricao varchar(255);');
+        // alter table pro_adi_personalizado add id_ifood varchar(255);
+        // alter table pro_adi_personalizado_sabores add id_ifood varchar(255);
+        //alter table produto add foto_ifood varchar(255);
       end;
 
     // Deve-se Rodar manual esses sql

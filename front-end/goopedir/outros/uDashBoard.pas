@@ -369,7 +369,7 @@ end;
 procedure TfrmDashBoard.FormActivate(Sender: TObject);
 begin
   inherited;
-  DadosMedia;
+//  DadosMedia;
   layHistorico.Visible := False;
 end;
 
@@ -382,7 +382,7 @@ begin
 
   // ValidaData(date);
   MesesPrevisao := 12;
-  dm.BuscaFaturas(HorzScrollBoxFatura);
+//  dm.BuscaFaturas(HorzScrollBoxFatura);
 
   try
     nDelivery.Text := dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;

@@ -93,7 +93,7 @@ type
     Label12: TLabel;
     lTotalVDelivery: TLabel;
     Label15: TLabel;
-    Label18: TLabel;
+    lTotalVTaxa: TLabel;
     Layout10: TLayout;
     Label20: TLabel;
     lTotalvVembuscar: TLabel;
@@ -116,6 +116,7 @@ type
     procedure imgMenuLateralClick(Sender: TObject);
     procedure btnFinalizaWhatsClick(Sender: TObject);
     procedure btnFinalizaSiteClick(Sender: TObject);
+    procedure Layout5Click(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
@@ -129,7 +130,7 @@ type
     procedure SetValorMesa(const Value: Real);
     procedure SetValorVB(const Value: Real);
     procedure SetTaxaTotal(const Value: Real);
-    property TaxaTotal : Real read FTaxaTotal write SetTaxaTotal;
+    property TaxaTotal: Real read FTaxaTotal write SetTaxaTotal;
     property ValorMesa: Real read FValorMesa write SetValorMesa;
     property ValorVB: Real read FValorVB write SetValorVB;
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
@@ -167,6 +168,7 @@ var
   frmMesas: TfrmMesas;
   cMotoboy: TCustomCombo;
   ArrayMotoboy: Array of Integer;
+  Carregando: Boolean;
 
 implementation
 
@@ -440,10 +442,12 @@ end;
 procedure TfrmMesas.FormActivate(Sender: TObject);
 begin
   inherited;
-
+  if Carregando then
+    exit;
   TThread.CreateAnonymousThread(
     procedure
     begin
+      Carregando := True;
       CarregaMesas;
 
       TThread.Synchronize(TThread.CurrentThread,
@@ -451,6 +455,7 @@ begin
         begin
           // Memo1.Lines.Add('Teste anonymous Thread');
           DadosTela.Enabled := True;
+          Carregando := False;
         end);
     end).Start;
 end;
@@ -463,19 +468,17 @@ begin
   edtHoraInicial.Time := StrToTime('00:00:00');
   edtHoraFinal.Time := StrToTime('23:59:59');
 
-
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
+    Rectangle1.Stroke.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle1.Fill.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
-    .AsString);
+    lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
   except
 
   end;
-
 
 end;
 
@@ -486,12 +489,12 @@ begin
   if btnFinalizaWhats.iForthDescricao = 'Fechar Whatsapp' then
   begin
     btnFinalizaWhats.iForthDescricao := 'Abrir Whatsapp';
-    ShowMessageToast(self,'Whatsapp Fechado!',2);
+    ShowMessageToast(Self, 'Whatsapp Fechado!', 2);
   end
   else
   begin
     btnFinalizaWhats.iForthDescricao := 'Fechar Whatsapp';
-    ShowMessageToast(self,'Whatsapp Aberto, Aguarde!',2);
+    ShowMessageToast(Self, 'Whatsapp Aberto, Aguarde!', 2);
   end;
 
 end;
@@ -503,12 +506,12 @@ begin
   if btnFinalizaSite.iForthDescricao = 'Fechar Site' then
   begin
     btnFinalizaSite.iForthDescricao := 'Abrir Site';
-    ShowMessageToast(self,'Site Fechado!',2);
+    ShowMessageToast(Self, 'Site Fechado!', 2);
   end
   else
   begin
     btnFinalizaSite.iForthDescricao := 'Fechar Site';
-    ShowMessageToast(self,'Site Aberto, Aguarde!',2);
+    ShowMessageToast(Self, 'Site Aberto, Aguarde!', 2);
   end;
 end;
 
@@ -589,6 +592,18 @@ begin
   cMotoboy.ShowMenu;
 end;
 
+procedure TfrmMesas.Layout5Click(Sender: TObject);
+begin
+  inherited;
+  if DM.CodigoCaixa > 0 then
+  begin
+    DM.PostSimplesUnico('/v1/caixa/fechamento/pedido/automatico/' +
+      DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/5/' + DM.CodigoCaixa.ToString, nil);
+    DM.PostSimples('/v1/imprimir/3/' + DM.CodigoCaixa.ToString, nil);
+  end;
+end;
+
 procedure TfrmMesas.Layout8Click(Sender: TObject);
 begin
   inherited;
@@ -601,6 +616,11 @@ begin
 
   FrmResumo.MESA := 0;
   FrmResumo.CodigoPedido := -1;
+  // while FrmResumo.CodigoPedido = 0 do
+  // begin
+  // FrmResumo.CodigoPedido := -1;
+  // end;
+
   frmMain.OpenClose;
 end;
 
@@ -732,6 +752,7 @@ begin
     ValorVB := 0;
     ValorDelivery := 0;
     ValorMesa := 0;
+    TaxaTotal := 0;
     DadosPedido.First;
     while not DadosPedido.Eof do
     begin
@@ -773,60 +794,67 @@ begin
         end;
 
       end;
-
-      if DadosPedido.FieldByName('ficha').IsNull then
+      if DadosPedido.FieldByName('status').AsInteger <> 0 then
       begin
-        case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
-          0:
+        if DadosPedido.FieldByName('ficha').IsNull then
+        begin
+          case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+            0:
+              begin
+
+                ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
+              end
+          else
             begin
 
-              ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
-            end
-        else
-          begin
+              if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
+                .AsString) then
+              begin
+                DadosMotoboy.Edit;
+              end
+              else
+              begin
+                DadosMotoboy.Insert;
+                DadosMotoboy.FieldByName('NOME').AsString :=
+                  DadosPedido.FieldByName('motoboy').AsString;
+                DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+                DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+              end;
+              DadosMotoboy.FieldByName('TAXA').AsFloat :=
+                DadosMotoboy.FieldByName('TAXA').AsFloat +
+                DadosPedido.FieldByName('taxa').AsFloat;
+              DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+                DadosMotoboy.FieldByName('TOTAL').AsFloat +
+                DadosPedido.FieldByName('total').AsFloat;
+              if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+              begin
+                DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                  DadosPedido.FieldByName('codigo_Dia').AsString;
+              end
+              else
+              begin
+                DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                  DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                  DadosPedido.FieldByName('codigo_Dia').AsString;
+              end;
+              DadosMotoboy.Post;
 
-            if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
-              .AsString) then
-            begin
-              DadosMotoboy.Edit;
-            end
-            else
-            begin
-              DadosMotoboy.Insert;
-              DadosMotoboy.FieldByName('NOME').AsString :=
-                DadosPedido.FieldByName('motoboy').AsString;
-              DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
-              DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+              if DadosPedido.FieldByName('status').AsInteger <> 0 then
+              begin
+                ValorDelivery := ValorDelivery + DadosPedido.FieldByName
+                  ('total').AsFloat;
+                TaxaTotal := TaxaTotal + DadosPedido.FieldByName
+                  ('taxa').AsFloat;
+              end;
             end;
-            DadosMotoboy.FieldByName('TAXA').AsFloat :=
-              DadosMotoboy.FieldByName('TAXA').AsFloat + DadosPedido.FieldByName
-              ('taxa').AsFloat;
-            DadosMotoboy.FieldByName('TOTAL').AsFloat :=
-              DadosMotoboy.FieldByName('TOTAL').AsFloat +
-              DadosPedido.FieldByName('total').AsFloat;
-            if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
-            begin
-              DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                DadosPedido.FieldByName('codigo_Dia').AsString;
-            end
-            else
-            begin
-              DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
-                DadosPedido.FieldByName('codigo_Dia').AsString;
-            end;
-            DadosMotoboy.Post;
 
-            ValorDelivery := ValorDelivery + DadosPedido.FieldByName
-              ('total').AsFloat;
           end;
+        end
+        else
+        begin
 
+          ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
         end;
-      end
-      else
-      begin
-
-        ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
       end;
 
       FrameDados.CodigoDia := DadosPedido.FieldByName('codigo_Dia').AsInteger;
@@ -898,6 +926,7 @@ begin
     lTotalVMesa.Text := FormatFloat('###,##0.00', ValorMesa);
     lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);
     lTotalVDelivery.Text := FormatFloat('###,##0.00', ValorDelivery);
+    lTotalVTaxa.Text := FormatFloat('###,##0.00', TaxaTotal);
     lVemBuscar.Text := FormatFloat('R$ ###,##0.00', ValorVB);
     lTotalvVembuscar.Text := FormatFloat('###,##0.00', ValorVB);
     lTotal.Text := FormatFloat('R$ ###,##0.00',

@@ -154,6 +154,14 @@ type
     DADOS_WHATSAPPcontrole_estoque: TIntegerField;
     DADOS_WHATSAPPficha_tecnica: TIntegerField;
     DADOS_WHATSAPPstatus_pedidos_site: TIntegerField;
+
+    DADOS_WHATSAPPmerchant: TStringField;
+
+    DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField;
+    DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField;
+    DADOS_WHATSAPPifood_percentual: TFloatField;
+    DADOS_WHATSAPPddd_padrao: TStringField;
+    DADOS_WHATSAPPifood_integracao: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -236,6 +244,8 @@ type
 
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
+
+
 
   end;
 
@@ -347,6 +357,7 @@ begin
 
   end;
 end;
+
 
 procedure TDM.AtualizaSite(SQL: String);
 var
@@ -545,6 +556,7 @@ var
   Body: String;
   Requisicao: iRequisicao;
 begin
+exit;
 if ErrosBusca >= 3 then
 exit;
 if Assigned(JSonDadosSite) then

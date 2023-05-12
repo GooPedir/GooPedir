@@ -196,20 +196,21 @@ begin
 
   dm.LogUsuario;
 
+     dm.UserId;
   tabMain.TabIndex := 0;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+//  TThread.CreateAnonymousThread(
+//    procedure
+//    begin
+//      frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
       // DM.IniciaVerificacao;
-      dm.UserId;
+
       // Thread.Sleep(5000);
       // TThread.Synchronize(TThread.CurrentThread,
       // procedure
       // begin
       // Memo1.Lines.Add('Teste anonymous Thread');
       // end);
-    end).Start;
+//    end).Start;
 
   if NOT Assigned(FrmAddItem) then
   begin

@@ -154,6 +154,14 @@ type
     DADOS_WHATSAPPcontrole_estoque: TIntegerField;
     DADOS_WHATSAPPficha_tecnica: TIntegerField;
     DADOS_WHATSAPPstatus_pedidos_site: TIntegerField;
+
+    DADOS_WHATSAPPmerchant: TStringField;
+
+    DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField;
+    DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField;
+    DADOS_WHATSAPPifood_percentual: TFloatField;
+    DADOS_WHATSAPPddd_padrao: TStringField;
+    DADOS_WHATSAPPifood_integracao: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;
@@ -249,7 +257,7 @@ var
   StatusConexao: TConexaoServidor;
   JSonDadosSite: TJsonObject;
   ID: Integer;
-  ErrosBusca : Integer;
+  ErrosBusca: Integer;
 
 implementation
 
@@ -545,11 +553,11 @@ var
   Body: String;
   Requisicao: iRequisicao;
 begin
-exit;
-if ErrosBusca >= 3 then
-exit;
-if Assigned(JSonDadosSite) then
-exit;
+
+  if ErrosBusca >= 3 then
+    exit;
+  if Assigned(JSonDadosSite) then
+    exit;
   try
     Requisicao := iRequisicao.Create(self);
     Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
@@ -562,9 +570,10 @@ exit;
     Requisicao.TempoExpiracao := 5 * 1000;
     Requisicao.Execute;
 
-    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)as TJsonObject;
+    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+      as TJsonObject;
   except
-   inc(ErrosBusca);
+    inc(ErrosBusca);
   end;
 
   Requisicao.Free;
@@ -572,7 +581,7 @@ end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
 begin
-GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
+  GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
   ID := 0;
   ErrosBusca := 0;
   DadosSite;

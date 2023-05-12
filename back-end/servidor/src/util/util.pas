@@ -6445,7 +6445,7 @@ var
   estado: string;
   cpf: string;
   conexao: TConexao;
-CodigoEndereco : Integer;
+  CodigoEndereco: Integer;
 begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
@@ -6475,24 +6475,28 @@ begin
     conexao.ExecuteSQL;
 
   end;
-  conexao.SQL.Add('update cliente set nome = :nome, cpf = :cpf, celular = :celular, celular_wpp = :celular_wpp where codigo = :codigo');
-    conexao.Parametros('codigo', Codigo);
-    conexao.Parametros('cpf', cpf);
-    conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
-    conexao.Parametros('celular', Celular);
-    conexao.Parametros('celular_wpp', NonoDigito(Celular));
-    conexao.ExecuteSQL;
+  conexao.SQL.Add
+    ('update cliente set nome = :nome, cpf = :cpf, celular = :celular, celular_wpp = :celular_wpp where codigo = :codigo');
+  conexao.Parametros('codigo', Codigo);
+  conexao.Parametros('cpf', cpf);
+  conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
+  conexao.Parametros('celular', Celular);
+  conexao.Parametros('celular_wpp', NonoDigito(Celular));
+  conexao.ExecuteSQL;
   if length(rua) > 0 then
   begin
     // Cadastra Endereço
-    conexao.SQL.Add('select max(codigo) as codigo, 0 as zero from cliente_endereco where  cliente_endereco.codigo_cliente = :cliente');
-    conexao.Parametros('cliente',Codigo);
+    conexao.SQL.Add
+      ('select max(codigo) as codigo, 0 as zero from cliente_endereco where  cliente_endereco.codigo_cliente = :cliente');
+    conexao.Parametros('cliente', Codigo);
     try
       CodigoEndereco := conexao.FieldByName('codigo');
     finally
-      CodigoEndereco := conexao.GerarID('cliente_endereco','codigo');
-      conexao.SQL.Add('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
-      conexao.SQL.Add('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
+      CodigoEndereco := conexao.GerarID('cliente_endereco', 'codigo');
+      conexao.SQL.Add
+        ('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
+      conexao.SQL.Add
+        ('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
       conexao.Parametros('codigo', CodigoEndereco);
       conexao.Parametros('codigo_cliente', Codigo);
       conexao.Parametros('descricao', 'Principal');
@@ -6506,22 +6510,26 @@ begin
       conexao.ExecuteSQL;
 
     end;
-     conexao.SQL.Add('update cliente_endereco set numero = :numero, rua = :rua, bairro = :bairro, cidade = :cidade, estado = :estado, complemento = :complemento where codigo = :codigo');
-      conexao.Parametros('codigo', CodigoEndereco);
-      conexao.Parametros('rua', UpperCase(RemoveAcento(rua)));
-      conexao.Parametros('bairro', UpperCase(RemoveAcento(bairro)));
-      conexao.Parametros('cidade', UpperCase(RemoveAcento(cidade)));
-      conexao.Parametros('estado', UpperCase(RemoveAcento(estado)));
-      conexao.Parametros('complemento', UpperCase(RemoveAcento(complemento)));
-      conexao.Parametros('numero', numero);
+    conexao.SQL.Add
+      ('update cliente_endereco set numero = :numero, rua = :rua, bairro = :bairro, cidade = :cidade, estado = :estado, complemento = :complemento where codigo = :codigo');
+    conexao.Parametros('codigo', CodigoEndereco);
+    conexao.Parametros('rua', UpperCase(RemoveAcento(rua)));
+    conexao.Parametros('bairro', UpperCase(RemoveAcento(bairro)));
+    conexao.Parametros('cidade', UpperCase(RemoveAcento(cidade)));
+    conexao.Parametros('estado', UpperCase(RemoveAcento(estado)));
+    conexao.Parametros('complemento', UpperCase(RemoveAcento(complemento)));
+    conexao.Parametros('numero', numero);
 
   end;
 
   conexao.Free;
 end;
 
-
-
+procedure DoGetStatusiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  Res.Send<TJSONArray>(frmServidor.dataSetMerchantStatus.ToJSONArray());
+end;
 
 // THorse.Get('/v1/util/busca/bairro/:busca', DoGetBuscaBairro);
 
@@ -6795,6 +6803,10 @@ begin
   THorse.Post
     ('v1/cliente/cadastro/:codigo/:celular/:nome/:rua/:numero/:complemento/:bairro/:cidade/:estado/:cpf',
     DoPostCadastroCliente);
+
+  // Integração iFood
+  THorse.Get('v1/util/ifood/status', DoGetStatusiFood);
+//  THorse.Get('v1/util/ifood/status/cancelamento', DoGetStatusiFoodCancelamento);
 
 end;
 

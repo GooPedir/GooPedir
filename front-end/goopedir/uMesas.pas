@@ -100,6 +100,8 @@ type
     Layout11: TLayout;
     Label24: TLabel;
     lTotalVMesa: TLabel;
+    iFood: TTabItem;
+    VertScrollBox1: TVertScrollBox;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
