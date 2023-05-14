@@ -555,7 +555,7 @@ begin
 
   EnviarSabores;
 
-  // EnviarPedidosWhatsapp;
+   EnviarPedidosWhatsapp;
 
 end;
 
@@ -1209,7 +1209,7 @@ begin
     QuotedStr('<br /><b>') + ',ppslocal.nomeclatura,' + QuotedStr(' ') +
     ',ppslocal.descricao ,' + QuotedStr('<br />Valor R$: ') +
     ',localpp.valor_total,' + QuotedStr('<br />') + '),' +
-    QuotedStr('<br /><b>Importado Sistema Local!<br /><b>') + ') ';
+    QuotedStr('<br /><b>Importado Sistema!<br /><b>') + ') ';
   Resumo := Resumo + 'FROM pedido_produto_sap as ppslocal ';
   Resumo := Resumo +
     'join pedido_produtos as localpp on localpp.codigo = ppslocal.codigo_pedido_produto ';
@@ -1238,6 +1238,7 @@ begin
     SQL := SQL + 'p.valor_taxa_entrega as valor_taxa, ';
     SQL := SQL + '0 as adicionais, ';
     SQL := SQL + 'p.valor_pedido as sub_total, ';
+    SQL := SQL + 'p.id_ifood as id_ifood, ';
     SQL := SQL + 'p.valor_total_pedido as total, ';
     SQL := SQL + 'REPLACE(c.nome,'' '',''%'') as nome, ';
     SQL := SQL + 'c.celular as telefone, ';
@@ -1272,6 +1273,7 @@ begin
     SQL := SQL +
       'p.data_pedido > ''2000-12-31'' and p.id_pedido_site is null and p.status > 0 ';
     SQL := SQL + 'limit 15 ';
+//    ShowMessage(SQL);
     frmPrincipal.AdicionaLog(SQL);
     Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 

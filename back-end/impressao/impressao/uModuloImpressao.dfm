@@ -494,8 +494,9 @@ object dmImpressaoV2: TdmImpressaoV2
     object ppSummaryBand6: TppSummaryBand
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
+      PrintHeight = phDynamic
       mmBottomOffset = 0
-      mmHeight = 55563
+      mmHeight = 61913
       mmPrintPosition = 0
       object ppLabel31: TppLabel
         DesignLayer = ppDesignLayer1
@@ -797,7 +798,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Weight = 0.750000000000000000
         mmHeight = 2117
         mmLeft = 1588
-        mmTop = 53446
+        mmTop = 58481
         mmWidth = 85196
         BandType = 7
         LayerName = Foreground
@@ -834,7 +835,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 48683
+        mmTop = 53718
         mmWidth = 35190
         BandType = 7
         LayerName = Foreground
@@ -852,7 +853,7 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         mmHeight = 3704
         mmLeft = 1852
-        mmTop = 43656
+        mmTop = 48691
         mmWidth = 38894
         BandType = 7
         LayerName = Foreground
@@ -875,8 +876,9 @@ object dmImpressaoV2: TdmImpressaoV2
           'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs20 ' +
           '<dbtext>mp</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
+        Stretch = True
         Transparent = True
-        mmHeight = 8731
+        mmHeight = 13758
         mmLeft = 1852
         mmTop = 34660
         mmWidth = 65617
@@ -1330,7 +1332,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 304800
     PrinterSetup.mmPaperWidth = 55800
-    PrinterSetup.PaperSize = 119
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1536,7 +1538,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 304800
           PrinterSetup.mmPaperWidth = 55800
-          PrinterSetup.PaperSize = 119
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -3517,6 +3519,7 @@ object dmImpressaoV2: TdmImpressaoV2
     object ppSummaryBand15: TppSummaryBand
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
+      PrintHeight = phDynamic
       mmBottomOffset = 0
       mmHeight = 61913
       mmPrintPosition = 0
@@ -3898,6 +3901,7 @@ object dmImpressaoV2: TdmImpressaoV2
           'erator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs20 ' +
           '<dbtext>mp</dbtext>\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
+        Stretch = True
         Transparent = True
         mmHeight = 15610
         mmLeft = 1852

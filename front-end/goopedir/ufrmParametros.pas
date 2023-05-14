@@ -250,7 +250,7 @@ procedure TfrmParametros.iFoodLoad;
 begin
   // Integração iFood
   AdicionaTitulo(VertIfood, 'Dados Integração API iFood');
-  AdicionaSelecao(Fidelidade, TAlignLayout.Top, 'ifood_integracao','Utilizar Integração', '1', '0');
+  AdicionaSelecao(VertIfood, TAlignLayout.Top, 'ifood_integracao','Utilizar Integração', '1', '0');
   AdicionaParametroEdit(VertIfood, 'merchant', 'Merchant ID');
   AdicionaCombo(VertIfood, 'aceitar_pedidos_ifood', 'Pedidos Site',
     ['Aceitar Manualmente', 'Aceitar Automaticamente (Imprimir)',

@@ -70,8 +70,64 @@ type
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
-    procedure iFoodPollingEnd(EndPooling: TDateTime;
-      OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
+    procedure IFoodMerchantStatus
+      (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
+    procedure IFoodOrderCancellationFailed(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderCancellationRequested
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderChangePreparationTime
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderConsumerCancellationAccepted
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderConsumerCancellationDenied
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderConsumerCancellationRequested
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderDelayNotification(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderGoingToOrigin(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderPickupAreaAssigned(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderPlaced(Order: IADRIFoodModelOrder;
+      OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderPreparationStarted(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderReadyToDeliver(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderReadyToPickup(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderRecommendedPreparation
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderRequestDriver(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderRequestDriverAvailability
+      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+    procedure IFoodOrderRequestDriverFailed(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderRequestDriverSuccess(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderAssignDriver(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
+    procedure IFoodOrderArrivedAtOrigin(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
   private
     { Private declarations }
     procedure TemAtualizacao;
@@ -100,6 +156,7 @@ type
     function TaxaiFood: Real;
     function StatusPedidoiFood: Integer;
     procedure AtualizaDadosiFood;
+    procedure AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
 
   var
     FechouWhatsapp: Boolean;
@@ -111,6 +168,7 @@ var
   frmServidor: TfrmServidor;
   Atualizacao: TSQL;
   Servicos: TAbrirServicos;
+  statusiFood: Boolean;
 
 implementation
 
@@ -150,337 +208,6 @@ begin
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
 end;
 
-procedure TfrmServidor.iFoodPollingEnd(EndPooling: TDateTime;
-  OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
-var
-  conexao: Tconexao;
-  DadosPedido: TFDMemTable;
-  CodigoIntermo: Integer;
-  CodigoPedidoDia: Integer;
-  CodigoCliente: Integer;
-  CodigoEndereco: Integer;
-  DadosCli: TFDMemTable;
-  CodigoProduto: Integer;
-  CodigoTipoPagamento: Integer;
-  Codigo: Integer;
-  CodigoItem: Integer;
-  I: Integer;
-  NomeTipoPagamento: String;
-begin
-  IFood.Polling.AutoPolling := False;
-  conexao := Tconexao.Create;
-  DadosPedido := TFDMemTable.Create(nil);
-  DadosCli := TFDMemTable.Create(nil);
-  if dataSetPolling.RecordCount > 0 then
-  begin
-    dataSetPolling.First;
-    while not dataSetPolling.Eof do
-    begin
-      DadosPedido.Close;
-      IFood.Order.GetOrder(dataSetPolling.FieldByName('orderId').AsString,
-        dataSetOrders, dataSetOrderItems, dataSetOrderPayments,
-        dataSetOrderSubItems, dataSetOrderBenefits);
-
-      // ShowMessage(dataSetOrderPayments.ToJSONArray().ToString);
-      conexao.SQL.Add('select * from pedido where id_ifood = :id_ifood');
-      conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-        .AsString);
-      DadosPedido.LoadFromJSON(conexao.ConsultaSQL);
-      if DadosPedido.RecordCount = 0 then
-      begin
-        CodigoIntermo := conexao.GerarID('pedido', 'codigo');
-        conexao.SQL.Add
-          ('SELECT max(codigo_pedido_dia)+1 as max, 0 as zero FROM pedido where data_pedido = curdate()');
-        try
-          CodigoPedidoDia := conexao.FieldByName('max');
-        except
-          CodigoPedidoDia := 1;
-        end;
-        DadosCli.Close;
-        conexao.SQL.Add('select * from cliente where cpf = :cpf');
-        conexao.Parametros('cpf',
-          dataSetOrders.FieldByName('customerDocumentNumber').AsString);
-
-        DadosCli.LoadFromJSON(conexao.ConsultaSQL);
-        if DadosCli.RecordCount = 0 then
-        begin
-          CodigoCliente := conexao.GerarID('cliente', 'codigo');;
-          conexao.SQL.Add
-            ('insert into cliente (codigo,nome,ativo,cpf,origem,bloqueado) values (:codigo,:nome,1,:cpf,''ifood'',0)');
-          conexao.Parametros('codigo', CodigoCliente);
-          conexao.Parametros('cpf',
-            dataSetOrders.FieldByName('customerDocumentNumber').AsString);
-          conexao.Parametros('nome',
-            UpperCase(dataSetOrders.FieldByName('customerName').AsString));
-          conexao.ExecuteSQL;
-
-        end
-        else
-        begin
-          CodigoCliente := DadosCli.FieldByName('codigo').AsInteger;
-        end;
-        CodigoEndereco := 0;
-
-        if dataSetOrders.FieldByName('type').AsString = 'DELIVERY_TYPE' then
-        begin
-          CodigoEndereco := conexao.GerarID('cliente_endereco', 'codigo');
-          conexao.SQL.Add
-            ('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
-          conexao.SQL.Add
-            ('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
-          conexao.Parametros('codigo', CodigoEndereco);
-          conexao.Parametros('codigo_cliente', CodigoCliente);
-          conexao.Parametros('descricao', 'Principal');
-          conexao.Parametros('tipo', 1);
-          conexao.Parametros('rua',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddressstreetname').AsString)));
-          conexao.Parametros('bairro',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddressneighborhood').AsString)));
-          conexao.Parametros('cidade',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddresscity').AsString)));
-          conexao.Parametros('estado',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddressstate').AsString)));
-          conexao.Parametros('complemento',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddresscomplement').AsString)));
-          conexao.Parametros('numero',
-            UpperCase(RemoveAcento(dataSetOrders.FieldByName
-            ('deliveryaddressstreetnumber').AsString)));
-          conexao.ExecuteSQL;
-        end;
-
-        if dataSetOrderPayments.FieldByName('name').AsString = 'CASH' then
-        begin
-          NomeTipoPagamento := 'iFood - Dinheiro';
-        end
-        else if dataSetOrderPayments.FieldByName('name').AsString = 'CREDIT'
-        then
-        begin
-          NomeTipoPagamento := 'iFood - Cartão de Crédito';
-          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
-            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
-        end
-        else if dataSetOrderPayments.FieldByName('name').AsString = 'DEBIT' then
-        begin
-          NomeTipoPagamento := 'iFood - Cartão de Débito';
-          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
-            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
-        end
-        else
-        begin
-          NomeTipoPagamento := 'iFood - ' + dataSetOrderPayments.FieldByName
-            ('method').AsString;
-          if dataSetOrderPayments.FieldByName('name').AsString = 'type' then
-            NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)';
-        end;
-        conexao.SQL.Add
-          ('select * from tipo_pagamento where descricao = :descricao');
-        conexao.Parametros('descricao', NomeTipoPagamento);
-
-        try
-          CodigoTipoPagamento := conexao.FieldByName('codigo');
-        except
-          conexao.SQL.Add
-            ('insert into tipo_pagamento (codigo,descricao,ativo) values (:codigo,:descricao,1)');
-          conexao.Parametros('codigo', CodigoTipoPagamento);
-          conexao.Parametros('descricao', NomeTipoPagamento);
-          conexao.ExecuteSQL;
-        end;
-
-        conexao.SQL.Add
-          ('insert into pedido (codigo,codigo_pedido_dia,codigo_cliente,codigo_cliente_endereco,data_pedido,hora_pedido,status,valor_pedido,valor_desconto,valor_taxa_entrega,valor_total_pedido,troco,tipo_pagamento,id_ifood,origem)');
-        conexao.SQL.Add
-          ('values (:codigo,:codigo_pedido_dia,:codigo_cliente,:codigo_cliente_endereco,:data_pedido,:hora_pedido,:status,:valor_pedido,:valor_desconto,:valor_taxa_entrega,:valor_total_pedido,:troco,:tipo_pagamento,:id_ifood,4,)');
-        conexao.Parametros('codigo', CodigoIntermo);
-        conexao.Parametros('codigo_pedido_dia', CodigoPedidoDia);
-        conexao.Parametros('codigo_cliente', CodigoCliente);
-        conexao.Parametros('codigo_cliente_endereco', CodigoEndereco);
-        conexao.Parametros('data_pedido',
-          dataSetOrders.FieldByName('createdatlocal').AsDateTime);
-        conexao.Parametros('hora_pedido',
-          dataSetOrders.FieldByName('createdatlocal').AsDateTime);
-        conexao.Parametros('status', 0);
-        conexao.Parametros('valor_pedido',
-          (dataSetOrders.FieldByName('subTotal').AsFloat));
-        conexao.Parametros('valor_taxa_entrega',
-          (dataSetOrders.FieldByName('deliveryFee').AsFloat));
-        conexao.Parametros('valor_desconto',
-          (dataSetOrders.FieldByName('totalBenefits').AsFloat));
-        conexao.Parametros('valor_total_pedido',
-          (dataSetOrders.FieldByName('totalPrice').AsFloat));
-        conexao.Parametros('troco', 0);
-        conexao.Parametros('tipo_pagamento', CodigoTipoPagamento);
-        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-          .AsString);
-
-        conexao.ExecuteSQL;
-
-        dataSetOrderItems.First;
-        while not dataSetOrderItems.Eof do
-        begin
-          conexao.SQL.Add('select * from produto where id_ifood = :ifood');
-          conexao.Parametros('ifood', dataSetOrderItems.FieldByName('id')
-            .AsString);
-          try
-            CodigoProduto := conexao.FieldByName('codigo');
-          except
-            CodigoProduto := 0;
-          end;
-
-          Codigo := conexao.GerarID('pedido_produtos', 'codigo_pedido');
-          conexao.SQL.Add
-            ('insert into pedido_produtos (codigo,codigo_produto,codigo_pedido,valor_unitario,valor_total,quantidade,observacao,valor_adicional)');
-          conexao.SQL.Add
-            ('values (:codigo,:codigo_produto,:codigo_pedido,:valor_unitario,:valor_total,:quantidade,:observacao,:valor_adicional)');
-          conexao.Parametros('codigo', Codigo);
-          conexao.Parametros('codigo_pedido', CodigoIntermo);
-          conexao.Parametros('codigo_produto', CodigoProduto);
-          conexao.Parametros('valor_unitario',
-            dataSetOrderItems.FieldByName('unitPrice').AsFloat);
-          conexao.Parametros('valor_total',
-            dataSetOrderItems.FieldByName('totalPrice').AsFloat);
-          conexao.Parametros('quantidade',
-            dataSetOrderItems.FieldByName('quantity').AsInteger);
-
-          conexao.Parametros('observacao',
-            UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
-            .AsString)));
-          conexao.Parametros('valor_adicional',
-            dataSetOrderItems.FieldByName('addition').AsFloat);
-          conexao.ExecuteSQL;
-          CodigoItem := Codigo;
-          Codigo := conexao.GerarID('pedido_produto_sap', 'id');
-          conexao.SQL.Add
-            ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
-          conexao.SQL.Add
-            ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
-          conexao.Parametros('id', Codigo);
-          conexao.Parametros('codigo_pedido_produto', CodigoItem);
-          conexao.Parametros('nomeclatura', 'OBSERVAÇÃO');
-          conexao.Parametros('descricao',
-            UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
-            .AsString)));
-          conexao.Parametros('valor', 0);
-          conexao.ExecuteSQL;
-
-          while not dataSetOrderItems.Eof do
-          begin
-            // Aki devo pegar o pro_adi_personalizado_sabores
-
-            for I := 1 to dataSetOrderItems.FieldByName('quantity').AsInteger do
-            begin
-              Codigo := conexao.GerarID('pedido_produto_sap', 'id');
-              conexao.SQL.Add
-                ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
-              conexao.SQL.Add
-                ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
-              conexao.Parametros('id', Codigo);
-              conexao.Parametros('codigo_pedido_produto', CodigoItem);
-              conexao.Parametros('nomeclatura', 'IFOOD');
-              conexao.Parametros('descricao',
-                UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('name')
-                .AsString)));
-              conexao.Parametros('valor',
-                dataSetOrderItems.FieldByName('unitPrice').AsFloat);
-              conexao.ExecuteSQL;
-            end;
-
-            dataSetOrderItems.Next;
-          end;
-
-          dataSetOrderItems.Next;
-        end;
-
-        // Validar qual o status
-        case StatusPedidoiFood of
-          1:
-            begin
-              // Aceitar o Pedido
-              IFood.Order.Confirmation(dataSetPolling.FieldByName('orderId')
-                .AsString);
-              // CFM
-
-              //
-            end;
-          2:
-            begin
-              // Cancelar o Pedido
-              IFood.Order.Confirmation(dataSetPolling.FieldByName('orderId')
-                .AsString);
-            end;
-        end;
-
-      end
-      else
-      begin
-        CodigoIntermo := DadosPedido.FieldByName('codigo').AsInteger;
-      end;
-      conexao.SQL.Add
-        ('update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood');
-      conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-        .AsString);
-      conexao.Parametros('status_ifood', dataSetPolling.FieldByName('code')
-        .AsString);
-      conexao.Parametros('status_ifood_descricao',
-        dataSetPolling.FieldByName('Description').AsString);
-      conexao.ExecuteSQL;
-
-      if dataSetPolling.FieldByName('code').AsString = 'CAN' then
-      begin
-        conexao.SQL.Add
-          ('update pedido set status = 0 where id_ifood = :id_ifood');
-        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-          .AsString);
-        conexao.ExecuteSQL;
-      end;
-      if dataSetPolling.FieldByName('code').AsString = 'CON' then
-      begin
-        conexao.SQL.Add
-          ('update pedido set status = 6 where id_ifood = :id_ifood');
-        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-          .AsString);
-        conexao.ExecuteSQL;
-      end;
-
-      if dataSetPolling.FieldByName('code').AsString = 'CFM' then
-      begin
-        conexao.SQL.Add
-          ('update pedido set status = 2 where id_ifood = :id_ifood');
-        conexao.Parametros('id_ifood', dataSetPolling.FieldByName('orderId')
-          .AsString);
-        conexao.ExecuteSQL;
-
-        conexao.SQL.Add
-          ('select count(*) as tot, 0 as zero from impressao_pedido where id_pedido = :id_pedido ');
-        conexao.Parametros('id_pedido', CodigoIntermo);
-        try
-          Codigo := conexao.FieldByName('tot');
-        except
-          Codigo := 0;
-        end;
-
-        if Codigo = 0 then
-        begin
-          Codigo := conexao.GerarID('impressao_pedido', 'id');
-          conexao.SQL.Add
-            ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
-          conexao.Parametros('id', CodigoCliente);
-          conexao.Parametros('pedido', CodigoIntermo);
-          conexao.ExecuteSQL;
-        end;
-      end;
-
-      dataSetPolling.Next;
-    end;
-  end;
-  conexao.Free;
-  IFood.Polling.AutoPolling := True;
-end;
-
 procedure TfrmServidor.AtualizaDadosiFood;
 var
   conexao: Tconexao;
@@ -498,6 +225,33 @@ begin
   end;
 end;
 
+procedure TfrmServidor.AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
+var
+  conexao: Tconexao;
+  SQL: String;
+  statuscod: String;
+  Status: String;
+begin
+  statuscod := OrderHead.code;
+  Status := OrderHead.fullCode;
+  if OrderHead.code = 'CAN' then
+  begin
+    SQL := 'update pedido set desc_desconto_ifood = motivo_cancelamento, status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
+  end
+  else
+  begin
+    SQL := 'update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
+  end;
+  conexao := Tconexao.Create;
+  conexao.SQL.Add(SQL);
+  conexao.Parametros('id_ifood', OrderHead.id);
+  conexao.Parametros('status_ifood', OrderHead.code);
+
+  conexao.Parametros('status_ifood_descricao', OrderHead.fullCode);
+  conexao.ExecuteSQL;
+  conexao.Free;
+end;
+
 procedure TfrmServidor.BuscaDadosiFood;
 var
   conexao: Tconexao;
@@ -506,7 +260,7 @@ var
   Categoria: Integer;
   CodigoProduto: Integer;
 begin
-  IFood.MerchantID(IDiFood);
+
   conexao := Tconexao.Create;
   IFood.Category.List(dataSetCategoy);
   Dados := TFDMemTable.Create(self);
@@ -972,6 +726,16 @@ begin
   FichaTecnica;
   // BuscaDadosiFood;
 
+  if IntegracaoiFood then
+  begin
+    IFood.MerchantID(IDiFood);
+    IFood.MerchantStatus.AutoStatus := True;
+    IFood.Polling.AutoPolling := True;
+  end;
+
+
+  // ADRIFood.MerchantStatus.AutoStatus := True;
+
 end;
 
 function TfrmServidor.IDiFood: String;
@@ -982,6 +746,559 @@ begin
     Result := '155cc414-36d0-4ec2-9d06-f85fad9e782a';
   end;
   // '155cc414-36d0-4ec2-9d06-f85fad9e782a';
+end;
+
+procedure TfrmServidor.IFoodMerchantStatus
+  (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
+begin
+  statusiFood := dataSetMerchantStatus.FieldByName('available').AsBoolean;
+
+end;
+
+procedure TfrmServidor.IFoodOrderArrivedAtOrigin
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+
+end;
+
+procedure TfrmServidor.IFoodOrderAssignDriver
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderCancellationFailed
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderCancellationRequested
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+  // ShowMessage(OrderHead.event.description);
+end;
+
+procedure TfrmServidor.IFoodOrderChangePreparationTime
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderConsumerCancellationAccepted
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderConsumerCancellationRequested
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderDelayNotification
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderGoingToOrigin
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
+var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderPickupAreaAssigned
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderPlaced(Order: IADRIFoodModelOrder;
+OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+var
+  conexao: Tconexao;
+  DadosPedido: TFDMemTable;
+  CodigoIntermo: Integer;
+  CodigoPedidoDia: Integer;
+  CodigoCliente: Integer;
+  CodigoEndereco: Integer;
+  DadosCli: TFDMemTable;
+  CodigoProduto: Integer;
+  CodigoTipoPagamento: Integer;
+  Codigo: Integer;
+  CodigoItem: Integer;
+  I: Integer;
+  NomeTipoPagamento: String;
+  DescricaoDesconto: String;
+begin
+
+  bAcknowledgment := True;
+  conexao := Tconexao.Create;
+  DadosPedido := TFDMemTable.Create(nil);
+  DadosCli := TFDMemTable.Create(nil);
+  DadosPedido.Close;
+  IFood.Order.GetOrder(Order.id, dataSetOrders, dataSetOrderItems,
+    dataSetOrderPayments, dataSetOrderSubItems, dataSetOrderBenefits);
+
+  DescricaoDesconto := '';
+  if dataSetOrderBenefits.RecordCount > 0 then
+  begin
+    if dataSetOrderBenefits.FieldByName('valueifood').AsFloat > 0 then
+    begin
+      DescricaoDesconto := 'Desconto por conta do iFood';
+    end;
+    if dataSetOrderBenefits.FieldByName('valuemerchant').AsFloat > 0 then
+    begin
+      DescricaoDesconto := 'Desconto por conta da Loja';
+    end;
+    if dataSetOrderBenefits.FieldByName('valueexternal').AsFloat > 0 then
+    begin
+      DescricaoDesconto := 'Desconto por conta da Loja';
+    end;
+
+  end;
+  conexao.SQL.Add('select * from pedido where id_ifood = :id_ifood');
+  conexao.Parametros('id_ifood', Order.id);
+  DadosPedido.LoadFromJSON(conexao.ConsultaSQL);
+  if DadosPedido.RecordCount = 0 then
+  begin
+    CodigoIntermo := conexao.GerarID('pedido', 'codigo');
+
+    conexao.SQL.Add
+      ('SELECT case  when max(codigo_pedido_dia) > 0 then max(codigo_pedido_dia)+1');
+    conexao.SQL.Add
+      ('else 1 end as max, 0 as zero FROM pedido where data_pedido = curdate()');
+    try
+      CodigoPedidoDia := conexao.FieldByName('max');
+    except
+      CodigoPedidoDia := 1;
+    end;
+    DadosCli.Close;
+    conexao.SQL.Add('select * from cliente where cpf = :cpf');
+    conexao.Parametros('cpf',
+      dataSetOrders.FieldByName('customerDocumentNumber').AsString);
+
+    DadosCli.LoadFromJSON(conexao.ConsultaSQL);
+    if DadosCli.RecordCount = 0 then
+    begin
+      CodigoCliente := conexao.GerarID('cliente', 'codigo');
+      conexao.SQL.Add
+        ('insert into cliente (codigo,nome,ativo,cpf,origem,bloqueado) values (:codigo,:nome,1,:cpf,''ifood'',0)');
+      conexao.Parametros('codigo', CodigoCliente);
+      conexao.Parametros('cpf',
+        dataSetOrders.FieldByName('customerDocumentNumber').AsString);
+      conexao.Parametros('nome',
+        UpperCase(dataSetOrders.FieldByName('customerName').AsString));
+      conexao.ExecuteSQL;
+
+    end
+    else
+    begin
+      CodigoCliente := DadosCli.FieldByName('codigo').AsInteger;
+    end;
+    CodigoEndereco := 0;
+
+    if dataSetOrders.FieldByName('type').AsString = 'DELIVERY_TYPE' then
+    begin
+      CodigoEndereco := conexao.GerarID('cliente_endereco', 'codigo');
+      conexao.SQL.Add
+        ('insert into cliente_endereco (codigo,codigo_cliente,descricao,tipo,numero,rua,bairro,cidade,estado,complemento,ativo,km) values');
+      conexao.SQL.Add
+        ('(:codigo,:codigo_cliente,:descricao,:tipo,:numero,:rua,:bairro,:cidade,:estado,:complemento,1,0)');
+      conexao.Parametros('codigo', CodigoEndereco);
+      conexao.Parametros('codigo_cliente', CodigoCliente);
+      conexao.Parametros('descricao', 'Principal');
+      conexao.Parametros('tipo', 1);
+      conexao.Parametros('rua',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName
+        ('deliveryaddressstreetname').AsString)));
+      conexao.Parametros('bairro',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName
+        ('deliveryaddressneighborhood').AsString)));
+      conexao.Parametros('cidade',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName('deliveryaddresscity')
+        .AsString)));
+      conexao.Parametros('estado',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName('deliveryaddressstate')
+        .AsString)));
+      conexao.Parametros('complemento',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName
+        ('deliveryaddresscomplement').AsString)));
+      conexao.Parametros('numero',
+        UpperCase(RemoveAcento(dataSetOrders.FieldByName
+        ('deliveryaddressstreetnumber').AsString)));
+      conexao.ExecuteSQL;
+    end;
+
+    if dataSetOrderPayments.FieldByName('name').AsString = 'CASH' then
+    begin
+      NomeTipoPagamento := 'iFood - Dinheiro';
+    end
+    else if dataSetOrderPayments.FieldByName('name').AsString = 'CREDIT' then
+    begin
+      NomeTipoPagamento := 'iFood - Cartão de Crédito ' +
+        dataSetOrderPayments.FieldByName('cardbrand').AsString;
+      if dataSetOrderPayments.FieldByName('type').AsString = 'ONLINE' then
+        NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)'
+      else
+        NomeTipoPagamento := NomeTipoPagamento + ' (Cobrar Local)'
+    end
+    else if dataSetOrderPayments.FieldByName('name').AsString = 'DEBIT' then
+    begin
+      NomeTipoPagamento := 'iFood - Cartão de Débito ' +
+        dataSetOrderPayments.FieldByName('cardbrand').AsString;
+      if dataSetOrderPayments.FieldByName('type').AsString = 'ONLINE' then
+        NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)'
+      else
+        NomeTipoPagamento := NomeTipoPagamento + ' (Cobrar Local)'
+    end
+    else
+    begin
+      NomeTipoPagamento := 'iFood - ' + dataSetOrderPayments.FieldByName
+        ('method').AsString;
+      if dataSetOrderPayments.FieldByName('type').AsString = 'ONLINE' then
+        NomeTipoPagamento := NomeTipoPagamento + ' (Pago Online)'
+      else
+        NomeTipoPagamento := NomeTipoPagamento + ' (Cobrar Local)'
+
+    end;
+    conexao.SQL.Add
+      ('select * from tipo_pagamento where descricao = :descricao');
+    conexao.Parametros('descricao', NomeTipoPagamento);
+
+    CodigoTipoPagamento := conexao.FieldByName('codigo');
+    if CodigoTipoPagamento = 0 then
+    begin
+      CodigoTipoPagamento := conexao.GerarID('tipo_pagamento', 'codigo');
+      conexao.SQL.Add
+        ('insert into tipo_pagamento (codigo,descricao,ativo) values (:codigo,:descricao,1)');
+      conexao.Parametros('codigo', CodigoTipoPagamento);
+      conexao.Parametros('descricao', NomeTipoPagamento);
+      conexao.ExecuteSQL;
+    end;
+
+    conexao.SQL.Add
+      ('insert into pedido (codigo,codigo_pedido_dia,codigo_cliente,codigo_cliente_endereco,');
+    conexao.SQL.Add
+      ('data_pedido,hora_pedido,status,valor_pedido,valor_desconto,valor_taxa_entrega,valor_total_pedido,troco,tipo_pagamento,id_ifood,origem,order_ifood,agendada_ifood,estimada_ifood,desc_desconto_ifood)');
+    conexao.SQL.Add
+      ('values (:codigo,:codigo_pedido_dia,:codigo_cliente,:codigo_cliente_endereco,:data_pedido,');
+    conexao.SQL.Add
+      (':hora_pedido,:status,:valor_pedido,:valor_desconto,:valor_taxa_entrega,:valor_total_pedido,:troco,:tipo_pagamento,:id_ifood,4,:order_ifood,:agendada_ifood,:estimada_ifood,:desc_desconto_ifood)');
+    conexao.Parametros('codigo', CodigoIntermo);
+    conexao.Parametros('codigo_pedido_dia', CodigoPedidoDia);
+    conexao.Parametros('codigo_cliente', CodigoCliente);
+    conexao.Parametros('codigo_cliente_endereco', CodigoEndereco);
+    conexao.Parametros('data_pedido',
+      dataSetOrders.FieldByName('createdatlocal').AsDateTime);
+    conexao.Parametros('hora_pedido',
+      dataSetOrders.FieldByName('createdatlocal').AsDateTime);
+    conexao.Parametros('status', 0);
+    conexao.Parametros('valor_pedido',
+      (dataSetOrders.FieldByName('subTotal').AsFloat));
+    conexao.Parametros('valor_taxa_entrega',
+      (dataSetOrders.FieldByName('deliveryFee').AsFloat));
+    conexao.Parametros('valor_desconto',
+      (dataSetOrders.FieldByName('totalBenefits').AsFloat));
+    conexao.Parametros('valor_total_pedido',
+      (dataSetOrders.FieldByName('totalPrice').AsFloat));
+    conexao.Parametros('troco', 0);
+    conexao.Parametros('tipo_pagamento', CodigoTipoPagamento);
+    conexao.Parametros('id_ifood', Order.id);
+    conexao.Parametros('order_ifood', dataSetOrders.FieldByName('ordertiming')
+      .AsString);
+
+    if dataSetOrders.FieldByName('deliverydatetimestart').AsString = '30/12/1899'
+    then
+    begin
+      dataSetOrders.Edit;
+      dataSetOrders.FieldByName('deliverydatetimestart').AsDateTime :=
+        dataSetOrders.FieldByName('preparationstartdatetimelocal').AsDateTime;
+      dataSetOrders.Post;
+    end;
+
+    conexao.Parametros('agendada_ifood',
+      dataSetOrders.FieldByName('deliverydatetimestart').AsDateTime);
+    conexao.Parametros('estimada_ifood',
+      dataSetOrders.FieldByName('preparationstartdatetimelocal').AsDateTime);
+    conexao.Parametros('desc_desconto_ifood', DescricaoDesconto);
+    conexao.ExecuteSQL;
+
+    dataSetOrderItems.First;
+    while not dataSetOrderItems.Eof do
+    begin
+      conexao.SQL.Add('select * from produto where id_ifood = :ifood');
+      conexao.Parametros('ifood', dataSetOrderItems.FieldByName('id').AsString);
+      try
+        CodigoProduto := conexao.FieldByName('codigo');
+      except
+        CodigoProduto := 0;
+      end;
+
+      Codigo := conexao.GerarID('pedido_produtos', 'codigo_pedido');
+      conexao.SQL.Add
+        ('insert into pedido_produtos (codigo,codigo_produto,codigo_pedido,valor_unitario,valor_total,quantidade,observacao,valor_adicional)');
+      conexao.SQL.Add
+        ('values (:codigo,:codigo_produto,:codigo_pedido,:valor_unitario,:valor_total,:quantidade,:observacao,:valor_adicional)');
+      conexao.Parametros('codigo', Codigo);
+      conexao.Parametros('codigo_pedido', CodigoIntermo);
+      conexao.Parametros('codigo_produto', CodigoProduto);
+      conexao.Parametros('valor_unitario',
+        dataSetOrderItems.FieldByName('unitPrice').AsFloat);
+      conexao.Parametros('valor_total',
+        dataSetOrderItems.FieldByName('totalPrice').AsFloat);
+      conexao.Parametros('quantidade', dataSetOrderItems.FieldByName('quantity')
+        .AsInteger);
+
+      conexao.Parametros('observacao',
+        UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
+        .AsString)));
+      conexao.Parametros('valor_adicional',
+        dataSetOrderItems.FieldByName('addition').AsFloat);
+      conexao.ExecuteSQL;
+      CodigoItem := Codigo;
+      Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+      conexao.SQL.Add
+        ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
+      conexao.SQL.Add
+        ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
+      conexao.Parametros('id', Codigo);
+      conexao.Parametros('codigo_pedido_produto', CodigoItem);
+      conexao.Parametros('nomeclatura', 'OBSERVAÇÃO');
+      conexao.Parametros('descricao',
+        UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('observations')
+        .AsString)));
+      conexao.Parametros('valor', 0);
+      conexao.ExecuteSQL;
+
+      while not dataSetOrderItems.Eof do
+      begin
+        // Aki devo pegar o pro_adi_personalizado_sabores
+
+        for I := 1 to dataSetOrderItems.FieldByName('quantity').AsInteger do
+        begin
+          Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+          conexao.SQL.Add
+            ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor)');
+          conexao.SQL.Add
+            ('values (:id,:codigo_pedido_produto,1,:nomeclatura,:descricao,:valor)');
+          conexao.Parametros('id', Codigo);
+          conexao.Parametros('codigo_pedido_produto', CodigoItem);
+          conexao.Parametros('nomeclatura', 'IFOOD');
+          conexao.Parametros('descricao',
+            UpperCase(RemoveAcento(dataSetOrderItems.FieldByName('name')
+            .AsString)));
+          conexao.Parametros('valor',
+            dataSetOrderItems.FieldByName('unitPrice').AsFloat);
+          conexao.ExecuteSQL;
+        end;
+
+        dataSetOrderItems.Next;
+      end;
+
+      dataSetOrderItems.Next;
+    end;
+
+    // Validar qual o status
+    case StatusPedidoiFood of
+      1:
+        begin
+          // Aceitar o Pedido
+          IFood.Order.Confirmation(Order.id);
+        end;
+      2:
+        begin
+          // Cancelar o Pedido
+        end;
+    end;
+
+  end
+  else
+  begin
+    CodigoIntermo := DadosPedido.FieldByName('codigo').AsInteger;
+  end;
+  conexao.SQL.Add
+    ('update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood');
+  conexao.Parametros('id_ifood', Order.id);
+  conexao.Parametros('status_ifood', OrderHead.code);
+  conexao.Parametros('status_ifood_descricao', OrderHead.fullCode);
+  conexao.ExecuteSQL;
+
+  if OrderHead.code = 'CAN' then
+  begin
+    conexao.SQL.Add('update pedido set status = 0 where id_ifood = :id_ifood');
+    conexao.Parametros('id_ifood', Order.id);
+    conexao.ExecuteSQL;
+  end;
+
+  if OrderHead.code = 'CON' then
+  begin
+    conexao.SQL.Add('update pedido set status = 6 where id_ifood = :id_ifood');
+    conexao.Parametros('id_ifood', Order.id);
+    conexao.ExecuteSQL;
+  end;
+
+  if OrderHead.code = 'CFM' then
+  begin
+    conexao.SQL.Add('update pedido set status = 2 where id_ifood = :id_ifood');
+    conexao.Parametros('id_ifood', Order.id);
+    conexao.ExecuteSQL;
+
+    conexao.SQL.Add
+      ('select count(*) as tot, 0 as zero from impressao_pedido where id_pedido = :id_pedido ');
+    conexao.Parametros('id_pedido', CodigoIntermo);
+    try
+      Codigo := conexao.FieldByName('tot');
+    except
+      Codigo := 0;
+    end;
+
+    if Codigo = 0 then
+    begin
+      Codigo := conexao.GerarID('impressao_pedido', 'id');
+      conexao.SQL.Add
+        ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
+      conexao.Parametros('id', CodigoCliente);
+      conexao.Parametros('pedido', CodigoIntermo);
+      conexao.ExecuteSQL;
+    end;
+  end;
+
+  conexao.Free;
+end;
+
+procedure TfrmServidor.IFoodOrderPreparationStarted
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderReadyToDeliver
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderReadyToPickup
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+
+end;
+
+procedure TfrmServidor.IFoodOrderRecommendedPreparation
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderRequestDriver
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderRequestDriverAvailability
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderRequestDriverFailed
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
+end;
+
+procedure TfrmServidor.IFoodOrderRequestDriverSuccess
+  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+begin
+  bAcknowledgment := True;
+  AtualizaStatus(OrderHead);
 end;
 
 function TfrmServidor.IMPRESSAO: String;
@@ -1012,13 +1329,13 @@ end;
 procedure TfrmServidor.LoadImpressora;
 var
   I: Integer;
-  ID: Integer;
+  id: Integer;
 begin
   memImpressora.Close;
   memImpressora.Open;
-  ID := 1;
+  id := 1;
   memImpressora.Insert;
-  memImpressora.FieldByName('ID').AsInteger := ID;
+  memImpressora.FieldByName('ID').AsInteger := id;
   memImpressora.FieldByName('DRIVER').AsString := 'Default';
   memImpressora.Post;
   for I := 0 to Printer.Count - 1 do
@@ -1029,9 +1346,9 @@ begin
       (UpperCase(Printer.Printers[I].Device) <> 'MICROSOFT XPS DOCUMENT WRITER')
     then
     begin
-      inc(ID);
+      inc(id);
       memImpressora.Insert;
-      memImpressora.FieldByName('ID').AsInteger := ID;
+      memImpressora.FieldByName('ID').AsInteger := id;
       memImpressora.FieldByName('DRIVER').AsString :=
         Printer.Printers[I].Device;
       memImpressora.Post;
@@ -1062,7 +1379,7 @@ begin
     Result := frmServidor.Configuracoes.FieldByName('aceitar_pedidos_ifood')
       .AsInteger;
   except
-    Result := 1;
+    Result := 0;
   end;
 end;
 

@@ -196,21 +196,21 @@ begin
 
   dm.LogUsuario;
 
-     dm.UserId;
+  dm.UserId;
   tabMain.TabIndex := 0;
-//  TThread.CreateAnonymousThread(
-//    procedure
-//    begin
-//      frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
-      // DM.IniciaVerificacao;
+  // TThread.CreateAnonymousThread(
+  // procedure
+  // begin
+  // frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+  // DM.IniciaVerificacao;
 
-      // Thread.Sleep(5000);
-      // TThread.Synchronize(TThread.CurrentThread,
-      // procedure
-      // begin
-      // Memo1.Lines.Add('Teste anonymous Thread');
-      // end);
-//    end).Start;
+  // Thread.Sleep(5000);
+  // TThread.Synchronize(TThread.CurrentThread,
+  // procedure
+  // begin
+  // Memo1.Lines.Add('Teste anonymous Thread');
+  // end);
+  // end).Start;
 
   if NOT Assigned(FrmAddItem) then
   begin

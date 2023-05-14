@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{A2ADCC01-693C-46AA-95FC-5AFF0F06EDA8}</ProjectGuid>
-        <ProjectVersion>19.3</ProjectVersion>
+        <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
@@ -428,8 +428,8 @@
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="uframeDadosVBDelivery.pas">
-            <Form>frameDadosVBDelivery</Form>
+        <DCCReference Include="uframeDadosiFood.pas">
+            <Form>frameDadosiFood</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -450,6 +450,12 @@
             <Form>frmEstoque</Form>
             <FormType>fmx</FormType>
         </DCCReference>
+        <DCCReference Include="uframeDadosVBDelivery.pas">
+            <Form>frameDadosVBDelivery</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <None Include="ModelSupport_GooPedir\default.txaPackage"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -561,8 +567,20 @@
                 <DeployFile LocalName="Android\Release\styles-v21.xml" Configuration="Release" Class="AndroidSplashStylesV21"/>
                 <DeployFile LocalName="Android\Release\styles.xml" Configuration="Release" Class="AndroidSplashStyles"/>
                 <DeployFile LocalName="C:\goopedir\GooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="C:\goopedir\GooPedir.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>GooPedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="C:\papaleguas\GooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="C:\papaleguas\GooPedir.exe" Configuration="Release" Class="ProjectOutput"/>
+                <DeployFile LocalName="ModelSupport_GooPedir\default.txaPackage" Configuration="Release" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="images\24.png" Configuration="Debug" Class="Android_NotificationIcon24"/>
                 <DeployFile LocalName="images\24.png" Configuration="Release" Class="Android_NotificationIcon24"/>
                 <DeployFile LocalName="images\36.png" Configuration="Debug" Class="Android_NotificationIcon36"/>
@@ -1423,6 +1441,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
             </Platforms>
+            <ModelSupport>True</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

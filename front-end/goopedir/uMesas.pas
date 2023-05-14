@@ -40,7 +40,7 @@ type
     Layout6: TLayout;
     TabControl1: TTabControl;
     TabItem1: TTabItem;
-    TabItem2: TTabItem;
+    tabCaixa: TTabItem;
     TabItem3: TTabItem;
     Layout2: TLayout;
     lImpressao: TLayout;
@@ -101,7 +101,20 @@ type
     Label24: TLabel;
     lTotalVMesa: TLabel;
     iFood: TTabItem;
-    VertScrollBox1: TVertScrollBox;
+    VertiFood: TVertScrollBox;
+    layiFood: TLayout;
+    memStatusLoja: iMemTable;
+    Image7: TImage;
+    Layout12: TLayout;
+    messagetitle: TLabel;
+    validationdescription: TLabel;
+    messagesubtitle: TLabel;
+    Layout13: TLayout;
+    Label13: TLabel;
+    lTotaliFood: TLabel;
+    Label21: TLabel;
+    LTotalTaxa: TLabel;
+    iButton1: iButton;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -125,6 +138,8 @@ type
     FValorDelivery: Real;
     FValorMesa: Real;
     FTaxaTotal: Real;
+    FValorTaxaiFood: Real;
+    FValorTotaliFood: Real;
     { Private declarations }
     procedure BuscaPedido;
     procedure SetValorDelivery(const Value: Real);
@@ -132,11 +147,16 @@ type
     procedure SetValorMesa(const Value: Real);
     procedure SetValorVB(const Value: Real);
     procedure SetTaxaTotal(const Value: Real);
+    procedure SetValorTaxaiFood(const Value: Real);
+    procedure SetValorTotaliFood(const Value: Real);
     property TaxaTotal: Real read FTaxaTotal write SetTaxaTotal;
     property ValorMesa: Real read FValorMesa write SetValorMesa;
     property ValorVB: Real read FValorVB write SetValorVB;
     property ValorDelivery: Real read FValorDelivery write SetValorDelivery;
     property ValorEmAberto: Real read FValorEmAberto write SetValorEmAberto;
+    property ValorTotaliFood: Real read FValorTotaliFood
+      write SetValorTotaliFood;
+    property ValorTaxaiFood: Real read FValorTaxaiFood write SetValorTaxaiFood;
     procedure SimGerencial;
     procedure SetaMotoboy(Sender: TObject);
   public
@@ -177,7 +197,7 @@ implementation
 {$R *.fmx}
 
 uses uDM, Funcoes, UnitResumo, FMXTee.Canvas, uframeDadosVBDelivery, uSimNao,
-  uMain, ufrmDadosPedidoMotoboy;
+  uMain, ufrmDadosPedidoMotoboy, uframeDadosiFood;
 
 { TfrmMesas }
 
@@ -465,6 +485,9 @@ end;
 procedure TfrmMesas.FormCreate(Sender: TObject);
 begin
   inherited;
+  layiFood.Visible := False;
+  tabCaixa.Visible := False;
+  iFood.Visible := False;
   edtDataInicial.Date := now;
   edtDataFinal.Date := now + 1;
   edtHoraInicial.Time := StrToTime('00:00:00');
@@ -681,6 +704,16 @@ begin
   FValorMesa := Value;
 end;
 
+procedure TfrmMesas.SetValorTaxaiFood(const Value: Real);
+begin
+  FValorTaxaiFood := Value;
+end;
+
+procedure TfrmMesas.SetValorTotaliFood(const Value: Real);
+begin
+  FValorTotaliFood := Value;
+end;
+
 procedure TfrmMesas.SetValorVB(const Value: Real);
 begin
   FValorVB := Value;
@@ -701,42 +734,79 @@ procedure TfrmMesas.DadosTelaTimer(Sender: TObject);
 var
   FrameDados: TframeDadosVBDelivery;
   FrameDadosMotoboy: TfrmDadosPedidoMotoboy;
+  FrameDadosiFood: TframeDadosiFood;
   I: Integer;
 begin
   inherited;
   // TimerMesa.Enabled := False;
   CarregandoMesa := True;
 
-  if MESA.RecordCount > 0 then
-  begin
-    ValorEmAberto := 0;
-    while not MESA.Eof do
+  //
+  try
+    if DM.DADOS_WHATSAPP.FieldByName('ifood_integracao').AsInteger = 1 then
     begin
-      ValorEmAberto := ValorEmAberto + MESA.FieldByName('tot_mesa').AsFloat;
-      AtualizarMesa(MESA.FieldByName('id_mesa').AsInteger,
-        MESA.FieldByName('sts_mesa').AsInteger,
-        MESA.FieldByName('tot_mesa').AsFloat);
+      iFood.Visible := True;
+      DM.GetSimples('/v1/util/ifood/status', memStatusLoja);
+      layiFood.Visible := memStatusLoja.RecordCount > 0;
+      // messagetitle.Font.Style := [TFontStyle.fsBold,TFontStyle];
 
-      MESA.Next;
-    end;
-    lMesaConsumindo.Text := FormatFloat('R$ ###,##0.00', ValorEmAberto);
-
-    MESA.Close;
-  end
-  else
-  begin
-    TThread.CreateAnonymousThread(
-      procedure
+      messagetitle.Text := memStatusLoja.FieldByName('messagetitle').AsString;
+      messagesubtitle.Text := memStatusLoja.FieldByName
+        ('messagesubtitle').AsString;
+      validationdescription.Text := memStatusLoja.FieldByName
+        ('validationdescription').AsString;
+      if memStatusLoja.FieldByName('validationdescription').AsBoolean then
       begin
-        DM.GetSimples('/v1/mesas', MESA);
 
-        TThread.Synchronize(TThread.CurrentThread,
-          procedure
-          begin
-            // Memo1.Lines.Add('Teste anonymous Thread');
+        messagetitle.FontColor := RGB(0, 135, 3);
+        messagesubtitle.FontColor := messagetitle.FontColor;
+        messagesubtitle.FontColor := messagetitle.FontColor;
+      end
+      else
+      begin
+        messagetitle.FontColor := RGB(255, 135, 135);
+        messagesubtitle.FontColor := messagetitle.FontColor;
+        messagesubtitle.FontColor := messagetitle.FontColor;
+      end;
+    end;
+  except
 
-          end);
-      end).Start;
+  end;
+
+  try
+    if MESA.RecordCount > 0 then
+    begin
+      ValorEmAberto := 0;
+      while not MESA.Eof do
+      begin
+        ValorEmAberto := ValorEmAberto + MESA.FieldByName('tot_mesa').AsFloat;
+        AtualizarMesa(MESA.FieldByName('id_mesa').AsInteger,
+          MESA.FieldByName('sts_mesa').AsInteger,
+          MESA.FieldByName('tot_mesa').AsFloat);
+
+        MESA.Next;
+      end;
+      lMesaConsumindo.Text := FormatFloat('R$ ###,##0.00', ValorEmAberto);
+
+      MESA.Close;
+    end
+    else
+    begin
+      TThread.CreateAnonymousThread(
+        procedure
+        begin
+          DM.GetSimples('/v1/mesas', MESA);
+
+          TThread.Synchronize(TThread.CurrentThread,
+            procedure
+            begin
+              // Memo1.Lines.Add('Teste anonymous Thread');
+
+            end);
+        end).Start;
+    end;
+  except
+
   end;
 
   CarregandoMesa := False;
@@ -747,7 +817,7 @@ begin
     DM.GetSimples2('v1/pedidos/' + FormatDateTime('ddmmyyyy',
       edtDataInicial.Date) + '/' + FormatDateTime('ddmmyyyy', edtDataFinal.Date)
       + '/' + FormatDateTime('hhnn59', edtHoraInicial.Time) + '/' +
-      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3/X', DadosPedido);
+      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3,4/X', DadosPedido);
   end
   else
   begin
@@ -755,144 +825,326 @@ begin
     ValorDelivery := 0;
     ValorMesa := 0;
     TaxaTotal := 0;
+    ValorTotaliFood := 0;
+    ValorTaxaiFood := 0;
     DadosPedido.First;
     while not DadosPedido.Eof do
     begin
+
       if Assigned(tabDeliveryVemBuscar.FindComponent('FrameDados' +
         DadosPedido.FieldByName('codigo').AsString)) then
       begin
-        FrameDados := tabDeliveryVemBuscar.FindComponent
-          ('FrameDados' + DadosPedido.FieldByName('codigo').AsString)
-          as TframeDadosVBDelivery;
+        try
+          FrameDados := tabDeliveryVemBuscar.FindComponent
+            ('FrameDados' + DadosPedido.FieldByName('codigo').AsString)
+            as TframeDadosVBDelivery;
+        except
+          FrameDadosiFood := tabDeliveryVemBuscar.FindComponent
+            ('FrameDados' + DadosPedido.FieldByName('codigo').AsString)
+            as TframeDadosiFood;
+        end;
       end
       else
       begin
-        FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
-        FrameDados.Position.Y := 9999999999;
 
-        FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
-          ('codigo').AsString;
-        FrameDados.Align := TAlignLayout.Top;
-
-        if DadosPedido.FieldByName('ficha').IsNull then
+        if DadosPedido.FieldByName('id_ifood').IsNull then
         begin
-          case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
-            0:
-              begin
-                FrameDados.Parent := vertVemBuscar;
-              end
-          else
+          FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
+          FrameDados.Position.Y := 9999999999;
+
+          FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
+            ('codigo').AsString;
+          FrameDados.Align := TAlignLayout.Top;
+
+          if DadosPedido.FieldByName('ficha').IsNull then
+          begin
+            if DadosPedido.FieldByName('id_ifood').IsNull then
             begin
-              FrameDados.Parent := vertDelivery;
+              case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+                0:
+                  begin
+                    FrameDados.Parent := vertVemBuscar;
+                  end
+              else
+                begin
+                  FrameDados.Parent := vertDelivery;
 
+                end;
+
+              end;
+            end
+            else
+            begin
+              FrameDados.Parent := VertiFood;
             end;
-
+          end
+          else
+          begin
+            FrameDados.Parent := vertMesa;
           end;
+
         end
         else
         begin
-          FrameDados.Parent := vertMesa;
+          FrameDadosiFood := TframeDadosiFood.Create(tabDeliveryVemBuscar);
+          FrameDadosiFood.Position.Y := 9999999999;
+
+          FrameDadosiFood.Name := 'FrameDados' + DadosPedido.FieldByName
+            ('codigo').AsString;
+          FrameDadosiFood.Align := TAlignLayout.Top;
+
+          if DadosPedido.FieldByName('ficha').IsNull then
+          begin
+            if DadosPedido.FieldByName('id_ifood').IsNull then
+            begin
+              case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+                0:
+                  begin
+                    FrameDadosiFood.Parent := vertVemBuscar;
+                  end
+              else
+                begin
+                  FrameDadosiFood.Parent := vertDelivery;
+
+                end;
+
+              end;
+            end
+            else
+            begin
+              FrameDadosiFood.Parent := VertiFood;
+            end;
+          end
+          else
+          begin
+            FrameDadosiFood.Parent := vertMesa;
+          end;
 
         end;
 
       end;
-      if DadosPedido.FieldByName('status').AsInteger <> 0 then
+
+      if DadosPedido.FieldByName('id_ifood').IsNull then
       begin
-        if DadosPedido.FieldByName('ficha').IsNull then
+        if DadosPedido.FieldByName('status').AsInteger <> 0 then
         begin
-          case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
-            0:
+          if DadosPedido.FieldByName('ficha').IsNull then
+          begin
+            case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+              0:
+                begin
+
+                  ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
+                end
+            else
               begin
 
-                ValorVB := ValorVB + DadosPedido.FieldByName('total').AsFloat;
-              end
-          else
-            begin
+                if DadosMotoboy.Locate('NOME',
+                  DadosPedido.FieldByName('motoboy').AsString) then
+                begin
+                  DadosMotoboy.Edit;
+                end
+                else
+                begin
+                  DadosMotoboy.Insert;
+                  DadosMotoboy.FieldByName('NOME').AsString :=
+                    DadosPedido.FieldByName('motoboy').AsString;
+                  DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+                  DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+                end;
+                DadosMotoboy.FieldByName('TAXA').AsFloat :=
+                  DadosMotoboy.FieldByName('TAXA').AsFloat +
+                  DadosPedido.FieldByName('taxa').AsFloat;
+                DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+                  DadosMotoboy.FieldByName('TOTAL').AsFloat +
+                  DadosPedido.FieldByName('total').AsFloat;
+                if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+                begin
+                  DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                    DadosPedido.FieldByName('codigo_Dia').AsString;
+                end
+                else
+                begin
+                  DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                    DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                    DadosPedido.FieldByName('codigo_Dia').AsString;
+                end;
+                DadosMotoboy.Post;
 
-              if DadosMotoboy.Locate('NOME', DadosPedido.FieldByName('motoboy')
-                .AsString) then
-              begin
-                DadosMotoboy.Edit;
-              end
-              else
-              begin
-                DadosMotoboy.Insert;
-                DadosMotoboy.FieldByName('NOME').AsString :=
-                  DadosPedido.FieldByName('motoboy').AsString;
-                DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
-                DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+                if DadosPedido.FieldByName('status').AsInteger <> 0 then
+                begin
+                  ValorDelivery := ValorDelivery + DadosPedido.FieldByName
+                    ('total').AsFloat;
+                  TaxaTotal := TaxaTotal + DadosPedido.FieldByName
+                    ('taxa').AsFloat;
+                end;
               end;
-              DadosMotoboy.FieldByName('TAXA').AsFloat :=
-                DadosMotoboy.FieldByName('TAXA').AsFloat +
-                DadosPedido.FieldByName('taxa').AsFloat;
-              DadosMotoboy.FieldByName('TOTAL').AsFloat :=
-                DadosMotoboy.FieldByName('TOTAL').AsFloat +
-                DadosPedido.FieldByName('total').AsFloat;
-              if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end
-              else
-              begin
-                DadosMotoboy.FieldByName('PEDIDO').AsString :=
-                  DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
-                  DadosPedido.FieldByName('codigo_Dia').AsString;
-              end;
-              DadosMotoboy.Post;
 
-              if DadosPedido.FieldByName('status').AsInteger <> 0 then
-              begin
-                ValorDelivery := ValorDelivery + DadosPedido.FieldByName
-                  ('total').AsFloat;
-                TaxaTotal := TaxaTotal + DadosPedido.FieldByName
-                  ('taxa').AsFloat;
-              end;
             end;
+          end
+          else
+          begin
 
+            ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
           end;
-        end
-        else
-        begin
-
-          ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
         end;
-      end;
 
-      FrameDados.CodigoDia := DadosPedido.FieldByName('codigo_Dia').AsInteger;
-      FrameDados.CodigoInterno := DadosPedido.FieldByName('codigo').AsInteger;
-      FrameDados.CodigoEndereco := DadosPedido.FieldByName('cliente_Endereco')
-        .AsInteger;
-      FrameDados.Endereco := DadosPedido.FieldByName
-        ('endereco_completo').AsString;
-      FrameDados.DataPedido := DadosPedido.FieldByName('data').AsDateTime;
-      FrameDados.HoraPedido :=
-        StrToTime(copy(DadosPedido.FieldByName('hora').AsString, 0, 8));
-      FrameDados.Tempo := copy(DadosPedido.FieldByName('tempo').AsString, 0, 8);
-      FrameDados.Celular := DadosPedido.FieldByName('cliente').AsString;
-      FrameDados.Nome := DadosPedido.FieldByName('cliente').AsString;
-      FrameDados.Status := DadosPedido.FieldByName('status').AsInteger;
-      FrameDados.Taxa := DadosPedido.FieldByName('taxa').AsFloat;
-      FrameDados.Total := DadosPedido.FieldByName('total').AsFloat;
-      FrameDados.Origem := DadosPedido.FieldByName('origem').AsInteger;
-      FrameDados.MOTOBOY := DadosPedido.FieldByName('motoboy').AsString;
-      if DadosPedido.FieldByName('id_caixa').IsNull then
-        FrameDados.Caixa := 0
+        FrameDados.CodigoDia := DadosPedido.FieldByName('codigo_Dia').AsInteger;
+        FrameDados.CodigoInterno := DadosPedido.FieldByName('codigo').AsInteger;
+        FrameDados.CodigoEndereco := DadosPedido.FieldByName('cliente_Endereco')
+          .AsInteger;
+        FrameDados.Endereco := DadosPedido.FieldByName
+          ('endereco_completo').AsString;
+        FrameDados.DataPedido := DadosPedido.FieldByName('data').AsDateTime;
+        FrameDados.HoraPedido :=
+          StrToTime(copy(DadosPedido.FieldByName('hora').AsString, 0, 8));
+        FrameDados.Tempo := copy(DadosPedido.FieldByName('tempo')
+          .AsString, 0, 8);
+        FrameDados.Celular := DadosPedido.FieldByName('celular').AsString;
+        FrameDados.Nome := DadosPedido.FieldByName('cliente').AsString;
+        FrameDados.Status := DadosPedido.FieldByName('status').AsInteger;
+        FrameDados.Taxa := DadosPedido.FieldByName('taxa').AsFloat;
+        FrameDados.Total := DadosPedido.FieldByName('total').AsFloat;
+        FrameDados.Origem := DadosPedido.FieldByName('origem').AsInteger;
+        FrameDados.ValorPedido := DadosPedido.FieldByName('valor').AsFloat;
+        FrameDados.MOTOBOY := DadosPedido.FieldByName('motoboy').AsString;
+        FrameDados.Desconto := DadosPedido.FieldByName('desconto').AsFloat;
+        FrameDados.CodigoiFood := DadosPedido.FieldByName('id_ifood').AsString;
+        FrameDados.TipoPagamento := DadosPedido.FieldByName
+          ('pagamento').AsString;
+        FrameDados.DescricaoDescontoiFood :=
+          DadosPedido.FieldByName('desc_desconto_ifood').AsString;
+        FrameDados.Documento := DadosPedido.FieldByName('documento').AsString;
+        FrameDados.StatusiFood := DadosPedido.FieldByName
+          ('status_ifood').AsString;
+        FrameDados.DataEstimada := DadosPedido.FieldByName('estimada_ifood')
+          .AsDateTime;
+        FrameDados.DataAgendamento := DadosPedido.FieldByName('agendada_ifood')
+          .AsDateTime;
+        FrameDados.DescricaoStatus := DadosPedido.FieldByName
+          ('status_ifood_descricao').AsString;
+        if DadosPedido.FieldByName('id_caixa').IsNull then
+          FrameDados.Caixa := 0
+        else
+          FrameDados.Caixa := DadosPedido.FieldByName('id_caixa').AsInteger;
+      end
       else
-        FrameDados.Caixa := DadosPedido.FieldByName('id_caixa').AsInteger;
+      begin
+        if DadosPedido.FieldByName('status').AsInteger <> 0 then
+        begin
+          if DadosPedido.FieldByName('ficha').IsNull then
+          begin
+            case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
+              0:
+                begin
+
+                  ValorTotaliFood := ValorTotaliFood + DadosPedido.FieldByName
+                    ('total').AsFloat;
+                end
+            else
+              begin
+
+                if DadosMotoboy.Locate('NOME',
+                  DadosPedido.FieldByName('motoboy').AsString) then
+                begin
+                  DadosMotoboy.Edit;
+                end
+                else
+                begin
+                  DadosMotoboy.Insert;
+                  DadosMotoboy.FieldByName('NOME').AsString :=
+                    DadosPedido.FieldByName('motoboy').AsString;
+                  DadosMotoboy.FieldByName('TAXA').AsFloat := 0;
+                  DadosMotoboy.FieldByName('TOTAL').AsFloat := 0;
+                end;
+                DadosMotoboy.FieldByName('TAXA').AsFloat :=
+                  DadosMotoboy.FieldByName('TAXA').AsFloat +
+                  DadosPedido.FieldByName('taxa').AsFloat;
+                DadosMotoboy.FieldByName('TOTAL').AsFloat :=
+                  DadosMotoboy.FieldByName('TOTAL').AsFloat +
+                  DadosPedido.FieldByName('total').AsFloat;
+                if Length(DadosMotoboy.FieldByName('PEDIDO').AsString) = 0 then
+                begin
+                  DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                    DadosPedido.FieldByName('codigo_Dia').AsString;
+                end
+                else
+                begin
+                  DadosMotoboy.FieldByName('PEDIDO').AsString :=
+                    DadosMotoboy.FieldByName('PEDIDO').AsString + ', ' +
+                    DadosPedido.FieldByName('codigo_Dia').AsString;
+                end;
+                DadosMotoboy.Post;
+
+                if DadosPedido.FieldByName('status').AsInteger <> 0 then
+                begin
+                  ValorTotaliFood := ValorTotaliFood + DadosPedido.FieldByName
+                    ('total').AsFloat;
+                  ValorTaxaiFood := ValorTaxaiFood + DadosPedido.FieldByName
+                    ('taxa').AsFloat;
+                end;
+              end;
+
+            end;
+          end
+          else
+          begin
+
+            ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
+          end;
+        end;
+        FrameDadosiFood.Documento := DadosPedido.FieldByName
+          ('documento').AsString;
+        FrameDadosiFood.CodigoDia := DadosPedido.FieldByName('codigo_Dia')
+          .AsInteger;
+        FrameDadosiFood.CodigoInterno := DadosPedido.FieldByName('codigo')
+          .AsInteger;
+        FrameDadosiFood.CodigoEndereco :=
+          DadosPedido.FieldByName('cliente_Endereco').AsInteger;
+        FrameDadosiFood.Endereco := DadosPedido.FieldByName
+          ('endereco_completo').AsString;
+        FrameDadosiFood.DataPedido := DadosPedido.FieldByName('data')
+          .AsDateTime;
+        FrameDadosiFood.HoraPedido :=
+          StrToTime(copy(DadosPedido.FieldByName('hora').AsString, 0, 8));
+        FrameDadosiFood.Tempo :=
+          copy(DadosPedido.FieldByName('tempo').AsString, 0, 8);
+        FrameDadosiFood.Celular := DadosPedido.FieldByName('celular').AsString;
+        FrameDadosiFood.Nome := DadosPedido.FieldByName('cliente').AsString;
+        FrameDadosiFood.Status := DadosPedido.FieldByName('status').AsInteger;
+        FrameDadosiFood.Taxa := DadosPedido.FieldByName('taxa').AsFloat;
+        FrameDadosiFood.Total := DadosPedido.FieldByName('total').AsFloat;
+        FrameDadosiFood.ValorPedido := DadosPedido.FieldByName('valor').AsFloat;
+        FrameDadosiFood.Origem := DadosPedido.FieldByName('origem').AsInteger;
+        FrameDadosiFood.MOTOBOY := DadosPedido.FieldByName('motoboy').AsString;
+        FrameDadosiFood.Desconto := DadosPedido.FieldByName('desconto').AsFloat;
+        FrameDadosiFood.Documento := DadosPedido.FieldByName
+          ('documento').AsString;
+        FrameDadosiFood.CodigoiFood := DadosPedido.FieldByName
+          ('id_ifood').AsString;
+        FrameDadosiFood.TipoPagamento := DadosPedido.FieldByName
+          ('pagamento').AsString;
+        FrameDadosiFood.DescricaoDescontoiFood :=
+          DadosPedido.FieldByName('desc_desconto_ifood').AsString;
+        FrameDadosiFood.Documento := DadosPedido.FieldByName
+          ('documento').AsString;
+        FrameDadosiFood.StatusiFood := DadosPedido.FieldByName
+          ('status_ifood').AsString;
+        FrameDadosiFood.DataEstimada := DadosPedido.FieldByName
+          ('estimada_ifood').AsDateTime;
+        FrameDadosiFood.DataAgendamento :=
+          DadosPedido.FieldByName('agendada_ifood').AsDateTime;
+        FrameDadosiFood.DescricaoStatus :=
+          DadosPedido.FieldByName('status_ifood_descricao').AsString;
+        if DadosPedido.FieldByName('id_caixa').IsNull then
+          FrameDadosiFood.Caixa := 0
+        else
+          FrameDadosiFood.Caixa := DadosPedido.FieldByName('id_caixa')
+            .AsInteger;
+      end;
 
       DadosPedido.Next;
     end;
-
-    // for I := 0 to vertMotoboy.ComponentCount - 1 do
-    // begin
-    // if (vertMotoboy.Components[I] is TfrmDadosPedidoMotoboy) then
-    // begin
-    //
-    // (vertMotoboy.Components[I] as TfrmDadosPedidoMotoboy).Visible := False;
-    // end;
-    // end;
-
     DadosMotoboy.First;
     while not DadosMotoboy.Eof do
     begin
@@ -924,6 +1176,7 @@ begin
       FrameDadosMotoboy.Total := DadosMotoboy.FieldByName('TOTAL').AsFloat;
       DadosMotoboy.Next;
     end;
+
     lMesa.Text := FormatFloat('R$ ###,##0.00', ValorMesa);
     lTotalVMesa.Text := FormatFloat('###,##0.00', ValorMesa);
     lDelivery.Text := FormatFloat('R$ ###,##0.00', ValorDelivery);
@@ -933,6 +1186,8 @@ begin
     lTotalvVembuscar.Text := FormatFloat('###,##0.00', ValorVB);
     lTotal.Text := FormatFloat('R$ ###,##0.00',
       (ValorMesa + ValorDelivery + ValorVB));
+    lTotaliFood.Text := FormatFloat('###,##0.00', ValorTotaliFood);
+    LTotalTaxa.Text := FormatFloat('###,##0.00', ValorTaxaiFood);
     DadosPedido.Close;
   end;
 

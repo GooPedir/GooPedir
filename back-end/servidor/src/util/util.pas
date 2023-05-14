@@ -1345,6 +1345,10 @@ begin
   conexao.SQL.Add('codigo_cliente,');
   conexao.SQL.Add
     ('(select nome from cliente where codigo = codigo_cliente) as cliente,');
+  conexao.SQL.Add
+    ('(select celular from cliente where codigo = codigo_cliente) as celular,');
+  conexao.SQL.Add
+    ('(select cpf from cliente where codigo = codigo_cliente) as documento,');
   conexao.SQL.Add('codigo_cliente_endereco as cliente_endereco,');
   conexao.SQL.Add('(SELECT ');
   conexao.SQL.Add('upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +
@@ -1374,11 +1378,24 @@ begin
     ('pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,');
   conexao.SQL.Add('origem,');
   conexao.SQL.Add('CASE');
-  conexao.SQL.Add('    WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"    ');
+  conexao.SQL.Add('    WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"');
   conexao.SQL.Add('     WHEN id_ficha > 0 THEN "Ficha"');
   conexao.SQL.Add('    ELSE "Delivery"');
   conexao.SQL.Add('    END as tipo,');
-  conexao.SQL.Add('upper(m.nome) as motoboy');
+  conexao.SQL.Add('upper(m.nome) as motoboy,');
+  conexao.SQL.Add('p.id_ifood,');
+  conexao.SQL.Add('p.status_ifood,');
+  conexao.SQL.Add('p.status_ifood_descricao,');
+  conexao.SQL.Add(' p.desc_desconto_ifood,');
+  conexao.SQL.Add(' DATE_FORMAT(p.estimada_ifood,' +
+    QuotedStr('%d/%m/%Y %h:%i:%s') + ') as estimada_ifood,');
+  conexao.SQL.Add(' DATE_FORMAT(p.agendada_ifood,' +
+    QuotedStr('%d/%m/%Y %h:%i:%s') + ') as agendada_ifood,');
+  // conexao.SQL.Add(' p.agendada_ifood,');
+  conexao.SQL.Add(' p.order_ifood,');
+  conexao.SQL.Add
+    (' (select descricao from tipo_pagamento where codigo = p.tipo_pagamento) as pagamento');
+
   conexao.SQL.Add('from pedido as p');
   conexao.SQL.Add
     ('left join pedido_motoboy as pm on pm.codigo_pedido = p.codigo');
@@ -6528,10 +6545,65 @@ end;
 procedure DoGetStatusiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 begin
+
   Res.Send<TJSONArray>(frmServidor.dataSetMerchantStatus.ToJSONArray());
 end;
 
-// THorse.Get('/v1/util/busca/bairro/:busca', DoGetBuscaBairro);
+procedure DoPostConfirmarPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  frmServidor.IFood.Order.Confirmation(Req.Params['id']);
+end;
+
+procedure DoPostPrepararPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  frmServidor.IFood.Order.StartPreparation(Req.Params['id']);
+end;
+
+procedure DoPostDespacharPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  frmServidor.IFood.Order.DispatchOrder(Req.Params['id']);
+end;
+
+procedure DoPostRetirarPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+begin
+  frmServidor.IFood.Order.ReadyToPickup(Req.Params['id']);
+end;
+
+procedure DoPostCancelarPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  text: String;
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create;
+  conexao.SQL.Add
+    ('update pedido set motivo_cancelamento = :motivo_cancelamento where id_ifood = :id_ifood');
+  conexao.Parametros('id_ifood', Req.Params['id']);
+  conexao.Parametros('motivo_cancelamento', Req.Params['motivo']);
+  conexao.ExecuteSQL;
+  conexao.Free;
+
+  // motivo
+  // frmServidor.IFood.Order.ReadyToPickup(Req.Params['id']);
+  frmServidor.IFood.Order.CancellationRequested(Req.Params['id'],
+    Req.Params['cancel']);
+
+end;
+
+procedure DoPostListarMotivoPedidoiFood(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Dados: TFDMemTable;
+begin
+  Dados := TFDMemTable.Create(nil);
+  frmServidor.IFood.Order.CancelReasons(Req.Params['id'], Dados);
+  Res.Send<TJSONArray>(Dados.ToJSONArray);
+  Dados.Free;
+end;
 
 procedure Registry;
 begin
@@ -6806,7 +6878,15 @@ begin
 
   // Integração iFood
   THorse.Get('v1/util/ifood/status', DoGetStatusiFood);
-//  THorse.Get('v1/util/ifood/status/cancelamento', DoGetStatusiFoodCancelamento);
+
+  THorse.Post('v1/util/ifood/confirmar/:id', DoPostConfirmarPedidoiFood);
+  THorse.Post('v1/util/ifood/preparar/:id', DoPostPrepararPedidoiFood);
+  THorse.Post('v1/util/ifood/despachar/:id', DoPostDespacharPedidoiFood);
+  THorse.Post('v1/util/ifood/retirar/:id', DoPostRetirarPedidoiFood);
+  THorse.Get('v1/util/ifood/lista/motivo/:id', DoPostListarMotivoPedidoiFood);
+  THorse.Post('v1/util/ifood/cancelar/:id/:cancel/:motivo',
+    DoPostCancelarPedidoiFood);
+  // THorse.Get('v1/util/ifood/status/cancelamento', DoGetStatusiFoodCancelamento);
 
 end;
 

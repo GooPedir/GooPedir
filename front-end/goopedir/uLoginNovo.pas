@@ -269,6 +269,7 @@ begin
   DM.CONEXAO.URL := '/v1/usuario/' + edtUsuario.Text + '/' + edtSenha.Text;
   DM.CONEXAO.Metodo := mGet;
   DM.CONEXAO.MemTable2 := DM.Usuario;
+  DM.CONEXAO.TempoExpiracao := (5*1000) * 30;
   try
     DM.CONEXAO.Execute;
   except

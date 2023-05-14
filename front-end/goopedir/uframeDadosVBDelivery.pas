@@ -95,6 +95,8 @@ type
     FStatusiFood: String;
     FDataAgendamento: TDateTime;
     FTipoPagamento: String;
+    FDescricaoStatus: String;
+    FValorPedido: Real;
     procedure SetCelular(const Value: String);
     procedure SetCodigoDia(const Value: Integer);
     procedure SetCodigoEndereco(const Value: Integer);
@@ -121,6 +123,8 @@ type
     procedure SetTroco(const Value: Real);
     procedure SetTipoPagamento(const Value: String);
     procedure Calcula;
+    procedure SetDescricaoStatus(const Value: String);
+    procedure SetValorPedido(const Value: Real);
 
   var
     Carregando: Boolean;
@@ -140,6 +144,7 @@ type
     property Taxa: Real read FTaxa write SetTaxa;
     property Total: Real read FTotal write SetTotal;
     property Troco: Real read FTroco write SetTroco;
+    property ValorPedido : Real read FValorPedido write SetValorPedido;
     property Desconto: Real read FDesconto write SetDesconto;
     property Documento: String read FDocumento write SetDocumento;
     property Origem: Integer read FOrigem write SetOrigem;
@@ -151,6 +156,7 @@ type
       write SetDataAgendamento;
     property DataEstimada: TDateTime read FDataEstimada write SetDataEstimada;
     property StatusiFood: String read FStatusiFood write SetStatusiFood;
+    property DescricaoStatus : String read FDescricaoStatus write SetDescricaoStatus;
     property DescricaoDescontoiFood: String read FDescricaoDescontoiFood
       write SetDescricaoDescontoiFood;
     property TipoPagamento: String read FTipoPagamento write SetTipoPagamento;
@@ -167,7 +173,7 @@ uses
 
 procedure TframeDadosVBDelivery.Calcula;
 begin
-  edtPedido.Text := FormatFloat('R$ ###,##0.00', Total - Taxa - Desconto);
+  edtPedido.Text := FormatFloat('R$ ###,##0.00', ValorPedido);
 end;
 
 procedure TframeDadosVBDelivery.CancelaPedido;
@@ -312,6 +318,13 @@ begin
 
 end;
 
+procedure TframeDadosVBDelivery.SetDescricaoStatus(const Value: String);
+begin
+  FDescricaoStatus := Value;
+  lDescricaoStatusiFood.Text := Value;
+  lDescricaoStatusiFood.Visible := True;
+end;
+
 procedure TframeDadosVBDelivery.SetDocumento(const Value: String);
 begin
   FDocumento := Value;
@@ -401,8 +414,7 @@ end;
 procedure TframeDadosVBDelivery.SetStatusiFood(const Value: String);
 begin
   FStatusiFood := Value;
-  lDescricaoStatusiFood.Text := Value;
-  lDescricaoStatusiFood.Visible := True;
+
 end;
 
 procedure TframeDadosVBDelivery.SetTaxa(const Value: Real);
@@ -434,6 +446,12 @@ end;
 procedure TframeDadosVBDelivery.SetTroco(const Value: Real);
 begin
   FTroco := Value;
+  Calcula;
+end;
+
+procedure TframeDadosVBDelivery.SetValorPedido(const Value: Real);
+begin
+  FValorPedido := Value;
   Calcula;
 end;
 
