@@ -94,7 +94,6 @@ begin
 
   end;
   URL := 'http://' + FrmLogin.GetHost + ':2121/';
-  DM.CONEXAO.BaseURL := URL;
 
 end;
 
@@ -106,13 +105,10 @@ end;
 procedure TfrmLoginWindows.recLoginClick(Sender: TObject);
 begin
 
-  DM.CONEXAO.BaseURL := DM.GetHost;
-  DM.CONEXAO.URL := '/v1/usuario/' + edtUsuario.Text + '/' + edtSenha.Text;
-  DM.CONEXAO.Metodo := mGet;
-  DM.CONEXAO.MemTable2 := DM.Usuario;
-  try
-    DM.CONEXAO.Execute;
-  except
+  // BaseURL := DM.GetHost;
+  if not DM.GetSimples2('/v1/usuario/' + edtUsuario.Text + '/' + edtSenha.Text,
+    DM.Usuario) then
+  begin
     ShowMessageToast(self, 'Sem conexão com servidor!', 1);
     exit;
   end;

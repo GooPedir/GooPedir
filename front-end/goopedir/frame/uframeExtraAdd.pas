@@ -152,10 +152,8 @@ begin
   DADOS.FieldByName('STATUS').AsInteger := StatusAtual;
   DADOS.Post;
 
-  DM.Conexao.URL := '/v1/extra/produto/atualiza';
-  DM.Conexao.BODY(DADOS);
-  DM.Conexao.Metodo := mpost;
-  DM.Conexao.Execute;
+  DM.PostSimples('/v1/extra/produto/atualiza',Dados);
+
 
   Descricao := edtDescricao.Text;
   Min := EdtMin.Text.ToInteger;

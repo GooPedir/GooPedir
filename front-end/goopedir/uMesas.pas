@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, uMemTable, uRequisicao, uComboboxLocal,
-  FMX.DateTimeCtrls, FMX.Ani, uButton;
+  FMX.DateTimeCtrls, FMX.Ani, uButton, FMX.Edit, FMX.EditBox, FMX.NumberBox;
 
 type
 
@@ -115,6 +115,9 @@ type
     Label21: TLabel;
     LTotalTaxa: TLabel;
     iButton1: iButton;
+    Layout14: TLayout;
+    Label18: TLabel;
+    width: TNumberBox;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -132,6 +135,7 @@ type
     procedure btnFinalizaWhatsClick(Sender: TObject);
     procedure btnFinalizaSiteClick(Sender: TObject);
     procedure Layout5Click(Sender: TObject);
+    procedure widthChange(Sender: TObject);
   private
     FValorVB: Real;
     FValorEmAberto: Real;
@@ -197,7 +201,7 @@ implementation
 {$R *.fmx}
 
 uses uDM, Funcoes, UnitResumo, FMXTee.Canvas, uframeDadosVBDelivery, uSimNao,
-  uMain, ufrmDadosPedidoMotoboy, uframeDadosiFood;
+  uMain, ufrmDadosPedidoMotoboy, uframeDadosiFood, util;
 
 { TfrmMesas }
 
@@ -314,7 +318,7 @@ begin
           Top := 0;
           Left := 0;
           Height := Screen.Height;
-          Width := Screen.Width - 460;
+          width := Screen.width - 460;
           Flow.Height := Flow.Height * 6;
         end;
 
@@ -369,7 +373,7 @@ begin
   with RetanguloPrincipal do
   begin
     Parent := Flow;
-    Width := 150;
+    width := 150;
     Height := 150;
     Stroke.Thickness := 5;
     Margins.Left := 10;
@@ -396,7 +400,7 @@ begin
     TextSettings.HorzAlign := TTextAlign.Center;
     TextSettings.Font.Style := [TFontStyle.fsBold];
     StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
-    Width := 150;
+    width := 150;
     TextSettings.Font.Size := 16;
     Height := 23;
     Margins.Top := 10;
@@ -414,7 +418,7 @@ begin
     TextSettings.HorzAlign := TTextAlign.Center;
     TextSettings.Font.Style := [TFontStyle.fsBold];
     StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
-    Width := 150;
+    width := 150;
     TextSettings.Font.Size := 24;
     Height := 38;
     Margins.Top := 60;
@@ -430,7 +434,7 @@ begin
     Name := 'LabelTotalDescricao' + Codigo.ToString;
     TextSettings.HorzAlign := TTextAlign.Center;
     StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
-    Width := 150;
+    width := 150;
     TextSettings.Font.Size := 12;
     Height := 23;
     Margins.Top := 60;
@@ -447,7 +451,7 @@ begin
     TextSettings.HorzAlign := TTextAlign.Center;
     TextSettings.Font.Style := [TFontStyle.fsBold];
     StyledSettings := [TStyledSetting.Family, TStyledSetting.FontColor];
-    Width := 150;
+    width := 150;
     TextSettings.Font.Size := 24;
     Height := 38;
     Margins.Top := 60;
@@ -504,6 +508,9 @@ begin
   except
 
   end;
+
+  // Layout1.Width :=  LerIni(self.Name,'Layout1_width',Layout6.Width.ToString).ToInteger;
+  width.Text := LerIni(Self.Name, 'Layout1_width', Layout6.width.ToString);
 
 end;
 
@@ -730,6 +737,14 @@ begin
   end;
 end;
 
+procedure TfrmMesas.widthChange(Sender: TObject);
+begin
+  inherited;
+  Layout1.width := width.Value;
+
+  GravaIni(Self.Name, 'Layout1_width', width.Text);
+end;
+
 procedure TfrmMesas.DadosTelaTimer(Sender: TObject);
 var
   FrameDados: TframeDadosVBDelivery;
@@ -755,16 +770,16 @@ begin
         ('messagesubtitle').AsString;
       validationdescription.Text := memStatusLoja.FieldByName
         ('validationdescription').AsString;
-      if memStatusLoja.FieldByName('validationdescription').AsBoolean then
+      if memStatusLoja.FieldByName('available').AsBoolean then
       begin
+        messagetitle.FontColor := RGB(255, 255, 255);
 
-        messagetitle.FontColor := RGB(0, 135, 3);
         messagesubtitle.FontColor := messagetitle.FontColor;
         messagesubtitle.FontColor := messagetitle.FontColor;
       end
       else
       begin
-        messagetitle.FontColor := RGB(255, 135, 135);
+        messagetitle.FontColor := RGB(0, 0, 0);
         messagesubtitle.FontColor := messagetitle.FontColor;
         messagesubtitle.FontColor := messagetitle.FontColor;
       end;
@@ -1012,17 +1027,8 @@ begin
         FrameDados.CodigoiFood := DadosPedido.FieldByName('id_ifood').AsString;
         FrameDados.TipoPagamento := DadosPedido.FieldByName
           ('pagamento').AsString;
-        FrameDados.DescricaoDescontoiFood :=
-          DadosPedido.FieldByName('desc_desconto_ifood').AsString;
         FrameDados.Documento := DadosPedido.FieldByName('documento').AsString;
-        FrameDados.StatusiFood := DadosPedido.FieldByName
-          ('status_ifood').AsString;
-        FrameDados.DataEstimada := DadosPedido.FieldByName('estimada_ifood')
-          .AsDateTime;
-        FrameDados.DataAgendamento := DadosPedido.FieldByName('agendada_ifood')
-          .AsDateTime;
-        FrameDados.DescricaoStatus := DadosPedido.FieldByName
-          ('status_ifood_descricao').AsString;
+
         if DadosPedido.FieldByName('id_caixa').IsNull then
           FrameDados.Caixa := 0
         else
@@ -1093,6 +1099,9 @@ begin
             ValorMesa := ValorMesa + DadosPedido.FieldByName('total').AsFloat;
           end;
         end;
+
+        FrameDadosiFood.Order := DadosPedido.FieldByName('order_ifood')
+          .AsString;
         FrameDadosiFood.Documento := DadosPedido.FieldByName
           ('documento').AsString;
         FrameDadosiFood.CodigoDia := DadosPedido.FieldByName('codigo_Dia')

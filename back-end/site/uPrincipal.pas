@@ -1066,7 +1066,7 @@ begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'SELECT p.saldo_atual as estoque, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
+  SQL := 'SELECT p.saldo_atual as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
   SQL := SQL +
     'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
   SQL := SQL +
@@ -1107,6 +1107,7 @@ begin
     end;
 
     try
+    //   foto_ifood        > img_ifood
       case Dados.FieldByName('id_site').AsInteger of
         0:
           begin
@@ -1114,7 +1115,7 @@ begin
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
               'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-              'valor_delivery', 'estoque'],
+              'valor_delivery', 'estoque','img_ifood'],
               [Dados.FieldByName('id_site').AsString, Usuario.ToString, 'false',
               '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
               Dados.FieldByName('codigo_interno').AsString,
@@ -1122,7 +1123,7 @@ begin
               Dados.FieldByName('produto').AsString, Descricao,
               Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
               .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-              Dados.FieldByName('estoque').AsString]);
+              Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
           end
       else
         begin
@@ -1130,13 +1131,13 @@ begin
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
             'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
-            'estoque'], [Dados.FieldByName('id_site').AsString,
+            'estoque','img_ifood'], [Dados.FieldByName('id_site').AsString,
             Usuario.ToString, '0', '0', '0', Dados.FieldByName('codigo_interno')
             .AsString, Dados.FieldByName('categoria').AsString,
             Dados.FieldByName('produto').AsString, Descricao,
             Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
             .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-            Dados.FieldByName('estoque').AsString]);
+            Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
         end;
       end;
     except
@@ -1144,7 +1145,7 @@ begin
         ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
         'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery', 'estoque'], [Dados.FieldByName('id_site').AsString,
+        'valor_delivery', 'estoque', 'img_ifood'], [Dados.FieldByName('id_site').AsString,
         Usuario.ToString, 'false', '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
         Dados.FieldByName('codigo_interno').AsString,
@@ -1152,7 +1153,7 @@ begin
         .AsString, Descricao, Dados.FieldByName('venda').AsString,
         Dados.FieldByName('ativo').AsString,
         Dados.FieldByName('vl_embalagem_delivery').AsString,
-        Dados.FieldByName('estoque').AsString]);
+        Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
     end;
 
     if codigo > 0 then

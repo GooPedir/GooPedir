@@ -1,0 +1,486 @@
+unit UnitLogin;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
+  FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
+  FMX.TabControl, System.IOUtils, Inifiles, System.JSON,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, uRequisicao;
+
+type
+  TFrmLogin = class(TForm)
+    Rectangle1: TRectangle;
+    lbl_titulo: TLabel;
+    TabControl: TTabControl;
+    TabLogin: TTabItem;
+    Layout1: TLayout;
+    rect_login: TRectangle;
+    Label3: TLabel;
+    lbl_config: TLabel;
+    rect_motoboy: TRectangle;
+    Label7: TLabel;
+    TabConfig: TTabItem;
+    Layout2: TLayout;
+    Label4: TLabel;
+    edtHost: TEdit;
+    rect_save_config: TRectangle;
+    Label5: TLabel;
+    edtUsuario: TEdit;
+    Label1: TLabel;
+    Label6: TLabel;
+    edtSenha: TEdit;
+    Label2: TLabel;
+    edtCelular: TEdit;
+    rect_update: TRectangle;
+    Layout3: TLayout;
+    Layout4: TLayout;
+    Image4: TImage;
+    img_seta: TImage;
+    Label8: TLabel;
+    lbl_texto: TLabel;
+    lVersaoNova: TLabel;
+    img_fecharupdate: TImage;
+    Layout5: TLayout;
+    rect_botao: TRectangle;
+    btn_update: TSpeedButton;
+    IPS: iMemTable;
+    IPSIP: TStringField;
+    RequisicaoIP: iRequisicao;
+    procedure rect_loginClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure lbl_configClick(Sender: TObject);
+    procedure rect_save_configClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    function GetHost: String;
+    function GetUsuario: String;
+    function GetSenha: String;
+    function GetCelular: String;
+
+    procedure GravaIni(Secao, Indice, Valor: String);
+    function LerIni(Secao, Indice, ValorPadrao: String): String;
+    procedure rect_motoboyClick(Sender: TObject);
+    procedure btn_updateClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure img_fecharupdateClick(Sender: TObject);
+  private
+    FCelular: String;
+    procedure SetHost(const Value: String);
+    procedure SetSenha(const Value: String);
+    procedure SetUsuario(const Value: String);
+    procedure SetCelular(const Value: String); { Private declarations }
+  public
+    { Public declarations }
+    property Host: String read GetHost write SetHost;
+    property Usuario: String read GetUsuario write SetUsuario;
+    property Senha: String read GetSenha write SetSenha;
+    property Celular: String read GetCelular write SetCelular;
+    function TestaConexao: Boolean;
+    procedure Validacao;
+    procedure OnFinishUpdate(Sender: TObject);
+
+  var
+    WIN: Boolean;
+  end;
+
+var
+  FrmLogin: TFrmLogin;
+  lArquivo: String;
+  versaoApp, VersaoAtualizacao, VersaoMinima, VersaoServidor: String;
+  URL: String;
+
+implementation
+
+{$R *.fmx}
+
+uses UnitPrincipal, uDM, Funcoes, uLoginWindows,
+  uPrincipalMotoboy {, uOpenViewUrl};
+
+procedure TFrmLogin.btn_updateClick(Sender: TObject);
+var
+  URL: string;
+begin
+{$IFDEF ANDROID}
+  URL := 'http://seu-servidor.com.br/app.apk';
+{$ELSE}
+  URL := 'https://apps.apple.com/br/app/whatsapp-messenger/id310633997';
+{$ENDIF}
+  URL := 'http://iforth.net/app/version/' + StringReplace(VersaoAtualizacao,
+    '.', '', [rfReplaceAll]) + '.apk';
+
+  // url := 'https://play.google.com/store/apps/details?id=com.embarcadero.icep';
+
+  // OpenURL(url, false);
+end;
+
+procedure TFrmLogin.FormActivate(Sender: TObject);
+var
+  t: TThread;
+begin
+  exit;
+  t := TThread.CreateAnonymousThread(
+    procedure
+    var
+      JsonObj: TJSONObject;
+    begin
+      // sleep(2000);
+
+      // Tenta consumir servico...
+      // try
+      //
+      // BaseURL := 'http://' + GetHost + ':2121/';
+      // dm.CONEXAO_LOCAL.url := 'v1/versao/app';
+      // dm.CONEXAO_LOCAL.Metodo := mGet;
+      // dm.CONEXAO_LOCAL.Execute;
+      // except
+      // on ex: exception do
+      // begin
+      // // raise exception.Create('Erro ao acessar o servidor: ' + ex.Message);
+      // exit;
+      // end;
+      // end;
+
+      // Trata retorno em JSON...
+      try
+        JsonObj := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes
+          (dm.GetRetornoString('v1/versao/app')), 0) as TJSONObject;
+        VersaoAtualizacao := TJSONObject(JsonObj).GetValue('versao_app').Value;
+        VersaoServidor := TJSONObject(JsonObj)
+          .GetValue('versao_servidor').Value;
+        VersaoMinima := TJSONObject(JsonObj).GetValue('versao_minima').Value;
+
+        img_fecharupdate.Visible := versaoApp >= VersaoMinima;
+        if VersaoMinima <> VersaoAtualizacao then
+          lVersaoNova.Text := 'Versão disponível ' + VersaoAtualizacao +
+            'v Versão mínima ' + VersaoMinima + 'v'
+        else
+          lVersaoNova.Text := 'Versão disponível ' + VersaoAtualizacao + 'v';
+
+      finally
+        JsonObj.DisposeOf;
+      end;
+
+    end);
+
+  t.OnTerminate := OnFinishUpdate;
+  t.Start;
+{$IFDEF ANDROID}
+  t.Start;
+{$ENDIF}
+end;
+
+procedure TFrmLogin.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := TCloseAction.caFree;
+  FrmLogin := nil;
+end;
+
+procedure TFrmLogin.FormCreate(Sender: TObject);
+begin
+  versaoApp := '2';
+{$IFDEF Android}
+{$ELSE}
+  if not Assigned(dm) then
+    dm := TDM.Create(self);
+{$ENDIF}
+  lArquivo := TPath.Combine(TPath.GetDocumentsPath, 'conf.ini');
+  TabControl.ActiveTab := TabLogin;
+  edtHost.Text := Host;
+  edtCelular.Text := Celular;
+
+  lbl_titulo.Text := Usuario;
+
+  rect_motoboy.Visible := length(Celular) > 0;
+  edtUsuario.Text := Usuario;
+  edtSenha.Text := Senha;
+
+end;
+
+function TFrmLogin.GetCelular: String;
+begin
+  Result := LerIni('USER', 'CELL', '');
+end;
+
+function TFrmLogin.GetHost: String;
+begin
+  Result := LerIni('HOST', 'HOST', '');
+end;
+
+function TFrmLogin.GetSenha: String;
+begin
+  Result := LerIni('USER', 'PASS', '');
+end;
+
+function TFrmLogin.GetUsuario: String;
+begin
+  Result := LerIni('USER', 'USER', '');
+end;
+
+procedure TFrmLogin.GravaIni(Secao, Indice, Valor: String);
+var
+  ArquivoINI: TIniFile;
+begin
+  ArquivoINI := TIniFile.Create(lArquivo);
+  ArquivoINI.WriteString(Secao, Indice, Valor);
+  ArquivoINI.Free;
+end;
+
+procedure TFrmLogin.img_fecharupdateClick(Sender: TObject);
+begin
+  rect_update.Visible := false;
+end;
+
+procedure TFrmLogin.lbl_configClick(Sender: TObject);
+begin
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      IPS.Close;
+      RequisicaoIP.MemTable := IPS;
+      RequisicaoIP.Execute;
+
+      if IPS.RecordCount > 0 then
+      begin
+
+        while not IPS.Eof do
+        begin
+
+          URL := 'http://' + IPS.FieldByName('IP').AsString + ':2121/';
+          try
+            if TestaConexao then
+            begin
+              edtHost.Text := IPS.FieldByName('IP').AsString;
+            end;
+          except
+
+          end;
+
+          IPS.Next;
+        end;
+      end;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          TabControl.GotoVisibleTab(1, TTabTransition.Slide);
+          lbl_titulo.Text := 'Configurações';
+        end);
+    end).Start;
+
+end;
+
+function TFrmLogin.LerIni(Secao, Indice, ValorPadrao: String): String;
+var
+  ArquivoINI: TIniFile;
+begin
+  ArquivoINI := TIniFile.Create(lArquivo);
+  Result := ArquivoINI.ReadString(Secao, Indice, ValorPadrao);
+  ArquivoINI.Free;
+end;
+
+procedure TFrmLogin.OnFinishUpdate(Sender: TObject);
+begin
+  if Assigned(TThread(Sender).FatalException) then
+  begin
+    showmessage(exception(TThread(Sender).FatalException).Message);
+    exit;
+  end;
+
+  if VersaoAtualizacao > versaoApp then
+  begin
+    // Exibe o painel de update...
+    rect_update.Visible := true;
+    img_seta.Position.Y := 0;
+    img_seta.Opacity := 0;
+    lbl_titulo.Opacity := 0;
+    lbl_texto.Opacity := 0;
+    rect_botao.Opacity := 0;
+
+    rect_update.BringToFront;
+    rect_update.AnimateFloat('Margins.Top', 0, 0.8, TAnimationType.InOut,
+      TInterpolationType.Circular);
+
+    img_seta.AnimateFloatDelay('Position.Y', 50, 0.5, 1, TAnimationType.Out,
+      TInterpolationType.Back);
+    img_seta.AnimateFloatDelay('Opacity', 1, 0.4, 0.9);
+
+    lbl_titulo.AnimateFloatDelay('Opacity', 1, 0.7, 1.3);
+    lbl_texto.AnimateFloatDelay('Opacity', 1, 0.7, 1.6);
+    rect_botao.AnimateFloatDelay('Opacity', 1, 0.7, 1.9);
+  end;
+end;
+
+procedure TFrmLogin.rect_loginClick(Sender: TObject);
+begin
+  URL := 'http://' + GetHost + ':2121/';
+  if not TestaConexao then
+  begin
+    ShowMessageToast(self, 'Sem Conexão!', 1);
+    exit;
+  end;
+
+  if (length(Usuario) = 0) or (length(Usuario) = 0) then
+  begin
+    ShowMessageToast(self, 'Usuário invalido!', 1);
+    exit;
+  end;
+
+  dm.GetSimples2('/v1/usuario/' + Usuario + '/' + Senha, dm.Usuario);
+
+  if dm.Usuario.RecordCount = 0 then
+  begin
+    ShowMessageToast(self, 'Usuário/Senha Invalido!', 1);
+    exit;
+  end;
+
+  if dm.Usuario.FieldByName('app').AsInteger = 0 then
+  begin
+    ShowMessageToast(self, 'Usuário não tem permissão!', 1);
+    exit;
+  end;
+  dm.CodigoCaixa;
+  if NOT Assigned(FrmPrincipal) then
+    Application.CreateForm(TFrmPrincipal, FrmPrincipal);
+
+  FrmPrincipal.Show;
+  Application.MainForm := FrmPrincipal;
+  FrmLogin.Close;
+
+end;
+
+procedure TFrmLogin.rect_motoboyClick(Sender: TObject);
+begin
+  if not dm.LoginMotoboy then
+  begin
+    ShowMessageToast(self, 'Acesso negado!', 1);
+    exit;
+  end;
+
+  if NOT Assigned(frmPrincipalMotoboy) then
+    Application.CreateForm(TfrmPrincipalMotoboy, frmPrincipalMotoboy);
+  // frmPrincipalMotoboy.Celular := dm.GetCelular;
+
+  frmPrincipalMotoboy.Show;
+  Application.MainForm := frmPrincipalMotoboy;
+  FrmLogin.Close;
+end;
+
+procedure TFrmLogin.rect_save_configClick(Sender: TObject);
+begin
+  lbl_titulo.Text := Usuario;
+
+  if length(edtHost.Text) = 0 then
+  begin
+    if length(edtCelular.Text) <> 0 then
+    begin
+
+      Celular := edtCelular.Text;
+      Validacao;
+      TabControl.GotoVisibleTab(0, TTabTransition.Slide);
+    end;
+    exit;
+  end;
+
+  URL := 'http://' + edtHost.Text + ':2121/';
+  if TestaConexao then
+  begin
+    ShowMessageToast(self, 'Conexão Estabelecida Com Sucesso!', 3);
+
+    if WIN then
+    begin
+      Host := edtHost.Text;
+      dm.Free;
+      Close;
+      exit;
+    end;
+    Celular := edtCelular.Text;
+    Host := edtHost.Text;
+    Senha := edtSenha.Text;
+    Usuario := edtUsuario.Text;
+    Validacao;
+    TabControl.GotoVisibleTab(0, TTabTransition.Slide);
+  end
+  else
+  begin
+    ShowMessageToast(self, 'Sem Conexão Com O Servidor!', 1);
+  end;
+
+end;
+
+procedure TFrmLogin.SetCelular(const Value: String);
+begin
+  GravaIni('USER', 'CELL', Value);
+end;
+
+procedure TFrmLogin.SetHost(const Value: String);
+begin
+
+  GravaIni('HOST', 'HOST', Value);
+end;
+
+procedure TFrmLogin.SetSenha(const Value: String);
+begin
+  GravaIni('USER', 'PASS', Value);
+end;
+
+procedure TFrmLogin.SetUsuario(const Value: String);
+begin
+  GravaIni('USER', 'USER', Value);
+end;
+
+function TFrmLogin.TestaConexao: Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := URL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    Conexao.eTAG := false;
+    Conexao.URL := 'v1/test/';
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      Result := false;
+    end;
+
+  end;
+
+
+
+  // dm.CONEXAO_LOCAL.url := 'v1/test/';
+  // dm.CONEXAO_LOCAL.Metodo := mGet;
+  // try
+  // dm.CONEXAO_LOCAL.Execute;
+  // except
+  // on E: exception do
+  // begin
+  // showmessage(E.Message);
+  // Result := false;
+  // end;
+  //
+  // end;
+
+  Result := Conexao.Status = 200;
+  Conexao.Free;
+end;
+
+procedure TFrmLogin.Validacao;
+begin
+  rect_motoboy.Visible := length(Celular) > 0;
+  rect_login.Visible := length(Host) > 0;
+end;
+
+end.

@@ -7,7 +7,7 @@ uses
   System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit,
   FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
-  FMX.TabControl, System.IOUtils, Inifiles,  System.JSON,
+  FMX.TabControl, System.IOUtils, Inifiles, System.JSON,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, uMemTable, uRequisicao;
@@ -61,8 +61,7 @@ type
     function GetSenha: String;
     function GetCelular: String;
 
-    procedure GravaIni(Secao, Indice, Valor: String);
-    function LerIni(Secao, Indice, ValorPadrao: String): String;
+
     procedure rect_motoboyClick(Sender: TObject);
     procedure btn_updateClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -82,6 +81,8 @@ type
     function TestaConexao: Boolean;
     procedure Validacao;
     procedure OnFinishUpdate(Sender: TObject);
+    procedure GravaIni(Secao, Indice, Valor: String);
+    function LerIni(Secao, Indice, ValorPadrao: String): String;
 
   var
     WIN: Boolean;
@@ -91,6 +92,7 @@ var
   FrmLogin: TFrmLogin;
   lArquivo: String;
   versaoApp, VersaoAtualizacao, VersaoMinima, VersaoServidor: String;
+  URL: String;
 
 implementation
 
@@ -101,14 +103,14 @@ uses UnitPrincipal, uDM, Funcoes, uLoginWindows,
 
 procedure TFrmLogin.btn_updateClick(Sender: TObject);
 var
-  url: string;
+  URL: string;
 begin
 {$IFDEF ANDROID}
-  url := 'http://seu-servidor.com.br/app.apk';
+  URL := 'http://seu-servidor.com.br/app.apk';
 {$ELSE}
-  url := 'https://apps.apple.com/br/app/whatsapp-messenger/id310633997';
+  URL := 'https://apps.apple.com/br/app/whatsapp-messenger/id310633997';
 {$ENDIF}
-  url := 'http://iforth.net/app/version/' + StringReplace(VersaoAtualizacao,
+  URL := 'http://iforth.net/app/version/' + StringReplace(VersaoAtualizacao,
     '.', '', [rfReplaceAll]) + '.apk';
 
   // url := 'https://play.google.com/store/apps/details?id=com.embarcadero.icep';
@@ -129,24 +131,24 @@ begin
       // sleep(2000);
 
       // Tenta consumir servico...
-      try
-
-        dm.Conexao.BaseURL := 'http://' + GetHost + ':2121/';
-        dm.Conexao.url := 'v1/versao/app';
-        dm.Conexao.Metodo := mGet;
-        dm.Conexao.Execute;
-      except
-        on ex: exception do
-        begin
-          // raise exception.Create('Erro ao acessar o servidor: ' + ex.Message);
-          exit;
-        end;
-      end;
+      // try
+      //
+      // BaseURL := 'http://' + GetHost + ':2121/';
+      // dm.CONEXAO_LOCAL.url := 'v1/versao/app';
+      // dm.CONEXAO_LOCAL.Metodo := mGet;
+      // dm.CONEXAO_LOCAL.Execute;
+      // except
+      // on ex: exception do
+      // begin
+      // // raise exception.Create('Erro ao acessar o servidor: ' + ex.Message);
+      // exit;
+      // end;
+      // end;
 
       // Trata retorno em JSON...
       try
         JsonObj := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes
-          (dm.Conexao.Retorno), 0) as TJSONObject;
+          (dm.GetRetornoString('v1/versao/app')), 0) as TJSONObject;
         VersaoAtualizacao := TJSONObject(JsonObj).GetValue('versao_app').Value;
         VersaoServidor := TJSONObject(JsonObj)
           .GetValue('versao_servidor').Value;
@@ -190,7 +192,7 @@ begin
   TabControl.ActiveTab := TabLogin;
   edtHost.Text := Host;
   edtCelular.Text := Celular;
-  dm.Conexao.BaseURL := Host;
+
   lbl_titulo.Text := Usuario;
 
   rect_motoboy.Visible := length(Celular) > 0;
@@ -248,17 +250,16 @@ begin
 
         while not IPS.Eof do
         begin
-          dm.Conexao.TempoExpiracao := 500;
-          dm.Conexao.BaseURL := 'http://' + IPS.FieldByName('IP').AsString
-            + ':2121/';
-            try
-          if TestaConexao then
-          begin
-            edtHost.Text := IPS.FieldByName('IP').AsString;
-          end;
-            except
 
+          URL := 'http://' + IPS.FieldByName('IP').AsString + ':2121/';
+          try
+            if TestaConexao then
+            begin
+              edtHost.Text := IPS.FieldByName('IP').AsString;
             end;
+          except
+
+          end;
 
           IPS.Next;
         end;
@@ -316,7 +317,7 @@ end;
 
 procedure TFrmLogin.rect_loginClick(Sender: TObject);
 begin
-  dm.Conexao.BaseURL := 'http://' + GetHost + ':2121/';
+  URL := 'http://' + GetHost + ':2121/';
   if not TestaConexao then
   begin
     ShowMessageToast(self, 'Sem Conexão!', 1);
@@ -329,7 +330,7 @@ begin
     exit;
   end;
 
-  dm.GetSimples2('/v1/usuario/' + Usuario + '/' + Senha,dm.Usuario);
+  dm.GetSimples2('/v1/usuario/' + Usuario + '/' + Senha, dm.Usuario);
 
   if dm.Usuario.RecordCount = 0 then
   begin
@@ -385,7 +386,7 @@ begin
     exit;
   end;
 
-  dm.Conexao.BaseURL := 'http://' + edtHost.Text + ':2121/';
+  URL := 'http://' + edtHost.Text + ':2121/';
   if TestaConexao then
   begin
     ShowMessageToast(self, 'Conexão Estabelecida Com Sucesso!', 3);
@@ -433,23 +434,48 @@ begin
 end;
 
 function TFrmLogin.TestaConexao: Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
 begin
-
-  dm.Conexao.url := 'v1/test/';
-  dm.Conexao.Metodo := mGet;
   try
-    dm.Conexao.Execute;
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := URL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    Conexao.eTAG := false;
+    Conexao.URL := 'v1/test/';
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
   except
     on E: exception do
     begin
-      showmessage(E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
       Result := false;
     end;
 
   end;
 
-  Result := dm.Conexao.Status = 200;
 
+
+  // dm.CONEXAO_LOCAL.url := 'v1/test/';
+  // dm.CONEXAO_LOCAL.Metodo := mGet;
+  // try
+  // dm.CONEXAO_LOCAL.Execute;
+  // except
+  // on E: exception do
+  // begin
+  // showmessage(E.Message);
+  // Result := false;
+  // end;
+  //
+  // end;
+
+  Result := Conexao.Status = 200;
+  Conexao.Free;
 end;
 
 procedure TFrmLogin.Validacao;

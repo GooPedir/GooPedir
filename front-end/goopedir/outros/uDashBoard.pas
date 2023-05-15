@@ -235,7 +235,7 @@ begin
     begin
 
       CONEXAO := iRequisicao.Create(nil);
-      CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+      CONEXAO.BaseURL := DM.BaseURL;
 
       Dados := TFDMemTable.Create(nil);
       CONEXAO.URL := '/v1/dashboard';
@@ -396,13 +396,10 @@ begin
   end;
 
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
-    .AsString);
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte').AsString);
   except
 
   end;
@@ -600,7 +597,7 @@ constructor TPrevisaoPedidoTThread.Create;
 begin
   inherited Create(True);
   CONEXAO := iRequisicao.Create(nil);
-  CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+  CONEXAO.BaseURL := DM.BaseURL;
   Dados := TFDMemTable.Create(nil);
   CONEXAO.URL := '/v1/dashboard/previsao/';
 end;

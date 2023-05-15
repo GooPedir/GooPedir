@@ -1276,7 +1276,7 @@ constructor TDadosDashBoard.Create;
 begin
   inherited Create(True);
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := DM.CONEXAO.BaseURL;
+  Requisicao.BaseURL := DM.BaseURL;
 
   Memory := TFDMemTable.Create(nil);
 

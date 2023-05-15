@@ -8,10 +8,29 @@ uses uMemTable, System.UITypes,
 procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
 function ArquivoParaJSON(pDirArquivo: string): String;
 function FormataNome(sNome: String): string;
+procedure GravaIni(Secao, Indice, Valor: String);
+function LerIni(Secao, Indice, ValorPadrao: String): String;
 
 implementation
 
-uses uMain, System.SysUtils;
+uses uMain, System.SysUtils, System.IniFiles, System.IOUtils;
+
+procedure GravaIni(Secao, Indice, Valor: String);
+var
+  ArquivoINI: TIniFile;
+begin
+  ArquivoINI := TIniFile.Create(TPath.Combine(TPath.GetDocumentsPath, 'conf.ini'));
+  ArquivoINI.WriteString(Secao, Indice, Valor);
+  ArquivoINI.Free;
+end;
+function LerIni(Secao, Indice, ValorPadrao: String): String;
+var
+  ArquivoINI: TIniFile;
+begin
+  ArquivoINI := TIniFile.Create(TPath.Combine(TPath.GetDocumentsPath, 'conf.ini'));
+  Result := ArquivoINI.ReadString(Secao, Indice, ValorPadrao);
+  ArquivoINI.Free;
+end;
 
 procedure ShowMessageToast(Form: TFmxObject; Mensage: String; Tipo: integer);
 begin

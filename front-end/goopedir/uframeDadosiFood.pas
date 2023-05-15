@@ -109,6 +109,7 @@ type
     FTipoPagamento: String;
     FDescricaoStatus: String;
     FValorPedido: Real;
+    FOrder: String;
     procedure SetCelular(const Value: String);
     procedure SetCodigoDia(const Value: Integer);
     procedure SetCodigoEndereco(const Value: Integer);
@@ -138,6 +139,7 @@ type
     procedure SetDescricaoStatus(const Value: String);
     procedure SetValorPedido(const Value: Real);
     procedure SimStatus;
+    procedure SetOrder(const Value: String);
 
   var
     Carregando: Boolean;
@@ -174,6 +176,7 @@ type
     property DescricaoDescontoiFood: String read FDescricaoDescontoiFood
       write SetDescricaoDescontoiFood;
     property TipoPagamento: String read FTipoPagamento write SetTipoPagamento;
+    property Order : String read FOrder write SetOrder;
 
   end;
 
@@ -422,6 +425,15 @@ procedure TframeDadosiFood.SetNome(const Value: String);
 begin
   FNome := Value;
   edtNome.Text := UpperCase(Value);
+end;
+
+procedure TframeDadosiFood.SetOrder(const Value: String);
+begin
+  FOrder := Value;
+
+  lDataEstimada.Visible := not (Value = 'IMMEDIATE');
+  lDataAgendada.Visible := not (Value = 'IMMEDIATE');
+
 end;
 
 procedure TframeDadosiFood.SetOrigem(const Value: Integer);

@@ -271,10 +271,7 @@ begin
     while not dataSetCategoy.Eof do
     begin
       Dados.Close;
-
-      conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '
-        + QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName
-        ('name').AsString)) + '%') + ' or id_ifood = :ifood');
+      conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '+ QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName('name').AsString)) + '%') + ' or id_ifood = :ifood');
       conexao.Parametros('ifood', dataSetCategoy.FieldByName('id').AsString);
       Dados.LoadFromJSON(conexao.ConsultaSQL);
       if Dados.RecordCount = 0 then
@@ -303,6 +300,10 @@ begin
       while not memItens.Eof do
       begin
         Dados.Close;
+          conexao.SQL.Add('select * from produto where id_ifood = '+QuotedStr(memItens.FieldByName('id').AsString));
+          Dados.LoadFromJSON(conexao.ConsultaSQL);
+          if Dados.RecordCount = 0 then
+          begin
         try
           conexao.SQL.Add
             ('select * from produto where codigo_interno = :external or id_ifood = :ifood');
@@ -311,10 +312,9 @@ begin
           conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
           Dados.LoadFromJSON(conexao.ConsultaSQL);
         except
-          conexao.SQL.Add('select * from produto where id_ifood = :ifood');
-          conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
-          Dados.LoadFromJSON(conexao.ConsultaSQL);
+
         end;
+          end;
         if Dados.RecordCount = 0 then
         begin
           Codigo := conexao.GerarID('produto', 'codigo');
@@ -724,11 +724,12 @@ begin
   Servicos.Start;
 
   FichaTecnica;
-  // BuscaDadosiFood;
+
 
   if IntegracaoiFood then
   begin
     IFood.MerchantID(IDiFood);
+       BuscaDadosiFood;
     IFood.MerchantStatus.AutoStatus := True;
     IFood.Polling.AutoPolling := True;
   end;
@@ -1048,7 +1049,7 @@ begin
     begin
       CodigoTipoPagamento := conexao.GerarID('tipo_pagamento', 'codigo');
       conexao.SQL.Add
-        ('insert into tipo_pagamento (codigo,descricao,ativo) values (:codigo,:descricao,1)');
+        ('insert into tipo_pagamento (codigo,descricao,ativo) values (:codigo,:descricao,0)');
       conexao.Parametros('codigo', CodigoTipoPagamento);
       conexao.Parametros('descricao', NomeTipoPagamento);
       conexao.ExecuteSQL;

@@ -35,7 +35,7 @@ type
   end;
 
   TDM = class(TDataModule)
-    Conexao: iRequisicao;
+    CONEXAO_LOCAL1: iRequisicao;
     PARAMETRO: TFDMemTable;
     USUARIO: TFDMemTable;
     USUARIOcodigo: TIntegerField;
@@ -185,11 +185,15 @@ type
     function LoginMotoboy: Boolean;
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
-    function PostSimples(URL: String; Dados: IMemTable): Boolean;
+    function PostSimples(URL: String; Dados: IMemTable): Boolean; overload;
+    function PostSimples(URL: String; Dados: TFDMemTable): Boolean; overload;
+
     function PostSimplesComRetorno(URL: String): String;
+    function PostSimplesComBody(URL, Body: String): String;
     function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
     function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
     function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
+    function GetRetornoString(URL: String): String;
     function PutSimples(URL: String; Dados: IMemTable): Boolean;
     function GetSimples(URL: String; Dados: IMemTable; Paginacao: Boolean)
       : Boolean; overload;
@@ -245,6 +249,8 @@ type
 
     function IntegracaoPIX: Boolean;
     function CorSite(sColor: string): TColor;
+
+    function BaseURL: String;
 
   end;
 
@@ -342,11 +348,9 @@ var
   SQL: String;
 begin
   try
+
     SQL := 'update dados_whatsapp set ' + Campo + ' = ' + Valor;
-    Conexao.Metodo := mPost;
-    Conexao.URL := '/v1/sql/update';
-    Conexao.Body(SQL);
-    Conexao.Execute;
+    PostSimplesComBody('/v1/sql/update', SQL);
     AtualizaDadosSite;
   except
     on E: Exception do
@@ -372,6 +376,11 @@ begin
   except
 
   end;
+end;
+
+function TDM.BaseURL: String;
+begin
+  Result := GetHost;
 end;
 
 function TDM.BitmapFromBase64(const Base64: string): TBitmap;
@@ -544,9 +553,7 @@ var
   SQL: String;
 begin
   SQL := 'alter table dados_whatsapp add ' + Campo;
-  Conexao.URL := '/v1/sql/update';
-  Conexao.Body(SQL);
-  Conexao.Execute;
+  PostSimplesComBody('/v1/sql/update', SQL);
 end;
 
 procedure TDM.DadosSite;
@@ -570,7 +577,6 @@ begin
     Requisicao.Metodo := mPost;
     Requisicao.TempoExpiracao := 5 * 1000;
     Requisicao.Execute;
-
     JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
       as TJsonObject;
   except
@@ -581,8 +587,34 @@ begin
 end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
+var
+  Conexao: iRequisicao;
 begin
-  GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 300;
+
+    DADOS_WHATSAPP.Close;
+
+    Conexao.eTAG := False;
+    Conexao.URL := Parametros('/v1/consulta/generica/dados_whatsapp/*/*/*');
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    // Conexao.MemTable2 := Dados;
+    Conexao.Execute;
+    DADOS_WHATSAPP.LoadFromJSON(Conexao.Retorno);
+  except
+    on E: Exception do
+    begin
+      // ShowMessage(E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+
   ID := 0;
   ErrosBusca := 0;
   DadosSite;
@@ -599,7 +631,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -676,6 +708,35 @@ begin
 
 end;
 
+function TDM.GetRetornoString(URL: String): String;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+    URL := Parametros(URL);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
+
+end;
+
 function TDM.GetSenha: String;
 begin
   Result := LerIni('USER', 'PASS', '');
@@ -687,7 +748,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -697,8 +758,8 @@ begin
     Conexao.URL := URL;
     Conexao.Metodo := mGet;
     Conexao.Token(Token);
-    Conexao.MemTable := Dados;
     Conexao.Execute;
+    Dados.LoadFromJSON(Conexao.Retorno);
   except
     on E: Exception do
     begin
@@ -717,7 +778,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -728,9 +789,9 @@ begin
     Conexao.URL := URL;
     Conexao.Metodo := mGet;
     Conexao.Token(Token);
-    Conexao.MemTable := Dados;
     Conexao.Execute;
     Result := Conexao.Status = 200;
+    Dados.LoadFromJSON(Conexao.Retorno);
   except
     on E: Exception do
     begin
@@ -750,7 +811,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -782,7 +843,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -793,12 +854,13 @@ begin
     Conexao.URL := URL;
     Conexao.Metodo := mGet;
     Conexao.Token(Token);
-    Conexao.MemTable2 := Dados;
+    // Conexao.MemTable2 := Dados;
     Conexao.Execute;
+    Dados.LoadFromJSON(Conexao.Retorno);
   except
     on E: Exception do
     begin
-      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -860,7 +922,7 @@ var
   Campo: String;
   Valor: String;
 begin
-  if FUserId = 0 then
+  if UserId = 0 then
   begin
     DadosSite;
   end;
@@ -890,21 +952,21 @@ end;
 
 procedure TDM.LogUsuario;
 begin
-  DM.Conexao.BaseURL := GetHost;
-  DM.Conexao.URL := '/v1/usuario/' + GetUsuario + '/' + GetSenha;
-  DM.Conexao.Metodo := mGet;
-  DM.Conexao.MemTable2 := DM.USUARIO;
-  DM.Conexao.Execute;
+  GetSimples2('/v1/usuario/' + GetUsuario + '/' + GetSenha, DM.USUARIO);
   DM.CodigoCaixa;
 end;
 
 function TDM.Parametros(URL: String): String;
 begin
-  URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
-    .AsString, []);
+  try
+    URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
+      .AsString, []);
 
-  URL := StringReplace(URL, ':token_mp',
-    DM.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+    URL := StringReplace(URL, ':token_mp',
+      DM.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+  except
+
+  end;
 
 
 
@@ -921,7 +983,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -947,14 +1009,46 @@ begin
   Conexao.Free;
 end;
 
-function TDM.PostSimplesComRetorno(URL: String): String;
+function TDM.PostSimples(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
   Body: String;
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Body := Dados.ToJSONArray().ToString;
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesComBody(URL, Body: String): String;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -966,6 +1060,40 @@ begin
     Conexao.Body(Body);
 
     Conexao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesComRetorno(URL: String): String;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+
   except
     on E: Exception do
     begin
@@ -986,7 +1114,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -1001,13 +1129,13 @@ begin
   except
     on E: Exception do
     begin
-//       ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
   end;
 
-  Result := DM.Conexao.Status = 200;
+  Result := Conexao.Status = 200;
   Conexao.Free;
 end;
 
@@ -1018,7 +1146,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -1041,7 +1169,7 @@ begin
 
   end;
 
-  Result := DM.Conexao.Status = 200;
+  Result := Conexao.Status = 200;
   Conexao.Free;
 end;
 
@@ -1052,7 +1180,7 @@ var
 begin
   try
     Conexao := iRequisicao.Create(nil);
-    Conexao.BaseURL := DM.Conexao.BaseURL;
+    Conexao.BaseURL := DM.BaseURL;
     Conexao.TempoExpiracao := 50 * 1000;
 
     URL := Parametros(URL);
@@ -1103,7 +1231,7 @@ var
   Conection: iRequisicao;
 begin
   Conection := iRequisicao.Create(self);
-  Conection.BaseURL := DM.Conexao.BaseURL;
+  Conection.BaseURL := DM.BaseURL;
   Conection.TempoExpiracao := 60 * 1000;
 
   Conection.URL := 'v1/test/';
@@ -1210,6 +1338,7 @@ begin
     Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
 
     Result := Valor.ToInteger;
+    FUserId := Valor.ToInteger;
   except
     Result := 0;
   end;
@@ -1226,7 +1355,7 @@ constructor TConexaoServidor.Create;
 begin
   inherited Create(True);
   Conexao := iRequisicao.Create(nil);
-  Conexao.BaseURL := DM.Conexao.BaseURL;
+  Conexao.BaseURL := DM.BaseURL;
   Conexao.TempoExpiracao := 50 * 1000;
   // Conexao.TempoExpiracao := 1000;
   Conexao.URL := 'v1/versao/app';

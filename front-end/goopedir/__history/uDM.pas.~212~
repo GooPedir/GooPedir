@@ -1,0 +1,1367 @@
+unit uDM;
+
+interface
+
+uses
+  System.Classes, uRequisicao, uMemTable, dataset.serialize, FMXTee.Canvas,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  Data.DB, FireDAC.Comp.dataset, FireDAC.Comp.Client, System.JSON, FMX.Graphics,
+  Soap.EncdDecd, FMX.Types, FireDAC.UI.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys;
+
+type
+  TConexaoServidor = class(TThread)
+  private
+    FStatus: Boolean;
+    FStatusAnterior: Boolean;
+    procedure SetStatus(const Value: Boolean);
+    procedure SetStatusAnterior(const Value: Boolean);
+
+  protected
+    procedure Execute; override;
+    property Status: Boolean read FStatus write SetStatus;
+    property StatusAnterior: Boolean read FStatusAnterior
+      write SetStatusAnterior;
+
+  var
+    Conexao: iRequisicao;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    Iniciado: Boolean;
+  end;
+
+  TDM = class(TDataModule)
+    CONEXAO_LOCAL1: iRequisicao;
+    PARAMETRO: TFDMemTable;
+    USUARIO: TFDMemTable;
+    USUARIOcodigo: TIntegerField;
+    USUARIOnome: TStringField;
+    USUARIOapp: TIntegerField;
+    USUARIOdeleta: TIntegerField;
+    USUARIOencerra: TIntegerField;
+    CAIXA: TFDMemTable;
+    CAIXAid: TIntegerField;
+    DADOS_WHATSAPP: TFDMemTable;
+    DADOS_WHATSAPPnome: TStringField;
+    CAIXAdata_abertura: TDateField;
+    CAIXAhora_abertura: TTimeField;
+    CAIXAvalor_abertura: TFloatField;
+    DADOS_WHATSAPPsenha_gerente: TStringField;
+    DADOS_WHATSAPPcep: TStringField;
+    DADOS_WHATSAPPrua: TStringField;
+    DADOS_WHATSAPPbairro: TStringField;
+    DADOS_WHATSAPPcidade: TStringField;
+    DADOS_WHATSAPPestado: TStringField;
+    DADOS_WHATSAPPnumero: TStringField;
+    DADOS_WHATSAPPsegunda: TIntegerField;
+    DADOS_WHATSAPPterca: TIntegerField;
+    DADOS_WHATSAPPquarta: TIntegerField;
+    DADOS_WHATSAPPquinta: TIntegerField;
+    DADOS_WHATSAPPsexta: TIntegerField;
+    DADOS_WHATSAPPsabado: TIntegerField;
+    DADOS_WHATSAPPdomingo: TIntegerField;
+    DADOS_WHATSAPPhorario_abertura: TStringField;
+    DADOS_WHATSAPPhorario_fechamento: TStringField;
+    DADOS_WHATSAPPlatitude: TStringField;
+    DADOS_WHATSAPPlongitude: TStringField;
+    DADOS_WHATSAPPclient_id: TStringField;
+    DADOS_WHATSAPPclient_security: TStringField;
+    DADOS_WHATSAPPtipo_impressao: TIntegerField;
+    DADOS_WHATSAPPvias_pedido: TIntegerField;
+    DADOS_WHATSAPPvalor_pedido_minimo: TIntegerField;
+    DADOS_WHATSAPPpermitir_retirada: TIntegerField;
+    DADOS_WHATSAPPtipo_preco_pizza: TIntegerField;
+    DADOS_WHATSAPPaceitar_pedidos_site: TIntegerField;
+    DADOS_WHATSAPPimpressaotipopro: TIntegerField;
+    DADOS_WHATSAPPmensagem_inicio: TStringField;
+    DADOS_WHATSAPPallan: TStringField;
+    DADOS_WHATSAPPa_impressora: TIntegerField;
+    DADOS_WHATSAPPa_whatsapp: TIntegerField;
+    DADOS_WHATSAPPauto_lancar_produto: TIntegerField;
+    DADOS_WHATSAPPvalor_padrao_caixa: TFloatField;
+    DADOS_WHATSAPPauto_abrir_fechar_caixa: TIntegerField;
+    DADOS_WHATSAPPimp_caixa_resumo: TIntegerField;
+    DADOS_WHATSAPPimp_caixa_completo: TIntegerField;
+    DADOS_WHATSAPPimp_caixa_produto: TIntegerField;
+    DADOS_WHATSAPPfat_all_caixa: TIntegerField;
+    FATURAS2: TFDMemTable;
+    FATURAS2codigo_cliente: TIntegerField;
+    FATURAS2cliente: TStringField;
+    FATURAS2vencimento: TStringField;
+    FATURAS2total: TFloatField;
+    FATURAS2link: TStringField;
+    DADOS_WHATSAPPimp_caixa_motoboy: TIntegerField;
+    DADOS_WHATSAPPdias_relatorio: TIntegerField;
+    DADOS_WHATSAPPtipo_wpp_confirmacao: TIntegerField;
+    DADOS_WHATSAPPtipo_wpp_status: TIntegerField;
+    DADOS_WHATSAPPtipo_wpp_pix: TIntegerField;
+    DADOS_WHATSAPPtipo_wpp_motoboy: TIntegerField;
+    DADOS_WHATSAPPtipo_wpp_auto_bot: TIntegerField;
+    DADOS_WHATSAPPimpressao_agrupada: TIntegerField;
+    DADOS_WHATSAPPfidelidade: TIntegerField;
+    DADOS_WHATSAPPfidelidade_pontos_eq_valor: TFloatField;
+    DADOS_WHATSAPPfidelidade_valor_eq_pontos: TFloatField;
+    DADOS_WHATSAPPfidelidade_pedido_minimo: TFloatField;
+    DADOS_WHATSAPPfidelidade_pedido: TIntegerField;
+    DADOS_WHATSAPPfidelidade_wpp: TIntegerField;
+    DADOS_WHATSAPPfidelidade_site: TIntegerField;
+    DADOS_WHATSAPPfidelidade_tipo: TIntegerField;
+    DADOS_WHATSAPPfidelidade_qtd_resgate: TIntegerField;
+    DADOS_WHATSAPPfidelidade_valor_real: TFloatField;
+    DADOS_WHATSAPPfidelidade_valor_desconto: TFloatField;
+    DADOS_WHATSAPPtemp_vembuscar: TIntegerField;
+    DADOS_WHATSAPPtemp_delivery: TIntegerField;
+    Requisicao: iRequisicao;
+    DADOS_MOTOBOY_SITE: TFDMemTable;
+    DADOS_MOTOBOY_SITEdeliveryman_name: TStringField;
+    DADOS_MOTOBOY_SITEnome_empresa: TStringField;
+    DADOS_MOTOBOY_SITEcor_topo: TStringField;
+    DADOS_MOTOBOY_SITEcor_loading: TStringField;
+    DADOS_MOTOBOY_SITEcor_titulo_produtos: TStringField;
+    DADOS_MOTOBOY_SITEtelefone_wpp: TStringField;
+    DADOS_MOTOBOY_SITEuser_id: TIntegerField;
+    DADOS_MOTOBOY_PEDIDO: TFDMemTable;
+    DADOS_MOTOBOY_PEDIDOid: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOcodigo_pedido: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOdata: TStringField;
+    DADOS_MOTOBOY_PEDIDOresumo_pedidos: TStringField;
+    DADOS_MOTOBOY_PEDIDOvalor_taxa: TFloatField;
+    DADOS_MOTOBOY_PEDIDOvalor_troco: TFloatField;
+    DADOS_MOTOBOY_PEDIDOsub_total: TFloatField;
+    DADOS_MOTOBOY_PEDIDOtotal: TFloatField;
+    DADOS_MOTOBOY_PEDIDOnome: TStringField;
+    DADOS_MOTOBOY_PEDIDOtelefone: TStringField;
+    DADOS_MOTOBOY_PEDIDOrua: TStringField;
+    DADOS_MOTOBOY_PEDIDOunidade: TStringField;
+    DADOS_MOTOBOY_PEDIDObairro: TStringField;
+    DADOS_MOTOBOY_PEDIDOcidade: TStringField;
+    DADOS_MOTOBOY_PEDIDOuf: TStringField;
+    DADOS_MOTOBOY_PEDIDOcomplemento: TStringField;
+    DADOS_MOTOBOY_PEDIDOstatus: TStringField;
+    DADOS_MOTOBOY_PEDIDOid_sistema: TStringField;
+    DADOS_MOTOBOY_PEDIDOuser_id: TIntegerField;
+    DADOS_MOTOBOY_SITEid: TIntegerField;
+    DADOS_MOTOBOY_PEDIDOdeliveryman_name: TStringField;
+    DADOS_MOTOBOY_PEDIDOdata_formatada: TStringField;
+    DADOS_WHATSAPPtoken_mp: TStringField;
+    DADOS_WHATSAPPfat_integra_pix: TIntegerField;
+    DADOS_WHATSAPPcor_fundo: TStringField;
+    DADOS_WHATSAPPcor_fonte: TStringField;
+    DADOS_WHATSAPPcontrole_estoque: TIntegerField;
+    DADOS_WHATSAPPficha_tecnica: TIntegerField;
+    DADOS_WHATSAPPstatus_pedidos_site: TIntegerField;
+
+    DADOS_WHATSAPPmerchant: TStringField;
+
+    DADOS_MOTOBOY_PEDIDOddd_padrao: TStringField;
+    DADOS_WHATSAPPaceitar_pedidos_ifood: TIntegerField;
+    DADOS_WHATSAPPifood_percentual: TFloatField;
+    DADOS_WHATSAPPddd_padrao: TStringField;
+    DADOS_WHATSAPPifood_integracao: TIntegerField;
+    MotivoCancelamentoiFood: TFDMemTable;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    FUserId: Integer;
+    FFaturarPedidosAoFecharCaixa: Real;
+    FValorInicialPadraoCaixa: Real;
+    FAbrirFecharCaixaAuto: Integer;
+    { Private declarations }
+    function Token: String;
+
+    function Parametros(URL: String): String;
+
+    function LerIni(Secao, Indice, ValorPadrao: String): String;
+    procedure SetUserId(const Value: Integer);
+    procedure SetAbrirFecharCaixaAuto(const Value: Integer);
+    procedure SetFaturarPedidosAoFecharCaixa(const Value: Real);
+    procedure SetValorInicialPadraoCaixa(const Value: Real);
+
+  public
+    { Public declarations }
+    function LoginMotoboy: Boolean;
+    function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
+    function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
+    function PostSimples(URL: String; Dados: IMemTable): Boolean;
+    function PostSimplesComRetorno(URL: String): String;
+    function PostSimplesComBody(URL, Body: String): String;
+    function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
+    function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
+    function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
+    function PutSimples(URL: String; Dados: IMemTable): Boolean;
+    function GetSimples(URL: String; Dados: IMemTable; Paginacao: Boolean)
+      : Boolean; overload;
+    procedure DeleteSimples(URL: String; Dados: IMemTable);
+
+    function TipoCor(Index: Integer): TColor;
+
+    function TestaConexao: Boolean;
+    function CodigoUsuario: Integer;
+    function CodigoCaixa: Integer;
+
+    function Deleta: Boolean;
+    function Encerra: Boolean;
+
+    function GetHost: String;
+    function GetUsuario: String;
+    function GetSenha: String;
+    function GetCelular: String;
+
+    function GetNomeEmpresa: String;
+
+    procedure LogUsuario;
+    procedure AtualizaCaixa;
+
+    procedure IniciaVerificacao;
+    procedure AtualizaParametro(Campo: String; Valor: Variant);
+    procedure CriaCampo(Campo: String);
+    procedure DadosSite;
+    procedure AtualizaSite(SQL: String);
+    procedure AtualizaDadosSite;
+
+    procedure FecharSite;
+    procedure AbrirSite;
+
+    function UserId: Integer;
+    function Link: String;
+    function BitmapFromBase64(const Base64: string): TBitmap;
+
+    function AbrirFecharCaixaAuto: Integer;
+    function ValorInicialPadraoCaixa: Real;
+    function FaturarPedidosAoFecharCaixa: Integer;
+
+    function CaixaResumo: Integer;
+    function CaixaCompleto: Integer;
+    function CaixaProduto: Integer;
+    function CaixaMotoboy: Integer;
+    function ControleEstoque: Integer;
+    function FichaTecnica: Integer;
+
+    procedure BuscaFaturas(Pai: TFmxObject);
+
+    procedure ExtornoPedido(Pedido: Integer);
+
+    function IntegracaoPIX: Boolean;
+    function CorSite(sColor: string): TColor;
+
+    function BaseURL: String;
+
+  end;
+
+  { Caixa Rapido
+    - Abrir / Fechar Caixa Automatico - auto_abrir_fechar_caixa
+    - Valor Inicial Caixa - valor_padrao_caixa
+    - Faturar Todos Pedidos Ao Fechar o Caixa - fat_all_caixa }
+
+var
+  DM: TDM;
+  StatusConexao: TConexaoServidor;
+  JSonDadosSite: TJsonObject;
+  ID: Integer;
+  ErrosBusca: Integer;
+
+implementation
+
+uses
+  System.SysUtils, FMX.Dialogs, Funcoes, System.IniFiles, System.IOUtils,
+  uCaixa, uMain, uframeFaturas, uDashBoard, uSimNao;
+
+{%CLASSGROUP 'FMX.Controls.TControl'}
+{$R *.dfm}
+{ TDM }
+
+function TDM.AbrirFecharCaixaAuto: Integer;
+begin
+  if DADOS_WHATSAPP.RecordCount = 0 then
+  begin
+    GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
+    DadosSite;
+  end;
+  Result := DM.DADOS_WHATSAPP.FieldByName('auto_abrir_fechar_caixa').AsInteger;
+end;
+
+procedure TDM.AbrirSite;
+begin
+  //
+end;
+
+procedure TDM.AtualizaCaixa;
+begin
+  if Assigned(frmCaixa) then
+    frmCaixa.BuscaDadosCaixa;
+
+end;
+
+procedure TDM.AtualizaDadosSite;
+var
+  SQL: String;
+  ArrayDias: Array of String;
+  I: Integer;
+begin
+  SetLength(ArrayDias, 7);
+  ArrayDias[0] := 'segunda';
+  ArrayDias[1] := 'terca';
+  ArrayDias[2] := 'quarta';
+  ArrayDias[3] := 'quinta';
+  ArrayDias[4] := 'sexta';
+  ArrayDias[5] := 'sabado';
+  ArrayDias[6] := 'domingo';
+
+  SQL := 'update ws_empresa set msg_tempo_delivery = ' +
+    QuotedStr('Aproximado ' + DM.DADOS_WHATSAPP.FieldByName('temp_delivery')
+    .AsString + ' minutos.') + ', msg_tempo_buscar = ' +
+    QuotedStr('Aproximado ' + DM.DADOS_WHATSAPP.FieldByName('temp_vembuscar')
+    .AsString + ' minutos.');
+
+  for I := 0 to 6 do
+  begin
+
+    SQL := SQL + ',' + ArrayDias[I] + '_manha_de = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_abertura')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_manha_ate = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_fechamento')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_tarde_de = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_abertura')
+      .AsString, 0, 5));
+
+    SQL := SQL + ',' + ArrayDias[I] + '_tarde_ate = ' +
+      QuotedStr(Copy(DM.DADOS_WHATSAPP.FieldByName('horario_fechamento')
+      .AsString, 0, 5));
+
+  end;
+  SQL := SQL + ' where user_id = ' + UserId.ToString;
+  AtualizaSite(SQL);
+end;
+
+procedure TDM.AtualizaParametro(Campo: String; Valor: Variant);
+var
+  SQL: String;
+begin
+  try
+
+    SQL := 'update dados_whatsapp set ' + Campo + ' = ' + Valor;
+    PostSimplesComBody('/v1/sql/update', SQL);
+    AtualizaDadosSite;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+    end;
+
+  end;
+end;
+
+procedure TDM.AtualizaSite(SQL: String);
+var
+  Requisicao: iRequisicao;
+begin
+  Requisicao := iRequisicao.Create(self);
+  Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+  Requisicao.URL := 'sql/a/';
+  Requisicao.Body('{"sql":"' + SQL +
+    '","clientId":"UwMyPVWhawPQ&K@AELqpNiRU$Sh%sZDlYgnb0YyTGU^rB7B&#nszh2tR&WNthWpuGv6@JAvV^bK","clientSecurity":"B7B&#nszh2W&K@AELqpNiRU$Sh"}');
+  Requisicao.Metodo := mPost;
+  try
+    Requisicao.Execute;
+  except
+
+  end;
+end;
+
+function TDM.BaseURL: String;
+begin
+Result := GetHost;
+end;
+
+function TDM.BitmapFromBase64(const Base64: string): TBitmap;
+var
+  Input: TStringStream;
+  Output: TBytesStream;
+begin
+  Input := TStringStream.Create(Base64, TEncoding.ASCII);
+  try
+    Output := TBytesStream.Create;
+    try
+      Soap.EncdDecd.DecodeStream(Input, Output);
+      Output.Position := 0;
+      Result := TBitmap.Create;
+      try
+        Result.LoadFromStream(Output);
+      except
+        Result.Free;
+        raise;
+      end;
+    finally
+      Output.Free;
+    end;
+  finally
+    Input.Free;
+  end;
+end;
+
+procedure TDM.BuscaFaturas(Pai: TFmxObject);
+var
+  Token: String;
+  Campos: Boolean;
+
+  Fields: String;
+  ConexaoLocal: iRequisicao;
+  Fatura: TframeFaturas;
+
+  I: Integer;
+  FATURAS: TFDMemTable;
+
+begin
+  try
+    TThread.CreateAnonymousThread(
+      procedure
+      var
+        I: Integer;
+        FATURAS: TFDMemTable;
+      begin
+        FATURAS := TFDMemTable.Create(nil);
+        DM.DadosSite;
+        if DM.UserId > 0 then
+        begin
+          try
+            FATURAS.Close;
+            ConexaoLocal := iRequisicao.Create(self);
+            ConexaoLocal.BaseURL := 'https://goopedir.com/ws/v1/';
+            Token := '';
+            ConexaoLocal.URL := 'fatura/' + DM.UserId.ToString;
+            ConexaoLocal.Metodo := mGet;
+            ConexaoLocal.Token(Token);
+            ConexaoLocal.MemTable2 := FATURAS;
+            ConexaoLocal.TempoExpiracao := 60 * 1000;
+            ConexaoLocal.Execute;
+
+            for I := 0 to Pai.ComponentCount - 1 do
+            begin
+              if (Pai.Components[I] is TframeFaturas) then
+              begin
+                (Pai.Components[I] as TframeFaturas).Visible := False;
+              end;
+            end;
+
+            if FATURAS.RecordCount = 0 then
+              FATURAS.Open
+            else
+            begin
+
+              FATURAS.First;
+              while not FATURAS.Eof do
+              begin
+                inc(ID);
+                Fatura := TframeFaturas.Create(Pai);
+                Fatura.Parent := Pai;
+                Fatura.Valor :=
+                  StrToFloat(StringReplace(FATURAS.FieldByName(FATURAS.Fields[3]
+                  .FieldName).AsString, '.', ',', []));
+                try
+                  Fatura.DataVencimento :=
+                    FATURAS.FieldByName(FATURAS.Fields[2].FieldName).AsDateTime;
+                except
+                  Fatura.DataVencimento := now;
+                end;
+                Fatura.Link := FATURAS.FieldByName('link').AsString;
+                Fatura.Name := 'Fatura' + ID.ToString;
+                Fatura.Align := TAlignLayout.Left;
+                FATURAS.Next;
+              end;
+            end;
+          except
+
+          end;
+
+          ConexaoLocal.Free;
+
+          // HorzScrollBoxFatura
+        end;
+        FATURAS.Free;
+      end).Start;
+
+  except
+
+  end;
+end;
+
+function TDM.CaixaCompleto: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('imp_caixa_completo').AsInteger;
+end;
+
+function TDM.CaixaMotoboy: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('imp_caixa_motoboy').AsInteger;
+end;
+
+function TDM.CaixaProduto: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('imp_caixa_produto').AsInteger;
+end;
+
+function TDM.CaixaResumo: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('imp_caixa_resumo').AsInteger;
+end;
+
+function TDM.CodigoCaixa: Integer;
+begin
+  if CAIXA.RecordCount = 0 then
+  begin
+    GetSimples2('/v1/caixa/aberto/:usuario', CAIXA);
+  end;
+
+  if CAIXA.RecordCount = 0 then
+  begin
+    Result := 0;
+  end
+  else
+  begin
+    Result := CAIXA.FieldByName('id').AsInteger;
+  end;
+end;
+
+function TDM.CodigoUsuario: Integer;
+begin
+  Result := USUARIO.FieldByName('codigo').AsInteger;
+end;
+
+function TDM.ControleEstoque: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('controle_estoque').AsInteger;
+end;
+
+function TDM.CorSite(sColor: string): TColor;
+begin
+  Result := RGB(StrToInt('$' + Copy(sColor, 1, 2)),
+    StrToInt('$' + Copy(sColor, 3, 2)), StrToInt('$' + Copy(sColor, 5, 2)));
+end;
+
+procedure TDM.CriaCampo(Campo: String);
+var
+  SQL: String;
+begin
+  SQL := 'alter table dados_whatsapp add ' + Campo;
+  PostSimplesComBody('/v1/sql/update', SQL);
+end;
+
+procedure TDM.DadosSite;
+var
+  Body: String;
+  Requisicao: iRequisicao;
+begin
+
+  if ErrosBusca >= 3 then
+    exit;
+  if Assigned(JSonDadosSite) then
+    exit;
+  try
+    Requisicao := iRequisicao.Create(self);
+    Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+    Requisicao.URL := 'token2/a';
+    Body := '{' + #13 + '"client_id":"' + DADOS_WHATSAPP.FieldByName
+      ('client_id').AsString + '",' + #13 + '"client_security":"' +
+      DADOS_WHATSAPP.FieldByName('client_security').AsString + '"' + #13 + '}';
+    Requisicao.Body(Body);
+    Requisicao.Metodo := mPost;
+    Requisicao.TempoExpiracao := 5 * 1000;
+    Requisicao.Execute;
+    JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+      as TJsonObject;
+  except
+    inc(ErrosBusca);
+  end;
+
+  Requisicao.Free;
+end;
+
+procedure TDM.DataModuleCreate(Sender: TObject);
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    DADOS_WHATSAPP.Close;
+
+    Conexao.eTAG := False;
+    Conexao.URL := Parametros('/v1/consulta/generica/dados_whatsapp/*/*/*');
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    // Conexao.MemTable2 := Dados;
+    Conexao.Execute;
+    DADOS_WHATSAPP.LoadFromJSON(Conexao.Retorno);
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+
+  ID := 0;
+  ErrosBusca := 0;
+  DadosSite;
+end;
+
+function TDM.Deleta: Boolean;
+begin
+  Result := USUARIO.FieldByName('deleta').AsInteger = 1;
+end;
+
+procedure TDM.DeleteSimples(URL: String; Dados: IMemTable);
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mDelete;
+    Conexao.Token(Token);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.Encerra: Boolean;
+begin
+  Result := USUARIO.FieldByName('encerra').AsInteger = 1;
+end;
+
+procedure TDM.ExtornoPedido(Pedido: Integer);
+begin
+  PostSimplesUnico('/v1/util/pedido/caixa/extorno/' + Pedido.ToString, nil);
+end;
+
+function TDM.FaturarPedidosAoFecharCaixa: Integer;
+begin
+  Result := DM.DADOS_WHATSAPP.FieldByName('fat_all_caixa').AsInteger;
+end;
+
+procedure TDM.FecharSite;
+begin
+  //
+end;
+
+function TDM.FichaTecnica: Integer;
+begin
+  Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
+end;
+
+function TDM.GetCelular: String;
+begin
+  Result := LerIni('USER', 'CELL', '');
+end;
+
+function TDM.GetHost: String;
+begin
+
+  Result := 'http://' + LerIni('HOST', 'HOST', '') + ':2121/';
+end;
+
+function TDM.GetNomeEmpresa: String;
+begin
+
+  if DADOS_WHATSAPP.RecordCount = 0 then
+  begin
+    GetSimples2('/v1/consulta/generica/dados_whatsapp/*/*/*', DADOS_WHATSAPP);
+    DadosSite;
+  end;
+  try
+    Result := DADOS_WHATSAPP.FieldByName('nome').AsString;
+  except
+
+  end;
+
+end;
+
+function TDM.GetSenha: String;
+begin
+  Result := LerIni('USER', 'PASS', '');
+end;
+
+function TDM.GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+    Dados.Close;
+    Conexao.Body(Body.ToJSONArray());
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Execute;
+    Dados.LoadFromJSON(Conexao.Retorno);
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.GetSimples(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Execute;
+    Result := Conexao.Status = 200;
+    Dados.LoadFromJSON(Conexao.Retorno);
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.GetSimples(URL: String; Dados: IMemTable;
+Paginacao: Boolean): Boolean;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Paginacao := Paginacao;
+    Conexao.MemTable := Dados;
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+    Dados.Close;
+    if Assigned(Dados) then
+      Conexao.Body(Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    // Conexao.MemTable2 := Dados;
+    Conexao.Execute;
+    Dados.LoadFromJSON(Conexao.Retorno);
+  except
+    on E: Exception do
+    begin
+      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.GetUsuario: String;
+begin
+  Result := LerIni('USER', 'USER', '');
+end;
+
+procedure TDM.IniciaVerificacao;
+begin
+  StatusConexao := TConexaoServidor.Create;
+  StatusConexao.StatusAnterior := True;
+  if not StatusConexao.Iniciado then
+    StatusConexao.Start;
+
+  StatusConexao.Iniciado := True;
+end;
+
+function TDM.IntegracaoPIX: Boolean;
+begin
+  Result := False;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('token_mp').IsNull then
+  begin
+    exit;
+  end;
+  if DADOS_WHATSAPP.FieldByName('fat_integra_pix').AsInteger = 0 then
+  begin
+    exit;
+  end
+  else
+  begin
+    Result := True;
+  end;
+end;
+
+function TDM.LerIni(Secao, Indice, ValorPadrao: String): String;
+var
+  ArquivoINI: TIniFile;
+  test: String;
+begin
+  test := TPath.Combine(TPath.GetDocumentsPath, 'conf.ini');
+  ArquivoINI := TIniFile.Create(TPath.Combine(TPath.GetDocumentsPath,
+    'conf.ini'));
+  Result := ArquivoINI.ReadString(Secao, Indice, ValorPadrao);
+  ArquivoINI.Free;
+end;
+
+function TDM.Link: String;
+var
+  Campo: String;
+  Valor: String;
+begin
+  if UserId = 0 then
+  begin
+    DadosSite;
+  end;
+  Campo := 'link';
+  Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
+  Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
+  Valor := StringReplace(Valor, '\', '/', [rfReplaceAll]);
+  Valor := StringReplace(Valor, '//', '/', [rfReplaceAll]);
+
+  Result := Valor;
+end;
+
+function TDM.LoginMotoboy: Boolean;
+begin
+  // motoboy/S043-044/a
+  try
+    Requisicao.URL := 'motoboy/' + GetCelular + '/a';
+    Requisicao.Metodo := mGet;
+    Requisicao.MemTable2 := DADOS_MOTOBOY_SITE;
+    Requisicao.Execute;
+
+    Result := DADOS_MOTOBOY_SITE.RecordCount > 0;
+  except
+    Result := False;
+  end;
+end;
+
+procedure TDM.LogUsuario;
+begin
+
+  DM.CONEXAO_LOCAL.URL := '/v1/usuario/' + GetUsuario + '/' + GetSenha;
+  DM.CONEXAO_LOCAL.Metodo := mGet;
+  DM.CONEXAO_LOCAL.MemTable2 := DM.USUARIO;
+  DM.CONEXAO_LOCAL.Execute;
+  DM.CodigoCaixa;
+end;
+
+function TDM.Parametros(URL: String): String;
+begin
+  try
+    URL := StringReplace(URL, ':usuario', DM.USUARIO.FieldByName('codigo')
+      .AsString, []);
+
+    URL := StringReplace(URL, ':token_mp',
+      DM.DADOS_WHATSAPP.FieldByName('token_mp').AsString, []);
+  except
+
+  end;
+
+
+
+
+  // URL := StringReplace(URL, ':caixa', CodigoCaixa.ToString, []);
+
+  Result := URL;
+end;
+
+function TDM.PostSimples(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Body := Dados.ToJSONArray().ToString;
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesComBody(URL, Body: String): String;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesComRetorno(URL: String): String;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONObject().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Status = 200;
+  Conexao.Free;
+end;
+
+function TDM.PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Status = 200;
+  Conexao.Free;
+end;
+
+function TDM.PutSimples(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Body := (Dados.ToJSONArray().ToString);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPut;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+procedure TDM.SetAbrirFecharCaixaAuto(const Value: Integer);
+begin
+  FAbrirFecharCaixaAuto := Value;
+end;
+
+procedure TDM.SetFaturarPedidosAoFecharCaixa(const Value: Real);
+begin
+  FFaturarPedidosAoFecharCaixa := Value;
+end;
+
+procedure TDM.SetUserId(const Value: Integer);
+begin
+
+end;
+
+procedure TDM.SetValorInicialPadraoCaixa(const Value: Real);
+begin
+  FValorInicialPadraoCaixa := Value;
+end;
+
+function TDM.TestaConexao: Boolean;
+var
+  Conection: iRequisicao;
+begin
+  Conection := iRequisicao.Create(self);
+  Conection.BaseURL := DM.BaseURL;
+  Conection.TempoExpiracao := 60 * 1000;
+
+  Conection.URL := 'v1/test/';
+  Conection.Metodo := mGet;
+  try
+    Conection.Execute;
+  except
+    Result := False;
+  end;
+
+  Result := Conection.Status = 200;
+  Conection.Free;
+end;
+
+function TDM.TipoCor(Index: Integer): TColor;
+begin
+  case Index of
+    1:
+      begin
+        // Azul
+        Result := RGB(109, 178, 253);
+      end;
+    2:
+      begin
+        // Vermelho
+        Result := RGB(247, 114, 115);
+      end;
+    3:
+      begin
+        // Verde
+        Result := RGB(49, 204, 175);
+      end;
+    4:
+      begin
+        // Laranja
+        Result := RGB(253, 128, 0);
+      end;
+    5:
+      begin
+        // Roxo
+        Result := RGB(144, 11, 250);
+      end;
+    6:
+      begin
+        Result := RGB(255, 232, 121);
+      end;
+    7:
+      begin
+        // iForth
+        Result := RGB(48, 48, 86);
+      end;
+    8:
+      begin
+        // Cinza
+        Result := RGB(151, 151, 198);
+      end;
+    9:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+    10:
+      begin
+        // BRanco
+        Result := RGB(255, 255, 255);
+      end;
+
+    15:
+      begin
+        Result := RGB(2, 233, 2);
+      end;
+    16:
+      begin
+        Result := RGB(233, 2, 2);
+      end;
+    17:
+      begin
+        Result := RGB(145, 2, 233);
+      end;
+    18:
+      begin
+        Result := RGB(0, 0, 0);
+      end;
+
+  end;
+end;
+
+function TDM.Token: String;
+begin
+  Result := '';
+end;
+
+function TDM.UserId: Integer;
+var
+  Campo: String;
+  Valor: String;
+begin
+  try
+    if FUserId = 0 then
+    begin
+      DadosSite;
+    end;
+    Campo := 'user';
+    Valor := JSonDadosSite.Get(Campo).JsonValue.ToString;
+    Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
+
+    Result := Valor.ToInteger;
+    FUserId := Valor.ToInteger;
+  except
+    Result := 0;
+  end;
+end;
+
+function TDM.ValorInicialPadraoCaixa: Real;
+begin
+  Result := DM.DADOS_WHATSAPP.FieldByName('valor_padrao_caixa').AsFloat;
+end;
+
+{ TConexaoServidor }
+
+constructor TConexaoServidor.Create;
+begin
+  inherited Create(True);
+  Conexao := iRequisicao.Create(nil);
+  Conexao.BaseURL := DM.BaseURL;
+  Conexao.TempoExpiracao := 50 * 1000;
+  // Conexao.TempoExpiracao := 1000;
+  Conexao.URL := 'v1/versao/app';
+end;
+
+destructor TConexaoServidor.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TConexaoServidor.Execute;
+begin
+  inherited;
+  while not Terminated do
+  begin
+    try
+      Conexao.Execute;
+    except
+      Conexao.Status := 400;
+    end;
+
+    Status := Conexao.Status = 200;
+
+    if Status then
+      Sleep(60 * 1000)
+    else
+      Sleep(5000);
+
+  end;
+end;
+
+procedure TConexaoServidor.SetStatus(const Value: Boolean);
+begin
+  FStatus := Value;
+
+  if StatusAnterior <> Status then
+  begin
+    StatusAnterior := Value;
+    if not Value then
+    begin
+      if Assigned(frmMain) then
+        frmMain.rSemConexao.Visible := True;
+
+      // try
+      // TLoading.Show(frmMain, 'Sem Conexão Com o Servidor, Aguarde...')
+      // except
+      //
+      // end;
+    end
+    else
+    begin
+      if Assigned(frmMain) then
+        frmMain.rSemConexao.Visible := False;
+      // try
+      // TLoading.Hide;
+      // except
+      //
+      // end;
+    end;
+  end;
+
+end;
+
+procedure TConexaoServidor.SetStatusAnterior(const Value: Boolean);
+begin
+  FStatusAnterior := Value;
+end;
+
+end.

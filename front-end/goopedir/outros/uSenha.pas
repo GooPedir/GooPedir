@@ -72,10 +72,7 @@ begin
       end;
     Validar:
       begin
-        dm.CONEXAO.URL := '/v1/gerente/senha/' + edtSenha.Text;
-        dm.CONEXAO.Metodo := mget;
-        dm.CONEXAO.Execute;
-        Senha := dm.CONEXAO.Retorno = 'True';
+        Senha := DM.GetRetornoString('/v1/gerente/senha/' + edtSenha.Text) = 'True';
         if not Senha then
         begin
           edtSenha.SetFocus;

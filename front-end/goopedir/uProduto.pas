@@ -1752,13 +1752,13 @@ begin
       imgProduto.Bitmap.LoadFromFile(DIALOG.FileName);
       NomeArquivo := BDSPRODUTOS.DataSet.FieldByName('site').AsString +
         ExtractFileExt(DIALOG.FileName) + ';base64;';
-      DM.CONEXAO.TempoExpiracao := 150000;
-      DM.CONEXAO.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
-        ('id').AsString + '/' + NomeArquivo;
-      Body := Base64FromBitmap(imgProduto.Bitmap);
-      DM.CONEXAO.Body(Body);
-      DM.CONEXAO.Metodo := mPost;
-      DM.CONEXAO.Execute;
+//      DM.CONEXAO_LOCAL.TempoExpiracao := 150000;
+//      DM.CONEXAO_LOCAL.URL := '/v1/imagem/produto/' + BDSPRODUTOS.DataSet.FieldByName
+//        ('id').AsString + '/' + NomeArquivo;
+//      Body := Base64FromBitmap(imgProduto.Bitmap);
+//      DM.CONEXAO_LOCAL.Body(Body);
+//      DM.CONEXAO_LOCAL.Metodo := mPost;
+//      DM.CONEXAO_LOCAL.Execute;
 
       RESTRequest1.Params.AddHeader('nome',
         BDSPRODUTOS.DataSet.FieldByName('site').AsString);

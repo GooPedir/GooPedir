@@ -1386,6 +1386,8 @@ begin
   conexao.SQL.Add('p.id_ifood,');
   conexao.SQL.Add('p.status_ifood,');
   conexao.SQL.Add('p.status_ifood_descricao,');
+  conexao.SQL.Add('p.order_ifood,');
+
   conexao.SQL.Add(' p.desc_desconto_ifood,');
   conexao.SQL.Add(' DATE_FORMAT(p.estimada_ifood,' +
     QuotedStr('%d/%m/%Y %h:%i:%s') + ') as estimada_ifood,');

@@ -201,7 +201,7 @@ begin
   // TThread.CreateAnonymousThread(
   // procedure
   // begin
-  // frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+   frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
   // DM.IniciaVerificacao;
 
   // Thread.Sleep(5000);
