@@ -13,42 +13,17 @@ uses
   FireDAC.Comp.Client, uMemTable, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
   FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
-  Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit;
+  Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit, FMX.Grid.Style,
+  FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
 
 type
   TfrmCliente = class(TfrmCadastroBase)
-    DADOS: iMemTable;
-    DADOScodigo: TIntegerField;
-    DADOSnome: TStringField;
-    DADOScelular: TStringField;
-    DADOSativo: TIntegerField;
-    BindSourceDB1: TBindSourceDB;
-    BindingsList1: TBindingsList;
-    DADOSendereco: TStringField;
-    DADOSrua: TStringField;
-    DADOSbairro: TStringField;
-    DADOScidade: TStringField;
-    DADOSestado: TStringField;
-    DADOScomplemento: TStringField;
-    DADOSnumero: TStringField;
-    MemTaxa: iMemTable;
-    MemTaxabairro: TStringField;
-    MemTaxacidade: TStringField;
-    MemTaxaestado: TStringField;
-    MemTaxacodigo: TIntegerField;
-    MemTaxavalor_taxa: TFloatField;
-    Layout2: TLayout;
-    edtCell: iEdit;
-    Label4: TLabel;
     Layout1: TLayout;
-    EdtNome: iEdit;
     Label3: TLabel;
+    EdtNome: iEdit;
     Layout3: TLayout;
     EdtRua: iEdit;
     Label5: TLabel;
-    Layout4: TLayout;
-    EdtNumero: iEdit;
-    Label6: TLabel;
     Layout5: TLayout;
     EdtComplemento: iEdit;
     Label8: TLabel;
@@ -58,9 +33,34 @@ type
     Layout7: TLayout;
     EdtCidade: iEdit;
     Label10: TLabel;
+    Layout4: TLayout;
+    EdtNumero: iEdit;
+    Label6: TLabel;
     Layout8: TLayout;
     EdtEstado: iEdit;
     Label11: TLabel;
+    Layout2: TLayout;
+    edtCell: iEdit;
+    Label12: TLabel;
+    MemTaxa: iMemTable;
+    MemTaxabairro: TStringField;
+    MemTaxacidade: TStringField;
+    MemTaxaestado: TStringField;
+    MemTaxacodigo: TIntegerField;
+    MemTaxavalor_taxa: TFloatField;
+    DADOS: iMemTable;
+    lDados: TGrid;
+    DADOSnome: TStringField;
+    DADOScelular: TStringField;
+    DADOScodigo: TIntegerField;
+    DADOSrua: TStringField;
+    DADOSbairro: TStringField;
+    DADOScidade: TStringField;
+    DADOSestado: TStringField;
+    DADOSnumero: TStringField;
+    DADOScomplemento: TStringField;
+    BindSourceDB1: TBindSourceDB;
+    BindingsList1: TBindingsList;
     LinkControlToField1: TLinkControlToField;
     LinkControlToField2: TLinkControlToField;
     LinkControlToField3: TLinkControlToField;
@@ -69,9 +69,11 @@ type
     LinkControlToField6: TLinkControlToField;
     LinkControlToField7: TLinkControlToField;
     LinkControlToField8: TLinkControlToField;
-    Edit1: TEdit;
+    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAlterarClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -82,12 +84,13 @@ type
 var
   frmCliente: TfrmCliente;
   Carregando: Boolean;
+  CodigoCliente: Integer;
 
 implementation
 
 {$R *.fmx}
 
-uses uDM;
+uses uDM, util;
 
 { TfrmCliente }
 
@@ -103,6 +106,11 @@ begin
   if Carregando then
     exit;
   Carregando := True;
+  dm.GetSimples('/v1/consulta/todos/clientes', DADOS, True);
+  lDados.Visible := True;
+  Carregando := False;
+  tabPrincipal.TabIndex := 0;
+  exit;
   try
     TThread.CreateAnonymousThread(
       procedure
@@ -139,6 +147,40 @@ begin
     ShowMessage('Deve-se cadastrar as taxas primeiro!');
     exit;
   end;
+  DADOS.insert;
+  DADOS.FieldByName('celular').AsString := DM.DADOS_WHATSAPP.FieldByName('ddd_padrao').AsString;
+  CodigoCliente := 0;
+  tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rAlterarClick(Sender: TObject);
+begin
+  inherited;
+  CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
+  tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rSalvarClick(Sender: TObject);
+begin
+  inherited;
+  if length(edtCell.Text) < 11 then
+  begin
+    ShowMessageToast(self, 'Informe o celular!', 1);
+    edtCell.SetFocus;
+    exit;
+  end;
+  if length(EdtNome.Text) = 0 then
+  begin
+    ShowMessageToast(self, 'Informe o nome!', 1);
+    EdtNome.SetFocus;
+    exit;
+  end;
+
+  dm.PostSimples('v1/cliente/cadastro/' + CodigoCliente.ToString + '/' +
+    edtCell.Text + '/' + EdtNome.Text + '/' + EdtRua.Text + '/' + EdtNumero.Text
+    + '/' + EdtComplemento.Text + '/' + EdtBairro.Text + '/' + EdtCidade.Text +
+    '/' + EdtEstado.Text + '/0', nil);
+  GetDados;
 end;
 
 initialization

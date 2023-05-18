@@ -20,19 +20,27 @@ type
   TfrmCliente = class(TfrmCadastroBase)
     Layout1: TLayout;
     Label3: TLabel;
+    EdtNome: iEdit;
     Layout3: TLayout;
+    EdtRua: iEdit;
     Label5: TLabel;
     Layout5: TLayout;
+    EdtComplemento: iEdit;
     Label8: TLabel;
     Layout6: TLayout;
+    EdtBairro: iEdit;
     Label9: TLabel;
     Layout7: TLayout;
+    EdtCidade: iEdit;
     Label10: TLabel;
     Layout4: TLayout;
+    EdtNumero: iEdit;
     Label6: TLabel;
     Layout8: TLayout;
+    EdtEstado: iEdit;
     Label11: TLabel;
     Layout2: TLayout;
+    edtCell: iEdit;
     Label12: TLabel;
     MemTaxa: iMemTable;
     MemTaxabairro: TStringField;
@@ -53,23 +61,14 @@ type
     DADOScomplemento: TStringField;
     BindSourceDB1: TBindSourceDB;
     BindingsList1: TBindingsList;
-    LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
-    edtCell: TEdit;
-    EdtNome: TEdit;
-    EdtRua: TEdit;
-    EdtNumero: TEdit;
-    EdtComplemento: TEdit;
-    EdtBairro: TEdit;
-    EdtCidade: TEdit;
-    EdtEstado: TEdit;
-    LinkControlToField9: TLinkControlToField;
-    LinkControlToField10: TLinkControlToField;
-    LinkControlToField11: TLinkControlToField;
-    LinkControlToField12: TLinkControlToField;
-    LinkControlToField13: TLinkControlToField;
-    LinkControlToField14: TLinkControlToField;
-    LinkControlToField15: TLinkControlToField;
-    LinkControlToField16: TLinkControlToField;
+    LinkControlToField1: TLinkControlToField;
+    LinkControlToField2: TLinkControlToField;
+    LinkControlToField3: TLinkControlToField;
+    LinkControlToField4: TLinkControlToField;
+    LinkControlToField5: TLinkControlToField;
+    LinkControlToField6: TLinkControlToField;
+    LinkControlToField7: TLinkControlToField;
+    LinkControlToField8: TLinkControlToField;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rSalvarClick(Sender: TObject);
@@ -90,7 +89,7 @@ implementation
 
 {$R *.fmx}
 
-uses uDM, util;
+uses uDM;
 
 { TfrmCliente }
 
@@ -148,34 +147,20 @@ begin
     exit;
   end;
   DADOS.insert;
-  DADOS.FieldByName('celular').AsString := DM.DADOS_WHATSAPP.FieldByName('ddd_padrao').AsString;
   CodigoCliente := 0;
-  tabPrincipal.TabIndex := 1;
+tabPrincipal.TabIndex := 1;
 end;
 
 procedure TfrmCliente.rAlterarClick(Sender: TObject);
 begin
   inherited;
-  CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
-  tabPrincipal.TabIndex := 1;
+CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
+tabPrincipal.TabIndex := 1;
 end;
 
 procedure TfrmCliente.rSalvarClick(Sender: TObject);
 begin
   inherited;
-  if length(edtCell.Text) < 11 then
-  begin
-    ShowMessageToast(self, 'Informe o celular!', 1);
-    edtCell.SetFocus;
-    exit;
-  end;
-  if length(EdtNome.Text) = 0 then
-  begin
-    ShowMessageToast(self, 'Informe o nome!', 1);
-    EdtNome.SetFocus;
-    exit;
-  end;
-
   dm.PostSimples('v1/cliente/cadastro/' + CodigoCliente.ToString + '/' +
     edtCell.Text + '/' + EdtNome.Text + '/' + EdtRua.Text + '/' + EdtNumero.Text
     + '/' + EdtComplemento.Text + '/' + EdtBairro.Text + '/' + EdtCidade.Text +

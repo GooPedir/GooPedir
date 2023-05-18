@@ -857,6 +857,7 @@ begin
     // Conexao.MemTable2 := Dados;
     Conexao.Execute;
     Dados.LoadFromJSON(Conexao.Retorno);
+    Result := True;
   except
     on E: Exception do
     begin

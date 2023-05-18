@@ -14,7 +14,7 @@ uses
   FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
   FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
   Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit, FMX.Grid.Style,
-  Fmx.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
+  FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
 
 type
   TfrmCliente = class(TfrmCadastroBase)
@@ -71,10 +71,12 @@ type
     LinkControlToField7: TLinkControlToField;
     LinkControlToField8: TLinkControlToField;
     Edit1: TEdit;
-    StringGrid4: TStringGrid;
+    lDados: TStringGrid;
     LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAlterarClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -85,6 +87,7 @@ type
 var
   frmCliente: TfrmCliente;
   Carregando: Boolean;
+  CodigoCliente: Integer;
 
 implementation
 
@@ -106,6 +109,11 @@ begin
   if Carregando then
     exit;
   Carregando := True;
+  dm.GetSimples('/v1/consulta/todos/clientes', DADOS, True);
+  lDados.Visible := True;
+  Carregando := False;
+  tabPrincipal.TabIndex := 0;
+  exit;
   try
     TThread.CreateAnonymousThread(
       procedure
@@ -142,6 +150,26 @@ begin
     ShowMessage('Deve-se cadastrar as taxas primeiro!');
     exit;
   end;
+  DADOS.insert;
+  CodigoCliente := 0;
+tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rAlterarClick(Sender: TObject);
+begin
+  inherited;
+CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
+tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rSalvarClick(Sender: TObject);
+begin
+  inherited;
+  dm.PostSimples('v1/cliente/cadastro/' + CodigoCliente.ToString + '/' +
+    edtCell.Text + '/' + EdtNome.Text + '/' + EdtRua.Text + '/' + EdtNumero.Text
+    + '/' + EdtComplemento.Text + '/' + EdtBairro.Text + '/' + EdtCidade.Text +
+    '/' + EdtEstado.Text + '/0', nil);
+  GetDados;
 end;
 
 initialization

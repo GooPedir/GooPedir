@@ -185,12 +185,15 @@ type
     function LoginMotoboy: Boolean;
     function PostSimplesUnico(URL: String; Dados: IMemTable): Boolean;
     function PostSimplesUnico2(URL: String; Dados: TFDMemTable): Boolean;
-    function PostSimples(URL: String; Dados: IMemTable): Boolean;
+    function PostSimples(URL: String; Dados: IMemTable): Boolean; overload;
+    function PostSimples(URL: String; Dados: TFDMemTable): Boolean; overload;
+
     function PostSimplesComRetorno(URL: String): String;
     function PostSimplesComBody(URL, Body: String): String;
     function GetSimples(URL: String; Dados: IMemTable): Boolean; overload;
     function GetSimples2(URL: String; Dados: TFDMemTable): Boolean;
     function GetSimplesBody(URL: String; Body, Dados: IMemTable): Boolean;
+    function GetRetornoString(URL: String): String;
     function PutSimples(URL: String; Dados: IMemTable): Boolean;
     function GetSimples(URL: String; Dados: IMemTable; Paginacao: Boolean)
       : Boolean; overload;
@@ -375,9 +378,9 @@ begin
   end;
 end;
 
-function TDM.BaseURL;: String;
+function TDM.BaseURL: String;
 begin
-  //
+  Result := GetHost;
 end;
 
 function TDM.BitmapFromBase64(const Base64: string): TBitmap;
@@ -590,7 +593,7 @@ begin
   try
     Conexao := iRequisicao.Create(nil);
     Conexao.BaseURL := DM.BaseURL;
-    Conexao.TempoExpiracao := 50 * 1000;
+    Conexao.TempoExpiracao := 300;
 
     DADOS_WHATSAPP.Close;
 
@@ -604,7 +607,7 @@ begin
   except
     on E: Exception do
     begin
-      ShowMessage(E.Message);
+      // ShowMessage(E.Message);
 
     end;
 
@@ -702,6 +705,35 @@ begin
   except
 
   end;
+
+end;
+
+function TDM.GetRetornoString(URL: String): String;
+var
+  Conexao: iRequisicao;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+    URL := Parametros(URL);
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mGet;
+    Conexao.Token(Token);
+    Conexao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Result := Conexao.Retorno;
+  Conexao.Free;
 
 end;
 
@@ -920,11 +952,7 @@ end;
 
 procedure TDM.LogUsuario;
 begin
-  BaseURL := GetHost;
-  DM.CONEXAO_LOCAL.URL := '/v1/usuario/' + GetUsuario + '/' + GetSenha;
-  DM.CONEXAO_LOCAL.Metodo := mGet;
-  DM.CONEXAO_LOCAL.MemTable2 := DM.USUARIO;
-  DM.CONEXAO_LOCAL.Execute;
+  GetSimples2('/v1/usuario/' + GetUsuario + '/' + GetSenha, DM.USUARIO);
   DM.CodigoCaixa;
 end;
 
@@ -949,6 +977,39 @@ begin
 end;
 
 function TDM.PostSimples(URL: String; Dados: IMemTable): Boolean;
+var
+  Conexao: iRequisicao;
+  Body: String;
+begin
+  try
+    Conexao := iRequisicao.Create(nil);
+    Conexao.BaseURL := DM.BaseURL;
+    Conexao.TempoExpiracao := 50 * 1000;
+
+    URL := Parametros(URL);
+
+    if Assigned(Dados) then
+      Body := Dados.ToJSONArray().ToString;
+    Conexao.eTAG := False;
+    Conexao.URL := URL;
+    Conexao.Metodo := mPost;
+    Conexao.Token(Token);
+    Conexao.Body(Body);
+
+    Conexao.Execute;
+  except
+    on E: Exception do
+    begin
+      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+
+    end;
+
+  end;
+
+  Conexao.Free;
+end;
+
+function TDM.PostSimples(URL: String; Dados: TFDMemTable): Boolean;
 var
   Conexao: iRequisicao;
   Body: String;
