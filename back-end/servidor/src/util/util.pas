@@ -1998,9 +1998,9 @@ begin
 
     SQL := 'insert into produto (codigo,codigo_interno,data_cadastro,nome_produto,descricao,codigo_grupo,valor_venda';
     SQL := SQL +
-      ',ativo,observacao,adicional_personalizado,valor_embalagem_delivery,valor_embalagem_vembusca,usa_tabela_preco,atualizado,modificado_site) values ';
+      ',ativo,observacao,adicional_personalizado,valor_embalagem_delivery,valor_embalagem_vembusca,usa_tabela_preco,atualizado,modificado_site,valor_ifood) values ';
     SQL := SQL +
-      '(:codigo,:interno,current_date,:nome,:descricao,:grupo,:venda,:ativo,1,1,:delivery,:vb,1,0,0)';
+      '(:codigo,:interno,current_date,:nome,:descricao,:grupo,:venda,:ativo,1,1,:delivery,:vb,1,0,0,:valor_ifood)';
     Novo := True;
   end
   else
