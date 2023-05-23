@@ -369,6 +369,7 @@ type
     RESTResponse1: TRESTResponse;
     RESTClient1: TRESTClient;
     RESTRequest1: TRESTRequest;
+    PRODUTOVALOR_IFOOD: TFloatField;
 
 {$IFDEF Android}
 {$ELSE}
@@ -2085,6 +2086,10 @@ begin
   PRODUTO.Open;
   PRODUTO.insert;
   CodigoProdutoSelecionado := CodigoProduto;
+  //
+  if PRODUTO.FieldByName('VALOR_IFOOD').IsNull then
+  PRODUTO.FieldByName('VALOR_IFOOD').AsFloat := 0;
+
   PRODUTO.FieldByName('CODIGO').AsInteger := CodigoProduto;
   PRODUTO.FieldByName('INTERNO').AsInteger := edtCodigo.Text.ToInteger;
   PRODUTO.FieldByName('CATEGORIA').AsInteger := BDSCATEGORIA.DataSet.FieldByName
