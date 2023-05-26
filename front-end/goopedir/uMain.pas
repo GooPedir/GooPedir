@@ -218,8 +218,11 @@ begin
     FrmAddItem.ExecutarQuandoCarregaProdutos := FinalizouCarregamento;
     FrmAddItem.Load;
   end;
+//  FinalizouCarregamento;
 
   AbrirForm('TfrmDashBoard');
+
+//  AbrirForm('TfrmProduto');
 
   FrmResumo := TFrmResumo.Create(Self);
 

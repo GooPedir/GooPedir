@@ -2000,7 +2000,7 @@ begin
     SQL := SQL +
       ',ativo,observacao,adicional_personalizado,valor_embalagem_delivery,valor_embalagem_vembusca,usa_tabela_preco,atualizado,modificado_site,valor_ifood) values ';
     SQL := SQL +
-      '(:codigo,:interno,current_date,:nome,:descricao,:grupo,:venda,:ativo,1,1,:delivery,:vb,1,0,0,:valor_ifood)';
+      '(:codigo,:interno,current_date,:nome,:descricao,:grupo,:venda,:ativo,1,1,:delivery,:vb,1,0,1,:valor_ifood)';
     Novo := True;
   end
   else

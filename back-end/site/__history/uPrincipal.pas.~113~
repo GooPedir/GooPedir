@@ -555,7 +555,7 @@ begin
 
   EnviarSabores;
 
-  // EnviarPedidosWhatsapp;
+   EnviarPedidosWhatsapp;
 
 end;
 
@@ -1066,7 +1066,7 @@ begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'SELECT p.saldo_atual as estoque, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
+  SQL := 'SELECT p.saldo_atual as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
   SQL := SQL +
     'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
   SQL := SQL +
@@ -1107,6 +1107,7 @@ begin
     end;
 
     try
+    //   foto_ifood        > img_ifood
       case Dados.FieldByName('id_site').AsInteger of
         0:
           begin
@@ -1114,7 +1115,7 @@ begin
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
               'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-              'valor_delivery', 'estoque'],
+              'valor_delivery', 'estoque','img_ifood'],
               [Dados.FieldByName('id_site').AsString, Usuario.ToString, 'false',
               '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
               Dados.FieldByName('codigo_interno').AsString,
@@ -1122,7 +1123,7 @@ begin
               Dados.FieldByName('produto').AsString, Descricao,
               Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
               .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-              Dados.FieldByName('estoque').AsString]);
+              Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
           end
       else
         begin
@@ -1130,13 +1131,13 @@ begin
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
             'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
-            'estoque'], [Dados.FieldByName('id_site').AsString,
+            'estoque','img_ifood'], [Dados.FieldByName('id_site').AsString,
             Usuario.ToString, '0', '0', '0', Dados.FieldByName('codigo_interno')
             .AsString, Dados.FieldByName('categoria').AsString,
             Dados.FieldByName('produto').AsString, Descricao,
             Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
             .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-            Dados.FieldByName('estoque').AsString]);
+            Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
         end;
       end;
     except
@@ -1144,7 +1145,7 @@ begin
         ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
         'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery', 'estoque'], [Dados.FieldByName('id_site').AsString,
+        'valor_delivery', 'estoque', 'img_ifood'], [Dados.FieldByName('id_site').AsString,
         Usuario.ToString, 'false', '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
         Dados.FieldByName('codigo_interno').AsString,
@@ -1152,7 +1153,7 @@ begin
         .AsString, Descricao, Dados.FieldByName('venda').AsString,
         Dados.FieldByName('ativo').AsString,
         Dados.FieldByName('vl_embalagem_delivery').AsString,
-        Dados.FieldByName('estoque').AsString]);
+        Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
     end;
 
     if codigo > 0 then
@@ -1209,7 +1210,7 @@ begin
     QuotedStr('<br /><b>') + ',ppslocal.nomeclatura,' + QuotedStr(' ') +
     ',ppslocal.descricao ,' + QuotedStr('<br />Valor R$: ') +
     ',localpp.valor_total,' + QuotedStr('<br />') + '),' +
-    QuotedStr('<br /><b>Importado Sistema Local!<br /><b>') + ') ';
+    QuotedStr('<br /><b>Importado Sistema!<br /><b>') + ') ';
   Resumo := Resumo + 'FROM pedido_produto_sap as ppslocal ';
   Resumo := Resumo +
     'join pedido_produtos as localpp on localpp.codigo = ppslocal.codigo_pedido_produto ';
@@ -1238,6 +1239,7 @@ begin
     SQL := SQL + 'p.valor_taxa_entrega as valor_taxa, ';
     SQL := SQL + '0 as adicionais, ';
     SQL := SQL + 'p.valor_pedido as sub_total, ';
+    SQL := SQL + 'p.id_ifood as id_ifood, ';
     SQL := SQL + 'p.valor_total_pedido as total, ';
     SQL := SQL + 'REPLACE(c.nome,'' '',''%'') as nome, ';
     SQL := SQL + 'c.celular as telefone, ';
@@ -1272,6 +1274,7 @@ begin
     SQL := SQL +
       'p.data_pedido > ''2000-12-31'' and p.id_pedido_site is null and p.status > 0 ';
     SQL := SQL + 'limit 15 ';
+//    ShowMessage(SQL);
     frmPrincipal.AdicionaLog(SQL);
     Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
@@ -1527,7 +1530,7 @@ var
 begin
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
-  SQL := 'SELECT * FROM tipo_pagamento where (modificado_site = 0 or modificado_site is null) and apenas_delivery = 1';
+  SQL := 'SELECT * FROM tipo_pagamento where (modificado_site = 0 or modificado_site is null) and ativo = 1';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -2935,15 +2938,6 @@ end;
 
 function TBuscaPedidos.ExecutaSQLSite(SQL: String): Boolean;
 begin
-  frmPrincipal.Memo1.Lines.Clear;
-  try
-    frmPrincipal.Memo1.Lines.LoadFromFile('C:\goopedir\teste.txt');
-
-  except
-
-  end;
-  frmPrincipal.Memo1.Lines.Add(SQL);
-  frmPrincipal.Memo1.Lines.SaveToFile('C:\goopedir\teste.txt');
 
   FRequest.URLI := 'sql/a/';
   FRequest.Body('{"sql":"' + SQL +
@@ -3830,11 +3824,14 @@ begin
 
         // FRequestStatus
         // FRequestStatus.BASEURL := FRequestStatus.BASEURL+'v1/pedido/status/'+CodigoNovoPeiddo.ToString+'/'+StatusPedido.ToString+'/';
+        try
         FRequestStatus.URL := 'v1/pedido/status/' + CodigoNovoPeiddo.ToString +
           '/' + StatusPedido.ToString + '/';
         FRequestStatus.metodo := mPut;
         FRequestStatus.Execute;
+        except
 
+        end;
         MemoryTablePedidos.next;
       end;
 

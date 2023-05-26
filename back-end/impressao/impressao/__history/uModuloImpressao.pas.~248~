@@ -110,22 +110,17 @@ type
     ppLabel34: TppLabel;
     ppDBText28: TppDBText;
     ppRichText21: TppRichText;
-    ppDB2DBarCode2: TppDB2DBarCode;
     ppLabel35: TppLabel;
     ppDBText29: TppDBText;
     ppDBText33: TppDBText;
     ppSummaryBand6: TppSummaryBand;
     ppDB2DBarCode1: TppDB2DBarCode;
-    ppShape1: TppShape;
-    ppLabel2: TppLabel;
-    ppLabel3: TppLabel;
     ppRichText42: TppRichText;
     ppGroup6: TppGroup;
     ppGroupHeaderBand6: TppGroupHeaderBand;
     ppGroupFooterBand6: TppGroupFooterBand;
     COZINHA80MM: TppReport;
     ppRichText23: TppRichText;
-    ppShape5: TppShape;
     ppLine16: TppLine;
     ppRichText2: TppRichText;
     ppRichText1: TppRichText;
@@ -499,6 +494,36 @@ type
     ppGroup14: TppGroup;
     ppGroupHeaderBand14: TppGroupHeaderBand;
     ppGroupFooterBand14: TppGroupFooterBand;
+    ppDBText26: TppDBText;
+    ppLabel68: TppLabel;
+    ppRichText64: TppRichText;
+    iReqImpressaoTest: iRequisicao;
+    ppTesteImpressao: TppReport;
+    ppTitleBand16: TppTitleBand;
+    ppRichText86: TppRichText;
+    ppHeaderBand16: TppHeaderBand;
+    ppDetailBand18: TppDetailBand;
+    ppFooterBand16: TppFooterBand;
+    ppSummaryBand18: TppSummaryBand;
+    ppSystemVariable32: TppSystemVariable;
+    ppSystemVariable33: TppSystemVariable;
+    ppDesignLayers18: TppDesignLayers;
+    ppDesignLayer18: TppDesignLayer;
+    ppParameterList16: TppParameterList;
+    ppParameter15: TppParameter;
+    pp2DBarCode1: Tpp2DBarCode;
+    ppBarCode1: TppBarCode;
+    ppReport1: TppReport;
+    ppParameterList17: TppParameterList;
+    ppDesignLayers19: TppDesignLayers;
+    ppDesignLayer19: TppDesignLayer;
+    ppHeaderBand17: TppHeaderBand;
+    ppDetailBand19: TppDetailBand;
+    ppFooterBand17: TppFooterBand;
+    ppShape2: TppShape;
+    qryMesas: TFDQuery;
+    ppMesa: TppBDEPipeline;
+    dsMesa: TDataSource;
     ppHeaderBand3: TppHeaderBand;
     ppRichText8: TppRichText;
     ppLine11: TppLine;
@@ -527,32 +552,15 @@ type
     ppSummaryBand4: TppSummaryBand;
     ppSystemVariable3: TppSystemVariable;
     ppSystemVariable15: TppSystemVariable;
+    ppDBText16: TppDBText;
     raCodeModule2: TraCodeModule;
     ppDesignLayers4: TppDesignLayers;
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
     ppParameter2: TppParameter;
-    ppDBText16: TppDBText;
-    ppDBText26: TppDBText;
-    ppLabel68: TppLabel;
-    ppRichText64: TppRichText;
-    iReqImpressaoTest: iRequisicao;
-    ppTesteImpressao: TppReport;
-    ppTitleBand16: TppTitleBand;
-    ppRichText86: TppRichText;
-    ppHeaderBand16: TppHeaderBand;
-    ppDetailBand18: TppDetailBand;
-    ppFooterBand16: TppFooterBand;
-    ppSummaryBand18: TppSummaryBand;
-    ppSystemVariable32: TppSystemVariable;
-    ppSystemVariable33: TppSystemVariable;
-    ppDesignLayers18: TppDesignLayers;
-    ppDesignLayer18: TppDesignLayer;
-    ppParameterList16: TppParameterList;
-    ppParameter15: TppParameter;
-    pp2DBarCode1: Tpp2DBarCode;
-    ppBarCode1: TppBarCode;
-    procedure DataModuleCreate(Sender: TObject);
+    ppRichText88: TppRichText;
+    ppRichText89: TppRichText;
+    procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
     { Private declarations }
@@ -670,12 +678,12 @@ begin
   ppLabel35.Visible := Origem <> 3;
   ppDBText29.Visible := Origem <> 3;
   ppDB2DBarCode1.Visible := Origem <> 3;
-  ppShape5.Visible := Origem <> 3;
-  ppDB2DBarCode2.Visible := Origem <> 3;
-  ppShape1.Visible := Origem <> 3;
+//  ppShape5.Visible := Origem <> 3;
+//  ppDB2DBarCode2.Visible := Origem <> 3;
+//  ppShape1.Visible := Origem <> 3;
   ppDBText33.Visible := Origem <> 3;
-  ppLabel2.Visible := Origem <> 3;
-  ppLabel3.Visible := Origem <> 3;
+//  ppLabel2.Visible := Origem <> 3;
+//  ppLabel3.Visible := Origem <> 3;
   ppSystemVariable7.Visible := Origem <> 3;
   ppLogo80mm.Visible := Origem <> 3;
   ppRichText1.Visible := Origem <> 3;
@@ -749,7 +757,7 @@ begin
   Relatorio.PrinterSetup.DocumentName := VersaoPDV;
 end;
 
-procedure TdmImpressaoV2.DataModuleCreate(Sender: TObject);
+procedure TdmImpressaoV2.C(Sender: TObject);
 var
   Thread: TImpressaoPedidos;
 begin
@@ -934,7 +942,7 @@ begin
             CAIXA_RESUMO.SQL.Add
               ('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
             CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
-            CAIXA_RESUMO.SQL.Add('group by tp.codigo');
+            CAIXA_RESUMO.SQL.Add('group by tp.codigo, tp.descricao');
             CAIXA_RESUMO.ParamByName('id').AsInteger := Codigo;
             CAIXA_RESUMO.Open;
             if CAIXA_RESUMO.RecordCount = 0 then
@@ -1119,7 +1127,7 @@ begin
               CAIXA_PRODUTO.SQL.Add
                 ('order by tp.codigo,prod.codigo) as produtos');
               CAIXA_PRODUTO.SQL.Add
-                ('group by produtos.produto, produtos.adicionais');
+                ('group by produtos.produto, produtos.adicionais, produtos.codigo');
 
               CAIXA_PRODUTO.ParamByName('id').AsInteger := Codigo;
               CAIXA_PRODUTO.Open;
@@ -1491,25 +1499,20 @@ begin
     COZINHA.SQL.Add('pp.valor_unitario as vl_unitario,');
     COZINHA.SQL.Add('pp.quantidade as qtd,');
     COZINHA.SQL.Add('pp.valor_total as vl_total,');
-    COZINHA.SQL.Add
-      ('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
-    COZINHA.SQL.Add
-      ('p.nome_produto as produto, c.nome, c.celular, ped.data_pedido, ped.hora_pedido, case  when ped.codigo_cliente_endereco = 0 then "Vem Buscar" else "Delivery" end as tipo,');
+    COZINHA.SQL.Add('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
+    COZINHA.SQL.Add('p.nome_produto as produto, c.nome, c.celular, ped.data_pedido, ped.hora_pedido, case  when ped.codigo_cliente_endereco = 0 then "Vem Buscar" else "Delivery" end as tipo,');
     COZINHA.SQL.Add('pps.nomeclatura as nomeclatura,ped.origem, ');
-    COZINHA.SQL.Add
-      ('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
+    COZINHA.SQL.Add('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
     COZINHA.SQL.Add('sum(pps.valor) as vl_adicional,');
-    COZINHA.SQL.Add
-      ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver');
+    COZINHA.SQL.Add('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver,');
+    COZINHA.SQL.Add('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora');
     COZINHA.SQL.Add('FROM pedido_produtos as pp');
     COZINHA.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-    COZINHA.SQL.Add
-      ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
+    COZINHA.SQL.Add('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
     COZINHA.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
     COZINHA.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-    COZINHA.SQL.Add('join cliente as c on c.codigo = ped.codigo_cliente');
-    COZINHA.SQL.Add('where pp.codigo in (' + CodigoPedido +
-      ') and pp.codigo_pedido > 0');
+    COZINHA.SQL.Add('left join cliente as c on c.codigo = ped.codigo_cliente');
+    COZINHA.SQL.Add('where pp.codigo in (' + CodigoPedido +') and pp.codigo_pedido > 0');
     COZINHA.SQL.Add('group by pps.nomeclatura, pps.codigo_pedido_produto');
     COZINHA.SQL.Add('order by pp.codigo');
 
@@ -1620,24 +1623,24 @@ begin
   QRYPEDIDOSPRODUTOS.Connection := dmModulo.BANCO;
   QRYPEDIDOSPRODUTOS.SQL.Add('SELECT group_concat(ipp.id_pedido) as grupo');
   QRYPEDIDOSPRODUTOS.SQL.Add('FROM impressao_pedido_produto as ipp');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join produto as p on p.codigo = pp.codigo_produto');
+  QRYPEDIDOSPRODUTOS.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
+  QRYPEDIDOSPRODUTOS.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+  QRYPEDIDOSPRODUTOS.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
+  QRYPEDIDOSPRODUTOS.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
   QRYPEDIDOSPRODUTOS.SQL.Add('where ipp.status = 0');
 
   try
     if QRY.FieldByName('impressao_agrupada').AsInteger = 1 then
     begin
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
+      QRYPEDIDOSPRODUTOS.SQL.Add('group by i.codigo');
     end
     else
     begin
       // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
+      QRYPEDIDOSPRODUTOS.SQL.Add('group by ipp.id');
     end;
   except
-    QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
+//    QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
   end;
 
   QRYCAIXA := TFDQuery.Create(nil);
@@ -1710,6 +1713,7 @@ begin
     QRYCAIXA.Close;
 
     try
+    dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
       dmImpressaoV2.iReqImpressaoTest.Execute;
 
       if frmMain.memImpressao.RecordCount > 0 then
@@ -1725,6 +1729,10 @@ begin
       end;
       frmMain.memImpressao.Close;
     except
+    on E : Exception do
+    begin
+//      ShowMessage(e.Message)
+    end;
 
     end;
 

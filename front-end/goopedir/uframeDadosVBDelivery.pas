@@ -144,7 +144,7 @@ type
     property Taxa: Real read FTaxa write SetTaxa;
     property Total: Real read FTotal write SetTotal;
     property Troco: Real read FTroco write SetTroco;
-    property ValorPedido : Real read FValorPedido write SetValorPedido;
+    property ValorPedido: Real read FValorPedido write SetValorPedido;
     property Desconto: Real read FDesconto write SetDesconto;
     property Documento: String read FDocumento write SetDocumento;
     property Origem: Integer read FOrigem write SetOrigem;
@@ -156,7 +156,8 @@ type
       write SetDataAgendamento;
     property DataEstimada: TDateTime read FDataEstimada write SetDataEstimada;
     property StatusiFood: String read FStatusiFood write SetStatusiFood;
-    property DescricaoStatus : String read FDescricaoStatus write SetDescricaoStatus;
+    property DescricaoStatus: String read FDescricaoStatus
+      write SetDescricaoStatus;
     property DescricaoDescontoiFood: String read FDescricaoDescontoiFood
       write SetDescricaoDescontoiFood;
     property TipoPagamento: String read FTipoPagamento write SetTipoPagamento;
@@ -409,6 +410,8 @@ begin
   cStatus.ItemIndex := Value;
   lStatus.Visible := Value <= 5;
   Carregando := False;
+
+  cSelecionar.Visible := Status <> 0;
 end;
 
 procedure TframeDadosVBDelivery.SetStatusiFood(const Value: String);

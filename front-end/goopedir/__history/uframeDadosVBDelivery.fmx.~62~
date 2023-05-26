@@ -61,19 +61,6 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
           Text = '00000'
           TabOrder = 1
         end
-        object cSelecionar: TCheckBox
-          Align = Left
-          StyledSettings = [Size, FontColor]
-          Margins.Left = 10.000000000000000000
-          Position.X = 59.000000000000000000
-          Size.Width = 120.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 4
-          Text = 'Selecionar'
-          TextSettings.Font.Family = 'Courier New'
-          TextSettings.Font.StyleExt = {00070000000000000004000000}
-        end
       end
       object GridPanelLayout1: TGridPanelLayout
         Align = Top
@@ -545,6 +532,14 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
         TextSettings.HorzAlign = Trailing
         Text = 'lDataEstimada'
         TabOrder = 14
+        object cSelecionar: TCheckBox
+          StyledSettings = [Size, FontColor]
+          Position.Y = -10.000000000000000000
+          TabOrder = 4
+          Text = 'Selecionar'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+        end
       end
       object edtTipoPagamento: TEdit
         Touch.InteractiveGestures = [LongTap, DoubleTap]

@@ -139,7 +139,6 @@ type
     Layout15: TLayout;
     Label36: TLabel;
     Image5: TImage;
-    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -211,6 +210,7 @@ begin
   inherited;
 frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
 frmCadastroAlteraProduto.ShowModal;
+//TfrmCliente
 
 end;
 
@@ -233,8 +233,9 @@ begin
       DiaDaSemana: String;
 
     begin
+
       CONEXAO := iRequisicao.Create(nil);
-      CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+      CONEXAO.BaseURL := DM.BaseURL;
 
       Dados := TFDMemTable.Create(nil);
       CONEXAO.URL := '/v1/dashboard';
@@ -368,7 +369,7 @@ end;
 procedure TfrmDashBoard.FormActivate(Sender: TObject);
 begin
   inherited;
-  DadosMedia;
+//  DadosMedia;
   layHistorico.Visible := False;
 end;
 
@@ -381,7 +382,7 @@ begin
 
   // ValidaData(date);
   MesesPrevisao := 12;
-  dm.BuscaFaturas(HorzScrollBoxFatura);
+//  dm.BuscaFaturas(HorzScrollBoxFatura);
 
   try
     nDelivery.Text := dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;
@@ -395,16 +396,15 @@ begin
   end;
 
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
-    .AsString);
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte').AsString);
   except
 
   end;
+
+  Layout15.Visible := dm.FichaTecnica = 1;
 
 end;
 
@@ -597,7 +597,7 @@ constructor TPrevisaoPedidoTThread.Create;
 begin
   inherited Create(True);
   CONEXAO := iRequisicao.Create(nil);
-  CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+  CONEXAO.BaseURL := DM.BaseURL;
   Dados := TFDMemTable.Create(nil);
   CONEXAO.URL := '/v1/dashboard/previsao/';
 end;

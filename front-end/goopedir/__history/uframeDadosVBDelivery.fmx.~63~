@@ -64,8 +64,8 @@ object frameDadosVBDelivery: TframeDadosVBDelivery
         object cSelecionar: TCheckBox
           Align = Left
           StyledSettings = [Size, FontColor]
-          Margins.Left = 10.000000000000000000
-          Position.X = 59.000000000000000000
+          Margins.Left = 30.000000000000000000
+          Position.X = 79.000000000000000000
           Size.Width = 120.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False

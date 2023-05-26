@@ -761,6 +761,7 @@ procedure TdmImpressaoV2.C(Sender: TObject);
 var
   Thread: TImpressaoPedidos;
 begin
+
   IMPRESSAO.Open;
   // ImprimirComanda(COMANDA80MM,9503,0);
   exit;

@@ -271,7 +271,9 @@ begin
     while not dataSetCategoy.Eof do
     begin
       Dados.Close;
-      conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '+ QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName('name').AsString)) + '%') + ' or id_ifood = :ifood');
+      conexao.SQL.Add('select * from tipo_produto where upper(descricao) like '
+        + QuotedStr('%' + UpperCase(RemoveAcento(dataSetCategoy.FieldByName
+        ('name').AsString)) + '%') + ' or id_ifood = :ifood');
       conexao.Parametros('ifood', dataSetCategoy.FieldByName('id').AsString);
       Dados.LoadFromJSON(conexao.ConsultaSQL);
       if Dados.RecordCount = 0 then
@@ -300,21 +302,22 @@ begin
       while not memItens.Eof do
       begin
         Dados.Close;
-          conexao.SQL.Add('select * from produto where id_ifood = '+QuotedStr(memItens.FieldByName('id').AsString));
-          Dados.LoadFromJSON(conexao.ConsultaSQL);
-          if Dados.RecordCount = 0 then
-          begin
-        try
-          conexao.SQL.Add
-            ('select * from produto where codigo_interno = :external or id_ifood = :ifood');
-          conexao.Parametros('external', FormatFloat('000000',
-            memItens.FieldByName('externalCode').AsInteger));
-          conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
-          Dados.LoadFromJSON(conexao.ConsultaSQL);
-        except
+        conexao.SQL.Add('select * from produto where id_ifood = ' +
+          QuotedStr(memItens.FieldByName('id').AsString));
+        Dados.LoadFromJSON(conexao.ConsultaSQL);
+        if Dados.RecordCount = 0 then
+        begin
+          try
+            conexao.SQL.Add
+              ('select * from produto where codigo_interno = :external or id_ifood = :ifood');
+            conexao.Parametros('external', FormatFloat('000000',
+              memItens.FieldByName('externalCode').AsInteger));
+            conexao.Parametros('ifood', memItens.FieldByName('id').AsString);
+            Dados.LoadFromJSON(conexao.ConsultaSQL);
+          except
 
-        end;
           end;
+        end;
         if Dados.RecordCount = 0 then
         begin
           Codigo := conexao.GerarID('produto', 'codigo');
@@ -719,17 +722,17 @@ begin
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.VerificaAtualizacao;
+  Atualizacao.AtualizarBanco;
 
   Servicos := TAbrirServicos.Create;
   Servicos.Start;
 
   FichaTecnica;
 
-
   if IntegracaoiFood then
   begin
     IFood.MerchantID(IDiFood);
-       BuscaDadosiFood;
+    BuscaDadosiFood;
     IFood.MerchantStatus.AutoStatus := True;
     IFood.Polling.AutoPolling := True;
   end;

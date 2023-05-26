@@ -632,8 +632,8 @@ begin
       BuscaCaixa;
 
       Visualizacao := False;
-       FormReceber := TfrmAReceber.Create(self);
-       layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
+//       FormReceber := TfrmAReceber.Create(self);
+//       layReceber.AddObject(TLayout(FormReceber.FindComponent('layReceber')));
 
     end).Start;
 

@@ -1860,7 +1860,7 @@ end;
 procedure TfrmProduto.Pagina(Tag: Integer);
 begin
 sPizza.IsChecked := False;
-edtSabores.Visible := false;
+
   case Tag of
     1:
       begin

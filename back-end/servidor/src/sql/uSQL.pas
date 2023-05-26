@@ -343,13 +343,15 @@ begin
         ExecultaSQL('alter table produto add valor_ifood real;');
         ExecultaSQL
           ('alter table pedido add status_ifood_descricao varchar(255);');
-        // alter table pro_adi_personalizado add id_ifood varchar(255);
-        // alter table pro_adi_personalizado_sabores add id_ifood varchar(255);
-        // alter table produto add foto_ifood varchar(255);
-        // alter table pedido add order_ifood varchar(50);
-        // alter table pedido add desc_desconto_ifood varchar(255);
-        // alter table pedido add agendada_ifood timestamp;
-        // alter table pedido add estimada_ifood timestamp;
+      end;
+      19: begin
+         ExecultaSQL('alter table pro_adi_personalizado add id_ifood varchar(255);');
+         ExecultaSQL('alter table pro_adi_personalizado_sabores add id_ifood varchar(255);');
+         ExecultaSQL('alter table produto add foto_ifood varchar(255);');
+         ExecultaSQL('alter table pedido add order_ifood varchar(50);');
+         ExecultaSQL('alter table pedido add desc_desconto_ifood varchar(255);');
+         ExecultaSQL('alter table pedido add agendada_ifood timestamp;');
+         ExecultaSQL('alter table pedido add estimada_ifood timestamp;');
       end;
 
     // Deve-se Rodar manual esses sql
@@ -366,7 +368,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '18';
+  Result := '19';
 end;
 
 end.

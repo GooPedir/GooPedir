@@ -423,8 +423,7 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'select produto.* from produto join produto_preco as pp on pp.id_produto = codigo where usa_tabela_preco = 1 ';
-  SQL := SQL +
-    ' and valor_venda <> (select ROUND(sum(produto_preco.valor),2) from produto_preco where produto_preco.id_produto = produto.codigo)';
+  SQL := SQL + ' and valor_venda <> (select ROUND(sum(produto_preco.valor),2) from produto_preco where produto_preco.id_produto = produto.codigo)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   InsertSite := TInsertUpdateSite.Create;
@@ -1067,14 +1066,10 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'SELECT p.saldo_atual as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
-  SQL := SQL +
-    'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
-  SQL := SQL +
-    'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
-  SQL := SQL +
-    ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
-  SQL := SQL +
-    ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
+  SQL := SQL + 'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
+  SQL := SQL + 'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
+  SQL := SQL + ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
+  SQL := SQL + ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -2514,7 +2509,7 @@ begin
         MemoryDados.FieldByName('valoradicional').AsFloat := 0;
       end;
       MemoryDados.Post;
-
+      DadosBusca.Close;
       FRequest.URLI := 'itens_pedido.php?codigo=' + MemoryPedidoItem.FieldByName
         ('tabela').AsString;
       FRequest.Get;
@@ -3425,8 +3420,7 @@ begin
       while not MemoryTablePedidos.Eof do
       begin
         SAP := False;
-        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id')
-          .AsInteger);
+        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id').AsInteger);
         MemoryDadosItem.Close;
         MemoryDadosItem.LoadFromJSON(Resultado);
         CodigoCliente := -1;

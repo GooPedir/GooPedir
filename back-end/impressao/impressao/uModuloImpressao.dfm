@@ -1,7 +1,7 @@
 object dmImpressaoV2: TdmImpressaoV2
   OnCreate = C
   Height = 708
-  Width = 827
+  Width = 1103
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (

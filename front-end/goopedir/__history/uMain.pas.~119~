@@ -196,29 +196,32 @@ begin
 
   dm.LogUsuario;
 
+  dm.UserId;
   tabMain.TabIndex := 0;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
-      // DM.IniciaVerificacao;
-      dm.UserId;
-      // Thread.Sleep(5000);
-      // TThread.Synchronize(TThread.CurrentThread,
-      // procedure
-      // begin
-      // Memo1.Lines.Add('Teste anonymous Thread');
-      // end);
-    end).Start;
+  // TThread.CreateAnonymousThread(
+  // procedure
+  // begin
+   frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+  // DM.IniciaVerificacao;
+
+  // Thread.Sleep(5000);
+  // TThread.Synchronize(TThread.CurrentThread,
+  // procedure
+  // begin
+  // Memo1.Lines.Add('Teste anonymous Thread');
+  // end);
+  // end).Start;
 
   if NOT Assigned(FrmAddItem) then
   begin
     Application.CreateForm(TFrmAddItem, FrmAddItem);
     FrmAddItem.ExecutarQuandoCarregaProdutos := FinalizouCarregamento;
-    FrmAddItem.Load;
+//    FrmAddItem.Load;
   end;
 
   AbrirForm('TfrmDashBoard');
+
+//  AbrirForm('TfrmProduto');
 
   FrmResumo := TFrmResumo.Create(Self);
 

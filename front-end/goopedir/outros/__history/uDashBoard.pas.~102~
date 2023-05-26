@@ -210,6 +210,7 @@ begin
   inherited;
 frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
 frmCadastroAlteraProduto.ShowModal;
+//TfrmCliente
 
 end;
 
@@ -232,8 +233,9 @@ begin
       DiaDaSemana: String;
 
     begin
+
       CONEXAO := iRequisicao.Create(nil);
-      CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+      CONEXAO.BaseURL := DM.BaseURL;
 
       Dados := TFDMemTable.Create(nil);
       CONEXAO.URL := '/v1/dashboard';
@@ -367,7 +369,7 @@ end;
 procedure TfrmDashBoard.FormActivate(Sender: TObject);
 begin
   inherited;
-  DadosMedia;
+//  DadosMedia;
   layHistorico.Visible := False;
 end;
 
@@ -394,16 +396,15 @@ begin
   end;
 
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo')
-    .AsString);
+  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
-    .AsString);
+  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte').AsString);
   except
 
   end;
+
+  Layout15.Visible := dm.FichaTecnica = 1;
 
 end;
 
@@ -596,7 +597,7 @@ constructor TPrevisaoPedidoTThread.Create;
 begin
   inherited Create(True);
   CONEXAO := iRequisicao.Create(nil);
-  CONEXAO.BaseURL := dm.CONEXAO.BaseURL;
+  CONEXAO.BaseURL := DM.BaseURL;
   Dados := TFDMemTable.Create(nil);
   CONEXAO.URL := '/v1/dashboard/previsao/';
 end;
