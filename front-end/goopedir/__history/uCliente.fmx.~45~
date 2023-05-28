@@ -1,0 +1,391 @@
+inherited frmCliente: TfrmCliente
+  Caption = 'frmCadastroBase2'
+  ClientHeight = 632
+  ClientWidth = 917
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 917.000000000000000000
+    Size.Height = 632.000000000000000000
+    inherited Rectangle1: TRectangle
+      Size.Width = 917.000000000000000000
+      inherited Image1: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88D6B
+              0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
+              1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
+              BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
+              DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
+              9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
+              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801472CBA880463605B00
+              00000049454E44AE426082}
+            FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 857.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'Cliente'
+      end
+    end
+    inherited tabPrincipal: TTabControl
+      Size.Width = 917.000000000000000000
+      Size.Height = 582.000000000000000000
+      Sizes = (
+        917s
+        556s
+        917s
+        556s)
+      inherited tabConsulta: TTabItem
+        ExplicitSize.cx = 84.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited GridPanelLayout1: TGridPanelLayout
+          Position.Y = 506.000000000000000000
+          Size.Width = 917.000000000000000000
+          TabOrder = 1
+          ColumnCollection = <
+            item
+              Value = 50.127729604282990000
+            end
+            item
+              Value = 49.872270395717010000
+            end
+            item
+            end>
+          inherited rAdicionar: TRectangle
+            Size.Width = 459.671295166015600000
+            inherited Label1: TLabel
+              Size.Width = 459.671295166015600000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAlterar: TRectangle
+            Size.Width = 457.328704833984400000
+            inherited Label2: TLabel
+              Size.Width = 457.328704833984400000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+          inherited rAtivarDesativar: TRectangle
+            Size.Width = 0.000000000000000000
+            inherited lTipoAtivo: TLabel
+              Size.Width = 305.315551757812500000
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object lDados: TGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 917.000000000000000000
+          Size.Height = 506.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          Viewport.Width = 913.000000000000000000
+          Viewport.Height = 481.000000000000000000
+        end
+      end
+      inherited TabDados: TTabItem
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          Position.Y = 506.000000000000000000
+          Size.Width = 917.000000000000000000
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC9944BFB800
+                    3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
+                    DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
+                    F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
+                    902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
+                    6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
+                    6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
+                    20F8C1FAE80F6744BCE87160BB8D18B2EC09ABFE3BD87346DD00000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout2: TLayout
+          Position.X = 11.000000000000000000
+          Position.Y = 4.000000000000000000
+          Size.Width = 146.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 3
+          object Label12: TLabel
+            Align = Top
+            Size.Width = 146.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Celular'
+            TabOrder = 0
+          end
+          object edtCell: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 146.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout1: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 165.000000000000000000
+          Position.Y = 4.000000000000000000
+          Size.Width = 742.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 9
+          object Label3: TLabel
+            Align = Top
+            Size.Width = 742.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Nome'
+            TabOrder = 0
+          end
+          object edtNome: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 742.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout3: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 11.000000000000000000
+          Position.Y = 59.000000000000000000
+          Size.Width = 742.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 8
+          object Label4: TLabel
+            Align = Top
+            Size.Width = 742.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Rua'
+            TabOrder = 0
+          end
+          object Edit1: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 742.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout4: TLayout
+          Anchors = [akTop, akRight]
+          Position.X = 761.000000000000000000
+          Position.Y = 59.000000000000000000
+          Size.Width = 146.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 6
+          object Label6: TLabel
+            Align = Top
+            Size.Width = 146.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'N'#250'mero'
+            TabOrder = 0
+          end
+          object EdtNumero: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 146.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout5: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 11.000000000000000000
+          Position.Y = 114.000000000000000000
+          Size.Width = 896.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 7
+          object Label8: TLabel
+            Align = Top
+            Size.Width = 896.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Complemento'
+            TabOrder = 0
+          end
+          object EdtComplemento: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 896.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout6: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 11.000000000000000000
+          Position.Y = 170.000000000000000000
+          Size.Width = 206.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object Label9: TLabel
+            Align = Top
+            Size.Width = 206.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Bairro'
+            TabOrder = 0
+          end
+          object EdtBairro: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 206.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout7: TLayout
+          Anchors = [akTop, akRight]
+          Position.X = 225.000000000000000000
+          Position.Y = 170.000000000000000000
+          Size.Width = 528.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 4
+          object Label10: TLabel
+            Align = Top
+            Size.Width = 528.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Cidade'
+            TabOrder = 0
+          end
+          object EdtCidade: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 528.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout8: TLayout
+          Anchors = [akTop, akRight]
+          Position.X = 761.000000000000000000
+          Position.Y = 170.000000000000000000
+          Size.Width = 146.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object Label11: TLabel
+            Align = Top
+            Size.Width = 146.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Estado'
+            TabOrder = 0
+          end
+          object EdtEstado: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 10
+            Position.Y = 17.000000000000000000
+            Size.Width = 146.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+      end
+    end
+  end
+  object DADOS: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 448
+    Top = 250
+  end
+  object MemTaxa: iMemTable
+    Active = True
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 880
+    Top = 280
+    object MemTaxabairro: TStringField
+      DisplayLabel = 'Bairro'
+      FieldName = 'bairro'
+      Size = 255
+    end
+    object MemTaxacidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Size = 255
+    end
+    object MemTaxaestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object MemTaxacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object MemTaxavalor_taxa: TFloatField
+      FieldName = 'valor_taxa'
+      currency = True
+    end
+  end
+end

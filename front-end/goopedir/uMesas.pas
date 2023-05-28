@@ -865,7 +865,8 @@ begin
         if DadosPedido.FieldByName('id_ifood').IsNull then
         begin
           FrameDados := TframeDadosVBDelivery.Create(tabDeliveryVemBuscar);
-          FrameDados.Position.Y := 9999999999;
+          FrameDados.Position.Y := dm.GeraPosition;
+
 
           FrameDados.Name := 'FrameDados' + DadosPedido.FieldByName
             ('codigo').AsString;
@@ -902,7 +903,7 @@ begin
         else
         begin
           FrameDadosiFood := TframeDadosiFood.Create(tabDeliveryVemBuscar);
-          FrameDadosiFood.Position.Y := 9999999999;
+          FrameDadosiFood.Position.Y := dm.GeraPosition;
 
           FrameDadosiFood.Name := 'FrameDados' + DadosPedido.FieldByName
             ('codigo').AsString;
@@ -1171,7 +1172,7 @@ begin
       else
       begin
         FrameDadosMotoboy := TfrmDadosPedidoMotoboy.Create(vertMotoboy);
-        FrameDadosMotoboy.Position.Y := 9999999999;
+        FrameDadosMotoboy.Position.Y := dm.GeraPosition;
         FrameDadosMotoboy.Align := TAlignLayout.Top;
         FrameDadosMotoboy.Parent := vertMotoboy;
         FrameDadosMotoboy.Name := 'FrameDadosMotoboy' +

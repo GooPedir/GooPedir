@@ -729,13 +729,13 @@ begin
 
   FichaTecnica;
 
-  if IntegracaoiFood then
-  begin
-    IFood.MerchantID(IDiFood);
-    BuscaDadosiFood;
-    IFood.MerchantStatus.AutoStatus := True;
-    IFood.Polling.AutoPolling := True;
-  end;
+//  if IntegracaoiFood then
+//  begin
+//    IFood.MerchantID(IDiFood);
+//    BuscaDadosiFood;
+//    IFood.MerchantStatus.AutoStatus := True;
+//    IFood.Polling.AutoPolling := True;
+//  end;
 
 
   // ADRIFood.MerchantStatus.AutoStatus := True;

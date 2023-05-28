@@ -107,6 +107,7 @@ type
     LRecebido: TLabel;
     SharpenEffect1: TSharpenEffect;
     SharpenEffect2: TSharpenEffect;
+    layClient: TLayout;
     procedure EdtCelularKeyDown(Sender: TObject; var Key: Word;
       var KeyChar: Char; Shift: TShiftState);
     procedure Rectangle1Click(Sender: TObject);
@@ -388,5 +389,9 @@ begin
       end;
   end;
 end;
+
+initialization
+
+RegisterClass(TfrmAReceber);
 
 end.

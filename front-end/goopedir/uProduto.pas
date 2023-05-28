@@ -370,6 +370,8 @@ type
     RESTClient1: TRESTClient;
     RESTRequest1: TRESTRequest;
     PRODUTOVALOR_IFOOD: TFloatField;
+    Salgada: TButton;
+    doce: TButton;
 
 {$IFDEF Android}
 {$ELSE}
@@ -452,6 +454,8 @@ type
     procedure gridIngredientesCellDblClick(const Column: TColumn;
       const Row: Integer);
     procedure rCustoClick(Sender: TObject);
+    procedure SalgadaClick(Sender: TObject);
+    procedure doceClick(Sender: TObject);
   private
     FTipo: TTipo;
     FCodigoProduto: Integer;
@@ -1162,6 +1166,11 @@ begin
   tabMain.TabIndex := 3;
 end;
 
+procedure TfrmProduto.SalgadaClick(Sender: TObject);
+begin
+dm.PostSimplesUnico('v1/util/clona/sabor/pizza/2986/'+ALL_PRODUTOS.FieldByName('ID').AsInteger.ToString,nil);
+end;
+
 procedure TfrmProduto.CalculaCustoFicha;
 var
   Custo: Real;
@@ -1615,6 +1624,11 @@ begin
           end);
       end).Start;
   end;
+end;
+
+procedure TfrmProduto.doceClick(Sender: TObject);
+begin
+dm.PostSimplesUnico('v1/util/clona/sabor/pizza/2994/'+ALL_PRODUTOS.FieldByName('ID').AsInteger.ToString,nil);
 end;
 
 function TfrmProduto.DownloadArquivo(const Origem, Destino: String): Boolean;

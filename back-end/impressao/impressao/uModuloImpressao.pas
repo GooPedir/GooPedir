@@ -678,12 +678,12 @@ begin
   ppLabel35.Visible := Origem <> 3;
   ppDBText29.Visible := Origem <> 3;
   ppDB2DBarCode1.Visible := Origem <> 3;
-//  ppShape5.Visible := Origem <> 3;
-//  ppDB2DBarCode2.Visible := Origem <> 3;
-//  ppShape1.Visible := Origem <> 3;
+  // ppShape5.Visible := Origem <> 3;
+  // ppDB2DBarCode2.Visible := Origem <> 3;
+  // ppShape1.Visible := Origem <> 3;
   ppDBText33.Visible := Origem <> 3;
-//  ppLabel2.Visible := Origem <> 3;
-//  ppLabel3.Visible := Origem <> 3;
+  // ppLabel2.Visible := Origem <> 3;
+  // ppLabel3.Visible := Origem <> 3;
   ppSystemVariable7.Visible := Origem <> 3;
   ppLogo80mm.Visible := Origem <> 3;
   ppRichText1.Visible := Origem <> 3;
@@ -1500,20 +1500,27 @@ begin
     COZINHA.SQL.Add('pp.valor_unitario as vl_unitario,');
     COZINHA.SQL.Add('pp.quantidade as qtd,');
     COZINHA.SQL.Add('pp.valor_total as vl_total,');
-    COZINHA.SQL.Add('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
-    COZINHA.SQL.Add('p.nome_produto as produto, c.nome, c.celular, ped.data_pedido, ped.hora_pedido, case  when ped.codigo_cliente_endereco = 0 then "Vem Buscar" else "Delivery" end as tipo,');
+    COZINHA.SQL.Add
+      ('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
+    COZINHA.SQL.Add
+      ('p.nome_produto as produto, c.nome, c.celular, ped.data_pedido, ped.hora_pedido, case  when ped.codigo_cliente_endereco = 0 then "Vem Buscar" else "Delivery" end as tipo,');
     COZINHA.SQL.Add('pps.nomeclatura as nomeclatura,ped.origem, ');
-    COZINHA.SQL.Add('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
+    COZINHA.SQL.Add
+      ('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
     COZINHA.SQL.Add('sum(pps.valor) as vl_adicional,');
-    COZINHA.SQL.Add('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver,');
-    COZINHA.SQL.Add('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora');
+    COZINHA.SQL.Add
+      ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver,');
+    COZINHA.SQL.Add
+      ('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora');
     COZINHA.SQL.Add('FROM pedido_produtos as pp');
     COZINHA.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-    COZINHA.SQL.Add('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
+    COZINHA.SQL.Add
+      ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
     COZINHA.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
     COZINHA.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
     COZINHA.SQL.Add('left join cliente as c on c.codigo = ped.codigo_cliente');
-    COZINHA.SQL.Add('where pp.codigo in (' + CodigoPedido +') and pp.codigo_pedido > 0');
+    COZINHA.SQL.Add('where pp.codigo in (' + CodigoPedido +
+      ') and pp.codigo_pedido > 0');
     COZINHA.SQL.Add('group by pps.nomeclatura, pps.codigo_pedido_produto');
     COZINHA.SQL.Add('order by pp.codigo');
 
@@ -1624,10 +1631,14 @@ begin
   QRYPEDIDOSPRODUTOS.Connection := dmModulo.BANCO;
   QRYPEDIDOSPRODUTOS.SQL.Add('SELECT group_concat(ipp.id_pedido) as grupo');
   QRYPEDIDOSPRODUTOS.SQL.Add('FROM impressao_pedido_produto as ipp');
-  QRYPEDIDOSPRODUTOS.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  QRYPEDIDOSPRODUTOS.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  QRYPEDIDOSPRODUTOS.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  QRYPEDIDOSPRODUTOS.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
+  QRYPEDIDOSPRODUTOS.SQL.Add
+    ('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
+  QRYPEDIDOSPRODUTOS.SQL.Add
+    ('join produto as p on p.codigo = pp.codigo_produto');
+  QRYPEDIDOSPRODUTOS.SQL.Add
+    ('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
+  QRYPEDIDOSPRODUTOS.SQL.Add
+    ('join impressoras as i on i.codigo = tp.impressora');
   QRYPEDIDOSPRODUTOS.SQL.Add('where ipp.status = 0');
 
   try
@@ -1641,7 +1652,7 @@ begin
       QRYPEDIDOSPRODUTOS.SQL.Add('group by ipp.id');
     end;
   except
-//    QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
+    // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
   end;
 
   QRYCAIXA := TFDQuery.Create(nil);
@@ -1714,7 +1725,7 @@ begin
     QRYCAIXA.Close;
 
     try
-    dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
+      dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
       dmImpressaoV2.iReqImpressaoTest.Execute;
 
       if frmMain.memImpressao.RecordCount > 0 then
@@ -1730,10 +1741,10 @@ begin
       end;
       frmMain.memImpressao.Close;
     except
-    on E : Exception do
-    begin
-//      ShowMessage(e.Message)
-    end;
+      on E: Exception do
+      begin
+        // ShowMessage(e.Message)
+      end;
 
     end;
 

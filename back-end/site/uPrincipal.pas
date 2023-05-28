@@ -162,6 +162,7 @@ type
     cImportaPedido: TCheckBox;
     RequisicaoLocal: iRequisicao;
     IdIPWatch1: TIdIPWatch;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure tMinimizaTimer(Sender: TObject);
     procedure TrayClick(Sender: TObject);
@@ -554,7 +555,7 @@ begin
 
   EnviarSabores;
 
-   EnviarPedidosWhatsapp;
+  EnviarPedidosWhatsapp;
 
 end;
 
@@ -705,7 +706,7 @@ end;
 
 procedure TfrmPrincipal.Button1Click(Sender: TObject);
 begin
-  // EnviarSabores;
+   EnviarSabores;
 end;
 
 procedure TfrmPrincipal.CadastraCategoria(Insert: TInsertUpdate;

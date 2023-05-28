@@ -283,6 +283,15 @@ object frmPrincipal: TfrmPrincipal
       State = cbChecked
       TabOrder = 2
     end
+    object Button1: TButton
+      Left = 704
+      Top = 24
+      Width = 75
+      Height = 25
+      Caption = 'Button1'
+      TabOrder = 3
+      OnClick = Button1Click
+    end
   end
   object Tray: TTrayIcon
     Animate = True

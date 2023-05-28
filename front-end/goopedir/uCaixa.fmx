@@ -766,8 +766,8 @@ object frmCaixa: TfrmCaixa
             Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
             OnDrawColumnCell = StringGrid4DrawColumnCell
             OnCellDblClick = StringGrid4CellDblClick
-            Viewport.Width = 1267.000000000000000000
-            Viewport.Height = 639.000000000000000000
+            Viewport.Width = 1263.000000000000000000
+            Viewport.Height = 614.000000000000000000
           end
           object Layout4: TLayout
             Align = Top
@@ -835,8 +835,8 @@ object frmCaixa: TfrmCaixa
             RowHeight = 50.000000000000000000
             RowCount = 0
             Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-            Viewport.Width = 1267.000000000000000000
-            Viewport.Height = 667.000000000000000000
+            Viewport.Width = 1263.000000000000000000
+            Viewport.Height = 642.000000000000000000
           end
           object rMovimentacao: TRectangle
             Align = Center
@@ -1080,8 +1080,8 @@ object frmCaixa: TfrmCaixa
             RowCount = 0
             Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
             OnCellDblClick = StringGrid2CellDblClick
-            Viewport.Width = 1267.000000000000000000
-            Viewport.Height = 350.000000000000000000
+            Viewport.Width = 1263.000000000000000000
+            Viewport.Height = 325.000000000000000000
             object img_fechar: TImage
               MultiResBitmap.Height = 32
               MultiResBitmap.Width = 32
@@ -1225,8 +1225,8 @@ object frmCaixa: TfrmCaixa
               RowCount = 0
               Options = [AlwaysShowEditor, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
               OnCellDblClick = StringGrid5CellDblClick
-              Viewport.Width = 1267.000000000000000000
-              Viewport.Height = 344.500000000000000000
+              Viewport.Width = 1263.000000000000000000
+              Viewport.Height = 319.500000000000000000
             end
             object StringGrid6: TStringGrid
               Align = Client
@@ -1240,8 +1240,8 @@ object frmCaixa: TfrmCaixa
               RowCount = 0
               Options = [AlwaysShowEditor, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
               OnCellDblClick = StringGrid6CellDblClick
-              Viewport.Width = 1267.000000000000000000
-              Viewport.Height = 344.500000000000000000
+              Viewport.Width = 1263.000000000000000000
+              Viewport.Height = 319.500000000000000000
             end
           end
         end
@@ -1278,8 +1278,8 @@ object frmCaixa: TfrmCaixa
             Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
             OnDrawColumnCell = StringGrid3DrawColumnCell
             OnCellDblClick = StringGrid3CellDblClick
-            Viewport.Width = 1267.000000000000000000
-            Viewport.Height = 350.000000000000000000
+            Viewport.Width = 1263.000000000000000000
+            Viewport.Height = 325.000000000000000000
           end
           object Rectangle2: TRectangle
             Align = Client
@@ -1353,6 +1353,7 @@ object frmCaixa: TfrmCaixa
           StyleLookup = ''
           TabOrder = 0
           Text = 'A Receber'
+          Visible = False
           ExplicitSize.cx = 87.000000000000000000
           ExplicitSize.cy = 32.000000000000000000
           object layReceber: TLayout
@@ -1542,12 +1543,6 @@ object frmCaixa: TfrmCaixa
         end
       end
     end
-  end
-  object test: TTimer
-    Enabled = False
-    OnTimer = testTimer
-    Left = 613
-    Top = 268
   end
   object DADOSCAIXA: iMemTable
     FieldDefs = <>

@@ -81,6 +81,7 @@ begin
   Frame.Descricao := Descricao;
   Frame.Align := TAlignLayout.Top;
   Frame.SomaUm := AcrecentaUm;
+  Frame.Position.Y := dm.GeraPosition;
   for I := 0 to length(Itens) - 1 do
   begin
     Frame.AdicionaValor(Itens[I]);
@@ -99,6 +100,7 @@ begin
   Frame.Parent := Local;
   Frame.Descricao := Descricao;
   Frame.Align := TAlignLayout.Top;
+  Frame.Position.Y := dm.GeraPosition;
 end;
 
 procedure TfrmParametros.AdicionaSelecao(Pai: TFmxObject;
@@ -114,6 +116,7 @@ begin
   Frame.ValorFalse := False;
   Frame.Titulo := Descricao;
   Frame.Align := Alinhamento;
+  Frame.Position.Y := dm.GeraPosition;
 
 end;
 
@@ -128,6 +131,7 @@ begin
   Frame.Parent := Local;
   Frame.Titulo := Descricao;
   Frame.Align := TAlignLayout.Top;
+  Frame.Position.Y := dm.GeraPosition;
 end;
 
 procedure TfrmParametros.CaixaLoad;
@@ -194,6 +198,7 @@ begin
   Botoes.Name := 'senha_gerente';
   Botoes.Align := TAlignLayout.Top;
   Botoes.Sim := SenhaGerente;
+  Botoes.Position.Y := dm.GeraPosition;
 end;
 
 procedure TfrmParametros.FormCreate(Sender: TObject);

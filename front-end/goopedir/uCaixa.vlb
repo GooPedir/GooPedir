@@ -97,7 +97,7 @@ Coordinates=867,53,169,36
 Coordinates=867,105,208,36
 
 []
-Coordinates=501,385,80,36
+Coordinates=310,385,40,36
 Visible=True
 
 [BindingsList1]
@@ -562,7 +562,4 @@ Coordinates=238,243,168,58
 
 [frmServidor.memImpressora]
 Coordinates=158,521,177,102
-
-[test]
-Coordinates=310,385,40,36
 

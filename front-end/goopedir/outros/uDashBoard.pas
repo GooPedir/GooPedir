@@ -139,6 +139,14 @@ type
     Layout15: TLayout;
     Label36: TLabel;
     Image5: TImage;
+    layCaixa: TLayout;
+    Image6: TImage;
+    lCaixa: TLabel;
+    Layout6: TLayout;
+    Label45: TLabel;
+    Image7: TImage;
+    Label54: TLabel;
+    Image8: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure imgMotoboyClick(Sender: TObject);
@@ -159,6 +167,8 @@ type
     procedure Layout8DragLeave(Sender: TObject);
     procedure Layout15Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure layCaixaClick(Sender: TObject);
+    procedure Layout6Click(Sender: TObject);
   private
     FMesesPrevisao: Integer;
     FPrevisaoHoje: Integer;
@@ -208,9 +218,9 @@ uses uMain, uFrameTitulo, uCadastroAlteroProduto;
 procedure TfrmDashBoard.Button2Click(Sender: TObject);
 begin
   inherited;
-frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
-frmCadastroAlteraProduto.ShowModal;
-//TfrmCliente
+  // frmCadastroAlteraProduto := tfrmCadastroAlteraProduto.Create(self);
+  // frmCadastroAlteraProduto.ShowModal;
+  // TfrmCliente
 
 end;
 
@@ -382,29 +392,41 @@ begin
 
   // ValidaData(date);
   MesesPrevisao := 12;
-  dm.BuscaFaturas(HorzScrollBoxFatura);
+  DM.BuscaFaturas(HorzScrollBoxFatura);
 
   try
-    nDelivery.Text := dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;
+    nDelivery.Text := DM.DADOS_WHATSAPP.FieldByName('temp_delivery').AsString;
   except
 
   end;
   try
-    nVemBuscar.Text := dm.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsString;
+    nVemBuscar.Text := DM.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsString;
   except
 
   end;
 
   try
-  Rectangle1.Stroke.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
-  Rectangle1.Fill.Color := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle1.Stroke.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
+    Rectangle1.Fill.Color :=
+      DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fundo').AsString);
 
-  lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte').AsString);
+    lNomeForm.FontColor := DM.CorSite(DM.DADOS_WHATSAPP.FieldByName('cor_fonte')
+      .AsString);
   except
 
   end;
 
-  Layout15.Visible := dm.FichaTecnica = 1;
+  Layout15.Visible := DM.FichaTecnica = 1;
+
+  if DM.CodigoCaixa = 0 then
+  begin
+    lCaixa.Text := 'Caixa Fechado';
+  end
+  else
+  begin
+    lCaixa.Text := 'Caixa Aberto';
+  end;
 
 end;
 
@@ -474,36 +496,48 @@ begin
   frmMain.AbrirForm('TfrmCliente');
 end;
 
+procedure TfrmDashBoard.layCaixaClick(Sender: TObject);
+begin
+  inherited;
+  frmMain.AbrirForm('TfrmCaixa');
+end;
+
 procedure TfrmDashBoard.Layout15Click(Sender: TObject);
 begin
   inherited;
   frmMain.AbrirForm('TfrmIngredientesProduto');
 end;
 
-procedure TfrmDashBoard.Layout8DragEnter(Sender: TObject;
-  const Data: TDragObject; const Point: TPointF);
+procedure TfrmDashBoard.Layout6Click(Sender: TObject);
 begin
   inherited;
-(Sender as TLayout).Opacity := 1;
+   frmMain.AbrirForm('TfrmAReceber');
+end;
+
+procedure TfrmDashBoard.Layout8DragEnter(Sender: TObject;
+const Data: TDragObject; const Point: TPointF);
+begin
+  inherited;
+  (Sender as TLayout).Opacity := 1;
 end;
 
 procedure TfrmDashBoard.Layout8DragLeave(Sender: TObject);
 begin
   inherited;
-(Sender as TLayout).Opacity := 0.5;
+  (Sender as TLayout).Opacity := 0.5;
 end;
 
 procedure TfrmDashBoard.nDeliveryExit(Sender: TObject);
 begin
   inherited;
   try
-    dm.DADOS_WHATSAPP.Edit;
+    DM.DADOS_WHATSAPP.Edit;
 
-    dm.DADOS_WHATSAPP.FieldByName('temp_delivery').AsVariant := nDelivery.Text;
+    DM.DADOS_WHATSAPP.FieldByName('temp_delivery').AsVariant := nDelivery.Text;
 
-    dm.DADOS_WHATSAPP.Post;
+    DM.DADOS_WHATSAPP.Post;
 
-    dm.AtualizaParametro('temp_delivery', nDelivery.Text);
+    DM.AtualizaParametro('temp_delivery', nDelivery.Text);
   except
 
   end;
@@ -513,11 +547,11 @@ procedure TfrmDashBoard.nVemBuscarExit(Sender: TObject);
 begin
   inherited;
   try
-    dm.DADOS_WHATSAPP.Edit;
-    dm.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsVariant :=
+    DM.DADOS_WHATSAPP.Edit;
+    DM.DADOS_WHATSAPP.FieldByName('temp_vembuscar').AsVariant :=
       nVemBuscar.Text;
-    dm.DADOS_WHATSAPP.Post;
-    dm.AtualizaParametro('temp_vembuscar', nVemBuscar.Text);
+    DM.DADOS_WHATSAPP.Post;
+    DM.AtualizaParametro('temp_vembuscar', nVemBuscar.Text);
   except
 
   end;

@@ -252,6 +252,7 @@ type
 
     function BaseURL: String;
 
+    function GeraPosition : Integer;
   end;
 
   { Caixa Rapido
@@ -265,6 +266,7 @@ var
   JSonDadosSite: TJsonObject;
   ID: Integer;
   ErrosBusca: Integer;
+  Position : Integer;
 
 implementation
 
@@ -679,6 +681,12 @@ end;
 function TDM.FichaTecnica: Integer;
 begin
   Result := DADOS_WHATSAPP.FieldByName('ficha_tecnica').AsInteger;
+end;
+
+function TDM.GeraPosition: Integer;
+begin
+Inc(Position);
+Result := Position;
 end;
 
 function TDM.GetCelular: String;

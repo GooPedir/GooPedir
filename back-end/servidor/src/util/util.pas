@@ -6450,6 +6450,43 @@ begin
   Dados.Free;
 end;
 
+procedure DoPostClonaSabor(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  De: String;
+  Para: String;
+  conexao: TConexao;
+  Dados: TFDMemTable;
+begin
+  conexao := TConexao.Create;
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add('select * from sabores_completo where id_produto = :de');
+  conexao.Parametros('de', Req.Params['de']);
+
+  try
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+    while not Dados.Eof do
+    begin
+    Dados.Edit;
+    Dados.FieldByName('id').AsInteger := conexao.GerarID('sabores_completo','id');
+    conexao.SQL.Add('insert into sabores_completo (id,id_produto,id_tipo_sabor,dt_cadastro,nome,descricao,vl_venda,ativo,modificado_site) values (:id,:id_produto,:id_tipo_sabor,curdate(),:nome,:descricao,:vl_venda,:ativo,0)');
+    conexao.Parametros('id',Dados.FieldByName('id').AsInteger);
+    conexao.Parametros('id_produto',Req.Params['para']);
+    conexao.Parametros('id_tipo_sabor',Dados.FieldByName('id_tipo_sabor').AsInteger);
+    conexao.Parametros('nome',Dados.FieldByName('nome').AsString);
+    conexao.Parametros('descricao',Dados.FieldByName('descricao').AsString);
+    conexao.Parametros('vl_venda',Dados.FieldByName('vl_venda').AsFloat);
+    conexao.Parametros('ativo',Dados.FieldByName('ativo').AsInteger);
+    conexao.ExecuteSQL;
+    Dados.Next;
+    end;
+  except
+
+  end;
+  conexao.Free;
+  Dados.Free;
+end;
+
 procedure DoPostCadastroCliente(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -6606,6 +6643,33 @@ begin
   Res.Send<TJSONArray>(Dados.ToJSONArray);
   Dados.Free;
 end;
+
+
+procedure DoGetTeste(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  Conexao : TConexao;
+  Data : TJSONArray;
+  DataS : String;
+begin
+  Conexao := TConexao.Create;
+  Conexao.SQL.Add('select * from produto');
+  Conexao.SQL.Add('join pro_adi_personalizado on  pro_adi_personalizado.id_produto = produto.codigo');
+  Conexao.SQL.Add('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado =  pro_adi_personalizado.id');
+  Data := TJSONArray.Create;
+  Data := Conexao.ConsultaSQL;
+  DataS := Data.ToString;
+//  frmServidor.IFood.Order.CancelReasons(Req.Params['id'], Dados);
+try
+  Res.Send(DataS);
+finally
+Data.Free;
+end;
+DataS := '';
+  Conexao.Free;
+end;
+
+
 
 procedure Registry;
 begin
@@ -6878,6 +6942,8 @@ begin
     ('v1/cliente/cadastro/:codigo/:celular/:nome/:rua/:numero/:complemento/:bairro/:cidade/:estado/:cpf',
     DoPostCadastroCliente);
 
+  THorse.Post('v1/util/clona/sabor/pizza/:de/:para', DoPostClonaSabor);
+
   // Integração iFood
   THorse.Get('v1/util/ifood/status', DoGetStatusiFood);
 
@@ -6890,6 +6956,10 @@ begin
     DoPostCancelarPedidoiFood);
   // THorse.Get('v1/util/ifood/status/cancelamento', DoGetStatusiFoodCancelamento);
 
+
+
+
+    THorse.Get('v1/teste', DoGetTeste);
 end;
 
 function TransformaData(Data: String): TDate;

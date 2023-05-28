@@ -115,6 +115,7 @@ end;
 constructor TConexao.Create;
 begin
   DataModulo := TDM.Create(nil);
+
   SQL := TStringlist.Create;
   Zerar;
 end;

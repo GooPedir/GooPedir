@@ -182,7 +182,6 @@ type
     Label25: TLabel;
     Layout5: TLayout;
     Button1: TButton;
-    test: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure StringGrid4CellDblClick(const Column: TColumn;
@@ -228,7 +227,6 @@ type
     procedure Button1Click(Sender: TObject);
     procedure rEstornoClick(Sender: TObject);
     procedure TabItem1Click(Sender: TObject);
-    procedure testTimer(Sender: TObject);
   private
     FCodigoDoCaixa: Integer;
     FVisualizacao: Boolean;
@@ -483,11 +481,6 @@ begin
     dm.Caixa.FieldByName('DATA_ABERTURA').AsDateTime), HISTORICOMOTOBOY);
 
   BuscandoDados := False;
- if not Load then
-  begin
-    Load := True;
-    frmMain.AbrirForm('TfrmCaixa');
-  end;
 end;
 
 procedure TfrmCaixa.Button1Click(Sender: TObject);
@@ -743,8 +736,8 @@ begin
     // Render do grafico...
     chart.LoadFromJSON('[' + jsonStr + ']', erro);
 
-    if NOT erro.IsEmpty then
-      showmessage(erro);
+//    if NOT erro.IsEmpty then
+//      showmessage(erro);
 
   finally
     chart.DisposeOf;
@@ -817,8 +810,8 @@ begin
     // Render do grafico...
     chart.LoadFromJSON('[' + jsonStr + ']', erro);
 
-    if NOT erro.IsEmpty then
-      showmessage(erro);
+//    if NOT erro.IsEmpty then
+//      showmessage(erro);
 
   finally
     chart.DisposeOf;
@@ -1210,18 +1203,6 @@ end;
 procedure TfrmCaixa.TabItem4Click(Sender: TObject);
 begin
   GraficoHistoricoCaixa;
-end;
-
-procedure TfrmCaixa.testTimer(Sender: TObject);
-begin
-
-  test.Enabled := False;
-  if not Load then
-  begin
-    Load := True;
-    frmMain.AbrirForm('TfrmCaixa');
-  end;
-
 end;
 
 function TfrmCaixa.ValidaTotalPagamento: Boolean;

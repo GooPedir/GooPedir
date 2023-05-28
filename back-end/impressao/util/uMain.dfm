@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Impress'#227'o Papaleguas Sistemas'
-  ClientHeight = 528
-  ClientWidth = 733
+  ClientHeight = 340
+  ClientWidth = 839
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +16,8 @@ object frmMain: TfrmMain
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 733
-    Height = 439
+    Width = 839
+    Height = 251
     Align = alClient
     DataSource = dsImpressao
     Font.Charset = ANSI_CHARSET
@@ -73,14 +73,14 @@ object frmMain: TfrmMain
   end
   object Memo1: TMemo
     Left = 0
-    Top = 439
-    Width = 733
+    Top = 251
+    Width = 839
     Height = 89
     Align = alBottom
     ScrollBars = ssVertical
     TabOrder = 1
     ExplicitTop = 438
-    ExplicitWidth = 779
+    ExplicitWidth = 729
   end
   object ImageList1: TImageList
     Left = 152

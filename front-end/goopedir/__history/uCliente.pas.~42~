@@ -1,0 +1,157 @@
+unit uCliente;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  uCadastroPadrao, FMX.Effects, FMX.Layouts, FMX.TabControl,
+  FMX.Controls.Presentation, FMX.Objects, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, uMemTable, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, System.Rtti, System.Bindings.Outputs,
+  FMX.Bind.Editors, Data.Bind.EngExt, FMX.Bind.DBEngExt, Data.Bind.Components,
+  Data.Bind.DBScope, FMX.ListView, FMX.Edit, uEdit, FMX.Grid.Style,
+  FMX.Bind.Grid, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid;
+
+type
+  TfrmCliente = class(TfrmCadastroBase)
+    Layout3: TLayout;
+    Label4: TLabel;
+    EdtRua: TEdit;
+    Layout4: TLayout;
+    Label6: TLabel;
+    EdtNumero: TEdit;
+    Layout5: TLayout;
+    Label8: TLabel;
+    EdtComplemento: TEdit;
+    Layout6: TLayout;
+    Label9: TLabel;
+    EdtBairro: TEdit;
+    Layout7: TLayout;
+    Label10: TLabel;
+    EdtCidade: TEdit;
+    Layout8: TLayout;
+    Label11: TLabel;
+    EdtEstado: TEdit;
+    DADOS: iMemTable;
+    procedure FormCreate(Sender: TObject);
+    procedure rAdicionarClick(Sender: TObject);
+    procedure rSalvarClick(Sender: TObject);
+    procedure rAlterarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure GetDados;
+  end;
+
+var
+  frmCliente: TfrmCliente;
+  Carregando: Boolean;
+  CodigoCliente: Integer;
+
+implementation
+
+{$R *.fmx}
+
+uses uDM, util;
+
+{ TfrmCliente }
+
+procedure TfrmCliente.FormCreate(Sender: TObject);
+begin
+  inherited;
+  GetDados;
+  dm.GetSimples('/v1/consulta/todos/taxa_entrega', MemTaxa);
+end;
+
+procedure TfrmCliente.GetDados;
+begin
+  if Carregando then
+    exit;
+  Carregando := True;
+  dm.GetSimples('/v1/consulta/todos/clientes', DADOS, True);
+  lDados.Visible := True;
+  Carregando := False;
+  tabPrincipal.TabIndex := 0;
+  exit;
+  try
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        lDados.Visible := False;
+        dm.GetSimples('/v1/consulta/todos/clientes', DADOS, True);
+
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            Carregando := False;
+            lDados.Visible := True;
+          end);
+      end).Start;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Carregando := False;
+      lDados.Visible := False;
+    end;
+
+  end;
+
+  tabPrincipal.TabIndex := 0;
+
+end;
+
+procedure TfrmCliente.rAdicionarClick(Sender: TObject);
+begin
+  inherited;
+  if MemTaxa.RecordCount = 0 then
+  begin
+    ShowMessage('Deve-se cadastrar as taxas primeiro!');
+    exit;
+  end;
+  DADOS.insert;
+  DADOS.FieldByName('celular').AsString := DM.DADOS_WHATSAPP.FieldByName('ddd_padrao').AsString;
+  CodigoCliente := 0;
+  tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rAlterarClick(Sender: TObject);
+begin
+  inherited;
+  CodigoCliente := DADOS.FieldByName('codigo').AsInteger;
+  tabPrincipal.TabIndex := 1;
+end;
+
+procedure TfrmCliente.rSalvarClick(Sender: TObject);
+begin
+  inherited;
+  if length(edtCell.Text) < 11 then
+  begin
+    ShowMessageToast(self, 'Informe o celular!', 1);
+    edtCell.SetFocus;
+    exit;
+  end;
+  if length(EdtNome.Text) = 0 then
+  begin
+    ShowMessageToast(self, 'Informe o nome!', 1);
+    EdtNome.SetFocus;
+    exit;
+  end;
+
+  dm.PostSimples('v1/cliente/cadastro/' + CodigoCliente.ToString + '/' +
+    edtCell.Text + '/' + EdtNome.Text + '/' + EdtRua.Text + '/' + EdtNumero.Text
+    + '/' + EdtComplemento.Text + '/' + EdtBairro.Text + '/' + EdtCidade.Text +
+    '/' + EdtEstado.Text + '/0', nil);
+  GetDados;
+end;
+
+initialization
+
+RegisterClass(TfrmCliente);
+
+end.

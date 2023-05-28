@@ -1,186 +1,147 @@
 ﻿[GridPanelLayout1]
-Coordinates=467,256,102,33
+Coordinates=467,256,118,36
 
 [Rectangle1]
-Coordinates=377,256,69,33
+Coordinates=377,256,80,36
 
 [rAtivarDesativar]
-Coordinates=260,256,93,33
+Coordinates=260,256,107,36
 
 [Label1]
-Coordinates=197,10,46,51
+Coordinates=197,10,53,58
 
 [tabPrincipal]
-Coordinates=168,256,73,33
+Coordinates=168,256,82,36
 Visible=True
 
 [tabConsulta]
-Coordinates=75,256,73,33
+Coordinates=75,256,83,36
 
 [rSalvar]
-Coordinates=10,256,49,33
+Coordinates=10,256,55,36
 
 [ShadowEffect2]
-Coordinates=460,1,88,33
+Coordinates=460,1,101,36
 
 [ShadowEffect3]
-Coordinates=460,56,88,33
+Coordinates=460,56,101,36
 
 [lNomeForm]
-Coordinates=471,10,71,51
+Coordinates=471,10,81,58
 
 [TabDados]
-Coordinates=441,188,64,33
+Coordinates=441,188,73,36
 
 [Image3]
-Coordinates=260,10,49,51
+Coordinates=260,10,57,58
 
 [Image1]
-Coordinates=10,188,49,51
+Coordinates=10,188,57,58
 
 [Label2]
-Coordinates=77,188,46,51
+Coordinates=77,188,53,58
 
 [rAdicionar]
-Coordinates=358,188,65,33
+Coordinates=358,188,73,36
 
 [ShadowEffect1]
-Coordinates=460,111,88,33
+Coordinates=460,111,101,36
 
 [lTipoAtivo]
-Coordinates=327,10,64,51
+Coordinates=327,10,71,58
 
 [rAlterar]
-Coordinates=291,188,51,33
+Coordinates=291,188,57,36
 
 [Layout21]
-Coordinates=214,188,59,33
+Coordinates=214,188,67,36
 
 [Label7]
-Coordinates=408,10,46,51
+Coordinates=408,10,53,58
 
 [layClient]
-Coordinates=140,188,57,33
+Coordinates=140,188,64,36
 
 [DADOSativo]
 Coordinates=481,166,75,33
 
 [DADOSnome]
-Coordinates=606,1,79,33
+Coordinates=606,1,92,36
 
 [DADOS]
-Coordinates=1752,160,51,33
+Coordinates=1630,130,60,36
 Visible=True
 
 [DADOScelular]
-Coordinates=606,56,84,33
+Coordinates=606,56,98,36
 
 [DADOScodigo]
-Coordinates=606,111,85,33
+Coordinates=606,111,98,36
 
 []
-Coordinates=1450,280,65,51
+Coordinates=134,78,91,36
 Visible=True
 
 [BindSourceDB1]
-Coordinates=1691,150,92,339
+Coordinates=1721,130,106,278
 
 [DADOSendereco]
 Coordinates=80,55,97,33
 
 [DADOScomplemento]
-Coordinates=197,416,118,33
+Coordinates=197,416,137,36
 
 [DADOSrua]
-Coordinates=110,1,67,33
+Coordinates=110,1,78,36
 
 [MemTaxacodigo]
-Coordinates=2317,1156,95,33
+Coordinates=2317,1156,109,36
 
 [MemTaxavalor_taxa]
-Coordinates=2470,551,112,33
+Coordinates=2470,551,131,36
 
 [DADOSestado]
-Coordinates=2470,1761,84,33
+Coordinates=2470,1761,98,36
 
 [MemTaxabairro]
-Coordinates=2639,1,90,33
+Coordinates=2639,1,104,36
 
 [MemTaxa]
-Coordinates=119,330,61,141
+Coordinates=119,330,71,168
 
 [MemTaxacidade]
-Coordinates=2639,1541,93,33
+Coordinates=2639,1541,109,36
 
 [DADOSnumero]
-Coordinates=2786,1,89,33
-
-[Layout2]
-Coordinates=95,2124,53,33
+Coordinates=2786,1,103,36
 
 [DADOSbairro]
-Coordinates=2786,1431,80,33
+Coordinates=2786,1431,93,36
 
 [DADOScidade]
-Coordinates=1757,2220,84,33
+Coordinates=1757,2220,98,36
 
 [MemTaxaestado]
-Coordinates=0,380,94,33
+Coordinates=0,380,110,36
 
 [Edit1]
 Coordinates=0,0,40,51
 
 [lDados]
-Coordinates=960,70,53,177
+Coordinates=960,70,55,36
 Visible=True
 
-[Layout7]
-Coordinates=430,330,53,33
-
-[Label6]
-Coordinates=72,1,46,51
-
-[Label9]
-Coordinates=0,0,46,51
-
 [Layout3]
-Coordinates=361,330,53,33
+Coordinates=361,330,60,36
 
 [Layout1]
-Coordinates=292,330,53,33
-
-[Layout5]
-Coordinates=223,330,53,33
-
-[Layout6]
-Coordinates=50,330,53,33
-
-[Label11]
-Coordinates=499,465,52,51
-
-[Label10]
-Coordinates=303,536,52,51
-
-[Label8]
-Coordinates=226,87,46,51
-
-[Layout4]
-Coordinates=604,536,53,33
+Coordinates=292,330,60,36
 
 [Label3]
-Coordinates=499,311,46,51
+Coordinates=499,311,53,58
 
 [Label5]
 Coordinates=372,536,46,51
-
-[Layout8]
-Coordinates=234,536,53,33
-
-[Label12]
-Coordinates=499,388,52,51
-
-[BindingsList1]
-Coordinates=134,78,82,33
 
 [DM.DADOS_MOTOBOY_SITE]
 Coordinates=736,1,157,195
@@ -206,28 +167,70 @@ Coordinates=607,313,80,141
 [DM.CAIXA]
 Coordinates=607,1214,72,123
 
-[EdtNumero]
-Coordinates=1870,300,69,51
-
-[EdtCidade]
-Coordinates=2090,500,65,51
-
-[EdtBairro]
-Coordinates=1810,380,61,51
-
-[EdtEstado]
-Coordinates=2030,480,65,51
-
 [EdtNome]
-Coordinates=1860,220,59,51
+Coordinates=1860,220,66,58
+
+[Layout4]
+Coordinates=554,330,60,36
 
 [EdtRua]
-Coordinates=1860,270,50,51
+Coordinates=1460,170,57,58
+
+[Label11]
+Coordinates=623,188,60,58
+
+[EdtCidade]
+Coordinates=1880,300,75,58
+
+[Layout7]
+Coordinates=430,330,60,36
+
+[Label6]
+Coordinates=226,87,53,58
+
+[EdtNumero]
+Coordinates=1390,360,79,58
+
+[Label4]
+Coordinates=469,388,53,58
+
+[Label10]
+Coordinates=93,1,60,58
 
 [edtCell]
-Coordinates=1840,180,48,51
+Coordinates=1540,250,55,58
 Visible=True
 
+[Layout8]
+Coordinates=223,330,60,36
+
 [EdtComplemento]
-Coordinates=1920,400,99,51
+Coordinates=1330,280,114,58
+
+[Label12]
+Coordinates=74,77,60,58
+
+[Layout6]
+Coordinates=50,330,60,36
+
+[EdtEstado]
+Coordinates=1690,470,74,58
+
+[Layout2]
+Coordinates=742,78,60,36
+
+[Layout5]
+Coordinates=742,133,60,36
+
+[EdtBairro]
+Coordinates=1540,320,68,58
+
+[Label8]
+Coordinates=480,536,53,58
+
+[Label9]
+Coordinates=15,77,53,58
+
+[BindingsList1]
+Coordinates=736,188,91,36
 

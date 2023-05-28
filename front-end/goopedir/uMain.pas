@@ -102,8 +102,8 @@ begin
 
   if FORM.Locate('CLASSNAME', Nome, []) then
   begin
-    if Nome <> 'TfrmCaixa' then
-      tabMain.TabIndex := FORM.FieldByName('TABINDEX').AsInteger;
+    // if Nome <> 'TfrmCaixa' then
+    // tabMain.TabIndex := FORM.FieldByName('TABINDEX').AsInteger;
     Index := FORM.FieldByName('INDEX').AsInteger;
 
     try
@@ -111,8 +111,8 @@ begin
 
       if NewTab.Visible then
       begin
-        if Nome <> 'TfrmCaixa' then
-          tabMain.TabIndex := 0;
+        // if Nome <> 'TfrmCaixa' then
+        // tabMain.TabIndex := 0;
         NewTab.Visible := False;
         exit;
 
@@ -123,8 +123,8 @@ begin
         NewTab.Visible := True;
         if not Visible then
         begin
-          if Nome <> 'TfrmCaixa' then
-            tabMain.TabIndex := NewTab.Index;
+          // if Nome <> 'TfrmCaixa' then
+          // tabMain.TabIndex := NewTab.Index;
         end;
       end;
     except
@@ -169,8 +169,8 @@ begin
     FORM.FieldByName('INDEX').AsInteger := Index;
     FORM.FieldByName('TABINDEX').AsInteger := tabMain.TabCount - 1;
     FORM.Post;
-    if Nome <> 'TfrmCaixa' then
-      tabMain.TabIndex := tabMain.TabCount - 1;
+    // if Nome <> 'TfrmCaixa' then
+    // tabMain.TabIndex := tabMain.TabCount - 1;
 
   end;
   if Assigned(fActiveForm[Index].OnActivate) then
@@ -186,7 +186,7 @@ begin
   begin
     AbrirForm('TfrmEstoque');
   end;
-  AbrirFormVisivel('TfrmCaixa', False);
+  // AbrirFormVisivel('TfrmCaixa', False);
   tabMain.TabIndex := 0;
 
 end;
@@ -201,7 +201,7 @@ begin
   // TThread.CreateAnonymousThread(
   // procedure
   // begin
-   frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
+  frmMain.Caption := frmMain.Caption + dm.GetNomeEmpresa;
   // DM.IniciaVerificacao;
 
   // Thread.Sleep(5000);
@@ -218,11 +218,11 @@ begin
     FrmAddItem.ExecutarQuandoCarregaProdutos := FinalizouCarregamento;
     FrmAddItem.Load;
   end;
-//  FinalizouCarregamento;
+  // FinalizouCarregamento;
 
   AbrirForm('TfrmDashBoard');
 
-//  AbrirForm('TfrmProduto');
+  // AbrirForm('TfrmProduto');
 
   FrmResumo := TFrmResumo.Create(Self);
 
@@ -325,6 +325,12 @@ begin
   if Nome = 'TfrmCaixa' then
   begin
     Result := 'Caixa';
+    exit;
+  end;
+
+  if Nome = 'TfrmAReceber' then
+  begin
+    Result := 'Em Aberto';
     exit;
   end;
 
