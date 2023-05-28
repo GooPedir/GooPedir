@@ -18,13 +18,13 @@ inherited frmCliente: TfrmCliente
             PNG = {
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88D6B
-              0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
-              1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
-              BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
-              DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
-              9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
-              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801472CBA880463605B00
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88C0F
+              40E1354CC43AC2E2512045DE85F91A4B898B7FA204226A23E73C179125CEB13E
+              F2A38B4F299DAF80115B57231EE30B8CD8B918F12ABEC088B55EB3E9537C8CF1
+              82F70BBD6ACF2FC49FB4B7C2F82131BE15C4CD107FD4DE0AE387C4F85618DF0A
+              E35B41E314F1877B6E8DF15F18E9F93FF0B1FDFE42055A39C204B472840968E5
+              0813D0CA1126A095234C402B479880568E3001AD6F4788C846AFD986D6A71188
+              DFE398E815FB10DB8F70175F742310BF72194F6446083724DDB9CEFAB3997E00
               00000049454E44AE426082}
             FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
           end>
@@ -49,52 +49,42 @@ inherited frmCliente: TfrmCliente
         ExplicitSize.cx = 84.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         inherited GridPanelLayout1: TGridPanelLayout
-          Position.Y = 506.000000000000000000
+          Position.Y = 526.000000000000000000
           Size.Width = 917.000000000000000000
+          Size.Height = 30.000000000000000000
           TabOrder = 1
-          ColumnCollection = <
-            item
-              Value = 50.127729604282990000
-            end
-            item
-              Value = 49.872270395717010000
-            end
-            item
-            end>
           inherited rAdicionar: TRectangle
-            Size.Width = 459.671295166015600000
-            OnClick = rAdicionarClick
+            Size.Width = 306.623535156250000000
+            Size.Height = 30.000000000000000000
             inherited Label1: TLabel
-              Size.Width = 459.671295166015600000
+              Size.Width = 306.623535156250000000
+              Size.Height = 30.000000000000000000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAlterar: TRectangle
-            Size.Width = 457.328704833984400000
-            OnClick = rAlterarClick
+            Size.Width = 305.060913085937500000
+            Size.Height = 30.000000000000000000
             inherited Label2: TLabel
-              Size.Width = 457.328704833984400000
+              Size.Width = 305.060913085937500000
+              Size.Height = 30.000000000000000000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
           inherited rAtivarDesativar: TRectangle
-            Size.Width = 0.000000000000000000
+            Size.Width = 305.315551757812500000
+            Size.Height = 30.000000000000000000
             inherited lTipoAtivo: TLabel
               Size.Width = 305.315551757812500000
+              Size.Height = 30.000000000000000000
               TextSettings.Font.StyleExt = {00060000000000000004000000}
             end
           end
         end
-        object lDados: TGrid
-          Align = Client
-          CanFocus = True
-          ClipChildren = True
-          Size.Width = 917.000000000000000000
-          Size.Height = 506.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 3
-          Viewport.Width = 913.000000000000000000
-          Viewport.Height = 481.000000000000000000
+        object lDados: TLayout
+          Position.X = 104.000000000000000000
+          Position.Y = 142.000000000000000000
+          TabOrder = 4
         end
       end
       inherited TabDados: TTabItem
@@ -115,14 +105,14 @@ inherited frmCliente: TfrmCliente
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC9944BFB800
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC99443FB801
                     3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
                     DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
                     F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
                     902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
                     6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
                     6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
-                    20F8C1FAE80F6744BCE87160BB8D18B2EC09ABFE3BD87346DD00000000004945
+                    20F8C1FAE80F6744BCE87160BB8D18B2EC095B403BCCE6A2B9A6000000004945
                     4E44AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
                 end>
@@ -132,16 +122,16 @@ inherited frmCliente: TfrmCliente
             end
           end
         end
-        object Layout2: TLayout
+        object Layout1: TLayout
+          Anchors = [akLeft, akTop, akRight]
           Position.X = 11.000000000000000000
-          Position.Y = 4.000000000000000000
-          Size.Width = 146.000000000000000000
+          Size.Width = 206.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 3
-          object Label12: TLabel
+          TabOrder = 5
+          object Label3: TLabel
             Align = Top
-            Size.Width = 146.000000000000000000
+            Size.Width = 206.000000000000000000
             Size.Height = 17.000000000000000000
             Size.PlatformDefault = False
             Text = 'Celular'
@@ -152,22 +142,21 @@ inherited frmCliente: TfrmCliente
             Align = Top
             TabOrder = 1
             Position.Y = 17.000000000000000000
-            Size.Width = 146.000000000000000000
+            Size.Width = 206.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
           end
         end
-        object Layout1: TLayout
+        object Layout2: TLayout
           Anchors = [akLeft, akTop, akRight]
-          Position.X = 165.000000000000000000
-          Position.Y = 4.000000000000000000
-          Size.Width = 742.000000000000000000
+          Position.X = 225.000000000000000000
+          Size.Width = 682.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 9
-          object Label3: TLabel
+          TabOrder = 13
+          object Label5: TLabel
             Align = Top
-            Size.Width = 742.000000000000000000
+            Size.Width = 682.000000000000000000
             Size.Height = 17.000000000000000000
             Size.PlatformDefault = False
             Text = 'Nome'
@@ -178,7 +167,7 @@ inherited frmCliente: TfrmCliente
             Align = Top
             TabOrder = 1
             Position.Y = 17.000000000000000000
-            Size.Width = 742.000000000000000000
+            Size.Width = 682.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
           end
@@ -190,7 +179,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 742.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 8
+          TabOrder = 12
           object Label4: TLabel
             Align = Top
             Size.Width = 742.000000000000000000
@@ -216,7 +205,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 146.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 6
+          TabOrder = 10
           object Label6: TLabel
             Align = Top
             Size.Width = 146.000000000000000000
@@ -242,7 +231,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 896.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 7
+          TabOrder = 9
           object Label8: TLabel
             Align = Top
             Size.Width = 896.000000000000000000
@@ -268,7 +257,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 206.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 2
+          TabOrder = 3
           object Label9: TLabel
             Align = Top
             Size.Width = 206.000000000000000000
@@ -344,6 +333,23 @@ inherited frmCliente: TfrmCliente
       end
     end
   end
+  object DADOS: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 512
+    Top = 426
+  end
   object MemTaxa: iMemTable
     Active = True
     FetchOptions.AssignedValues = [evMode]
@@ -359,8 +365,8 @@ inherited frmCliente: TfrmCliente
     iForthPaginacaoLimit = 0
     iForthPaginacaoPage = 0
     iForthPaginacaoPages = 0
-    Left = 880
-    Top = 280
+    Left = 704
+    Top = 432
     object MemTaxabairro: TStringField
       DisplayLabel = 'Bairro'
       FieldName = 'bairro'
@@ -382,126 +388,6 @@ inherited frmCliente: TfrmCliente
     object MemTaxavalor_taxa: TFloatField
       FieldName = 'valor_taxa'
       currency = True
-    end
-  end
-  object DADOS: iMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    iforthAtualizaCampoForm = True
-    iForthBloqueado = False
-    iForthPaginacaoTotal = 0
-    iForthPaginacaoLimit = 0
-    iForthPaginacaoPage = 0
-    iForthPaginacaoPages = 0
-    Left = 448
-    Top = 304
-    object DADOScodigo: TIntegerField
-      FieldName = 'codigo'
-    end
-    object DADOSnome: TStringField
-      FieldName = 'nome'
-      Size = 255
-    end
-    object DADOScelular: TStringField
-      FieldName = 'celular'
-      Size = 255
-    end
-    object DADOSrua: TStringField
-      FieldName = 'rua'
-      Size = 255
-    end
-    object DADOSbairro: TStringField
-      FieldName = 'bairro'
-      Size = 255
-    end
-    object DADOScidade: TStringField
-      FieldName = 'cidade'
-      Size = 255
-    end
-    object DADOSestado: TStringField
-      FieldName = 'estado'
-      Size = 2
-    end
-    object DADOScomplemento: TStringField
-      FieldName = 'complemento'
-      Size = 255
-    end
-    object DADOSnumero: TStringField
-      FieldName = 'numero'
-      Size = 255
-    end
-  end
-  object BindSourceDB1: TBindSourceDB
-    DataSet = DADOS
-    ScopeMappings = <>
-    Left = 456
-    Top = 312
-  end
-  object BindingsList1: TBindingsList
-    Methods = <>
-    OutputConverters = <>
-    Left = 20
-    Top = 5
-    object LinkControlToField1: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'nome'
-      Control = edtNome
-      Track = False
-    end
-    object LinkControlToField2: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'celular'
-      Control = edtCell
-      Track = False
-    end
-    object LinkControlToField3: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'rua'
-      Control = EdtRua
-      Track = False
-    end
-    object LinkControlToField4: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'numero'
-      Control = EdtNumero
-      Track = False
-    end
-    object LinkControlToField5: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'complemento'
-      Control = EdtComplemento
-      Track = False
-    end
-    object LinkControlToField6: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'bairro'
-      Control = EdtBairro
-      Track = False
-    end
-    object LinkControlToField7: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'cidade'
-      Control = EdtCidade
-      Track = False
-    end
-    object LinkControlToField8: TLinkControlToField
-      Category = 'Quick Bindings'
-      DataSource = BindSourceDB1
-      FieldName = 'estado'
-      Control = EdtEstado
-      Track = False
     end
   end
 end

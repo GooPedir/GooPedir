@@ -79,7 +79,7 @@ Coordinates=606,56,98,36
 Coordinates=606,111,98,36
 
 []
-Coordinates=134,78,91,36
+Coordinates=223,330,60,36
 Visible=True
 
 [BindSourceDB1]
@@ -131,9 +131,6 @@ Coordinates=0,0,40,51
 Coordinates=960,70,55,36
 Visible=True
 
-[Layout3]
-Coordinates=361,330,60,36
-
 [Layout1]
 Coordinates=292,330,60,36
 
@@ -170,66 +167,15 @@ Coordinates=607,1214,72,123
 [EdtNome]
 Coordinates=1860,220,66,58
 
-[Layout4]
-Coordinates=554,330,60,36
-
-[EdtRua]
-Coordinates=1460,170,57,58
-
-[Label11]
-Coordinates=623,188,60,58
-
-[EdtCidade]
-Coordinates=1880,300,75,58
-
-[Layout7]
-Coordinates=430,330,60,36
-
-[Label6]
-Coordinates=226,87,53,58
-
-[EdtNumero]
-Coordinates=1390,360,79,58
-
-[Label4]
-Coordinates=469,388,53,58
-
-[Label10]
-Coordinates=93,1,60,58
-
 [edtCell]
 Coordinates=1540,250,55,58
 Visible=True
 
-[Layout8]
-Coordinates=223,330,60,36
-
-[EdtComplemento]
-Coordinates=1330,280,114,58
-
 [Label12]
 Coordinates=74,77,60,58
 
-[Layout6]
-Coordinates=50,330,60,36
-
-[EdtEstado]
-Coordinates=1690,470,74,58
-
 [Layout2]
 Coordinates=742,78,60,36
-
-[Layout5]
-Coordinates=742,133,60,36
-
-[EdtBairro]
-Coordinates=1540,320,68,58
-
-[Label8]
-Coordinates=480,536,53,58
-
-[Label9]
-Coordinates=15,77,53,58
 
 [BindingsList1]
 Coordinates=736,188,91,36

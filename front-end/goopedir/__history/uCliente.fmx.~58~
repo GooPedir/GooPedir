@@ -38,19 +38,21 @@ inherited frmCliente: TfrmCliente
     inherited tabPrincipal: TTabControl
       Size.Width = 917.000000000000000000
       Size.Height = 582.000000000000000000
+      TabIndex = 1
       Sizes = (
         917s
         556s
         917s
         556s)
       inherited tabConsulta: TTabItem
+        IsSelected = False
         ExplicitSize.cx = 84.000000000000000000
         ExplicitSize.cy = 26.000000000000000000
         inherited GridPanelLayout1: TGridPanelLayout
           Position.Y = 526.000000000000000000
           Size.Width = 917.000000000000000000
           Size.Height = 30.000000000000000000
-          TabOrder = 2
+          TabOrder = 1
           inherited rAdicionar: TRectangle
             Size.Width = 306.623535156250000000
             Size.Height = 30.000000000000000000
@@ -79,6 +81,92 @@ inherited frmCliente: TfrmCliente
             end
           end
         end
+      end
+      inherited TabDados: TTabItem
+        IsSelected = True
+        ExplicitSize.cx = 72.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        inherited rSalvar: TRectangle
+          Position.Y = 506.000000000000000000
+          Size.Width = 917.000000000000000000
+          inherited Layout21: TLayout
+            inherited Image3: TImage
+              MultiResBitmap.Height = 24
+              MultiResBitmap.Width = 24
+              MultiResBitmap = <
+                item
+                  Width = 24
+                  Height = 24
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC99443FB801
+                    3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
+                    DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
+                    F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
+                    902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
+                    6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
+                    6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
+                    20F8C1FAE80F6744BCE87160BB8D18B2EC095B403BCCE6A2B9A6000000004945
+                    4E44AE426082}
+                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
+                end>
+            end
+            inherited Label7: TLabel
+              TextSettings.Font.StyleExt = {00060000000000000004000000}
+            end
+          end
+        end
+        object Layout1: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 11.000000000000000000
+          Size.Width = 206.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 5
+          object Label3: TLabel
+            Align = Top
+            Size.Width = 206.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Celular'
+            TabOrder = 0
+          end
+          object edtCell: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 206.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object Layout2: TLayout
+          Anchors = [akLeft, akTop, akRight]
+          Position.X = 225.000000000000000000
+          Size.Width = 682.000000000000000000
+          Size.Height = 51.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 13
+          object Label5: TLabel
+            Align = Top
+            Size.Width = 682.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Nome'
+            TabOrder = 0
+          end
+          object edtNome: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Top
+            TabOrder = 1
+            Position.Y = 17.000000000000000000
+            Size.Width = 682.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
         object Layout3: TLayout
           Anchors = [akLeft, akTop, akRight]
           Position.X = 11.000000000000000000
@@ -86,7 +174,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 742.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 9
+          TabOrder = 12
           object Label4: TLabel
             Align = Top
             Size.Width = 742.000000000000000000
@@ -112,7 +200,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 146.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 7
+          TabOrder = 10
           object Label6: TLabel
             Align = Top
             Size.Width = 146.000000000000000000
@@ -138,7 +226,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 896.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 8
+          TabOrder = 9
           object Label8: TLabel
             Align = Top
             Size.Width = 896.000000000000000000
@@ -190,7 +278,7 @@ inherited frmCliente: TfrmCliente
           Size.Width = 528.000000000000000000
           Size.Height = 51.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 5
+          TabOrder = 4
           object Label10: TLabel
             Align = Top
             Size.Width = 528.000000000000000000
@@ -238,41 +326,6 @@ inherited frmCliente: TfrmCliente
           end
         end
       end
-      inherited TabDados: TTabItem
-        ExplicitSize.cx = 72.000000000000000000
-        ExplicitSize.cy = 26.000000000000000000
-        inherited rSalvar: TRectangle
-          Position.Y = 506.000000000000000000
-          Size.Width = 917.000000000000000000
-          inherited Layout21: TLayout
-            inherited Image3: TImage
-              MultiResBitmap.Height = 24
-              MultiResBitmap.Width = 24
-              MultiResBitmap = <
-                item
-                  Width = 24
-                  Height = 24
-                  PNG = {
-                    89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
-                    F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00F049444154484BED95510E82301044C104CFA627F0387ECA3DBC99447F3801
-                    3480B3EBD0B452A035D1F8C14B4CB73B3BBBD406CD3692E8FBFED8B66D352402
-                    DF992D9641F31B3DC9440D61EDC06D14687CAAEBDA886F758876076EBC849A40
-                    F4107501375E424D448630EDE573AECA28E6E0BD3084D431545CBF26C08EEB6F
-                    902710B84D8676CFFFF513440DC043EDBBAEBB344DF3908FC492A31C8F9E0F70
-                    6B41AA7C291E25650BF3F35F31F54901DEF03B258BE4285B28FDE11D14457165
-                    6809E556E10943771075C96A06DC4EA13E5FB002EDF377608CA964655D326E8F
-                    20F8C1FAE80F6744BCE87160BB8D18B2EC09839F3BD21AD45D0D000000004945
-                    4E44AE426082}
-                  FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
-                end>
-            end
-            inherited Label7: TLabel
-              TextSettings.Font.StyleExt = {00060000000000000004000000}
-            end
-          end
-        end
-      end
     end
   end
   object DADOS: iMemTable
@@ -291,5 +344,45 @@ inherited frmCliente: TfrmCliente
     iForthPaginacaoPages = 0
     Left = 512
     Top = 426
+  end
+  object MemTaxa: iMemTable
+    Active = True
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 704
+    Top = 432
+    object MemTaxabairro: TStringField
+      DisplayLabel = 'Bairro'
+      FieldName = 'bairro'
+      Size = 255
+    end
+    object MemTaxacidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Size = 255
+    end
+    object MemTaxaestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object MemTaxacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object MemTaxavalor_taxa: TFloatField
+      FieldName = 'valor_taxa'
+      currency = True
+    end
   end
 end

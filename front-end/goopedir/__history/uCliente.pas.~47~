@@ -18,30 +18,34 @@ uses
 
 type
   TfrmCliente = class(TfrmCadastroBase)
-    Layout5: TLayout;
-    Label8: TLabel;
-    Layout6: TLayout;
-    Label9: TLabel;
     Layout7: TLayout;
     Label10: TLabel;
-    Layout4: TLayout;
-    Label6: TLabel;
+    EdtCidade: TEdit;
     Layout8: TLayout;
     Label11: TLabel;
-    EdtNumero: TEdit;
-    EdtComplemento: TEdit;
-    EdtBairro: TEdit;
-    EdtCidade: TEdit;
     EdtEstado: TEdit;
-    Layout2: TLayout;
-    Label12: TLabel;
-    edtCell: TEdit;
+    DADOS: iMemTable;
+    MemTaxa: iMemTable;
+    MemTaxabairro: TStringField;
+    MemTaxacidade: TStringField;
+    MemTaxaestado: TStringField;
+    MemTaxacodigo: TIntegerField;
+    MemTaxavalor_taxa: TFloatField;
     Layout1: TLayout;
     Label3: TLabel;
+    edtCell: TEdit;
+    Layout2: TLayout;
+    Label5: TLabel;
     edtNome: TEdit;
     Layout3: TLayout;
     Label4: TLabel;
-    Edit1: TEdit;
+    EdtRua: TEdit;
+    Layout4: TLayout;
+    Label6: TLabel;
+    EdtNumero: TEdit;
+    Layout5: TLayout;
+    Label8: TLabel;
+    EdtComplemento: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure rAdicionarClick(Sender: TObject);
     procedure rSalvarClick(Sender: TObject);
