@@ -513,17 +513,6 @@ type
     ppParameter15: TppParameter;
     pp2DBarCode1: Tpp2DBarCode;
     ppBarCode1: TppBarCode;
-    ppReport1: TppReport;
-    ppParameterList17: TppParameterList;
-    ppDesignLayers19: TppDesignLayers;
-    ppDesignLayer19: TppDesignLayer;
-    ppHeaderBand17: TppHeaderBand;
-    ppDetailBand19: TppDetailBand;
-    ppFooterBand17: TppFooterBand;
-    ppShape2: TppShape;
-    qryMesas: TFDQuery;
-    ppMesa: TppBDEPipeline;
-    dsMesa: TDataSource;
     ppHeaderBand3: TppHeaderBand;
     ppRichText8: TppRichText;
     ppLine11: TppLine;

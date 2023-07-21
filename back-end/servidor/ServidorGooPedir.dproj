@@ -176,6 +176,8 @@
         <DCCReference Include="src\other\horse-octet-stream-master\src\Horse.OctetStream.pas"/>
         <DCCReference Include="src\other\horse-upload-master\src\Horse.Upload.pas"/>
         <DCCReference Include="src\sql\uSQL.pas"/>
+        <DCCReference Include="src\modulos\v2\v2.pas"/>
+        <DCCReference Include="src\uSite.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -198,6 +200,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
+                <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ServidorGooPedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="C:\papaleguas\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">

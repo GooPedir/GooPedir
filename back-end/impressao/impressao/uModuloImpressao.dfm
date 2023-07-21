@@ -1,7 +1,7 @@
 object dmImpressaoV2: TdmImpressaoV2
   OnCreate = C
-  Height = 708
-  Width = 1130
+  Height = 782
+  Width = 1183
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (
@@ -1333,7 +1333,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 304800
     PrinterSetup.mmPaperWidth = 55800
-    PrinterSetup.PaperSize = 119
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1539,7 +1539,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 304800
           PrinterSetup.mmPaperWidth = 55800
-          PrinterSetup.PaperSize = 119
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -10945,143 +10945,5 @@ object dmImpressaoV2: TdmImpressaoV2
         UserName = 'Parameter1'
       end
     end
-  end
-  object ppReport1: TppReport
-    AutoStop = False
-    DataPipeline = ppMesa
-    PrinterSetup.BinName = 'Default'
-    PrinterSetup.DocumentName = 'Report'
-    PrinterSetup.PaperName = 'A4'
-    PrinterSetup.PrinterName = 'Microsoft Print to PDF'
-    PrinterSetup.SaveDeviceSettings = False
-    PrinterSetup.mmMarginBottom = 6350
-    PrinterSetup.mmMarginLeft = 6350
-    PrinterSetup.mmMarginRight = 6350
-    PrinterSetup.mmMarginTop = 6350
-    PrinterSetup.mmPaperHeight = 297000
-    PrinterSetup.mmPaperWidth = 210000
-    PrinterSetup.PaperSize = 9
-    ArchiveFileName = '($MyDocuments)\ReportArchive.raf'
-    DeviceType = 'Screen'
-    DefaultFileDeviceType = 'PDF'
-    EmailSettings.ReportFormat = 'PDF'
-    EmailSettings.ConnectionSettings.MailService = 'SMTP'
-    EmailSettings.ConnectionSettings.WebMail.GmailSettings.OAuth2.RedirectPort = 0
-    EmailSettings.ConnectionSettings.WebMail.Outlook365Settings.OAuth2.RedirectPort = 0
-    EmailSettings.ConnectionSettings.EnableMultiPlugin = False
-    LanguageID = 'Default'
-    OpenFile = False
-    OutlineSettings.CreateNode = True
-    OutlineSettings.CreatePageNodes = True
-    OutlineSettings.Enabled = True
-    OutlineSettings.Visible = True
-    ThumbnailSettings.Enabled = True
-    ThumbnailSettings.Visible = True
-    ThumbnailSettings.DeadSpace = 30
-    ThumbnailSettings.PageHighlight.Width = 3
-    ThumbnailSettings.ThumbnailSize = tsSmall
-    PDFSettings.EmbedFontOptions = [efUseSubset]
-    PDFSettings.EncryptSettings.AllowCopy = True
-    PDFSettings.EncryptSettings.AllowInteract = True
-    PDFSettings.EncryptSettings.AllowModify = True
-    PDFSettings.EncryptSettings.AllowPrint = True
-    PDFSettings.EncryptSettings.AllowExtract = True
-    PDFSettings.EncryptSettings.AllowAssemble = True
-    PDFSettings.EncryptSettings.AllowQualityPrint = True
-    PDFSettings.EncryptSettings.Enabled = False
-    PDFSettings.EncryptSettings.KeyLength = kl40Bit
-    PDFSettings.EncryptSettings.EncryptionType = etRC4
-    PDFSettings.DigitalSignatureSettings.SignPDF = False
-    PDFSettings.FontEncoding = feAnsi
-    PDFSettings.ImageCompressionLevel = 25
-    PDFSettings.PDFAFormat = pafNone
-    PreviewFormSettings.PageBorder.mmPadding = 0
-    RTFSettings.DefaultFont.Charset = DEFAULT_CHARSET
-    RTFSettings.DefaultFont.Color = clWindowText
-    RTFSettings.DefaultFont.Height = -13
-    RTFSettings.DefaultFont.Name = 'Arial'
-    RTFSettings.DefaultFont.Style = []
-    TextFileName = '($MyDocuments)\Report.pdf'
-    TextSearchSettings.DefaultString = '<Texto a localizar>'
-    TextSearchSettings.Enabled = True
-    XLSSettings.AppName = 'ReportBuilder'
-    XLSSettings.Author = 'ReportBuilder'
-    XLSSettings.Subject = 'Report'
-    XLSSettings.Title = 'Report'
-    XLSSettings.WorksheetName = 'Report'
-    CloudDriveSettings.DropBoxSettings.OAuth2.RedirectPort = 0
-    CloudDriveSettings.DropBoxSettings.DirectorySupport = True
-    CloudDriveSettings.GoogleDriveSettings.OAuth2.RedirectPort = 0
-    CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
-    CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
-    CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 928
-    Top = 376
-    Version = '21.02'
-    mmColumnWidth = 0
-    DataPipelineName = 'ppMesa'
-    object ppHeaderBand17: TppHeaderBand
-      Background.Brush.Style = bsClear
-      Border.mmPadding = 0
-      mmBottomOffset = 0
-      mmHeight = 13229
-      mmPrintPosition = 0
-    end
-    object ppDetailBand19: TppDetailBand
-      Background1.Brush.Style = bsClear
-      Background2.Brush.Style = bsClear
-      Border.mmPadding = 0
-      mmBottomOffset = 0
-      mmHeight = 76729
-      mmPrintPosition = 0
-      object ppShape2: TppShape
-        DesignLayer = ppDesignLayer19
-        UserName = 'Shape2'
-        mmHeight = 73554
-        mmLeft = 2117
-        mmTop = 529
-        mmWidth = 13229
-        BandType = 4
-        LayerName = Foreground3
-      end
-    end
-    object ppFooterBand17: TppFooterBand
-      Background.Brush.Style = bsClear
-      Border.mmPadding = 0
-      mmBottomOffset = 0
-      mmHeight = 13229
-      mmPrintPosition = 0
-    end
-    object ppDesignLayers19: TppDesignLayers
-      object ppDesignLayer19: TppDesignLayer
-        UserName = 'Foreground3'
-        LayerType = ltBanded
-        Index = 0
-      end
-    end
-    object ppParameterList17: TppParameterList
-    end
-  end
-  object qryMesas: TFDQuery
-    Connection = dmModulo.BANCO
-    SQL.Strings = (
-      
-        'select *, concat('#39'https://mesa.goopedir/pedir/auto-service/'#39',TO_' +
-        'BASE64(TO_BASE64(TO_BASE64(concat('#39'goopedir|mesa|'#39',mesa_tipo.des' +
-        'cricao, '#39'|'#39', mesa.nr_mesa))))) as link from mesa'#10'join mesa_tipo ' +
-        'on mesa_tipo.id_mesa_tipo = mesa.fk_tipo_mesa'#10)
-    Left = 1032
-    Top = 368
-  end
-  object ppMesa: TppBDEPipeline
-    DataSource = dsMesa
-    UserName = 'Mesa'
-    Left = 944
-    Top = 496
-  end
-  object dsMesa: TDataSource
-    DataSet = qryMesas
-    Left = 944
-    Top = 440
   end
 end

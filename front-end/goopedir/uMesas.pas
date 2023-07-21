@@ -685,8 +685,7 @@ begin
   cMotoboy.HideMenu;
   for I := 0 to Length(ArrayMotoboy) - 1 do
   begin
-    DM.PutSimples('v1/pedido/motoboy/' + ArrayMotoboy[I].ToString + '/' +
-      cMotoboy.CodItem + '/', nil);
+    DM.PutSimples('v1/pedido/motoboy/' + ArrayMotoboy[I].ToString + '/' + cMotoboy.CodItem + '/', nil);
   end;
   ShowMessageToast(Self, 'Motoboy incluido no(s) pedido(s) com sucesso!', 2);
 end;

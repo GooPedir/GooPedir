@@ -87,12 +87,10 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-      Retorno := dm.PostSimplesComRetorno('/v1/gera/pix/:token_mp/' + ValorPix +
-        '/' + Pedido.ToString);
+      Retorno := dm.PostSimplesComRetorno('/v1/gera/pix/:token_mp/' + ValorPix +'/' + Pedido.ToString);
 
       try
         JSonValue := TJSonObject.ParseJSONValue(Retorno);
-
         img_qrcod.Bitmap := dm.BitmapFromBase64(JSonValue.GetValue<string>('base64'));
         IDMP := Pedido.ToString;
       except

@@ -579,6 +579,7 @@ end;
 
 procedure TfrmCaixa.FinalizaCaixa;
 begin
+//DADOSPAGAMENTO.to
   dm.PostSimples('/v1/caixa/fechamento/' + CodigoDoCaixa.toString,
     DADOSPAGAMENTO);
 

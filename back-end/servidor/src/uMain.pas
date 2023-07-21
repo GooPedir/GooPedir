@@ -158,6 +158,8 @@ type
     procedure AtualizaDadosiFood;
     procedure AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
 
+    function UserID : integer;
+
   var
     FechouWhatsapp: Boolean;
     FechouSite: Boolean;
@@ -198,7 +200,7 @@ uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
   RESTRequest4D.Response.Client, RESTRequest4D.Response.Contract,
   RESTRequest4D.Response.Indy, RESTRequest4D.Response.NetHTTP,
   RESTRequest4D.Utils, ThirdParty.Posix.Syslog, token.autorizacao, token, uDM,
-  util.backup, util, Web.WebConst, Winapi.ShellAPI;
+  util.backup, util, Web.WebConst, Winapi.ShellAPI, v2;
 
 procedure TfrmServidor.AbrirExe(Nome: String);
 begin
@@ -697,6 +699,7 @@ begin
   // Declaração das URI da API
   token.Registry;
   util.Registry;
+  v2.Registry;
 
   // util.backup.Registry;
 
@@ -1408,6 +1411,11 @@ begin
   self.Hide();
   self.WindowState := wsMinimized;
   // StatusForm := sOcuto;
+end;
+
+function TfrmServidor.UserID: integer;
+begin
+Result := 1;
 end;
 
 function TfrmServidor.VerificaExe(Nome: String): Boolean;

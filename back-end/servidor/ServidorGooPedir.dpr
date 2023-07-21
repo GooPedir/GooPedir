@@ -86,7 +86,9 @@ uses
   Web.WebConst in 'src\other\Web.WebConst.pas',
   Horse.OctetStream in 'src\other\horse-octet-stream-master\src\Horse.OctetStream.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
-  uSQL in 'src\sql\uSQL.pas';
+  uSQL in 'src\sql\uSQL.pas',
+  v2 in 'src\modulos\v2\v2.pas',
+  uSite in 'src\uSite.pas';
 
 {$R *.res}
 

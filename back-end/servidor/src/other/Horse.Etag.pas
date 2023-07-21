@@ -24,6 +24,8 @@ var
   Hash: TIdHashMessageDigest5;
   eTag: String;
 begin
+//  Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Origin','*');
+//  Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Methods','DELETE, POST, GET, OPTIONS');
   try
     Next;
   finally
@@ -46,7 +48,6 @@ begin
     //Access-Control-Allow-Origin: *
   end;
 
-      Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Origin', '*');
 end;
 
 end.

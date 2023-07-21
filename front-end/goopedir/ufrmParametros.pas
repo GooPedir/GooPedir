@@ -160,6 +160,7 @@ begin
   Botoes.Sim := TestarConexao;
 
   AdicionaTitulo(Geral, 'Geral');
+  AdicionaParametroEdit(Geral, 'url_site', '');
   AdicionaParametroEdit(Geral, 'vias_pedido', '');
   AdicionaParametroEdit(Geral, 'valor_pedido_minimo', '');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'auto_lancar_produto',

@@ -1,0 +1,2032 @@
+unit UnitResumo;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
+  FMX.ListView, FMX.Layouts, FMX.Objects, FMX.Controls.Presentation,
+  FMX.StdCtrls, FMX.DialogService, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  uMemTable, System.Rtti, FMX.Grid.Style, Data.Bind.EngExt, FMX.Bind.DBEngExt,
+  FMX.Bind.Grid, System.Bindings.Outputs, FMX.Bind.Editors,
+  Data.Bind.Components, Data.Bind.Grid, FMX.ScrollBox, FMX.Grid,
+  Data.Bind.DBScope, FMX.Edit, FMX.ListBox, FMX.DateTimeCtrls, System.Threading;
+
+type
+
+  TCallback = procedure of object;
+
+  TMinhaThread = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+  TCalculaTempo = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+  TFrmResumo = class(TForm)
+    Rectangle1: TRectangle;
+    img_fechar: TImage;
+    img_add_item: TImage;
+    rDadosMesa: TRectangle;
+    lTipo: TLabel;
+    layMesa: TLayout;
+    lbl_comanda: TLabel;
+    rect_encerrar: TRectangle;
+    lBotaoSalvar: TLabel;
+    rTotalMesa: TRectangle;
+    lTotal: TLabel;
+    lv_produto: TListView;
+    img_delete: TImage;
+    Produtos: iMemTable;
+    DadoIten: iMemTable;
+    Produtoscodigo: TIntegerField;
+    Produtosnome_produto: TStringField;
+    Produtosquantidade: TIntegerField;
+    Produtosvalor_total: TFloatField;
+    DadoItendados: TStringField;
+    MESAS: iMemTable;
+    MESASid_mesa: TIntegerField;
+    MESASnr_mesa: TIntegerField;
+    MESASdescricao: TStringField;
+    MESASsts_mesa: TIntegerField;
+    MESAStot_mesa: TFloatField;
+    MESASpedido: TIntegerField;
+    img_transferencia: TImage;
+    img_imprimir: TImage;
+    ProdCompleto: iMemTable;
+    ProdCompletocodigo: TIntegerField;
+    ProdCompletonome_produto: TStringField;
+    ProdCompletoquantidade: TIntegerField;
+    ProdCompletovalor_total: TFloatField;
+    ProdCompletodados: TStringField;
+    BDSPRODS: TBindSourceDB;
+    StringGrid1: TStringGrid;
+    BindingsList1: TBindingsList;
+    LinkGridToDataSourceBDSPRODS: TLinkGridToDataSource;
+    img_excluir: TImage;
+    img_fastfood: TImage;
+    img_fatura: TImage;
+    rDadosPedido: TRectangle;
+    Layout5: TLayout;
+    Layout6: TLayout;
+    Label6: TLabel;
+    EdtCelular: TEdit;
+    Layout7: TLayout;
+    Label7: TLabel;
+    EdtNome: TEdit;
+    lDelivery1: TLayout;
+    Label8: TLabel;
+    EdtRua: TEdit;
+    lDelivery2: TLayout;
+    Label9: TLabel;
+    EdtNumero: TEdit;
+    lDelivery3: TLayout;
+    Label10: TLabel;
+    EdtBairro: TEdit;
+    lDelivery4: TLayout;
+    Label11: TLabel;
+    EdtCidade: TEdit;
+    lDelivery5: TLayout;
+    Label12: TLabel;
+    EdtEstado: TEdit;
+    Label14: TLabel;
+    lCabecalho: TLayout;
+    Layout1: TLayout;
+    Label1: TLabel;
+    edtProdutos: TEdit;
+    Layout2: TLayout;
+    Label2: TLabel;
+    EdtAcrecimo: TEdit;
+    Layout3: TLayout;
+    Label3: TLabel;
+    EdtEntrega: TEdit;
+    Layout4: TLayout;
+    Label5: TLabel;
+    EdtDesconto: TEdit;
+    Layout13: TLayout;
+    Label13: TLabel;
+    EdtTotal: TEdit;
+    Layout15: TLayout;
+    Label15: TLabel;
+    edtData: TDateEdit;
+    Layout16: TLayout;
+    Label16: TLabel;
+    edtHora: TTimeEdit;
+    Layout17: TLayout;
+    Label17: TLabel;
+    EdtTempo: TEdit;
+    Layout18: TLayout;
+    Label18: TLabel;
+    cTipo: TComboBox;
+    Image1: TImage;
+    Image2: TImage;
+    mDadosPedido: iMemTable;
+    mDadosPedidocodigo: TIntegerField;
+    mDadosPedidocodigo_pedido_dia: TIntegerField;
+    mDadosPedidocodigo_cliente: TIntegerField;
+    mDadosPedidocodigo_cliente_endereco: TIntegerField;
+    mDadosPedidodata_pedido: TDateField;
+    mDadosPedidohora_pedido: TTimeField;
+    mDadosPedidohora_entregue: TTimeField;
+    mDadosPedidostatus: TIntegerField;
+    mDadosPedidovalor_pedido: TFloatField;
+    mDadosPedidovalor_desconto: TFloatField;
+    mDadosPedidovalor_taxa_entrega: TFloatField;
+    mDadosPedidovalor_total_pedido: TFloatField;
+    mDadosPedidotaxa_servico: TFloatField;
+    mDadosPedidocovert: TIntegerField;
+    mDadosPedidoorigen: TFloatField;
+    lDelivery6: TLayout;
+    Label19: TLabel;
+    edtComplemento: TEdit;
+    mConsultaCliente: iMemTable;
+    mConsultaClientecodigo: TIntegerField;
+    mConsultaClientecodigo1: TIntegerField;
+    mConsultaClientenome: TStringField;
+    mConsultaClientecelular_wpp: TStringField;
+    mConsultaClienterua: TStringField;
+    mConsultaClientebairro: TStringField;
+    mConsultaClientecidade: TStringField;
+    mConsultaClienteestado: TStringField;
+    mConsultaClientenumero: TStringField;
+    mConsultaClientecomplemento: TStringField;
+    mConsultaClientevalor_taxa: TFloatField;
+    lCodigoInterno: TLabel;
+    mClienteEndereco: iMemTable;
+    mCliente: iMemTable;
+    mClientecodigo: TIntegerField;
+    mClientenome: TStringField;
+    mClientecelular_wpp: TStringField;
+    mClienteEnderecorua: TStringField;
+    mClienteEnderecobairro: TStringField;
+    mClienteEnderecocidade: TStringField;
+    mClienteEnderecoestado: TStringField;
+    mClienteEndereconumero: TStringField;
+    mClienteEnderecocomplemento: TStringField;
+    mClienteEnderecovalor_taxa: TFloatField;
+    memDadosPedido: iMemTable;
+    memDadosPedidodata: TDateField;
+    memDadosPedidohora: TTimeField;
+    memDadosPedidoproduto: TFloatField;
+    memDadosPedidoacrecimo: TFloatField;
+    memDadosPedidoentrega: TFloatField;
+    memDadosPedidodesconto: TFloatField;
+    memDadosPedidototal: TFloatField;
+    memDadosPedidocliente: TIntegerField;
+    memDadosPedidocelular: TStringField;
+    memDadosPedidonome: TStringField;
+    memDadosPedidorua: TStringField;
+    memDadosPedidonumero: TStringField;
+    memDadosPedidobairro: TStringField;
+    memDadosPedidocidade: TStringField;
+    memDadosPedidoestado: TStringField;
+    memDadosPedidocomplemento: TStringField;
+    memDadosPedidocodigo: TIntegerField;
+    memDadosPedidoendereco: TIntegerField;
+    memDadosPedidostatus: TIntegerField;
+    rConsultaTaxa: TRectangle;
+    Rectangle2: TRectangle;
+    Label20: TLabel;
+    MemTaxa: iMemTable;
+    MemTaxacidade: TStringField;
+    MemTaxabairro: TStringField;
+    MemTaxaestado: TStringField;
+    MemTaxacodigo: TIntegerField;
+    bdsTaxa: TBindSourceDB;
+    Rectangle3: TRectangle;
+    Image3: TImage;
+    Image8: TImage;
+    Label21: TLabel;
+    Label22: TLabel;
+    MemTaxavalor_taxa: TFloatField;
+    lHiden: TLabel;
+    rFundoPreto: TRectangle;
+    rFundoPreto1: TRectangle;
+    Label4: TLabel;
+    mDadosPedidoid_caixa: TIntegerField;
+    lFaturado: TLabel;
+    lApenasVisualizacao: TLabel;
+    Layout8: TLayout;
+    Label23: TLabel;
+    cTipoPagamento: TComboBox;
+    Pagamento: iMemTable;
+    Pagamentocodigo: TIntegerField;
+    Pagamentodescricao: TStringField;
+    bdsPagamento: TBindSourceDB;
+    LinkListControlToField1: TLinkListControlToField;
+    mDadosPedidotipo_pagamento: TIntegerField;
+    memDadosPedidotipo_pagamento: TIntegerField;
+    ListView1: TListView;
+    LinkListControlToField2: TLinkListControlToField;
+    rCliente: TRectangle;
+    Rectangle5: TRectangle;
+    Label24: TLabel;
+    Rectangle6: TRectangle;
+    Image4: TImage;
+    Image5: TImage;
+    Label25: TLabel;
+    Label26: TLabel;
+    ListView2: TListView;
+    BindSourceDB1: TBindSourceDB;
+    LinkListControlToField3: TLinkListControlToField;
+    layTroco: TLayout;
+    Label27: TLabel;
+    edtTroco: TEdit;
+    Pagamentotroco_delivery: TIntegerField;
+    mDadosPedidotroco: TFloatField;
+    memDadosPedidotroco: TFloatField;
+    lNumeroCaixa: TLabel;
+    rBairro: TRectangle;
+    ListBox1: TListBox;
+    iBairro1: TListBoxItem;
+    iBairro2: TListBoxItem;
+    iBairro3: TListBoxItem;
+    Button1: TButton;
+    Layout9: TLayout;
+    DadosPedidos: TVertScrollBox;
+    layClient: TLayout;
+    Button2: TButton;
+    procedure img_fecharClick(Sender: TObject);
+    procedure img_add_itemClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure rect_encerrarClick(Sender: TObject);
+    procedure lv_produtoItemClickEx(const Sender: TObject; ItemIndex: Integer;
+      const LocalClickPos: TPointF; const ItemObject: TListItemDrawable);
+    procedure FormActivate(Sender: TObject);
+    procedure img_transferenciaClick(Sender: TObject);
+    procedure img_imprimirClick(Sender: TObject);
+    procedure img_excluirClick(Sender: TObject);
+    procedure img_fastfoodClick(Sender: TObject);
+    procedure StringGrid1CellDblClick(const Column: TColumn;
+      const Row: Integer);
+    procedure img_faturaClick(Sender: TObject);
+    procedure EdtAcrecimoExit(Sender: TObject);
+    procedure cTipoChange(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+    procedure Rectangle2Click(Sender: TObject);
+    procedure Image3Click(Sender: TObject);
+    procedure EdtCelularKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
+    procedure EdtCelularExit(Sender: TObject);
+    procedure img_excluirMouseEnter(Sender: TObject);
+    procedure img_excluirMouseLeave(Sender: TObject);
+    procedure EdtBairroExit(Sender: TObject);
+    procedure Rectangle5Click(Sender: TObject);
+    procedure Image2Click(Sender: TObject);
+    procedure edtTrocoExit(Sender: TObject);
+    procedure edtDataKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
+    procedure ListBox1ItemClick(const Sender: TCustomListBox;
+      const Item: TListBoxItem);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+
+  private
+    Fmesa: Integer;
+    FCodigoPedido: Integer;
+    FValorProduto: Real;
+    FValorDesconto: Real;
+    FValorAcrescimo: Real;
+    FValorEntrega: Real;
+    FValorTotal: Real;
+    FCodigoClienteEndereco: Integer;
+    FCodigoCliente: Integer;
+    FValorEntregaAnterior: Real;
+    FStatusPedido: Integer;
+    FApenasVisualizacao: Boolean;
+    FValorTroco: Real;
+    FDelivery: Integer;
+    procedure AddProdutoResumo(id_produto, qtd: Integer;
+      descricao, descricaoitem: string; preco: double);
+
+    procedure Setmesa(const Value: Integer); { Private declarations }
+    procedure Finaliza;
+    procedure Finalizar;
+    procedure ImpressaoSim;
+    procedure ImpressaoNao;
+    procedure Excluir;
+    procedure ReImprimir;
+    procedure ReImpressaoSim;
+    procedure Conluir;
+    procedure Cancelar;
+    procedure CalcularTotal;
+    procedure AtualizaDadosPedido;
+    procedure SalvarDadosPedido;
+
+    // Consulta
+    procedure ConsultaTaxa;
+    procedure pConsultaCliente;
+    procedure TipoPagamento;
+    procedure BuscarCliente;
+
+    procedure TransferenciaConcluida;
+    procedure SetCodigoPedido(const Value: Integer);
+    procedure CarregaDados;
+    procedure SetCodigoCliente(const Value: Integer);
+    procedure SetCodigoClienteEndereco(const Value: Integer);
+    procedure SetValorAcrescimo(const Value: Real);
+    procedure SetValorDesconto(const Value: Real);
+    procedure SetValorEntrega(const Value: Real);
+    procedure SetValorProduto(const Value: Real);
+    procedure SetValorTotal(const Value: Real);
+    function ApenasNumerosValidos(Valor: String): String;
+    procedure PegaDadosCliente;
+    procedure SetValorEntregaAnterior(const Value: Real);
+    function calcularDiferencaHoras(Dataf, datai: Tdate; HoraF, HoraI: ttime)
+      : TDateTime;
+    procedure SetStatusPedido(const Value: Integer);
+    procedure SetApenasVisualizacao(const Value: Boolean);
+    procedure SetValorTroco(const Value: Real);
+    procedure SetDelivery(const Value: Integer);
+
+  public
+    { Public declarations }
+    property CodigoPedido: Integer read FCodigoPedido write SetCodigoPedido;
+    property CodigoCliente: Integer read FCodigoCliente write SetCodigoCliente;
+    property CodigoClienteEndereco: Integer read FCodigoClienteEndereco
+      write SetCodigoClienteEndereco;
+    // Totais
+    property ValorProduto: Real read FValorProduto write SetValorProduto;
+    property ValorAcrescimo: Real read FValorAcrescimo write SetValorAcrescimo;
+    property ValorEntrega: Real read FValorEntrega write SetValorEntrega;
+    property ValorDesconto: Real read FValorDesconto write SetValorDesconto;
+    property ValorTotal: Real read FValorTotal write SetValorTotal;
+    property ValorEntregaAnterior: Real read FValorEntregaAnterior
+      write SetValorEntregaAnterior;
+    property StatusPedido: Integer read FStatusPedido write SetStatusPedido;
+    property ValorTroco: Real read FValorTroco write SetValorTroco;
+
+    property mesa: Integer read Fmesa write Setmesa;
+    property Delivery: Integer read FDelivery write SetDelivery;
+    procedure ListarProduto;
+    procedure TipoPedido;
+    procedure CalculaTempo;
+    function ValidaCampo: Boolean;
+    property ApenasVisualizacao: Boolean read FApenasVisualizacao
+      write SetApenasVisualizacao;
+
+    procedure BuscaBairroEdit;
+    procedure FuncaoExcluir;
+    procedure LoadMain;
+
+  var
+    FinalizaExecutar: TCallback;
+  end;
+
+var
+  FrmResumo: TFrmResumo;
+  Impressao: Integer;
+  CodigoProdutoPedido: Integer;
+
+  Dados: TMinhaThread;
+  Iniciou: Boolean;
+  FTask: ITask;
+  ConsultaCliente: Boolean;
+  BuscarBairro: Boolean;
+
+const
+  MASCARA = 'R$ ###,###,##0.00';
+
+implementation
+
+{$R *.fmx}
+
+uses UnitPrincipal, Funcoes, Loading, uSimNao, uDM, uFechamentoPedido,
+  uTransferencia
+{$IFDEF Android}
+{$ELSE}
+    , Winapi.Windows
+{$ENDIF}
+    , uframeDadosItens, uMain;
+
+procedure TFrmResumo.AddProdutoResumo(id_produto, qtd: Integer;
+  descricao, descricaoitem: string; preco: double);
+begin
+  with lv_produto.Items.Add do
+  begin
+    Tag := id_produto;
+    TListItemText(Objects.FindDrawable('TxtDescricao')).Text :=
+      FormatFloat('00', qtd) + ' - ' + descricao;
+    TListItemText(Objects.FindDrawable('txtDescricaoItem')).Text :=
+      descricaoitem;
+    TListItemText(Objects.FindDrawable('TxtPreco')).Text :=
+      FormatFloat('R$ #,##0.00', preco);
+    // TListItemImage(Objects.FindDrawable('ImgDelete')).bitmap :=
+    // img_delete.bitmap;
+  end;
+end;
+
+procedure TFrmResumo.ListarProduto;
+var
+  x: Integer;
+
+  descricao: String;
+  Tipo: Integer;
+  Codigo: Integer;
+  Total: Real;
+
+  FrameItens: TframeDadosItens;
+  I: Integer;
+begin
+  try
+    if not Iniciou then
+    begin
+
+      for I := 0 to DadosPedidos.ComponentCount - 1 do
+      begin
+        if (DadosPedidos.Components[I]) is TframeDadosItens then
+        begin
+          (DadosPedidos.Components[I] as TframeDadosItens).Visible := False;
+        end;
+
+      end;
+
+      BDSPRODS.DataSet := Nil;
+      lv_produto.Items.Clear;
+
+      if CodigoPedido > 0 then
+      begin
+        Codigo := CodigoPedido;
+        Tipo := 2;
+      end
+      else
+      begin
+        Codigo := mesa;
+        Tipo := 1;
+      end;
+
+      GetSimples('v1/produtos/pedido/' + Tipo.ToString + '/' + Codigo.ToString,
+        Produtos);
+      GetSimples('v1/produtos/pedido/' + Tipo.ToString + '/' + Codigo.ToString,
+        ProdCompleto);
+      Total := 0;
+      while not Produtos.Eof do
+      begin
+        descricao := '';
+        DadoIten.Close;
+        GetSimples('v1/produtos/pedido/itens/' + Produtos.FieldByName('codigo')
+          .AsString, DadoIten);
+
+        while not DadoIten.Eof do
+        begin
+          descricao := descricao + DadoIten.FieldByName('dados').AsString;
+
+          DadoIten.Next;
+        end;
+        ProdCompleto.Edit;
+        ProdCompleto.FieldByName('dados').AsString := descricao;
+        ProdCompleto.Post;
+        AddProdutoResumo(Produtos.FieldByName('codigo').AsInteger,
+          Produtos.FieldByName('quantidade').AsInteger,
+          Produtos.FieldByName('nome_produto').AsString, descricao,
+          Produtos.FieldByName('valor_total').AsFloat);
+
+        Total := Total + Produtos.FieldByName('valor_total').AsFloat;
+        ProdCompleto.Next;
+        Produtos.Next;
+      end;
+      ValorProduto := Total;
+
+      if ProdCompleto.RecordCount > 0 then
+      begin
+        ProdCompleto.First;
+        while not ProdCompleto.Eof do
+        begin
+          if Assigned(DadosPedidos.FindComponent('FRAME_ITEN_' +
+            ProdCompleto.FieldByName('codigo').AsString)) then
+          begin
+            FrameItens := DadosPedidos.FindComponent
+              ('FRAME_ITEN_' + ProdCompleto.FieldByName('codigo').AsString)
+              as TframeDadosItens;
+          end
+          else
+          begin
+            FrameItens := TframeDadosItens.Create(DadosPedidos);
+            FrameItens.Parent := DadosPedidos;
+            FrameItens.Codigo := ProdCompleto.FieldByName('codigo').AsInteger;
+            FrameItens.Name := 'FRAME_ITEN_' + ProdCompleto.FieldByName
+              ('codigo').AsString;
+          end;
+          FrameItens.Nome := ProdCompleto.FieldByName('nome_produto').AsString;
+          FrameItens.descricao := ProdCompleto.FieldByName('dados').AsString;
+          FrameItens.Quantidade := ProdCompleto.FieldByName('quantidade')
+            .AsInteger;
+          FrameItens.Valor := ProdCompleto.FieldByName('valor_total').AsFloat;
+          FrameItens.Visible := True;
+          FrameItens.Align := TAlignLayout.Top;
+          FrameItens.Sim := FuncaoExcluir;
+          FrameItens.FormResumo := Self;
+          FrameItens.mesa := mesa;
+          FrameItens.CodigoPedido := CodigoPedido;
+
+          ProdCompleto.Next;
+        end;
+      end;
+
+      BDSPRODS.DataSet := ProdCompleto;
+
+      rFundoPreto.Visible := False;
+      rFundoPreto1.Visible := False;
+      Iniciou := False;
+    end;
+  except
+    Iniciou := False;
+  end;
+
+
+
+
+
+
+
+
+
+  // TLoading.Show(self, 'Aguarde..');
+
+  {
+    TThread.CreateAnonymousThread(
+    procedure
+    begin
+    GetSimples('v1/produtos/pedido/' + mesa.ToString, Produtos);
+
+    while not Produtos.Eof do
+    begin
+    descricao := '';
+    DadoIten.Close;
+    GetSimples('v1/produtos/pedido/itens/' + Produtos.FieldByName('codigo')
+    .AsString, DadoIten);
+
+    while not DadoIten.Eof do
+    begin
+    descricao := descricao + DadoIten.FieldByName('dados').AsString;
+    DadoIten.Next;
+    end;
+    AddProdutoResumo(Produtos.FieldByName('codigo').AsInteger,
+    Produtos.FieldByName('quantidade').AsInteger,
+    Produtos.FieldByName('nome_produto').AsString, descricao,
+    Produtos.FieldByName('valor_total').AsFloat);
+
+    Produtos.Next;
+    end;
+    TThread.Synchronize(nil,
+    procedure
+    begin
+    TLoading.Hide;
+    end);
+
+    end).start; }
+  // Buscar dados no server...
+  // for x := 1 to 10 do
+  // AddProdutoResumo(x, 01, 'Produto ' + x.ToString, x);
+end;
+
+procedure TFrmResumo.ListBox1ItemClick(const Sender: TCustomListBox;
+  const Item: TListBoxItem);
+begin
+  rBairro.Visible := False;
+
+  if MemTaxa.Locate('codigo', Item.Tag, []) then
+  begin
+    EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+    EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+    EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+    ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+  end;
+end;
+
+procedure TFrmResumo.LoadMain;
+begin
+
+  rFundoPreto.Visible := True;
+  rFundoPreto1.Visible := True;
+  if mesa > 0 then
+  begin
+    rect_encerrar.Visible := dm.encerra;
+    FrmResumo.MESAS.Close;
+    GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
+    if FrmResumo.MESAS.RecordCount > 0 then
+    begin
+      FrmResumo.BeginUpdate;
+      FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
+      FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
+        ('nr_mesa').AsString;
+      FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
+        FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
+    end;
+  end
+  else
+  begin
+
+  end;
+  FrmResumo.ListarProduto;
+end;
+
+procedure TFrmResumo.lv_produtoItemClickEx(const Sender: TObject;
+  ItemIndex: Integer; const LocalClickPos: TPointF;
+  const ItemObject: TListItemDrawable);
+var
+  descricao: String;
+begin
+
+  if not dm.deleta then
+  begin
+    ShowMessageToast(Self, 'Usuário não tem permisão!', 1);
+    exit;
+  end;
+
+  with lv_produto.Items[ItemIndex] do
+  begin
+    descricao := TListItemText(Objects.FindDrawable('TxtDescricao')).Text;
+    CodigoProdutoPedido := Tag;
+  end;
+  frmSimNao.titulo := descricao;
+  frmSimNao.descricao := 'Deseja excluir?';
+  frmSimNao.Sim := Excluir;
+  frmSimNao.Nao := ReImprimir;
+  frmSimNao.Show;
+
+end;
+
+procedure TFrmResumo.PegaDadosCliente;
+begin
+  EdtNome.Text := '';
+  EdtRua.Text := '';
+  EdtNumero.Text := '';
+  EdtBairro.Text := '';
+  EdtCidade.Text := '';
+  EdtEstado.Text := '';
+  edtComplemento.Text := '';
+  if mConsultaCliente.RecordCount > 0 then
+  begin
+    CodigoCliente := mConsultaCliente.FieldByName('codigo').AsInteger;
+    CodigoClienteEndereco := mConsultaCliente.FieldByName('codigo1').AsInteger;
+    EdtNome.Text := mConsultaCliente.FieldByName('nome').AsString;
+
+    // EdtCelular.Text := mConsultaCliente.FieldByName('celular_wpp').AsString;
+    EdtBairro.Text := mConsultaCliente.FieldByName('bairro').AsString;
+    EdtRua.Text := mConsultaCliente.FieldByName('rua').AsString;
+    EdtNumero.Text := mConsultaCliente.FieldByName('numero').AsString;
+    EdtCidade.Text := mConsultaCliente.FieldByName('cidade').AsString;
+    EdtEstado.Text := mConsultaCliente.FieldByName('estado').AsString;
+    edtComplemento.Text := mConsultaCliente.FieldByName('complemento').AsString;
+    ValorEntrega := mConsultaCliente.FieldByName('valor_taxa').AsFloat;
+    ValorEntregaAnterior := mConsultaCliente.FieldByName('valor_taxa').AsFloat;
+    EdtNome.TextPrompt := '';
+  end
+  else
+  begin
+    CodigoCliente := 0;
+    CodigoClienteEndereco := 0;
+    EdtNome.TextPrompt := 'Nenhum cliente localizado!';
+
+  end;
+  mConsultaCliente.Close;
+end;
+
+procedure TFrmResumo.Rectangle2Click(Sender: TObject);
+begin
+
+  EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+  EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+  EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+  ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+  rConsultaTaxa.Visible := False;
+end;
+
+procedure TFrmResumo.Rectangle5Click(Sender: TObject);
+begin
+  EdtCelular.Text := mCliente.FieldByName('celular_wpp').AsString;
+  EdtNome.Text := mCliente.FieldByName('nome').AsString;
+  BuscarCliente;
+  rCliente.Visible := False;
+end;
+
+procedure TFrmResumo.rect_encerrarClick(Sender: TObject);
+begin
+  if ApenasVisualizacao then
+    exit;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 2', 1);
+    exit;
+  end
+  else
+  begin
+
+    case mesa of
+      0:
+        begin
+          if not ValidaCampo then
+            exit;
+
+          if StatusPedido < 0 then
+          begin
+            SalvarDadosPedido;
+            ShowMessageToast(Self, 'Pedido Lançado Com Sucesso!', 2);
+            FCodigoPedido := 0;
+
+            frmMain.OpenClose;
+            exit;
+          end;
+        end
+    else
+      begin
+        GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
+        if FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat = 0 then
+          exit;
+        // ImpressaoSim
+      end;
+    end;
+
+    ImpressaoNao;
+    ApenasVisualizacao := False;
+    lFaturado.Visible := False;
+  end;
+end;
+
+procedure TFrmResumo.ReImpressaoSim;
+begin
+  PostSimples('/v1/pedido/reimpressao/app/' +
+    CodigoProdutoPedido.ToString, nil);
+  ShowMessageToast(Self, 'Produto reimpresso!', 3);
+end;
+
+procedure TFrmResumo.ReImprimir;
+begin
+  frmSimNao.titulo := 'Item';
+  frmSimNao.descricao := 'Deseja reimprimir?';
+  frmSimNao.Sim := ReImpressaoSim;
+  frmSimNao.Nao := nil;
+  frmSimNao.Show;
+end;
+
+function TFrmResumo.ApenasNumerosValidos(Valor: String): String;
+var
+  vText: PChar;
+begin
+  vText := PChar(Valor);
+  Result := '';
+
+  while (vText^ <> #0) do
+  begin
+
+    if vText^ in ['0' .. '9'] then
+      Result := Result + vText^;
+    if vText^ = ',' then
+      Result := Result + vText^;
+
+    Inc(vText);
+  end;
+end;
+
+procedure TFrmResumo.AtualizaDadosPedido;
+begin
+  EdtCelular.Text := '';
+  EdtNome.Text := '';
+  EdtRua.Text := '';
+  EdtNumero.Text := '';
+  EdtCidade.Text := '';
+  EdtBairro.Text := '';
+  EdtEstado.Text := '';
+  edtComplemento.Text := '';
+
+  if not Pagamento.Locate('codigo', mDadosPedido.FieldByName('tipo_pagamento')
+    .AsInteger, []) then
+  begin
+    Pagamento.First;
+  end;
+
+  FCodigoPedido := mDadosPedido.FieldByName('codigo').AsInteger;
+  CodigoCliente := mDadosPedido.FieldByName('codigo_cliente').AsInteger;
+  CodigoClienteEndereco := mDadosPedido.FieldByName('codigo_cliente_endereco')
+    .AsInteger;
+  StatusPedido := mDadosPedido.FieldByName('status').AsInteger;
+
+  cTipo.ItemIndex := 0;
+  if CodigoClienteEndereco = 0 then
+    cTipo.ItemIndex := 1;
+
+  TipoPedido;
+  ValorTroco := mDadosPedido.FieldByName('troco').AsFloat;
+  ValorProduto := mDadosPedido.FieldByName('valor_pedido').AsFloat;
+  ValorAcrescimo := mDadosPedido.FieldByName('taxa_servico').AsFloat;
+  ValorEntrega := mDadosPedido.FieldByName('valor_taxa_entrega').AsFloat;
+  ValorDesconto := mDadosPedido.FieldByName('valor_desconto').AsFloat;
+  lCodigoInterno.Text := '#' + FormatFloat('0',
+    mDadosPedido.FieldByName('codigo').AsInteger);
+
+  edtData.Date := mDadosPedido.FieldByName('data_pedido').AsDateTime;
+  edtHora.Time := mDadosPedido.FieldByName('hora_pedido').AsDateTime;
+
+  mCliente.Close;
+  if CodigoCliente > 0 then
+
+    GetSimples('/v1/dados/consulta/cliente/' + CodigoCliente.ToString,
+      mCliente);
+  if mCliente.RecordCount > 0 then
+  begin
+    EdtCelular.Text := mCliente.FieldByName('celular_wpp').AsString;
+    EdtNome.Text := mCliente.FieldByName('nome').AsString;
+  end;
+
+  if CodigoClienteEndereco > 0 then
+  begin
+    GetSimples('/v1/dados/consulta/cliente/endereco/' +
+      CodigoClienteEndereco.ToString, mClienteEndereco);
+    if mClienteEndereco.RecordCount > 0 then
+    begin
+      EdtRua.Text := mClienteEndereco.FieldByName('rua').AsString;
+      EdtNumero.Text := mClienteEndereco.FieldByName('numero').AsString;
+      EdtBairro.Text := mClienteEndereco.FieldByName('bairro').AsString;
+      EdtCidade.Text := mClienteEndereco.FieldByName('cidade').AsString;
+      EdtEstado.Text := mClienteEndereco.FieldByName('estado').AsString;
+      edtComplemento.Text := mClienteEndereco.FieldByName
+        ('complemento').AsString;
+      ValorEntrega := mClienteEndereco.FieldByName('valor_taxa').AsFloat;
+    end;
+  end;
+
+  if StatusPedido = -1 then
+    lBotaoSalvar.Text := 'Salvar';
+  lFaturado.Visible := False;
+  rect_encerrar.Visible := True;
+  if mDadosPedido.FieldByName('id_caixa').AsInteger > 0 then
+  begin
+    lFaturado.Visible := True;
+    rect_encerrar.Visible := False;
+    lNumeroCaixa.Text := '#' + FormatFloat('000',
+      mDadosPedido.FieldByName('id_caixa').AsInteger);
+  end
+  else
+  begin
+    lFaturado.Visible := False;
+  end;
+
+end;
+
+procedure TFrmResumo.BuscaBairroEdit;
+begin
+  if BuscarBairro then
+    exit;
+  GetSimples('/v1/util/busca/bairro/' + EdtBairro.Text, MemTaxa);
+  iBairro1.Text := '';
+  iBairro1.Tag := 0;
+  iBairro2.Text := '';
+  iBairro2.Tag := 0;
+  iBairro3.Text := '';
+  iBairro3.Tag := 0;
+
+  iBairro2.Tag := 0;
+  iBairro3.Tag := 0;
+  rBairro.Visible := False;
+  case MemTaxa.RecordCount of
+    0:
+      begin
+        exit;
+      end;
+    1:
+      begin
+        MemTaxa.First;
+        iBairro1.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro1.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+      end;
+    2:
+      begin
+        MemTaxa.First;
+        iBairro1.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro1.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+        MemTaxa.Next;
+        iBairro2.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro2.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+      end;
+    3:
+      begin
+        MemTaxa.First;
+        iBairro1.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro1.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+        MemTaxa.Next;
+        iBairro2.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro2.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+        MemTaxa.Next;
+        iBairro3.Text := MemTaxa.FieldByName('bairro').AsString + ' - R$ ' +
+          FormatFloat('#0.00', MemTaxa.FieldByName('valor_taxa').AsFloat);
+        iBairro3.Tag := MemTaxa.FieldByName('codigo').AsInteger;
+      end;
+  end;
+  rBairro.Visible := True;
+end;
+
+procedure TFrmResumo.BuscarCliente;
+begin
+  if ConsultaCliente then
+    exit;
+  ConsultaCliente := True;
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      sleep(1000);
+      mConsultaCliente.Close;
+      GetSimples('v1/dados/consulta/cliente/celular/' + EdtCelular.Text,
+        mConsultaCliente);
+      PegaDadosCliente;
+      if cTipo.ItemIndex = 0 then
+      begin
+        GetSimples('/v1/consulta/generica/taxa_entrega/*/bairro = "' +
+          EdtBairro.Text + '"/*', MemTaxa);
+
+        if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+        begin
+          EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+          EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+          EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+          ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+        end;
+        CalcularTotal;
+
+      end;
+      TThread.Synchronize(TThread.CurrentThread,
+        procedure
+        begin
+          ConsultaCliente := False;
+        end);
+    end).Start;
+end;
+
+procedure TFrmResumo.Button1Click(Sender: TObject);
+begin
+  // if (lFaturado.Visible = True) then
+  // begin
+  // ShowMessageToast(Self, 'Pedido já faturado!', 1);
+  // exit;
+  // end;
+  //
+  // if not dm.TestaConexao then
+  // begin
+  // ShowMessageToast(Self, 'Sem conexão com servidor!', 1);
+  // exit;
+  // end;
+  //
+  // FrmPrincipal.AlterarItem(mesa, CodigoPedido,ProdCompleto.FieldByName('codigo').AsInteger);
+end;
+
+procedure TFrmResumo.Button2Click(Sender: TObject);
+begin
+  CodigoPedido := -1;
+  LoadMain;
+end;
+
+function TFrmResumo.calcularDiferencaHoras(Dataf, datai: Tdate;
+HoraF, HoraI: ttime): TDateTime;
+var
+  DataHoraF, DataHoraI: TDateTime;
+begin
+  DataHoraF := Dataf + HoraF;
+  DataHoraI := datai + HoraI;
+  if DataHoraI > DataHoraF then
+    Result := DataHoraI - DataHoraF
+  else
+    Result := DataHoraF - DataHoraI;
+end;
+
+procedure TFrmResumo.CalcularTotal;
+begin
+
+  ValorTotal := (ValorProduto + ValorEntrega + ValorAcrescimo) - ValorDesconto;
+end;
+
+procedure TFrmResumo.CalculaTempo;
+var
+  Dias: Integer;
+  Total, Horas: Real;
+  QuerEmHorasMinutosSegundos: string;
+  H, M, S, SS: Word;
+  DT_INI: Tdate;
+  HR_INI: ttime;
+  DT_FIM: Tdate;
+  HR_FIM: ttime;
+begin
+  DT_FIM := Date;
+  HR_FIM := Time;
+  DT_INI := edtData.Date;;
+  HR_INI := edtHora.Time;
+  Total := calcularDiferencaHoras(DT_FIM, DT_INI, HR_FIM, HR_INI);
+  Dias := Trunc(Total);
+  Horas := Total - Trunc(Total);
+  Decodetime(Horas, H, M, S, SS);
+  H := H + 24 * Trunc(Dias);
+
+  if H > 0 then
+    QuerEmHorasMinutosSegundos := FormatFloat('#00h ', H);
+
+  if M > 0 then
+    QuerEmHorasMinutosSegundos := QuerEmHorasMinutosSegundos +
+      FormatFloat('00m ', M);
+
+  QuerEmHorasMinutosSegundos := QuerEmHorasMinutosSegundos +
+    FormatFloat('00s', S);
+
+  EdtTempo.Text := QuerEmHorasMinutosSegundos;
+end;
+
+procedure TFrmResumo.Cancelar;
+begin
+  frmFechamentoPedido.Free;
+end;
+
+procedure TFrmResumo.CarregaDados;
+begin
+
+end;
+
+procedure TFrmResumo.Conluir;
+begin
+  if dm.CodigoCaixa = 0 then
+  begin
+    ShowMessageToast(Self, 'Caixa não foi aberto!', 1);
+    exit;
+  end;
+
+  PutSimples('v1/pedido/finaliza/' + mesa.ToString + '/' + Impressao.ToString +
+    '/0/0/0/0/:caixa/' + CodigoPedido.ToString, frmFechamentoPedido.PAG);
+
+  ShowMessageToast(Self, lTipo.Text + ' finalizada', 3);
+  // frmFechamentoPedido.Free;
+
+  if Assigned(FinalizaExecutar) then
+  begin
+    FinalizaExecutar;
+    FinalizaExecutar := nil;
+  end;
+
+  FCodigoPedido := 0;
+  dm.AtualizaCaixa;
+  Hide;
+end;
+
+procedure TFrmResumo.pConsultaCliente;
+begin
+  GetSimples('/v1/consulta/generica/cliente/*/*/*', mCliente);
+  rCliente.Visible := True;
+end;
+
+procedure TFrmResumo.ConsultaTaxa;
+begin
+  BuscarBairro := True;
+  MemTaxa.Filtered := False;
+  GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
+
+  rect_encerrar.Visible := False;
+  rConsultaTaxa.Visible := True;
+  BuscarBairro := False;
+end;
+
+procedure TFrmResumo.cTipoChange(Sender: TObject);
+begin
+  TipoPedido;
+  CalcularTotal;
+  if cTipo.ItemIndex = 0 then
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        GetSimples('/v1/consulta/generica/taxa_entrega/*/bairro = "' +
+          EdtBairro.Text + '"/*', MemTaxa);
+
+        if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+        begin
+          EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+          EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+          EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+          ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+        end;
+        TThread.Synchronize(TThread.CurrentThread,
+          procedure
+          begin
+            CalcularTotal;
+          end);
+      end).Start;
+
+  end;
+
+end;
+
+procedure TFrmResumo.EdtAcrecimoExit(Sender: TObject);
+var
+  Valor: Real;
+begin
+  (Sender as TEdit).Text := ApenasNumerosValidos((Sender as TEdit).Text);
+  try
+    Valor := StrToFloat((Sender as TEdit).Text);
+    case (Sender as TEdit).Tag of
+      1:
+        begin
+          ValorAcrescimo := Valor;
+        end;
+      2:
+        begin
+          ValorEntrega := Valor;
+        end;
+      3:
+        begin
+          ValorDesconto := Valor;
+        end;
+
+    end;
+  except
+    ShowMessageToast(Self, 'Informe um valor valido!', 1);
+    (Sender as TEdit).SetFocus;
+    (Sender as TEdit).SelectAll;
+  end;
+end;
+
+procedure TFrmResumo.EdtBairroExit(Sender: TObject);
+begin
+  rBairro.Visible := False;
+  GetSimples('/v1/consulta/generica/taxa_entrega/*/*/*', MemTaxa);
+
+  if MemTaxa.Locate('bairro', EdtBairro.Text, []) then
+  begin
+    EdtBairro.Text := MemTaxa.FieldByName('bairro').AsString;
+    EdtCidade.Text := MemTaxa.FieldByName('cidade').AsString;
+    EdtEstado.Text := MemTaxa.FieldByName('estado').AsString;
+    ValorEntrega := MemTaxa.FieldByName('valor_taxa').AsFloat;
+
+  end;
+
+end;
+
+procedure TFrmResumo.EdtCelularExit(Sender: TObject);
+begin
+
+  if length(EdtCelular.Text) < 10 then
+  begin
+    ShowMessageToast(Self,
+      'Número de telefone invalido, formatos aceitos (00)0000-0000 e (00)00000-0000, apenas números!',
+      1);
+    EdtCelular.SetFocus;
+    exit;
+  end;
+
+end;
+
+procedure TFrmResumo.EdtCelularKeyDown(Sender: TObject; var Key: Word;
+var KeyChar: Char; Shift: TShiftState);
+begin
+{$IFDEF Android}
+{$ELSE}
+  if Key = vkReturn then
+  begin
+    keybd_event(VK_TAB, 0, 0, 0);
+    keybd_event(VK_TAB, 0, KEYEVENTF_KEYUP, 0);
+  end;
+{$ENDIF}
+  BuscarCliente;
+
+end;
+
+procedure TFrmResumo.edtDataKeyDown(Sender: TObject; var Key: Word;
+var KeyChar: Char; Shift: TShiftState);
+begin
+
+{$IFDEF Android}
+{$ELSE}
+  if Key = vkReturn then
+  begin
+    keybd_event(VK_TAB, 0, 0, 0);
+    keybd_event(VK_TAB, 0, KEYEVENTF_KEYUP, 0);
+  end
+  else
+  begin
+    if (Sender as TEdit).Name = 'EdtBairro' then
+    begin
+      BuscaBairroEdit;
+    end;
+  end;
+{$ENDIF}
+end;
+
+procedure TFrmResumo.edtTrocoExit(Sender: TObject);
+var
+  Valor: Real;
+begin
+  (Sender as TEdit).Text := ApenasNumerosValidos((Sender as TEdit).Text);
+  try
+    Valor := StrToFloat((Sender as TEdit).Text);
+    ValorTroco := Valor;
+  except
+    ShowMessageToast(Self, 'Informe um valor valido!', 1);
+    (Sender as TEdit).SetFocus;
+    (Sender as TEdit).SelectAll;
+  end;
+end;
+
+procedure TFrmResumo.Excluir;
+begin
+  DeleteSimples('/v1/pedido/produto/' + CodigoProdutoPedido.ToString, nil);
+  ShowMessageToast(Self, 'Produto exluido!', 3);
+  ListarProduto;
+end;
+
+procedure TFrmResumo.Finaliza;
+begin
+  frmFechamentoPedido := TfrmFechamentoPedido.Create(Self);
+  frmFechamentoPedido.Executar := Conluir;
+  frmFechamentoPedido.Cancelar := Cancelar;
+
+  if mesa = 0 then
+  begin
+    frmFechamentoPedido.CodigoPedido := CodigoPedido;
+    frmFechamentoPedido.Valor := ValorTotal;
+    frmFechamentoPedido.DescricaoMesa := EdtCelular.Text + ' - ' + EdtNome.Text;
+  end
+  else
+  begin
+    frmFechamentoPedido.CodigoPedido := MESAS.FieldByName('pedido').AsInteger;
+    frmFechamentoPedido.Valor := MESAS.FieldByName('tot_mesa').AsFloat;
+    frmFechamentoPedido.DescricaoMesa := lTipo.Text + ' ' + lbl_comanda.Text;
+  end;
+
+  frmFechamentoPedido.pago := 0;
+
+  frmFechamentoPedido.Show;
+end;
+
+procedure TFrmResumo.Finalizar;
+begin
+  frmSimNao.titulo := lTipo.Text;
+  frmSimNao.descricao := 'Deseja finalizar?';
+  frmSimNao.Sim := Finaliza;
+  frmSimNao.Nao := nil;
+  frmSimNao.Show;
+end;
+
+procedure TFrmResumo.FormActivate(Sender: TObject);
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 3', 1);
+  end
+  else
+  begin
+    if mesa > 0 then
+    begin
+      rect_encerrar.Visible := dm.encerra;
+      FrmResumo.MESAS.Close;
+      GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
+
+      if FrmResumo.MESAS.RecordCount > 0 then
+      begin
+        FrmResumo.BeginUpdate;
+        FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName
+          ('descricao').AsString;
+        FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
+          ('nr_mesa').AsString;
+        FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
+          FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+
+        FrmResumo.EndUpdate;
+      end;
+
+    end
+    else
+    begin
+
+    end;
+  end;
+end;
+
+procedure TFrmResumo.FormCreate(Sender: TObject);
+var
+  CalculoTempo: TCalculaTempo;
+
+begin
+
+  Impressao := 0;
+  ValorProduto := 0;
+  ValorAcrescimo := 0;
+  ValorEntrega := 0;
+  ValorDesconto := 0;
+  edtData.Date := Date;
+  edtHora.Time := Time;
+  EdtTempo.Text := '0';
+  rConsultaTaxa.Visible := False;
+
+  CalculoTempo := TCalculaTempo.Create;
+  CalculoTempo.Start;
+end;
+
+procedure TFrmResumo.FuncaoExcluir;
+var
+  descricao: String;
+begin
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 4', 1);
+    exit;
+  end
+  else
+  begin
+    if (lFaturado.Visible = True) then
+    begin
+      ShowMessageToast(Self, 'Pedido já faturado!', 1);
+      exit;
+    end;
+
+    if lApenasVisualizacao.Visible = True then
+    begin
+      ShowMessageToast(Self, 'Apenas visualização do pedido!', 1);
+      exit;
+    end;
+
+    if not dm.deleta then
+    begin
+      ShowMessageToast(Self, 'Usuário não tem permisão!', 1);
+      exit;
+    end;
+
+    descricao := ProdCompleto.FieldByName('nome_produto').AsString;
+    CodigoProdutoPedido := ProdCompleto.FieldByName('codigo').AsInteger;
+
+    frmSimNao.titulo := descricao;
+    frmSimNao.descricao := 'Deseja excluir?';
+    frmSimNao.Sim := Excluir;
+    frmSimNao.Nao := nil;
+    frmSimNao.Show;
+  end;
+end;
+
+procedure TFrmResumo.Image1Click(Sender: TObject);
+begin
+  ConsultaTaxa;
+end;
+
+procedure TFrmResumo.Image2Click(Sender: TObject);
+begin
+  pConsultaCliente;
+end;
+
+procedure TFrmResumo.Image3Click(Sender: TObject);
+begin
+  rConsultaTaxa.Visible := False;
+  rCliente.Visible := False;
+  rect_encerrar.Visible := True;
+end;
+
+procedure TFrmResumo.img_add_itemClick(Sender: TObject);
+begin
+  if lCodigoInterno.Text = '#0' then
+  begin
+    ShowMessageToast(Self, 'Feche e abra novamente a tela de pedido!', 1);
+    exit;
+  end;
+  if (lFaturado.Visible = True) then
+  begin
+    ShowMessageToast(Self, 'Pedido já faturado!', 1);
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 5', 1);
+    exit;
+  end;
+  Delivery := 0;
+  if mesa > 0 then
+  begin
+    Delivery := 0;
+  end
+  else
+  begin
+    if cTipo.ItemIndex = 0 then
+      Delivery := 1;
+  end;
+
+  FrmPrincipal.AddItem(mesa, CodigoPedido, Delivery);
+end;
+
+procedure TFrmResumo.img_excluirClick(Sender: TObject);
+begin
+  FuncaoExcluir;
+end;
+
+procedure TFrmResumo.img_excluirMouseEnter(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 1;
+  case (Sender as TImage).Tag of
+    0:
+      begin
+        lHiden.Text := 'Lixeira';
+      end;
+    1:
+      begin
+        lHiden.Text := 'Impressão';
+      end;
+    2:
+      begin
+        lHiden.Text := 'Conferência';
+      end;
+    3:
+      begin
+        lHiden.Text := 'Transferência';
+      end;
+    4:
+      begin
+        lHiden.Text := 'Adicionar';
+      end;
+    5:
+      begin
+        lHiden.Text := 'Lixeira';
+      end
+  else
+    begin
+      lHiden.Text := '';
+    end;
+  end;
+end;
+
+procedure TFrmResumo.img_excluirMouseLeave(Sender: TObject);
+begin
+  (Sender as TImage).Opacity := 0.5;
+  lHiden.Text := '';
+end;
+
+procedure TFrmResumo.img_fastfoodClick(Sender: TObject);
+var
+  descricao: String;
+begin
+
+  DeleteSimples('/v1/imprimir/fastfood/pedido/' + CodigoProdutoPedido.ToString +
+    '/' + dm.CodigoUsuario.ToString, nil);
+  ShowMessageToast(Self, 'Impresso', 3);
+end;
+
+procedure TFrmResumo.img_faturaClick(Sender: TObject);
+begin
+  if (lFaturado.Visible = True) then
+  begin
+    ShowMessageToast(Self, 'Pedido já faturado!', 1);
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 6', 1);
+
+  end
+  else
+  begin
+    frmSimNao.titulo := 'conferência';
+    frmSimNao.descricao := 'Deseja imprimir?';
+    frmSimNao.Sim := ImpressaoSim;
+    frmSimNao.Show;
+  end;
+end;
+
+procedure TFrmResumo.img_fecharClick(Sender: TObject);
+begin
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      if not dm.TestaConexao then
+      begin
+        ShowMessageToast(Self, 'Sem conexão com servidor! 7', 1);
+        exit;
+      end;
+
+      if not ApenasVisualizacao then
+      begin
+        if mesa > 0 then
+          PostSimples('/v1/imprimir', Produtos)
+        else
+          SalvarDadosPedido;
+
+        CodigoPedido := 0;
+      end;
+
+      ApenasVisualizacao := False;
+    end).Start;
+  frmMain.OpenClose;
+
+end;
+
+procedure TFrmResumo.img_imprimirClick(Sender: TObject);
+begin
+  if (lFaturado.Visible = True) then
+  begin
+    ShowMessageToast(Self, 'Pedido já faturado!', 1);
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 8', 1);
+
+  end
+  else
+  begin
+    if FrmResumo.MESAS.RecordCount > 0 then
+    begin
+      if FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat = 0 then
+        exit;
+    end
+    else
+    begin
+
+    end;
+
+    PostSimples('/v1/imprimir', Produtos);
+    ShowMessageToast(Self, 'Impresso com sucesso!', 3);
+  end;
+end;
+
+procedure TFrmResumo.img_transferenciaClick(Sender: TObject);
+begin
+  if (lFaturado.Visible = True) then
+  begin
+    ShowMessageToast(Self, 'Pedido já faturado!', 1);
+    exit;
+  end;
+
+  if not dm.TestaConexao then
+  begin
+    ShowMessageToast(Self, 'Sem conexão com servidor! 9', 1);
+
+  end
+  else
+  begin
+    if FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat = 0 then
+      exit;
+
+    if not Assigned(frmTransferenciaItem) then
+      frmTransferenciaItem := TfrmTransferenciaItem.Create(Self);
+    frmTransferenciaItem.ID := MESAS.FieldByName('id_mesa').AsInteger;
+    frmTransferenciaItem.CodigoPedido := MESAS.FieldByName('pedido').AsInteger;
+    frmTransferenciaItem.Valor := MESAS.FieldByName('tot_mesa').AsFloat;
+    frmTransferenciaItem.DescricaoMesa := lTipo.Text + ' ' + lbl_comanda.Text;
+    frmTransferenciaItem.Executar := TransferenciaConcluida;
+    frmTransferenciaItem.Show;
+  end;
+end;
+
+procedure TFrmResumo.ImpressaoNao;
+begin
+  Impressao := 0;
+  Finalizar;
+end;
+
+procedure TFrmResumo.ImpressaoSim;
+begin
+  Impressao := 1;
+
+  if MESAS.RecordCount > 0 then
+    PostSimples('/v1/imprimir/1/' + MESAS.FieldByName('pedido').AsString, nil)
+  else
+    PostSimples('/v1/imprimir/1/' + CodigoPedido.ToString, nil);
+
+end;
+
+procedure TFrmResumo.SalvarDadosPedido;
+begin
+  if ValorProduto = 0 then
+    exit;
+
+  memDadosPedido.Close;
+  memDadosPedido.Open;
+  memDadosPedido.Insert;
+  memDadosPedido.FieldByName('codigo').AsInteger := CodigoPedido;
+  memDadosPedido.FieldByName('data').AsDateTime := edtData.Date;
+  memDadosPedido.FieldByName('hora').AsDateTime := edtHora.Time;
+  memDadosPedido.FieldByName('produto').AsFloat := ValorProduto;
+  memDadosPedido.FieldByName('acrecimo').AsFloat := ValorAcrescimo;
+  memDadosPedido.FieldByName('entrega').AsFloat := ValorEntrega;
+  memDadosPedido.FieldByName('desconto').AsFloat := ValorDesconto;
+  memDadosPedido.FieldByName('total').AsFloat := ValorTotal;
+  memDadosPedido.FieldByName('troco').AsFloat := ValorTroco;
+  memDadosPedido.FieldByName('cliente').AsInteger := CodigoCliente;
+  memDadosPedido.FieldByName('celular').AsString := EdtCelular.Text;
+  memDadosPedido.FieldByName('nome').AsString := EdtNome.Text;
+  memDadosPedido.FieldByName('rua').AsString := EdtRua.Text;
+  memDadosPedido.FieldByName('bairro').AsString := EdtBairro.Text;
+  memDadosPedido.FieldByName('cidade').AsString := EdtCidade.Text;
+  memDadosPedido.FieldByName('estado').AsString := EdtEstado.Text;
+  memDadosPedido.FieldByName('complemento').AsString := edtComplemento.Text;
+  memDadosPedido.FieldByName('numero').AsString := EdtNumero.Text;
+  memDadosPedido.FieldByName('endereco').AsInteger := CodigoClienteEndereco;
+  memDadosPedido.FieldByName('status').AsInteger := StatusPedido;
+  memDadosPedido.FieldByName('tipo_pagamento').AsInteger :=
+    Pagamento.FieldByName('codigo').AsInteger;
+  if StatusPedido < 0 then
+    memDadosPedido.FieldByName('status').AsInteger := 1;
+
+  case cTipo.ItemIndex of
+    0:
+      begin
+        if not(memDadosPedido.FieldByName('endereco').AsInteger > 0) then
+        begin
+          memDadosPedido.FieldByName('endereco').AsInteger := 0;
+        end;
+
+      end;
+    1:
+      begin
+        memDadosPedido.FieldByName('endereco').AsInteger := -1;
+      end;
+  end;
+
+  // if cTipo.ItemIndex = 0 then
+  // memDadosPedido.FieldByName('endereco').AsInteger := -1
+  // else
+  // begin
+  // if memDadosPedido.FieldByName('endereco').AsInteger = 0 then
+  // begin
+  // memDadosPedido.FieldByName('endereco').AsInteger := -1;
+  // end;
+  // end;
+
+  memDadosPedido.Post;
+
+  PostSimples('/v1/atualiza/dados/pedido/', memDadosPedido);
+  if StatusPedido < 0 then
+    PostSimples('/v1/imprimir/1/' + CodigoPedido.ToString, nil);
+end;
+
+procedure TFrmResumo.SetApenasVisualizacao(const Value: Boolean);
+begin
+  FApenasVisualizacao := Value;
+  lApenasVisualizacao.Visible := Value;
+
+  rect_encerrar.Visible := Value = False;
+  if lFaturado.Visible and Value = False then
+    lFaturado.Visible := Value = False;
+
+  img_imprimir.Visible := Value = False;
+  img_fatura.Visible := Value = False;
+  img_transferencia.Visible := Value = False;
+  img_add_item.Visible := Value = False;
+  // img_excluir.Visible := Value = False;
+end;
+
+procedure TFrmResumo.SetCodigoCliente(const Value: Integer);
+begin
+  FCodigoCliente := Value;
+end;
+
+procedure TFrmResumo.SetCodigoClienteEndereco(const Value: Integer);
+begin
+  FCodigoClienteEndereco := Value;
+end;
+
+procedure TFrmResumo.SetCodigoPedido(const Value: Integer);
+var
+  Busca: Boolean;
+
+begin
+  TipoPagamento;
+  lBotaoSalvar.Text := 'Encerrar';
+  if (mesa = 0) then
+  begin
+    Produtos.Close;
+    mDadosPedido.Close;
+    rDadosPedido.Visible := True;
+    if Value = -1 then
+    begin
+      FCodigoPedido := 0;
+      GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString, mDadosPedido);
+      AtualizaDadosPedido;
+      exit;
+    end;
+    if (Value <> FCodigoPedido) then
+    begin
+      FCodigoPedido := Value;
+
+      Busca := GetSimples('/v1/dados/pedido/' + FCodigoPedido.ToString,
+        mDadosPedido);
+      AtualizaDadosPedido;
+      // if mDadosPedido.RecordCount = 0 then
+      // begin
+      // SetCodigoPedido(Value);
+      // end else begin
+      // AtualizaDadosPedido;
+      // end;
+
+    end;
+
+    FCodigoPedido := Value;
+  end
+  else
+  begin
+    FCodigoPedido := 0;
+  end;
+
+end;
+
+procedure TFrmResumo.SetDelivery(const Value: Integer);
+begin
+  FDelivery := Value;
+end;
+
+procedure TFrmResumo.Setmesa(const Value: Integer);
+
+begin
+  lCodigoInterno.Text := '';
+  layMesa.Visible := True;
+  rDadosPedido.Visible := False;
+
+  Fmesa := Value;
+  if Value > 0 then
+  begin
+    lFaturado.Visible := False;
+    lApenasVisualizacao.Visible := False;
+    if Assigned(Dados) then
+    begin
+      Dados.Free;
+    end;
+    FrmResumo.MESAS.Close;
+    GetSimples('v1/mesa/' + FrmResumo.mesa.ToString, FrmResumo.MESAS);
+    if FrmResumo.MESAS.RecordCount > 0 then
+    begin
+      FrmResumo.BeginUpdate;
+      FrmResumo.lTipo.Text := FrmResumo.MESAS.FieldByName('descricao').AsString;
+      FrmResumo.lbl_comanda.Text := FrmResumo.MESAS.FieldByName
+        ('nr_mesa').AsString;
+      FrmResumo.lTotal.Text := FormatFloat('R$ #,##0.00',
+        FrmResumo.MESAS.FieldByName('tot_mesa').AsFloat);
+      FrmResumo.EndUpdate;
+    end;
+    // FrmResumo.ListarProduto;
+    // Dados.Start;
+    // Fazer uma thread anonima
+    CarregaDados;
+  end
+  else
+  begin
+    layMesa.Visible := False;
+  end;
+  rTotalMesa.Visible := layMesa.Visible;
+  img_transferencia.Visible := layMesa.Visible;
+  // img_fatura.Visible := layMesa.Visible;
+  // img_imprimir.Visible := layMesa.Visible;
+  rDadosMesa.Visible := layMesa.Visible;
+end;
+
+procedure TFrmResumo.SetStatusPedido(const Value: Integer);
+begin
+  FStatusPedido := Value;
+end;
+
+procedure TFrmResumo.SetValorAcrescimo(const Value: Real);
+begin
+  FValorAcrescimo := Value;
+  EdtAcrecimo.Text := FormatFloat(MASCARA, Value);
+  CalcularTotal;
+end;
+
+procedure TFrmResumo.SetValorDesconto(const Value: Real);
+begin
+  if Value > ValorTotal then
+  begin
+    ShowMessageToast(Self, 'Valor do desconto superior ao valor total!', 2);
+    EdtDesconto.SetFocus;
+    exit;
+  end;
+
+  FValorDesconto := Value;
+
+  EdtDesconto.Text := FormatFloat(MASCARA, Value);
+  CalcularTotal;
+end;
+
+procedure TFrmResumo.SetValorEntrega(const Value: Real);
+begin
+  if cTipo.ItemIndex = 0 then
+  begin
+    FValorEntrega := Value;
+  end
+  else
+  begin
+    FValorEntrega := 0;
+    FValorEntregaAnterior := Value;
+  end;
+
+  EdtEntrega.Text := FormatFloat(MASCARA, Value);
+  CalcularTotal;
+end;
+
+procedure TFrmResumo.SetValorEntregaAnterior(const Value: Real);
+begin
+  FValorEntregaAnterior := Value;
+end;
+
+procedure TFrmResumo.SetValorProduto(const Value: Real);
+begin
+  FValorProduto := Value;
+  edtProdutos.Text := FormatFloat(MASCARA, Value);
+  CalcularTotal;
+end;
+
+procedure TFrmResumo.SetValorTotal(const Value: Real);
+begin
+  FValorTotal := Value;
+  EdtTotal.Text := FormatFloat(MASCARA, Value);
+
+end;
+
+procedure TFrmResumo.SetValorTroco(const Value: Real);
+begin
+  FValorTroco := Value;
+  edtTroco.Text := FormatFloat(MASCARA, Value);
+  //
+end;
+
+procedure TFrmResumo.StringGrid1CellDblClick(const Column: TColumn;
+const Row: Integer);
+var
+  Obs: String;
+begin
+  Obs := ProdCompleto.FieldByName('dados').AsString;
+  // Obs := StringReplace(Obs,',',#13,[rfReplaceAll]);
+  ShowMessage(Obs);
+
+end;
+
+procedure TFrmResumo.TipoPagamento;
+begin
+  if not Pagamento.Active then
+    GetSimples('/v1/tipo/pagamento/', Pagamento);
+
+  while not Pagamento.RecordCount = 0 do
+    GetSimples('/v1/tipo/pagamento/', Pagamento);
+end;
+
+procedure TFrmResumo.TipoPedido;
+begin
+  case cTipo.ItemIndex of
+    0:
+      begin
+        // Delivery
+        ValorEntrega := ValorEntregaAnterior;
+      end
+  else
+    begin
+      ValorEntregaAnterior := ValorEntrega;
+      ValorEntrega := 0;
+    end;
+  end;
+  layTroco.Visible := Pagamento.FieldByName('troco_delivery').AsInteger = 1;
+
+  lDelivery1.Visible := cTipo.ItemIndex = 0;
+  lDelivery2.Visible := cTipo.ItemIndex = 0;
+  lDelivery3.Visible := cTipo.ItemIndex = 0;
+  lDelivery4.Visible := cTipo.ItemIndex = 0;
+  lDelivery5.Visible := cTipo.ItemIndex = 0;
+  lDelivery6.Visible := cTipo.ItemIndex = 0;
+
+end;
+
+procedure TFrmResumo.TransferenciaConcluida;
+begin
+  // if Assigned(frmTransferenciaItem) then
+  frmTransferenciaItem.Hide;
+  ShowMessageToast(Self, 'Transferência concluida!', 3);
+end;
+
+function TFrmResumo.ValidaCampo: Boolean;
+begin
+  Result := False;
+
+  if length(EdtCelular.Text) < 10 then
+  begin
+    ShowMessageToast(Self, 'Celular não informado!', 1);
+    EdtCelular.SetFocus;
+    exit;
+  end;
+
+  if length(EdtNome.Text) < 3 then
+  begin
+    ShowMessageToast(Self, 'Nome não informado!', 1);
+    EdtNome.SetFocus;
+    exit;
+  end;
+
+  if cTipo.ItemIndex = 0 then
+  begin
+    if length(EdtRua.Text) = 0 then
+    begin
+      ShowMessageToast(Self, 'Rua não informado!', 1);
+      EdtRua.SetFocus;
+      exit;
+    end;
+
+    if length(EdtNumero.Text) = 0 then
+    begin
+      ShowMessageToast(Self, 'Número não informado!', 1);
+      EdtNumero.SetFocus;
+      exit;
+    end;
+
+    if length(EdtBairro.Text) = 0 then
+    begin
+      ShowMessageToast(Self, 'Bairro não informado!', 1);
+      EdtBairro.SetFocus;
+      exit;
+    end;
+
+    if length(EdtCidade.Text) = 0 then
+    begin
+      ShowMessageToast(Self, 'Cidade não informado!', 1);
+      EdtCidade.SetFocus;
+      exit;
+    end;
+
+    if length(EdtEstado.Text) = 0 then
+    begin
+      ShowMessageToast(Self, 'Estado não informado!', 1);
+      EdtEstado.SetFocus;
+      exit;
+    end;
+
+  end;
+  if ValorTotal = 0 then
+  begin
+    ShowMessageToast(Self, 'Pedido com valor Zerado!!', 1);
+    exit;
+  end;
+  Result := True;
+end;
+
+{ TMinhaThread }
+
+constructor TMinhaThread.Create;
+begin
+  inherited Create(True);
+end;
+
+destructor TMinhaThread.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TMinhaThread.Execute;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+
+    sleep(5000);
+  end;
+
+end;
+
+{ TCalculaTempo }
+
+constructor TCalculaTempo.Create;
+begin
+  inherited Create(True);
+end;
+
+destructor TCalculaTempo.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TCalculaTempo.Execute;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+    FrmResumo.CalculaTempo;
+    sleep(1000);
+  end;
+
+end;
+
+end.

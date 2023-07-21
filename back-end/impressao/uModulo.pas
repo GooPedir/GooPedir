@@ -7,13 +7,33 @@ uses
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
   Data.DB, FireDAC.Comp.Client, FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef,
-  FireDAC.Comp.UI, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt;
+  FireDAC.Comp.UI, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
+  FireDAC.Stan.Param, ppCtrls, ppBands, Vcl.Imaging.pngimage, ppStrtch,
+  ppRichTx, ppPrnabl, ppClass, ppBarCode2D, ppDB, ppDBPipe, ppDBBDE,
+  FireDAC.Comp.DataSet, ppParameter, ppDesignLayer, ppCache, ppComm, ppRelatv,
+  ppProd, ppReport;
 
 type
   TdmModulo = class(TDataModule)
     BANCO: TFDConnection;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     FDSchemaAdapter1: TFDSchemaAdapter;
+    ppMesaR: TppReport;
+    ppHeaderBand17: TppHeaderBand;
+    ppDetailBand19: TppDetailBand;
+    ppFooterBand17: TppFooterBand;
+    ppDesignLayers19: TppDesignLayers;
+    ppDesignLayer19: TppDesignLayer;
+    ppParameterList17: TppParameterList;
+    qryMesas: TFDQuery;
+    ppMesa: TppBDEPipeline;
+    dsMesa: TDataSource;
+    ppDB2DBarCode1: TppDB2DBarCode;
+    ppRichText1: TppRichText;
+    ppImage1: TppImage;
+    ppColumnHeaderBand1: TppColumnHeaderBand;
+    ppColumnFooterBand1: TppColumnFooterBand;
+    ppShape1: TppShape;
     procedure DataModuleDestroy(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);
   private
@@ -42,7 +62,15 @@ end;
 procedure TdmModulo.DataModuleCreate(Sender: TObject);
 begin
   // Banco.Params.SaveToFile('CONFIGURACAO\Confi.dados');
-   BANCO.Params.LoadFromFile('CONFIGURACAO\Confi.dados');
+  BANCO.Params.LoadFromFile('CONFIGURACAO\Confi.dados');
+
+  // ppMesaR.PrintToDevices;
+  try
+    ppMesaR.Print;
+  except
+
+  end;
+
 end;
 
 procedure TdmModulo.DataModuleDestroy(Sender: TObject);

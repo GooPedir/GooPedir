@@ -347,6 +347,11 @@ object DM: TDM
     object DADOS_WHATSAPPifood_integracao: TIntegerField
       FieldName = 'ifood_integracao'
     end
+    object DADOS_WHATSAPPurl_site: TStringField
+      DisplayLabel = 'Link Site'
+      FieldName = 'url_site'
+      Size = 255
+    end
   end
   object FATURAS2: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

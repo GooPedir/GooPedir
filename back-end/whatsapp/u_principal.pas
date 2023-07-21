@@ -159,6 +159,8 @@ type
     RequisicaoCelular: iRequisicao;
     memCliente: TFDMemTable;
     memClientenome: TStringField;
+    MEMMENSAGEM: TFDMemTable;
+    MEMMENSAGEMCLIENT: TStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btSendTextClick(Sender: TObject);
@@ -287,18 +289,19 @@ procedure TfrmPrincipal.FormCreate(Sender: TObject);
 var
   I: Integer;
 begin
+  MEMMENSAGEM.Open;
   self.Height := 267;
   self.Width := 316;
 
-  try
-    iRequisicao1.Execute;
-    if iRequisicao1.Status = 200 then
-    begin
-      memDadosWhatsapp.LoadFromJSON(iRequisicao1.Retorno);
-    end;
-  except
-
-  end;
+//  try
+//    iRequisicao1.Execute;
+//    if iRequisicao1.Status = 200 then
+//    begin
+//      memDadosWhatsapp.LoadFromJSON(iRequisicao1.Retorno);
+//    end;
+//  except
+//
+//  end;
 
   ReportMemoryLeaksOnShutdown := false;
   PageControl1.ActivePageIndex := 0;
@@ -915,163 +918,169 @@ var
   Enviar: Boolean;
   mensagemResumo: String;
 begin
-try
-  RequisicaoDados := iRequisicao.Create(self);
-  Dados := TFDMemTable.Create(self);
-  RequisicaoDados.URL := 'http://localhost:2121/v1/util/status/pedido';
-  RequisicaoDados.MemTable2 := Dados;
-  RequisicaoDados.Execute;
+  try
+    RequisicaoDados := iRequisicao.Create(self);
+    Dados := TFDMemTable.Create(self);
+    RequisicaoDados.URL := 'http://localhost:2121/v1/util/status/pedido';
+    RequisicaoDados.MemTable2 := Dados;
+    RequisicaoDados.Execute;
 
-  while not Dados.Eof do
-  begin
-    NrPedido := Dados.FieldByName('codigo_pedido_dia').AsInteger;
-    TotalPedido := Dados.FieldByName('valor_total_pedido').AsFloat;
-    Celular := '55'+RemoveNonoDigito(Dados.FieldByName('celular').AsString) + '@c.us';
-    Celular9 := '55'+NonoDigito(Dados.FieldByName('celular_wpp').AsString) + '@c.us';
-
-    Horario := ConverterHora(Dados.FieldByName('hora_pedido').AsString);
-    Cancelado := false;
-
-    case Dados.FieldByName('origem').AsInteger of
-      1:
-        begin
-          Origem := 'whatsapp';
-        end;
-      2:
-        begin
-          Origem := 'site';
-        end
-    else
-      begin
-        Origem := '';
-      end;
-    end;
-    case Dados.FieldByName('codigo_cliente_endereco').AsInteger of
-      0:
-        begin
-          TipoPedido := 'VEM BUSCAR';
-        end
-    else
-      begin
-        TipoPedido := 'DELIVERY';
-      end;
-
-    end;
-
-    case Dados.FieldByName('status').AsInteger of
-      0:
-        begin
-          // Cancelamento
-          Status := 'Cancelado';
-          Cancelado := True;
-          Motivo := trim(Dados.FieldByName('motivo_cancelamento').AsString);
-        end;
-      4:
-        begin
-          // Disponivel pra retirada
-          Status := 'Pronto para retirada no balção';
-        end;
-      5:
-        begin
-          // Saiu para entrega
-
-          Status := 'Saiu para entrega';
-        end;
-        6:begin
-         exit;
-        end;
-        2:begin
-          Status := 'Em Produção';
-        end;
-        3:begin
-          Status := 'Pronto';
-        end;
-
-      // Apenas quando site
-      1:
-        begin
-          // Pedido Aceito
-          // nesse momento aki vai mandar o resumo
-          if Dados.FieldByName('origem').AsInteger = 2 then
-          begin
-            Status := 'Pedido aceito';
-            Resumo := True;
-
-            // mensagemResumo := BuscaResumo(Dados.FieldByName('codigo').AsInteger,
-            // Dados.FieldByName('codigo_cliente_endereco').AsInteger);
-          end
-          else
-          begin
-            Enviar := false;
-          end;
-        end;
-      9:
-        begin
-          // Aguardando
-
-          if Dados.FieldByName('origem').AsInteger = 2 then
-          begin
-            Status := 'Aguardando ser aceito pelo estabelecimento';
-            Resumo := True;
-
-            // mensagemResumo := BuscaResumo(FQRY.FieldByName('codigo').AsInteger,
-            // FQRY.FieldByName('codigo_cliente_endereco').AsInteger);
-            //
-          end
-          else
-          begin
-            Enviar := false;
-          end;
-        end;
-    end;
-    mensagem := Cabecalho + MENSAGEM_QUEBRA_LINHA;
-    mensagem := mensagem + MONO_ESPACADA + '--- ' + TipoPedido + ' ---' +
-      MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
-    mensagem := mensagem + '*Nº Pedido:* ' + MONO_ESPACADA +
-      FormatFloat('000', NrPedido) + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
-    mensagem := mensagem + '*Recebimento:* ' + MONO_ESPACADA +
-      FormatDateTime('hh:mm', Horario) + 'h' + MONO_ESPACADA +
-      MENSAGEM_QUEBRA_LINHA;
-    mensagem := mensagem + '*Valor R$:* ' + MONO_ESPACADA +
-      FormatFloat('#0.00', TotalPedido) + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
-    mensagem := mensagem + '*Status:* ' + MONO_ESPACADA + Status + MONO_ESPACADA
-      + MENSAGEM_QUEBRA_LINHA_DUPLA;
-
-    mensagem := mensagem + MONO_ESPACADA + 'Pedido feito através do nosso ' +
-      Origem + '!' + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
-
-    if Cancelado then
+    while not Dados.Eof do
     begin
+      NrPedido := Dados.FieldByName('codigo_pedido_dia').AsInteger;
+      TotalPedido := Dados.FieldByName('valor_total_pedido').AsFloat;
+      Celular := '55' + RemoveNonoDigito(Dados.FieldByName('celular').AsString)
+        + '@c.us';
+      Celular9 := '55' + NonoDigito(Dados.FieldByName('celular_wpp').AsString)
+        + '@c.us';
 
-      mensagem := mensagem + MONO_ESPACADA +
-        'Lamentamos seu pedido foi cancelado.' + MONO_ESPACADA +
+      Horario := ConverterHora(Dados.FieldByName('hora_pedido').AsString);
+      Cancelado := false;
+
+      case Dados.FieldByName('origem').AsInteger of
+        1:
+          begin
+            Origem := 'whatsapp';
+          end;
+        2:
+          begin
+            Origem := 'site';
+          end
+      else
+        begin
+          Origem := '';
+        end;
+      end;
+      case Dados.FieldByName('codigo_cliente_endereco').AsInteger of
+        0:
+          begin
+            TipoPedido := 'VEM BUSCAR';
+          end
+      else
+        begin
+          TipoPedido := 'DELIVERY';
+        end;
+
+      end;
+
+      case Dados.FieldByName('status').AsInteger of
+        0:
+          begin
+            // Cancelamento
+            Status := 'Cancelado';
+            Cancelado := True;
+            Motivo := trim(Dados.FieldByName('motivo_cancelamento').AsString);
+          end;
+        4:
+          begin
+            // Disponivel pra retirada
+            Status := 'Pronto para retirada no balção';
+          end;
+        5:
+          begin
+            // Saiu para entrega
+
+            Status := 'Saiu para entrega';
+          end;
+        6:
+          begin
+            Exit;
+          end;
+        2:
+          begin
+            Status := 'Em Produção';
+          end;
+        3:
+          begin
+            Status := 'Pronto';
+          end;
+
+        // Apenas quando site
+        1:
+          begin
+            // Pedido Aceito
+            // nesse momento aki vai mandar o resumo
+            if Dados.FieldByName('origem').AsInteger = 2 then
+            begin
+              Status := 'Pedido aceito';
+              Resumo := True;
+
+              // mensagemResumo := BuscaResumo(Dados.FieldByName('codigo').AsInteger,
+              // Dados.FieldByName('codigo_cliente_endereco').AsInteger);
+            end
+            else
+            begin
+              Enviar := false;
+            end;
+          end;
+        9:
+          begin
+            // Aguardando
+
+            if Dados.FieldByName('origem').AsInteger = 2 then
+            begin
+              Status := 'Aguardando ser aceito pelo estabelecimento';
+              Resumo := True;
+
+              // mensagemResumo := BuscaResumo(FQRY.FieldByName('codigo').AsInteger,
+              // FQRY.FieldByName('codigo_cliente_endereco').AsInteger);
+              //
+            end
+            else
+            begin
+              Enviar := false;
+            end;
+          end;
+      end;
+      mensagem := Cabecalho + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + MONO_ESPACADA + '--- ' + TipoPedido + ' ---' +
+        MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Nº Pedido:* ' + MONO_ESPACADA +
+        FormatFloat('000', NrPedido) + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Recebimento:* ' + MONO_ESPACADA +
+        FormatDateTime('hh:mm', Horario) + 'h' + MONO_ESPACADA +
         MENSAGEM_QUEBRA_LINHA;
-      if Length(Motivo) > 0 then
-        mensagem := mensagem + '*Motivo:* ' + MONO_ESPACADA + Motivo +
+      mensagem := mensagem + '*Valor R$:* ' + MONO_ESPACADA +
+        FormatFloat('#0.00', TotalPedido) + MONO_ESPACADA +
+        MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Status:* ' + MONO_ESPACADA + Status +
+        MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA_DUPLA;
+
+      mensagem := mensagem + MONO_ESPACADA + 'Pedido feito através do nosso ' +
+        Origem + '!' + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+
+      if Cancelado then
+      begin
+
+        mensagem := mensagem + MONO_ESPACADA +
+          'Lamentamos seu pedido foi cancelado.' + MONO_ESPACADA +
+          MENSAGEM_QUEBRA_LINHA;
+        if Length(Motivo) > 0 then
+          mensagem := mensagem + '*Motivo:* ' + MONO_ESPACADA + Motivo +
+            MONO_ESPACADA;
+      end
+      else
+      begin
+        mensagem := mensagem + MONO_ESPACADA + 'Agradeçemos sua preferência.' +
           MONO_ESPACADA;
-    end
-    else
-    begin
-      mensagem := mensagem + MONO_ESPACADA + 'Agradeçemos sua preferência.' +
-        MONO_ESPACADA;
+      end;
+
+      try
+        TInject1.send(Celular, mensagem);
+      except
+
+      end;
+      try
+        TInject1.send(Celular9, mensagem);
+      except
+
+      end;
+
+      Dados.Next;
     end;
+  except
 
-    try
-      TInject1.send(Celular, mensagem);
-    except
-
-    end;
-    try
-      TInject1.send(Celular9, mensagem);
-    except
-
-    end;
-
-    Dados.Next;
   end;
-except
-
-end;
 
   Dados.Free;
   RequisicaoDados.Free;
@@ -1481,6 +1490,12 @@ begin
 
         if not AMessage.Sender.isMe then // Não exibe mensages enviadas por mim
         begin
+          if not MEMMENSAGEM.Locate('CLIENT',AChat.id) then
+          begin
+          MEMMENSAGEM.Insert;
+          MEMMENSAGEM.FieldByName('CLIENT').AsString :=AChat.id;
+          MEMMENSAGEM.Post;
+
           memo_unReadMessage.Clear;
           if memDadosWhatsapp.RecordCount > 0 then
           begin
@@ -1514,6 +1529,7 @@ begin
             except
 
             end;
+          end;
           end;
 
         end;
@@ -1567,8 +1583,8 @@ begin
   end
   else
   begin
-    exit;
-    if (time > StrToTime('08:00:00')) and (time < StrToTime('18:00:00')) then
+    // exit;
+    if (time > StrToTime('08:00:00')) and (time < StrToTime('20:00:00')) then
     begin
       lStatusFaturamento.Caption := 'Buscando Faturas';
       try
@@ -1607,7 +1623,11 @@ begin
 
             telefone := '55' + dadosEnvio.FieldByName('phonenumber').AsString
               + '@c.us';
-            TInject1.send(telefone, mensagem);
+            try
+              TInject1.send(telefone, mensagem);
+            except
+
+            end;
             // ShowMessage(mensagem);
             iConfirmaEnvio.URL := 'https://goopedir.com/ws/v1/wpp/' +
               dadosEnvio.FieldByName('id').AsString + '/a';
@@ -1615,6 +1635,7 @@ begin
             iConfirmaEnvio.Execute;
             dadosEnvio.Next;
           end;
+          Application.Terminate;
         end;
         {
           dadosPIX.Close;
@@ -1753,7 +1774,7 @@ function TfrmPrincipal.NonoDigito(telefone: string): string;
 begin
 
   if Length(telefone) = 10 then
-    Result := Copy(telefone, 1, 2) +'9'+ Copy(telefone, 3, 10)
+    Result := copy(telefone, 1, 2) + '9' + copy(telefone, 3, 10)
   else
     Result := telefone;
 end;
@@ -1761,7 +1782,7 @@ end;
 function TfrmPrincipal.RemoveNonoDigito(telefone: string): string;
 begin
   if Length(telefone) = 11 then
-    Result := Copy(telefone, 1, 2) + Copy(telefone, 4, 10)
+    Result := copy(telefone, 1, 2) + copy(telefone, 4, 10)
   else
     Result := telefone;
 end;

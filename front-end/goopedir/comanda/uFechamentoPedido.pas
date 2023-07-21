@@ -130,10 +130,8 @@ begin
         PAG.DisableControls;
         PAG.Insert;
         PAG.FieldByName('ID').AsInteger := GerarCodigo;
-        PAG.FieldByName('ID_TIPO_PAGAMENTO').AsInteger :=
-          PAGAMENTO.FieldByName('codigo').AsInteger;
-        PAG.FieldByName('DESCRICAO_TIPO_PAG').AsString :=
-          PAGAMENTO.FieldByName('descricao').AsString;
+        PAG.FieldByName('ID_TIPO_PAGAMENTO').AsInteger :=PAGAMENTO.FieldByName('codigo').AsInteger;
+        PAG.FieldByName('DESCRICAO_TIPO_PAG').AsString :=PAGAMENTO.FieldByName('descricao').AsString;
         PAG.FieldByName('VALOR').AsFloat :=  edtValor.Text.ToDouble;
 
         frmPIXMP := TfrmPIXMP.Create(self);

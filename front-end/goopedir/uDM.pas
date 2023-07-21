@@ -163,6 +163,7 @@ type
     DADOS_WHATSAPPddd_padrao: TStringField;
     DADOS_WHATSAPPifood_integracao: TIntegerField;
     MotivoCancelamentoiFood: TFDMemTable;
+    DADOS_WHATSAPPurl_site: TStringField;
     procedure DataModuleCreate(Sender: TObject);
   private
     FUserId: Integer;

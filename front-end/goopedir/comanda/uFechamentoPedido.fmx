@@ -664,6 +664,27 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             TabOrder = 0
           end
         end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 273.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 273.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Adicionar'
+            TabOrder = 0
+          end
+        end
       end
       object lValorSelecionado: TLabel
         StyledSettings = [Family, Size, FontColor]
@@ -1106,6 +1127,27 @@ object frmFechamentoPedido: TfrmFechamentoPedido
             TabOrder = 0
           end
         end
+        object TRectangle
+          Align = Client
+          Fill.Color = xFF31CCAF
+          HitTest = False
+          Size.Width = 289.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Color = xFF31CCAF
+          XRadius = 1.000000000000000000
+          YRadius = 1.000000000000000000
+          object TLabel
+            Align = Client
+            StyledSettings = [Family, Size]
+            Size.Width = 289.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.HorzAlign = Center
+            Text = 'Finalizar'
+            TabOrder = 0
+          end
+        end
       end
       object edtDividir: TEdit
         Touch.InteractiveGestures = [LongTap, DoubleTap]
@@ -1157,8 +1199,8 @@ object frmFechamentoPedido: TfrmFechamentoPedido
           TabOrder = 2
           RowHeight = 30.000000000000000000
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-          Viewport.Width = 757.000000000000000000
-          Viewport.Height = 170.000000000000000000
+          Viewport.Width = 761.000000000000000000
+          Viewport.Height = 195.000000000000000000
         end
         object iButton1: iButton
           Align = Bottom
@@ -1172,6 +1214,27 @@ object frmFechamentoPedido: TfrmFechamentoPedido
           iForthTipoBotao = tAmarelo
           iForthCorFonte = cPreta
           iForthDescricao = 'Excluir Pagamento'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFFFFC726
+            HitTest = False
+            Size.Width = 761.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFFFFC726
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 761.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Center
+              Text = 'Excluir Pagamento'
+              TabOrder = 0
+            end
+          end
           object TRectangle
             Align = Client
             Fill.Color = xFFFFC726
@@ -1648,8 +1711,8 @@ object frmFechamentoPedido: TfrmFechamentoPedido
         Options = [AlwaysShowEditor, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
         OnDrawColumnCell = ListaDrawColumnCell
         OnCellDblClick = ListaCellDblClick
-        Viewport.Width = 757.000000000000000000
-        Viewport.Height = 330.000000000000000000
+        Viewport.Width = 761.000000000000000000
+        Viewport.Height = 355.000000000000000000
       end
     end
   end

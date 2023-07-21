@@ -344,14 +344,34 @@ begin
         ExecultaSQL
           ('alter table pedido add status_ifood_descricao varchar(255);');
       end;
-      19: begin
-         ExecultaSQL('alter table pro_adi_personalizado add id_ifood varchar(255);');
-         ExecultaSQL('alter table pro_adi_personalizado_sabores add id_ifood varchar(255);');
-         ExecultaSQL('alter table produto add foto_ifood varchar(255);');
-         ExecultaSQL('alter table pedido add order_ifood varchar(50);');
-         ExecultaSQL('alter table pedido add desc_desconto_ifood varchar(255);');
-         ExecultaSQL('alter table pedido add agendada_ifood timestamp;');
-         ExecultaSQL('alter table pedido add estimada_ifood timestamp;');
+    19:
+      begin
+        ExecultaSQL
+          ('alter table pro_adi_personalizado add id_ifood varchar(255);');
+        ExecultaSQL
+          ('alter table pro_adi_personalizado_sabores add id_ifood varchar(255);');
+        ExecultaSQL('alter table produto add foto_ifood varchar(255);');
+        ExecultaSQL('alter table pedido add order_ifood varchar(50);');
+        ExecultaSQL('alter table pedido add desc_desconto_ifood varchar(255);');
+        ExecultaSQL('alter table pedido add agendada_ifood timestamp;');
+        ExecultaSQL('alter table pedido add estimada_ifood timestamp;');
+      end;
+    20:
+      begin
+        SQL := 'create table pedido_status(';
+        SQL := SQL + ' id integer,';
+        SQL := SQL + ' id_pedido integer,';
+        SQL := SQL + ' id_status integer,';
+        SQL := SQL + ' horario timestamp);';
+        ExecultaSQL(SQL);
+      end;
+      21: begin
+        ExecultaSQL('delete from status_pedido where descricao = '+QuotedStr('Faturado'));
+        ExecultaSQL('alter table produto add position integer');
+ExecultaSQL('alter table produto add pessoas integer;');
+ExecultaSQL('alter table produto add valor_desconto real;');
+ExecultaSQL('alter table produto add percentual_desconto real;');
+
       end;
 
     // Deve-se Rodar manual esses sql
@@ -368,7 +388,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '19';
+  Result := '20';
 end;
 
 end.

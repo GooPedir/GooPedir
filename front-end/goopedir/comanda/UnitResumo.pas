@@ -1638,8 +1638,7 @@ begin
   memDadosPedido.FieldByName('numero').AsString := EdtNumero.Text;
   memDadosPedido.FieldByName('endereco').AsInteger := CodigoClienteEndereco;
   memDadosPedido.FieldByName('status').AsInteger := StatusPedido;
-  memDadosPedido.FieldByName('tipo_pagamento').AsInteger :=
-    Pagamento.FieldByName('codigo').AsInteger;
+  memDadosPedido.FieldByName('tipo_pagamento').AsInteger := Pagamento.FieldByName('codigo').AsInteger;
   if StatusPedido < 0 then
     memDadosPedido.FieldByName('status').AsInteger := 1;
 
@@ -1673,6 +1672,12 @@ begin
   PostSimples('/v1/atualiza/dados/pedido/', memDadosPedido);
   if StatusPedido < 0 then
     PostSimples('/v1/imprimir/1/' + CodigoPedido.ToString, nil);
+
+
+    //Caso a cozinha esteja configurada
+   PostSimples('/v1/imprimir', Produtos)
+
+
 end;
 
 procedure TFrmResumo.SetApenasVisualizacao(const Value: Boolean);

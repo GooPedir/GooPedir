@@ -424,7 +424,8 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'select produto.* from produto join produto_preco as pp on pp.id_produto = codigo where usa_tabela_preco = 1 ';
-  SQL := SQL + ' and valor_venda <> (select ROUND(sum(produto_preco.valor),2) from produto_preco where produto_preco.id_produto = produto.codigo)';
+  SQL := SQL +
+    ' and valor_venda <> (select ROUND(sum(produto_preco.valor),2) from produto_preco where produto_preco.id_produto = produto.codigo)';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   InsertSite := TInsertUpdateSite.Create;
@@ -706,7 +707,7 @@ end;
 
 procedure TfrmPrincipal.Button1Click(Sender: TObject);
 begin
-   EnviarSabores;
+  EnviarSabores;
 end;
 
 procedure TfrmPrincipal.CadastraCategoria(Insert: TInsertUpdate;
@@ -1067,10 +1068,14 @@ begin
   Dados := TFDMemTable.Create(nil);
 
   SQL := 'SELECT p.saldo_atual as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
-  SQL := SQL + 'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores ';
-  SQL := SQL + 'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
-  SQL := SQL + ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
-  SQL := SQL + ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
+  SQL := SQL +
+    'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores, pessoas, valor_desconto, percentual_desconto ';
+  SQL := SQL +
+    'FROM produto as p join tipo_produto on tipo_produto.codigo = p.codigo_grupo ';
+  SQL := SQL +
+    ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
+  SQL := SQL +
+    ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1103,7 +1108,7 @@ begin
     end;
 
     try
-    //   foto_ifood        > img_ifood
+      // foto_ifood        > img_ifood
       case Dados.FieldByName('id_site').AsInteger of
         0:
           begin
@@ -1111,7 +1116,8 @@ begin
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
               'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-              'valor_delivery', 'estoque','img_ifood'],
+              'valor_delivery', 'estoque', 'img_ifood', 'pessoas',
+              'promo_valor', 'promo_percentual'],
               [Dados.FieldByName('id_site').AsString, Usuario.ToString, 'false',
               '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
               Dados.FieldByName('codigo_interno').AsString,
@@ -1119,7 +1125,11 @@ begin
               Dados.FieldByName('produto').AsString, Descricao,
               Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
               .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-              Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
+              Dados.FieldByName('estoque').AsString,
+              Dados.FieldByName('foto_ifood').AsString,
+              Dados.FieldByName('pessoas').AsString,
+              Dados.FieldByName('valor_desconto').AsString,
+              Dados.FieldByName('percentual_desconto').AsString]);
           end
       else
         begin
@@ -1127,13 +1137,18 @@ begin
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
             'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
-            'estoque','img_ifood'], [Dados.FieldByName('id_site').AsString,
+            'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+            'promo_percentual'], [Dados.FieldByName('id_site').AsString,
             Usuario.ToString, '0', '0', '0', Dados.FieldByName('codigo_interno')
             .AsString, Dados.FieldByName('categoria').AsString,
             Dados.FieldByName('produto').AsString, Descricao,
             Dados.FieldByName('venda').AsString, Dados.FieldByName('ativo')
             .AsString, Dados.FieldByName('vl_embalagem_delivery').AsString,
-            Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
+            Dados.FieldByName('estoque').AsString,
+            Dados.FieldByName('foto_ifood').AsString,
+            Dados.FieldByName('pessoas').AsString,
+            Dados.FieldByName('valor_desconto').AsString,
+            Dados.FieldByName('percentual_desconto').AsString]);
         end;
       end;
     except
@@ -1141,7 +1156,8 @@ begin
         ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
         'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery', 'estoque', 'img_ifood'], [Dados.FieldByName('id_site').AsString,
+        'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+        'promo_percentual'], [Dados.FieldByName('id_site').AsString,
         Usuario.ToString, 'false', '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
         Dados.FieldByName('codigo_interno').AsString,
@@ -1149,7 +1165,10 @@ begin
         .AsString, Descricao, Dados.FieldByName('venda').AsString,
         Dados.FieldByName('ativo').AsString,
         Dados.FieldByName('vl_embalagem_delivery').AsString,
-        Dados.FieldByName('estoque').AsString,Dados.FieldByName('foto_ifood').AsString]);
+        Dados.FieldByName('estoque').AsString, Dados.FieldByName('foto_ifood')
+        .AsString, Dados.FieldByName('pessoas').AsString,
+        Dados.FieldByName('valor_desconto').AsString,
+        Dados.FieldByName('percentual_desconto').AsString]);
     end;
 
     if codigo > 0 then
@@ -1270,7 +1289,7 @@ begin
     SQL := SQL +
       'p.data_pedido > ''2000-12-31'' and p.id_pedido_site is null and p.status > 0 ';
     SQL := SQL + 'limit 15 ';
-//    ShowMessage(SQL);
+    // ShowMessage(SQL);
     frmPrincipal.AdicionaLog(SQL);
     Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
@@ -1448,7 +1467,8 @@ begin
     else
     begin
       if Dados.FieldByName('id_site').AsInteger > 0 then
-        BuscaPedidoThread.ExecutaSQLSite('update ws_sabores set ativo = 0 where id = ' +
+        BuscaPedidoThread.ExecutaSQLSite
+          ('update ws_sabores set ativo = 0 where id = ' +
           Dados.FieldByName('id_site').AsString);
     end;
     BuscaPedidoThread.ExecutaSQLSite(SQL);
@@ -1950,8 +1970,8 @@ begin
           (Insert.ConsultaSQL('select * from produto where (id_site = ' +
           Memory.FieldByName('codigoproduto').AsString +
           ' or upper(nome_produto) = ' +
-          QuotedStr(RemoveAcento(Memory.FieldByName('nomeproduto')
-          .AsString)) + ')'));
+          QuotedStr(RemoveAcento(Memory.FieldByName('nomeproduto').AsString)
+          ) + ')'));
         CodigoProduto := 0;
         if DadosProdutos.RecordCount > 0 then
         begin
@@ -2045,8 +2065,8 @@ begin
             ('SELECT * FROM pro_adi_personalizado_sabores where id_pro_adi_personalizado = '
             + CodigoExtraCategoria.ToString + ' and (id_site = ' +
             ExtraCategoriaItem.ToString + ' or upper(nome) = ' +
-            QuotedStr(RemoveAcento(Memory.FieldByName('nomeadicional')
-            .AsString)) + ')'));
+            QuotedStr(RemoveAcento(Memory.FieldByName('nomeadicional').AsString)
+            ) + ')'));
           CodigoExtraDescricao := 0;
 
           if DadosExtraCategoriaItem.RecordCount > 0 then
@@ -2822,7 +2842,7 @@ begin
   begin
     // Insert
     Result := Insert.InserirUpdate('tipo_pagamento',
-      ['codigo', 'descricao', 'ativo'], ['0', Forma, '1']);
+      ['codigo', 'descricao', 'ativo'], ['0', Forma, '0']);
   end
   else
   begin
@@ -3421,7 +3441,8 @@ begin
       while not MemoryTablePedidos.Eof do
       begin
         SAP := False;
-        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id').AsInteger);
+        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id')
+          .AsInteger);
         MemoryDadosItem.Close;
         MemoryDadosItem.LoadFromJSON(Resultado);
         CodigoCliente := -1;
@@ -3778,7 +3799,7 @@ begin
           case StatusPedido of
             0:
               begin
-                if Novo then
+                if Novo and (not Messa) then
                 begin
                   Insert.InserirUpdate('pedido', ['codigo', 'pedido_impresso',
                     'impresso_site'], [CodigoNovoPeiddo.ToString, '0',
@@ -3793,7 +3814,7 @@ begin
               end;
             1:
               begin
-                if Novo then
+                if Novo and (not Messa) then
                 begin
                   Insert.InserirUpdate('pedido', ['codigo', 'pedido_impresso',
                     'impresso_site'], [CodigoNovoPeiddo.ToString, '0',
@@ -3820,10 +3841,10 @@ begin
         // FRequestStatus
         // FRequestStatus.BASEURL := FRequestStatus.BASEURL+'v1/pedido/status/'+CodigoNovoPeiddo.ToString+'/'+StatusPedido.ToString+'/';
         try
-        FRequestStatus.URL := 'v1/pedido/status/' + CodigoNovoPeiddo.ToString +
-          '/' + StatusPedido.ToString + '/';
-        FRequestStatus.metodo := mPut;
-        FRequestStatus.Execute;
+          FRequestStatus.URL := 'v1/pedido/status/' + CodigoNovoPeiddo.ToString
+            + '/' + StatusPedido.ToString + '/';
+          FRequestStatus.metodo := mPut;
+          FRequestStatus.Execute;
         except
 
         end;

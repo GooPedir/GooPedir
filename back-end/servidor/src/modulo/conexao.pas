@@ -469,9 +469,9 @@ var
   SqlUpdate: String;
   QryUpdate: TFDQuery;
 begin
-SQL := UpperCase(SQL);
+
   try
-    Update := UpperCase(copy(trim(SQL), 0, 6)) = 'UPDATE';
+    Update := UpperCase(copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
     if Update then
     begin
       SqlUpdate := copy(SQL, 0, pos('SET', SQL) + 2) + ' modificado_site = 0 ' +
@@ -519,7 +519,7 @@ SQL := UpperCase(SQL);
       end;
 
     end;
-      QryUpdate.Free;
+    QryUpdate.Free;
     QRY.ExecSQL;
 
   except
@@ -610,23 +610,23 @@ Var
   Query: TFDQuery;
 begin
   try
-  Banco := DataModulo.Banco.Params.Database;
-  DataModulo.Banco.Close;
-  DataModulo.Banco.Params.Database := 'sys';
-  DataModulo.Banco.Open;
-  Query := DataModulo.CriaQRY;
-  Query.SQL.Add('SELECT * FROM version');
-  Query.Open;
+    Banco := DataModulo.Banco.Params.Database;
+    DataModulo.Banco.Close;
+    DataModulo.Banco.Params.Database := 'sys';
+    DataModulo.Banco.Open;
+    Query := DataModulo.CriaQRY;
+    Query.SQL.Add('SELECT * FROM version');
+    Query.Open;
 
-  Result := Query.FieldByName('mysql_version').AsString;
+    Result := Query.FieldByName('mysql_version').AsString;
 
-  DataModulo.Banco.Close;
-  DataModulo.Banco.Params.Database := Banco;
-  DataModulo.Banco.Open;
+    DataModulo.Banco.Close;
+    DataModulo.Banco.Params.Database := Banco;
+    DataModulo.Banco.Open;
 
-  Query.Free;
+    Query.Free;
   except
-     Result := '8027';
+    Result := '8027';
   end;
 
 end;

@@ -5535,7 +5535,8 @@ object frmPrincipal: TfrmPrincipal
     Top = 280
   end
   object RequisicaoVencidas: iRequisicao
-    BaseURL = 'https://goopedir.com/ws/v1/notifica/a'
+    BaseURL = 'https://goopedir.com/ws/v1/notificacao.php'
+    MemTable2 = dadosEnvio
     eTAG = False
     Metodo = mGet
     Status = 0
@@ -5654,6 +5655,21 @@ object frmPrincipal: TfrmPrincipal
     Top = 496
     object memClientenome: TStringField
       FieldName = 'nome'
+      Size = 255
+    end
+  end
+  object MEMMENSAGEM: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 672
+    Top = 480
+    object MEMMENSAGEMCLIENT: TStringField
+      FieldName = 'CLIENT'
       Size = 255
     end
   end
