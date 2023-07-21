@@ -365,12 +365,14 @@ begin
         SQL := SQL + ' horario timestamp);';
         ExecultaSQL(SQL);
       end;
-      21: begin
-        ExecultaSQL('delete from status_pedido where descricao = '+QuotedStr('Faturado'));
+    21:
+      begin
+        ExecultaSQL('delete from status_pedido where descricao = ' +
+          QuotedStr('Faturado'));
         ExecultaSQL('alter table produto add position integer');
-ExecultaSQL('alter table produto add pessoas integer;');
-ExecultaSQL('alter table produto add valor_desconto real;');
-ExecultaSQL('alter table produto add percentual_desconto real;');
+        ExecultaSQL('alter table produto add pessoas integer;');
+        ExecultaSQL('alter table produto add valor_desconto real;');
+        ExecultaSQL('alter table produto add percentual_desconto real;');
 
       end;
 
@@ -388,7 +390,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '20';
+  Result := '21';
 end;
 
 end.

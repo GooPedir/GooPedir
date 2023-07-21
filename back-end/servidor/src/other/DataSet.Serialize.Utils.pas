@@ -8,12 +8,29 @@ interface
 
 uses
 {$IF DEFINED(FPC)}
-  DB, fpjson, SysUtils, Classes;
+  DB, fpjson, SysUtils, Classes, Generics.Collections;
 {$ELSE}
-  {$IF CompilerVersion >= 20}System.Character,{$ENDIF} System.DateUtils, System.JSON, Data.DB, System.SysUtils, System.Classes;
+  {$IF CompilerVersion >= 20}System.Character,{$ENDIF} System.Generics.Collections, System.DateUtils, System.JSON, Data.DB, System.SysUtils, System.Classes;
 {$ENDIF}
 
 type
+  {$IF DEFINED(FPC)}
+  // hack para conhecer o DetailDataset. delphi tem este método mas FreePascal não.
+
+  { TMyHackDataset }
+
+  TMyHackDataset = class(DB.TDataset)
+  public
+    procedure GetDetailDataSets(List: TList<TDataSet>);
+  end;
+
+  TMyHackDataSource = class(DB.TDatasource)
+  protected
+    Property DataLink;
+    Property DataLinkCount;
+  end;
+  {$ENDIF}
+
   /// <summary>
   ///   API error class (default).
   /// </summary>
@@ -43,6 +60,8 @@ type
     AutoGenerateValue: TAutoRefreshFlag;
     {$ENDIF}
   end;
+
+  { TDataSetSerializeUtils }
 
   TDataSetSerializeUtils = class
   public
@@ -97,11 +116,40 @@ type
     ///   Get field data type from a JSONValue
     /// </summary>
     class function GetDataType(const AJSONValue: {$IF DEFINED(FPC)}TJSONData{$ELSE}TJSONValue{$ENDIF}): TFieldType;
+    /// <summary>
+    ///   Return in ADataSetDetails all child datasets of ADataSet (Master dataset)
+    /// </summary>
+    class procedure GetDetailsDatasets(const ADataSet: TDataSet; ADataSetDetails: TList<TDataSet>);
   end;
 
 implementation
 
 uses DataSet.Serialize.Consts, DataSet.Serialize.Config;
+
+{ TMyHackDataset }
+
+{$IF DEFINED(FPC)}
+procedure TMyHackDataset.GetDetailDataSets(List: TList<TDataSet>);
+var
+  I, J: Integer;
+begin
+  List.Clear;
+  for I := MyDataSourceCount - 1 downto 0 do
+  begin
+    with TMyHackDataSource(MyDataSources[I]) do
+    begin
+      for J := DataLinkCount - 1 downto 0 do
+      begin
+        if (DataLink[J] is TDetailDataLink) and
+           (TDetailDataLink(DataLink[J]).DetailDataSet <> nil) then
+        begin
+          List.Add(TDetailDataLink(DataLink[J]).DetailDataSet);
+        end;
+      end;
+    end;
+  end;
+end;
+{$ENDIF}
 
 class function TDataSetSerializeUtils.CreateValidIdentifier(const AName: string): string;
 var
@@ -146,16 +194,19 @@ var
   LCaseNameDefinition: TCaseNameDefinition;
   LField: TArray<Char>;
 begin
-  Result := EmptyStr;
+  Result := AFieldName;
+  if TDataSetSerializeConfig.GetInstance.RemoveBlankSpaceFieldName then
+    Result := Result.Replace(' ', EmptyStr);
   LCaseNameDefinition := TDataSetSerializeConfig.GetInstance.CaseNameDefinition;
   case LCaseNameDefinition of
     cndLower:
-      Result := AFieldName.ToLower;
+      Result := Result.ToLower;
     cndUpper:
-      Result := AFieldName.ToUpper;
+      Result := Result.ToUpper;
     cndLowerCamelCase, cndUpperCamelCase:
       begin
-        LField := AFieldName.ToCharArray;
+        LField := Result.ToCharArray;
+        Result := EmptyStr;
         I := Low(LField);
         While i <= High(LField) do
         begin
@@ -173,11 +224,7 @@ begin
           end;
           Inc(I);
         end;
-        if Result.IsEmpty then
-          Result := AFieldName;
-      end
-  else
-    Result := AFieldName;
+      end;
   end;
 end;
 
@@ -206,6 +253,16 @@ begin
   else if (AJSONValue is TJSONTrue) or (AJSONValue is TJSONFalse) then
   {$ENDIF}
     Result := ftBoolean;
+end;
+
+class procedure TDataSetSerializeUtils.GetDetailsDatasets(
+  const ADataSet: TDataSet; ADataSetDetails: TList<TDataSet>);
+begin
+  {$IF DEFINED(FPC)}
+  TMyHackDataset(ADataSet).GetDetailDataSets(ADataSetDetails);
+  {$ELSE}
+  ADataSet.GetDetailDataSets(ADataSetDetails);
+  {$ENDIF}
 end;
 
 class function TDataSetSerializeUtils.NewDataSetField(const ADataSet: TDataSet; const AFieldStructure: TFieldStructure): TField;

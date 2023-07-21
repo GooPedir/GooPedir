@@ -158,7 +158,7 @@ type
     procedure AtualizaDadosiFood;
     procedure AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
 
-    function UserID : integer;
+    function UserID: Integer;
 
   var
     FechouWhatsapp: Boolean;
@@ -171,6 +171,7 @@ var
   Atualizacao: TSQL;
   Servicos: TAbrirServicos;
   statusiFood: Boolean;
+  user: Integer;
 
 implementation
 
@@ -732,13 +733,13 @@ begin
 
   FichaTecnica;
 
-//  if IntegracaoiFood then
-//  begin
-//    IFood.MerchantID(IDiFood);
-//    BuscaDadosiFood;
-//    IFood.MerchantStatus.AutoStatus := True;
-//    IFood.Polling.AutoPolling := True;
-//  end;
+  // if IntegracaoiFood then
+  // begin
+  // IFood.MerchantID(IDiFood);
+  // BuscaDadosiFood;
+  // IFood.MerchantStatus.AutoStatus := True;
+  // IFood.Polling.AutoPolling := True;
+  // end;
 
 
   // ADRIFood.MerchantStatus.AutoStatus := True;
@@ -1413,9 +1414,40 @@ begin
   // StatusForm := sOcuto;
 end;
 
-function TfrmServidor.UserID: integer;
+function TfrmServidor.UserID: Integer;
+var
+  Requisicao: iRequisicao;
+  Body: String;
+  JSonDadosSite: TJsonObject;
 begin
-Result := 1;
+
+  if user = 0 then
+  begin
+    try
+      Requisicao := iRequisicao.Create(self);
+      Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+      Requisicao.URL := 'token2/a';
+      Body := '{' + #13 + '"client_id":"' +
+        frmServidor.Configuracoes.FieldByName('client_id').AsString + '",' + #13
+        + '"client_security":"' + frmServidor.Configuracoes.FieldByName
+        ('client_security').AsString + '"' + #13 + '}';
+      Requisicao.Body(Body);
+      Requisicao.Metodo := mPost;
+      Requisicao.TempoExpiracao := 5 * 1000;
+      Requisicao.Execute;
+      JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+        as TJsonObject;
+
+      Result := StrToInt(StringReplace(JSonDadosSite.Get('user')
+        .JsonValue.ToString, '"', '', [rfReplaceAll]));
+      user := Result;
+    except
+
+    end;
+  end;
+
+  Result := user;
+
 end;
 
 function TfrmServidor.VerificaExe(Nome: String): Boolean;

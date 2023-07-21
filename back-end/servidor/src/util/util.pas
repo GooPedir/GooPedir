@@ -7091,7 +7091,8 @@ begin
   except
     on e: exception do
     begin
-      Res.Send(e.Message)
+      Res.Send(e.Message);
+      exit;
     end;
 
   end;
