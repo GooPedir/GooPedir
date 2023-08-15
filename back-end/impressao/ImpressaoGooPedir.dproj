@@ -104,9 +104,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1046</VerInfo_Locale>
         <Icon_MainIcon>ImpressaoPapaleguas_Icon.ico</Icon_MainIcon>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=#GooPedir;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=#GooPedir;FileDescription=$(MSBuildProjectName);FileVersion=4.1.1.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>

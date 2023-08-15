@@ -225,17 +225,20 @@ var
   lSQL: String;
   Dados: TFDMemTable;
   Valor: integer;
+  conexao : TConexao;
 begin
-  SQL.Add('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
-  Parametros('tabela', Tabela);
-  ExecuteSQL;
+conexao := TConexao.Create;
 
-  SQL.Add('select * from geradores where tabela = :tabela');
-  Parametros('tabela', Tabela);
+  conexao.SQL.Add('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+  conexao.Parametros('tabela', Tabela);
+  conexao.ExecuteSQL;
+
+  conexao.SQL.Add('select * from geradores where tabela = :tabela');
+  conexao.Parametros('tabela', Tabela);
   Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON(ConsultaSQL);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
 
-  if Dados.RecordCount = 1 then
+  if Dados.RecordCount > 0 then
   begin
     Valor := Dados.FieldByName('sequencial').AsInteger;
   end
@@ -244,8 +247,8 @@ begin
 
     Dados.Free;
     Dados := TFDMemTable.Create(nil);
-    SQL.Add('select max(' + Campo + ')+99 as codigo,0 as zero from ' + Tabela);
-    Dados.LoadFromJSON(ConsultaSQL);
+    conexao.SQL.Add('select max(' + Campo + ')+99 as codigo,0 as zero from ' + Tabela);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
     try
       if Dados.FieldByName('codigo').IsNull then
         Valor := 1
@@ -255,16 +258,16 @@ begin
 
     end;
 
-    SQL.Add('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
-    Parametros('tabela', Tabela);
-    Parametros('sequencial', Valor);
-    ExecuteSQL;
+    conexao.SQL.Add('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    conexao.Parametros('tabela', Tabela);
+    conexao.Parametros('sequencial', Valor);
+    conexao.ExecuteSQL;
 
   end;
 
   Result := Valor;
   Dados.Free;
-  exit;
+  conexao.Free;
 
 end;
 

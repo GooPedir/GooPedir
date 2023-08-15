@@ -1,0 +1,723 @@
+unit uMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+
+  Horse.BasicAuthentication, Horse.Commons, Horse.Constants,
+  Horse.Core.Group.Contract, Horse.Core.Group, Horse.Core,
+  Horse.Core.Route.Contract, Horse.Core.Route, Horse.Core.RouterTree,
+  Horse.Etag, Horse.Exception, Horse.HTTP, Horse.Jhonson, Horse.JWT,
+  Horse.Paginate, Horse, Horse.Proc, Horse.Provider.Abstract,
+  Horse.Provider.Apache, Horse.Provider.CGI, Horse.Provider.Console,
+  Horse.Provider.Daemon, Horse.Provider.FPC.Apache, Horse.Provider.FPC.CGI,
+  Horse.Provider.FPC.Daemon, Horse.Provider.FPC.FastCGI,
+  Horse.Provider.FPC.HTTPApplication, Horse.Provider.ISAPI, Horse.Provider.Vcl,
+  Horse.WebModule,
+
+  // ############ ATENCAO AQUI ####################
+  // units adicionais obrigatorias
+  uTInject.ConfigCEF, uTInject, uTInject.Constant, uTInject.JS,
+  uInjectDecryptFile,
+  uTInject.Console, uTInject.Diversos, uTInject.AdjustNumber, uTInject.Config,
+  uTInject.Classes,
+  DataSet.Serialize,
+  Vcl.ExtCtrls, IdCoder, IdCoderMIME, JPEG, uRequisicao, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls;
+
+type
+  TEnviaMensagem = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+  var
+    Inject: TInject;
+  end;
+
+  TfrmMain = class(TForm)
+    Inject1: TInject;
+    Image1: TImage;
+    iRequisicao1: iRequisicao;
+    memDadosWhatsapp: TFDMemTable;
+    memDadosWhatsappmensagemInicio: TStringField;
+    memDadosWhatsappmensagem_Inicio: TStringField;
+    memDadosWhatsappnome: TStringField;
+    tEnviarMensagem: TTimer;
+    TrayIcon1: TTrayIcon;
+    procedure Inject1GetQrCode(const Sender: TObject;
+      const QrCode: TResultQRCodeClass);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Image1Click(Sender: TObject);
+    procedure Inject1Connected(Sender: TObject);
+    procedure Inject1Disconnected(Sender: TObject);
+    procedure Inject1DisconnectedBrute(Sender: TObject);
+    procedure Inject1ErroAndWarning(Sender: TObject;
+      const PError, PInfoAdc: string);
+    procedure Inject1GetMyNumber(Sender: TObject);
+    procedure Inject1GetStatus(Sender: TObject);
+    procedure Inject1IsConnected(Sender: TObject; Connected: Boolean);
+    procedure tEnviarMensagemTimer(Sender: TObject);
+  private
+    FQrCod: TImage;
+    FNumero: String;
+    FStatus: Boolean;
+    FBase64: String;
+    procedure SetNumero(const Value: String);
+    procedure SetQrCod(const Value: TImage);
+    procedure SetStatus(const Value: Boolean);
+    { Private declarations }
+    function ImageToBase64(const AImage: TImage): string;
+    procedure SetBase64(const Value: String);
+  public
+    function RemoveNonoDigito(telefone: string): string;
+    function NonoDigito(telefone: string): string;
+    function ConverterHora(Hora: String): TDateTime;
+    { Public declarations }
+    property QrCod: TImage read FQrCod write SetQrCod;
+    property Status: Boolean read FStatus write SetStatus;
+    property Numero: String read FNumero write SetNumero;
+    property Base64: String read FBase64 write SetBase64;
+
+    procedure Close;
+    procedure ExibirWhatsapp;
+
+  end;
+
+var
+  frmMain: TfrmMain;
+  ProcedureEnviaMensagem: TEnviaMensagem;
+
+implementation
+
+{$R *.dfm}
+
+uses wpp;
+
+procedure TfrmMain.Close;
+begin
+  frmMain.Inject1.Logtout;
+  frmMain.Inject1.Disconnect;
+  Application.Terminate;
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Inject1.ShutDown;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+
+  try
+    iRequisicao1.Execute;
+    if iRequisicao1.Status = 200 then
+    begin
+      memDadosWhatsapp.LoadFromJSON(iRequisicao1.Retorno);
+    end;
+  except
+
+  end;
+
+  THorse.Use(Jhonson);
+  wpp.Registry;
+  try
+    THorse.Listen(2222,
+      procedure(Horse: THorse)
+      begin
+      end);
+  except
+    Application.Terminate;
+    exit;
+  end;
+
+  if not Inject1.Auth(false) then
+  Begin
+    Inject1.FormQrCodeStart;
+  End;
+
+  if not Inject1.FormQrCodeShowing then
+    Inject1.FormQrCodeShowing := True;
+end;
+
+procedure TfrmMain.Image1Click(Sender: TObject);
+begin
+
+  ShowMessage(ImageToBase64(Image1))
+end;
+
+function TfrmMain.ImageToBase64(const AImage: TImage): string;
+var
+  Input: TBytesStream;
+  Output: TStringStream;
+  Encoder: TIdEncoderMIME;
+
+begin
+  Input := TBytesStream.Create;
+  try
+
+    try
+      AImage.Picture.SaveToStream(Input);
+      Input.Position := 0;
+
+      Output := TStringStream.Create('', TEncoding.ASCII);
+      try
+        Encoder := TIdEncoderMIME.Create(nil);
+        try
+          Encoder.Encode(Input, Output);
+          Result := Output.DataString;
+        finally
+          Encoder.Free;
+        end;
+      finally
+        Output.Free;
+      end;
+    finally
+
+    end;
+  finally
+    Input.Free;
+  end;
+end;
+
+procedure TfrmMain.Inject1Connected(Sender: TObject);
+begin
+  Status := True;
+
+end;
+
+procedure TfrmMain.Inject1Disconnected(Sender: TObject);
+begin
+  Status := false;
+  tEnviarMensagem.Enabled := false;
+end;
+
+procedure TfrmMain.Inject1DisconnectedBrute(Sender: TObject);
+begin
+  Status := false;
+  tEnviarMensagem.Enabled := false;
+end;
+
+procedure TfrmMain.Inject1ErroAndWarning(Sender: TObject;
+const PError, PInfoAdc: string);
+begin
+  Status := false;
+  tEnviarMensagem.Enabled := false;
+end;
+
+procedure TfrmMain.Inject1GetMyNumber(Sender: TObject);
+begin
+  Numero := TInject(Sender).MyNumber;
+end;
+
+procedure TfrmMain.Inject1GetQrCode(const Sender: TObject;
+const QrCode: TResultQRCodeClass);
+begin
+  Image1.Picture := QrCode.AQrCodeImage;
+  Base64 := ImageToBase64(Image1);
+  // QrCod.Picture := QrCode.AQrCodeImage;
+
+end;
+
+procedure TfrmMain.Inject1GetStatus(Sender: TObject);
+begin
+  if (TInject(Sender).Status = Inject_Initialized) and (Inject1.Auth) then
+  begin
+    Status := True;
+    tEnviarMensagem.Enabled := True;
+    // ProcedureEnviaMensagem := TEnviaMensagem.Create;
+    /// /    ProcedureEnviaMensagem.Inject := Inject1;
+    // ProcedureEnviaMensagem.Execute;
+  end
+  else
+  begin
+    Status := false;
+    tEnviarMensagem.Enabled := false;
+  end;
+
+end;
+
+procedure TfrmMain.Inject1IsConnected(Sender: TObject; Connected: Boolean);
+begin
+  Status := Connected;
+end;
+
+procedure TfrmMain.SetBase64(const Value: String);
+begin
+  FBase64 := Value;
+end;
+
+procedure TfrmMain.SetNumero(const Value: String);
+begin
+  FNumero := Value;
+end;
+
+procedure TfrmMain.SetQrCod(const Value: TImage);
+begin
+  FQrCod := Value;
+end;
+
+procedure TfrmMain.SetStatus(const Value: Boolean);
+begin
+  FStatus := Value;
+end;
+
+procedure TfrmMain.tEnviarMensagemTimer(Sender: TObject);
+const
+  MENSAGEM_QUEBRA_LINHA = '\n';
+  MENSAGEM_QUEBRA_LINHA_DUPLA = '\n\n';
+  FORMATA_CAMPO_MENU = '00';
+  MONO_ESPACADA = '```';
+  MEU_NUMERO = '5548998111156@c.us';
+var
+  RequisicaoDados: iRequisicao;
+  Dados: TFDMemTable;
+  Celular: String;
+  Celular9: String;
+  mensagem: String;
+  Cabecalho: String;
+  Status: String;
+  Origem: String;
+  Agradecimento: String;
+  TipoPedido: String;
+  NrPedido: Integer;
+  TotalPedido: Real;
+  Cancelado: Boolean;
+  Horario: TDateTime;
+  Motivo: String;
+  Resumo: Boolean;
+  Enviar: Boolean;
+  mensagemResumo: String;
+begin
+  inherited;
+
+  try
+    RequisicaoDados := iRequisicao.Create(nil);
+    Dados := TFDMemTable.Create(nil);
+    RequisicaoDados.URL := 'http://localhost:2121/v1/util/status/pedido';
+    RequisicaoDados.MemTable2 := Dados;
+    RequisicaoDados.Execute;
+
+    while not Dados.Eof do
+    begin
+      NrPedido := Dados.FieldByName('codigo_pedido_dia').AsInteger;
+      TotalPedido := Dados.FieldByName('valor_total_pedido').AsFloat;
+      Celular := '55' + RemoveNonoDigito(Dados.FieldByName('celular').AsString)
+        + '@c.us';
+      Celular9 := '55' + NonoDigito(Dados.FieldByName('celular_wpp').AsString)
+        + '@c.us';
+
+      Horario := ConverterHora(Dados.FieldByName('hora_pedido').AsString);
+      Cancelado := false;
+
+      case Dados.FieldByName('origem').AsInteger of
+        1:
+          begin
+            Origem := 'whatsapp';
+          end;
+        2:
+          begin
+            Origem := 'site';
+          end
+      else
+        begin
+          Origem := 'sistema';
+        end;
+      end;
+      case Dados.FieldByName('codigo_cliente_endereco').AsInteger of
+        0:
+          begin
+            TipoPedido := 'VEM BUSCAR';
+          end
+      else
+        begin
+          TipoPedido := 'DELIVERY';
+        end;
+
+      end;
+
+      case Dados.FieldByName('status').AsInteger of
+        0:
+          begin
+            // Cancelamento
+            Status := 'Cancelado';
+            Cancelado := True;
+            Motivo := trim(Dados.FieldByName('motivo_cancelamento').AsString);
+          end;
+        4:
+          begin
+            // Disponivel pra retirada
+            Status := 'Pronto para retirada no balcão';
+          end;
+        5:
+          begin
+            // Saiu para entrega
+
+            Status := 'Saiu para entrega';
+          end;
+        6:
+          begin
+            exit;
+          end;
+        2:
+          begin
+            Status := 'Em Produção';
+          end;
+        3:
+          begin
+            Status := 'Pronto';
+          end;
+
+        // Apenas quando site
+        1:
+          begin
+            // Pedido Aceito
+            // nesse momento aki vai mandar o resumo
+            if Dados.FieldByName('origem').AsInteger in [2, 4] then
+            begin
+              Status := 'Pedido aceito';
+              Resumo := True;
+
+              // mensagemResumo := BuscaResumo(Dados.FieldByName('codigo').AsInteger,
+              // Dados.FieldByName('codigo_cliente_endereco').AsInteger);
+            end
+            else
+            begin
+              Enviar := false;
+            end;
+          end;
+        9:
+          begin
+            // Aguardando
+
+            if Dados.FieldByName('origem').AsInteger = 2 then
+            begin
+              Status := 'Aguardando ser aceito pelo estabelecimento';
+              Resumo := True;
+
+              // mensagemResumo := BuscaResumo(FQRY.FieldByName('codigo').AsInteger,
+              // FQRY.FieldByName('codigo_cliente_endereco').AsInteger);
+              //
+            end
+            else
+            begin
+              Enviar := false;
+            end;
+          end;
+      end;
+      mensagem := Cabecalho + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + MONO_ESPACADA + '--- ' + TipoPedido + ' ---' +
+        MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Nº Pedido:* ' + MONO_ESPACADA +
+        FormatFloat('000', NrPedido) + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Recebimento:* ' + MONO_ESPACADA +
+        FormatDateTime('hh:mm', Horario) + 'h' + MONO_ESPACADA +
+        MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Valor R$:* ' + MONO_ESPACADA +
+        FormatFloat('#0.00', TotalPedido) + MONO_ESPACADA +
+        MENSAGEM_QUEBRA_LINHA;
+      mensagem := mensagem + '*Status:* ' + MONO_ESPACADA + Status +
+        MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA_DUPLA;
+
+      mensagem := mensagem + MONO_ESPACADA + 'Pedido feito através do nosso ' +
+        Origem + '!' + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+
+      if Cancelado then
+      begin
+
+        mensagem := mensagem + MONO_ESPACADA +
+          'Lamentamos seu pedido foi cancelado.' + MONO_ESPACADA +
+          MENSAGEM_QUEBRA_LINHA;
+        if Length(Motivo) > 0 then
+          mensagem := mensagem + '*Motivo:* ' + MONO_ESPACADA + Motivo +
+            MONO_ESPACADA;
+      end
+      else
+      begin
+        mensagem := mensagem + MONO_ESPACADA + 'Agradeçemos sua preferência.' +
+          MONO_ESPACADA;
+      end;
+
+      try
+
+        frmMain.Inject1.send(Celular, mensagem);
+      except
+
+      end;
+      try
+        frmMain.Inject1.send(Celular9, mensagem);
+      except
+
+      end;
+
+      Dados.Next;
+    end;
+  except
+
+  end;
+
+  Dados.Free;
+  RequisicaoDados.Free;
+
+end;
+
+{ TEnviaMensagem }
+
+function TfrmMain.ConverterHora(Hora: String): TDateTime;
+begin
+  try
+    if pos('T', Hora) > 0 then
+      Result := StrToTime(copy(Hora, 12, 8))
+    else
+      Result := StrToTime(copy(Hora, 0, 8));
+  except
+    Result := StrToTime(copy(Hora, 11, 8));
+  end;
+end;
+
+procedure TfrmMain.ExibirWhatsapp;
+begin
+  if not Inject1.FormQrCodeShowing then
+    Inject1.FormQrCodeShowing := True;
+end;
+
+constructor TEnviaMensagem.Create;
+begin
+  inherited Create(True);
+end;
+
+destructor TEnviaMensagem.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TEnviaMensagem.Execute;
+const
+  MENSAGEM_QUEBRA_LINHA = '\n';
+  MENSAGEM_QUEBRA_LINHA_DUPLA = '\n\n';
+  FORMATA_CAMPO_MENU = '00';
+  MONO_ESPACADA = '```';
+  MEU_NUMERO = '5548998111156@c.us';
+var
+  RequisicaoDados: iRequisicao;
+  Dados: TFDMemTable;
+  Celular: String;
+  Celular9: String;
+  mensagem: String;
+  Cabecalho: String;
+  Status: String;
+  Origem: String;
+  Agradecimento: String;
+  TipoPedido: String;
+  NrPedido: Integer;
+  TotalPedido: Real;
+  Cancelado: Boolean;
+  Horario: TDateTime;
+  Motivo: String;
+  Resumo: Boolean;
+  Enviar: Boolean;
+  mensagemResumo: String;
+begin
+  inherited;
+
+  // while not Terminated do
+  // begin
+  // try
+  // RequisicaoDados := iRequisicao.Create(nil);
+  // Dados := TFDMemTable.Create(nil);
+  // RequisicaoDados.URL := 'http://localhost:2121/v1/util/status/pedido';
+  // RequisicaoDados.MemTable2 := Dados;
+  // RequisicaoDados.Execute;
+  //
+  // while not Dados.Eof do
+  // begin
+  // NrPedido := Dados.FieldByName('codigo_pedido_dia').AsInteger;
+  // TotalPedido := Dados.FieldByName('valor_total_pedido').AsFloat;
+  // Celular := '55' + RemoveNonoDigito(Dados.FieldByName('celular')
+  // .AsString) + '@c.us';
+  // Celular9 := '55' + NonoDigito(Dados.FieldByName('celular_wpp').AsString)
+  // + '@c.us';
+  //
+  // Horario := ConverterHora(Dados.FieldByName('hora_pedido').AsString);
+  // Cancelado := false;
+  //
+  // case Dados.FieldByName('origem').AsInteger of
+  // 1:
+  // begin
+  // Origem := 'whatsapp';
+  // end;
+  // 2:
+  // begin
+  // Origem := 'site';
+  // end
+  // else
+  // begin
+  // Origem := '';
+  // end;
+  // end;
+  // case Dados.FieldByName('codigo_cliente_endereco').AsInteger of
+  // 0:
+  // begin
+  // TipoPedido := 'VEM BUSCAR';
+  // end
+  // else
+  // begin
+  // TipoPedido := 'DELIVERY';
+  // end;
+  //
+  // end;
+  //
+  // case Dados.FieldByName('status').AsInteger of
+  // 0:
+  // begin
+  // // Cancelamento
+  // Status := 'Cancelado';
+  // Cancelado := True;
+  // Motivo := trim(Dados.FieldByName('motivo_cancelamento').AsString);
+  // end;
+  // 4:
+  // begin
+  // // Disponivel pra retirada
+  // Status := 'Pronto para retirada no balção';
+  // end;
+  // 5:
+  // begin
+  // // Saiu para entrega
+  //
+  // Status := 'Saiu para entrega';
+  // end;
+  // 6:
+  // begin
+  // exit;
+  // end;
+  // 2:
+  // begin
+  // Status := 'Em Produção';
+  // end;
+  // 3:
+  // begin
+  // Status := 'Pronto';
+  // end;
+  //
+  // // Apenas quando site
+  // 1:
+  // begin
+  // // Pedido Aceito
+  // // nesse momento aki vai mandar o resumo
+  // if Dados.FieldByName('origem').AsInteger in [2,4] then
+  // begin
+  // Status := 'Pedido aceito';
+  // Resumo := True;
+  //
+  // // mensagemResumo := BuscaResumo(Dados.FieldByName('codigo').AsInteger,
+  // // Dados.FieldByName('codigo_cliente_endereco').AsInteger);
+  // end
+  // else
+  // begin
+  // Enviar := false;
+  // end;
+  // end;
+  // 9:
+  // begin
+  // // Aguardando
+  //
+  // if Dados.FieldByName('origem').AsInteger = 2 then
+  // begin
+  // Status := 'Aguardando ser aceito pelo estabelecimento';
+  // Resumo := True;
+  //
+  // // mensagemResumo := BuscaResumo(FQRY.FieldByName('codigo').AsInteger,
+  // // FQRY.FieldByName('codigo_cliente_endereco').AsInteger);
+  // //
+  // end
+  // else
+  // begin
+  // Enviar := false;
+  // end;
+  // end;
+  // end;
+  // mensagem := Cabecalho + MENSAGEM_QUEBRA_LINHA;
+  // mensagem := mensagem + MONO_ESPACADA + '--- ' + TipoPedido + ' ---' +
+  // MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+  // mensagem := mensagem + '*Nº Pedido:* ' + MONO_ESPACADA +
+  // FormatFloat('000', NrPedido) + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+  // mensagem := mensagem + '*Recebimento:* ' + MONO_ESPACADA +
+  // FormatDateTime('hh:mm', Horario) + 'h' + MONO_ESPACADA +
+  // MENSAGEM_QUEBRA_LINHA;
+  // mensagem := mensagem + '*Valor R$:* ' + MONO_ESPACADA +
+  // FormatFloat('#0.00', TotalPedido) + MONO_ESPACADA +
+  // MENSAGEM_QUEBRA_LINHA;
+  // mensagem := mensagem + '*Status:* ' + MONO_ESPACADA + Status +
+  // MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA_DUPLA;
+  //
+  // mensagem := mensagem + MONO_ESPACADA + 'Pedido feito através do nosso '
+  // + Origem + '!' + MONO_ESPACADA + MENSAGEM_QUEBRA_LINHA;
+  //
+  // if Cancelado then
+  // begin
+  //
+  // mensagem := mensagem + MONO_ESPACADA +
+  // 'Lamentamos seu pedido foi cancelado.' + MONO_ESPACADA +
+  // MENSAGEM_QUEBRA_LINHA;
+  // if Length(Motivo) > 0 then
+  // mensagem := mensagem + '*Motivo:* ' + MONO_ESPACADA + Motivo +
+  // MONO_ESPACADA;
+  // end
+  // else
+  // begin
+  // mensagem := mensagem + MONO_ESPACADA + 'Agradeçemos sua preferência.'
+  // + MONO_ESPACADA;
+  // end;
+  //
+  // try
+  //
+  // frmMain.Inject1.send(Celular, mensagem);
+  // except
+  //
+  // end;
+  // try
+  // frmMain.Inject1.Send(Celular9,mensagem);
+  // except
+  //
+  // end;
+  //
+  // Dados.Next;
+  // end;
+  // except
+  //
+  // end;
+  //
+  // Dados.Free;
+  // RequisicaoDados.Free;
+  // Sleep(30 * 1000);
+  // end;
+
+end;
+
+function TfrmMain.NonoDigito(telefone: string): string;
+begin
+
+  if Length(telefone) = 10 then
+    Result := copy(telefone, 1, 2) + '9' + copy(telefone, 3, 10)
+  else
+    Result := telefone;
+end;
+
+function TfrmMain.RemoveNonoDigito(telefone: string): string;
+begin
+  if Length(telefone) = 11 then
+    Result := copy(telefone, 1, 2) + copy(telefone, 4, 10)
+  else
+    Result := telefone;
+end;
+
+end.

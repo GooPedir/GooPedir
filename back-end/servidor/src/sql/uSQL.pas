@@ -375,6 +375,11 @@ begin
         ExecultaSQL('alter table produto add percentual_desconto real;');
 
       end;
+    22:
+      begin
+        ExecultaSQL('alter table pedido_produtos add id_caixa integer');
+        ExecultaSQL('alter table pedido_produtos add id_pedido integer');
+      end;
 
     // Deve-se Rodar manual esses sql
     99999999:
@@ -390,7 +395,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '21';
+  Result := '22';
 end;
 
 end.

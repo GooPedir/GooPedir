@@ -6,6 +6,7 @@ uses util, conexao, FireDAC.Comp.Client, DataSet.Serialize, System.SysUtils;
 
 function EnviaCategoria(codigo: Integer): Integer;
 function EnviaProduto(codigo: Integer): Integer;
+procedure EnviaSabores(codigoGrupo: Integer);
 
 procedure EnviaFotoProduto(codigo: Integer; Base64: String);
 
@@ -55,112 +56,124 @@ var
   DadosExtraItem: TFDMemTable;
   CodigoExtra: Integer;
 begin
-  conexao := TConexao.Create;
-  Dados := TFDMemTable.Create(nil);
-  conexao.SQL.Add('select * from produto where codigo = :codigo');
-  conexao.Parametros('codigo', codigo);
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-  Dados.Edit;
-  if Dados.FieldByName('id_site').IsNull then
-    Dados.FieldByName('id_site').AsInteger := 0;
-
-  Result := InserirUpdate('ws_itens', frmServidor.UserID.ToString,
-    ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
-    'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
-    'nome_item', 'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
-    'estoque', 'img_ifood', 'pessoas', 'promo_valor', 'promo_percentual',
-    'disponivel'], [Dados.FieldByName('id_site').AsString,
-    frmServidor.UserID.ToString, 'false', '0',
-    'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
-    codigo.ToString, EnviaCategoria(Dados.FieldByName('codigo_grupo').AsInteger)
-    .ToString, Dados.FieldByName('nome_produto').AsString,
-    Dados.FieldByName('descricao').AsString, Dados.FieldByName('valor_venda')
-    .AsString, '1', '0', Dados.FieldByName('saldo_atual').AsString, '',
-    Dados.FieldByName('pessoas').AsString, Dados.FieldByName('valor_desconto')
-    .AsString, Dados.FieldByName('percentual_desconto').AsString,
-    Dados.FieldByName('ativo').AsString]);
-
-  if Result > 0 then
-  begin
-    conexao.SQL.Add
-      ('update produto set modificado_site = 1, id_site = :site where codigo = :codigo');
-    conexao.Parametros('site', Result);
+  if frmServidor.UserID = 0 then
+    exit;
+  try
+    conexao := TConexao.Create;
+    Dados := TFDMemTable.Create(nil);
+    conexao.SQL.Add('select * from produto where codigo = :codigo');
     conexao.Parametros('codigo', codigo);
-    conexao.ExecuteSQL;
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+    Dados.Edit;
+    if Dados.FieldByName('id_site').IsNull then
+      Dados.FieldByName('id_site').AsInteger := 0;
 
-    //
-    DadosExtra := TFDMemTable.Create(nil);
-    DadosExtraItem := TFDMemTable.Create(nil);
-    conexao.SQL.Add
-      ('select * from pro_adi_personalizado where id_produto = :produto');
-    conexao.Parametros('produto', codigo);
-    DadosExtra.LoadFromJSON(conexao.ConsultaSQL);
+    Result := InserirUpdate('ws_itens', frmServidor.UserID.ToString,
+      ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
+      'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
+      'nome_item', 'descricao_item', 'preco_item', 'disponivel',
+      'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+      'promo_percentual', 'disponivel'], [Dados.FieldByName('id_site').AsString,
+      frmServidor.UserID.ToString, 'false', '0',
+      'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+      codigo.ToString, EnviaCategoria(Dados.FieldByName('codigo_grupo')
+      .AsInteger).ToString, Dados.FieldByName('nome_produto').AsString,
+      Dados.FieldByName('descricao').AsString, Dados.FieldByName('valor_venda')
+      .AsString, '1', '0', Dados.FieldByName('saldo_atual').AsString, '',
+      Dados.FieldByName('pessoas').AsString, Dados.FieldByName('valor_desconto')
+      .AsString, Dados.FieldByName('percentual_desconto').AsString,
+      Dados.FieldByName('ativo').AsString]);
 
-    if DadosExtra.RecordCount > 0 then
+    if Result > 0 then
     begin
-      while not DadosExtra.Eof do
+      conexao.SQL.Add
+        ('update produto set modificado_site = 1, id_site = :site where codigo = :codigo');
+      conexao.Parametros('site', Result);
+      conexao.Parametros('codigo', codigo);
+      conexao.ExecuteSQL;
+
+      //
+      DadosExtra := TFDMemTable.Create(nil);
+      DadosExtraItem := TFDMemTable.Create(nil);
+      conexao.SQL.Add
+        ('select * from pro_adi_personalizado where id_produto = :produto');
+      conexao.Parametros('produto', codigo);
+      DadosExtra.LoadFromJSON(conexao.ConsultaSQL);
+
+      if DadosExtra.RecordCount > 0 then
       begin
-        DadosExtra.Edit;
-        if DadosExtra.FieldByName('id_site').IsNull then
-          DadosExtra.FieldByName('id_site').AsInteger := 0;
-
-        CodigoExtra := InserirUpdate('ws_adicionais_cat',
-          frmServidor.UserID.ToString, ['id', 'user_id', 'pay', 'img_cat',
-          'id_itens', 'id_cat', 'name_adicionais_cat', 'minimo', 'amount'],
-          [DadosExtra.FieldByName('id_site').AsString,
-          frmServidor.UserID.ToString, '1', '', Result.ToString,
-          Dados.FieldByName('codigo_grupo').AsString,
-          DadosExtra.FieldByName('descricao').AsString,
-          DadosExtra.FieldByName('qtd_minima').AsString,
-          DadosExtra.FieldByName('qtd_maxima').AsString]);
-
-        conexao.SQL.Add
-          ('update pro_adi_personalizado set modificado_site = 1, id_site = :site where id = :codigo');
-        conexao.Parametros('site', codigo);
-        conexao.Parametros('codigo', DadosExtra.FieldByName('id').AsString);
-        conexao.ExecuteSQL;
-
-        DadosExtraItem.Close;
-        conexao.SQL.Add
-          ('SELECT * FROM pro_adi_personalizado_sabores where id_pro_adi_personalizado = :codigo');
-        conexao.Parametros('codigo', DadosExtra.FieldByName('id').AsString);
-        DadosExtraItem.LoadFromJSON(conexao.ConsultaSQL);
-
-        if DadosExtraItem.RecordCount > 0 then
+        while not DadosExtra.Eof do
         begin
-          while not DadosExtraItem.Eof do
+          DadosExtra.Edit;
+          if DadosExtra.FieldByName('id_site').IsNull then
+            DadosExtra.FieldByName('id_site').AsInteger := 0;
+
+          CodigoExtra := InserirUpdate('ws_adicionais_cat',
+            frmServidor.UserID.ToString, ['id', 'user_id', 'pay', 'img_cat',
+            'id_itens', 'id_cat', 'name_adicionais_cat', 'minimo', 'amount'],
+            [DadosExtra.FieldByName('id_site').AsString,
+            frmServidor.UserID.ToString, '1', '', Result.ToString,
+            Dados.FieldByName('codigo_grupo').AsString,
+            DadosExtra.FieldByName('descricao').AsString,
+            DadosExtra.FieldByName('qtd_minima').AsString,
+            DadosExtra.FieldByName('qtd_maxima').AsString]);
+
+          conexao.SQL.Add
+            ('update pro_adi_personalizado set modificado_site = 1, id_site = :site where id = :codigo');
+          conexao.Parametros('site', codigo);
+          conexao.Parametros('codigo', DadosExtra.FieldByName('id').AsString);
+          conexao.ExecuteSQL;
+
+          DadosExtraItem.Close;
+          conexao.SQL.Add
+            ('SELECT * FROM pro_adi_personalizado_sabores where id_pro_adi_personalizado = :codigo');
+          conexao.Parametros('codigo', DadosExtra.FieldByName('id').AsString);
+          DadosExtraItem.LoadFromJSON(conexao.ConsultaSQL);
+
+          if DadosExtraItem.RecordCount > 0 then
           begin
-            codigo := InserirUpdate('ws_adicionais_itens',
-              frmServidor.UserID.ToString, ['id_adicionais', 'user_id',
-              'categorias_adicional', 'id_adicionais_cat', 'medida_adicional',
-              'nome_adicional', 'valor_adicional', 'status_adicional',
-              'descricao'], [DadosExtraItem.FieldByName('id_site').AsString,
-              frmServidor.UserID.ToString, Dados.FieldByName('codigo_grupo')
-              .AsString, CodigoExtra.ToString, 'UN',
-              DadosExtraItem.FieldByName('nome').AsString,
-              DadosExtraItem.FieldByName('valor').AsString,
-              DadosExtraItem.FieldByName('ativo').AsString,
-              DadosExtraItem.FieldByName('descricao').AsString]);
+            while not DadosExtraItem.Eof do
+            begin
+              codigo := InserirUpdate('ws_adicionais_itens',
+                frmServidor.UserID.ToString, ['id_adicionais', 'user_id',
+                'categorias_adicional', 'id_adicionais_cat', 'medida_adicional',
+                'nome_adicional', 'valor_adicional', 'status_adicional',
+                'descricao'], [DadosExtraItem.FieldByName('id_site').AsString,
+                frmServidor.UserID.ToString, Dados.FieldByName('codigo_grupo')
+                .AsString, CodigoExtra.ToString, 'UN',
+                DadosExtraItem.FieldByName('nome').AsString,
+                DadosExtraItem.FieldByName('valor').AsString,
+                DadosExtraItem.FieldByName('ativo').AsString,
+                DadosExtraItem.FieldByName('descricao').AsString]);
 
-            conexao.SQL.Add
-              ('update pro_adi_personalizado_sabores set modificado_site = 1, id_site = :site where id = :codigo');
-            conexao.Parametros('site', codigo);
-            conexao.Parametros('codigo', DadosExtraItem.FieldByName('id')
-              .AsString);
-            conexao.ExecuteSQL;
+              conexao.SQL.Add
+                ('update pro_adi_personalizado_sabores set modificado_site = 1, id_site = :site where id = :codigo');
+              conexao.Parametros('site', codigo);
+              conexao.Parametros('codigo', DadosExtraItem.FieldByName('id')
+                .AsString);
+              conexao.ExecuteSQL;
 
-            DadosExtraItem.Next;
+              DadosExtraItem.Next;
+            end;
           end;
+
+          DadosExtra.Next;
         end;
 
-        DadosExtra.Next;
       end;
 
     end;
+    EnviaSabores(Dados.FieldByName('codigo_grupo').AsInteger);
+    conexao.Free;
+    Dados.Free;
+
+  except
+    on e: exception do
+    begin
+      frmServidor.AddLog('CUCA ' + e.Message);
+    end;
 
   end;
-  conexao.Free;
-  Dados.Free;
 end;
 
 procedure EnviaFotoProduto(codigo: Integer; Base64: String);
@@ -168,13 +181,20 @@ var
   Requisicao: iRequisicao;
   conexao: TConexao;
 begin
+
   Requisicao := iRequisicao.Create(nil);
   Requisicao.BaseURL := 'https://fotos.goopedir.com/';
   Requisicao.AddHEader('nome', codigo.ToString);
   Requisicao.AddHEader('Content-Type', 'application/json');
   Requisicao.Metodo := mPost;
   Requisicao.BODY(Base64);
-  Requisicao.Execute;
+  Requisicao.TempoExpiracao := 15 * 1000;
+  try
+    Requisicao.Execute;
+  except
+
+  end;
+
   conexao := TConexao.Create;
   conexao.SQL.Add('update produto set caminho_imagem = concat(' +
     QuotedStr('https://fotos.goopedir.com/fotos/') +
@@ -186,6 +206,64 @@ begin
 
   Requisicao.Free;
 
+end;
+
+procedure EnviaSabores(codigoGrupo: Integer);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+  codigo: Integer;
+  SQL: String;
+
+begin
+  conexao := TConexao.Create;
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add
+    ('SELECT cs.id, cs.id_site, cs.nome, cs.descricao, cs.vl_venda as valor, cs.ativo, ts.nome as tipo,p.id_site as id_itens,pp.quantidade_sabores as qtd_sabor, (SELECT tipo_preco_pizza FROM dados_whatsapp limit 1) as tipo_valor FROM sabores_completo as cs');
+  conexao.SQL.Add('join tipo_sabor as ts on ts.id = cs.id_tipo_sabor');
+  conexao.SQL.Add('join produto as p on p.codigo = cs.id_produto');
+  conexao.SQL.Add('join produto_pizza as pp on pp.codigo_produto = p.codigo');
+  conexao.SQL.Add('where p.codigo_grupo = :codigo');
+  conexao.Parametros('codigo', codigoGrupo);
+
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+
+
+        codigo := InserirUpdate('ws_sabores', frmServidor.UserID.ToString,
+          ['id', 'user_id', 'id_itens', 'qtd_sabor', 'ativo', 'tipo_valor',
+          'valor', 'tipo', 'sabor', 'descricao'],
+          [Dados.FieldByName('id_site').AsString, frmServidor.UserID.ToString,
+          Dados.FieldByName('id_itens').AsString, Dados.FieldByName('qtd_sabor')
+          .AsString, Dados.FieldByName('ativo').AsString,
+          Dados.FieldByName('tipo_valor').AsString, Dados.FieldByName('valor')
+          .AsString, Dados.FieldByName('tipo').AsString,
+          trim(Dados.FieldByName('nome').AsString),
+          trim(Dados.FieldByName('descricao').AsString)]);
+        if codigo > 0 then
+        begin
+          SQL := 'update sabores_completo set modificado_site = 1 where id = ' +
+            Dados.FieldByName('id').AsString;
+          conexao.ExecuteSQL(SQL);
+          SQL := 'update sabores_completo set id_site = ' + codigo.ToString +
+            ' where id = ' + Dados.FieldByName('id').AsString;
+          conexao.ExecuteSQL(SQL);
+          // SQL := 'update ws_itens set preco_item = 0 where id = '+Dados.FieldByName('id_site').AsString;
+
+        end;
+
+
+      Dados.Next;
+    end;
+  end;
+
+  conexao.Free;
+  Dados.Free;
 end;
 
 end.

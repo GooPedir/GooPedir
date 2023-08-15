@@ -13,7 +13,6 @@ object dmModulo: TdmModulo
       'DriverID=MySQL')
     ResourceOptions.AssignedValues = [rvAutoReconnect]
     ResourceOptions.AutoReconnect = True
-    Connected = True
     LoginPrompt = False
     Left = 304
     Top = 120

@@ -9,7 +9,9 @@ uses
   ppCtrls, ppBands, ppDB, ppClass, ppPrnabl, ppStrtch, ppRichTx, ppCache,
   ppDesignLayer, ppParameter, Data.DB, ppDBPipe, ppDBBDE, ppComm, ppRelatv,
   ppProd, ppReport, FireDAC.Comp.DataSet, FireDAC.Comp.Client, ppSubRpt,
-  ppModule, raCodMod, uModulo, uRequisicao, ppBarCod;
+  ppModule, raCodMod, uModulo, uRequisicao, ppBarCod, FireDAC.UI.Intf,
+  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.Phys.MySQL,
+  FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait;
 
 type
   TImpressaoPedidos = class(TThread)
@@ -339,8 +341,6 @@ type
     ppDBText15: TppDBText;
     ppLabel28: TppLabel;
     ppLabel29: TppLabel;
-    ppDBCalc5: TppDBCalc;
-    ppDBCalc6: TppDBCalc;
     ppRichText60: TppRichText;
     ppRichText61: TppRichText;
     ppLabel30: TppLabel;
@@ -549,6 +549,49 @@ type
     ppParameter2: TppParameter;
     ppRichText88: TppRichText;
     ppRichText89: TppRichText;
+    ppDBCalc18: TppDBCalc;
+    ppDBCalc5: TppDBCalc;
+    CAIXA_CANCELAMENTO: TFDQuery;
+    dsCancelamento: TDataSource;
+    ppCancelamento: TppBDEPipeline;
+    CAIXA_CANCELAMENTO80MM: TppReport;
+    ppTitleBand17: TppTitleBand;
+    ppRichText90: TppRichText;
+    ppLabel2: TppLabel;
+    ppHeaderBand17: TppHeaderBand;
+    ppDetailBand19: TppDetailBand;
+    ppFooterBand17: TppFooterBand;
+    ppSummaryBand19: TppSummaryBand;
+    ppSystemVariable34: TppSystemVariable;
+    ppSystemVariable35: TppSystemVariable;
+    ppLabel69: TppLabel;
+    ppLabel70: TppLabel;
+    ppDesignLayers19: TppDesignLayers;
+    ppDesignLayer19: TppDesignLayer;
+    ppParameterList17: TppParameterList;
+    ppParameter16: TppParameter;
+    ppRichText99: TppRichText;
+    ppDBCalc6: TppDBCalc;
+    ppDBCalc19: TppDBCalc;
+    CAIXA_CANCELAMENTO56MM: TppReport;
+    ppTitleBand18: TppTitleBand;
+    ppRichText91: TppRichText;
+    ppLabel3: TppLabel;
+    ppHeaderBand18: TppHeaderBand;
+    ppDetailBand20: TppDetailBand;
+    ppRichText92: TppRichText;
+    ppFooterBand18: TppFooterBand;
+    ppSummaryBand20: TppSummaryBand;
+    ppSystemVariable36: TppSystemVariable;
+    ppSystemVariable37: TppSystemVariable;
+    ppLabel71: TppLabel;
+    ppLabel72: TppLabel;
+    ppDBCalc20: TppDBCalc;
+    ppDBCalc21: TppDBCalc;
+    ppDesignLayers20: TppDesignLayers;
+    ppDesignLayer20: TppDesignLayer;
+    ppParameterList18: TppParameterList;
+    ppParameter17: TppParameter;
     procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -867,10 +910,8 @@ begin
 
     if Impressoras.RecordCount = 0 then
     begin
-
       AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
         'Impressora padrão não cadastrada!', '');
-
       Impressoras.Free;
       exit;
     end;
@@ -906,13 +947,14 @@ begin
             end;
             CAIXA_RESUMO.SQL.Clear;
             CAIXA_RESUMO.SQL.Add('select');
-            CAIXA_RESUMO.SQL.Add('c.id,');
-            CAIXA_RESUMO.SQL.Add('c.data_abertura,');
-            CAIXA_RESUMO.SQL.Add('c.hora_abertura,');
-            CAIXA_RESUMO.SQL.Add('c.data_fechamento,');
-            CAIXA_RESUMO.SQL.Add('c.hora_fechamento,');
-            CAIXA_RESUMO.SQL.Add('c.valor_abertura,');
-            CAIXA_RESUMO.SQL.Add('c.valor_fechamento,');
+            CAIXA_RESUMO.SQL.Add('max(c.id) as id,');
+            CAIXA_RESUMO.SQL.Add('max(c.data_abertura) as data_abertura,');
+            CAIXA_RESUMO.SQL.Add('max(c.hora_abertura) as hora_abertura,');
+            CAIXA_RESUMO.SQL.Add('max(c.data_fechamento) as data_fechamento,');
+            CAIXA_RESUMO.SQL.Add('max(c.hora_fechamento) as hora_fechamento,');
+            CAIXA_RESUMO.SQL.Add('max(c.valor_abertura) as valor_abertura,');
+            CAIXA_RESUMO.SQL.Add
+              ('max(c.valor_fechamento) as valor_fechamento,');
             CAIXA_RESUMO.SQL.Add('tp.descricao,');
             CAIXA_RESUMO.SQL.Add('sum(cm.valor) as valor_tipo_pagamento,');
             CAIXA_RESUMO.SQL.Add
@@ -932,7 +974,28 @@ begin
             CAIXA_RESUMO.SQL.Add
               ('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
             CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
-            CAIXA_RESUMO.SQL.Add('group by tp.codigo, tp.descricao');
+            CAIXA_RESUMO.SQL.Add('group by c.id,tp.codigo, tp.descricao');
+            { CAIXA_RESUMO.SQL.Add('select');
+              CAIXA_RESUMO.SQL.Add('c.id,');
+              CAIXA_RESUMO.SQL.Add('c.data_abertura,');
+              CAIXA_RESUMO.SQL.Add('c.hora_abertura,');
+              CAIXA_RESUMO.SQL.Add('c.data_fechamento,');
+              CAIXA_RESUMO.SQL.Add('c.hora_fechamento,');
+              CAIXA_RESUMO.SQL.Add('c.valor_abertura,');
+              CAIXA_RESUMO.SQL.Add('c.valor_fechamento,');
+              CAIXA_RESUMO.SQL.Add('tp.descricao,');
+              CAIXA_RESUMO.SQL.Add('sum(cm.valor) as valor_tipo_pagamento,');
+              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha > 0) as valor_mesa,');
+              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha is null) as valor_vem_buscar,');
+              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
+              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
+              CAIXA_RESUMO.SQL.Add('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
+              CAIXA_RESUMO.SQL.Add('from caixa as c');
+              CAIXA_RESUMO.SQL.Add('join caixa_movimento as cm on cm.id_caixa = c.id');
+              CAIXA_RESUMO.SQL.Add('join pedido as p on p.codigo = cm.id_pedido');
+              CAIXA_RESUMO.SQL.Add('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
+              //            CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
+              CAIXA_RESUMO.SQL.Add('group by tp.codigo, tp.descricao'); }
             CAIXA_RESUMO.ParamByName('id').AsInteger := Codigo;
             CAIXA_RESUMO.Open;
             if CAIXA_RESUMO.RecordCount = 0 then
@@ -1226,7 +1289,45 @@ begin
 
             end;
 
-          end
+          end;
+        7:
+          begin
+            case Impressoras.FieldByName('tipo_impressao').AsInteger of
+              0:
+                begin
+                  Relatorio := dmImpressaoV2.CAIXA_CANCELAMENTO56MM;
+                end
+            else
+              begin
+                Relatorio := dmImpressaoV2.CAIXA_CANCELAMENTO80MM ;
+              end;
+            end;
+            CAIXA_CANCELAMENTO.Close;
+            CAIXA_CANCELAMENTO.ParamByName('id_caixa').AsInteger := Codigo;
+            CAIXA_CANCELAMENTO.Open;
+
+            if CAIXA_CANCELAMENTO.RecordCount = 0 then
+            begin
+              // AddImpressao('CA', nil, Codigo, 2, 'ERRO', 'Caixa nâo Existe',
+              // Impressoras.FieldByName('driver').AsString);
+              // QRYUPDATE := TFDQuery.Create(nil);
+              // QRYUPDATE.Connection := dmModulo.BANCO;
+              // QRYUPDATE.Close;
+              // QRYUPDATE.SQL.Clear;
+              // QRYUPDATE.SQL.Add
+              // ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
+              //
+              // QRYUPDATE.ParamByName('data').AsDateTime := Date;
+              // QRYUPDATE.ParamByName('hora').AsDateTime := Time;
+              // QRYUPDATE.ParamByName('status').AsInteger := 2;
+              // QRYUPDATE.ParamByName('id').AsInteger := Codigo;
+              // QRYUPDATE.ExecSQL;
+              //
+              // QRYUPDATE.Free;
+
+            end;
+
+          end;
       else
         begin
           QRYUPDATE := TFDQuery.Create(nil);
@@ -1633,12 +1734,12 @@ begin
   try
     if QRY.FieldByName('impressao_agrupada').AsInteger = 1 then
     begin
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by i.codigo');
+      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
     end
     else
     begin
       // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by ipp.id');
+      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
     end;
   except
     // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
@@ -1703,6 +1804,11 @@ begin
     QRYPEDIDOSPRODUTOS.Close;
 
     QRYCAIXA.Open;
+    if QRYCAIXA.RecordCount > 0 then
+    begin
+      dmImpressaoV2.ImprimirCaixa(7, QRYCAIXA.FieldByName('id_caixa')
+        .AsInteger);
+    end;
     QRYCAIXA.First;
     while not QRYCAIXA.Eof do
     begin

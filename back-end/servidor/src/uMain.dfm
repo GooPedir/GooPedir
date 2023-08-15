@@ -30,6 +30,15 @@ object frmServidor: TfrmServidor
       'memoImagem')
     TabOrder = 1
   end
+  object memLog: TMemo
+    Left = 880
+    Top = 304
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      'memLog')
+    TabOrder = 2
+  end
   object TrayIcon1: TTrayIcon
     Animate = True
     Hint = 'Servidor'

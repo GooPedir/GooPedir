@@ -1,6 +1,6 @@
 object dmImpressaoV2: TdmImpressaoV2
   OnCreate = C
-  Height = 782
+  Height = 822
   Width = 1183
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
@@ -6540,7 +6540,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 3886
         mmLeft = 1852
         mmTop = 1323
-        mmWidth = 76390
+        mmWidth = 73025
         BandType = 4
         LayerName = BandLayer14
         mmBottomOffset = 0
@@ -6643,7 +6643,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44186
         mmTop = 6879
-        mmWidth = 33602
+        mmWidth = 30687
         BandType = 7
         LayerName = BandLayer14
         mmBottomOffset = 0
@@ -6716,7 +6716,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44715
         mmTop = 11642
-        mmWidth = 33338
+        mmWidth = 30423
         BandType = 7
         LayerName = BandLayer14
         mmBottomOffset = 0
@@ -6747,7 +6747,7 @@ object dmImpressaoV2: TdmImpressaoV2
         mmHeight = 4763
         mmLeft = 44186
         mmTop = 16140
-        mmWidth = 33867
+        mmWidth = 30952
         BandType = 7
         LayerName = BandLayer14
         mmBottomOffset = 0
@@ -6788,7 +6788,7 @@ object dmImpressaoV2: TdmImpressaoV2
         'reco'
       'join pedido_motoboy as pm on pm.codigo_pedido = p.codigo'
       'join motoboy as m on m.codigo = pm.codigo_motoboy'
-      'where p.id_caixa  = 28'
+      'where p.id_caixa  = 609'
       'group by m.codigo, ce.bairro')
     Left = 352
     Top = 288
@@ -6798,53 +6798,6 @@ object dmImpressaoV2: TdmImpressaoV2
     UserName = 'Motoboy'
     Left = 352
     Top = 408
-    object ppMotoboyppField1: TppField
-      FieldAlias = 'id'
-      FieldName = 'id'
-      FieldLength = 0
-      DataType = dtLargeInt
-      DisplayWidth = 0
-      Position = 0
-    end
-    object ppMotoboyppField2: TppField
-      FieldAlias = 'motoboy'
-      FieldName = 'motoboy'
-      FieldLength = 255
-      DisplayWidth = 255
-      Position = 1
-    end
-    object ppMotoboyppField3: TppField
-      FieldAlias = 'codigo'
-      FieldName = 'codigo'
-      FieldLength = 1024
-      DisplayWidth = 1024
-      Position = 2
-    end
-    object ppMotoboyppField4: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'taxa_entrega'
-      FieldName = 'taxa_entrega'
-      FieldLength = 0
-      DataType = dtDouble
-      DisplayWidth = 10
-      Position = 3
-    end
-    object ppMotoboyppField5: TppField
-      Alignment = taRightJustify
-      FieldAlias = 'total'
-      FieldName = 'total'
-      FieldLength = 0
-      DataType = dtDouble
-      DisplayWidth = 10
-      Position = 4
-    end
-    object ppMotoboyppField6: TppField
-      FieldAlias = 'bairro'
-      FieldName = 'bairro'
-      FieldLength = 2555
-      DisplayWidth = 2555
-      Position = 5
-    end
   end
   object dsMotoboy: TDataSource
     DataSet = CAIXA_MOTOBOY
@@ -7224,7 +7177,7 @@ object dmImpressaoV2: TdmImpressaoV2
       Background.Brush.Style = bsClear
       Border.mmPadding = 0
       mmBottomOffset = 0
-      mmHeight = 42333
+      mmHeight = 54240
       mmPrintPosition = 0
       object ppSystemVariable20: TppSystemVariable
         DesignLayer = ppDesignLayer10
@@ -7304,52 +7257,6 @@ object dmImpressaoV2: TdmImpressaoV2
         BandType = 7
         LayerName = BandLayer16
       end
-      object ppDBCalc5: TppDBCalc
-        DesignLayer = ppDesignLayer10
-        UserName = 'DBCalc5'
-        Border.mmPadding = 0
-        DataField = 'taxa_entrega'
-        DataPipeline = ppMotoboy
-        DisplayFormat = '$ #,0.00;-$ #,0.00'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 12
-        Font.Style = [fsBold]
-        ResetGroup = ppGroup10
-        TextAlignment = taRightJustified
-        Transparent = True
-        DataPipelineName = 'ppMotoboy'
-        mmHeight = 4498
-        mmLeft = 28046
-        mmTop = 9493
-        mmWidth = 43976
-        BandType = 7
-        LayerName = BandLayer16
-      end
-      object ppDBCalc6: TppDBCalc
-        DesignLayer = ppDesignLayer10
-        UserName = 'DBCalc6'
-        Border.mmPadding = 0
-        DataField = 'total'
-        DataPipeline = ppMotoboy
-        DisplayFormat = '$ #,0.00;-$ #,0.00'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 12
-        Font.Style = [fsBold]
-        ResetGroup = ppGroup10
-        TextAlignment = taRightJustified
-        Transparent = True
-        DataPipelineName = 'ppMotoboy'
-        mmHeight = 4498
-        mmLeft = 28054
-        mmTop = 14552
-        mmWidth = 43976
-        BandType = 7
-        LayerName = BandLayer16
-      end
       object ppRichText61: TppRichText
         DesignLayer = ppDesignLayer10
         UserName = 'RichText601'
@@ -7379,6 +7286,50 @@ object dmImpressaoV2: TdmImpressaoV2
         mmOverFlowOffset = 0
         mmStopPosition = 0
         mmMinHeight = 0
+      end
+      object ppDBCalc18: TppDBCalc
+        DesignLayer = ppDesignLayer10
+        UserName = 'DBCalc18'
+        Border.mmPadding = 0
+        DataField = 'taxa_entrega'
+        DataPipeline = ppMotoboy
+        DisplayFormat = '$ #,0.00;-$ #,0.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppMotoboy'
+        mmHeight = 4498
+        mmLeft = 34925
+        mmTop = 9525
+        mmWidth = 37306
+        BandType = 7
+        LayerName = BandLayer16
+      end
+      object ppDBCalc5: TppDBCalc
+        DesignLayer = ppDesignLayer10
+        UserName = 'DBCalc1'
+        Border.mmPadding = 0
+        DataField = 'total'
+        DataPipeline = ppMotoboy
+        DisplayFormat = '$ #,0.00;-$ #,0.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppMotoboy'
+        mmHeight = 4498
+        mmLeft = 34925
+        mmTop = 14552
+        mmWidth = 37306
+        BandType = 7
+        LayerName = BandLayer16
       end
     end
     object ppGroup10: TppGroup
@@ -7680,18 +7631,18 @@ object dmImpressaoV2: TdmImpressaoV2
       'group by pp.codigo'
       'order by tp.codigo,prod.codigo) as produtos'
       'group by produtos.produto, produtos.adicionais')
-    Left = 496
+    Left = 520
     Top = 296
   end
   object ppProduto: TppBDEPipeline
     DataSource = dsProduto
     UserName = 'Produto'
-    Left = 496
+    Left = 520
     Top = 416
   end
   object dsProduto: TDataSource
     DataSet = CAIXA_PRODUTO
-    Left = 496
+    Left = 520
     Top = 360
   end
   object CAIXA_PRODUTO80MM: TppReport
@@ -7803,7 +7754,7 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 496
+    Left = 520
     Top = 480
     Version = '21.02'
     mmColumnWidth = 80300
@@ -10260,8 +10211,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 496
-    Top = 576
+    Left = 520
+    Top = 544
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppProduto'
@@ -10644,8 +10595,8 @@ object dmImpressaoV2: TdmImpressaoV2
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 640
-    Top = 448
+    Left = 48
+    Top = 696
   end
   object ppTesteImpressao: TppReport
     PassSetting = psTwoPass
@@ -10754,8 +10705,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 640
-    Top = 391
+    Left = 48
+    Top = 639
     Version = '21.02'
     mmColumnWidth = 72000
     object ppTitleBand16: TppTitleBand
@@ -10936,6 +10887,811 @@ object dmImpressaoV2: TdmImpressaoV2
     end
     object ppParameterList16: TppParameterList
       object ppParameter15: TppParameter
+        AutoSearchSettings.LogicalPrefix = []
+        AutoSearchSettings.Mandatory = True
+        DataType = dtString
+        LookupSettings.DisplayType = dtNameOnly
+        LookupSettings.SortOrder = soName
+        Value = ''
+        UserName = 'Parameter1'
+      end
+    end
+  end
+  object CAIXA_CANCELAMENTO: TFDQuery
+    Connection = dmModulo.BANCO
+    SQL.Strings = (
+      
+        'select pedido.data_pedido,pedido.hora_pedido, pedido.codigo_pedi' +
+        'do_dia, (select nome from cliente where cliente.codigo = pedido.' +
+        'codigo_cliente) as cliente,'
+      
+        'pedido_produtos.valor_total, pedido_produtos.quantidade, (select' +
+        ' upper(nome_produto) from produto where produto.codigo = pedido_' +
+        'produtos.codigo_produto) as produto,'
+      'pedido_produtos.id_caixa as id'
+      'from pedido_produtos '
+      'join pedido on pedido.codigo = pedido_produtos.id_pedido'
+      'where pedido_produtos.id_caixa = :id_caixa')
+    Left = 648
+    Top = 304
+    ParamData = <
+      item
+        Name = 'ID_CAIXA'
+        ParamType = ptInput
+      end>
+  end
+  object dsCancelamento: TDataSource
+    DataSet = CAIXA_CANCELAMENTO
+    Left = 648
+    Top = 368
+  end
+  object ppCancelamento: TppBDEPipeline
+    DataSource = dsCancelamento
+    UserName = 'Cancelamento'
+    Left = 648
+    Top = 432
+  end
+  object CAIXA_CANCELAMENTO80MM: TppReport
+    AutoStop = False
+    DataPipeline = ppCancelamento
+    PassSetting = psTwoPass
+    PrinterSetup.BinName = 'Default'
+    PrinterSetup.DocumentName = '80mm'
+    PrinterSetup.PaperName = 'Scaled 80mm Small'
+    PrinterSetup.PrinterName = 'Default'
+    PrinterSetup.SaveDeviceSettings = True
+    PrinterSetup.mmMarginBottom = 0
+    PrinterSetup.mmMarginLeft = 0
+    PrinterSetup.mmMarginRight = 0
+    PrinterSetup.mmMarginTop = 0
+    PrinterSetup.mmPaperHeight = 209900
+    PrinterSetup.mmPaperWidth = 80300
+    PrinterSetup.PaperSize = 124
+    PrinterSetup.DevMode = {
+      4004000044006100720075006D00610020004400520000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000001040306DC0064034FEF8005010000013A6202036400010001016400
+      0100010064000200010043007500730074006F006D0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000100000000000000
+      010000000200000001000000FFFFFFFF00000000000000000000000000000000
+      44494E552200080164030000B8225C4F00000000000000000000000000000000
+      0000000000000000000000000800000001000000000001000000050001000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000001000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000008010000
+      534D544A000000001000F80044006100720075006D0061002000440052003700
+      300030002000530070006F006F006C00650072000000496E70757442696E004F
+      50424F42494E4100524553444C4C00556E69726573444C4C004F7269656E7461
+      74696F6E00504F52545241495400466F726D496D7072696D697200434F4E5449
+      4E5541005265736F6C7574696F6E004F7074696F6E546578746F005061706572
+      53697A6500435553544F4D53495A45004465736162696C6974615465636C6164
+      6F005465634E616F486162696C697461646F0048616C66746F6E650050616472
+      616F000000000000000000000000000000000000000000000000000000000000
+      00000000}
+    ArchiveFileName = '($MyDocuments)\ReportArchive.raf'
+    DeviceType = 'Printer'
+    DefaultFileDeviceType = 'PDF'
+    EmailSettings.ReportFormat = 'PDF'
+    EmailSettings.ConnectionSettings.MailService = 'SMTP'
+    EmailSettings.ConnectionSettings.WebMail.GmailSettings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.WebMail.Outlook365Settings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.EnableMultiPlugin = False
+    LanguageID = 'Default'
+    OpenFile = False
+    OutlineSettings.CreateNode = True
+    OutlineSettings.CreatePageNodes = True
+    OutlineSettings.Enabled = True
+    OutlineSettings.Visible = True
+    ThumbnailSettings.Enabled = True
+    ThumbnailSettings.Visible = True
+    ThumbnailSettings.DeadSpace = 30
+    ThumbnailSettings.PageHighlight.Width = 3
+    ThumbnailSettings.ThumbnailSize = tsSmall
+    PDFSettings.EmbedFontOptions = [efUseSubset]
+    PDFSettings.EncryptSettings.AllowCopy = True
+    PDFSettings.EncryptSettings.AllowInteract = True
+    PDFSettings.EncryptSettings.AllowModify = True
+    PDFSettings.EncryptSettings.AllowPrint = True
+    PDFSettings.EncryptSettings.AllowExtract = True
+    PDFSettings.EncryptSettings.AllowAssemble = True
+    PDFSettings.EncryptSettings.AllowQualityPrint = True
+    PDFSettings.EncryptSettings.Enabled = False
+    PDFSettings.EncryptSettings.KeyLength = kl40Bit
+    PDFSettings.EncryptSettings.EncryptionType = etRC4
+    PDFSettings.DigitalSignatureSettings.SignPDF = False
+    PDFSettings.FontEncoding = feAnsi
+    PDFSettings.ImageCompressionLevel = 25
+    PDFSettings.PDFAFormat = pafNone
+    PreviewFormSettings.PageBorder.mmPadding = 0
+    PreviewFormSettings.PageDisplay = pdContinuous
+    RTFSettings.DefaultFont.Charset = DEFAULT_CHARSET
+    RTFSettings.DefaultFont.Color = clWindowText
+    RTFSettings.DefaultFont.Height = -13
+    RTFSettings.DefaultFont.Name = 'Arial'
+    RTFSettings.DefaultFont.Style = []
+    ShowCancelDialog = False
+    ShowPrintDialog = False
+    TextFileName = '($MyDocuments)\Report.pdf'
+    TextSearchSettings.DefaultString = '<Texto a localizar>'
+    TextSearchSettings.Enabled = True
+    XLSSettings.AppName = 'ReportBuilder'
+    XLSSettings.Author = 'ReportBuilder'
+    XLSSettings.Subject = 'Report'
+    XLSSettings.Title = 'Report'
+    XLSSettings.WorksheetName = 'Report'
+    CloudDriveSettings.DropBoxSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.DropBoxSettings.DirectorySupport = True
+    CloudDriveSettings.GoogleDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
+    CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.OneDriveSettings.DirectorySupport = True
+    Left = 648
+    Top = 495
+    Version = '21.02'
+    mmColumnWidth = 72000
+    DataPipelineName = 'ppCancelamento'
+    object ppTitleBand17: TppTitleBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 24871
+      mmPrintPosition = 0
+      object ppRichText90: TppRichText
+        DesignLayer = ppDesignLayer19
+        UserName = 'RichText16'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = []
+        Border.mmPadding = 0
+        Caption = 'RichText16'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
+          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          'f1\b\f0\fs24 Fechamento de Caixa\par'#13#10'\fs20 (Cancelamento)\par'#13#10 +
+          '\fs30 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Stretch = True
+        Transparent = True
+        mmHeight = 16302
+        mmLeft = 1896
+        mmTop = 0
+        mmWidth = 71840
+        BandType = 1
+        LayerName = BandLayer25
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+      object ppLabel2: TppLabel
+        DesignLayer = ppDesignLayer19
+        UserName = 'Label6'
+        Border.mmPadding = 0
+        Caption = 'Produtos Cancelados'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        TextAlignment = taCentered
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 12700
+        mmTop = 18785
+        mmWidth = 50271
+        BandType = 1
+        LayerName = BandLayer25
+      end
+    end
+    object ppHeaderBand17: TppHeaderBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      PrintOnLastPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppDetailBand19: TppDetailBand
+      Background1.Brush.Style = bsClear
+      Background2.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 5027
+      mmPrintPosition = 0
+      object ppRichText99: TppRichText
+        DesignLayer = ppDesignLayer19
+        UserName = 'RichText99'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText99'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'wkind4\uc1 '#13#10'\pard\cf1\b\f0\fs16 (<dbtext displayformat='#39'000'#39'>co' +
+          'digo_pedido_dia</dbtext>) - <dbtext displayformat='#39'mm/dd'#39'>data_p' +
+          'edido</dbtext> / <dbtext displayformat='#39'h:nn'#39'>hora_pedido</dbtex' +
+          't> \par'#13#10' <dbtext>cliente</dbtext>\par'#13#10' <dbtext>produto</dbtext' +
+          '>\par'#13#10' <dbtext displayformat='#39'00'#39'>quantidade</dbtext>Un - <dbte' +
+          'xt displayformat='#39'#,0.00;-#,0.00'#39'>valor_total</dbtext>\par'#13#10'\par' +
+          #13#10'-------------------------------------------\f1\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Stretch = True
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 264
+        mmWidth = 71967
+        BandType = 4
+        LayerName = BandLayer25
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+    end
+    object ppFooterBand17: TppFooterBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintOnFirstPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppSummaryBand19: TppSummaryBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      mmBottomOffset = 0
+      mmHeight = 21696
+      mmPrintPosition = 0
+      object ppSystemVariable34: TppSystemVariable
+        DesignLayer = ppDesignLayer19
+        UserName = 'SystemVariable1'
+        Border.mmPadding = 0
+        VarType = vtDateTime
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 16404
+        mmWidth = 35190
+        BandType = 7
+        LayerName = BandLayer25
+      end
+      object ppSystemVariable35: TppSystemVariable
+        DesignLayer = ppDesignLayer19
+        UserName = 'SystemVariable12'
+        Border.mmPadding = 0
+        VarType = vtDocumentName
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 12965
+        mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer25
+      end
+      object ppLabel69: TppLabel
+        DesignLayer = ppDesignLayer19
+        UserName = 'Label7'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Quantidade Total:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 2381
+        mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer25
+      end
+      object ppLabel70: TppLabel
+        DesignLayer = ppDesignLayer19
+        UserName = 'Label10'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Valor Total:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 7144
+        mmWidth = 26988
+        BandType = 7
+        LayerName = BandLayer25
+      end
+      object ppDBCalc6: TppDBCalc
+        DesignLayer = ppDesignLayer19
+        UserName = 'DBCalc1'
+        Border.mmPadding = 0
+        DataField = 'quantidade'
+        DataPipeline = ppCancelamento
+        DisplayFormat = '00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppCancelamento'
+        mmHeight = 4498
+        mmLeft = 41804
+        mmTop = 2381
+        mmWidth = 32015
+        BandType = 7
+        LayerName = BandLayer25
+      end
+      object ppDBCalc19: TppDBCalc
+        DesignLayer = ppDesignLayer19
+        UserName = 'DBCalc19'
+        Border.mmPadding = 0
+        DataField = 'valor_total'
+        DataPipeline = ppCancelamento
+        DisplayFormat = '$#,0.00;-$#,0.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppCancelamento'
+        mmHeight = 4498
+        mmLeft = 41804
+        mmTop = 7144
+        mmWidth = 32015
+        BandType = 7
+        LayerName = BandLayer25
+      end
+    end
+    object ppDesignLayers19: TppDesignLayers
+      object ppDesignLayer19: TppDesignLayer
+        UserName = 'BandLayer25'
+        LayerType = ltBanded
+        Index = 0
+      end
+    end
+    object ppParameterList17: TppParameterList
+      object ppParameter16: TppParameter
+        AutoSearchSettings.LogicalPrefix = []
+        AutoSearchSettings.Mandatory = True
+        DataType = dtString
+        LookupSettings.DisplayType = dtNameOnly
+        LookupSettings.SortOrder = soName
+        Value = ''
+        UserName = 'Parameter1'
+      end
+    end
+  end
+  object CAIXA_CANCELAMENTO56MM: TppReport
+    AutoStop = False
+    DataPipeline = ppCancelamento
+    PassSetting = psTwoPass
+    PrinterSetup.BinName = 'Default'
+    PrinterSetup.DocumentName = '80mm'
+    PrinterSetup.PaperName = 'Normal 58mm Large'
+    PrinterSetup.PrinterName = 'Default'
+    PrinterSetup.SaveDeviceSettings = True
+    PrinterSetup.mmMarginBottom = 0
+    PrinterSetup.mmMarginLeft = 0
+    PrinterSetup.mmMarginRight = 0
+    PrinterSetup.mmMarginTop = 0
+    PrinterSetup.mmPaperHeight = 4003900
+    PrinterSetup.mmPaperWidth = 52000
+    PrinterSetup.PaperSize = 121
+    PrinterSetup.DevMode = {
+      4004000044006100720075006D00610020004400520000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000001040306DC0064034FEF8005010000013A6202036400010001016400
+      0100010064000200010043007500730074006F006D0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000100000000000000
+      010000000200000001000000FFFFFFFF00000000000000000000000000000000
+      44494E552200080164030000B8225C4F00000000000000000000000000000000
+      0000000000000000000000000800000001000000000001000000050001000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000001000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000008010000
+      534D544A000000001000F80044006100720075006D0061002000440052003700
+      300030002000530070006F006F006C00650072000000496E70757442696E004F
+      50424F42494E4100524553444C4C00556E69726573444C4C004F7269656E7461
+      74696F6E00504F52545241495400466F726D496D7072696D697200434F4E5449
+      4E5541005265736F6C7574696F6E004F7074696F6E546578746F005061706572
+      53697A6500435553544F4D53495A45004465736162696C6974615465636C6164
+      6F005465634E616F486162696C697461646F0048616C66746F6E650050616472
+      616F000000000000000000000000000000000000000000000000000000000000
+      00000000}
+    ArchiveFileName = '($MyDocuments)\ReportArchive.raf'
+    DeviceType = 'Printer'
+    DefaultFileDeviceType = 'PDF'
+    EmailSettings.ReportFormat = 'PDF'
+    EmailSettings.ConnectionSettings.MailService = 'SMTP'
+    EmailSettings.ConnectionSettings.WebMail.GmailSettings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.WebMail.Outlook365Settings.OAuth2.RedirectPort = 0
+    EmailSettings.ConnectionSettings.EnableMultiPlugin = False
+    LanguageID = 'Default'
+    OpenFile = False
+    OutlineSettings.CreateNode = True
+    OutlineSettings.CreatePageNodes = True
+    OutlineSettings.Enabled = True
+    OutlineSettings.Visible = True
+    ThumbnailSettings.Enabled = True
+    ThumbnailSettings.Visible = True
+    ThumbnailSettings.DeadSpace = 30
+    ThumbnailSettings.PageHighlight.Width = 3
+    ThumbnailSettings.ThumbnailSize = tsSmall
+    PDFSettings.EmbedFontOptions = [efUseSubset]
+    PDFSettings.EncryptSettings.AllowCopy = True
+    PDFSettings.EncryptSettings.AllowInteract = True
+    PDFSettings.EncryptSettings.AllowModify = True
+    PDFSettings.EncryptSettings.AllowPrint = True
+    PDFSettings.EncryptSettings.AllowExtract = True
+    PDFSettings.EncryptSettings.AllowAssemble = True
+    PDFSettings.EncryptSettings.AllowQualityPrint = True
+    PDFSettings.EncryptSettings.Enabled = False
+    PDFSettings.EncryptSettings.KeyLength = kl40Bit
+    PDFSettings.EncryptSettings.EncryptionType = etRC4
+    PDFSettings.DigitalSignatureSettings.SignPDF = False
+    PDFSettings.FontEncoding = feAnsi
+    PDFSettings.ImageCompressionLevel = 25
+    PDFSettings.PDFAFormat = pafNone
+    PreviewFormSettings.PageBorder.mmPadding = 0
+    PreviewFormSettings.PageDisplay = pdContinuous
+    RTFSettings.DefaultFont.Charset = DEFAULT_CHARSET
+    RTFSettings.DefaultFont.Color = clWindowText
+    RTFSettings.DefaultFont.Height = -13
+    RTFSettings.DefaultFont.Name = 'Arial'
+    RTFSettings.DefaultFont.Style = []
+    ShowCancelDialog = False
+    ShowPrintDialog = False
+    TextFileName = '($MyDocuments)\Report.pdf'
+    TextSearchSettings.DefaultString = '<Texto a localizar>'
+    TextSearchSettings.Enabled = True
+    XLSSettings.AppName = 'ReportBuilder'
+    XLSSettings.Author = 'ReportBuilder'
+    XLSSettings.Subject = 'Report'
+    XLSSettings.Title = 'Report'
+    XLSSettings.WorksheetName = 'Report'
+    CloudDriveSettings.DropBoxSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.DropBoxSettings.DirectorySupport = True
+    CloudDriveSettings.GoogleDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
+    CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
+    CloudDriveSettings.OneDriveSettings.DirectorySupport = True
+    Left = 680
+    Top = 575
+    Version = '21.02'
+    mmColumnWidth = 72000
+    DataPipelineName = 'ppCancelamento'
+    object ppTitleBand18: TppTitleBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 24871
+      mmPrintPosition = 0
+      object ppRichText91: TppRichText
+        DesignLayer = ppDesignLayer20
+        UserName = 'RichText16'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = []
+        Border.mmPadding = 0
+        Caption = 'RichText16'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
+          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\qc\c' +
+          'f1\b\f0\fs22 Fechamento de Caixa\fs24\par'#13#10'\fs20 (Cancelamento)\' +
+          'par'#13#10'\fs30 #<dbtext displayformat='#39'000'#39'>id</dbtext>\fs24\par'#13#10'}'#13 +
+          #10#0
+        RemoveEmptyLines = False
+        Stretch = True
+        Transparent = True
+        mmHeight = 16302
+        mmLeft = 1896
+        mmTop = 0
+        mmWidth = 47725
+        BandType = 1
+        LayerName = BandLayer26
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+      object ppLabel3: TppLabel
+        DesignLayer = ppDesignLayer20
+        UserName = 'Label6'
+        Border.mmPadding = 0
+        Caption = 'Produtos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        TextAlignment = taCentered
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 14817
+        mmTop = 18785
+        mmWidth = 21166
+        BandType = 1
+        LayerName = BandLayer26
+      end
+    end
+    object ppHeaderBand18: TppHeaderBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      PrintOnLastPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppDetailBand20: TppDetailBand
+      Background1.Brush.Style = bsClear
+      Background2.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintHeight = phDynamic
+      mmBottomOffset = 0
+      mmHeight = 5027
+      mmPrintPosition = 0
+      object ppRichText92: TppRichText
+        DesignLayer = ppDesignLayer20
+        UserName = 'RichText99'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 12
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText99'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}}'#13#10'{\colort' +
+          'bl ;\red0\green0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\vie' +
+          'wkind4\uc1 '#13#10'\pard\cf1\b\f0\fs16 (<dbtext displayformat='#39'000'#39'>co' +
+          'digo_pedido_dia</dbtext>) - <dbtext displayformat='#39'mm/dd'#39'>data_p' +
+          'edido</dbtext> / <dbtext displayformat='#39'h:nn'#39'>hora_pedido</dbtex' +
+          't> \par'#13#10' <dbtext>cliente</dbtext>\par'#13#10' <dbtext>produto</dbtext' +
+          '>\par'#13#10' <dbtext displayformat='#39'00'#39'>quantidade</dbtext>Un - <dbte' +
+          'xt displayformat='#39'#,0.00;-#,0.00'#39'>valor_total</dbtext>\par'#13#10'\par' +
+          #13#10'--------------------------\f1\par'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Stretch = True
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 264
+        mmWidth = 47057
+        BandType = 4
+        LayerName = BandLayer26
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
+      end
+    end
+    object ppFooterBand18: TppFooterBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      PrintOnFirstPage = False
+      mmBottomOffset = 0
+      mmHeight = 0
+      mmPrintPosition = 0
+    end
+    object ppSummaryBand20: TppSummaryBand
+      Background.Brush.Style = bsClear
+      Border.mmPadding = 0
+      mmBottomOffset = 0
+      mmHeight = 36248
+      mmPrintPosition = 0
+      object ppSystemVariable36: TppSystemVariable
+        DesignLayer = ppDesignLayer20
+        UserName = 'SystemVariable1'
+        Border.mmPadding = 0
+        VarType = vtDateTime
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 29369
+        mmWidth = 35190
+        BandType = 7
+        LayerName = BandLayer26
+      end
+      object ppSystemVariable37: TppSystemVariable
+        DesignLayer = ppDesignLayer20
+        UserName = 'SystemVariable12'
+        Border.mmPadding = 0
+        VarType = vtDocumentName
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 8
+        Font.Style = [fsBold]
+        Transparent = True
+        mmHeight = 3704
+        mmLeft = 1852
+        mmTop = 25929
+        mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer26
+      end
+      object ppLabel71: TppLabel
+        DesignLayer = ppDesignLayer20
+        UserName = 'Label7'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Quantidade Total'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 2381
+        mmWidth = 38894
+        BandType = 7
+        LayerName = BandLayer26
+      end
+      object ppLabel72: TppLabel
+        DesignLayer = ppDesignLayer20
+        UserName = 'Label10'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'Valor Total'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4763
+        mmLeft = 1852
+        mmTop = 14288
+        mmWidth = 26988
+        BandType = 7
+        LayerName = BandLayer26
+      end
+      object ppDBCalc20: TppDBCalc
+        DesignLayer = ppDesignLayer20
+        UserName = 'DBCalc1'
+        Border.mmPadding = 0
+        DataField = 'quantidade'
+        DataPipeline = ppCancelamento
+        DisplayFormat = '00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Transparent = True
+        DataPipelineName = 'ppCancelamento'
+        mmHeight = 4498
+        mmLeft = 1852
+        mmTop = 8202
+        mmWidth = 32015
+        BandType = 7
+        LayerName = BandLayer26
+      end
+      object ppDBCalc21: TppDBCalc
+        DesignLayer = ppDesignLayer20
+        UserName = 'DBCalc19'
+        Border.mmPadding = 0
+        DataField = 'valor_total'
+        DataPipeline = ppCancelamento
+        DisplayFormat = '$#,0.00;-$#,0.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Courier New'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Transparent = True
+        DataPipelineName = 'ppCancelamento'
+        mmHeight = 4498
+        mmLeft = 1852
+        mmTop = 19050
+        mmWidth = 32015
+        BandType = 7
+        LayerName = BandLayer26
+      end
+    end
+    object ppDesignLayers20: TppDesignLayers
+      object ppDesignLayer20: TppDesignLayer
+        UserName = 'BandLayer26'
+        LayerType = ltBanded
+        Index = 0
+      end
+    end
+    object ppParameterList18: TppParameterList
+      object ppParameter17: TppParameter
         AutoSearchSettings.LogicalPrefix = []
         AutoSearchSettings.Mandatory = True
         DataType = dtString

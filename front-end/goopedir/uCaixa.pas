@@ -584,8 +584,7 @@ begin
     DADOSPAGAMENTO);
 
   if dm.CaixaResumo = 1 then
-    dm.PostSimples('/v1/imprimir/3/' + dm.Caixa.FieldByName('id')
-      .AsString, nil);
+    dm.PostSimples('/v1/imprimir/3/' + dm.Caixa.FieldByName('id').AsString, nil);
 
   if dm.CaixaCompleto = 1 then
     dm.PostSimples('/v1/imprimir/4/' + dm.Caixa.FieldByName('id')

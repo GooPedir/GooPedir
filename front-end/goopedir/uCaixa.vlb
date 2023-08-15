@@ -1,154 +1,154 @@
 ﻿[DADOSCAIXA]
 Visible=False
-Coordinates=489,123,98,36
+Coordinates=489,123,83,33
 
 [Label21]
-Coordinates=435,10,60,58
+Coordinates=435,10,52,51
 
 [Rectangle21]
-Coordinates=91,373,87,36
+Coordinates=91,373,75,33
 
 [rGerencial2]
-Coordinates=10,373,81,36
+Coordinates=10,373,71,33
 
 [layClient]
-Coordinates=588,330,64,36
+Coordinates=588,330,57,33
 
 [Layout2]
-Coordinates=462,330,60,36
+Coordinates=462,330,53,33
 
 [rGerencial1]
-Coordinates=302,330,81,36
+Coordinates=302,330,71,33
 
 [Rectangle20]
-Coordinates=217,330,87,36
+Coordinates=217,330,75,33
 
 [imgClose]
-Coordinates=203,269,68,58
+Coordinates=203,269,60,51
 
 [Label4]
-Coordinates=10,269,53,58
+Coordinates=10,269,46,51
 
 [lNomeForm]
-Coordinates=66,269,81,58
+Coordinates=66,269,71,51
 
 [lStatusLateral]
-Coordinates=497,10,94,58
+Coordinates=497,10,82,51
 
 [rEsquerda]
-Coordinates=63,330,74,36
+Coordinates=63,330,65,33
 
 [rTopo]
-Coordinates=10,330,48,36
+Coordinates=10,330,43,33
 
 [DADOSCAIXAvalor_pedido]
-Coordinates=485,71,172,36
+Coordinates=485,71,147,33
 
 [Layout3]
-Coordinates=554,269,60,36
+Coordinates=554,269,53,33
 
 [DADOSCAIXAcodigo]
-Coordinates=670,1,136,36
+Coordinates=670,1,117,33
 
 [TabControl1]
-Coordinates=470,269,85,36
+Coordinates=470,269,74,33
 
 [DADOSCAIXAnome]
-Coordinates=670,53,130,36
+Coordinates=670,53,111,33
 
 [DADOSCAIXAvalor_desconto]
-Coordinates=670,105,185,36
+Coordinates=670,105,159,33
 
 [lValorInicial]
-Coordinates=217,10,81,58
+Coordinates=217,10,72,51
 
 [lDataAbertura]
-Coordinates=125,10,94,58
+Coordinates=125,10,82,51
 
 [TabItem1]
-Coordinates=401,269,69,36
+Coordinates=401,269,59,33
 
 [StringGrid4]
-Coordinates=520,0,80,278
+Coordinates=520,0,70,231
 Visible=True
 
 [DADOSCAIXAid_caixa]
-Coordinates=670,157,145,36
+Coordinates=670,157,124,33
 
 [BDSDADOSCAIXA]
-Coordinates=10,10,124,300
+Coordinates=10,10,105,249
 
 [DADOSCAIXAdata_pedido]
-Coordinates=670,209,169,36
+Coordinates=670,209,144,33
 
 [DADOSCAIXAvalor_total_pedido]
-Coordinates=651,248,204,36
+Coordinates=651,248,175,33
 
 [TabItem2]
-Coordinates=332,269,69,36
+Coordinates=332,269,59,33
 
 [DADOSCAIXAcodigo_pedido_dia]
-Coordinates=867,1,206,36
+Coordinates=867,1,177,33
 
 [DADOSCAIXAhora_pedido]
-Coordinates=867,53,169,36
+Coordinates=867,53,145,33
 
 [DADOSCAIXAvalor_taxa_entrega]
-Coordinates=867,105,208,36
+Coordinates=867,105,177,33
 
 []
 Coordinates=310,385,40,36
 Visible=True
 
 [BindingsList1]
-Coordinates=134,80,91,36
+Coordinates=134,80,82,33
 
 [DADOSHISTORICO]
 Visible=False
-Coordinates=525,123,131,36
+Coordinates=525,123,108,33
 
 [Label10]
-Coordinates=0,0,60,58
+Coordinates=0,0,52,51
 
 [LTotal]
-Coordinates=198,367,50,58
+Coordinates=198,367,45,51
 
 [Label8]
-Coordinates=437,80,53,58
+Coordinates=437,80,46,51
 
 [Label6]
-Coordinates=17,278,53,58
+Coordinates=17,278,46,51
 
 [LTaxa]
-Coordinates=134,220,50,58
+Coordinates=134,220,44,51
 
 [Label5]
-Coordinates=134,1,53,58
+Coordinates=134,1,46,51
 
 [lTotalDesconto]
-Coordinates=134,80,101,58
+Coordinates=134,80,88,51
 
 [StringGrid1]
-Coordinates=340,1150,80,168
+Coordinates=340,1150,70,141
 Visible=True
 
 [DADOSHISTORICOid]
-Coordinates=525,175,141,36
+Coordinates=525,175,117,33
 
 [BDSDADOSHISTORICO]
-Coordinates=630,1190,157,212
+Coordinates=630,1190,130,177
 
 [DADOSHISTORICOvalor]
-Coordinates=429,227,159,36
+Coordinates=429,227,133,33
 
 [DADOSHISTORICOdata]
-Coordinates=680,300,156,36
+Coordinates=680,300,129,33
 
 [DADOSHISTORICOhistorico]
-Coordinates=680,352,179,36
+Coordinates=680,352,152,33
 
 [DADOSHISTORICOhora]
-Coordinates=680,404,156,36
+Coordinates=680,404,131,33
 
 [FrmResumo.ProdCompleto]
 Visible=False
@@ -160,28 +160,28 @@ Coordinates=689,1183,124,33
 
 [DADOSPAGAMENTO]
 Visible=False
-Coordinates=706,459,141,36
+Coordinates=706,459,118,33
 
 [TabItem3]
-Coordinates=0,445,69,36
+Coordinates=0,445,59,33
 
 [DADOSPAGAMENTOdescricao]
-Coordinates=897,160,196,36
+Coordinates=897,160,166,33
 
 [DADOSPAGAMENTOid_tipo_pagamento]
-Coordinates=1113,1,250,36
+Coordinates=1113,1,212,33
 
 [DADOSPAGAMENTOinformado]
-Coordinates=897,215,198,36
+Coordinates=897,215,168,33
 
 [BDSDADOSPAGAMENTO]
-Coordinates=1510,450,167,168
+Coordinates=1510,450,140,141
 
 [DADOSPAGAMENTOtotal]
-Coordinates=893,270,166,36
+Coordinates=893,270,140,33
 
 [StringGrid2]
-Coordinates=1190,440,80,124
+Coordinates=1190,440,70,105
 Visible=True
 
 [iMemTable1]
@@ -189,199 +189,199 @@ Visible=False
 
 [HISTORICOCAIXAS]
 Visible=False
-Coordinates=870,634,132,36
+Coordinates=870,634,110,33
 
 [DADOSHISTORICOtipo]
-Coordinates=870,322,152,36
+Coordinates=870,322,127,33
 
 [HISTORICOCAIXASdata_fechamento]
-Coordinates=867,374,231,36
+Coordinates=867,374,195,33
 
 [HISTORICOCAIXAShora_fechamento]
-Coordinates=867,426,232,36
+Coordinates=867,426,196,33
 
 [BDSHISTORICOCAIXAS]
-Coordinates=466,452,158,278
+Coordinates=466,452,132,231
 
 [HISTORICOCAIXASnome]
-Coordinates=870,478,164,36
+Coordinates=870,478,137,33
 
 [HISTORICOCAIXASvalor_fechamento]
-Coordinates=1103,53,234,36
+Coordinates=1103,53,198,33
 
 [HISTORICOCAIXASstatus]
-Coordinates=870,530,167,36
+Coordinates=870,530,140,33
 
 [HISTORICOCAIXAShora_abertura]
-Coordinates=1103,105,213,36
+Coordinates=1103,105,179,33
 
 [TabItem4]
-Coordinates=670,526,69,36
+Coordinates=670,526,59,33
 
 [HISTORICOCAIXASid]
-Coordinates=870,582,142,36
+Coordinates=870,582,119,33
 
 [HISTORICOCAIXASdata_abertura]
-Coordinates=1103,157,212,36
+Coordinates=1103,157,178,33
 
 [HISTORICOCAIXASvalor_abertura]
-Coordinates=1103,209,215,36
+Coordinates=1103,209,182,33
 
 [StringGrid3]
-Coordinates=670,456,80,256
+Coordinates=670,456,70,213
 Visible=True
 
 [edtTotal]
-Coordinates=589,10,61,58
+Coordinates=589,10,54,51
 
 [rMovimentacao]
-Coordinates=576,802,102,36
+Coordinates=576,802,89,33
 
 [Rectangle6]
-Coordinates=487,802,80,36
+Coordinates=487,802,69,33
 
 [Rectangle7]
-Coordinates=398,802,80,36
+Coordinates=398,802,69,33
 
 [MOVIMENTACAOTIPO]
-Coordinates=897,689,149,36
+Coordinates=897,689,124,33
 
 [edtDescricao]
-Coordinates=153,320,90,58
+Coordinates=153,320,79,51
 
 [Rectangle1]
-Coordinates=220,802,80,36
+Coordinates=220,802,69,33
 
 [Label1]
-Coordinates=249,706,53,58
+Coordinates=249,706,46,51
 
 [Label15]
-Coordinates=685,802,60,58
+Coordinates=685,802,52,51
 
 [Label16]
-Coordinates=25,329,60,58
+Coordinates=25,329,52,51
 
 [Label2]
-Coordinates=94,329,53,58
+Coordinates=94,329,46,51
 
 [Label14]
-Coordinates=153,243,60,58
+Coordinates=153,243,52,51
 
 [Label3]
-Coordinates=493,384,53,58
+Coordinates=493,384,46,51
 
 [EdtValor]
-Coordinates=111,706,64,58
+Coordinates=111,706,56,51
 
 [Image1]
-Coordinates=407,706,57,58
+Coordinates=407,706,49,51
 
 [Label12]
-Coordinates=31,425,60,58
+Coordinates=31,425,52,51
 
 [MOVIMENTACAOCAIXA]
-Coordinates=897,744,157,36
+Coordinates=897,744,132,33
 
 [MOVIMENTACAO]
-Coordinates=153,78,119,146
+Coordinates=153,78,100,123
 
 [Label17]
-Coordinates=704,731,60,58
+Coordinates=704,731,52,51
 
 [TabItem5]
-Coordinates=52,802,69,36
+Coordinates=52,802,59,33
 
 [MOVIMENTACAOVALOR]
-Coordinates=1137,264,162,36
+Coordinates=1137,264,136,33
 
 [cTipo]
-Coordinates=337,444,101,146
+Coordinates=337,444,84,123
 
 [MOVIMENTACAODESCRICAO]
-Coordinates=1137,319,195,36
+Coordinates=1137,319,161,33
 
 [HISTORICOMOTOBOY]
 Visible=False
-Coordinates=1137,748,150,36
+Coordinates=1137,748,124,33
 
 [HISTORICOMOTOBOYtaxa]
-Coordinates=1137,374,175,36
+Coordinates=1137,374,145,33
 
 [HISTORICOMOTOBOYcodigo]
-Coordinates=1137,583,188,36
+Coordinates=1137,583,158,33
 
 [MEMPARAMETRODATAFIM]
-Coordinates=1137,638,181,36
+Coordinates=1137,638,151,33
 
 [BDSHISTORICOMOTOBOY]
-Coordinates=1070,810,176,190
+Coordinates=1070,810,146,159
 
 [HISTORICOMOTOBOYtotal]
-Coordinates=1137,693,175,36
+Coordinates=1137,693,146,33
 
 [MEMPARAMETRO]
-Coordinates=768,898,125,146
+Coordinates=768,898,104,123
 
 [HISTORICOMOTOBOYdia]
-Coordinates=1137,803,168,36
+Coordinates=1137,803,139,33
 
 [HISTORICOMOTOBOYnome]
-Coordinates=1137,858,182,36
+Coordinates=1137,858,152,33
 
 [MEMPARAMETRODATAINI]
-Coordinates=1137,913,175,36
+Coordinates=1137,913,146,33
 
 [GridPanelLayout1]
-Coordinates=790,721,118,36
+Coordinates=790,721,102,33
 
 [StringGrid6]
-Coordinates=1750,830,80,190
+Coordinates=1750,830,70,159
 Visible=True
 
 [frmMain.FORM]
 Coordinates=910,866,87,105
 
 [StringGrid5]
-Coordinates=870,796,80,124
+Coordinates=870,796,70,105
 Visible=True
 
 [MEMPARAMETROHORAFIM]
-Coordinates=1363,1,183,36
+Coordinates=1363,1,152,33
 
 [MEMPARAMETROHORAINI]
-Coordinates=1363,53,178,36
+Coordinates=1363,53,148,33
 
 [HISTORICOMOTOBOYPEDIDO]
 Visible=False
-Coordinates=1363,261,199,36
+Coordinates=1363,261,164,33
 
 [HISTORICOMOTOBOYPEDIDOvalor_total_pedido]
-Coordinates=1363,105,305,36
+Coordinates=1363,105,255,33
 
 [HISTORICOMOTOBOYPEDIDOvalor_taxa_entrega]
-Coordinates=1363,157,309,36
+Coordinates=1363,157,258,33
 
 [HISTORICOMOTOBOYPEDIDObairro]
-Coordinates=1363,209,232,36
+Coordinates=1363,209,193,33
 
 [HISTORICOMOTOBOYPEDIDOcodigo]
-Coordinates=1363,313,237,36
+Coordinates=1363,313,198,33
 
 [BDSHISTORICOMOTOBOYPEDIDO]
-Coordinates=1880,830,225,212
+Coordinates=1880,830,186,177
 
 [HISTORICOMOTOBOYPEDIDOnome]
-Coordinates=1363,365,231,36
+Coordinates=1363,365,191,33
 
 [HISTORICOMOTOBOYPEDIDOcodigo_pedido_dia]
-Coordinates=1363,610,307,36
+Coordinates=1363,610,258,33
 
 [FrmResumo.Pagamento]
 Visible=False
 Coordinates=530,1183,132,33
 
 [imgCaixa]
-Coordinates=273,269,68,58
+Coordinates=273,269,60,51
 
 [FrmResumo.mCliente]
 Visible=False
@@ -415,7 +415,7 @@ Coordinates=950,620,152,375
 Coordinates=708,56,151,123
 
 [Label20]
-Coordinates=412,857,60,58
+Coordinates=412,857,52,51
 
 [FrmResumo.BDSPRODS]
 Coordinates=788,429,135,159
@@ -432,134 +432,140 @@ Visible=False
 Coordinates=986,1569,119,33
 
 [Label19]
-Coordinates=412,1,60,58
+Coordinates=412,1,52,51
 
 [lTotalSaida]
-Coordinates=931,325,79,58
+Coordinates=931,325,69,51
 
 [lTipo]
-Coordinates=15,539,43,58
+Coordinates=15,539,40,51
 
 [frmAReceber.bdsConsulta]
 Coordinates=151,1218,151,267
 
 [lTotalFaturado]
-Coordinates=531,1218,98,58
+Coordinates=531,1218,85,51
 
 [TabItem6]
-Coordinates=931,1016,69,36
+Coordinates=931,1016,59,33
 
 [frmAReceber.BindSourceDB1]
 Coordinates=24,638,160,447
 
 [lGrafico2]
-Coordinates=931,1349,66,36
+Coordinates=931,1349,58,33
 
 [Rectangle2]
-Coordinates=986,821,80,36
+Coordinates=986,821,69,33
 
 [Label18]
-Coordinates=412,157,60,58
+Coordinates=412,157,52,51
 
 [lTotalComputacional]
-Coordinates=986,1272,132,58
+Coordinates=986,1272,116,51
 
 [lDadosDiferenca]
-Coordinates=986,1118,110,58
+Coordinates=986,1118,95,51
 
 [Label13]
-Coordinates=662,896,60,58
+Coordinates=662,896,52,51
 
 [layFaturado]
-Coordinates=986,876,83,36
+Coordinates=986,876,72,33
 
 [layReceber]
-Coordinates=986,1404,80,36
+Coordinates=986,1404,69,33
 
 [Label24]
-Coordinates=662,973,60,58
+Coordinates=662,973,52,51
 
 [Label9]
-Coordinates=412,324,53,58
+Coordinates=412,324,46,51
 
 [lTotalEntrada]
-Coordinates=377,999,91,58
+Coordinates=377,999,80,51
 
 [img_fechar]
-Coordinates=133,329,78,58
+Coordinates=133,329,69,51
 
 [lTotalDiferenca]
-Coordinates=708,108,102,58
+Coordinates=708,108,88,51
 
 [Label23]
-Coordinates=412,934,60,58
+Coordinates=412,934,52,51
 
 [Rectangle8]
-Coordinates=986,1459,80,36
+Coordinates=986,1459,69,33
 
 [layPedidos]
-Coordinates=931,1514,78,36
+Coordinates=931,1514,68,33
 
 [img_pedido]
-Coordinates=986,744,81,58
+Coordinates=986,744,72,51
 
 [lTotalDiferencaCaixa]
-Coordinates=986,56,134,58
+Coordinates=986,56,116,51
 
 [img_abrir]
-Coordinates=931,1195,68,58
+Coordinates=931,1195,61,51
 
 [img_faturado]
-Coordinates=708,1063,90,58
+Coordinates=708,1063,79,51
 
 [Label11]
-Coordinates=412,78,60,58
+Coordinates=412,78,52,51
 
 [img_caixa]
-Coordinates=931,939,72,58
+Coordinates=931,939,64,51
 
 [Label22]
-Coordinates=412,783,60,58
+Coordinates=412,783,52,51
 
 [layCaixa]
-Coordinates=921,1578,64,36
+Coordinates=921,1578,56,33
 
 [Label7]
-Coordinates=412,609,53,58
+Coordinates=412,609,46,51
 
 [Layout1]
-Coordinates=893,1118,60,36
+Coordinates=893,1118,53,33
 
 [rAtualizar]
-Coordinates=131,802,69,36
+Coordinates=131,802,61,33
 
 [rPedidos]
-Coordinates=441,1183,65,36
+Coordinates=441,1183,58,33
 
 [rMov]
-Coordinates=309,802,43,36
+Coordinates=309,802,40,33
 
 [rAbrir]
-Coordinates=412,401,46,36
+Coordinates=412,401,42,33
 
 [Label25]
-Coordinates=134,1,60,58
+Coordinates=134,1,52,51
 
 [Layout4]
-Coordinates=291,1,60,36
+Coordinates=291,1,53,33
 
 [rEstorno]
-Coordinates=291,53,63,36
+Coordinates=291,53,57,33
 
 [Button1]
-Coordinates=291,105,59,58
+Coordinates=291,105,53,51
 
 [Layout5]
-Coordinates=291,175,60,36
+Coordinates=291,175,53,33
 
 [frmServidor.Configuracoes]
 Coordinates=238,243,168,58
 
 [frmServidor.memImpressora]
 Coordinates=158,521,177,102
+
+[frmMain.memImpressao]
+Coordinates=213,1,132,87
+
+[frmMain.dsImpressao]
+Coordinates=59,329,120,33
 

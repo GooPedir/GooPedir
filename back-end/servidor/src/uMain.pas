@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, conexao, Vcl.Menus,
   FMX.Printer, uRequisicao, ADRIFood.Model.Interfaces, ADRIFood.Model.Types,
-  ADRIFood.Component.Events, ADRIFood.Component, FireDAC.Stan.StorageBin;
+  ADRIFood.Component.Events, ADRIFood.Component, FireDAC.Stan.StorageBin, JSON;
 
 type
   TAbrirServicos = class(TThread)
@@ -67,6 +67,7 @@ type
     dataSetProductsItemsOptionGroup: TFDMemTable;
     dataSetMerchantStatus: TFDMemTable;
     dsMerchantStatus: TDataSource;
+    memLog: TMemo;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
@@ -137,8 +138,6 @@ type
     procedure Executaveis;
     function ConverteValoriFood(Valor: String): Real;
 
-    procedure BuscaDadosiFood;
-
   public
     { Public declarations }
     Function VerificaExe(Nome: String): Boolean;
@@ -152,6 +151,7 @@ type
     function PathExe: String;
 
     function IntegracaoiFood: Boolean;
+    procedure BuscaDadosiFood;
     function IDiFood: String;
     function TaxaiFood: Real;
     function StatusPedidoiFood: Integer;
@@ -159,6 +159,9 @@ type
     procedure AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
 
     function UserID: Integer;
+
+    procedure AddLog(Text: String);
+    function DadosProdutos: TJsonArray;
 
   var
     FechouWhatsapp: Boolean;
@@ -209,6 +212,20 @@ begin
     exit;
 
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
+end;
+
+procedure TfrmServidor.AddLog(Text: String);
+begin
+  try
+    memLog.Lines.Clear;
+    memLog.Lines.LoadFromFile('log.txt');
+  except
+
+  end;
+  memLog.Lines.Add(Text);
+  memLog.Lines.Add(FormatDateTime('hh:nn', now));
+  memLog.Lines.Add('');
+  memLog.Lines.SaveToFile('log.txt')
 end;
 
 procedure TfrmServidor.AtualizaDadosiFood;
@@ -302,6 +319,7 @@ begin
         dataSetProductsItemsOptions);
 
       memItens.First;
+
       while not memItens.Eof do
       begin
         Dados.Close;
@@ -321,13 +339,17 @@ begin
 
           end;
         end;
+        // Qual margem do ifood ?
+        // Tirar a margem do ifood
+        // *
         if Dados.RecordCount = 0 then
         begin
           Codigo := conexao.GerarID('produto', 'codigo');
+          conexao.SQL.Clear;
           conexao.SQL.Add
             ('insert into produto (codigo,codigo_interno,data_cadastro,nome_produto,descricao,codigo_grupo,valor_venda,valor_ifood,ativo,observacao,modificado_site,id_ifood)');
           conexao.SQL.Add
-            ('values (:codigo,:codigo_interno,current_date,:nome_produto,:descricao,:codigo_grupo,:valor_venda,:valor_ifood,1,1,1,:id_ifood)');
+            ('values (:codigo,:codigo_interno,current_date,:nome_produto,:descricao,:codigo_grupo,:valor_venda,:valor_ifood,0,1,1,:id_ifood)');
           conexao.Parametros('codigo', Codigo);
           conexao.Parametros('codigo_interno', FormatFloat('000000', Codigo));
           conexao.Parametros('nome_produto',
@@ -336,6 +358,7 @@ begin
             UpperCase(RemoveAcento(memItens.FieldByName('description')
             .AsString)));
           conexao.Parametros('codigo_grupo', Categoria);
+          // MargemiFood
           conexao.Parametros('valor_venda',
             memItens.FieldByName('value').AsFloat);
           conexao.Parametros('valor_ifood',
@@ -345,7 +368,9 @@ begin
         end;
 
         conexao.SQL.Add
-          ('update produto set nome_produto = :nome_produto, descricao = :descricao, valor_venda = :valor_venda, valor_ifood = :valor_ifood, codigo_grupo = :codigo_grupo, ativo = :ativo, foto_ifood = :foto_ifood where id_ifood = :id_ifood');
+          ('update produto set position = :position, nome_produto = :nome_produto, descricao = :descricao,');
+        conexao.SQL.Add
+          ('valor_venda = :valor_venda, valor_ifood = :valor_ifood, codigo_grupo = :codigo_grupo, ativo = :ativo, foto_ifood = :foto_ifood, pessoas = :pessoas where id_ifood = :id_ifood');
         conexao.Parametros('nome_produto',
           UpperCase(RemoveAcento(memItens.FieldByName('Name').AsString)));
         conexao.Parametros('descricao',
@@ -358,6 +383,11 @@ begin
         conexao.Parametros('valor_ifood', memItens.FieldByName('value')
           .AsFloat);
         conexao.Parametros('id_ifood', memItens.FieldByName('id').AsString);
+        conexao.Parametros('pessoas', memItens.FieldByName('serving').AsString);
+        conexao.Parametros('position', memItens.FieldByName('sequence')
+          .AsString);
+
+        //
         if memItens.FieldByName('available').AsBoolean then
           conexao.Parametros('ativo', '1')
         else
@@ -513,6 +543,31 @@ end;
 function TfrmServidor.ConverteValoriFood(Valor: String): Real;
 begin
   Result := StrToFloat(StringReplace(Valor, ',', '.', [rfReplaceAll]));
+end;
+
+function TfrmServidor.DadosProdutos: TJsonArray;
+var
+  Categoria: TFDMemTable;
+  JsonObjeto: TJSONObject;
+  Produtos: TFDMemTable;
+begin
+  Categoria := TFDMemTable.Create(nil);
+  IFood.Category.List(Categoria);
+  Result := TJsonArray.Create;
+
+  Categoria.First;
+  while not Categoria.Eof do
+  begin
+    Produtos := TFDMemTable.Create(nil);
+    JsonObjeto := TJSONObject.Create;
+    JsonObjeto.AddPair('id', Categoria.FieldByName('id').AsString);
+    JsonObjeto.AddPair('name', Categoria.FieldByName('name').AsString);
+    IFood.Item.List(Categoria.FieldByName('id').AsString, Produtos);
+    JsonObjeto.AddPair('produtos', Produtos.ToJSONArray());
+    Result.Add(JsonObjeto);
+    Categoria.Next;
+  end;
+
 end;
 
 procedure TfrmServidor.Executaveis;
@@ -688,6 +743,7 @@ var
   conexao: Tconexao;
   VersaoMysql: String;
 begin
+
   conexao := Tconexao.Create;
   VersaoMysql := conexao.ValidaVersao;
   if length(VersaoMysql) > 0 then
@@ -733,13 +789,13 @@ begin
 
   FichaTecnica;
 
-  // if IntegracaoiFood then
-  // begin
-  // IFood.MerchantID(IDiFood);
-  // BuscaDadosiFood;
-  // IFood.MerchantStatus.AutoStatus := True;
-  // IFood.Polling.AutoPolling := True;
-  // end;
+  if IntegracaoiFood then
+  begin
+    IFood.MerchantID(IDiFood);
+    // BuscaDadosiFood;
+    IFood.MerchantStatus.AutoStatus := True;
+    IFood.Polling.AutoPolling := True;
+  end;
 
 
   // ADRIFood.MerchantStatus.AutoStatus := True;
@@ -1394,8 +1450,7 @@ end;
 function TfrmServidor.TaxaiFood: Real;
 begin
   try
-    Result := frmServidor.Configuracoes.FieldByName
-      ('aceitar_pedidos_ifood').AsFloat;
+    Result := frmServidor.Configuracoes.FieldByName('ifood_percentual').AsFloat;
   except
     Result := 0;
   end;
@@ -1418,7 +1473,7 @@ function TfrmServidor.UserID: Integer;
 var
   Requisicao: iRequisicao;
   Body: String;
-  JSonDadosSite: TJsonObject;
+  JSonDadosSite: TJSONObject;
 begin
 
   if user = 0 then
@@ -1435,8 +1490,8 @@ begin
       Requisicao.Metodo := mPost;
       Requisicao.TempoExpiracao := 5 * 1000;
       Requisicao.Execute;
-      JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
-        as TJsonObject;
+      JSonDadosSite := TJSONObject.ParseJSONValue(Requisicao.Retorno)
+        as TJSONObject;
 
       Result := StrToInt(StringReplace(JSonDadosSite.Get('user')
         .JsonValue.ToString, '"', '', [rfReplaceAll]));
@@ -1447,6 +1502,8 @@ begin
   end;
 
   Result := user;
+
+  frmServidor.TrayIcon1.Hint := user.ToString;
 
 end;
 
