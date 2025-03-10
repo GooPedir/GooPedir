@@ -1,0 +1,67 @@
+unit uPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, IniFiles, uRequisicao, Controller,
+  Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmPrincipal = class(TForm)
+    Label2: TLabel;
+    lConexaoGoopedir: TLabel;
+    Shape2: TShape;
+    Label4: TLabel;
+    lConexaoAPI: TLabel;
+    Shape3: TShape;
+    Memo1: TMemo;
+    procedure FormActivate(Sender: TObject);
+
+  private
+
+  public
+    { Public declarations }
+
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+  Controller: TController;
+  Carregou: Boolean;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmPrincipal.FormActivate(Sender: TObject);
+var
+  BuscarPedidos: TBuscarPedidos;
+begin
+  if Carregou then
+    exit;
+  Carregou := true;
+  Controller := TController.Create;
+  Controller.LabelConexaoGoopedir := lConexaoGoopedir;
+  Controller.LabelConexaoAPI := lConexaoAPI;
+  Controller.Iniciar;
+  Caption := Controller.Empresa + ' (Online)';
+  if Controller.TokenNotFound then
+  begin
+    Caption := Controller.MensagemErro;
+  end
+  else
+  begin
+    BuscarPedidos := TBuscarPedidos.Create(False);
+    BuscarPedidos.Token := Controller.Token;
+    BuscarPedidos.ClientId := Controller.ClientId;
+    BuscarPedidos.ClientSecurity := Controller.ClienteSecurity;
+    BuscarPedidos.BuscarPedidos := False;
+    BuscarPedidos.Form := self;
+    BuscarPedidos.LabelConexaoGoopedir := lConexaoAPI;
+    BuscarPedidos.ExecuteThread;
+  end;
+end;
+
+end.

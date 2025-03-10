@@ -7,13 +7,14 @@ uses
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
   Data.DB, FireDAC.Comp.Client, FireDAC.Phys.MySQL, FireDAC.Phys.MySQLDef,
-  FireDAC.Comp.UI, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt;
+  FireDAC.Comp.UI, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, uRequisicao;
 
 type
   TdmModulo = class(TDataModule)
     BANCO: TFDConnection;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     FDSchemaAdapter1: TFDSchemaAdapter;
+    getCodigo: iRequisicao;
     procedure DataModuleDestroy(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);
   private
@@ -52,51 +53,58 @@ end;
 
 function TdmModulo.GerarCodigo(txTabela, txCampo: String): Integer;
 var
-  QRYAux001: TFDQuery;
   Valor: Integer;
+  QRYAux001 : TFDQuery;
 begin
-  QRYAux001 := CriaQRY('');
+//  getCodigo.URL := '/' + txTabela + '/' + txCampo;
+//  getCodigo.Execute;
+//  try
+//    Result := getCodigo.Retorno.ToInteger;
+//  except
+//    Result := GerarCodigo(txTabela, txCampo);
+//  end;
+   QRYAux001 := CriaQRY('');
 
 
-  QRYAux001.SQL.Add
+    QRYAux001.SQL.Add
     ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
-  QRYAux001.ParamByName('tabela').AsString := txTabela;
-  QRYAux001.ExecSQL;
-  QRYAux001.Close;
-  QRYAux001.SQL.Clear;
-  QRYAux001.SQL.Add('select * from geradores where tabela = :tabela');
-  QRYAux001.ParamByName('tabela').AsString := txTabela;
-  QRYAux001.Open;
+    QRYAux001.ParamByName('tabela').AsString := txTabela;
+    QRYAux001.ExecSQL;
+    QRYAux001.Close;
+    QRYAux001.SQL.Clear;
+    QRYAux001.SQL.Add('select * from geradores where tabela = :tabela');
+    QRYAux001.ParamByName('tabela').AsString := txTabela;
+    QRYAux001.Open;
 
-  if QRYAux001.RecordCount = 1 then
-  begin
+    if QRYAux001.RecordCount = 1 then
+    begin
     Valor := QRYAux001.FieldByName('sequencial').AsInteger;
-  end
-  else
-  begin
+    end
+    else
+    begin
     QRYAux001.Close;
     QRYAux001.SQL.Clear;
     QRYAux001.SQL.Add('select max(' + txCampo + ')+100 as codigo from ' +
-      txTabela);
+    txTabela);
     QRYAux001.Open;
 
     if QRYAux001.FieldByName('codigo').IsNull then
-      Valor := 1
+    Valor := 1
     else
-      Valor := QRYAux001.FieldByName('codigo').AsInteger;
+    Valor := QRYAux001.FieldByName('codigo').AsInteger;
 
     QRYAux001.Close;
     QRYAux001.SQL.Clear;
     QRYAux001.SQL.Add
-      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
     QRYAux001.ParamByName('tabela').AsString := txTabela;
     QRYAux001.ParamByName('sequencial').AsInteger := Valor;
     QRYAux001.ExecSQL;
-  end;
+    end;
 
-  Result := Valor;
+    Result := Valor;
 
-  QRYAux001.Free;
+    QRYAux001.Free;
 end;
 
 end.

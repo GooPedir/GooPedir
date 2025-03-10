@@ -688,6 +688,7 @@ function TDM.GeraPosition: Integer;
 begin
   inc(Position);
   Result := Position;
+  Result := 99999999;
 end;
 
 function TDM.GetCelular: String;
@@ -870,7 +871,7 @@ begin
   except
     on E: Exception do
     begin
-      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+//      ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 
@@ -1010,7 +1011,7 @@ begin
   except
     on E: Exception do
     begin
-      // ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
+//       ShowMessage('URL: ' + URL + #13 + 'Erro: ' + E.Message);
 
     end;
 

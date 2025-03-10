@@ -1,9 +1,8 @@
 object dmModulo: TdmModulo
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Height = 201
-  Width = 389
-  PixelsPerInch = 96
+  Height = 416
+  Width = 717
   object BANCO: TFDConnection
     Params.Strings = (
       'Port=2222'
@@ -32,6 +31,8 @@ object dmModulo: TdmModulo
     eTAG = False
     Metodo = mGet
     Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
     Left = 560
     Top = 120
   end

@@ -64,10 +64,6 @@ begin
     ' : Erro na conexão com a base de dados -> ' + AException.Message);
 end;
 
-// constructor Tdm.Create;
-// begin
-// inherited Create(nil);
-// end;
 
 function Tdm.CriaQry: TFDQuery;
 begin
@@ -102,10 +98,18 @@ begin
   end
   else begin
     ForceDirectories(frmServidor.PathExe+'configuracao');
-
     Banco.Params.SaveToFile('configuracao\Confi.dados');
   end;
+    Banco.Params.Values['CharacterSet'] := 'utf8mb4';
+    Banco.Params.Add('SSLProtocol=TLSv1.2');
 
+    Banco.Params.Values['Reconnect'] := 'True';
+    Banco.Params.Values['Compress'] := 'false';
+    Banco.Params.Values['SSLMode'] := 'DISABLED';  // ou 'REQUIRED' se o SSL for necessário
+
+
+    Banco.ResourceOptions.SilentMode := True;
+    Banco.ResourceOptions.AutoReconnect := True;
 
 end;
 

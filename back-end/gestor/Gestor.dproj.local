@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2024/08/27 18:02:51.000.067,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2024/08/27 18:03:53.000.967,C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.dfm=C:\Projetos\GooPedir\GooPedir\back-end\gestor\uMain.dfm</Transaction>
+    <Transaction>2024/08/27 18:03:53.000.967,C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas=C:\Projetos\GooPedir\GooPedir\back-end\gestor\uMain.pas</Transaction>
+    <Transaction>2024/08/27 18:04:01.000.181,C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Project2.dproj=C:\Projetos\GooPedir\GooPedir\back-end\gestor\Gestor.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

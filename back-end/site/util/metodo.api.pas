@@ -9,6 +9,7 @@ type
       ArrayCampos, ArrayValores: Array of String): Integer;
     function ConsultaSQL(SQL: String): String;
     function BuscaDadosDados(Campo, SQL: String): Integer;
+    function BuscaDadosDadosS(Campo, SQL: String): String;
 
     procedure ExecutaSQL(SQL: String);
   end;
@@ -37,6 +38,30 @@ begin
     begin
       qry.Free;
       Result := 0;
+    end;
+    // Showmessage(E.message);
+
+  end;
+end;
+
+function TInsertUpdate.BuscaDadosDadosS(Campo, SQL: String): String;
+var
+  qry: TFDquery;
+begin
+  try
+    qry := dmModulo.CriaQry('API');
+    qry.SQL.Clear;
+    qry.SQL.Add(SQL);
+    qry.Open;
+
+    Result := qry.FieldByName(Campo).AsString;
+    qry.Free;
+
+  except
+    on E: Exception do
+    begin
+      qry.Free;
+      Result := '';
     end;
     // Showmessage(E.message);
 

@@ -1,0 +1,104 @@
+object frmPrincipal: TfrmPrincipal
+  Left = 0
+  Top = 0
+  Caption = 'frmPrincipal'
+  ClientHeight = 531
+  ClientWidth = 878
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnActivate = FormActivate
+  TextHeight = 15
+  object Shape3: TShape
+    Left = 201
+    Top = 8
+    Width = 92
+    Height = 65
+    Brush.Style = bsClear
+  end
+  object Shape2: TShape
+    Left = 103
+    Top = 8
+    Width = 92
+    Height = 65
+    Brush.Style = bsClear
+  end
+  object Shape1: TShape
+    Left = 14
+    Top = 8
+    Width = 83
+    Height = 65
+    Brush.Style = bsClear
+  end
+  object Label1: TLabel
+    Left = 22
+    Top = 16
+    Width = 61
+    Height = 21
+    Caption = 'Internet'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lConexaoInternet: TLabel
+    Left = 22
+    Top = 43
+    Width = 61
+    Height = 15
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Off'
+  end
+  object Label2: TLabel
+    Left = 114
+    Top = 16
+    Width = 71
+    Height = 21
+    Caption = 'Goopedir'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lConexaoGoopedir: TLabel
+    Left = 114
+    Top = 43
+    Width = 71
+    Height = 15
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Off'
+  end
+  object Label4: TLabel
+    Left = 212
+    Top = 16
+    Width = 71
+    Height = 21
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'API'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lConexaoAPI: TLabel
+    Left = 212
+    Top = 43
+    Width = 71
+    Height = 15
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Off'
+  end
+end

@@ -5,16 +5,14 @@ object frmSenha: TfrmSenha
   BorderStyle = bsSingle
   Caption = 'Adiministrador'
   ClientHeight = 136
-  ClientWidth = 402
+  ClientWidth = 390
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -21
   Font.Name = 'Segoe UI Semibold'
   Font.Style = [fsBold]
-  OldCreateOrder = False
   Position = poDesktopCenter
-  PixelsPerInch = 96
   TextHeight = 30
   object Label1: TLabel
     Left = 8

@@ -259,6 +259,7 @@ type
     DadosPedidos: TVertScrollBox;
     layClient: TLayout;
     Button2: TButton;
+    mDadosPedidocpf: TStringField;
     procedure img_fecharClick(Sender: TObject);
     procedure img_add_itemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -1070,7 +1071,7 @@ begin
   end;
 
   PutSimples('v1/pedido/finaliza/' + mesa.ToString + '/' + Impressao.ToString +
-    '/0/0/0/0/:caixa/' + CodigoPedido.ToString, frmFechamentoPedido.PAG);
+    '/0/0/0/0/:caixa/' + CodigoPedido.ToString+'/0', frmFechamentoPedido.PAG);
 
   ShowMessageToast(Self, lTipo.Text + ' finalizada', 3);
   // frmFechamentoPedido.Free;

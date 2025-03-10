@@ -22,7 +22,7 @@ object frmProduto: TfrmProduto
       Size.Width = 1052.000000000000000000
       Size.Height = 660.000000000000000000
       Size.PlatformDefault = False
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 0
       TabPosition = PlatformDefault
       Sizes = (
@@ -42,7 +42,7 @@ object frmProduto: TfrmProduto
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 83.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -280,8 +280,8 @@ object frmProduto: TfrmProduto
             OnDrawColumnCell = StringGrid4DrawColumnCell
             OnCellClick = StringGrid4CellClick
             OnCellDblClick = StringGrid4CellDblClick
-            Viewport.Width = 522.000000000000000000
-            Viewport.Height = 507.000000000000000000
+            Viewport.Width = 526.000000000000000000
+            Viewport.Height = 532.000000000000000000
           end
           object Rectangle1: TRectangle
             Align = Client
@@ -638,8 +638,8 @@ object frmProduto: TfrmProduto
               RowHeight = 50.000000000000000000
               Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
               OnDrawColumnCell = sDadosExtraDrawColumnCell
-              Viewport.Width = 502.000000000000000000
-              Viewport.Height = 226.000000000000000000
+              Viewport.Width = 506.000000000000000000
+              Viewport.Height = 251.000000000000000000
             end
           end
         end
@@ -4078,7 +4078,7 @@ object frmProduto: TfrmProduto
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 115.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
@@ -4105,6 +4105,76 @@ object frmProduto: TfrmProduto
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -5285,6 +5355,76 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             CharCase = ecUpperCase
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -8970,6 +9110,76 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -11844,18 +12054,18 @@ object frmProduto: TfrmProduto
                       PNG = {
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        016949444154484BED933D4EC3401484D7B84082261110A0E30094B41C002987
-                        E0345C83C2424220220A9474E901897F9194BE87FF9897CCFA67BD316B7083C4
-                        27ADDEEE7BE3994D64AB7F5A9165D9419AA63B3C3A01FD304992208EE37BD43B
-                        9C8F39AA03C114C27797106836C51897AA10040146E990B20234F7A9C95C4220
-                        BB5AAAEB20784C59010C8F385FD0142237A4CC0A9E7DA454ADB10AB3300C63EE
-                        95EFFB87309A620DD8CA81C729B7563CCF9B735B053FED6C798702DCE6C30C41
-                        EF89632BD09F505A058375844CA8CB3143A0B9E5A80666E794D961C898FA1CF4
-                        6E38DF8DA268CE7605682E503616464D9821309CA1ECD1FC537AF2124033427D
-                        40BDC6CCFEB7AC4287AC32C7B9D507694542B0066573A1B300A16C2EC6B23A0B
-                        31CCDFC45056272186F96BD9E8D721A639CA3647393F0E7131D7B40E8160AB64
-                        FED264AE314350FA1CD5C1D0C7BB7F09E1B38BB94687C8B3E2C1B61D1160F578
-                        7406CFF4BF35FF8328F505E80FD0485C7019130000000049454E44AE426082}
+                        016949444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
+                        844FE36B48104114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
+                        07C39DB9F7E49C6949D492566459B697A6E9168F4E403F4C92E42C8EE307D43B
+                        9C0F39AA03C118C20F971068D6C41897AA10040146E990B2023477A9C95C4220
+                        BB9CABEB20784459010C0F389FD1142237A4CC0A9E7DA254F5588549188631F7
+                        CAF7FD7D188DB1066CE5C0E3985B2B9EE74DB9AD829F7632BF43016EF36986A0
+                        F7CCB115E88F28AD82C10A42EEA9CB3143A0B9E5A80666A794D961C888FA1CF4
+                        AE39DF8EA268CA760568CE515667464D9821309CA0ECD0FC4B7AF212407383FA
+                        887A8599FD6F59840E59648E73AB0FD28A84600DCAE642670142D95C8C657516
+                        6298BF8BA1AC4E420CF3B7B2D19F434C73944D8E727E1DE262AE691D02C146C9
+                        FCB5C95C6386A0F439AA83A18F77FF02C21717738D0E9167C5836D3B22C05AE7
+                        D1193CD3FFD1FC1FA2D437BC83D04228D47F040000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -11897,6 +12107,76 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             OnExit = edtVendaExit
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -15159,6 +15439,76 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             OnExit = edtVendaExit
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -18874,6 +19224,76 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -21779,6 +22199,76 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             Visible = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -25568,6 +26058,76 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -28524,25 +29084,25 @@ object frmProduto: TfrmProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    023049444154484BD5953D4B1C511885774764521850C4226D208DA95259589A
-                    4A306821049B14C1CE80A44B6A110CA942CAD8ED0F08DAC49FA09D9022109090
-                    22B261656161D9EF9D3CE7E6CC6EC49991408278E072EF3DEF39EFFD9C3BA55B
-                    8FB2EB4C24493249B53A1C0E9F50163A9DCE3DF1711C9F4751744C39A0FBB15C
-                    2EF7C4FF1548B8D6EBF5BE324821A491D6B6EB81271A0C067BBFED49D2EFF73F
-                    93609B324F774A456D718A0511B027729A7C207C2343B55AED90648BE6844325
-                    667BD6ED76BFB9ABC94C4823AD3CF23A940DC46B123AF99269259AC1BC53AFD7
-                    5B2AB47789CF392CDF523A887298BE0C6293E99E23DA322D73CC569C886FB7DB
-                    3F39E873B5B51A62B39649A7D58633A1D2E5B80CC87509BCAFA36DC1F8543CB3
-                    7E47156E1DDC2B06FA41FF71100179FE389375D36390A0A208E66D5301F45F9A
-                    DF30A56411E5CA2CE59556B94C8DC1D2BE2888E8A1A900F56BB55ABBD56A5DD0
-                    7E8164DAA12B90563994CBD418CD66B3E101EE9A1A016E45FBAFB80663861F68
-                    DE77780479A5512E5363140D2010D2FDDF4C0FDC2B7AE47040E100795B940534
-                    CF2B95CA90951C9A0A90573932B7A8E0909F11FB441D9B0AE016557525DD0D90
-                    5739320F193EF39A227E2B9E7A9FEA8E38122D7B05474104E429BCA690991F1A
-                    DD198CA7E2F515F3547C57BBD16834D12D5AA6418B3F340151DE53A1037EADA4
-                    7E2ADED37FE0B07CD73F152930E73E767AE898E199BB615BA44993CBEB503ED0
-                    FDDFE73A0509FEC90FE7E67E99B704A5D22FEBAB6C87CB782EC8000000004945
-                    4E44AE426082}
+                    023149444154484BD5953D6B14511885772784B148C02016B6429AA44A95C232
+                    5682628A80D8A410BB04829DA98360482596DA2CFE00D1467F42D20929042184
+                    14860D2B0B0BCB7EEFE43937677613323321A0480E5CEEBDE73DE7BD9F73A774
+                    E351769D89244926A99E0E87C32794C54EA7734F7C1CC7C75114ED52BED0FD5C
+                    2E977BE2AF05122EF77ABD5F0C520869A4B5ED6AE0890683C1DB337B92F4FBFD
+                    7D126C50E6E84EA9A82D4EB12002F6444E930F84DB3254ABD50E49D6684E3854
+                    62B607DD6EF7D05D4D66421A69E591D7A16C205E96D0C9974C2BD10CE6AD7ABD
+                    DE52A1FD86F85D87E55B4A07510ED317416C32DD73446BA6658ED98A3DF1ED76
+                    FB84833E565BAB2176C732E9B4DA702654BA1C1701B92281F775B42D189F8967
+                    D6EFA8C2AD837BCD40BFE93F0C2220CFB93359313D06093E298279C35400FD57
+                    E69F9B52B288726996F24AAB5CA6C660693F1544346F2A40FD5AADD66EB55A7F
+                    68AF23B9EDD02548AB1CCA656A8C66B3D9F000D3A646807BACFD575C8331C30F
+                    34EF3B3C82BCD22897A9318A061008E9FEBF4C0FDC2B5A7038A07080BC2DCA02
+                    9A17954A65C84ABE9A0A90573932B7A8E09057897DA38E4D05708BAABA92EE06
+                    C8AB1C99870C9F794D11EF88A7FE48754B1C891E7905DF8308C853784D21333F
+                    34BA33187F88D757CC5371A476A3D168A27B6099062DFED00444794F850E7853
+                    49FD54BCA73FEBB07C573F152930E73E767AE898E181BB615BA44993CBEB503E
+                    D0FDDBE73A0509FECA0FE7FFFD326F084AA553C0EB6C7B44DC37E50000000049
+                    454E44AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_paid_white_24dp.png'
                 end>
               Align = Left
@@ -28612,18 +29172,18 @@ object frmProduto: TfrmProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    016949444154484BED933D4EC3401484D77181040D1110A0E30094B41C002987
-                    E0345C83022321108802852E3D20F12F92D2F7F01FF39259FFAC37660D6E90F2
-                    49ABB7FBDE786613D96A492BB22CDB4BD3748B4727A01F26497216C7F103EA1D
-                    CE871CD581600CE1874B08346B628C4B55088200A3744859019ABBD4642E2190
-                    5DCED575103CA2AC0086079CCF680A911B526605CF3E51AA7AACC2240CC3987B
-                    E5FBFE3E8CC65803B672E071CCAD15CFF3A6DC56C14F3B99DFA100B7F93443D0
-                    7BE6D80AF4479456C1600521F7D4E59821D0DC725403B353CAEC3064447D0E7A
-                    D79C6F47513465BB0234E728AB33A326CC10184E507668FE253D7909A0B9417D
-                    44BDC2CCFEB72C42872C32C7B9D507694542B0066573A1B300A16C2EC6B23A0B
-                    31CCDFC55056272186F95BD9E8CF21A639CA264739BF0E7131D7B40E8160A364
-                    FEDA64AE314350FA1CD5C1D0C7BB7F01E18B8BB94687C8B3E2C1B61D1160ADF3
-                    E80C9EE9FF68FE0F51EA1BFDD5D04BEF48FC2A0000000049454E44AE426082}
+                    016949444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
+                    844FE36B08114114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
+                    07C39DB9F7E49C6949D492566459B697A6E9168F4E403F4C92E42C8EE307D43B
+                    9C0F39AA03C118C20F971068D6C41897AA10040146E990B2023477A9C95C4220
+                    BB9CABEB20784459010C0F389FD1142237A4CC0A9E7DA254F5588549188631F7
+                    CAF7FD7D188DB1066CE5C0E3985B2B9EE74DB9AD829F7632BF43016EF36986A0
+                    F7CCB115E88F28AD82C10A42EEA9CB3143A0B9E5A80666A794D961C888FA1CF4
+                    AE39DF8EA268CA760568CE515667464D9821309CA0ECD0FC4B7AF212407383FA
+                    887A8599FD6F59840E59648E73AB0FD28A84600DCAE642670142D95C8C657516
+                    6298BF8BA1AC4E420CF3B7B2D19F434C73944D8E727E1DE262AE691D02C146C9
+                    FCB5C95C6386A0F439AA83A18F77FF02C21717738D0E9167C5836D3B22C05AE7
+                    D1193CD3FFD1FC1FA2D437D249D04573620C7A0000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                     '4dp.png'
@@ -28680,7 +29240,7 @@ object frmProduto: TfrmProduto
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                     01BB49444154484BE5943D4B427118C5BD3730821A036B28A8AD3DF00B44D0D8
-                    20846BE0DCE03788BE417BA0B8046DD2E8107D81DA73B2DABC0D165EDF3A3F39
+                    20846BE0DCE03788BE417B28B8046DD2E8107D81DA73B2DABC0D165EDF3A3F39
                     05E54B6A2ED18187FF73CF73CEB98FD7AB893F8FC0E75074BBDD351D87BD5EEF
                     40FD561CC7EBF0C964F2310CC3872008CAAA2BD533FCC450604A7551A9543A3A
                     C7C29A0B55CAF6F1D0A6478D46E30573AD568B3B9D4E495C56B5AD5A72D16799
@@ -28689,11 +29249,11 @@ object frmProduto: TfrmProduto
                     9FE9E1D006E704FAD38404FB46A12503B016CFB9A9D150D8AAB41106F57BA647
                     020D5A21C26B7A3C24CCE368B7DB773A466ECECC1A96C99BFE19122FB65AAD07
                     1B8FE1D406EABFBC51CCD0A0C503373164C8606E369B4F3A961DDC87FB65CFB8
-                    CED8361DF4F16F09D09777FAFD0670F4682C9F1E0A4A178BC56E1445AFEA3F7F
-                    74F470CC84B4E5B3419B96D85467C1145CC15CC9D4EC60DB7ABDFEE6BF815D8A
+                    CED8361DF4F16F09D09777FAFD0670F4682C9F1E0A4A170A856E1445AFEA3F7F
+                    74F470CC84B4E5B3419B96D85467D1145CD15CC9D4EC60DB7ABDFEE6BF815D8A
                     1E8E9965BF83363D63633DEF1BCADB9F79FC7B68D315BD31CF04037A388FE703
-                    05E69CCF5B94333D3F2877418FE79EA2373D5F68F37DCA97FF0289C43B1F666D
-                    00D6AA45980000000049454E44AE426082}
+                    05E69CCF5B94333D3F2877418FE79EA2373D5F68F37DCA97FF0289C43BF41F6C
+                    F44F2FF0DD0000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_pizza_white_24' +
                     'dp.png'
@@ -28726,7 +29286,7 @@ object frmProduto: TfrmProduto
           Size.Width = 1037.000000000000000000
           Size.Height = 324.000000000000000000
           Size.PlatformDefault = False
-          TabIndex = 2
+          TabIndex = 1
           TabOrder = 14
           TabPosition = PlatformDefault
           Sizes = (
@@ -28823,6 +29383,76 @@ object frmProduto: TfrmProduto
                   Size.Height = 30.000000000000000000
                   Size.PlatformDefault = False
                   iForthTipoEdit = Texto
+                  object TRectangle
+                    Tag = 1
+                    Align = Right
+                    Opacity = 0.699999988079071000
+                    Position.X = 50.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 30.000000000000000000
+                    Size.PlatformDefault = False
+                    Visible = False
+                    object TLabel
+                      Tag = 2
+                      Align = Bottom
+                      StyledSettings = []
+                      Position.Y = 15.000000000000000000
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.Size = 9.000000000000000000
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 0
+                    end
+                    object TLabel
+                      Tag = 3
+                      Align = Client
+                      StyledSettings = []
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.StyleExt = {00070000000000000004000000}
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 1
+                    end
+                  end
+                  object TRectangle
+                    Tag = 1
+                    Align = Right
+                    Opacity = 0.699999988079071000
+                    Position.X = 50.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 30.000000000000000000
+                    Size.PlatformDefault = False
+                    Visible = False
+                    object TLabel
+                      Tag = 2
+                      Align = Bottom
+                      StyledSettings = []
+                      Position.Y = 15.000000000000000000
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.Size = 9.000000000000000000
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 0
+                    end
+                    object TLabel
+                      Tag = 3
+                      Align = Client
+                      StyledSettings = []
+                      Size.Width = 100.000000000000000000
+                      Size.Height = 15.000000000000000000
+                      Size.PlatformDefault = False
+                      TextSettings.Font.StyleExt = {00070000000000000004000000}
+                      TextSettings.FontColor = claWhite
+                      TextSettings.HorzAlign = Center
+                      TabOrder = 1
+                    end
+                  end
                   object TRectangle
                     Tag = 1
                     Align = Right
@@ -32401,15 +33031,15 @@ object frmProduto: TfrmProduto
               Size.PlatformDefault = False
               TabOrder = 2
               OnDrawColumnCell = StringGrid3DrawColumnCell
-              Viewport.Width = 1033.000000000000000000
-              Viewport.Height = 208.000000000000000000
+              Viewport.Width = 1037.000000000000000000
+              Viewport.Height = 233.000000000000000000
             end
           end
           object tabAdicional: TTabItem
             CustomIcon = <
               item
               end>
-            IsSelected = False
+            IsSelected = True
             Size.Width = 87.000000000000000000
             Size.Height = 26.000000000000000000
             Size.PlatformDefault = False
@@ -32450,18 +33080,18 @@ object frmProduto: TfrmProduto
                       PNG = {
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                        016949444154484BED933D4EC3401484D7B84082261110A0E30094B41C002987
-                        E0345C83C2424220220A9474E901897F9194BE87FF9897CCFA67BD316B7083C4
-                        27ADDEEE7BE3994D64AB7F5A9165D9419AA63B3C3A01FD304992208EE37BD43B
-                        9C8F39AA03C114C27797106836C51897AA10040146E990B20234F7A9C95C4220
-                        BB5AAAEB20784C59010C8F385FD0142237A4CC0A9E7DA454ADB10AB3300C63EE
-                        95EFFB87309A620DD8CA81C729B7563CCF9B735B053FED6C798702DCE6C30C41
-                        EF89632BD09F505A058375844CA8CB3143A0B9E5A80666E794D961C898FA1CF4
-                        6E38DF8DA268CE7605682E503616464D9821309CA1ECD1FC537AF2124033427D
-                        40BDC6CCFEB7AC4287AC32C7B9D507694542B0066573A1B300A16C2EC6B23A0B
-                        31CCDFC45056272186F96BD9E8D721A639CA3647393F0E7131D7B40E8160AB64
-                        FED264AE314350FA1CD5C1D0C7BB7F09E1B38BB94687C8B3E2C1B61D1160F578
-                        7406CFF4BF35FF8328F505E80FD0485C7019130000000049454E44AE426082}
+                        016949444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
+                        844FE36B48104114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
+                        07C39DB9F7E49C6949D492566459B697A6E9168F4E403F4C92E42C8EE307D43B
+                        9C0F39AA03C118C20F971068D6C41897AA10040146E990B2023477A9C95C4220
+                        BB9CABEB20784459010C0F389FD1142237A4CC0A9E7DA254F5588549188631F7
+                        CAF7FD7D188DB1066CE5C0E3985B2B9EE74DB9AD829F7632BF43016EF36986A0
+                        F7CCB115E88F28AD82C10A42EEA9CB3143A0B9E5A80666A794D961C888FA1CF4
+                        AE39DF8EA268CA760568CE515667464D9821309CA0ECD0FC4B7AF212407383FA
+                        887A8599FD6F59840E59648E73AB0FD28A84600DCAE642670142D95C8C657516
+                        6298BF8BA1AC4E420CF3B7B2D19F434C73944D8E727E1DE262AE691D02C146C9
+                        FCB5C95C6386A0F439AA83A18F77FF02C21717738D0E9167C5836D3B22C05AE7
+                        D1193CD3FFD1FC1FA2D437BC83D04228D47F040000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -32520,7 +33150,7 @@ object frmProduto: TfrmProduto
                         89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                         F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
                         016949444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
-                        844FE36B08114114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
+                        844FE36B18104114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
                         07C39DB9F7E49C6949D492566459B697A6E9168F4E403F4C92E42C8EE307D43B
                         9C0F39AA03C118C20F971068D6C41897AA10040146E990B2023477A9C95C4220
                         BB9CABEB20784459010C0F389FD1142237A4CC0A9E7DA254F5588549188631F7
@@ -32530,7 +33160,7 @@ object frmProduto: TfrmProduto
                         887A8599FD6F59840E59648E73AB0FD28A84600DCAE642670142D95C8C657516
                         6298BF8BA1AC4E420CF3B7B2D19F434C73944D8E727E1DE262AE691D02C146C9
                         FCB5C95C6386A0F439AA83A18F77FF02C21717738D0E9167C5836D3B22C05AE7
-                        D1193CD3FFD1FC1FA2D437D249D04573620C7A0000000049454E44AE426082}
+                        D1193CD3FFD1FC1FA2D437A6BDD03FACD1120A0000000049454E44AE426082}
                       FileName = 
                         'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                         '4dp.png'
@@ -32661,7 +33291,7 @@ object frmProduto: TfrmProduto
             CustomIcon = <
               item
               end>
-            IsSelected = True
+            IsSelected = False
             Size.Width = 107.000000000000000000
             Size.Height = 26.000000000000000000
             Size.PlatformDefault = False
@@ -32903,7 +33533,7 @@ object frmProduto: TfrmProduto
                     Size.PlatformDefault = False
                     TextSettings.HorzAlign = Trailing
                     Text = 'rCusto'
-                    TabOrder = 4
+                    TabOrder = 3
                     OnClick = rCustoClick
                   end
                 end
@@ -32918,8 +33548,8 @@ object frmProduto: TfrmProduto
                   RowCount = 0
                   OnDrawColumnCell = gridIngredientesDrawColumnCell
                   OnCellDblClick = gridIngredientesCellDblClick
-                  Viewport.Width = 514.500000000000000000
-                  Viewport.Height = 243.000000000000000000
+                  Viewport.Width = 518.500000000000000000
+                  Viewport.Height = 268.000000000000000000
                 end
               end
             end
@@ -33070,6 +33700,76 @@ object frmProduto: TfrmProduto
             Size.PlatformDefault = False
             Visible = False
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -36894,6 +37594,76 @@ object frmProduto: TfrmProduto
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -39813,21 +40583,21 @@ object frmProduto: TfrmProduto
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    01BA49444154484BE594BB4A03611484B32B44042D05B550D0CE5EC80B886069
-                    2188AD90DAC23790BC817D60218D60172C53882FA0BDA9A276598B28D9DC9C2F
-                    8C82B9995B230E1CFEB37366664F369BA4FE3C029F03D16EB7D7751C753A9D43
-                    F5DB49926CC0A7D3E9E7300C9F822028AA6E54AFF06343816BAA7CA9546AE91C
-                    096BF2AA35DB47439B9ED46AB537CC954A2569B55A0571A7AA1DD5928BFE9419
-                    1AB478C49D3866302438FFDA5AE66B5D6F1144891AF838C56FA2C583970C8FFA
-                    216111A1CE5BAE1DDC057D57340478D09161AA1F0AD92D97CB0D8A7EDC1BF4FA
-                    4C0F8636B822D09F2624D8370A2DE983B578AE4C0D87C256A58D31A8DF373D14
-                    68D00A315ED3A321E1058E66B3F9A063E8E6CCAC61990BD3BF43E2C546A3F164
-                    E3199CDA40FD8F378A191AB478E0C6860CC798EBF5FA8B8E650777E17ED933AE
-                    8F6D9B0CFAF8F704E8CBBBECBD011C3D1ACB278782325114B5E3387E57FFFDA3
-                    A3876326642C9F0EDAB4C0A63A23537091B982A9E9C1B6D56AF5C37F037B143D
-                    1C33CB668336CDB1B19EF71DE5ED731ECF0E6DBAA237E69560400FE7F17CA0C0
-                    ACF3798BB2A6E707E52EE8F13C52F4A6E70B6D7E40F9F25F2095FA0409CA6CFA
-                    853369BF0000000049454E44AE426082}
+                    01BB49444154484BE5943D4B427118C5BD3730821A036B28A8AD3DF00B44D0D8
+                    20846BE0DCE03788BE417B22B8046DD2E8107D81DA73B2DABC0D165EDF3A3F39
+                    05E54B6A2ED18187FF73CF73CEB98FD7AB893F8FC0E75074BBDD351D87BD5EEF
+                    40FD561CC7EBF0C964F2310CC3872008CAAA2BD533FCC450604A7551A9543A3A
+                    C7C29A0B55CAF6F1D0A6478D46E30573AD568B3B9D4E495C56B5AD5A72D16799
+                    A1418B47DC9163864382938FAD65BED4F5264194A8A18F53FC065A3C78C9F068
+                    10129611EABCE6DAC17DD0F7452380071D19A606A1909D6AB5DAA2E827BDC177
+                    9FE9E1D006E704FAD38404FB46A12503B016CFB9A9D150D8AAB41106F57BA647
+                    020D5A21C26B7A3C24CCE368B7DB773A466ECECC1A96C99BFE19122FB65AAD07
+                    1B8FE1D406EABFBC51CCD0A0C503373164C8606E369B4F3A961DDC87FB65CFB8
+                    CED8361DF4F16F09D09777FAFD0670F4682C9F1E0A4A170A856E1445AFEA3F7F
+                    74F470CC84B4E5B3419B96D85467D1145CD15CC9D4EC60DB7ABDFEE6BF815D8A
+                    1E8E9965BF83363D63633DEF1BCADB9F79FC7B68D315BD31CF04037A388FE703
+                    05E69CCF5B94333D3F2877418FE79EA2373D5F68F37DCA97FF0289C43BDE836C
+                    EE345EBF2A0000000049454E44AE426082}
                   FileName = 
                     'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_pizza_white_24' +
                     'dp.png'
@@ -39892,6 +40662,76 @@ object frmProduto: TfrmProduto
               Size.PlatformDefault = False
               OnExit = edtVendaExit
               iForthTipoEdit = Texto
+              object TRectangle
+                Tag = 1
+                Align = Right
+                Opacity = 0.699999988079071000
+                Position.X = 50.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Visible = False
+                object TLabel
+                  Tag = 2
+                  Align = Bottom
+                  StyledSettings = []
+                  Position.Y = 15.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 9.000000000000000000
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 0
+                end
+                object TLabel
+                  Tag = 3
+                  Align = Client
+                  StyledSettings = []
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00070000000000000004000000}
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 1
+                end
+              end
+              object TRectangle
+                Tag = 1
+                Align = Right
+                Opacity = 0.699999988079071000
+                Position.X = 50.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Visible = False
+                object TLabel
+                  Tag = 2
+                  Align = Bottom
+                  StyledSettings = []
+                  Position.Y = 15.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.Size = 9.000000000000000000
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 0
+                end
+                object TLabel
+                  Tag = 3
+                  Align = Client
+                  StyledSettings = []
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 15.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.Font.StyleExt = {00070000000000000004000000}
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  TabOrder = 1
+                end
+              end
               object TRectangle
                 Tag = 1
                 Align = Right
@@ -43198,18 +44038,18 @@ object frmProduto: TfrmProduto
                     PNG = {
                       89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                       F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                      016949444154484BED93CD4AC340148527CD42D08D45ADBAF3015CBAF501843E
-                      844FE36B48104114C585D45DF72AF88FED32EF913FCF6DCFE467328D13CD46E8
-                      07C39DB9F7E49C6949D492566459B697A6E9168F4E403F4C92E42C8EE307D43B
-                      9C0F39AA03C118C20F971068D6C41897AA10040146E990B2023477A9C95C4220
-                      BB9CABEB20784459010C0F389FD1142237A4CC0A9E7DA254F5588549188631F7
-                      CAF7FD7D188DB1066CE5C0E3985B2B9EE74DB9AD829F7632BF43016EF36986A0
-                      F7CCB115E88F28AD82C10A42EEA9CB3143A0B9E5A80666A794D961C888FA1CF4
-                      AE39DF8EA268CA760568CE515667464D9821309CA0ECD0FC4B7AF212407383FA
-                      887A8599FD6F59840E59648E73AB0FD28A84600DCAE642670142D95C8C657516
-                      6298BF8BA1AC4E420CF3B7B2D19F434C73944D8E727E1DE262AE691D02C146C9
-                      FCB5C95C6386A0F439AA83A18F77FF02C21717738D0E9167C5836D3B22C05AE7
-                      D1193CD3FFD1FC1FA2D437BC83D04228D47F040000000049454E44AE426082}
+                      016949444154484BED933D4EC3401484D7B84082261110A0E30094B41C002987
+                      E0345CC305424220220A9474E901897F9194BE87FF9897CCFA67BD316B7083C4
+                      27ADDEEE7BE3994D64AB7F5A9165D9419AA63B3C3A01FD304992F3388EEF51EF
+                      703EE6A80E045308DF5D42A0D914635CAA42100418A543CA0AD0DCA726730981
+                      EC6AA9AE83E0316505303CE27C415388DC90322B78F69152B5C62ACCC2308CB9
+                      57BEEF1FC2688A35602B071EA7DC5AF13C6FCE6D15FCB4B3E51D0A709B0F3304
+                      BD278EAD407F4269150CD61132A12EC70C81E696A31A980594D961C898FA1CF4
+                      6E38DF8DA268CE7605682E503616464D9821309CA1ECD1FC537AF2124033427D
+                      40BDC6CCFEB7AC4287AC32C7B9D507694542B0066573A1B300A16C2EC6B23A0B
+                      31CCDFC45056272186F96BD9E8D721A639CA3647393F0E7131D7B40E8160AB64
+                      FED264AE314350FA1CD5C1D0C7BB7F09E1B38BB94687C8B3E2C1B61D1160F578
+                      7406CFF4BF35FF8328F50590F7D03C4FADDEFB0000000049454E44AE426082}
                     FileName = 
                       'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_local_dining_white_2' +
                       '4dp.png'
@@ -43266,8 +44106,8 @@ object frmProduto: TfrmProduto
             TabOrder = 0
             RowHeight = 50.000000000000000000
             Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-            Viewport.Width = 1048.000000000000000000
-            Viewport.Height = 425.000000000000000000
+            Viewport.Width = 1052.000000000000000000
+            Viewport.Height = 450.000000000000000000
           end
         end
         object StringGrid5: TStringGrid
@@ -43284,8 +44124,8 @@ object frmProduto: TfrmProduto
           OnCellDblClick = StringGrid5CellDblClick
           OnDragEnter = StringGrid5DragEnter
           OnDragEnd = StringGrid5DragEnd
-          Viewport.Width = 1048.000000000000000000
-          Viewport.Height = 159.000000000000000000
+          Viewport.Width = 1052.000000000000000000
+          Viewport.Height = 184.000000000000000000
         end
       end
       object TabCarregando: TTabItem
@@ -43403,6 +44243,76 @@ object frmProduto: TfrmProduto
                 Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
                 iForthTipoEdit = Texto
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
                 object TRectangle
                   Tag = 1
                   Align = Right
@@ -44584,6 +45494,76 @@ object frmProduto: TfrmProduto
                 Size.Height = 30.000000000000000000
                 Size.PlatformDefault = False
                 iForthTipoEdit = Texto
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
                 object TRectangle
                   Tag = 1
                   Align = Right
@@ -48344,6 +49324,76 @@ object frmProduto: TfrmProduto
                   end
                 end
                 object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
+                object TRectangle
+                  Tag = 1
+                  Align = Right
+                  Opacity = 0.699999988079071000
+                  Position.X = 50.000000000000000000
+                  Size.Width = 100.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  Visible = False
+                  object TLabel
+                    Tag = 2
+                    Align = Bottom
+                    StyledSettings = []
+                    Position.Y = 15.000000000000000000
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.Size = 9.000000000000000000
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 0
+                  end
+                  object TLabel
+                    Tag = 3
+                    Align = Client
+                    StyledSettings = []
+                    Size.Width = 100.000000000000000000
+                    Size.Height = 15.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.Font.StyleExt = {00070000000000000004000000}
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    TabOrder = 1
+                  end
+                end
+                object TRectangle
                   Align = Right
                   Opacity = 0.699999988079071000
                   Position.X = 50.000000000000000000
@@ -51610,6 +52660,50 @@ object frmProduto: TfrmProduto
                 end
                 object TRectangle
                   Align = Client
+                  Fill.Color = xFF6DB2FD
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFF6DB2FD
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'DESCRICAO'
+                    TabOrder = 0
+                  end
+                end
+                object TRectangle
+                  Align = Client
+                  Fill.Color = xFF6DB2FD
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFF6DB2FD
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'DESCRICAO'
+                    TabOrder = 0
+                  end
+                end
+                object TRectangle
+                  Align = Client
                   Fill.Color = xFFF77273
                   HitTest = False
                   Size.Width = 202.000000000000000000
@@ -51971,6 +53065,50 @@ object frmProduto: TfrmProduto
                 OnClick = btnSimClick
                 iForthTipoBotao = tAdicionar
                 iForthCorFonte = cBranca
+                object TRectangle
+                  Align = Client
+                  Fill.Color = xFF6DB2FD
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFF6DB2FD
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'DESCRICAO'
+                    TabOrder = 0
+                  end
+                end
+                object TRectangle
+                  Align = Client
+                  Fill.Color = xFF6DB2FD
+                  HitTest = False
+                  Size.Width = 202.000000000000000000
+                  Size.Height = 50.000000000000000000
+                  Size.PlatformDefault = False
+                  Stroke.Color = xFF6DB2FD
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                  object TLabel
+                    Align = Client
+                    StyledSettings = [Family, Size]
+                    Size.Width = 202.000000000000000000
+                    Size.Height = 50.000000000000000000
+                    Size.PlatformDefault = False
+                    TextSettings.FontColor = claWhite
+                    TextSettings.HorzAlign = Center
+                    Text = 'DESCRICAO'
+                    TabOrder = 0
+                  end
+                end
                 object TRectangle
                   Align = Client
                   Fill.Color = xFF6DB2FD

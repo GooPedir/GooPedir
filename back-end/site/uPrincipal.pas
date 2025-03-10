@@ -99,6 +99,7 @@ type
     function GetLocalIP: String;
     procedure Execute; override;
     procedure InserirPedidos;
+    function PegarCupom(const s: string): string;
     function BuscaItems(User, codigo: Integer): String;
     function QtdSabores(Valor: String): Integer;
     function Cliente(Nome, Telefone: String): Integer;
@@ -142,7 +143,6 @@ type
     DBGrid1: TDBGrid;
     mLog: TMemo;
     Panel1: TPanel;
-    imgLogo: TImage;
     lStatus: TLabel;
     lSegundos: TLabel;
     lRequisicoes: TLabel;
@@ -163,12 +163,17 @@ type
     RequisicaoLocal: iRequisicao;
     IdIPWatch1: TIdIPWatch;
     Button1: TButton;
+    timerClose: TTimer;
+    ckpImpressao: TCheckBox;
+    Label2: TLabel;
+    cSincronizar: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure tMinimizaTimer(Sender: TObject);
     procedure TrayClick(Sender: TObject);
     procedure lStatusClick(Sender: TObject);
     procedure Image1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure timerCloseTimer(Sender: TObject);
   private
     FStatusConexao: Boolean;
     FIdRequisicao: Integer;
@@ -225,10 +230,12 @@ type
     // Whatsapp
     procedure EnviarPedidosWhatsapp;
 
+    procedure EnviaMotoboy;
+    function RemoveNonNumeric(const Input: string): string;
+
     procedure SetHomologacao(const Value: Boolean);
     procedure SetTempoEspera(const Value: Integer);
 
-    function GetTempoEspera: Integer;
     function ConsultaSerialHD: String;
     function GetTempoVemBuscar: String;
     function GetTempoDelivery: String;
@@ -236,6 +243,9 @@ type
     function GetVersaoSQL: String;
     function GetDadosVersao(Campo: String): Variant;
     function GetDadosConf(Campo: String): Variant;
+    function GetHorarioAbertura(Dia: String): String;
+    function GetHorarioFechamento(Dia: String): String;
+    function GetHorarioAtendimento(Dia: String): String;
 
     function ValidaAdm: Boolean;
     procedure SetLogo(const Value: String);
@@ -259,6 +269,8 @@ type
   public
     // Envia pro Site
     procedure AtualizaSite;
+    function GetMensagem: String;
+    function GetGrupo: String;
 
     { Public declarations }
     property StatusConexao: Boolean read FStatusConexao write SetStatusConexao;
@@ -288,8 +300,15 @@ type
 
     function RemoveAcento(aText: string): string;
 
+    procedure FecharExe(ExeFileName: String);
+    function SITE: String;
+
+    function ValidaImpressoraService: Boolean;
+
   var
     BuscarPedido: Boolean;
+    ThreadIniciada: Boolean;
+    PodeFechar: Boolean;
   end;
 
 var
@@ -297,6 +316,7 @@ var
   BuscaPedidoThread: TBuscaPedidos;
   ConexaoSite: TConexaoSite;
   StatusForm: TStatusApp;
+  OcultarForm: Boolean;
 
 const
   // https://goopedir.com/triangulolanchesepizzaria
@@ -342,10 +362,13 @@ begin
   while not Terminated do
   begin
     FRequestSite.URLI := 'status/a';
-    FRequestSite.Get;
-    frmPrincipal.StatusConexao := FRequestSite.Status = 200;
-    // 1000
-    Free;
+    try
+      FRequestSite.Get;
+      frmPrincipal.StatusConexao := FRequestSite.Status = 200;
+    except
+      frmPrincipal.StatusConexao := false;
+    end;
+    Terminate;
     Sleep(Segundos * 1000);
   end;
 
@@ -355,6 +378,7 @@ end;
 
 procedure TfrmPrincipal.AdicionaLog(Log: String);
 begin
+  exit;
   if mLog.Lines.Count > 99 then
     mLog.Lines.Clear;
 
@@ -434,6 +458,7 @@ begin
     Ativo := Dados.FieldByName('ativo').AsString;
     if Dados.FieldByName('valor_venda').AsInteger = 0 then
       Ativo := '0';
+
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
       ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
@@ -474,25 +499,28 @@ begin
   SQL := SQL + 'order by valor ';
 
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-
-  Dados.First;
-  InsertSite := TInsertUpdateSite.Create;
-  while not Dados.Eof do
+  if Dados.RecordCount > 0 then
   begin
 
-    Ativo := Dados.FieldByName('ativo').AsString;
+    Dados.First;
+    InsertSite := TInsertUpdateSite.Create;
+    while not Dados.Eof do
+    begin
 
-    if Dados.FieldByName('valor').AsInteger = 0 then
-      Ativo := '0';
+      Ativo := Dados.FieldByName('ativo').AsString;
 
-    InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-      ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
-      [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-      'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Dados.FieldByName('valor').AsString, Ativo,
-      Dados.FieldByName('saldo_atual').AsString]);
+      if Dados.FieldByName('valor').AsInteger = 0 then
+        Ativo := '0';
 
-    Dados.next;
+      InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
+        ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
+        [Dados.FieldByName('id_site').AsString, Usuario.ToString,
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+        Dados.FieldByName('valor').AsString, Ativo,
+        Dados.FieldByName('saldo_atual').AsString]);
+
+      Dados.next;
+    end;
   end;
   Dados.Free;
   Dados := TFDMemTable.Create(nil);
@@ -513,6 +541,7 @@ begin
 
   while not Dados.Eof do
   begin
+
     InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
       ['id', 'user_id', 'dia_semana', 'preco_item', 'disponivel', 'estoque'],
       [Dados.FieldByName('id_site').AsString, Usuario.ToString,
@@ -532,31 +561,24 @@ end;
 procedure TfrmPrincipal.AtualizaSite;
 begin
 
+  if not cSincronizar.Checked then
+    exit;
+
+  if Usuario = 0 then
+    exit;
+
   if Homologacao then
     exit;
-
-  if not cSincroniza.Checked then
-    exit;
-
-  // BuscaAlteracaoSite;
-
-  EnviaTaxa;
-
   EnviaTipoPagamento;
-
-  EnviaCategoria;
-
-  EnviaProduto;
-
-  AtualizaPrecos;
-
-  EnviaAdicionais;
-
-  EnviaComplementoAdicionais;
-
-  EnviarSabores;
-
+  EnviaMotoboy;
+  EnviaTaxa;
   EnviarPedidosWhatsapp;
+  EnviaCategoria;
+  EnviaProduto;
+  EnviaAdicionais;
+  EnviaComplementoAdicionais;
+  EnviarSabores;
+  AtualizaPrecos;
 
 end;
 
@@ -817,7 +839,7 @@ var
   f: File;
   sAppName: string;
 begin
-  Result := False;
+  Result := false;
   sAppName := ExtractFileName(Application.ExeName);
   hSession := InternetOpen(PChar(sAppName), INTERNET_OPEN_TYPE_PRECONFIG,
     nil, nil, 0);
@@ -955,13 +977,24 @@ begin
 
     if (Dados.FieldByName('total').AsInteger > 0) then
     begin
+      try
+        if Dados.FieldByName('local').AsInteger > 0 then
+        begin
+
+        end;
+      except
+        Dados.Edit;
+        Dados.FieldByName('local').AsInteger := 0;
+
+      end;
 
       codigo := InsertSite.InserirUpdate('ws_cat', Usuario.ToString,
         ['id', 'user_id', 'dias_semana', 'nome_cat', 'desc_cat', 'icon_cat',
-        'ordem'], [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+        'ordem', 'local'], [Dados.FieldByName('id_site').AsString,
+        Usuario.ToString, 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
         Dados.FieldByName('descricao').AsString, '', '',
-        Dados.FieldByName('ordem').AsString]);
+        Dados.FieldByName('ordem').AsString, Dados.FieldByName('local')
+        .AsString]);
 
       if codigo > 0 then
       begin
@@ -1055,6 +1088,47 @@ begin
   Insert.Free;
 end;
 
+procedure TfrmPrincipal.EnviaMotoboy;
+var
+  Insert: TInsertUpdate;
+  Dados: TFDMemTable;
+  InsertSite: TInsertUpdateSite;
+  codigo: Integer;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+
+  Dados.LoadFromJSON
+    (Insert.ConsultaSQL('select * from motoboy where modificado_site = 0'));
+
+  if Dados.RecordCount = 0 then
+  begin
+    Insert.Free;
+    Dados.Free;
+    exit;
+  end;
+
+  InsertSite := TInsertUpdateSite.Create;
+
+  while not Dados.Eof do
+  begin
+
+    codigo := InsertSite.InserirUpdate('ws_motoboys', Usuario.ToString,
+      ['id', 'user_id', 'deliveryman_name', 'deliveryman_phone_number'],
+      [Dados.FieldByName('id_site').AsString, Usuario.ToString,
+      UpperCase(Dados.FieldByName('nome').AsString),
+      RemoveNonNumeric(Dados.FieldByName('celular_wpp').AsString)]);
+    if codigo > 0 then
+      Insert.ExecutaSQL('update motoboy set id_site = ' + codigo.ToString +
+        ', modificado_site = 1 where codigo = ' + Dados.FieldByName('codigo')
+        .AsString);
+
+    Dados.next;
+  end;
+  Dados.Free;
+  Insert.Free;
+end;
+
 procedure TfrmPrincipal.EnviaProduto;
 var
   Insert: TInsertUpdate;
@@ -1064,10 +1138,65 @@ var
   InsertSite: TInsertUpdateSite;
   Descricao: String;
 begin
+exit;
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
-  SQL := 'SELECT p.saldo_atual as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
+  SQL := 'update produto';
+  SQL := SQL + ' join (';
+  SQL := SQL + '    select produto.codigo';
+  SQL := SQL + '    from produto';
+  SQL := SQL +
+    '     join produto_estoque on produto.codigo = produto_estoque.codigo_produto';
+  SQL := SQL + '    group by produto.codigo';
+  SQL := SQL + '    having coalesce(sum(produto_estoque.quantidade), 0) <= 0';
+  SQL := SQL + ' ) as temp on produto.codigo = temp.codigo';
+  SQL := SQL + ' set ativo = 0, modificado_site = 0';
+  SQL := SQL + ' where ativo <> 0 and controle_estoque = 1';
+  Insert.ExecutaSQL(SQL);
+
+  SQL := 'update produto';
+  SQL := SQL + ' join (';
+  SQL := SQL + '    select produto.codigo';
+  SQL := SQL + '    from produto';
+  SQL := SQL +
+    '     join produto_estoque on produto.codigo = produto_estoque.codigo_produto';
+  SQL := SQL + '    group by produto.codigo';
+  SQL := SQL + '    having coalesce(sum(produto_estoque.quantidade), 0) > 0';
+  SQL := SQL + ' ) as temp on produto.codigo = temp.codigo';
+  SQL := SQL + ' set ativo = 1, modificado_site = 0';
+  SQL := SQL + ' where ativo = 0 and controle_estoque = 1';
+  Insert.ExecutaSQL(SQL);
+
+  SQL := 'update pro_adi_personalizado_sabores';
+  SQL := SQL + ' join (';
+  SQL := SQL + '    select produto.codigo';
+  SQL := SQL + '    from produto';
+  SQL := SQL +
+    '     join produto_estoque on produto.codigo = produto_estoque.codigo_produto';
+  SQL := SQL + '    group by produto.codigo';
+  SQL := SQL + '    having coalesce(sum(produto_estoque.quantidade), 0) <= 0';
+  SQL := SQL +
+    ' ) as temp on pro_adi_personalizado_sabores.id_prod_estoque = temp.codigo';
+  SQL := SQL + ' set ativo = 0, modificado_site = 0';
+  SQL := SQL + ' where id_prod_estoque = temp.codigo and ativo = 1';
+  Insert.ExecutaSQL(SQL);
+
+  SQL := 'update pro_adi_personalizado_sabores';
+  SQL := SQL + ' join (';
+  SQL := SQL + '    select produto.codigo';
+  SQL := SQL + '    from produto';
+  SQL := SQL +
+    '     join produto_estoque on produto.codigo = produto_estoque.codigo_produto';
+  SQL := SQL + '    group by produto.codigo';
+  SQL := SQL + '    having coalesce(sum(produto_estoque.quantidade), 0) > 0';
+  SQL := SQL +
+    ' ) as temp on pro_adi_personalizado_sabores.id_prod_estoque = temp.codigo';
+  SQL := SQL + ' set ativo = 1, modificado_site = 0';
+  SQL := SQL + ' where id_prod_estoque = temp.codigo and ativo = 0';
+  Insert.ExecutaSQL(SQL);
+
+  SQL := 'SELECT 0 as estoque, p.foto_ifood, p.codigo,p.codigo_interno, p.nome_produto as produto, p.descricao, p.valor_venda as venda, p.id_site, p.ativo,p.valor_embalagem_delivery as vl_embalagem_delivery, ';
   SQL := SQL +
     'tipo_produto.id_site as categoria,produto_pizza.quantidade_sabores, pessoas, valor_desconto, percentual_desconto ';
   SQL := SQL +
@@ -1075,7 +1204,7 @@ begin
   SQL := SQL +
     ' left join produto_pizza on produto_pizza.codigo_produto = p.codigo ';
   SQL := SQL +
-    ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 ';
+    ' where (p.modificado_site = 0 or p.modificado_site is null) and tipo_produto.id_site > 0 and new = 0';
   Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
@@ -1112,6 +1241,7 @@ begin
       case Dados.FieldByName('id_site').AsInteger of
         0:
           begin
+
             codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
               ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
               'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
@@ -1133,6 +1263,7 @@ begin
           end
       else
         begin
+
           codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
             ['id', 'user_id', 'config_total_s', 'number_adicional',
             'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
@@ -1152,23 +1283,24 @@ begin
         end;
       end;
     except
-      codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
-        ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
-        'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
-        'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
-        'promo_percentual'], [Dados.FieldByName('id_site').AsString,
-        Usuario.ToString, 'false', '0',
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
-        Dados.FieldByName('codigo_interno').AsString,
-        Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
-        .AsString, Descricao, Dados.FieldByName('venda').AsString,
-        Dados.FieldByName('ativo').AsString,
-        Dados.FieldByName('vl_embalagem_delivery').AsString,
-        Dados.FieldByName('estoque').AsString, Dados.FieldByName('foto_ifood')
-        .AsString, Dados.FieldByName('pessoas').AsString,
-        Dados.FieldByName('valor_desconto').AsString,
-        Dados.FieldByName('percentual_desconto').AsString]);
+
+      // codigo := InsertSite.InserirUpdate('ws_itens', Usuario.ToString,
+      // ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
+      // 'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
+      // 'nome_item', 'descricao_item', 'preco_item', 'disponivel',
+      // 'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+      // 'promo_percentual'], [Dados.FieldByName('id_site').AsString,
+      // Usuario.ToString, 'false', '0',
+      // 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+      // Dados.FieldByName('codigo_interno').AsString,
+      // Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
+      // .AsString, Descricao, Dados.FieldByName('venda').AsString,
+      // Dados.FieldByName('ativo').AsString,
+      // Dados.FieldByName('vl_embalagem_delivery').AsString,
+      // Dados.FieldByName('estoque').AsString, Dados.FieldByName('foto_ifood')
+      // .AsString, Dados.FieldByName('pessoas').AsString,
+      // Dados.FieldByName('valor_desconto').AsString,
+      // Dados.FieldByName('percentual_desconto').AsString]);
     end;
 
     if codigo > 0 then
@@ -1189,10 +1321,7 @@ begin
     end
     else
     begin
-      // tabLog.Visible := True;
-      frmPrincipal.AdicionaLog('Produto ' + Dados.FieldByName('codigo_interno')
-        .AsString + ' - ' + Dados.FieldByName('produto').AsString +
-        ', não foi enviado!');
+
       SQL := 'update produto set modificado_site = 1 where codigo = ' +
         Dados.FieldByName('codigo').AsString;
       Insert.ExecutaSQL(SQL);
@@ -1218,79 +1347,21 @@ var
   I: Integer;
   IndexArray: Integer;
   Resumo: String;
+  Req: iRequisicao;
 begin
-  Resumo := '(SELECT ';
-  Resumo := Resumo + 'concat(group_concat(' + QuotedStr('<b>Qtd: ') +
-    ',localpp.quantidade,' + QuotedStr('x ') + ',localp.nome_produto,' +
-    QuotedStr('<br /><b>') + ',ppslocal.nomeclatura,' + QuotedStr(' ') +
-    ',ppslocal.descricao ,' + QuotedStr('<br />Valor R$: ') +
-    ',localpp.valor_total,' + QuotedStr('<br />') + '),' +
-    QuotedStr('<br /><b>Importado Sistema!<br /><b>') + ') ';
-  Resumo := Resumo + 'FROM pedido_produto_sap as ppslocal ';
-  Resumo := Resumo +
-    'join pedido_produtos as localpp on localpp.codigo = ppslocal.codigo_pedido_produto ';
-  Resumo := Resumo +
-    'join produto localp on localp.codigo = localpp.codigo_produto ';
-  Resumo := Resumo + 'where localpp.codigo_pedido = p.codigo ';
-  Resumo := Resumo + 'group by localpp.codigo_pedido) ';
-  BuscarPedido := False;
+
+  BuscarPedido := false;
   try
     Insert := TInsertUpdate.Create;
     Dados := TFDMemTable.Create(nil);
     DadosItens := TFDMemTable.Create(nil);
     InsertSite := TInsertUpdateSite.Create;
-    SQL := '';
-    SQL := 'SELECT  ';
-    SQL := SQL + 'LPAD(p.codigo_pedido_dia,5,' + QuotedStr('0') +
-      ') as codigo_pedido, ';
-    SQL := SQL +
-      'DATE_FORMAT(concat(p.data_pedido,'' '',p.hora_pedido),''%Y-%m-%d %H:%i:%s'') as data, ';
-    SQL := SQL + 'DATE_FORMAT(p.data_pedido,''%Y-%m'') as DATA_CHART, ';
-    SQL := SQL + 'DATE_FORMAT(p.data_pedido,''%Y-%m-%d'') as DATA_CHART2, ';
-    SQL := SQL + Resumo + ' as resumo_pedidos, ';
-    SQL := SQL + 'p.troco as valor_troco, ';
-    SQL := SQL +
-      'CASE WHEN p.codigo_cliente_endereco = 0 THEN true ELSE false END as opcao_delivery, ';
-    SQL := SQL + 'p.valor_taxa_entrega as valor_taxa, ';
-    SQL := SQL + '0 as adicionais, ';
-    SQL := SQL + 'p.valor_pedido as sub_total, ';
-    SQL := SQL + 'p.id_ifood as id_ifood, ';
-    SQL := SQL + 'p.valor_total_pedido as total, ';
-    SQL := SQL + 'REPLACE(c.nome,'' '',''%'') as nome, ';
-    SQL := SQL + 'c.celular as telefone, ';
-    SQL := SQL + 'ce.rua as rua, ';
-    SQL := SQL + 'ce.numero as unidade, ';
-    SQL := SQL + 'ce.bairro as bairro, ';
-    SQL := SQL + 'ce.cidade as cidade, ';
-    SQL := SQL + 'ce.estado as uf, ';
-    SQL := SQL + 'ce.complemento as complemento, ';
-    SQL := SQL + QuotedStr('') + ' as observacao, ';
-    SQL := SQL + 'case p.status  ';
-    SQL := SQL + 'when 0 then ''Cancelado''  ';
-    SQL := SQL + 'when 1 then ''Finalizado''  ';
-    SQL := SQL + 'when 2 then ''Finalizado''  ';
-    SQL := SQL + 'when 3 then ''Finalizado''  ';
-    SQL := SQL + 'when 4 then ''Finalizado''  ';
-    SQL := SQL + 'when 5 then ''Finalizado''  ';
-    SQL := SQL + 'when 6 then ''Finalizado'' end as status, ';
-    SQL := SQL + 'DATE_FORMAT(p.data_pedido,''%m'') as mes, ';
-    SQL := SQL + 'DATE_FORMAT(p.data_pedido,''%Y'') as ano, ';
-    SQL := SQL + '1 as view, ';
-    SQL := SQL + 'valor_desconto as desconto, ';
-    SQL := SQL +
-      'CASE WHEN p.codigo_cliente_endereco = 0 THEN ''Retirada no Balção'' ELSE '
-      + QuotedStr('') + ' END as msg_delivery_false, ';
-    SQL := SQL + 'p.codigo as id_sistema ';
-    SQL := SQL + 'FROM pedido as p ';
-    SQL := SQL + 'join cliente as c on c.codigo = p.codigo_cliente ';
-    SQL := SQL +
-      'join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco ';
-    SQL := SQL + 'where ';
-    SQL := SQL +
-      'p.data_pedido > ''2000-12-31'' and p.id_pedido_site is null and p.status > 0 ';
-    SQL := SQL + 'limit 15 ';
-    // ShowMessage(SQL);
-    frmPrincipal.AdicionaLog(SQL);
+    Req := iRequisicao.Create(nil);
+    Req.BASEURL := RequisicaoLocal.BASEURL;
+    Req.URL := '/v2/dados/pedido/site';
+    Req.MemTable2 := Dados;
+    Req.Execute;
+
     Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
     while not Dados.Eof do
@@ -1392,16 +1463,29 @@ begin
 
         DadosItens.Next;
         end; }
+      Req.URL := 'v1/pedido/status/' + Dados.FieldByName('id_sistema')
+        .AsString + '/2/';
+
+      try
+        Req.metodo := mPut;
+        Req.TempoExpiracao := 3000;
+        Req.Execute;
+      except
+
+      end;
+
       Dados.next;
     end;
 
   except
     On E: Exception do
     begin
-      frmPrincipal.AdicionaLog(E.Message);
+
     end;
 
   end;
+
+  Req.Free;
 
   Insert.Free;
   Dados.Free;
@@ -1502,31 +1586,29 @@ begin
   InsertSite := TInsertUpdateSite.Create;
   while not Dados.Eof do
   begin
-    if Dados.FieldByName('ativo').AsInteger = 1 then
+
+    codigo := InsertSite.InserirUpdate('bairros_delivery', Usuario.ToString,
+      ['id', 'user_id', 'uf', 'cidade', 'bairro', 'taxa', 'ativo', 'tempo'],
+      [Dados.FieldByName('id_site').AsString, Usuario.ToString,
+      Dados.FieldByName('estado').AsString, Dados.FieldByName('cidade')
+      .AsString, Dados.FieldByName('bairro').AsString,
+      StringReplace(Dados.FieldByName('valor_taxa').AsString, ',', '.',
+      [rfReplaceAll]), Dados.FieldByName('ativo').AsString,
+      Dados.FieldByName('tempo').AsString]);
+    if codigo > 0 then
     begin
-      codigo := InsertSite.InserirUpdate('bairros_delivery', Usuario.ToString,
-        ['id', 'user_id', 'uf', 'cidade', 'bairro', 'taxa'],
-        [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-        Dados.FieldByName('estado').AsString, Dados.FieldByName('cidade')
-        .AsString, Dados.FieldByName('bairro').AsString,
-        StringReplace(Dados.FieldByName('valor_taxa').AsString, ',', '.',
-        [rfReplaceAll])]);
-      if codigo > 0 then
-      begin
-        SQL := 'update taxa_entrega set modificado_site = 1 where codigo = ' +
-          Dados.FieldByName('codigo').AsString;
-        Insert.ExecutaSQL(SQL);
-        SQL := 'update taxa_entrega set id_site = ' + codigo.ToString +
-          ' where codigo = ' + Dados.FieldByName('codigo').AsString;
-        Insert.ExecutaSQL(SQL);
-      end;
+      SQL := 'update taxa_entrega set modificado_site = 1 where codigo = ' +
+        Dados.FieldByName('codigo').AsString;
+      Insert.ExecutaSQL(SQL);
+      SQL := 'update taxa_entrega set id_site = ' + codigo.ToString +
+        ' where codigo = ' + Dados.FieldByName('codigo').AsString;
+      Insert.ExecutaSQL(SQL);
     end
     else
     begin
-      if Dados.FieldByName('id_site').AsInteger > 0 then
-        BuscaPedidoThread.ExecutaSQLSite
-          ('delete from bairros_delivery where id = ' +
-          Dados.FieldByName('id_site').AsString);
+      SQL := 'update taxa_entrega set modificado_site = 1 where codigo = ' +
+        Dados.FieldByName('codigo').AsString;
+      Insert.ExecutaSQL(SQL);
     end;
 
     Dados.next;
@@ -1594,10 +1676,50 @@ begin
   Insert.Free;
 end;
 
-procedure TfrmPrincipal.FormCreate(Sender: TObject);
+procedure TfrmPrincipal.FecharExe(ExeFileName: String);
+const
+  PROCESS_TERMINATE = $0001;
+var
+  ContinueLoop: BOOL;
+  FSnapshotHandle: THandle;
+  FProcessEntry32: TProcessEntry32;
 begin
+  ExeFileName := ExtractFileName(ExeFileName);
+
+  FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  FProcessEntry32.dwSize := SizeOf(FProcessEntry32);
+  ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
+  while Integer(ContinueLoop) <> 0 do
+  begin
+    if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile))
+      = UpperCase(ExeFileName)) or (UpperCase(FProcessEntry32.szExeFile)
+      = UpperCase(ExeFileName))) then
+      TerminateProcess(OpenProcess(PROCESS_TERMINATE, BOOL(0),
+        FProcessEntry32.th32ProcessID), 0);
+    ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
+  end;
+  CloseHandle(FSnapshotHandle);
+end;
+
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+var
+  IniFile: TIniFile;
+  URL: String;
+  Nome: String;
+begin
+  PodeFechar := false;
+  ThreadIniciada := false;
+  IniFile := TIniFile.Create('./goopedir.ini');
+  URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
+  OcultarForm := IniFile.ReadBool('site', 'ocultar', True);
+  Nome := IniFile.ReadString('server', 'name', 'SiteGoopedir');
+  IniFile.WriteBool('site', 'ocultar', OcultarForm);
+  IniFile.Free;
+  RequisicaoLocal.BASEURL := URL;
+
   mLog.Text := '';
-  if Verifica('SiteGooPedir.exe') = 1 then
+
+  if Verifica(Nome + '.exe') = 1 then
   Begin
     { Seu Codigo }
   end
@@ -1606,7 +1728,14 @@ begin
     Application.Terminate;
     exit;
   end;
-  AdicionaLog('Sistema Iniciado!');
+
+  RequisicaoLocal.URL := '/v2/status/site/open';
+  RequisicaoLocal.metodo := mPost;
+  try
+    RequisicaoLocal.Execute;
+  except
+
+  end;
 
   // Sleep(5000);
   lStatus.Caption := '';
@@ -1614,21 +1743,22 @@ begin
   memRequisicoes.Open;
   ConexaoSite := TConexaoSite.Create;
   ConexaoSite.Start;
-  GetTempoEspera;
+
   cSincroniza.Checked := True;
 
   if trim(SerialHD) = '90FC9F1F' then
   begin
-    cSincroniza.Checked := False;
-    cImportaPedido.Checked := False;
-    cAtualizaPreco.Checked := False;
+    cSincroniza.Checked := false;
+    cImportaPedido.Checked := false;
+    cAtualizaPreco.Checked := false;
   end
   else if SerialHD = '043DA167' then
   begin
-    cSincroniza.Checked := False;
-    cImportaPedido.Checked := False;
-    cAtualizaPreco.Checked := False;
+    cSincroniza.Checked := false;
+    cImportaPedido.Checked := false;
+    cAtualizaPreco.Checked := false;
   end;
+
   RecebeuProdutos := True;
 
 end;
@@ -1693,6 +1823,102 @@ begin
   Insert.Free;
 end;
 
+function TfrmPrincipal.GetGrupo: String;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from dados_whatsapp';
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  Result := Dados.FieldByName('localizacao').AsString;
+  Dados.Free;
+  Insert.Free;
+end;
+
+function TfrmPrincipal.GetHorarioAbertura(Dia: String): String;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from horario where dia_da_sema = ' +
+    QuotedStr(Copy(Dia, 0, 3));
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  if Dados.RecordCount > 0 then
+  begin
+    Result := Copy(Dados.FieldByName('abertura').AsString, 0, 5);
+  end
+  else
+  begin
+    Result := Copy(frmPrincipal.GetDadosConf('horario_abertura'), 0, 5);
+  end;
+
+  Dados.Free;
+  Insert.Free;
+end;
+
+function TfrmPrincipal.GetHorarioAtendimento(Dia: String): String;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from horario where dia_da_sema = ' +
+    QuotedStr(Copy(Dia, 0, 3));
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  if Dados.RecordCount > 0 then
+  begin
+    if Dados.FieldByName('status').AsString = '1' then
+      Result := 'true'
+    else
+      Result := 'false';
+  end
+  else
+  begin
+    Result := frmPrincipal.GetDadosConf(Dia);
+
+    if Result = '1' then
+      Result := 'true'
+    else
+      Result := 'false';
+
+  end;
+
+  Dados.Free;
+  Insert.Free;
+end;
+
+function TfrmPrincipal.GetHorarioFechamento(Dia: String): String;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from horario where dia_da_sema = ' +
+    QuotedStr(Copy(Dia, 0, 3));
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  if Dados.RecordCount > 0 then
+  begin
+    Result := Copy(Dados.FieldByName('fechamento').AsString, 0, 5);
+  end
+  else
+  begin
+    Result := Copy(frmPrincipal.GetDadosConf('horario_fechamento'), 0, 5);
+  end;
+
+  Dados.Free;
+  Insert.Free;
+end;
+
 function TfrmPrincipal.GetIdRequisicao: Integer;
 begin
   inc(FIdRequisicao);
@@ -1700,6 +1926,22 @@ begin
   lRequisicoes.Caption := 'Requisições: ' + IntToStr(Result) + ' - ' + SerialHD;
   if Homologacao then
     lRequisicoes.Caption := lRequisicoes.Caption + ' - [HOMOLOGAÇÃO]';
+end;
+
+function TfrmPrincipal.GetMensagem: String;
+var
+  Insert: TInsertUpdate;
+  SQL: String;
+  Dados: TFDMemTable;
+begin
+  Insert := TInsertUpdate.Create;
+  Dados := TFDMemTable.Create(nil);
+  SQL := 'select * from dados_whatsapp';
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  Result := StringReplace(Dados.FieldByName('mensagem_inicio').AsString, #13#10,
+    '\n', [rfReplaceAll]);
+  Dados.Free;
+  Insert.Free;
 end;
 
 function TfrmPrincipal.GetMinimoDelivery: String;
@@ -1731,20 +1973,6 @@ begin
     ' minutos.';
   Dados.Free;
   Insert.Free;
-end;
-
-function TfrmPrincipal.GetTempoEspera: Integer;
-var
-  ArquivoINI: TIniFile;
-begin
-  Homologacao := False;
-  ArquivoINI := TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    'CONFIGURACAO\site.ini');
-  Result := ArquivoINI.ReadInteger('integracao', 'tempo', 5);
-  ArquivoINI.WriteInteger('integracao', 'tempo', Result);
-  if Result = 0 then
-    Homologacao := True;
-  ArquivoINI.Free;
 end;
 
 function TfrmPrincipal.GetTempoVemBuscar: String;
@@ -1787,7 +2015,7 @@ end;
 procedure TfrmPrincipal.Image1Click(Sender: TObject);
 begin
   if RecebeuProdutos then
-    RecebeuProdutos := False
+    RecebeuProdutos := false
   else
     RecebeuProdutos := True;
 end;
@@ -1872,7 +2100,7 @@ var
   requisicao: TRequest;
   Memory: TFDMemTable;
   Insert: TInsertUpdate;
-  Site: TInsertUpdateSite;
+  SITE: TInsertUpdateSite;
   X: ISuperArray;
   I: Integer;
 
@@ -1900,7 +2128,7 @@ begin
   try
     Memory := TFDMemTable.Create(nil);
     Insert := TInsertUpdate.Create;
-    Site := TInsertUpdateSite.Create;
+    SITE := TInsertUpdateSite.Create;
 
     requisicao := TRequest.Create;
     requisicao.BASEURL := URL_SITE;
@@ -1950,7 +2178,7 @@ begin
           '1', '1', categoria.ToString, '0', '1']);
 
         if cSincroniza.Checked then
-          Site.InserirUpdate('ws_cat', BuscaPedidoThread.UserID.ToString,
+          SITE.InserirUpdate('ws_cat', BuscaPedidoThread.UserID.ToString,
             ['id', 'alterado'], [categoria.ToString, '0']);
 
         if Assigned(DadosCategoria) then
@@ -1970,8 +2198,8 @@ begin
           (Insert.ConsultaSQL('select * from produto where (id_site = ' +
           Memory.FieldByName('codigoproduto').AsString +
           ' or upper(nome_produto) = ' +
-          QuotedStr(RemoveAcento(Memory.FieldByName('nomeproduto').AsString)
-          ) + ')'));
+          QuotedStr(RemoveAcento(Memory.FieldByName('nomeproduto')
+          .AsString)) + ')'));
         CodigoProduto := 0;
         if DadosProdutos.RecordCount > 0 then
         begin
@@ -1993,8 +2221,9 @@ begin
           Memory.FieldByName('valorprodutoembalagem').AsString, '0',
           ' 1', '1']);
         if cSincroniza.Checked then
-          Site.InserirUpdate('ws_itens', BuscaPedidoThread.UserID.ToString,
+          SITE.InserirUpdate('ws_itens', BuscaPedidoThread.UserID.ToString,
             ['id', 'alterado'], [produto.ToString, '1']);
+        // ShowMessage('7');
 
         if Assigned(DadosProdutos) then
           DadosProdutos.Free;
@@ -2042,7 +2271,7 @@ begin
             Memory.FieldByName('maximocategoriaadicional').AsString,
             ExtraCategoria.ToString, '0']);
           if cSincroniza.Checked then
-            Site.InserirUpdate('ws_adicionais_cat',
+            SITE.InserirUpdate('ws_adicionais_cat',
               BuscaPedidoThread.UserID.ToString, ['id', 'alterado'],
               [ExtraCategoria.ToString, '0']);
 
@@ -2065,8 +2294,8 @@ begin
             ('SELECT * FROM pro_adi_personalizado_sabores where id_pro_adi_personalizado = '
             + CodigoExtraCategoria.ToString + ' and (id_site = ' +
             ExtraCategoriaItem.ToString + ' or upper(nome) = ' +
-            QuotedStr(RemoveAcento(Memory.FieldByName('nomeadicional').AsString)
-            ) + ')'));
+            QuotedStr(RemoveAcento(Memory.FieldByName('nomeadicional')
+            .AsString)) + ')'));
           CodigoExtraDescricao := 0;
 
           if DadosExtraCategoriaItem.RecordCount > 0 then
@@ -2084,7 +2313,7 @@ begin
             ExtraCategoriaItem.ToString, Memory.FieldByName('ativoadicional')
             .AsString, '1']);
           if cSincroniza.Checked then
-            Site.InserirUpdate('ws_adicionais_itens',
+            SITE.InserirUpdate('ws_adicionais_itens',
               BuscaPedidoThread.UserID.ToString, ['id', 'alterado'],
               [ExtraCategoriaItem.ToString, '0']);
 
@@ -2198,6 +2427,20 @@ begin;
   Result := aText;
 end;
 
+function TfrmPrincipal.RemoveNonNumeric(const Input: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  // Percorre cada caractere da string de entrada
+  for I := 1 to length(Input) do
+  begin
+    // Verifica se o caractere é um dígito (0-9)
+    if CharInSet(Input[I], ['0' .. '9']) then
+      Result := Result + Input[I]; // Adiciona o dígito à string de resultado
+  end;
+end;
+
 procedure TfrmPrincipal.Setcodigo(const Value: Integer);
 begin
   Fcodigo := Value;
@@ -2264,20 +2507,21 @@ var
   Arquivo: String;
   Local: String;
 begin
+  exit;
   FLogo := Value;
   if length(Value) = 0 then
   begin
     exit;
   end;
   Local := 'https://papaleguasfood.com.br/uploads/' + Value;
-  AdicionaLog(Local);
+
   Arquivo := ExtractFilePath(Application.ExeName) + 'CONFIGURACAO';
   ForceDirectories(Arquivo);
   Arquivo := Arquivo + '\' + UpperCase(Empresa) + '.PNG';
   if FileExists(Arquivo) then
   begin
     try
-      imgLogo.Picture.LoadFromFile(Arquivo);
+      // imgLogo.Picture.LoadFromFile(Arquivo);
 
     except
       DeleteFile(Arquivo);
@@ -2289,7 +2533,7 @@ begin
     if DownloadArquivo(Local, Arquivo) then
     begin
       try
-        imgLogo.Picture.LoadFromFile(Arquivo);
+        // imgLogo.Picture.LoadFromFile(Arquivo);
       except
 
       end;
@@ -2325,7 +2569,7 @@ begin
   end
   else
   begin
-    Status := 'Sem Conexão!';
+    Status := 'Sem Conexão';
     Sleep(5000);
     // Tray.Icons := imagemDesconectado;
 
@@ -2345,6 +2589,7 @@ begin
   end;
 
   self.Caption := URL_SITE + ' - ' + Status;
+  // TempoEspera := 60;
 end;
 
 procedure TfrmPrincipal.SetTempoEspera(const Value: Integer);
@@ -2360,6 +2605,13 @@ end;
 procedure TfrmPrincipal.SetUsuario(const Value: Integer);
 begin
   FUsuario := Value;
+  if Value > 0 then
+
+end;
+
+function TfrmPrincipal.SITE: String;
+begin
+  Result := Application.ExeName;
 end;
 
 procedure TfrmPrincipal.ThreadAnonima(Executar, AposFinalizar: TCallback);
@@ -2379,12 +2631,20 @@ begin
     end).Start;
 end;
 
+procedure TfrmPrincipal.timerCloseTimer(Sender: TObject);
+begin
+  PodeFechar := True;
+end;
+
 procedure TfrmPrincipal.tMinimizaTimer(Sender: TObject);
 begin
-  tMinimiza.Enabled := False;
-  self.Hide();
-  self.WindowState := wsMinimized;
-  StatusForm := sOcuto;
+  if OcultarForm then
+  begin
+    tMinimiza.Enabled := false;
+    self.Hide();
+    self.WindowState := wsMinimized;
+    StatusForm := sOcuto;
+  end;
 end;
 
 procedure TfrmPrincipal.TrayClick(Sender: TObject);
@@ -2415,6 +2675,26 @@ begin
     frmSenha.Free;
   end;
 
+end;
+
+function TfrmPrincipal.ValidaImpressoraService: Boolean;
+var
+  Req: iRequisicao;
+begin
+  // Result := True;
+  Req := iRequisicao.Create(nil);
+  Req.BASEURL := RequisicaoLocal.BASEURL;
+  Req.URL := '/impressao/status/servico';
+  Req.TempoExpiracao := 60 * 1000;
+  try
+    Req.Execute;
+    Result := Req.Retorno = 'true';
+
+  except
+    Result := false;
+  end;
+  ckpImpressao.Checked := Result;
+  Req.Free;
 end;
 
 function TfrmPrincipal.Verifica(ExeFileName: String): Integer;
@@ -2487,19 +2767,20 @@ begin
     MemoryDados.FieldDefs.Add('categoria', ftString, 100);
     MemoryDados.FieldDefs.Add('adicional', ftString, 100);
     MemoryDados.FieldDefs.Add('valoradicional', ftFloat);
+    MemoryDados.FieldDefs.Add('qtdadicional', ftFloat);
     MemoryDados.Open;
     while not MemoryPedidoItem.Eof do
     begin
-      try
-        FRequest.URLI := 'obs/' + MemoryPedidoItem.FieldByName('tabela')
-          .AsString + '/a';
-        FRequest.Get;
-        MemoryPedidoItem.Edit;
-        MemoryPedidoItem.FieldByName('obs').AsString := FRequest.Retorno;
-        MemoryPedidoItem.Post;
-      except
-
-      end;
+      // try
+      // FRequest.URLI := 'obs/' + MemoryPedidoItem.FieldByName('tabela')
+      // .AsString + '/a';
+      // FRequest.Get;
+      // MemoryPedidoItem.Edit;
+      // MemoryPedidoItem.FieldByName('obs').AsString := FRequest.Retorno;
+      // MemoryPedidoItem.Post;
+      // except
+      //
+      // end;
 
       MemoryDados.Insert;
       MemoryDados.FieldByName('id').AsInteger := MemoryPedidoItem.FieldByName
@@ -2528,6 +2809,8 @@ begin
         MemoryDados.FieldByName('adicional').AsString :=
           MemoryPedidoItem.FieldByName('obs').AsString;
         MemoryDados.FieldByName('valoradicional').AsFloat := 0;
+        MemoryDados.FieldByName('qtdadicional').AsFloat := 1;
+
       end;
       MemoryDados.Post;
       DadosBusca.Close;
@@ -2546,10 +2829,13 @@ begin
             MemoryPedidoItem.FieldByName('produto').AsInteger;
           MemoryDados.FieldByName('qtd').AsInteger :=
             MemoryPedidoItem.FieldByName('qtde').AsInteger;
+          MemoryDados.FieldByName('qtdadicional').AsFloat := 1;
+
           MemoryDados.FieldByName('valor').AsString :=
             StringReplace(MemoryPedidoItem.FieldByName('valor').AsString, '.',
             ',', [rfReplaceAll]);
-          // MemoryPedidoItem.FieldByName('valor').AsFloat;
+          MemoryDados.FieldByName('qtdadicional').AsFloat :=
+            DadosBusca.FieldByName('quantidade').AsFloat;
           try
             MemoryDados.FieldByName('valor').AsString :=
               StringReplace(MemoryPedidoItem.FieldByName('valor').AsString, '.',
@@ -2565,6 +2851,7 @@ begin
 
           if DadosBusca.FieldByName('valor_pizza').IsNull then
           begin
+
             try
               MemoryDados.FieldByName('valoradicional').AsString :=
                 StringReplace(DadosBusca.FieldByName('valor').AsString, '.',
@@ -2877,6 +3164,8 @@ begin
   end
   else
   begin
+    Result := 1;
+    exit;
     Dados.Free;
     DadosSQL := TFDMemTable.Create(nil);
     Dados := TFDMemTable.Create(nil);
@@ -2884,7 +3173,7 @@ begin
     DadosSQL.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
     // https://goopedir.com/ws/v1/generica.php?tabela=ws_itens&where=id=89862
-    FRequest.URLI := 'generica.php?tabela=ws_itens&where=id=' +
+    FRequest.URLI := 'generica.php?tabela=ws_itens&where id=' +
       CodigoSite.ToString;
     FRequest.Get;
     Dados.LoadFromJSON(FRequest.Retorno);
@@ -2934,8 +3223,8 @@ begin
   FRequest := TRequest.Create;
   FRequest.BASEURL := URL_SITE;
   FRequestStatus := iRequisicao.Create(nil);
-  FRequestStatus.BASEURL := LOCALHOST;
-  Segundos := 15;
+  FRequestStatus.BASEURL := frmPrincipal.RequisicaoLocal.BASEURL;
+  Segundos := 5;
   FUserID := -1;
 
   MemoryTablePedidos := TFDMemTable.Create(nil);
@@ -2948,8 +3237,8 @@ end;
 
 destructor TBuscaPedidos.Destroy;
 begin
-
-  inherited;
+  frmPrincipal.FecharExe(frmPrincipal.SITE);
+  // inherited;
 end;
 
 function TBuscaPedidos.ExecutaSQLSite(SQL: String): Boolean;
@@ -2970,15 +3259,20 @@ var
   requisicao: TRequest;
   IP: Boolean;
 
+  Pedido: Integer;
+  iFood: String;
+  Motoboy: Integer;
+
 begin
   inherited;
   while not Terminated do
   begin
+
     try
       if UserID = -1 then
       begin
         frmPrincipal.lStatus.Caption := 'Crédencias API - Incorretas';
-        frmPrincipal.BuscarPedido := False;
+        frmPrincipal.BuscarPedido := false;
         frmPrincipal.Tray.Icons := frmPrincipal.imagemDesconectado;
       end
       else
@@ -2988,27 +3282,36 @@ begin
         frmPrincipal.lStatus.Caption := frmPrincipal.NomeRestaurante;
         if GetPedidos then
           frmPrincipal.BuscarPedido := True;
+        // try
+        // if not IP then
+        // begin
+        // requisicao := TRequest.Create;
+        // requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
+        // GetLocalIP;
+        // requisicao.Get;
+        // requisicao.Free;
+        // IP := True;
+        // end;
+        // except
+        //
+        // end;
+
+      end;
+      if frmPrincipal.PodeFechar then
+      begin
+        Destroy;
+      end;
+
+      if frmPrincipal.BuscarPedido and frmPrincipal.ValidaImpressoraService then
+      begin
+
+        GetPedidos := false;
+        FRequest.URLI := 'pedidos/' + UserID.ToString + '/a';
         try
-          if not IP then
-          begin
-            requisicao := TRequest.Create;
-            requisicao.BASEURL := 'https://goopedir.com/ws/v1/gravaip.php?ip=' +
-              GetLocalIP;
-            requisicao.Get;
-            requisicao.Free;
-            IP := True;
-          end;
+          FRequest.Get;
         except
 
         end;
-
-      end;
-
-      if frmPrincipal.BuscarPedido then
-      begin
-        GetPedidos := False;
-        FRequest.URLI := 'pedidos/' + UserID.ToString + '/a';
-        FRequest.Get;
 
         case FRequest.Status of
           999:
@@ -3026,7 +3329,7 @@ begin
               begin
                 try
                   MemoryTablePedidos.LoadFromJSON(FRequest.Retorno);
-                  frmPrincipal.AdicionaLog(FRequest.Retorno);
+                  //
                 except
                   on E: Exception do
                   begin
@@ -3058,16 +3361,20 @@ begin
         if (MemoryTablePedidos.RecordCount > 0) and
           (frmPrincipal.cImportaPedido.Checked) then
         begin
-          frmPrincipal.BuscarPedido := False;
+          frmPrincipal.BuscarPedido := false;
           InserirPedidos;
         end;
-        frmPrincipal.AtualizaSite;
-        if not frmPrincipal.RecebeuProdutos then
-        begin
-          frmPrincipal.RecebeuProdutos := True;
-          frmPrincipal.ReceberProduto;
+        try
+
+          if not frmPrincipal.RecebeuProdutos then
+          begin
+            frmPrincipal.RecebeuProdutos := True;
+            frmPrincipal.ReceberProduto;
+          end;
+        except
+
         end;
-        //
+
         FRequest.URLI := 'pedidospm/' + UserID.ToString + '/a';
         FRequest.Get;
 
@@ -3083,29 +3390,79 @@ begin
               if FRequest.Retorno <> 'null' then
               begin
                 try
-                  MemoryPedidosMotoboy.LoadFromJSON(FRequest.Retorno);
+                  MemoryPedidosMotoboy.LoadFromJSON
+                    (StringReplace(FRequest.Retorno, '_', '', [rfReplaceAll]));
                   Insert := TInsertUpdate.Create;
                   if MemoryPedidosMotoboy.RecordCount > 0 then
                   begin
                     while not MemoryPedidosMotoboy.Eof do
                     begin
 
+                      Motoboy := Insert.BuscaDadosDados('codigo',
+                        'select * from motoboy where id_site = ' +
+                        MemoryPedidosMotoboy.FieldByName('motoboy').AsString);
+                      Pedido := Insert.BuscaDadosDados('codigo',
+                        'select * from pedido where pedido_site =  ' +
+                        MemoryPedidosMotoboy.FieldByName('idpedido').AsString);
+
+                      if Pedido = 0 then
+                      begin
+                        Pedido := Insert.BuscaDadosDados('codigo',
+                          'SELECT * FROM pedido where codigo_pedido_dia = ' +
+                          MemoryPedidosMotoboy.FieldByName('codigodia').AsString
+                          + ' and data_pedido = curdate() and valor_taxa_entrega > 0');
+                      end;
+
                       Insert.InserirUpdate('pedido_motoboy',
                         ['codigo', 'codigo_motoboy', 'codigo_pedido',
                         'hora_pego_motoboy', 'status'],
-                        ['0', MemoryPedidosMotoboy.FieldByName('motoboy')
-                        .AsString, MemoryPedidosMotoboy.FieldByName('codigo')
-                        .AsString, MemoryPedidosMotoboy.FieldByName('hora')
+                        ['0', Motoboy.ToString, Pedido.ToString,
+                        MemoryPedidosMotoboy.FieldByName('hora')
                         .AsString, '0']);
 
-                      Insert.InserirUpdate('pedido', ['codigo', 'status'],
-                        [MemoryPedidosMotoboy.FieldByName('codigo')
-                        .AsString, '5']);
+                      // Insert.InserirUpdate('pedido', ['codigo', 'status'],
+                      // [MemoryPedidosMotoboy.FieldByName('codigo')
+                      // .AsString, '5']);
+                      FRequestStatus.URL := 'v1/pedido/status/' +
+                        Pedido.ToString + '/3/';
+                      if (MemoryPedidosMotoboy.FieldByName('status')
+                        .AsInteger = 1) then
+                      begin
+                        FRequestStatus.URL := 'v1/pedido/status/' +
+                          Pedido.ToString + '/5/';
+                      end;
+
+                      try
+                        FRequestStatus.metodo := mPut;
+                        FRequestStatus.TempoExpiracao := 3000;
+                        FRequestStatus.Execute;
+                      except
+
+                      end;
+                      try
+                        iFood := Insert.BuscaDadosDadosS('id_ifood',
+                          'select * from pedido where codigo =  ' +
+                          Pedido.ToString);
+
+                        if iFood <> '' then
+                        begin
+                          try
+                            FRequestStatus.URL :=
+                              'v1/util/ifood/despachar/' + iFood;
+                            FRequestStatus.metodo := mPost;
+                            FRequestStatus.TempoExpiracao := 3000;
+                            FRequestStatus.Execute;
+                          except
+
+                          end;
+                        end;
+                      except
+
+                      end;
 
                       ExecutaSQLSite
-                        ('update ws_pedidos_motoboy set status = 2 where codigo = '
-                        + MemoryPedidosMotoboy.FieldByName('codigoupd')
-                        .AsString);
+                        ('update ws_pedidos_motoboy set status = 0 where codigo = '
+                        + MemoryPedidosMotoboy.FieldByName('codigo').AsString);
 
                       MemoryPedidosMotoboy.next;
                     end;
@@ -3140,10 +3497,11 @@ begin
         end;
 
       end;
+      frmPrincipal.AtualizaSite;
     except
       on E: Exception do
       begin
-        // ShowMessage(e.Message);
+        // ShowMessage(E.Message);
       end;
 
     end;
@@ -3163,6 +3521,19 @@ var
   SQL: String;
 
 begin
+
+  frmPrincipal.RequisicaoLocal.URL := 'v1/codigo/pedido/dia';
+  frmPrincipal.RequisicaoLocal.metodo := mGet;
+  frmPrincipal.RequisicaoLocal.TempoExpiracao := 25 * 1000;
+  try
+    frmPrincipal.RequisicaoLocal.Execute;
+    Result := frmPrincipal.RequisicaoLocal.Retorno.ToInteger;
+  except
+    Result := 1;
+  end;
+
+  exit;
+
   Insert := TInsertUpdate.Create;
   Dados := TFDMemTable.Create(nil);
 
@@ -3297,13 +3668,18 @@ begin
       SQL := 'update ws_empresa set versao = ' +
         QuotedStr(frmPrincipal.GetVersaoSQL);
 
+      // SQL := SQL + ',mensagem = ' + QuotedStr(frmPrincipal.GetMensagem);
+      // SQL := SQL + ',localizacao_gp = ' + QuotedStr(frmPrincipal.GetGrupo);
+
       for I := 0 to 6 do
       begin
-        DadosVersao := frmPrincipal.GetDadosConf(ArrayDias[I]);
-        if DadosVersao = '1' then
-          DadosVersao := 'true'
-        else
-          DadosVersao := 'false';
+        // DadosVersao := frmPrincipal.GetDadosConf(ArrayDias[I]);
+        // if DadosVersao = '1' then
+        // DadosVersao := 'true'
+        // else
+        // DadosVersao := 'false';
+
+        DadosVersao := frmPrincipal.GetHorarioAtendimento(ArrayDias[I]);
 
         SQL := SQL + ',config_' + ArrayDias[I] + ' = ' + QuotedStr(DadosVersao);
 
@@ -3331,18 +3707,16 @@ begin
         DadosVersao := '';
 
         SQL := SQL + ',' + ArrayDias[I] + '_manha_de = ' +
-          QuotedStr(Copy(frmPrincipal.GetDadosConf('horario_abertura'), 0, 5));
+          QuotedStr(frmPrincipal.GetHorarioAbertura(ArrayDias[I]));
 
         SQL := SQL + ',' + ArrayDias[I] + '_manha_ate = ' +
-          QuotedStr(Copy(frmPrincipal.GetDadosConf
-          ('horario_fechamento'), 0, 5));
+          QuotedStr(frmPrincipal.GetHorarioFechamento(ArrayDias[I]));
 
         SQL := SQL + ',' + ArrayDias[I] + '_tarde_de = ' +
-          QuotedStr(Copy(frmPrincipal.GetDadosConf('horario_abertura'), 0, 5));
+          QuotedStr(frmPrincipal.GetHorarioAbertura(ArrayDias[I]));
 
         SQL := SQL + ',' + ArrayDias[I] + '_tarde_ate = ' +
-          QuotedStr(Copy(frmPrincipal.GetDadosConf
-          ('horario_fechamento'), 0, 5));
+          QuotedStr(frmPrincipal.GetHorarioFechamento(ArrayDias[I]));
 
       end;
 
@@ -3350,13 +3724,13 @@ begin
 
       SQL := SQL + ',msg_tempo_delivery = ' +
         QuotedStr(frmPrincipal.GetTempoDelivery);
-      BuscaPedidoThread.ExecutaSQLSite(SQL);
+      // BuscaPedidoThread.ExecutaSQLSite(SQL);
 
       SQL := SQL + ',msg_tempo_buscar = ' +
         QuotedStr(frmPrincipal.GetTempoVemBuscar);
 
       SQL := SQL + ' where user_id = ' + FUserID.ToString;
-
+      // ShowMessage(sql);
       BuscaPedidoThread.ExecutaSQLSite(SQL);
     end
     else
@@ -3383,6 +3757,7 @@ var
   SQL: String;
   CodigoPedidoItem: Integer;
   CodigoPedidoDia: Integer;
+  CodigoProd: Integer;
   Messa: Boolean;
   CodigoMesa: Integer;
   DescricaoMesa: String;
@@ -3391,9 +3766,10 @@ var
   SAP: Boolean;
   A: Integer;
   ValorDelivery: Real;
+  I: Integer;
 
 begin
-  frmPrincipal.AdicionaLog('Adicionando Pedido');
+
   Insert := TInsertUpdate.Create;
   case TipoPedido of
     0:
@@ -3440,32 +3816,32 @@ begin
       MemoryTablePedidos.First;
       while not MemoryTablePedidos.Eof do
       begin
-        SAP := False;
+        SAP := false;
         Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id')
           .AsInteger);
         MemoryDadosItem.Close;
         MemoryDadosItem.LoadFromJSON(Resultado);
+
         CodigoCliente := -1;
 
         if MemoryDadosItem.RecordCount > 0 then
         begin
 
           if Insert.BuscaDadosDados('id_pedido_site',
-            'select * from pedido where pedido.id_pedido_site =  ' +
+            'select * from pedido where pedido.id_pedido_site = ' +
             MemoryTablePedidos.FieldByName('id').AsString) = 0 then
           begin
 
-            FRequest.URLI := 'rua/' + MemoryTablePedidos.FieldByName('id')
-              .AsString + '/a';
-            FRequest.Get;
-            MemoryTablePedidos.Edit;
-            MemoryTablePedidos.FieldByName('rua').AsString := FRequest.Retorno;
-            MemoryTablePedidos.Post;
+            // FRequest.URLI := 'rua/' + MemoryTablePedidos.FieldByName('id').AsString + '/a';
+            // FRequest.Get;
+            // MemoryTablePedidos.Edit;
+            // MemoryTablePedidos.FieldByName('rua').AsString := FRequest.Retorno;
+            // MemoryTablePedidos.Post;
 
             while CodigoCliente = -1 do
             begin
               try
-                Messa := False;
+                Messa := false;
                 if MemoryTablePedidos.FieldByName('idmesa').AsInteger > 0 then
                 begin
                   CodigoCliente :=
@@ -3510,16 +3886,12 @@ begin
                   MemoryTablePedidos.FieldByName('complemento').AsString);
               end;
             end;
+
             if ValorValido(CodigoCliente) and ValorValido(Endereco) then
             begin
               CodigoPedidoDia := GeraCodigoPorDiaPedido;
               if Messa then
               begin
-                // Se for mesa verificar se tem mesa em aberto
-                // SQL := 'SELECT * FROM pedido where codigo_cliente = ' +
-                // CodigoCliente.ToString + ' and data_pedido = ' +
-                // QuotedStr(FormatDateTime('yyyy-mm-dd', now)) +
-                // ' and status in (9,0,1)';
 
                 SQL := 'select * from mesa join mesa_tipo on  mesa_tipo.id_mesa_tipo = mesa.fk_tipo_mesa where mesa.nr_mesa = '
                   + MemoryTablePedidos.FieldByName('idmesa').AsString +
@@ -3537,7 +3909,7 @@ begin
                   CodigoNovoPeiddo := Dados.FieldByName('selecionada')
                     .AsInteger;
                   if Dados.FieldByName('selecionada').AsInteger > 0 then
-                    Novo := False;
+                    Novo := false;
                 end;
                 Dados.Free;
               end
@@ -3546,255 +3918,332 @@ begin
                 Novo := True;
               end;
 
-              if Novo then
-              begin
-                if not Assigned(DadosConsulta) then
-                  DadosConsulta := TFDMemTable.Create(nil);
-                DadosConsulta.Close;
-                SQL := 'select * from pedido where id_pedido_site = ' +
-                  MemoryTablePedidos.FieldByName('id').AsString;
-                // DadosConsulta.LoadFromJSON(Insert.ConsultaSQL(SQL));
-
-                if DadosConsulta.RecordCount = 0 then
-                begin
-                  if MemoryDadosItem.RecordCount > 0 then
-                  begin
-                    MemoryTablePedidos.Edit;
-
-                    FRequest.URLI := 'pag/' + MemoryTablePedidos.FieldByName
-                      ('id').AsString + '/a';
-                    FRequest.Get;
-                    try
-                      MemoryTablePedidos.FieldByName('forma_pagamento').AsString
-                        := FRequest.Retorno;
-                    except
-                      MemoryTablePedidos.FieldByName('forma_pagamento').AsString
-                        := 'Outros';
-                    end;
-
-                    FRequest.URLI := 'comp/' + MemoryTablePedidos.FieldByName
-                      ('id').AsString + '/a';
-                    try
-                      FRequest.Get;
-                      MemoryTablePedidos.FieldByName('complemento').AsString :=
-                        FRequest.Retorno;
-                    except
-
-                    end;
-
-                    MemoryTablePedidos.Post;
-                  end;
-
-                  CodigoNovoPeiddo := Insert.InserirUpdate('pedido',
-                    ['codigo', 'codigo_pedido_dia', 'codigo_cliente',
-                    'codigo_cliente_endereco', 'data_pedido', 'hora_pedido',
-                    'status', 'valor_pedido', 'valor_desconto',
-                    'valor_taxa_entrega', 'valor_total_pedido', 'troco',
-                    'impresso_site', 'pedido_impresso', 'origem',
-                    'id_pedido_site', 'tipo_pagamento', 'pedido_site', 'mp'],
-                    ['0', CodigoPedidoDia.ToString, CodigoCliente.ToString,
-                    Endereco.ToString, FormatDateTime('yyyy-mm-dd', Date),
-                    TimeToStr(Time), StatusPedido.ToString,
-                    MemoryTablePedidos.FieldByName('sub').AsString,
-                    MemoryTablePedidos.FieldByName('desconto').AsString,
-                    MemoryTablePedidos.FieldByName('taxa').AsString,
-                    MemoryTablePedidos.FieldByName('total').AsString,
-                    MemoryTablePedidos.FieldByName('troco').AsString, '0', '1',
-                    '2', MemoryTablePedidos.FieldByName('id').AsString,
-                    CodigoFormaPagamento(MemoryTablePedidos.FieldByName
-                    ('forma_pagamento').AsString).ToString,
-                    MemoryTablePedidos.FieldByName('id').AsString,
-                    MemoryTablePedidos.FieldByName('mp').AsString]);
-                  //
-
-                  if Messa then
-                  begin
-                    // SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                    // StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor')
-                    // .AsFloat + ValorDelivery), ',', '.', [rfReplaceAll]) +
-                    // ' where codigo = ' + CodigoNovoPeiddo.ToString;
-                    // Insert.ExecutaSQL(SQL);
-
-                    // CodigoMesa
-                    SQL := 'update mesa set selecionada = ' +
-                      CodigoNovoPeiddo.ToString + ' where id_mesa = ' +
-                      CodigoMesa.ToString;
-                    Insert.ExecutaSQL(SQL);
-                    SQL := 'update produto set id_ficha = ' +
-                      CodigoMesa.ToString + ', desc_ficha = ' +
-                      QuotedStr(UpperCase(DescricaoMesa)) + ' where codigo = ' +
-                      CodigoNovoPeiddo.ToString;
-                    Insert.ExecutaSQL(SQL);
-                  end;
-
-                end
-                else
-                begin
-                  CodigoNovoPeiddo := DadosConsulta.FieldByName('codigo')
-                    .AsInteger;
-                  Novo := False;
-                end;
-              end;
             end;
 
-            MemoryDadosItem.First;
-
-            while not MemoryDadosItem.Eof do
+            if Novo then
             begin
+              if not Assigned(DadosConsulta) then
+                DadosConsulta := TFDMemTable.Create(nil);
+              DadosConsulta.Close;
+              SQL := 'select * from pedido where id_pedido_site = ' +
+                MemoryTablePedidos.FieldByName('id').AsString;
+              DadosConsulta.LoadFromJSON(Insert.ConsultaSQL(SQL));
 
-              // Consultar
-              SAP := False;
-              if Assigned(Dados) then
-                Dados.Close;
-              SQL := 'select * from pedido_produtos where id_site = ' +
-                MemoryDadosItem.FieldByName('id').AsString +
-                ' and codigo_pedido = ' + CodigoNovoPeiddo.ToString;
-              Dados := TFDMemTable.Create(nil);
-              Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-              ValorDelivery := ValorAdicionalDelivery
-                (MemoryDadosItem.FieldByName('idproduto').AsInteger) *
-                MemoryDadosItem.FieldByName('qtd').AsFloat;
-
-              if Endereco = 0 then
-                ValorDelivery := 0;
-              if Dados.RecordCount = 0 then
+              if DadosConsulta.RecordCount = 0 then
               begin
-                // Insert
+                if MemoryDadosItem.RecordCount > 0 then
+                begin
+                  MemoryTablePedidos.Edit;
 
-                CodigoPedidoItem := Insert.InserirUpdate('pedido_produtos',
-                  ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
-                  'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
-                  ['0', CodigoNovoPeiddo.ToString,
-                  CodigoProduto(MemoryDadosItem.FieldByName('idproduto')
-                  .AsInteger).ToString, MemoryDadosItem.FieldByName('id')
-                  .AsString,
-                  (ValorDelivery + ConverteValor(MemoryDadosItem.FieldByName
-                  ('valor').AsString) / MemoryDadosItem.FieldByName('qtd')
-                  .AsFloat).ToString, MemoryDadosItem.FieldByName('qtd')
-                  .AsString, (MemoryDadosItem.FieldByName('valor').AsFloat +
-                  (ValorDelivery)).ToString, '0']);
+                  FRequest.URLI := 'pag/' + MemoryTablePedidos.FieldByName('id')
+                    .AsString + '/a';
+                  try
+                    FRequest.Get;
+
+                    MemoryTablePedidos.FieldByName('forma_pagamento').AsString
+                      := FRequest.Retorno;
+                  except
+                    MemoryTablePedidos.FieldByName('forma_pagamento').AsString
+                      := 'Outros';
+                  end;
+
+                  // FRequest.URLI := 'comp/' + MemoryTablePedidos.FieldByName
+                  // ('id').AsString + '/a';
+                  // try
+                  // FRequest.Get;
+                  // MemoryTablePedidos.FieldByName('complemento').AsString :=
+                  // FRequest.Retorno;
+                  // except
+                  //
+                  // end;
+
+                  MemoryTablePedidos.Post;
+                end;
+
+                CodigoNovoPeiddo := Insert.InserirUpdate('pedido',
+                  ['codigo', 'codigo_pedido_dia', 'codigo_cliente',
+                  'codigo_cliente_endereco', 'data_pedido', 'hora_pedido',
+                  'status', 'valor_pedido', 'valor_desconto',
+                  'valor_taxa_entrega', 'valor_total_pedido', 'troco',
+                  'impresso_site', 'pedido_impresso', 'origem',
+                  'id_pedido_site', 'tipo_pagamento', 'pedido_site', 'mp',
+                  'partner', 'desc_desconto_ifood', 'wpp_status', 'url'],
+                  ['0', CodigoPedidoDia.ToString, CodigoCliente.ToString,
+                  Endereco.ToString, FormatDateTime('yyyy-mm-dd', Date),
+                  TimeToStr(Time), '-1', MemoryTablePedidos.FieldByName('sub')
+                  .AsString, MemoryTablePedidos.FieldByName('desconto')
+                  .AsString, MemoryTablePedidos.FieldByName('taxa').AsString,
+                  MemoryTablePedidos.FieldByName('total').AsString,
+                  MemoryTablePedidos.FieldByName('troco').AsString, '0', '1',
+                  '2', MemoryTablePedidos.FieldByName('id').AsString,
+                  CodigoFormaPagamento(MemoryTablePedidos.FieldByName
+                  ('forma_pagamento').AsString).ToString,
+                  MemoryTablePedidos.FieldByName('id').AsString,
+                  MemoryTablePedidos.FieldByName('mp').AsString,
+                  MemoryTablePedidos.FieldByName('partner').AsString,
+                  MemoryTablePedidos.FieldByName('cupom').AsString, '-1',
+                  MemoryTablePedidos.FieldByName('url').AsString]);
+
+                if Messa then
+                begin
+                  // SQL := 'update pedido set valor_pedido = valor_pedido + ' +
+                  // StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor')
+                  // .AsFloat + ValorDelivery), ',', '.', [rfReplaceAll]) +
+                  // ' where codigo = ' + CodigoNovoPeiddo.ToString;
+                  // Insert.ExecutaSQL(SQL);
+
+                  // CodigoMesa
+                  SQL := 'update mesa set selecionada = ' +
+                    CodigoNovoPeiddo.ToString + ' where id_mesa = ' +
+                    CodigoMesa.ToString;
+                  Insert.ExecutaSQL(SQL);
+                  SQL := 'update produto set id_ficha = ' + CodigoMesa.ToString
+                    + ', desc_ficha = ' + QuotedStr(UpperCase(DescricaoMesa)) +
+                    ' where codigo = ' + CodigoNovoPeiddo.ToString;
+                  Insert.ExecutaSQL(SQL);
+                end;
+
+              end
+              else
+              begin
+                CodigoNovoPeiddo := DadosConsulta.FieldByName('codigo')
+                  .AsInteger;
+                Novo := false;
+              end;
+            end;
+          end
+          else
+          begin
+            if not Assigned(DadosConsulta) then
+              DadosConsulta := TFDMemTable.Create(nil);
+            DadosConsulta.Close;
+            SQL := 'select * from pedido where id_pedido_site = ' +
+              MemoryTablePedidos.FieldByName('id').AsString;
+            DadosConsulta.LoadFromJSON(Insert.ConsultaSQL(SQL));
+            CodigoNovoPeiddo := DadosConsulta.FieldByName('codigo').AsInteger;
+          end;
+
+          // cupom
+          // Insert.InserirUpdate('pedido_produtos',
+          SQL := 'update marketing set status = 3, pedido = ' +
+            CodigoNovoPeiddo.ToString + ' where cupom = "' +
+            PegarCupom(MemoryTablePedidos.FieldByName('cupom').AsString) + '"';
+          Insert.ExecutaSQL(SQL);
+          MemoryDadosItem.First;
+
+          while not MemoryDadosItem.Eof do
+          begin
+
+            // Consultar
+            SAP := false;
+            if Assigned(Dados) then
+              Dados.Close;
+            SQL := 'select * from pedido_produtos where id_site = ' +
+              MemoryDadosItem.FieldByName('id').AsString +
+              ' and codigo_pedido = ' + CodigoNovoPeiddo.ToString;
+            Dados := TFDMemTable.Create(nil);
+            Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+            ValorDelivery := ValorAdicionalDelivery
+              (MemoryDadosItem.FieldByName('idproduto').AsInteger) *
+              MemoryDadosItem.FieldByName('qtd').AsFloat;
+
+            if Endereco = 0 then
+              ValorDelivery := 0;
+            if Dados.RecordCount = 0 then
+            begin
+              // Insert
+
+              CodigoProd :=
+                CodigoProduto(MemoryDadosItem.FieldByName('idproduto')
+                .AsInteger);
+
+              CodigoPedidoItem := Insert.InserirUpdate('pedido_produtos',
+                ['codigo', 'codigo_pedido', 'codigo_produto', 'id_site',
+                'valor_unitario', 'quantidade', 'valor_total', 'impresso'],
+                ['0', CodigoNovoPeiddo.ToString, CodigoProd.ToString,
+                MemoryDadosItem.FieldByName('id').AsString,
+                (ValorDelivery + ConverteValor(MemoryDadosItem.FieldByName
+                ('valor').AsString) / MemoryDadosItem.FieldByName('qtd')
+                .AsFloat).ToString, MemoryDadosItem.FieldByName('qtd').AsString,
+                (MemoryDadosItem.FieldByName('valor').AsFloat + (ValorDelivery))
+                .ToString, '0']);
+
+              // Aki vai fazer a baixa
+
+              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/produto/' +
+                CodigoProd.ToString + '/' + MemoryDadosItem.FieldByName
+                ('qtd').AsString;
+              frmPrincipal.RequisicaoLocal.metodo := mPost;
+              try
+                frmPrincipal.RequisicaoLocal.Execute;
+              except
+
+              end;
+
+              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/insulmo/' +
+                CodigoPedidoItem.ToString;
+              frmPrincipal.RequisicaoLocal.metodo := mPost;
+              try
+                frmPrincipal.RequisicaoLocal.Execute;
+              except
+
+              end;
 
 
 
-                // Enviar para api local
+
+
+
+              // Enviar para api local
+
+              if Messa then
+                frmPrincipal.RequisicaoLocal.URL :=
+                  '/v1/util/impressao/aguarda/pedido/produtos/' +
+                  CodigoPedidoItem.ToString + '/2'
+              else
 
                 frmPrincipal.RequisicaoLocal.URL :=
                   '/v1/util/impressao/aguarda/pedido/produtos/' +
                   CodigoPedidoItem.ToString;
-                frmPrincipal.RequisicaoLocal.metodo := mPost;
-                try
-                  frmPrincipal.RequisicaoLocal.Execute;
-                except
+              frmPrincipal.RequisicaoLocal.metodo := mPost;
+              try
+                frmPrincipal.RequisicaoLocal.Execute;
+              except
 
-                end;
-
-                if not Novo then
-                begin
-                  SQL := 'update pedido set valor_pedido = valor_pedido + ' +
-                    StringReplace
-                    (FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat +
-                    ValorDelivery), ',', '.', [rfReplaceAll]) +
-                    ' where codigo = ' + CodigoNovoPeiddo.ToString;
-                  Insert.ExecutaSQL(SQL);
-
-                  SQL := 'update pedido set valor_total_pedido = valor_total_pedido + '
-                    + StringReplace
-                    (FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat +
-                    ValorDelivery), ',', '.', [rfReplaceAll]) +
-                    ' where codigo = ' + CodigoNovoPeiddo.ToString;
-                  Insert.ExecutaSQL(SQL);
-                end;
-              end
-              else
-              begin
-                CodigoPedidoItem := Dados.FieldByName('codigo').AsInteger;
               end;
 
-              if Assigned(Dados) then
-                Dados.Close
-              else
-                Dados := TFDMemTable.Create(nil);
-
-              SQL := 'select * from pedido_produto_sap where ';
-              SQL := SQL + 'codigo_pedido_produto = ' +
-                CodigoPedidoItem.ToString + ' and ';
-              SQL := SQL + 'nomeclatura = ' +
-                QuotedStr(MemoryDadosItem.FieldByName('categoria').AsString)
-                + ' and ';
-              SQL := SQL + 'descricao = ' +
-                QuotedStr(MemoryDadosItem.FieldByName('adicional').AsString)
-                + ' and ';
-              SQL := SQL + 'valor = ' +
-                StringReplace(trim(MemoryDadosItem.FieldByName('valoradicional')
-                .AsString), ',', '.', []);
-              SQL := SQL + '';
-
-              Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-
-              if Dados.RecordCount = 0 then
+              if not Novo then
               begin
+                SQL := 'update pedido set valor_pedido = valor_pedido + ' +
+                  StringReplace(FloatToStr(MemoryDadosItem.FieldByName('valor')
+                  .AsFloat + ValorDelivery), ',', '.', [rfReplaceAll]) +
+                  ' where codigo = ' + CodigoNovoPeiddo.ToString;
+                Insert.ExecutaSQL(SQL);
+
+                SQL := 'update pedido set valor_total_pedido = valor_total_pedido + '
+                  + StringReplace
+                  (FloatToStr(MemoryDadosItem.FieldByName('valor').AsFloat +
+                  ValorDelivery), ',', '.', [rfReplaceAll]) + ' where codigo = '
+                  + CodigoNovoPeiddo.ToString;
+                Insert.ExecutaSQL(SQL);
+              end;
+            end
+            else
+            begin
+              CodigoPedidoItem := Dados.FieldByName('codigo').AsInteger;
+            end;
+
+            if Assigned(Dados) then
+              Dados.Close
+            else
+              Dados := TFDMemTable.Create(nil);
+
+            SQL := 'select * from pedido_produto_sap where ';
+            SQL := SQL + 'codigo_pedido_produto = ' + CodigoPedidoItem.ToString
+              + ' and ';
+            SQL := SQL + 'nomeclatura = ' +
+              QuotedStr(MemoryDadosItem.FieldByName('categoria').AsString)
+              + ' and ';
+            SQL := SQL + 'descricao = ' +
+              QuotedStr(MemoryDadosItem.FieldByName('adicional').AsString)
+              + ' and ';
+            SQL := SQL + 'valor = ' +
+              StringReplace(trim(MemoryDadosItem.FieldByName('valoradicional')
+              .AsString), ',', '.', []);
+            SQL := SQL + '';
+
+            Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+
+            if Dados.RecordCount = 0 then
+            begin
+              try
+                for I := 1 to MemoryDadosItem.FieldByName('qtdadicional')
+                  .AsInteger do
+                begin
+                  Insert.InserirUpdate('pedido_produto_sap',
+                    ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
+                    'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
+                    MemoryDadosItem.FieldByName('categoria').AsString,
+                    MemoryDadosItem.FieldByName('adicional').AsString,
+                    (MemoryDadosItem.FieldByName('valoradicional').AsString)]);
+                end;
+              except
                 Insert.InserirUpdate('pedido_produto_sap',
                   ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
                   'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
                   MemoryDadosItem.FieldByName('categoria').AsString,
                   MemoryDadosItem.FieldByName('adicional').AsString,
                   (MemoryDadosItem.FieldByName('valoradicional').AsString)]);
-                SAP := True;
-              end
-              else
-              begin
-                SAP := True;
               end;
 
-              Dados.Close;
-              SQL := 'select * from pedido_produto_sap where ';
-              SQL := SQL + 'codigo_pedido_produto = ' +
-                CodigoPedidoItem.ToString;
-              Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-              if Dados.RecordCount = 0 then
-              begin
-                Insert.InserirUpdate('pedido_produto_sap',
-                  ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
-                  'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1',
-                  '', '', '0']);
+              frmPrincipal.RequisicaoLocal.URL :=
+                'v1/baixa/estoque/produto/adicional/' + CodigoProd.ToString +
+                '/' + MemoryDadosItem.FieldByName('adicional').AsString + '/' +
+                MemoryDadosItem.FieldByName('qtd').AsString + '/' +
+                MemoryDadosItem.FieldByName('valoradicional').AsString;
+              frmPrincipal.RequisicaoLocal.metodo := mPost;
+              try
+                frmPrincipal.RequisicaoLocal.Execute;
+              except
+
               end;
-              MemoryDadosItem.next;
+
+              SAP := True;
+            end
+            else
+            begin
+              SAP := True;
             end;
-            SQL := 'update pedido set valor_pedido = (select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo), valor_total_pedido = (valor_taxa_entrega + ';
-            SQL := SQL +
-              '(select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo)-valor_desconto ) where codigo = '
-              + CodigoNovoPeiddo.ToString;
-            Insert.ExecutaSQL(SQL);
 
-            SQL := 'update mesa set tot_mesa = (select sum(valor_total) from pedido_produtos where codigo_pedido = '
-              + CodigoNovoPeiddo.ToString + ') where id_mesa = ' +
-              CodigoMesa.ToString;
-            Insert.ExecutaSQL(SQL);
+            Dados.Close;
+            SQL := 'select * from pedido_produto_sap where ';
+            SQL := SQL + 'codigo_pedido_produto = ' + CodigoPedidoItem.ToString;
+            Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+            if Dados.RecordCount = 0 then
+            begin
+              Insert.InserirUpdate('pedido_produto_sap',
+                ['id', 'codigo_pedido_produto', 'tipo', 'nomeclatura',
+                'descricao', 'valor'], ['0', CodigoPedidoItem.ToString, '1', '',
+                '', '0']);
+            end;
+            MemoryDadosItem.next;
+          end;
+          SQL := 'update pedido set valor_pedido = (select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo), valor_total_pedido = (valor_taxa_entrega + ';
+          SQL := SQL +
+            '(select sum(valor_total) from pedido_produtos where codigo_pedido = pedido.codigo)-valor_desconto ) where codigo = '
+            + CodigoNovoPeiddo.ToString;
+          Insert.ExecutaSQL(SQL);
 
+          SQL := 'update mesa set tot_mesa = (select sum(valor_total) from pedido_produtos where codigo_pedido = '
+            + CodigoNovoPeiddo.ToString + ') where id_mesa = ' +
+            CodigoMesa.ToString;
+          Insert.ExecutaSQL(SQL);
+          if not Messa then
             Insert.InserirUpdate('impressao_pedido', ['id', 'data_solicitacao',
               'hora_solicitacao', 'id_pedido', 'status', 'vias'],
               ['0', FormatDateTime('yyyy-mm-dd', Date),
               FormatDateTime('hh:mm:ss', Time), CodigoNovoPeiddo.ToString,
               '0', '0']);
 
-            frmPrincipal.RequisicaoLocal.URL :=
-              '/v1/util/impressao/pedido/produtos/' + CodigoNovoPeiddo.ToString;
-            frmPrincipal.RequisicaoLocal.metodo := mPost;
-            try
-              frmPrincipal.RequisicaoLocal.Execute;
-            except
+          // frmPrincipal.RequisicaoLocal.URL :=
+          // '/v1/util/impressao/pedido/produtos/' + CodigoNovoPeiddo.ToString;
+          // frmPrincipal.RequisicaoLocal.metodo := mPost;
+          // try
+          // frmPrincipal.RequisicaoLocal.Execute;
+          // except
+          //
+          // end;
 
-            end;
-
-          end
-          else
-          begin
-            ExecutaSQLSite('update ws_pedidos set status = ' +
-              QuotedStr('Cancelado') + ' where id = ' +
-              MemoryTablePedidos.FieldByName('id').AsString);
-            ExecutaSQLSite('update ws_pedidos set user_id = 0 where id = ' +
-              MemoryTablePedidos.FieldByName('id').AsString);
-          end;
+          // end
+          // else
+          // begin
+          // {
+          // ExecutaSQLSite('update ws_pedidos set status = ' +
+          // QuotedStr('Cancelado') + ' where id = ' +
+          // MemoryTablePedidos.FieldByName('id').AsString);
+          // ExecutaSQLSite('update ws_pedidos set user_id = 0 where id = ' +
+          // MemoryTablePedidos.FieldByName('id').AsString); }
+          // end;
 
           case StatusPedido of
             0:
@@ -3824,6 +4273,12 @@ begin
           end;
         end;
 
+        frmPrincipal.Label2.Caption := StatusPedido.ToString;
+
+        CodigoNovoPeiddo := Insert.BuscaDadosDados('codigo',
+          'select * from pedido where id_pedido_site = ' +
+          MemoryTablePedidos.FieldByName('id').AsString);
+
         ExecutaSQLSite('update ws_pedidos set id_sistema = ' +
           CodigoNovoPeiddo.ToString + ' where id = ' +
           MemoryTablePedidos.FieldByName('id').AsString);
@@ -3833,6 +4288,10 @@ begin
         ExecutaSQLSite('update ws_pedidos set status_sistema = ' +
           StatusPedido.ToString + ', status = ' + QuotedStr('Finalizado') +
           ' where id_sistema > 0 and user_id = ' + UserID.ToString);
+
+        CodigoPedidoDia := Insert.BuscaDadosDados('codigo_pedido_dia',
+          'select * from pedido where id_pedido_site = ' +
+          MemoryTablePedidos.FieldByName('id').AsString);
 
         ExecutaSQLSite('update ws_pedidos set codigo_pedido = ' +
           QuotedStr(FormatFloat('00000', CodigoPedidoDia)) + ' where id = ' +
@@ -3855,15 +4314,33 @@ begin
   except
     on E: Exception do
     begin
-
-      frmPrincipal.AdicionaLog(FRequest.BASEURL + FRequest.URLI + #13 +
-        E.Message);
+      // ShowMessage(E.Message);
     end;
 
   end;
   GetPedidos := True;
   Insert.Free;
-  frmPrincipal.AdicionaLog('Conclusão Pedido');
+
+end;
+
+function TBuscaPedidos.PegarCupom(const s: string): string;
+var
+  Posicao: Integer;
+begin
+  // Encontra a posição do '+'
+  Posicao := Pos('+', s);
+
+  // Se encontrou o '+' na string
+  if Posicao > 0 then
+  begin
+    // Pega a parte da string antes do '+'
+    Result := trim(Copy(s, 1, Posicao - 1));
+  end
+  else
+  begin
+    // Se não encontrou o '+', retorna a string completa
+    Result := trim(s);
+  end;
 end;
 
 function TBuscaPedidos.QtdSabores(Valor: String): Integer;
@@ -3951,7 +4428,7 @@ end;
 
 function TBuscaPedidos.ValorValido(Valor: Integer): Boolean;
 begin
-  Result := False;
+  Result := false;
   if Valor > 0 then
   begin
     Result := True;
@@ -4013,12 +4490,11 @@ begin
   Montado := StringReplace(Montado, #$A, '', [rfReplaceAll]);
   Montado := StringReplace(Montado, #$D, '', [rfReplaceAll]);
 
-  frmPrincipal.AdicionaLog(Montado);
   requisicao.Body(Montado);
 
-  requisicao.Post;
-
   try
+    requisicao.Post;
+
     Result := StrToInt(requisicao.Retorno);
   except
     Result := 0;

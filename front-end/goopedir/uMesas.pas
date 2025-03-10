@@ -118,6 +118,7 @@ type
     Layout14: TLayout;
     Label18: TLabel;
     width: TNumberBox;
+    MESAdescricao1: TStringField;
     procedure FormActivate(Sender: TObject);
 
     procedure OnMouseEnterLocal(Sender: TObject);
@@ -293,7 +294,7 @@ begin
 
         with Tab do
         begin
-          Text := MESA.FieldByName('descricao').AsString;
+          Text := MESA.FieldByName('descricao1').AsString;
           Parent := tabMesas;
           Name := 'Tab' + MESA.FieldByName('fk_tipo_mesa').AsString;
         end;
@@ -338,7 +339,7 @@ begin
 
     if Assigned(Flow) then
     begin
-      CriarRetanguloMesa(Flow, MESA.FieldByName('descricao').AsString,
+      CriarRetanguloMesa(Flow, MESA.FieldByName('descricao1').AsString,
         MESA.FieldByName('nr_mesa').AsInteger, MESA.FieldByName('sts_mesa')
         .AsInteger, MESA.FieldByName('tot_mesa').AsFloat,
         MESA.FieldByName('id_mesa').AsInteger);
@@ -831,10 +832,14 @@ begin
     DM.GetSimples2('v1/pedidos/' + FormatDateTime('ddmmyyyy',
       edtDataInicial.Date) + '/' + FormatDateTime('ddmmyyyy', edtDataFinal.Date)
       + '/' + FormatDateTime('hhnn59', edtHoraInicial.Time) + '/' +
-      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3,4/X', DadosPedido);
+      FormatDateTime('hhnn59', edtHoraFinal.Time) + '/1,2,3,4,5/X', DadosPedido);
+
+ 
+
   end
   else
   begin
+
     ValorVB := 0;
     ValorDelivery := 0;
     ValorMesa := 0;
@@ -871,7 +876,7 @@ begin
             ('codigo').AsString;
           FrameDados.Align := TAlignLayout.Top;
 
-          if DadosPedido.FieldByName('ficha').IsNull then
+          if DadosPedido.FieldByName('ficha').AsInteger = 0 then
           begin
             if DadosPedido.FieldByName('id_ifood').IsNull then
             begin
@@ -908,7 +913,7 @@ begin
             ('codigo').AsString;
           FrameDadosiFood.Align := TAlignLayout.Top;
 
-          if DadosPedido.FieldByName('ficha').IsNull then
+          if DadosPedido.FieldByName('ficha').AsInteger = 0 then
           begin
             if DadosPedido.FieldByName('id_ifood').IsNull then
             begin
@@ -943,7 +948,7 @@ begin
       begin
         if DadosPedido.FieldByName('status').AsInteger <> 0 then
         begin
-          if DadosPedido.FieldByName('ficha').IsNull then
+          if DadosPedido.FieldByName('ficha').AsInteger = 0 then
           begin
             case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
               0:
@@ -1038,7 +1043,7 @@ begin
       begin
         if DadosPedido.FieldByName('status').AsInteger <> 0 then
         begin
-          if DadosPedido.FieldByName('ficha').IsNull then
+          if DadosPedido.FieldByName('ficha').AsInteger = 0 then
           begin
             case DadosPedido.FieldByName('cliente_Endereco').AsInteger of
               0:

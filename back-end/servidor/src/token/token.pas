@@ -318,7 +318,7 @@ begin
 
   }
 
-  Conection := TConexao.Create;
+  Conection := TConexao.Create('token');
 
   QRY := Conection.CriaQRY;
   try
@@ -401,7 +401,7 @@ begin
     end;
 
   end;
-
+Conection.Free;
 end;
 
 procedure DoGetCrip(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -478,7 +478,7 @@ begin
       end;
 
       // DateUtils
-      // ShowMessage(FormatDateTime('dd/mm/yyyy hh:nn:ss', IncMinute(now,15)));
+      // //showmessage1(FormatDateTime('dd/mm/yyyy hh:nn:ss', IncMinute(now,15)));
 
       Res.Send(jObject).Status(THTTPStatus.OK);
     except

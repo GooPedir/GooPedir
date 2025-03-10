@@ -1,0 +1,1061 @@
+object frameDadosiFood: TframeDadosiFood
+  Size.Width = 1189.000000000000000000
+  Size.Height = 438.000000000000000000
+  Size.PlatformDefault = False
+  object rBottom: TRectangle
+    Align = Bottom
+    Fill.Color = claBlack
+    Position.Y = 433.000000000000000000
+    Size.Width = 1189.000000000000000000
+    Size.Height = 5.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object rLateral: TRectangle
+    Align = Left
+    Fill.Color = claBlack
+    Margins.Top = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 5.000000000000000000
+    Size.Height = 425.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object tImprimindo: TTimer
+    Enabled = False
+    Interval = 10000
+    OnTimer = tImprimindoTimer
+    Left = 1056
+    Top = 432
+  end
+  object Layout3: TLayout
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 9.000000000000000000
+    Size.Width = 1172.000000000000000000
+    Size.Height = 425.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object Layout1: TLayout
+      Align = Top
+      Margins.Top = 10.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 1172.000000000000000000
+      Size.Height = 359.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      object lOrigem: TLabel
+        Align = Top
+        Size.Width = 1172.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Center
+        Text = 'Site/Whatsapp/Pedido'
+        TabOrder = 4
+        object lCodigoDia: TLabel
+          Align = Left
+          StyledSettings = [Family]
+          Size.Width = 49.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 16.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFF9F9E9E
+          Text = '00000'
+          TabOrder = 1
+        end
+      end
+      object GridPanelLayout1: TGridPanelLayout
+        Align = Top
+        Margins.Top = 10.000000000000000000
+        Position.Y = 107.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 5
+        ColumnCollection = <
+          item
+            SizeStyle = Absolute
+            Value = 150.000000000000000000
+          end
+          item
+            Value = 100.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = edtCelular
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = edtNome
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        object edtCelular: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 4
+          ReadOnly = True
+          Text = '48998111156'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Size.Width = 150.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label5: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 86.000000000000000000
+            Position.Y = 5.000000000000000000
+            Size.Width = 59.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Celular'
+            TabOrder = 0
+          end
+        end
+        object edtNome: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 3
+          ReadOnly = True
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Margins.Left = 10.000000000000000000
+          Size.Width = 1012.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label3: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 972.000000000000000000
+            Position.Y = 5.000000000000000000
+            Size.Width = 35.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Nome'
+            TabOrder = 0
+          end
+        end
+      end
+      object edtEndereco: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Align = Top
+        TabOrder = 3
+        ReadOnly = True
+        TextSettings.Font.Family = 'Courier New'
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Position.Y = 139.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        StyledSettings = [Size, FontColor]
+        object Label4: TLabel
+          Align = Right
+          StyledSettings = [Size, Style, FontColor]
+          Opacity = 0.500000000000000000
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 5.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 1096.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 71.000000000000000000
+          Size.Height = 12.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.HorzAlign = Trailing
+          Text = 'Endere'#231'o'
+          TabOrder = 0
+        end
+      end
+      object GridPanelLayout2: TGridPanelLayout
+        Align = Top
+        Margins.Top = 10.000000000000000000
+        Position.Y = 203.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 6
+        ColumnCollection = <
+          item
+            Value = 24.986311622245190000
+          end
+          item
+            Value = 25.004436416588830000
+          end
+          item
+            Value = 25.006822289964050000
+          end
+          item
+            Value = 25.002429671201920000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = edtPedido
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = edtDesconto
+            Row = 0
+          end
+          item
+            Column = 2
+            Control = edtTaxa
+            Row = 0
+          end
+          item
+            Column = 3
+            Control = edtTotal
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        object edtPedido: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 3
+          ReadOnly = True
+          Text = 'R$ 1.000,00'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Size.Width = 292.839569091796900000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label8: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 216.839569091796900000
+            Position.Y = 5.000000000000000000
+            Size.Width = 71.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Pedido'
+            TabOrder = 0
+          end
+        end
+        object edtDesconto: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 2
+          ReadOnly = True
+          Text = 'R$ 1.000,00'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Margins.Left = 10.000000000000000000
+          Size.Width = 283.052032470703100000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label10: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 176.052032470703100000
+            Position.Y = 5.000000000000000000
+            Size.Width = 102.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Desconto'
+            TabOrder = 0
+          end
+        end
+        object edtTaxa: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 1
+          ReadOnly = True
+          Text = 'R$ 1.000,00'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Margins.Left = 10.000000000000000000
+          Size.Width = 283.079956054687500000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label1: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 207.079956054687500000
+            Position.Y = 5.000000000000000000
+            Size.Width = 71.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Taxa'
+            TabOrder = 0
+          end
+        end
+        object edtTotal: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 0
+          ReadOnly = True
+          Text = 'R$ 1.000,00'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Margins.Left = 10.000000000000000000
+          Size.Width = 283.028442382812500000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Size, FontColor]
+          object Label7: TLabel
+            Align = Right
+            StyledSettings = [Size, Style, FontColor]
+            Opacity = 0.500000000000000000
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Position.X = 207.028442382812500000
+            Position.Y = 5.000000000000000000
+            Size.Width = 71.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Family = 'Courier New'
+            TextSettings.HorzAlign = Trailing
+            Text = 'Total'
+            TabOrder = 0
+          end
+        end
+      end
+      object layDescontoIfood: TLayout
+        Align = Top
+        Margins.Top = 10.000000000000000000
+        Position.Y = 235.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 24.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 8
+        object Image5: TImage
+          MultiResBitmap = <
+            item
+              Width = 24
+              Height = 24
+              PNG = {
+                89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                038C49444154484BDD945F8815551CC7BFE7CCCC9DBDF7BABBEA8A2DABABA6B6
+                A9AD95B69505E293D1C31245FB20E1432289181B51814490460F511488C9F612
+                54964F5109B22A6449FF092B44A38D6DBD2A989BB95E70DDBD7367EE9CF3EB37
+                67C67377577C70AD973E309CEF3973E6F7FB9DDFEF7706FF354E364EA4859F07
+                5C6081068AACC7F8899317D34164A3616531FFDAEA626163D79CC23CBF12C77F
+                3A289FAD84639755ED4A2573517464E4111502213806A0D121E5C2F1C78864A0
+                A87C3AA81E1C180F7798CD8C75D0E4BA5DCFB4CF3CDC734B4B728269736C3408
+                DE3AF3F7EBBF57AAAF24736956998E7C6EFB637367DF94F1847B9BF2F936DF5D
+                9B4DEB0E5A7CAFDD119332366D1C085B5BEBA0598A9999BC696A44B54CD61D48
+                0953B47F8350EB6A26EB0E425D6F4521EBDD2BEFBA07EEF32FC3797443B6721D
+                5C0FEE139B8DAC910A8D60AC8388542593100F3F02B9EE21889C0FA7F745D0C9
+                5FA04F0D020D0DE6A866CFDC5688D636A313C4F24E8895AB8D2648BE4229D641
+                4D633C93C0E86508ADE0BDF729446313E84C09B2F36EE4F61E80FBE436C8659D
+                F0DEDE0B6FF707900B17C3DDF434DC2DCF9A4012B8593C2398FA091405462447
+                EDDD0EF5DD51E8DF4E40BDDF07F80D707A36F297DC1F1CB9B3691BEFE39225F3
+                55F741763F0ED1D60EF5C78031C109B6F5B40EE2ACF2A26305477C8A8580E048
+                F5178720384A83D650073F03D858021DFB1E44361BC0F97366F0A4C819C1584F
+                571DC8A51D505F1F81689E05B0238A42A823FDA0901BE3D245E8133F036FEE84
+                983D27DDC7A78BCF96E06CEE055D1836B67C29B95829F6667535FA1FBF7BC7A2
+                9E6C9A32A311A8B2E1D8B635C4E2DB2096DC0E397F21D4D1C3E969A7F0D2D0F0
+                8FFD23A36B126D5334B1F2965A04EF851D100B6ECD1638BFDD3D70B73E97E67D
+                D1926C75328E94D716D99D50794B1822EEFF04DEABBB90EBFB08DE9E0FB97DD7
+                0341DAD17AE057334E4591B299B1E2C1E6E281BEE5F3BBB3E92444A108B1E24E
+                BE0779507904541A84BC7F2DF4579F673B26B373F0FCF1FDE52BAB126D4F30B1
+                B5A6429571E89F7E80FEF64B10B76E5297EB194F08854E5B9EB10EC6942E57D4
+                B565B851141146224ADB89B13F9DBFA2F89BC1205ABF6ED68CD69CBCF1DF76A8
+                09C3618C374A17874E06D153815223C9FA544B2D5DCD8577E6F9B9A50E510309
+                1D465A54F9965739B228E4BB1269AA42506554C35C264E81CE091A0F950A2212
+                43A520DAC7CB979277FF07807F00EB574EFCA33515A90000000049454E44AE42
+                6082}
+              FileName = 'C:\Users\ifort\Downloads\icons8-ifood-24.png'
+            end>
+          Align = Left
+          Size.Width = 24.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object lDescricaoDesconto: TLabel
+          Align = Client
+          StyledSettings = [Family, Size, FontColor]
+          Size.Width = 1148.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          Text = 'Desconto por conta do iFood / Loja'
+          TabOrder = 1
+        end
+      end
+      object cStatus: TComboBox
+        Align = Top
+        Enabled = False
+        Items.Strings = (
+          'Cancelar'
+          'Em Espera'
+          'Em Produ'#231#227'o'
+          'Pronto'
+          'Disponivel Para Retirada'
+          'Saiu Para Entrega'
+          'Finalizado')
+        Margins.Top = 10.000000000000000000
+        Position.Y = 269.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        OnChange = cStatusChange
+        object Label6: TLabel
+          Align = Right
+          Opacity = 0.500000000000000000
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 25.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 1096.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 51.000000000000000000
+          Size.Height = 12.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.HorzAlign = Trailing
+          Text = 'Status'
+          TabOrder = 0
+        end
+        object lDescricaoStatusiFood: TLabel
+          Align = Left
+          StyledSettings = [Family, Size]
+          Margins.Left = 10.000000000000000000
+          Position.X = 10.000000000000000000
+          Size.Width = 945.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          TextSettings.FontColor = xFFED0909
+          Text = 'Pedido Confirmado'
+          TabOrder = 86
+        end
+      end
+      object edtCpfCnpj: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Align = Top
+        TabOrder = 1
+        ReadOnly = True
+        TextSettings.Font.Family = 'Courier New'
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Position.Y = 75.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        StyledSettings = [Size, FontColor]
+        object Label11: TLabel
+          Align = Right
+          StyledSettings = [Size, Style, FontColor]
+          Opacity = 0.500000000000000000
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 5.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 1096.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 71.000000000000000000
+          Size.Height = 12.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.HorzAlign = Trailing
+          Text = 'CPF/CNPJ'
+          TabOrder = 0
+        end
+      end
+      object lDataAgendada: TLabel
+        Align = Top
+        StyledSettings = [Family, Size, FontColor]
+        Position.Y = 31.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.HorzAlign = Trailing
+        Text = 'lDataAgendada'
+        TabOrder = 14
+      end
+      object lDataEstimada: TLabel
+        Align = Top
+        StyledSettings = [Family, Size, FontColor]
+        Position.Y = 48.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.HorzAlign = Trailing
+        Text = 'lDataEstimada'
+        TabOrder = 13
+        object cSelecionar: TCheckBox
+          StyledSettings = [Size, FontColor]
+          Position.Y = -10.000000000000000000
+          TabOrder = 4
+          Text = 'Selecionar'
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+        end
+      end
+      object edtTipoPagamento: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        Align = Top
+        TabOrder = 2
+        ReadOnly = True
+        TextSettings.Font.Family = 'Courier New'
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Position.Y = 171.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        StyledSettings = [Size, FontColor]
+        object Label12: TLabel
+          Align = Right
+          StyledSettings = [Size, Style, FontColor]
+          Opacity = 0.500000000000000000
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 5.000000000000000000
+          Margins.Right = 5.000000000000000000
+          Margins.Bottom = 5.000000000000000000
+          Position.X = 968.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 199.000000000000000000
+          Size.Height = 12.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.HorzAlign = Trailing
+          Text = 'Tipo Pagamento'
+          TabOrder = 0
+        end
+      end
+      object lDataHora: TLabel
+        Align = Top
+        AutoSize = True
+        StyledSettings = [Size, FontColor]
+        Position.Y = 17.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 14.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Family = 'Courier New'
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.HorzAlign = Trailing
+        Text = '04/10/2022 15:09'
+        TabOrder = 12
+        object lTempo: TLabel
+          Align = Right
+          StyledSettings = [Size, FontColor]
+          Margins.Top = -20.000000000000000000
+          Position.X = 1044.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 128.000000000000000000
+          Size.Height = 34.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Family = 'Courier New'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.HorzAlign = Trailing
+          Text = '20s'
+          TabOrder = 1
+        end
+        object lCodigo: TLabel
+          Align = Left
+          StyledSettings = [Family, Size, FontColor]
+          Size.Width = 120.000000000000000000
+          Size.Height = 14.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = '#00000'
+          TabOrder = 0
+        end
+      end
+      object rAcao: TRectangle
+        Align = Top
+        Fill.Kind = None
+        Margins.Top = 10.000000000000000000
+        Position.Y = 301.000000000000000000
+        Size.Width = 1172.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+        object rStatuspedidoiFood: TRectangle
+          Align = Left
+          Cursor = crHandPoint
+          Fill.Color = xFF016904
+          Size.Width = 137.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          OnClick = rStatuspedidoiFoodClick
+          object lStatusPedidoiFood: TLabel
+            Align = Center
+            StyledSettings = [Family, Size]
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Confirmar'
+            TabOrder = 0
+          end
+        end
+        object cStatusCancelamento: TComboEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          TabOrder = 1
+          ItemHeight = 19.000000000000000000
+          ItemIndex = -1
+          Margins.Left = 10.000000000000000000
+          Margins.Right = 10.000000000000000000
+          Size.Width = 688.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object rCancelar: TRectangle
+          Align = Left
+          Cursor = crHandPoint
+          Fill.Color = xFF691A01
+          Margins.Left = 10.000000000000000000
+          Position.X = 147.000000000000000000
+          Size.Width = 137.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          OnClick = rCancelarClick
+          object Label14: TLabel
+            Align = Center
+            StyledSettings = [Family, Size]
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Cancelar'
+            TabOrder = 0
+          end
+        end
+        object rConfirmaCancelamento: TRectangle
+          Align = Right
+          Cursor = crHandPoint
+          Enabled = False
+          Fill.Color = xFF691A01
+          Margins.Right = 10.000000000000000000
+          Position.X = 992.000000000000000000
+          Size.Width = 170.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          OnClick = rConfirmaCancelamentoClick
+          object Label13: TLabel
+            Align = Center
+            StyledSettings = [Family, Size]
+            Size.Width = 153.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            TextSettings.FontColor = claWhite
+            TextSettings.HorzAlign = Center
+            Text = 'Confirmar Cancelamento'
+            TabOrder = 0
+          end
+        end
+      end
+    end
+    object GridPanelLayout3: TGridPanelLayout
+      Align = Top
+      Position.Y = 369.000000000000000000
+      Size.Width = 1172.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 5
+      ColumnCollection = <
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333340000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = lImpressao
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = lVisualizacao
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = lStatus
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end>
+      object lImpressao: TLayout
+        Align = Client
+        Cursor = crHandPoint
+        HitTest = True
+        Opacity = 0.500000000000000000
+        Size.Width = 390.666656494140600000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        OnClick = lImpressaoClick
+        OnMouseEnter = lImpressaoMouseEnter
+        OnMouseLeave = lImpressaoMouseLeave
+        object Image1: TImage
+          MultiResBitmap = <
+            item
+              Width = 48
+              Height = 48
+              PNG = {
+                89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                0575494441546843ED584B4C1B57147DF3636C6CB0F9158BCF02A94AA5F28914
+                8217511375D55DD3B4126AABAE2AB96247C3AE8B2294AA959058B0405DB48A4A
+                3654EDA2AAC4824AA8CA82D4A8102050D3454120484C28D8061AFCF70CEEBDCF
+                CFC338B1EC49E5014BE54887F79961EE3DEFBE7BE78DC9052EF03F07C75A4358
+                5B5B6B9065F9321B961C82203C6A696909B1A121BC9480CDCDCDF7799EFF810D
+                4B8E743AFD5E5B5BDBCF6C68083C6B0D019CAF625D530002AA59D7305E4A0018
+                3055C07F592081B505D1D7D7F77A57571779030022DE04A21833E80D87C31B6E
+                B7DBB5B8B878C0CC1784A1089C9C9C7C0DCD678F1F3FEE56559598C58D8D8D1E
+                68BF04215F652C1787D12DE4383A3AF26C6D6DBD9D48248859DCDEDEBE158FC7
+                3F80057330BB45615880AA2A95D8C967B85464CFB7701CE7A40303302AC0198B
+                C544DCA7CF1B2D2511F1788C8308D4D081011812B0BBBB5B158B452117540242
+                4C633A7D0202E2F842335C4E8B0A181818B03635354991480404A4F31A2E1561
+                E549341AC1842E9D00082D4DA8E3E3635AEAF2192E157181C2E10846C03A3434
+                2452078AA0A800AC08C0246E2145510846C22C42A180F698DAF5FBFD86A25054
+                00ACBA03A21043E7A13A906432691A398EA739003655B065A894E63DCCDDBB77
+                F72D97AB65F2FEFD5FE5D5D53FD9ECD9A0A3A39DDCBC798B8D32080402F15028
+                F48EC7E39966531AF24640966D3F5A2C16D9E75B2592249D2971C130DA878787
+                D0F751DAED768BD3E9CC7B0A7E41C0E8E8687F7D7DBDF3E9D31D228A425E2366
+                92E739B2B3B383EF03E274D690F6F60EB2BCFC88381C8E9AB1B1B14F999B1A5E
+                1000CEDF49A55264616181D86C5520423A53DAEDD560FB21D8B613AFF737F2E0
+                C10CD9DBDBA339525D5D7D87B9A921E7343A3232D2DFDCDCFC2ED6E3999919D8
+                4A162C6967CE50E880747676529F1425452A2A2A6872BB5C2E4B7777F7D1F4F4
+                F41CBD08C88900EC35BAFAA8162149E2B9108A37413F5A5B5BE9CBEDD2A5D7C8
+                FE7E80CE4114BEA0CE316855687878F863F89CFB8E0D21890EC8C181A1233905
+                861A6B793ED86C3672FDFA0D362A8EDADA5A5253534BFB700A86B7739446A6B1
+                B191CE4D4E4E7E3231317117FB9A80C1C1412F84E81A28A4F5BE1C8127014CF0
+                A9A9A925D8E2DD38A713F0791C565CC655C7FD566EC05C40BF9070564ACECEFE
+                2EE3BC9603A04EC6FD56CEC40820E1CC54C1DC3E158007A9CCC5FCFF7CDE3CF5
+                2DE367163A01AA7673F61BB5DC98F50F99857E0BE5DC50AEC48F9EBC1150D567
+                917CFF505ECC6C9F68143E1E1834018A62D92FF72864571FDECC41E6F66919BD
+                7DBBDF0B27C06BC160907E1DE98173C16080EEC3B300BEB41A1A5E217575756C
+                067788022784CC2901842C2E2DAD5CC5795D0452BBAA9A861B31894F994824A9
+                F308FD79C54C2202817DFA4B45D60FDC3E9948E036E2FEA63701745528EDC710
+                3D1F367C882088E7425CBC5C7FD0792A6887B9AD17A03EC994D25C62E844513C
+                17A26DBD2FF0A54905401E6C33B7F55B48D9CE6679AE6A151E26500A0207E724
+                481C13298ABC662FD70F24FA862554DDCA78AD1300F9B99E6F0BC972A5677D7D
+                9343729CB48A6773332908FC37597BB26CF5E87D61AB0FDE0A7F65BCD609181F
+                1FFF03AACC4F7EBF5FC9FD27C58FD7E103E34665A5A5033F72CC65E5476EF7AB
+                F42715B4ADF72591505410F18BCFE75BC4EB08089A31F4F45CFD1E42FC211B9A
+                0AB0D33737B7F02D1B16842101BDBDBD0244E61FD8973636652A60B51F7ABDB3
+                6E362C08A311E0AE5CB9BC0C4D171BD25F0F680F334F4326C90B030B05EBD116
+                FF6072E2B3700EDF45E9B19595957EBC5A0C46052038C803ED777B49922C3C9F
+                B2B2213A80D7E8F3D269B1021CC98916CFAB616852D857555E95A49367D84724
+                935C18EEA7D7AC56AB3A3F3FAF5DBBC0052E500884FC0BB2789010CCB608CA00
+                00000049454E44AE426082}
+              FileName = 'C:\Users\ifort\Downloads\icons8-impressora-48.png'
+            end>
+          Align = Left
+          HitTest = False
+          Size.Width = 48.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object lImprimir: TLabel
+          Align = Client
+          StyledSettings = [Family, FontColor]
+          Margins.Left = 5.000000000000000000
+          Size.Width = 337.666656494140600000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Imprimir'
+          TabOrder = 0
+        end
+      end
+      object lVisualizacao: TLayout
+        Align = Client
+        Cursor = crHandPoint
+        HitTest = True
+        Opacity = 0.500000000000000000
+        Size.Width = 390.666656494140600000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        OnClick = lVisualizacaoClick
+        OnMouseEnter = lImpressaoMouseEnter
+        OnMouseLeave = lImpressaoMouseLeave
+        object Image2: TImage
+          MultiResBitmap = <
+            item
+              Width = 48
+              Height = 48
+              PNG = {
+                89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                017B494441546843EDD6C14AC3401000D049621A2A1E1B847AF2D22008D50FE8
+                C16FF2E237E91778E841027A133C561011241723DAD8A671936C0C6440D7B816
+                824DBA71DE2199494ACB64273B054208699486E7A54693A70CC3DA2500F32BC7
+                DEC254A0E359594A14B091C93B8556A0696A1490C85BA8F22EE4DEFA18154683
+                1E46E57B557CFD3E8861E1EEDB9B9809A885EA10C42DDE859498C44108D1CDA1
+                DDC554A0C40A58EF34C8D6971A730038739D6D0B1301B550D314292091B6BA12
+                730080C5AEB3D3C144402D54070F587B07991273C0835972E7EC9A980A945801
+                2B9EB7B785FEEF3B502BCFE3EED1D0C04C402DD434550A90B6BAF4C6B27DFFAF
+                89FFFFBFF1BC2C7F077E7CD86AAC40BF5F650E846F18D422E5F24D8EC76C8A61
+                C92F0574C718D4E2356418956966E71CC312690129D74EF2E30BA62B77EF8790
+                708ED9A70CB26743D38E312D911670B9674F403787797806511414575767C152
+                B87E98823F63453BE5BF991F4F0D4D3FB818F41EF1638410B256003E002B9E85
+                8D6655E5A30000000049454E44AE426082}
+              FileName = 'C:\Users\ifort\Downloads\icons8-ordem-de-compra-48.png'
+            end>
+          Align = Left
+          HitTest = False
+          Size.Width = 48.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object Label9: TLabel
+          Align = Client
+          StyledSettings = [Family, FontColor]
+          Margins.Left = 5.000000000000000000
+          Size.Width = 337.666656494140600000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Visualizar'
+          TabOrder = 0
+        end
+      end
+      object lStatus: TLayout
+        Align = Client
+        Cursor = crHandPoint
+        HitTest = True
+        Opacity = 0.500000000000000000
+        Size.Width = 390.666687011718800000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        Visible = False
+        TabOrder = 0
+        OnClick = lStatusClick
+        OnMouseEnter = lImpressaoMouseEnter
+        OnMouseLeave = lImpressaoMouseLeave
+        object Image4: TImage
+          MultiResBitmap = <
+            item
+              Width = 48
+              Height = 48
+              PNG = {
+                89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+                87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                060C494441546843ED99794C14571CC77FBF37B3B05C3655691534685BB02A7F
+                78608D4A39D21884C6A65AC5A66A3C6A6B6CD26A1B15A84981D478925A93D614
+                34DAB41A13AC168F28D43678508A09D61E14B19878D703F162A1B0CCBCD737C3
+                4F649D5D604194A47CFED9DFF73B6FD8F79D7D33EFCD037AE8E17F0ED267A7C8
+                CD9DAE9C0BA91B8F82C72188D1002202EAB57E0EFBBD5E703B98FB06418D4D85
+                CBB269257038012A3FB2747C7E29CAC64D7FA1E3742AC0EAC28441AAAABC0FD0
+                F81680AD1FD9EDE5BC00F18D8FAA6E5A326EFF75F2BCA643013E3B9AD0BF11D9
+                A77578736E20042B64770807404380802F6CBA6DE587F17BEF90DD6EBC0EB0EE
+                F8ABD3B1BE3E1BECBE4F93F548706A70C3C6E0DDE5B107F792D52EDA1D60E3C1
+                49BE0D81988D8873C872410E660702FF49003BC438FCC9185EBBEB87D7826B6A
+                582D06F65714FD590E10858225CA6F8D91A7D89BCEB4B0CE113D262D133365F3
+                B6695780F5051303C04FD90FC8E2C96A46E38D1714665BED5BC3BF5E9C94DF40
+                76ABAC2D7A2D0879E3227931964A19DCE4B644ECEAE57763E6C2A8938D6478A4
+                CD00C6957706B10259C636394D18633750409AA377C0979991BB9C647B857961
+                FCD534D0EAD2400D606413629723FAA537DBFA25DA0CB0FE78E2B7B2D92C9226
+                42C05921D88C94D803BF92D529B28E4D7A45A0BEDDF2241362CDB2984369A4DC
+                D26A80ACA3890B04C3CD244D74C1CBB8AF3DEEE3B179D5643D12D6FF9C14A673
+                382E1F6903C90247158880BE90B43CE6603E59163C06585338690053D969D920
+                902CF3CAAB428FF928B6E02A598F94B5450943B446E5988F0ACF90053AD7AEA0
+                621F9A12BDAF862C171E1A770F602AAC6AD979493D53D8E4AEEABC414A74C119
+                55E1C9A0D5368F7B85A9A128B4549216DC06C83A961881DABF33499AC8C764E6
+                D209072A4876192931F94785EAFF154913D46A97AC3AF17A1F922EB80DC01116
+                B77C2AE800E5B55A6D16C92E47A02D5508FE6079A106F8DB1A9C0B48B9600990
+                5D3ADA860266903451013766C61FD5487639C678476039244D3888B954BA6009
+                70B73E381E109B7F2E0DF43BA2CEB983E46343D7B911A0F9A231C417D71C491A
+                4AB219EB10E22C8E2A13952BFB96251CAE25F9D8488DCFBF0C821F2769C21877
+                E99B8125000A31864A1381BC84CAC78E40F60B954D2073E99B812580065A3895
+                267261F6E40208E11A00F8102A7AE8A107C2B298DB5232FF2CA8CAF324E58DCF
+                46BC3D2AFB7792DD0EEB3CA02A65549908AE8FA4B25BE26622137F50751FCBE4
+                D19DB00650D88F5499C875ED946D85733CBD803F712C012E8DEA5FA4E9F00F49
+                D9007BF1405B32C96E872580F112AD30C8256922105718DB8724BB15D62124E1
+                881B40AB6BB94512716FF0538BA9EE56B80DB0302AE72228FE5B489A08142BB7
+                9C9C1F46B2CB2813653E54B60BB7010C146E5B295F229A771E04E0CE4BA3065E
+                22D925545E2F7EC17ECB71AEB2BA64E3E9AAA220B25BC563807963375D63C0CC
+                D7381964EB95D1A1EFB477BBAF23189D970BFEC3B20C91B3EB073626CAFFBE59
+                32ADE9A8673C0630581095938720663CDCF9DCB2749F3DE5E911243B4DC5ED92
+                C1A8B0626430882C896D00624BED1E8FFB429E303AAF207C874E36117D20BD51
+                F0CF9323333BB4B5789F4251A88654D94F290A469225E7539E13D177FC42921E
+                F12A4073E7814D264BBE74F07308B85A03B153067190DD2A855776F4353EE343
+                67DE340D4965F58904F96B9B3B7046E7C3FB5C7E0F3159370FB6825701769765
+                CC43C4AD245DA8AFE735763B2B9089F64C8DCCD84936E48A5C25E4A23E88A108
+                E7420C935612D654C54150DFBC0961B35CC6F8D9EAE23CF9B0F82DBCCFB80CB2
+                DAC4EB21B4BB3C738AD3C937FBDA98DB8D2679A3144D1B9EFE3249283EBF7D82
+                9C088B48BA2080274487CDFE8124948A525B1446B5B9A5DE92566F6277BC312C
+                FD7BA6827103AF0527D437B92DE0DC65D35747EC4DA505391437949666DB4882
+                B79D37F03A80C18CC8CC5B5387A7A70AC6C3E590C9008D5FA043F2FD016F5369
+                22D71F6EFF15A5835E21CFDD561DEAE7D5C4F5305E0F2177A48B7436A2421929
+                74110B8837A60EFF643B1D82A20B3B16E91AAC5099B82A8FFD25BFF194D0797E
+                F473B3CF50931E7AE8A1C300FC07159013BE8B8DB4E10000000049454E44AE42
+                6082}
+              FileName = 'C:\Users\ifort\Downloads\icons8-a-carregar-48 (1).png'
+            end>
+          Align = Left
+          HitTest = False
+          Size.Width = 48.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+        end
+        object Label2: TLabel
+          Align = Client
+          StyledSettings = [Family, FontColor]
+          Margins.Left = 5.000000000000000000
+          Size.Width = 337.666687011718800000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.Font.StyleExt = {00060000000000000004000000}
+          Text = 'Status'
+          TabOrder = 0
+        end
+      end
+    end
+    object layMotoboy: TLayout
+      Align = Top
+      Margins.Top = 10.000000000000000000
+      Position.Y = 427.000000000000000000
+      Size.Width = 1172.000000000000000000
+      Size.Height = 32.000000000000000000
+      Size.PlatformDefault = False
+      Visible = False
+      TabOrder = 1
+      object Image3: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              05E9494441546843ED986B4C536718C7FFA71728146C2958019D88170CEA74C6
+              65C9E6B6B830159999D1C0872DD932A75B36D4B8B82DFBB00F665BFCB24B96A9
+              BB21C9A24E995310E76D8A06D9F860166FB84D87224E0145044AE985B6A7E7BC
+              7BDABE1EEC28054A7124EB2F79FABECF732E7DFFE73CCF7BDE731023468C18FF
+              29026F238255C1E051611175E7331973E9641365C010D80AA864B8A1C69FD4BD
+              48FF74412BE2902A1F9D81ADD12122013DC791A752A1B80B586A04E278784068
+              7F8F91E11813B023FE5754081F80F40E8F2109F054E17199E1133A683E0F450C
+              8DFC0218DE4B588CE33C14118312201F41BC4B858FDB04AC4DA7CCE0E1A8C080
+              729D0AAB8485B0F2D090185080E30826D0882B0501F37828EA7819AE6A55288A
+              CF471D0F0D9AB0025C07318D8AB08ABA5981C8C82101366A16E90B703A10191C
+              FD0A701CC478CAD35A8D80493C34E2D04C66652AE4E997E22C0F0D889AB741B0
+              6AE8240F4E52EAE4F2D00381D254475774D9B89C45BF8CCD29D0D59DFBCDC237
+              F54BC83BE03C80ADD4AC09780F8EBFADE370A8FE315CBA3BD1E73262E3F66D5F
+              7DE4DFD80F7D04382BF064AB0A35D19E6DC271CB66C2E1AB8FE2DCED29346A1E
+              243A5B211AD2359377956E69E6A13EF41D24C3A7E932C57D8F9811B65BD6147C
+              77F6197C585D8833CDD9902599EAA0D752CCB25690DD6FD0DEFD127407ECE5C8
+              A7C051EE8E18EDCE64FCDCF0086A6F4E874C8FE5B0304FBBDB619AB86FDFE73D
+              3C1244D01D60128A435DA96859873D093BCECFC7FB270B71EA7A0EBC12834C57
+              3AAC314D9A26C1FA029D21248AFCAE3D30599CB863D643C34351A3B3474F577C
+              166A6E4C8728879CF8C223C97FEC29DB3E9B7AF75548004580AD0C2FD234B68B
+              BB43424402EC867C48F19950BB5A90643D0EADE044B74787630D3351D5981BD9
+              C0EF833179C1BEB29D35DC555004D8CBF02535C5016FF038E266C0925B0AA69F
+              EAF769EA83EC68C185A39B70F87C1C3CD2F006AE20637FF98FDFAFE09E42AF80
+              5DA8A56648AB4C9125A075EE0974CB661CF9A9124DCD3731E1A18958F2DCF370
+              38ECF876EB6678BD22DF7B78B452226578915351B1BB9187FC28454CF594E59B
+              83876236E362C8895370A0622FEAFFBA04A7DD8E2B972FE1606539D2D2CC9896
+              43B34CA8C28CC0CCB2ACF60A529F0C5104B01EA4FE7BD618C844ED7812C2D078
+              ED1A3C1E51B1EBE4FBE2C90643C8C1446A6EC65615151525D1BF2BF40A888370
+              FFD51D8CA95D4D90240919199910458F62E99999F4509260E9E8083990484D23
+              CB46A7C85EE243F6A308503B68451BE22A87B3E4CE2A307B13962D2F4476F664
+              3A192D5DA95DBA6C056C9D37D1DC703EE8C91A0D9365E909FA7705A588BB4BD1
+              402398C2DD41638FCB45DBF42DF0EA0387FA5247B03720E3CA3AE83D57D06831
+              A2AECD8C6B96147FBFD3A5F3EF17290CECB563870E9472B75780B5042748401E
+              778784081DAC863C88F41CD0BA9A61E8AE86162EBE351887A8459B2311779D89
+              68F5B56416B70E4E5143464751EBA597021F3A8D171A950C63BC1BA6841ECC48
+              EBB0154C6A310B2B7B4FAE08E8DA86CFC8D9C0DDD18B80970DABB1937BBD3520
+              C8A80995E7A3CD641141AB53E50EB47F81311A51B88D2424F2D0A84596D81CD3
+              1A5CF4F5953B90B61EDDF460DD1F4AF568339AED5652CF8F22C0875A625F873A
+              60D499170BE9D78F9242F7D8B07A49FB2D4F462A7787855EEDA619C481ACC476
+              3C6C6CC62C631334546C51A03B651DF37F83ED23A0E4ED7985D57766EE95067A
+              538A80315A170A327FC7D3E67AA88721841601774CEB19BDB68710E063D39B4F
+              559FB3642DE06ED4C9D277E2F569B530EB7CDFB2860E09A84C7D8B2DF7F5836A
+              E01E5375D70BD27477BB7CEB9C91B0C66E0336D53D8B1BB694D0393E9031F60D
+              FDFAE9374F4A56CFCEAE714EB86C7325C5F350D449D27AB071CE098CA53A1934
+              0C3F98DE61CA3B72D844DFBC76E69CBAA6F1A75B913CBC054C1826255948C429
+              AA094A8C01A03D769BE2D8ABAAF570F35078013E4A8B73B3EAADA6930DF694C9
+              3D9236FA954DBC32F522166606BD68F9697580A5EBD142DD33B4D82F497D77E4
+              3FF9C4881123C6FF0AE01F5DCC5226C31F8CDA0000000049454E44AE426082}
+            FileName = 'C:\Users\ifort\Downloads\icons8-capacete-de-moto-48.png'
+          end>
+        Align = Left
+        Size.Width = 32.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object lMotoboy: TLabel
+        Align = Client
+        StyledSettings = [FontColor]
+        Margins.Left = 5.000000000000000000
+        Size.Width = 1135.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Family = 'Courier New'
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        Text = 'lMotoboy'
+        TabOrder = 1
+      end
+    end
+  end
+end

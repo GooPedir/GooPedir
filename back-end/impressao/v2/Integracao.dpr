@@ -1,0 +1,20 @@
+program Integracao;
+
+uses
+  Vcl.Forms,
+  uPrincipal in 'uPrincipal.pas' {frmPrincipal},
+  Controller in 'Controller.pas',
+  Pedido in 'Pedido.pas',
+  ProcessarPedido in 'ProcessarPedido.pas',
+  Consulta in 'Consulta.pas',
+  EnviarPedidoServidor in 'EnviarPedidoServidor.pas',
+  URL in 'URL.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.Run;
+end.

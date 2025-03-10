@@ -189,8 +189,7 @@ begin
   begin
     PostSimples('v1/util/fator/conversao/' + cUnidade.Items[cUnidade.ItemIndex]
       + '/' + DADOS.FieldByName('UN').AsString + '/' + edtFator.Text + '/' +
-      DADOS.FieldByName('TIPO').AsString + '/' + DADOS.FieldByName('ID')
-      .AsString, nil);
+      DADOS.FieldByName('TIPO').AsString + '/' + DADOS.FieldByName('ID').AsString, nil);
   end;
 
   if memEntradaEstoque.Locate('SEQLOCAL', DADOS.FieldByName('SEQUENCIAL')
@@ -217,19 +216,14 @@ begin
   inc(Sequencial);
   memEntradaEstoque.insert;
   memEntradaEstoque.FieldByName('SEQUENCIAL').AsInteger := Sequencial;
-  memEntradaEstoque.FieldByName('ID').AsInteger := DADOS.FieldByName('ID')
-    .AsInteger;
-  memEntradaEstoque.FieldByName('TIPO').AsInteger := DADOS.FieldByName('TIPO')
-    .AsInteger;
-  memEntradaEstoque.FieldByName('NOME').AsString :=
-    DADOS.FieldByName('NOME').AsString;
-  memEntradaEstoque.FieldByName('UN').AsString :=
-    DADOS.FieldByName('UN').AsString;
+  memEntradaEstoque.FieldByName('ID').AsInteger := DADOS.FieldByName('ID').AsInteger;
+  memEntradaEstoque.FieldByName('TIPO').AsInteger := DADOS.FieldByName('TIPO').AsInteger;
+  memEntradaEstoque.FieldByName('NOME').AsString := DADOS.FieldByName('NOME').AsString;
+  memEntradaEstoque.FieldByName('UN').AsString :=   DADOS.FieldByName('UN').AsString;
   memEntradaEstoque.FieldByName('QTD').AsFloat := Quantidade;
   memEntradaEstoque.FieldByName('CUSTOUN').AsString := edtValorUnitario.Text;
   memEntradaEstoque.FieldByName('CUSTOTOTAL').AsString := edtValorTotal.Text;
-  memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger :=
-    DADOS.FieldByName('SEQUENCIAL').AsInteger;
+  memEntradaEstoque.FieldByName('SEQLOCAL').AsInteger := DADOS.FieldByName('SEQUENCIAL').AsInteger;
   memEntradaEstoque.Post;
 
   Total := Total + memEntradaEstoque.FieldByName('CUSTOTOTAL').AsFloat;

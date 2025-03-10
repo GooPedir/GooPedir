@@ -2,10 +2,24 @@ unit conexao;
 
 interface
 
-uses uDM, FireDAC.Comp.Client, DataSet.Serialize, System.Classes,
-  JOSE.Types.JSON;
+uses Winapi.Windows, uDM, FireDAC.Comp.Client, DataSet.Serialize,
+  System.Classes,
+  uRequisicao,
+  JOSE.Types.JSON, Winapi.TlHelp32, Winapi.ShellAPI, Vcl.Controls, Vcl.Forms,
+  Vcl.ExtCtrls;
 
 type
+
+  TLogThread1 = class(TThread)
+  private
+    FComputerName: string;
+    FErro: string;
+    FBanco: string;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(const ComputerName, Erro, Banco: string);
+  end;
 
   TConexao = class
   private
@@ -13,27 +27,39 @@ type
     procedure Zerar;
     procedure SetSQL(const Value: TStringlist);
     function MapaErro(Erro: String): String;
+    procedure AbrirExe(Nome: String);
+    procedure FecharExe(ExeFileName: String);
+    function Servidor: String;
+    function GetComputerName: string;
+    procedure OnTimer(Sender: TObject);
+    procedure UpdateLastActivityTime;
 
   var
-    DataModulo: TDM;
 
+    DataModulo: TDM;
     FParametros: Array of String;
     FValores: Array of Variant;
+    CodigoConexao: Integer;
+    FTimer: TTimer;
+    FLastActivityTime: TDateTime;
+    FNome: String;
   public
-    constructor Create;
+    constructor Create(Nome: String);
 
     destructor Destroy; override;
     function VersaoMYSQL: String;
     function ValidaVersao: string;
     function CriaQRY: TFDQuery;
+    function Charset: String;
     function ExecuteSQL(SQL: String): Boolean; overload;
     procedure ExecuteSQL; overload;
     function ConsultaSQL(SQL: String): TJSONArray; overload;
     function ConsultaSQL: TJSONArray; overload;
     procedure Parametros(Parametro: String; Valor: Variant);
     property SQL: TStringlist read FSQL write SetSQL;
-    function GerarID(Tabela, Campo: String): integer;
-    function GenID(Campo: String): integer;
+    function GerarID(Tabela, Campo: String): Integer;
+
+    function GenID(Campo: String): Integer;
 
     function FieldByName(Campo: String): Variant;
 
@@ -47,19 +73,7 @@ type
 
     procedure GerarLog(Erro: String);
     function SoNumero(fField: String): String;
-
-    // Para um insert
-    {
-      tabela = Banco
-      campoID = nome do banco
-      ID = 3 variações (Passar o GENID, SQL, ou um Valor)
-      MemTable = Vai ser pego os campos
-
-      Outra variação vai ser passar qual os fields deve ser usados
-
-      Outra variação vai passa qual o field vai ser dado insert e qual campo do banco vai usa
-
-    }
+    function UltimoCodigo(Tabela: String): Integer;
 
   end;
 
@@ -73,9 +87,10 @@ uses
 function TConexao.ConsultaSQL(SQL: String): TJSONArray;
 var
   QRY: TFDQuery;
-  I: integer;
+  I: Integer;
   New: String;
 begin
+  UpdateLastActivityTime;
   QRY := CriaQRY;
 
   QRY.Close;
@@ -99,11 +114,38 @@ begin
   // Result := TFDMemTable.Create(nil);
   Result := QRY.ToJSONArray();
 
+  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+  begin
+//    QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+//      253) + '", datahora = current_timestamp where id = ' +
+//      CodigoConexao.ToString;
+//    try
+//      QRY.ExecSQL;
+//    except
+//
+//    end;
+  end;
+
   // Writeln(SQL);
 
   QRY.Free;
 
   Zerar;
+end;
+
+procedure TConexao.AbrirExe(Nome: String);
+var
+  Handle: HWND;
+begin
+
+  if length(trim(Nome)) = 0 then
+    exit;
+  ShellExecute(Handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
+end;
+
+function TConexao.Charset: String;
+begin
+  Result := DataModulo.Banco.Params.Values['CharacterSet'];
 end;
 
 function TConexao.ConsultaSQL: TJSONArray;
@@ -112,12 +154,28 @@ begin
     Result := ConsultaSQL(SQL.Text);
 end;
 
-constructor TConexao.Create;
+constructor TConexao.Create(Nome: String);
 begin
+  FNome := Nome;
   DataModulo := TDM.Create(nil);
+  FLastActivityTime := Now; // Inicia com a hora atual
 
   SQL := TStringlist.Create;
   Zerar;
+//  try
+//    CodigoConexao := GerarID('conexao', 'id');
+//  except
+//
+//  end;
+//
+//  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+//    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+
+  FTimer := TTimer.Create(nil);
+  FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
+  FTimer.OnTimer := OnTimer;
+  FTimer.Enabled := True;
+
 end;
 
 function TConexao.CriaQRY: TFDQuery;
@@ -127,10 +185,14 @@ end;
 
 destructor TConexao.Destroy;
 begin
+//  ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
+
   DataModulo.Banco.Connected := False;
+
   DataModulo.Banco.Free;
   DataModulo.Free;
   SQL.Free;
+  FTimer.Free;
   inherited;
 end;
 
@@ -139,8 +201,9 @@ var
   QRY: TFDQuery;
   Tipo: String;
   Erro: String;
-  ID: integer;
+  ID: Integer;
 begin
+  UpdateLastActivityTime;
   QRY := DataModulo.CriaQRY;
   QRY.Close;
   QRY.SQL.Clear;
@@ -174,18 +237,45 @@ end;
 
 procedure TConexao.ExecuteSQL;
 begin
+
   if SQL.Text <> '' then
     ExecuteSQL(SQL.Text);
+end;
+
+procedure TConexao.FecharExe(ExeFileName: String);
+const
+  PROCESS_TERMINATE = $0001;
+var
+  ContinueLoop: BOOL;
+  FSnapshotHandle: THandle;
+  FProcessEntry32: TProcessEntry32;
+begin
+  ExeFileName := ExtractFileName(ExeFileName);
+
+  FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  FProcessEntry32.dwSize := sizeof(FProcessEntry32);
+  ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
+  while Integer(ContinueLoop) <> 0 do
+  begin
+    if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile))
+      = UpperCase(ExeFileName)) or (UpperCase(FProcessEntry32.szExeFile)
+      = UpperCase(ExeFileName))) then
+      TerminateProcess(OpenProcess(PROCESS_TERMINATE, BOOL(0),
+        FProcessEntry32.th32ProcessID), 0);
+    ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
+  end;
+  CloseHandle(FSnapshotHandle);
 end;
 
 function TConexao.FieldByName(Campo: String): Variant;
 var
   Dados: TFDMemTable;
+  Dado: String;
 begin
   Dados := TFDMemTable.Create(nil);
-
+  Dado := ConsultaSQL.ToString;
   try
-    Dados.LoadFromJSON(ConsultaSQL);
+    Dados.LoadFromJSON(Dado);
     Result := Dados.FieldByName(Campo).AsVariant;
   except
     Result := 0;
@@ -193,7 +283,7 @@ begin
   Dados.Free;
 end;
 
-function TConexao.GenID(Campo: String): integer;
+function TConexao.GenID(Campo: String): Integer;
 var
   lSQL: String;
 
@@ -220,16 +310,128 @@ begin
 
 end;
 
-function TConexao.GerarID(Tabela, Campo: String): integer;
+function TConexao.GerarID(Tabela, Campo: String): Integer;
 var
   lSQL: String;
   Dados: TFDMemTable;
-  Valor: integer;
-  conexao : TConexao;
+  Valor: Integer;
+  conexao: TConexao;
+  QRY: TFDQuery;
 begin
-conexao := TConexao.Create;
+  QRY := CriaQRY;
 
-  conexao.SQL.Add('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+  QRY.Close;
+  QRY.SQL.Clear;
+  QRY.SQL.Add
+    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+  QRY.ParamByName('tabela').AsString := Tabela;
+  QRY.ExecSQL;
+
+  QRY.Close;
+  QRY.SQL.Clear;
+  QRY.SQL.Add('select * from geradores where tabela = :tabela');
+  QRY.ParamByName('tabela').AsString := Tabela;
+  QRY.Open;
+
+  if QRY.RecordCount > 0 then
+  begin
+    Result := QRY.FieldByName('sequencial').AsInteger;
+
+    QRY.Close;
+    QRY.SQL.Clear;
+    QRY.SQL.Add('select ' + Campo + ' from ' + Tabela + ' where ' + Campo +
+      ' = :' + Campo);
+    QRY.ParamByName(Campo).AsInteger := Result;
+    QRY.Open;
+
+    if QRY.RecordCount > 0 then
+    begin
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add('delete from geradores where tabela = :tabela');
+      QRY.ParamByName('tabela').AsString := Tabela;
+      QRY.ExecSQL;
+      Result := 0;
+    end;
+
+    if Result = 0 then
+    begin
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
+        + Tabela);
+      QRY.Open;
+      try
+        if QRY.FieldByName('codigo').IsNull then
+          Valor := 1
+        else
+          Valor := QRY.FieldByName('codigo').AsInteger;
+      except
+
+      end;
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add
+        ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+      QRY.ParamByName('tabela').AsString := Tabela;
+      QRY.ParamByName('sequencial').AsInteger := Valor;
+      QRY.ExecSQL;
+      Result := Valor;
+    end;
+
+    QRY.Free;
+    exit;
+  end
+  else
+  begin
+    QRY.Close;
+    QRY.SQL.Clear;
+    QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
+      + Tabela);
+    QRY.Open;
+
+    try
+      if QRY.FieldByName('codigo').IsNull then
+        Valor := 1
+      else
+        Valor := QRY.FieldByName('codigo').AsInteger;
+    except
+
+    end;
+    QRY.Close;
+    QRY.SQL.Clear;
+    QRY.SQL.Add
+      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    QRY.ParamByName('tabela').AsString := Tabela;
+    QRY.ParamByName('sequencial').AsInteger := Valor;
+    QRY.ExecSQL;
+  end;
+
+  Result := Valor;
+  QRY.Free;
+  exit;
+
+  conexao := TConexao.Create('CONEXAO');
+  // Dados.Free;
+  Dados := TFDMemTable.Create(nil);
+  // conexao.SQL.Add('select max(' + Campo + ')+3 as codigo,0 as zero from '
+  // + Tabela);
+  // Dados.LoadFromJSON(conexao.ConsultaSQL);
+  // try
+  // if Dados.FieldByName('codigo').IsNull then
+  // Valor := 3
+  // else
+  // Valor := Dados.FieldByName('codigo').AsInteger;
+  // except
+  //
+  // end;
+  //
+  // Result := Valor;
+  //
+  // conexao.Free;
+  // exit;
+  conexao.SQL.Add
+    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
   conexao.Parametros('tabela', Tabela);
   conexao.ExecuteSQL;
 
@@ -247,7 +449,8 @@ conexao := TConexao.Create;
 
     Dados.Free;
     Dados := TFDMemTable.Create(nil);
-    conexao.SQL.Add('select max(' + Campo + ')+99 as codigo,0 as zero from ' + Tabela);
+    conexao.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
+      + Tabela);
     Dados.LoadFromJSON(conexao.ConsultaSQL);
     try
       if Dados.FieldByName('codigo').IsNull then
@@ -258,13 +461,16 @@ conexao := TConexao.Create;
 
     end;
 
-    conexao.SQL.Add('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+    conexao.SQL.Add
+      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
     conexao.Parametros('tabela', Tabela);
     conexao.Parametros('sequencial', Valor);
     conexao.ExecuteSQL;
 
   end;
 
+  if Valor = 0 then
+    Valor := 1;
   Result := Valor;
   Dados.Free;
   conexao.Free;
@@ -274,36 +480,57 @@ end;
 procedure TConexao.GerarLog(Erro: String);
 var
   arq: TextFile;
-
+  Requisicao: iRequisicao;
+  JSON: TJSONObject;
 begin
-  if not DirectoryExists('C:\goopedir\log\') then
-    ForceDirectories('C:\goopedir\log\');
   try
-    AssignFile(arq, 'C:\goopedir\log\erro._banco_mysql.txt');
+    JSON := TJSONObject.Create;
+    try
+      // Configura o JSON com os valores
+      JSON.AddPair('computer_name', GetComputerName);
+      JSON.AddPair('error_message', Erro);
+      JSON.AddPair('banco', DataModulo.Banco.Params.Database);
 
-    if FileExists('C:\goopedir\log\erro._banco_mysql.txt') then
-      Append(arq)
-    else
-      Rewrite(arq);
-    Writeln(arq, FormatDateTime('dd/mm/yyyy hh:nn', now));
-    Writeln(arq, Erro);
-    CloseFile(arq);
+      // Cria e configura a requisição
+      Requisicao := iRequisicao.Create(nil);
+      try
+        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
+        Requisicao.BODY(JSON);
+        Requisicao.Metodo := mPost;
+        Requisicao.Execute;
+      finally
+        Requisicao.Free;
+      end;
+    finally
+      JSON.Free;
+    end;
   except
+    on E: Exception do
+    begin
 
+    end;
   end;
+
 end;
 
 function TConexao.GetAll(Tabela: String): String;
 begin
+  UpdateLastActivityTime;
   Tabela := 'select * from ' + Tabela;
 
   Result := ConsultaSQL(Tabela).ToString;
+end;
+
+function TConexao.GetComputerName: string;
+begin
+  Result := GetEnvironmentVariable('COMPUTERNAME');
 end;
 
 function TConexao.GetParametro(Campo: String): Variant;
 var
   QRY: TFDQuery;
 begin
+  UpdateLastActivityTime;
   QRY := CriaQRY;
 
   QRY.Close;
@@ -323,8 +550,8 @@ function TConexao.Insert(Tabela, CampoID: String; ID: Variant;
 var
   Dados: TFDMemTable;
   DadosQry: TFDMemTable;
-  Codigo: integer;
-  I: integer;
+  Codigo: Integer;
+  I: Integer;
 
   Campos: String;
   CamposParametro: String;
@@ -463,16 +690,26 @@ begin
   Result := LowerCase(DataModulo.Banco.Params.Database);
 end;
 
+procedure TConexao.OnTimer(Sender: TObject);
+begin
+  if not Assigned(Self) then
+    exit;
+  if (Now - FLastActivityTime) * 24 * 60 > 1 then
+    // Converte o tempo de inatividade em minutos
+    Self.Free; // Libera o objeto se mais de 1 minuto de inatividade
+end;
+
 function TConexao.ExecuteSQL(SQL: String): Boolean;
 var
   QRY: TFDQuery;
-  I: integer;
+  I: Integer;
   New: String;
   Update: Boolean;
   SqlUpdate: String;
   QryUpdate: TFDQuery;
 begin
-
+  UpdateLastActivityTime;
+  QryUpdate := DataModulo.CriaQRY;
   try
     Update := UpperCase(copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
     if Update then
@@ -518,7 +755,6 @@ begin
       try
         QryUpdate.ExecSQL;
       except
-
       end;
 
     end;
@@ -533,6 +769,19 @@ begin
       Result := False;
     end;
   end;
+
+  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+  begin
+    QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+      253) + '", datahora = current_timestamp where id = ' +
+      CodigoConexao.ToString;
+    try
+      QRY.ExecSQL;
+    except
+
+    end;
+  end;
+
   QRY.Free;
   Zerar;
 
@@ -540,7 +789,7 @@ end;
 
 procedure TConexao.Parametros(Parametro: String; Valor: Variant);
 var
-  I: integer;
+  I: Integer;
   Achou: Boolean;
 begin
   Achou := False;
@@ -568,6 +817,11 @@ begin
 
 end;
 
+function TConexao.Servidor: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'NFCe.exe';
+end;
+
 procedure TConexao.SetSQL(const Value: TStringlist);
 begin
   FSQL := Value;
@@ -583,14 +837,36 @@ begin
       Result := Result + fField[I];
 end;
 
+function TConexao.UltimoCodigo(Tabela: String): Integer;
+var
+  QRY: TFDQuery;
+begin
+  QRY := DataModulo.CriaQRY;
+  QRY.SQL.Add
+    ('SELECT AUTO_INCREMENT as codigo, 0 as zero FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = "'
+    + DataModulo.Banco.Params.Database + '" AND TABLE_NAME = "' +
+    Tabela + '";');
+  QRY.Open;
+
+  Result := QRY.FieldByName('codigo').AsInteger;
+
+  QRY.Free;
+
+end;
+
+procedure TConexao.UpdateLastActivityTime;
+begin
+  FLastActivityTime := Now; // Atualiza a última hora de atividade
+end;
+
 function TConexao.ValidaVersao: string;
 Var
   MYSQL: String;
-  VersaoNumber: integer;
+  VersaoNumber: Integer;
 begin
   MYSQL := SoNumero(VersaoMYSQL);
   // MYSQL := SoNumero('5.7.37-log');
-  // ShowMessage(MYSQL);
+  // //showmessage1(MYSQL);
 
   VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
 
@@ -639,6 +915,52 @@ begin
   SetLength(FParametros, 0);
   SetLength(FValores, 0);
   SQL.Clear;
+end;
+
+{ TLogThread1 }
+
+constructor TLogThread1.Create(const ComputerName, Erro, Banco: string);
+begin
+  inherited Create(True); // Cria a Thread1 suspensa
+  FComputerName := ComputerName;
+  FErro := Erro;
+  FBanco := Banco;
+  FreeOnTerminate := True; // Libera a memória automaticamente ao término
+  Start; // Inicia a execução da Thread1
+end;
+
+procedure TLogThread1.Execute;
+var
+  JSON: TJSONObject;
+  Requisicao: iRequisicao;
+begin
+  try
+    JSON := TJSONObject.Create;
+    try
+      // Configura o JSON com os valores
+      JSON.AddPair('computer_name', FComputerName);
+      JSON.AddPair('error_message', FErro);
+      JSON.AddPair('banco', FBanco);
+
+      // Cria e configura a requisição
+      Requisicao := iRequisicao.Create(nil);
+      try
+        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
+        Requisicao.BODY(JSON);
+        Requisicao.Metodo := mPost;
+        Requisicao.Execute;
+      finally
+        Requisicao.Free;
+      end;
+    finally
+      JSON.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+
+    end;
+  end;
 end;
 
 end.

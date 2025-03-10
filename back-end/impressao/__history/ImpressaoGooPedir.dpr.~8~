@@ -1,0 +1,69 @@
+program ImpressaoGooPedir;
+uses
+  Vcl.Forms,
+  SysUtils,
+  Windows,
+  requisicao in 'util\requisicao.pas',
+  uModulo in 'uModulo.pas' {dmModulo: TDataModule},
+  metodo.api in 'util\metodo.api.pas',
+  uModuloImpressao in 'impressao\uModuloImpressao.pas' {dmImpressaoV2: TDataModule},
+  uMain in 'util\uMain.pas' {frmMain},
+  XSuperJSON in '..\site\outros\XSuperJSON.pas',
+  XSuperObject in '..\site\outros\XSuperObject.pas';
+
+{$R *.res}
+
+var
+  MutexHandle: THandle;
+  Param: string;
+begin
+
+
+
+if ParamCount = 0 then
+  begin
+    // Sem parâmetros, cria um mutex para impedir múltiplas instâncias
+    MutexHandle := CreateMutex(nil, True, 'NomeUnicoParaSeuAplicativo');
+
+    // Verifica se o mutex já existe (ERROR_ALREADY_EXISTS)
+    if (MutexHandle = 0) or (GetLastError = ERROR_ALREADY_EXISTS) then
+    begin
+      // Se o mutex já existe, mostra uma mensagem e fecha o aplicativo
+      MessageBox(0, 'O aplicativo já está em execução.', 'Aviso', MB_ICONWARNING or MB_OK);
+      Halt;
+    end;
+  end
+  else
+  begin
+    // Se um parâmetro específico for passado, você pode decidir permitir múltiplas instâncias
+    Param := ParamStr(1); // Obtém o primeiro parâmetro da linha de comando
+
+    MutexHandle := CreateMutex(nil, True, pchar('NomeUnicoParaSeuAplicativo'+Param));
+       if (MutexHandle = 0) or (GetLastError = ERROR_ALREADY_EXISTS) then
+    begin
+      // Se o mutex já existe, mostra uma mensagem e fecha o aplicativo
+      MessageBox(0, 'O aplicativo já está em execução.', 'Aviso', MB_ICONWARNING or MB_OK);
+      Halt;
+    end;
+
+    if Param = 'permissao_multipla' then
+    begin
+      // Permite múltiplas instâncias se o parâmetro for 'permissao_multipla'
+      // Nenhum controle adicional é necessário
+    end
+    else
+    begin
+      // Aqui você pode tratar outros parâmetros ou lógica
+      // Por exemplo, podemos continuar o controle de instância única para outros parâmetros
+    end;
+  end;
+
+
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+//  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  //Application.CreateForm(TdmModulo, dmModulo);
+  Application.CreateForm(TdmImpressaoV2, dmImpressaoV2);
+  Application.CreateForm(TfrmMain, frmMain);
+  Application.Run;
+end.

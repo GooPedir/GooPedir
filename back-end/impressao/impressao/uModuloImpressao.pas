@@ -11,23 +11,45 @@ uses
   ppProd, ppReport, FireDAC.Comp.DataSet, FireDAC.Comp.Client, ppSubRpt,
   ppModule, raCodMod, uModulo, uRequisicao, ppBarCod, FireDAC.UI.Intf,
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.Phys.MySQL,
-  FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait;
+  FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait, DataSet.Serialize,
+  System.MaskUtils, System.Generics.Collections, ACBrMail, ACBrDFeReport,
+  ACBrDFeDANFeReport, ACBrNFeDANFEClass, ACBrNFeDANFeESCPOS, ACBrBase, ACBrDFe,
+  ACBrNFe, ACBrPosPrinter, ACBrDANFCeFortesFr, ACBrDANFCeFortesFrA4,
+  ACBrNFeDANFeRLClass, ACBrValidador, ACBrIntegrador;
 
 type
+  TipoThread = (tComanda, tCozinha, tOutro);
+
   TImpressaoPedidos = class(TThread)
   private
-    QRYPEDIDOS: TFDQuery;
-    QRYPEDIDOSPRODUTOS: TFDQuery;
-    QRYCAIXA: TFDQuery;
+    // QRYPEDIDOS: TFDQuery;
+    // QRYPEDIDOSPRODUTOS: TFDQuery;
+    // QRYCAIXA: TFDQuery;
     Relatorio: TppReport;
     RelatorioCozinha: TppReport;
     RelatorioCaixa: TppReport;
 
+    Quantidade: Integer;
+
   protected
     procedure Execute; override;
+    function Consulta(URL: String): String;
+    procedure Post(URL: String);
+    function FormatarCNPJ(CNPJ: string): string;
+    function FormatarNumero(Numeros: string): string;
+    function FormatarCEP(CEP: string): string;
+    function ValidaStatus: Boolean;
+    procedure CarregaImpressora;
   public
+
     constructor Create;
     destructor Destroy; override;
+    procedure DadosEmpresa;
+
+    function Totalizador: Integer;
+
+  var
+    Tipo: TipoThread;
   end;
 
   TdmImpressaoV2 = class(TDataModule)
@@ -45,9 +67,6 @@ type
     ppCozinha: TppBDEPipeline;
     dsCozinha: TDataSource;
     ppTitleBand3: TppTitleBand;
-    ppLine1: TppLine;
-    ppLine2: TppLine;
-    ppRichText10: TppRichText;
     COZINHA56MM: TppReport;
     ppHeaderBand5: TppHeaderBand;
     ppRichText41: TppRichText;
@@ -98,42 +117,21 @@ type
     ppGroup2: TppGroup;
     ppGroupHeaderBand2: TppGroupHeaderBand;
     ppGroupFooterBand2: TppGroupFooterBand;
-    ppRichText6: TppRichText;
     ppRichText7: TppRichText;
     ppLine3: TppLine;
     ppFooterBand7: TppFooterBand;
-    ppLabel31: TppLabel;
-    ppRichText20: TppRichText;
-    ppDBText24: TppDBText;
-    ppLabel32: TppLabel;
-    ppDBText25: TppDBText;
-    ppLabel33: TppLabel;
-    ppDBText27: TppDBText;
-    ppLabel34: TppLabel;
-    ppDBText28: TppDBText;
-    ppRichText21: TppRichText;
-    ppLabel35: TppLabel;
-    ppDBText29: TppDBText;
-    ppDBText33: TppDBText;
     ppSummaryBand6: TppSummaryBand;
-    ppDB2DBarCode1: TppDB2DBarCode;
     ppRichText42: TppRichText;
     ppGroup6: TppGroup;
     ppGroupHeaderBand6: TppGroupHeaderBand;
     ppGroupFooterBand6: TppGroupFooterBand;
     COZINHA80MM: TppReport;
     ppRichText23: TppRichText;
-    ppLine16: TppLine;
-    ppRichText2: TppRichText;
     ppRichText1: TppRichText;
     ppRichText3: TppRichText;
     ppDBText1: TppDBText;
-    ppLogo80mm: TppImage;
-    ppSystemVariable4: TppSystemVariable;
-    COMANDA56MM: TppReport;
+    COMANDA56MM1: TppReport;
     ppTitleBand2: TppTitleBand;
-    ppLine17: TppLine;
-    ppRichText4: TppRichText;
     ppHeaderBand7: TppHeaderBand;
     ppLine18: TppLine;
     ppRichText24: TppRichText;
@@ -155,7 +153,6 @@ type
     ppDBText35: TppDBText;
     ppLabel38: TppLabel;
     ppLine19: TppLine;
-    ppSystemVariable9: TppSystemVariable;
     ppGroup7: TppGroup;
     ppGroupHeaderBand7: TppGroupHeaderBand;
     ppRichText29: TppRichText;
@@ -169,7 +166,6 @@ type
     ppRichText5: TppRichText;
     ppRichText9: TppRichText;
     ppDBText2: TppDBText;
-    ppLogo56mm: TppImage;
     ppRichText13: TppRichText;
     ppSystemVariable1: TppSystemVariable;
     ppGroup3: TppGroup;
@@ -182,16 +178,11 @@ type
     ppDBCalc1: TppDBCalc;
     ppLabel4: TppLabel;
     ppLine4: TppLine;
-    CONFERENCIA80MM: TppReport;
+    CONFERENCIA80MM1: TppReport;
     ppTitleBand5: TppTitleBand;
-    ppLine5: TppLine;
-    ppRichText17: TppRichText;
     ppRichText18: TppRichText;
     ppHeaderBand4: TppHeaderBand;
-    ppLine6: TppLine;
-    ppRichText19: TppRichText;
     ppDetailBand7: TppDetailBand;
-    ppRichText32: TppRichText;
     ppFooterBand1: TppFooterBand;
     ppSummaryBand1: TppSummaryBand;
     ppRichText33: TppRichText;
@@ -200,9 +191,7 @@ type
     ppGroup8: TppGroup;
     ppGroupHeaderBand8: TppGroupHeaderBand;
     ppRichText35: TppRichText;
-    ppDB2DBarCode5: TppDB2DBarCode;
     ppGroupFooterBand8: TppGroupFooterBand;
-    ppLine8: TppLine;
     ppRichText36: TppRichText;
     ppDesignLayers2: TppDesignLayers;
     ppDesignLayer2: TppDesignLayer;
@@ -210,7 +199,6 @@ type
     ppParameter3: TppParameter;
     CONFERENCIA56MM: TppReport;
     ppTitleBand6: TppTitleBand;
-    ppLine7: TppLine;
     ppRichText34: TppRichText;
     ppRichText37: TppRichText;
     ppHeaderBand6: TppHeaderBand;
@@ -238,36 +226,6 @@ type
     ppResumo: TppBDEPipeline;
     dsResumo: TDataSource;
     CAIXA_RESUMO80MM: TppReport;
-    ppTitleBand7: TppTitleBand;
-    ppHeaderBand9: TppHeaderBand;
-    ppDetailBand11: TppDetailBand;
-    ppFooterBand9: TppFooterBand;
-    ppSummaryBand8: TppSummaryBand;
-    ppDesignLayers9: TppDesignLayers;
-    ppDesignLayer9: TppDesignLayer;
-    ppParameterList9: TppParameterList;
-    ppParameter7: TppParameter;
-    ppRichText16: TppRichText;
-    ppDBText7: TppDBText;
-    ppDBText8: TppDBText;
-    ppLine23: TppLine;
-    ppLabel5: TppLabel;
-    ppDBCalc2: TppDBCalc;
-    ppLabel6: TppLabel;
-    ppLabel7: TppLabel;
-    ppRichText45: TppRichText;
-    ppLabel10: TppLabel;
-    ppLabel12: TppLabel;
-    ppLabel13: TppLabel;
-    ppLabel14: TppLabel;
-    ppLabel15: TppLabel;
-    ppLabel16: TppLabel;
-    ppRichText48: TppRichText;
-    ppRichText49: TppRichText;
-    ppRichText50: TppRichText;
-    ppRichText51: TppRichText;
-    ppRichText52: TppRichText;
-    ppRichText53: TppRichText;
     CAIXA_COMPLETO: TFDQuery;
     ppCompleto: TppBDEPipeline;
     dsCompleto: TDataSource;
@@ -293,16 +251,10 @@ type
     ppParameter8: TppParameter;
     ppRichText58: TppRichText;
     ppSystemVariable11: TppSystemVariable;
-    ppSystemVariable6: TppSystemVariable;
-    ppSystemVariable12: TppSystemVariable;
-    ppSystemVariable7: TppSystemVariable;
-    ppSystemVariable13: TppSystemVariable;
     ppSystemVariable8: TppSystemVariable;
     ppSystemVariable14: TppSystemVariable;
     ppSystemVariable5: TppSystemVariable;
     ppSystemVariable16: TppSystemVariable;
-    ppSystemVariable17: TppSystemVariable;
-    ppSystemVariable18: TppSystemVariable;
     ppSystemVariable2: TppSystemVariable;
     ppSystemVariable19: TppSystemVariable;
     CAIXA_MOTOBOY: TFDQuery;
@@ -351,13 +303,10 @@ type
     CAIXA_PRODUTO80MM: TppReport;
     ppTitleBand11: TppTitleBand;
     ppRichText62: TppRichText;
-    ppLabel39: TppLabel;
     ppHeaderBand11: TppHeaderBand;
     ppDetailBand13: TppDetailBand;
     ppFooterBand11: TppFooterBand;
     ppSummaryBand12: TppSummaryBand;
-    ppSystemVariable22: TppSystemVariable;
-    ppSystemVariable23: TppSystemVariable;
     ppDesignLayers13: TppDesignLayers;
     ppDesignLayer11: TppDesignLayer;
     ppParameterList11: TppParameterList;
@@ -366,39 +315,6 @@ type
     ppDBCalc8: TppDBCalc;
     ppLabel41: TppLabel;
     ppDBCalc9: TppDBCalc;
-    CAIXA_RESUMO56MM: TppReport;
-    ppTitleBand12: TppTitleBand;
-    ppRichText65: TppRichText;
-    ppLabel42: TppLabel;
-    ppHeaderBand12: TppHeaderBand;
-    ppDetailBand14: TppDetailBand;
-    ppDBText17: TppDBText;
-    ppDBText18: TppDBText;
-    ppLine27: TppLine;
-    ppFooterBand12: TppFooterBand;
-    ppSummaryBand13: TppSummaryBand;
-    ppLabel43: TppLabel;
-    ppDBCalc10: TppDBCalc;
-    ppSystemVariable24: TppSystemVariable;
-    ppSystemVariable25: TppSystemVariable;
-    ppLabel44: TppLabel;
-    ppRichText66: TppRichText;
-    ppLabel45: TppLabel;
-    ppLabel46: TppLabel;
-    ppLabel47: TppLabel;
-    ppLabel48: TppLabel;
-    ppLabel49: TppLabel;
-    ppLabel50: TppLabel;
-    ppRichText67: TppRichText;
-    ppRichText68: TppRichText;
-    ppRichText69: TppRichText;
-    ppRichText70: TppRichText;
-    ppRichText71: TppRichText;
-    ppRichText72: TppRichText;
-    ppDesignLayers14: TppDesignLayers;
-    ppDesignLayer12: TppDesignLayer;
-    ppParameterList12: TppParameterList;
-    ppParameter11: TppParameter;
     CAIXA_COMPLETO56MM: TppReport;
     ppTitleBand13: TppTitleBand;
     ppRichText73: TppRichText;
@@ -460,43 +376,7 @@ type
     ppDesignLayer16: TppDesignLayer;
     ppParameterList14: TppParameterList;
     ppParameter13: TppParameter;
-    CAIXA_PRODUTO56MM: TppReport;
-    ppTitleBand15: TppTitleBand;
-    ppRichText81: TppRichText;
-    ppLabel65: TppLabel;
-    ppHeaderBand15: TppHeaderBand;
-    ppDetailBand17: TppDetailBand;
-    ppRichText82: TppRichText;
-    ppFooterBand15: TppFooterBand;
-    ppSummaryBand17: TppSummaryBand;
-    ppSystemVariable30: TppSystemVariable;
-    ppSystemVariable31: TppSystemVariable;
-    ppLabel66: TppLabel;
-    ppDBCalc16: TppDBCalc;
-    ppLabel67: TppLabel;
-    ppDBCalc17: TppDBCalc;
-    ppGroup13: TppGroup;
-    ppGroupHeaderBand13: TppGroupHeaderBand;
-    ppGroupFooterBand13: TppGroupFooterBand;
-    ppRichText83: TppRichText;
-    ppLine30: TppLine;
-    ppDesignLayers17: TppDesignLayers;
-    ppDesignLayer17: TppDesignLayer;
-    ppParameterList15: TppParameterList;
-    ppParameter14: TppParameter;
-    ppRichText84: TppRichText;
-    ppGroup11: TppGroup;
-    ppGroupHeaderBand11: TppGroupHeaderBand;
-    ppGroupFooterBand11: TppGroupFooterBand;
-    ppRichText63: TppRichText;
-    ppRichText85: TppRichText;
-    ppLine26: TppLine;
-    ppGroup14: TppGroup;
-    ppGroupHeaderBand14: TppGroupHeaderBand;
-    ppGroupFooterBand14: TppGroupFooterBand;
     ppDBText26: TppDBText;
-    ppLabel68: TppLabel;
-    ppRichText64: TppRichText;
     iReqImpressaoTest: iRequisicao;
     ppTesteImpressao: TppReport;
     ppTitleBand16: TppTitleBand;
@@ -547,7 +427,6 @@ type
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
     ppParameter2: TppParameter;
-    ppRichText88: TppRichText;
     ppRichText89: TppRichText;
     ppDBCalc18: TppDBCalc;
     ppDBCalc5: TppDBCalc;
@@ -592,67 +471,664 @@ type
     ppDesignLayer20: TppDesignLayer;
     ppParameterList18: TppParameterList;
     ppParameter17: TppParameter;
+    CAIXA_SANGRIA: TFDQuery;
+    dsSangria: TDataSource;
+    ppSangria: TppBDEPipeline;
+    CAIXA_SANGRIA80MM: TppReport;
+    ppTitleBand19: TppTitleBand;
+    ppRichText93: TppRichText;
+    ppHeaderBand19: TppHeaderBand;
+    ppDetailBand21: TppDetailBand;
+    ppFooterBand19: TppFooterBand;
+    ppSummaryBand21: TppSummaryBand;
+    ppSystemVariable38: TppSystemVariable;
+    ppSystemVariable39: TppSystemVariable;
+    ppDesignLayers21: TppDesignLayers;
+    ppDesignLayer21: TppDesignLayer;
+    ppParameterList19: TppParameterList;
+    ppParameter18: TppParameter;
+    ppReport2: TppReport;
+    ppTitleBand20: TppTitleBand;
+    ppRichText95: TppRichText;
+    ppLabel76: TppLabel;
+    ppHeaderBand20: TppHeaderBand;
+    ppDetailBand22: TppDetailBand;
+    ppRichText96: TppRichText;
+    ppFooterBand20: TppFooterBand;
+    ppSummaryBand22: TppSummaryBand;
+    ppSystemVariable40: TppSystemVariable;
+    ppSystemVariable41: TppSystemVariable;
+    ppLabel77: TppLabel;
+    ppLabel78: TppLabel;
+    ppDBCalc24: TppDBCalc;
+    ppDBCalc25: TppDBCalc;
+    ppDesignLayers22: TppDesignLayers;
+    ppDesignLayer22: TppDesignLayer;
+    ppParameterList20: TppParameterList;
+    ppParameter19: TppParameter;
+    PRODUTOS: TFDMemTable;
+    PRODUTOScodigo: TIntegerField;
+    PRODUTOSid: TIntegerField;
+    PRODUTOSgrupo: TIntegerField;
+    PRODUTOSdescricao: TStringField;
+    PRODUTOSproduto: TStringField;
+    PRODUTOSnome: TStringField;
+    PRODUTOStotal: TFloatField;
+    PRODUTOSquantidade: TFloatField;
+    PRODUTOStipo: TStringField;
+    PRODUTOSadicionais: TStringField;
+    PRODUTOSunitario: TFloatField;
+    ppLabel81: TppLabel;
+    ppDBText30: TppDBText;
+    ppDBText31: TppDBText;
+    ppPIX: TppReport;
+    ppTitleBand21: TppTitleBand;
+    ppRichText98: TppRichText;
+    ppHeaderBand21: TppHeaderBand;
+    ppDetailBand23: TppDetailBand;
+    ppFooterBand21: TppFooterBand;
+    ppSummaryBand23: TppSummaryBand;
+    ppDesignLayers23: TppDesignLayers;
+    ppDesignLayer23: TppDesignLayer;
+    ppParameterList21: TppParameterList;
+    ppParameter20: TppParameter;
+    PIX: TFDMemTable;
+    dsPIX: TDataSource;
+    pPix: TppBDEPipeline;
+    PIXvalor: TFloatField;
+    PIXbase64: TStringField;
+    ppQrcodPix: Tpp2DBarCode;
+    ppSystemVariable42: TppSystemVariable;
+    ppSystemVariable43: TppSystemVariable;
+    IMPRESSAOURL: TStringField;
+    ppRichText32: TppRichText;
+    ppSystemVariable17: TppSystemVariable;
+    ppSystemVariable18: TppSystemVariable;
+    ppComputado: TppBDEPipeline;
+    dsComputado: TDataSource;
+    ppTitleBand7: TppTitleBand;
+    ppRichText16: TppRichText;
+    ppHeaderBand9: TppHeaderBand;
+    ppDetailBand11: TppDetailBand;
+    ppFooterBand9: TppFooterBand;
+    ppSubReport2: TppSubReport;
+    ppChildReport2: TppChildReport;
+    ppTitleBand22: TppTitleBand;
+    ppHeaderBand22: TppHeaderBand;
+    ppDetailBand24: TppDetailBand;
+    ppDBText32: TppDBText;
+    ppDBText33: TppDBText;
+    ppFooterBand22: TppFooterBand;
+    ppSummaryBand24: TppSummaryBand;
+    raCodeModule3: TraCodeModule;
+    ppDesignLayers24: TppDesignLayers;
+    ppDesignLayer24: TppDesignLayer;
+    ppSummaryBand8: TppSummaryBand;
+    ppSystemVariable6: TppSystemVariable;
+    ppSystemVariable12: TppSystemVariable;
+    ppLabel7: TppLabel;
+    ppRichText45: TppRichText;
+    ppLabel10: TppLabel;
+    ppLabel12: TppLabel;
+    ppLabel13: TppLabel;
+    ppLabel14: TppLabel;
+    ppLabel15: TppLabel;
+    ppLabel16: TppLabel;
+    ppRichText48: TppRichText;
+    ppRichText49: TppRichText;
+    ppRichText50: TppRichText;
+    ppRichText51: TppRichText;
+    ppRichText52: TppRichText;
+    ppRichText53: TppRichText;
+    ppLabel68: TppLabel;
+    ppRichText64: TppRichText;
+    ppLabel73: TppLabel;
+    ppRichText94: TppRichText;
+    ppLabel74: TppLabel;
+    ppRichText97: TppRichText;
+    raCodeModule4: TraCodeModule;
+    ppDesignLayers9: TppDesignLayers;
+    ppDesignLayer9: TppDesignLayer;
+    ppParameterList9: TppParameterList;
+    ppParameter7: TppParameter;
+    ppLabel6: TppLabel;
+    ppDBCalc26: TppDBCalc;
+    ppSubReport3: TppSubReport;
+    ppChildReport3: TppChildReport;
+    ppDesignLayers25: TppDesignLayers;
+    ppDesignLayer25: TppDesignLayer;
+    ppTitleBand23: TppTitleBand;
+    ppDetailBand25: TppDetailBand;
+    ppSummaryBand25: TppSummaryBand;
+    ppRichText19: TppRichText;
+    ppDBText7: TppDBText;
+    ppDBText8: TppDBText;
+    ppLine23: TppLine;
+    ppLabel5: TppLabel;
+    ppDBCalc2: TppDBCalc;
+    ppHeaderBand23: TppHeaderBand;
+    ppFooterBand23: TppFooterBand;
+    ppLine6: TppLine;
+    ppResumoSangria: TppBDEPipeline;
+    dsResumoSangria: TDataSource;
+    ppRichText100: TppRichText;
+    ppSubReport4: TppSubReport;
+    ppChildReport4: TppChildReport;
+    ppDesignLayers26: TppDesignLayers;
+    ppDesignLayer26: TppDesignLayer;
+    ppDetailBand26: TppDetailBand;
+    ppSummaryBand26: TppSummaryBand;
+    ppHeaderBand24: TppHeaderBand;
+    ppFooterBand24: TppFooterBand;
+    ppDBText36: TppDBText;
+    ppDBText37: TppDBText;
+    ppLine8: TppLine;
+    ppLabel82: TppLabel;
+    ppDBCalc27: TppDBCalc;
+    ppPageSummaryBand1: TppPageSummaryBand;
+    ppTitleBand24: TppTitleBand;
+    raCodeModule5: TraCodeModule;
+    raCodeModule6: TraCodeModule;
+    ppRichText102: TppRichText;
+    ppRichText101: TppRichText;
+    ppCategoria: TppBDEPipeline;
+    dsCategoria: TDataSource;
+    ppLabel75: TppLabel;
+    ppDBCalc22: TppDBCalc;
+    ppLabel79: TppLabel;
+    ppDBCalc23: TppDBCalc;
+    ppSubReport6: TppSubReport;
+    ppChildReport6: TppChildReport;
+    ppDesignLayers27: TppDesignLayers;
+    ppDesignLayer27: TppDesignLayer;
+    ppTitleBand25: TppTitleBand;
+    ppDetailBand27: TppDetailBand;
+    ppSummaryBand27: TppSummaryBand;
+    ppLabel80: TppLabel;
+    ppFooterBand25: TppFooterBand;
+    ppLabel83: TppLabel;
+    ppDBCalc28: TppDBCalc;
+    ppLabel84: TppLabel;
+    ppDBCalc29: TppDBCalc;
+    ppLabel85: TppLabel;
+    ppDBCalc30: TppDBCalc;
+    ppLabel86: TppLabel;
+    ppDBCalc31: TppDBCalc;
+    ppSystemVariable22: TppSystemVariable;
+    ppSystemVariable23: TppSystemVariable;
+    ppDBText38: TppDBText;
+    ppDBText39: TppDBText;
+    ppDBText40: TppDBText;
+    ppDBText41: TppDBText;
+    ppPageSummaryBand2: TppPageSummaryBand;
+    CAIXA_RESUMO56MM: TppReport;
+    ppTitleBand26: TppTitleBand;
+    ppRichText63: TppRichText;
+    ppLabel87: TppLabel;
+    ppRichText85: TppRichText;
+    ppLabel88: TppLabel;
+    ppLabel89: TppLabel;
+    ppLabel90: TppLabel;
+    ppRichText103: TppRichText;
+    ppRichText104: TppRichText;
+    ppRichText105: TppRichText;
+    ppSubReport7: TppSubReport;
+    ppChildReport7: TppChildReport;
+    ppTitleBand27: TppTitleBand;
+    ppRichText106: TppRichText;
+    ppHeaderBand25: TppHeaderBand;
+    ppDetailBand28: TppDetailBand;
+    ppDBText42: TppDBText;
+    ppDBText43: TppDBText;
+    ppLine26: TppLine;
+    ppFooterBand26: TppFooterBand;
+    ppSummaryBand28: TppSummaryBand;
+    ppLabel91: TppLabel;
+    ppDBCalc32: TppDBCalc;
+    ppSubReport8: TppSubReport;
+    ppChildReport8: TppChildReport;
+    ppTitleBand28: TppTitleBand;
+    ppRichText107: TppRichText;
+    ppHeaderBand26: TppHeaderBand;
+    ppDetailBand29: TppDetailBand;
+    ppDBText44: TppDBText;
+    ppDBText45: TppDBText;
+    ppLine31: TppLine;
+    ppFooterBand27: TppFooterBand;
+    ppSummaryBand29: TppSummaryBand;
+    ppLabel92: TppLabel;
+    ppDBCalc33: TppDBCalc;
+    ppSubReport9: TppSubReport;
+    ppChildReport9: TppChildReport;
+    ppTitleBand29: TppTitleBand;
+    ppRichText108: TppRichText;
+    ppHeaderBand27: TppHeaderBand;
+    ppDetailBand30: TppDetailBand;
+    ppDBText46: TppDBText;
+    ppDBText47: TppDBText;
+    ppLine32: TppLine;
+    ppPageSummaryBand3: TppPageSummaryBand;
+    ppFooterBand28: TppFooterBand;
+    ppSummaryBand30: TppSummaryBand;
+    ppLabel93: TppLabel;
+    ppDBCalc34: TppDBCalc;
+    raCodeModule7: TraCodeModule;
+    ppDesignLayers28: TppDesignLayers;
+    ppDesignLayer28: TppDesignLayer;
+    raCodeModule8: TraCodeModule;
+    ppDesignLayers29: TppDesignLayers;
+    ppDesignLayer29: TppDesignLayer;
+    raCodeModule9: TraCodeModule;
+    ppDesignLayers30: TppDesignLayers;
+    ppDesignLayer30: TppDesignLayer;
+    ppHeaderBand28: TppHeaderBand;
+    ppDetailBand31: TppDetailBand;
+    ppFooterBand29: TppFooterBand;
+    ppSummaryBand31: TppSummaryBand;
+    ppSystemVariable44: TppSystemVariable;
+    ppSystemVariable45: TppSystemVariable;
+    ppLabel94: TppLabel;
+    ppLabel95: TppLabel;
+    ppLabel96: TppLabel;
+    ppRichText109: TppRichText;
+    ppRichText110: TppRichText;
+    ppRichText111: TppRichText;
+    ppLabel97: TppLabel;
+    ppRichText112: TppRichText;
+    ppLabel98: TppLabel;
+    ppRichText113: TppRichText;
+    ppLabel99: TppLabel;
+    ppRichText114: TppRichText;
+    ppRichText115: TppRichText;
+    raCodeModule10: TraCodeModule;
+    ppDesignLayers31: TppDesignLayers;
+    ppDesignLayer31: TppDesignLayer;
+    ppParameterList22: TppParameterList;
+    ppParameter21: TppParameter;
+    VAZIA: TFDMemTable;
+    VAZIAtest: TStringField;
+    CAIXA_PRODUTO56MM: TppReport;
+    ppTitleBand12: TppTitleBand;
+    ppRichText65: TppRichText;
+    ppLabel42: TppLabel;
+    ppHeaderBand12: TppHeaderBand;
+    ppDetailBand14: TppDetailBand;
+    ppDBText17: TppDBText;
+    ppDBText18: TppDBText;
+    ppFooterBand12: TppFooterBand;
+    ppSummaryBand13: TppSummaryBand;
+    ppLabel43: TppLabel;
+    ppDBCalc10: TppDBCalc;
+    ppLabel44: TppLabel;
+    ppDBCalc35: TppDBCalc;
+    ppLabel45: TppLabel;
+    ppDBCalc36: TppDBCalc;
+    ppLabel46: TppLabel;
+    ppDBCalc37: TppDBCalc;
+    ppSubReport10: TppSubReport;
+    ppChildReport10: TppChildReport;
+    ppTitleBand30: TppTitleBand;
+    ppLabel47: TppLabel;
+    ppDetailBand32: TppDetailBand;
+    ppDBText48: TppDBText;
+    ppDBText49: TppDBText;
+    ppPageSummaryBand4: TppPageSummaryBand;
+    ppFooterBand30: TppFooterBand;
+    ppSummaryBand32: TppSummaryBand;
+    ppLabel48: TppLabel;
+    ppDBCalc38: TppDBCalc;
+    ppLabel49: TppLabel;
+    ppDBCalc39: TppDBCalc;
+    ppLabel50: TppLabel;
+    ppDBCalc40: TppDBCalc;
+    ppLabel100: TppLabel;
+    ppDBCalc41: TppDBCalc;
+    ppSystemVariable24: TppSystemVariable;
+    ppSystemVariable25: TppSystemVariable;
+    ppDesignLayers14: TppDesignLayers;
+    ppDesignLayer12: TppDesignLayer;
+    ppDesignLayers32: TppDesignLayers;
+    ppDesignLayer32: TppDesignLayer;
+    ppParameterList12: TppParameterList;
+    ppParameter11: TppParameter;
+    DADOS_CABECALHO: TFDMemTable;
+    DADOS_CABECALHOnome: TStringField;
+    DADOS_CABECALHOcep: TStringField;
+    DADOS_CABECALHOrua: TStringField;
+    DADOS_CABECALHObairro: TStringField;
+    DADOS_CABECALHOcidade: TStringField;
+    DADOS_CABECALHOestado: TStringField;
+    DADOS_CABECALHOcnpj: TStringField;
+    DADOS_CABECALHOie: TStringField;
+    DADOS_CABECALHOrazao: TStringField;
+    dsCabecalho: TDataSource;
+    ppCabecalho: TppBDEPipeline;
+    DADOS_CABECALHOnumero: TStringField;
+    ppRichText2: TppRichText;
+    ppLabel65: TppLabel;
+    DADOS_RECIBO: TFDMemTable;
+    dsRecibo: TDataSource;
+    ppRecibo: TppBDEPipeline;
+    CAIXA_RECIBO: TppReport;
+    ppTitleBand15: TppTitleBand;
+    ppRichText10: TppRichText;
+    ppHeaderBand15: TppHeaderBand;
+    ppDetailBand17: TppDetailBand;
+    ppFooterBand15: TppFooterBand;
+    ppSummaryBand17: TppSummaryBand;
+    ppSystemVariable4: TppSystemVariable;
+    ppSystemVariable30: TppSystemVariable;
+    ppDesignLayers17: TppDesignLayers;
+    ppDesignLayer17: TppDesignLayer;
+    ppParameterList15: TppParameterList;
+    ppParameter14: TppParameter;
+    ppRichText4: TppRichText;
+    ppLabel66: TppLabel;
+    ppRichText17: TppRichText;
+    ppLabel67: TppLabel;
+    ppLabelUsuario80: TppLabel;
+    ppLabelUsuario56: TppLabel;
+    ppSubReport11: TppSubReport;
+    ppChildReport11: TppChildReport;
+    ppDesignLayers33: TppDesignLayers;
+    ppDesignLayer33: TppDesignLayer;
+    ppTitleiFood: TppTitleBand;
+    ppDetailBand33: TppDetailBand;
+    ppSummaryBand33: TppSummaryBand;
+    ppLabel31: TppLabel;
+    ppRichText20: TppRichText;
+    ppDBText24: TppDBText;
+    ppLabel32: TppLabel;
+    ppDBText25: TppDBText;
+    ppLabel33: TppLabel;
+    ppDBText27: TppDBText;
+    ppLabel34: TppLabel;
+    ppDBText28: TppDBText;
+    ppRichText21: TppRichText;
+    pLabelTroco2: TppDBText;
+    pLabelTroco1: TppLabel;
+    ppLine16: TppLine;
+    ppSystemVariable7: TppSystemVariable;
+    ppSystemVariable13: TppSystemVariable;
+    ppRichText88: TppRichText;
+    ppLabel39: TppLabel;
+    pp2DBarCode2: Tpp2DBarCode;
+    ppRichText66: TppRichText;
+    ppRichText67: TppRichText;
+    ppRichText68: TppRichText;
+    pCobaia: TppReport;
+    ppTitleBand31: TppTitleBand;
+    ppRichText69: TppRichText;
+    ppRichText70: TppRichText;
+    ppDBText29: TppDBText;
+    ppRichText71: TppRichText;
+    ppHeaderBand29: TppHeaderBand;
+    ppDetailBand34: TppDetailBand;
+    ppRichText72: TppRichText;
+    ppFooterBand31: TppFooterBand;
+    ppSummaryBand34: TppSummaryBand;
+    ppSubReport12: TppSubReport;
+    ppChildReport12: TppChildReport;
+    ppTitleBand32: TppTitleBand;
+    pp2DBarCode3: Tpp2DBarCode;
+    ppRichText81: TppRichText;
+    ppRichText82: TppRichText;
+    ppDetailBand35: TppDetailBand;
+    ppSummaryBand35: TppSummaryBand;
+    ppLabel35: TppLabel;
+    ppRichText83: TppRichText;
+    ppDBText50: TppDBText;
+    ppLabel101: TppLabel;
+    ppDBText51: TppDBText;
+    ppLabel102: TppLabel;
+    ppDBText52: TppDBText;
+    ppLabel103: TppLabel;
+    ppDBText53: TppDBText;
+    ppRichText84: TppRichText;
+    ppDBText54: TppDBText;
+    ppLabel104: TppLabel;
+    ppLine1: TppLine;
+    ppSystemVariable9: TppSystemVariable;
+    ppSystemVariable31: TppSystemVariable;
+    ppRichText116: TppRichText;
+    ppLabel105: TppLabel;
+    ppRichText117: TppRichText;
+    ppDesignLayers34: TppDesignLayers;
+    ppDesignLayer34: TppDesignLayer;
+    ppGroup11: TppGroup;
+    ppGroupHeaderBand11: TppGroupHeaderBand;
+    ppRichText118: TppRichText;
+    ppGroupFooterBand11: TppGroupFooterBand;
+    ppLine2: TppLine;
+    ppRichText119: TppRichText;
+    ppDesignLayers35: TppDesignLayers;
+    ppDesignLayer35: TppDesignLayer;
+    ppParameterList23: TppParameterList;
+    ppParameter22: TppParameter;
+    CONFERENCIA80MM: TppReport;
+    ppTitleBand33: TppTitleBand;
+    ppRichText122: TppRichText;
+    ppHeaderBand30: TppHeaderBand;
+    ppLine5: TppLine;
+    ppRichText123: TppRichText;
+    ppDetailBand36: TppDetailBand;
+    ppRichText124: TppRichText;
+    ppFooterBand32: TppFooterBand;
+    ppSummaryBand36: TppSummaryBand;
+    ppRichText125: TppRichText;
+    ppLabel106: TppLabel;
+    ppDBText55: TppDBText;
+    ppLine7: TppLine;
+    ppSystemVariable46: TppSystemVariable;
+    ppSystemVariable47: TppSystemVariable;
+    ppLabel107: TppLabel;
+    ppGroup13: TppGroup;
+    ppGroupHeaderBand13: TppGroupHeaderBand;
+    ppRichText126: TppRichText;
+    ppGroupFooterBand13: TppGroupFooterBand;
+    ppLine17: TppLine;
+    ppRichText127: TppRichText;
+    ppDesignLayers36: TppDesignLayers;
+    ppDesignLayer36: TppDesignLayer;
+    ppParameterList24: TppParameterList;
+    ppParameter23: TppParameter;
+    COMANDA80MM2: TppReport;
+    ppTitleBand34: TppTitleBand;
+    ppRichText120: TppRichText;
+    ppRichText121: TppRichText;
+    ppDBText56: TppDBText;
+    ppRichText128: TppRichText;
+    ppHeaderBand31: TppHeaderBand;
+    ppDetailBand37: TppDetailBand;
+    ppRichText129: TppRichText;
+    ppFooterBand33: TppFooterBand;
+    ppSummaryBand37: TppSummaryBand;
+    ppSubReport13: TppSubReport;
+    ppChildReport13: TppChildReport;
+    ppTitleBand35: TppTitleBand;
+    pp2DBarCode4: Tpp2DBarCode;
+    ppRichText130: TppRichText;
+    ppRichText131: TppRichText;
+    ppDetailBand38: TppDetailBand;
+    ppSummaryBand38: TppSummaryBand;
+    ppLabel108: TppLabel;
+    ppRichText132: TppRichText;
+    ppDBText57: TppDBText;
+    ppLabel109: TppLabel;
+    ppDBText58: TppDBText;
+    ppLabel110: TppLabel;
+    ppDBText59: TppDBText;
+    ppLabel111: TppLabel;
+    ppDBText60: TppDBText;
+    ppRichText133: TppRichText;
+    ppDBText61: TppDBText;
+    ppLabel112: TppLabel;
+    ppLine27: TppLine;
+    ppSystemVariable48: TppSystemVariable;
+    ppSystemVariable49: TppSystemVariable;
+    ppRichText134: TppRichText;
+    ppLabel113: TppLabel;
+    ppRichText135: TppRichText;
+    ppDesignLayers37: TppDesignLayers;
+    ppDesignLayer37: TppDesignLayer;
+    ppGroup14: TppGroup;
+    ppGroupHeaderBand14: TppGroupHeaderBand;
+    ppRichText136: TppRichText;
+    ppGroupFooterBand14: TppGroupFooterBand;
+    ppLine30: TppLine;
+    ppRichText137: TppRichText;
+    ppDesignLayers38: TppDesignLayers;
+    ppDesignLayer38: TppDesignLayer;
+    ppParameterList25: TppParameterList;
+    ppParameter24: TppParameter;
+    ppRichText138: TppRichText;
+    iNFCE: iRequisicao;
+    ACBrIntegrador1: TACBrIntegrador;
+    ACBrMail1: TACBrMail;
+    ACBrNFe1: TACBrNFe;
+    ACBrValidador1: TACBrValidador;
+    ACBrNFeDANFeRL1: TACBrNFeDANFeRL;
+    ACBrPosPrinter1: TACBrPosPrinter;
+    ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
+    ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS;
+    ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes;
+    COMANDA56MM: TppReport;
+    ppTitleBand36: TppTitleBand;
+    ppRichText6: TppRichText;
+    ppRichText139: TppRichText;
+    ppDBText62: TppDBText;
+    ppRichText140: TppRichText;
+    ppHeaderBand32: TppHeaderBand;
+    ppDetailBand39: TppDetailBand;
+    ppRichText141: TppRichText;
+    ppFooterBand34: TppFooterBand;
+    ppSummaryBand39: TppSummaryBand;
+    ppSubReport14: TppSubReport;
+    ppChildReport14: TppChildReport;
+    ppTitleBand37: TppTitleBand;
+    ppDetailBand40: TppDetailBand;
+    ppSummaryBand40: TppSummaryBand;
+    ppLabel114: TppLabel;
+    ppRichText144: TppRichText;
+    ppDBText63: TppDBText;
+    ppLabel115: TppLabel;
+    ppDBText64: TppDBText;
+    ppLabel116: TppLabel;
+    ppDBText65: TppDBText;
+    ppLabel117: TppLabel;
+    ppDBText66: TppDBText;
+    ppRichText145: TppRichText;
+    ppDBText67: TppDBText;
+    ppLabel118: TppLabel;
+    ppLine33: TppLine;
+    ppSystemVariable50: TppSystemVariable;
+    ppSystemVariable51: TppSystemVariable;
+    ppRichText146: TppRichText;
+    ppLabel119: TppLabel;
+    ppRichText147: TppRichText;
+    ppDesignLayers39: TppDesignLayers;
+    ppDesignLayer39: TppDesignLayer;
+    ppGroup15: TppGroup;
+    ppGroupHeaderBand15: TppGroupHeaderBand;
+    ppRichText148: TppRichText;
+    ppGroupFooterBand15: TppGroupFooterBand;
+    ppLine34: TppLine;
+    ppRichText149: TppRichText;
+    ppDesignLayers40: TppDesignLayers;
+    ppDesignLayer40: TppDesignLayer;
+    ppParameterList26: TppParameterList;
+    ppParameter25: TppParameter;
     procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
     { Private declarations }
-    function GetCodigo: integer;
+    function GetCodigo: Integer;
     procedure ConfiguraReport(Relatorio: TppReport);
-    procedure ConfiguraReportComanda(Origem: integer; logo: Boolean);
+    procedure ConfiguraReportComanda(Origem: Integer; logo: Boolean);
     procedure ConfiguraVersaoPDV(Relatorio: TppReport);
     function GetParametro(Campo: String): Variant;
     function VersaoPDV: String;
     function GetVersaoArq: string;
     Procedure CarregaProdutos;
+
   public
     { Public declarations }
+    procedure DadosEmpresa;
     function ImprimirComanda(Relatorio: TppReport;
-      CodigoPedido, Vias: integer): Boolean;
+      CodigoPedido, Vias: Integer): Boolean;
 
     function ImprimirComandaCozinha(Relatorio: TppReport;
-      CodigoPedido: String): Boolean;
+      CodigoPedido, Usuario: String): Boolean;
 
-    procedure ImprimirCaixa(Tipo, Codigo: integer);
+    procedure ImprimirCaixa(Tipo, Codigo: Integer);
 
-    procedure ImprimeTeste(CodigoImpressora: integer);
+    procedure ImprimeTeste(CodigoImpressora: Integer);
 
-    property CodigoImpressao: integer read GetCodigo;
+    procedure ImprimeSangria;
+
+    procedure ImprimeRecibo;
+
+    procedure ImprimePIX;
+    procedure ImprimerNFCe;
+
+    property CodigoImpressao: Integer read GetCodigo;
     procedure AddImpressao(Tipo: String; Relatorio: TppReport;
-      Codigo, Status: integer; Descricao, Observacao, Driver: String);
+      Codigo, Status: Integer; Descricao, Observacao, Driver: String);
+
+    function Consulta(URL: String): String;
+    procedure Post(URL: String);
+
+    procedure ImprimirComandaLocal(Relatorio, RelatorioCozinha: TppReport);
+    procedure ImprimirCozinhaLocal(Relatorio, RelatorioCozinha: TppReport);
+    procedure ImprimirOutrosLocal;
+    procedure Impressora;
+    procedure ImprimeNFCe(URL: String);
+    function FormatarNumero(Numeros: string): string;
   end;
 
 var
   dmImpressaoV2: TdmImpressaoV2;
-  Codigo: integer;
+  Codigo: Integer;
 
 implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses uMain, ppTypes, Vcl.Forms, Winapi.Windows, System.Variants, Vcl.Dialogs;
+uses uMain, ppTypes, Vcl.Forms, Winapi.Windows, System.Variants, Vcl.Dialogs,
+  System.JSON;
 
 {$R *.dfm}
 { TdmImpressaoV2 }
 
 procedure TdmImpressaoV2.AddImpressao(Tipo: String; Relatorio: TppReport;
-  Codigo, Status: integer; Descricao, Observacao, Driver: String);
+  Codigo, Status: Integer; Descricao, Observacao, Driver: String);
 begin
-  IMPRESSAO.Insert;
-  IMPRESSAO.FieldByName('TIPO').AsString := Tipo;
-  if Assigned(Relatorio) then
-    IMPRESSAO.FieldByName('RELATORIO').AsString := Relatorio.Name;
-  IMPRESSAO.FieldByName('STATUS').AsInteger := Status;
-  IMPRESSAO.FieldByName('DESCRICAO').AsString := Descricao;
-  IMPRESSAO.FieldByName('OBSERVACAO').AsString := Observacao;
-  IMPRESSAO.FieldByName('CODIGO').AsInteger := Codigo;
-  IMPRESSAO.FieldByName('DRIVER').AsString := Driver;
-  IMPRESSAO.Post;
+  if frmMain.StatusVisible then
+  begin
+    IMPRESSAO.Insert;
+    IMPRESSAO.FieldByName('TIPO').AsString := Tipo;
+    if Assigned(Relatorio) then
+      IMPRESSAO.FieldByName('RELATORIO').AsString := Relatorio.Name;
+    IMPRESSAO.FieldByName('STATUS').AsInteger := Status;
+    IMPRESSAO.FieldByName('DESCRICAO').AsString := Descricao;
+    IMPRESSAO.FieldByName('OBSERVACAO').AsString := Observacao;
+    IMPRESSAO.FieldByName('CODIGO').AsInteger := Codigo;
+    IMPRESSAO.FieldByName('DRIVER').AsString := Driver;
+    IMPRESSAO.FieldByName('URL').AsString := frmMain.urlServer;
+    IMPRESSAO.Post;
+    if IMPRESSAO.RecordCount > 99 then
+    begin
+      IMPRESSAO.Close;
+      IMPRESSAO.Open;
+    end;
+  end;
+
 end;
 
 procedure TdmImpressaoV2.CarregaProdutos;
 var
   Observacao: String;
-  I: integer;
+  I: Integer;
 begin
 
 end;
@@ -663,29 +1139,53 @@ begin
   try
     Relatorio.PrinterSetup.MarginBottom := GetParametro('margin_botton');
   except
-    Relatorio.PrinterSetup.MarginBottom := 0.2;
+    Relatorio.PrinterSetup.MarginBottom := 0.01;
   end;
   try
     Relatorio.PrinterSetup.MarginLeft := GetParametro('margin_left');
   except
-    Relatorio.PrinterSetup.MarginLeft := 0.2;
+    Relatorio.PrinterSetup.MarginLeft := 0.01;
   end;
   try
     Relatorio.PrinterSetup.MarginRight := GetParametro('margin_rigth');
   except
-    Relatorio.PrinterSetup.MarginRight := 0.2;
+    Relatorio.PrinterSetup.MarginRight := 0.01;
   end;
   try
     Relatorio.PrinterSetup.MarginTop := GetParametro('margin_top');
   except
-    Relatorio.PrinterSetup.MarginTop := 0.2;
+    Relatorio.PrinterSetup.MarginTop := 0.01;
   end;
-  try
-    if Relatorio.PrinterSetup.MarginLeft = 0 then
-      Relatorio.PrinterSetup.MarginLeft := 1 / 0.2;
 
-    if Relatorio.PrinterSetup.MarginLeft > 1 then
-      Relatorio.PrinterSetup.MarginLeft := 0.2;
+  // try
+  //
+  // if GetParametro('oculta_categoria') = 1 then
+  // begin
+  // ppRichText6.RichText := '<dbtext>nome_produto</dbtext>';
+  // ppRichText25.RichText := '<dbtext>nome_produto</dbtext>';
+  // ppRichText35.RichText := '<dbtext>nome_produto</dbtext>';
+  // end
+  // else
+  // begin
+  // ppRichText6.RichText :=
+  // '<dbtext>tipo_produto_nome</dbtext> - <dbtext>nome_produto</dbtext>';
+  // ppRichText25.RichText :=
+  // '<dbtext>tipo_produto_nome</dbtext> - <dbtext>nome_produto</dbtext>';
+  // ppRichText35.RichText := '<dbtext>tipo_produto_nome</dbtext> <dbtext>nome_produto</dbtext>';
+  // end;
+  //
+  // except
+  //
+  // end;
+
+  // Relatorio.PrinterSetup.PaperHeight := 297;
+
+  try
+    // if Relatorio.PrinterSetup.MarginLeft = 0 then
+    // Relatorio.PrinterSetup.MarginLeft := 1 / 0.2;
+    //
+    // if Relatorio.PrinterSetup.MarginLeft > 1 then
+    // Relatorio.PrinterSetup.MarginLeft := 0.2;
 
     // ShowMessage(
     // 'Top '+Relatorio.PrinterSetup.MarginTop.ToString+#13+
@@ -700,32 +1200,31 @@ begin
   end;
 end;
 
-procedure TdmImpressaoV2.ConfiguraReportComanda(Origem: integer; logo: Boolean);
+procedure TdmImpressaoV2.ConfiguraReportComanda(Origem: Integer; logo: Boolean);
 begin
-
+  exit;
   // Configuração responsavel por imprimir a conferencia e configura o tamanho da impressão
   Origem := 2;
   // Configuração 80mm
   ppRichText21.Visible := Origem <> 3;
-  ppLabel35.Visible := Origem <> 3;
-  ppDBText29.Visible := Origem <> 3;
-  ppDB2DBarCode1.Visible := Origem <> 3;
+  pLabelTroco1.Visible := Origem <> 3;
+  pLabelTroco2.Visible := Origem <> 3;
+  // ppDB2DBarCode1.Visible := Origem <> 3;
   // ppShape5.Visible := Origem <> 3;
   // ppDB2DBarCode2.Visible := Origem <> 3;
   // ppShape1.Visible := Origem <> 3;
-  ppDBText33.Visible := Origem <> 3;
+  // ppDBText33.Visible := Origem <> 3;
   // ppLabel2.Visible := Origem <> 3;
   // ppLabel3.Visible := Origem <> 3;
   ppSystemVariable7.Visible := Origem <> 3;
-  ppLogo80mm.Visible := Origem <> 3;
+  // ppLogo80mm.Visible := Origem <> 3;
   ppRichText1.Visible := Origem <> 3;
   ppDBText1.Visible := Origem <> 3;
   ppLabel32.Visible := Origem <> 3;
   ppDBText25.Visible := Origem <> 3;
-  ppLogo80mm.Visible := Origem <> 3;
+  // ppLogo80mm.Visible := Origem <> 3;
   ppRichText2.Visible := Origem = 3;
 
-  ppLogo56mm.Visible := Origem <> 3;
   ppRichText5.Visible := Origem <> 3;
   ppDBText2.Visible := Origem <> 3;
   ppRichText9.Visible := Origem <> 3;
@@ -745,64 +1244,133 @@ begin
   // ppLine19.Visible := Origem <> 3;
 
   ppRichText4.Visible := Origem = 3;
-  ppSystemVariable9.Visible := Origem = 3;
 
-  ppRichText1.Top := 1.3523;
-  ppDBText1.Top := 1.5625;
-  ppRichText3.Top := 1.7302001;
-  ppTitleBand3.Height := 1.9687001;
-  ppLogo80mm.Visible := True;
-  ppLine16.Visible := True;
-  ppSystemVariable4.Visible := False;
-  ppTitleBand2.Height := 1.3958;
-  ppRichText5.Top := 0.81050003;
-  ppDBText2.Top := 1.0151;
-  ppRichText9.Top := 1.9835;
+
+  // ppRichText1.Top := 1.3523;
+  // ppDBText1.Top := 1.5625;
+  // ppRichText3.Top := 1.7302001;
+  // ppTitleBand3.Height := 1.9687001;
+  // ppLogo80mm.Visible := True;
+  // ppLine16.Visible := True;
+  // ppSystemVariable4.Visible := False;
+  // ppTitleBand2.Height := 1.3958;
+  // ppRichText5.Top := 0.81050003;
+  // ppDBText2.Top := 1.0151;
+  // ppRichText9.Top := 1.9835;
 
   if Origem = 3 then
   begin
     ppLine16.Visible := False;
-    ppSystemVariable4.Visible := True;
     ppRichText1.Visible := False;
     ppDBText1.Visible := False;
     ppRichText3.Visible := False;
-    ppLogo80mm.Visible := False;
+    // ppLogo80mm.Visible := False;
     ppTitleBand3.Height := 0.25;
     ppTitleBand2.Height := 0.25;
   end;
 
   if not logo then
   begin
-    ppRichText1.Top := 0.093699999;
-    ppDBText1.Top := 0.3021;
-    ppRichText3.Top := 0.46869999;
-    ppTitleBand3.Height := 0.667;
-    ppRichText5.Top := 0.090700001;
-    ppDBText2.Top := 0.2886;
-    ppRichText9.Top := 0.43439999;
+    // ppRichText1.Top := 0.093699999;
+    // ppDBText1.Top := 0.3021;
+    // ppRichText3.Top := 0.46869999;
+    /// /    ppTitleBand3.Height := 0.667;
+    // ppRichText5.Top := 0.090700001;
+    // ppDBText2.Top := 0.2886;
+    // ppRichText9.Top := 0.43439999;
   end;
 
 end;
 
 procedure TdmImpressaoV2.ConfiguraVersaoPDV(Relatorio: TppReport);
 begin
+
+  ConfiguraReport(Relatorio);
   Relatorio.PrinterSetup.DocumentName := VersaoPDV;
+
+  Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
+  Relatorio.ShowCancelDialog := False;
+  Relatorio.ShowPrintDialog := False;
 end;
+
+function TdmImpressaoV2.Consulta(URL: String): String;
+var
+  Req: iRequisicao;
+begin
+  Req := iRequisicao.Create(nil);
+  Req.BaseURL := frmMain.urlServer;
+  Req.URL := URL;
+  Req.TempoExpiracao := 10 * 1000;
+  try
+    Req.Execute;
+    Result := Req.Retorno;
+    // ShowMessage(Result)
+  except
+    on E: Exception do
+    begin
+      Result := '[]';
+      // ShowMessage(e.Message)
+    end;
+  end;
+
+  Req.Free;
+
+end;
+
+procedure TdmImpressaoV2.DadosEmpresa;
+var
+  DADOS: String;
+begin
+  DADOS := Consulta('/v1/consulta/generica/dados_whatsapp/*/*/*');
+
+  dmImpressaoV2.DADOS_CABECALHO.Close;
+  dmImpressaoV2.DADOS_CABECALHO.LoadFromJSON(DADOS);
+
+  dmImpressaoV2.DADOS_CABECALHO.Edit;
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString :=
+    FormatarCNPJ(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString :=
+    FormatarNumero(dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString :=
+    FormatarCEP(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString);
+
+
+
+end;
+
+function TdmImpressaoV2.FormatarNumero(Numeros: string): string;
+begin
+  // Garante que o número tenha pelo menos 9 dígitos
+  while Length(Numeros) < 9 do
+    Numeros := '0' + Numeros;
+
+  // Formatação do número
+  Result := Copy(Numeros, 1, 3) + '.' + Copy(Numeros, 4, 3) + '.' +
+    Copy(Numeros, 7, 3);
+end;
+
 
 procedure TdmImpressaoV2.C(Sender: TObject);
 var
   Thread: TImpressaoPedidos;
 begin
-
   IMPRESSAO.Open;
-  // ImprimirComanda(COMANDA80MM,9503,0);
-  exit;
-  Thread := TImpressaoPedidos.Create;
-  Thread.Start;
 
 end;
 
-function TdmImpressaoV2.GetCodigo: integer;
+function TdmImpressaoV2.GetCodigo: Integer;
 begin
   inc(Codigo);
   Result := Codigo;
@@ -810,19 +1378,17 @@ end;
 
 function TdmImpressaoV2.GetParametro(Campo: String): Variant;
 var
-  QRY: TFDQuery;
-begin
+  DADOS: TFDMemTable;
 
-  QRY := TFDQuery.Create(nil);
-  QRY.Connection := dmModulo.BANCO;
-  QRY.SQL.Add('select * from dados_whatsapp');
-  QRY.Open;
+begin
+  DADOS := TFDMemTable.Create(self);
+  frmMain.BuscaDadosParametros(DADOS);
   try
-    Result := QRY.FieldByName(Campo).AsVariant;
+    Result := DADOS.FieldByName(Campo).AsVariant;
   except
 
   end;
-  QRY.Free;
+  DADOS.Free;
 
 end;
 
@@ -854,7 +1420,272 @@ begin
   DataSet.FieldByName('DATA_HORA').AsDateTime := now;
 end;
 
-procedure TdmImpressaoV2.ImprimeTeste(CodigoImpressora: integer);
+procedure TdmImpressaoV2.Impressora;
+begin
+  if frmMain.mImpressora.RecordCount = 0 then
+  begin
+    frmMain.mImpressora.LoadFromJSON
+      (Consulta('/v1/consulta/generica/impressoras/*/*/*'));
+  end;
+end;
+
+procedure TdmImpressaoV2.ImprimeNFCe(URL: String);
+begin
+  iNFCE.BaseURL := URL;
+  try
+    iNFCE.Execute;
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromString(iNFCE.Retorno);
+    ACBrNFe1.NotasFiscais.Imprimir;
+  except
+
+  end;
+end;
+
+procedure TdmImpressaoV2.ImprimerNFCe;
+var
+  Impressoras: TFDMemTable;
+  DADOS: TFDMemTable;
+  ReqNFCE: iRequisicao;
+  JsonObject: TJsonObject;
+begin
+  Impressoras := TFDMemTable.Create(nil);
+  Impressoras.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/padrao'));
+  if Impressoras.RecordCount = 0 then
+  begin
+    AddImpressao('NFCE', nil, 0, 2, 'ERRO',
+      'Impressora padrão não cadastrada!', '');
+    Impressoras.Free;
+    exit;
+  end;
+
+  DADOS := TFDMemTable.Create(nil);
+  DADOS.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/pedido/nfce'));
+
+  if DADOS.RecordCount > 0 then
+  begin
+    while not DADOS.Eof do
+    begin
+      Impressoras.First;
+      while not Impressoras.Eof do
+      begin
+
+        ImprimeNFCe(DADOS.FieldByName('caminho').AsString);
+
+        AddImpressao('NFCE', nil, DADOS.FieldByName('id_pedido').AsInteger, 1,
+          'IMPRESSO', '', Impressoras.FieldByName('driver').AsString);
+
+        Impressoras.Next;
+      end;
+
+      ReqNFCE := iRequisicao.Create(nil);
+      ReqNFCE.BaseURL := frmMain.urlServer;
+      ReqNFCE.URL := '/impressao/pedido/nfce/' +
+        DADOS.FieldByName('id_pedido').AsString;
+      ReqNFCE.Metodo := mPost;
+      try
+        ReqNFCE.Execute;
+      except
+
+      end;
+
+      ReqNFCE.Free;
+
+      DADOS.Next;
+    end;
+  end;
+
+  DADOS.Free;
+  Impressoras.Free;
+end;
+
+procedure TdmImpressaoV2.ImprimePIX;
+var
+  Impressoras: TFDMemTable;
+begin
+  try
+    Impressoras := TFDMemTable.Create(nil);
+    Impressoras.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/padrao'));
+
+    if Impressoras.RecordCount = 0 then
+    begin
+      AddImpressao('PIX', nil, Codigo, 2, 'ERRO',
+        'Impressora padrão não cadastrada!', '');
+      Impressoras.Free;
+      exit;
+    end;
+  except
+
+  end;
+  PIX.Close;
+  PIX.LoadFromJSON(dmImpressaoV2.Consulta('impressao/qrcod/pix'));
+  if PIX.RecordCount > 0 then
+  begin
+    while not Impressoras.Eof do
+    begin
+
+      ppQrcodPix.Data := PIX.FieldByName('base64').AsString;
+
+      ppPIX.PreviewFormSettings.PageDisplay := pdContinuous;
+
+      ppPIX.ShowCancelDialog := False;
+      ppPIX.ShowPrintDialog := False;
+      ppPIX.DeviceType := 'Printer';
+      ppPIX.PrinterSetup.PrinterName := Impressoras.FieldByName
+        ('driver').AsString;
+      ConfiguraVersaoPDV(ppPIX);
+      ppPIX.Print;
+
+      AddImpressao('PIX', ppPIX, Codigo, 1, 'IMPRESSO', '',
+        Impressoras.FieldByName('driver').AsString);
+
+      Impressoras.Next;
+    end;
+
+    Post('/impressao/qrcod/pix/' + PIX.FieldByName('base64').AsString);
+  end;
+  Impressoras.Free;
+
+end;
+
+procedure TdmImpressaoV2.ImprimeRecibo;
+var
+  Impressoras: TFDMemTable;
+  Relatorio: TppReport;
+  RECIBO: TFDMemTable;
+begin
+  Relatorio := CAIXA_RECIBO;
+  try
+    Impressoras := TFDMemTable.Create(nil);
+    Impressoras.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/padrao'));
+
+    if Impressoras.RecordCount = 0 then
+    begin
+      AddImpressao('RECIBO', nil, Codigo, 2, 'ERRO',
+        'Impressora padrão não cadastrada!', '');
+      Impressoras.Free;
+      exit;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      // frmMain.Memo1.Lines.Add(E.message);
+      AddImpressao('RECIBO', Relatorio, Codigo, 2, 'ERRO', E.message,
+        Impressoras.FieldByName('driver').AsString);
+      Impressoras.Free;
+      exit;
+    end;
+  end;
+
+  RECIBO := TFDMemTable.Create(nil);
+  RECIBO.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/recibo/fiado'));
+  // dsRecibo.DataSet := RECIBO;
+
+  if RECIBO.RecordCount > 0 then
+  begin
+    while not RECIBO.Eof do
+    begin
+      DADOS_RECIBO.Close;
+      DADOS_RECIBO.LoadFromJSON(RECIBO.ToJSONObject());
+
+      ConfiguraReport(Relatorio);
+
+      Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
+
+      Relatorio.ShowCancelDialog := False;
+      Relatorio.ShowPrintDialog := False;
+      Relatorio.DeviceType := 'Printer';
+      Relatorio.PrinterSetup.PrinterName :=
+        Impressoras.FieldByName('driver').AsString;
+      ConfiguraVersaoPDV(Relatorio);
+      Relatorio.Print;
+
+      AddImpressao('RECIBO', Relatorio, Codigo, 1, 'IMPRESSO', '',
+        Impressoras.FieldByName('driver').AsString);
+
+      Post('/impressao/recibo/' + RECIBO.FieldByName('id').AsString + '/' +
+        RECIBO.FieldByName('id_pedido').AsString);
+
+      RECIBO.Next;
+    end;
+  end;
+
+  RECIBO.Free;
+  Impressoras.Free;
+end;
+
+procedure TdmImpressaoV2.ImprimeSangria;
+var
+  Impressoras: TFDMemTable;
+  Relatorio: TppReport;
+  SANGRIA: TFDMemTable;
+  SANGRIA_UM: TFDMemTable;
+
+  // QRYUPDATE: TFDQuery;
+begin
+
+  Relatorio := CAIXA_SANGRIA80MM;
+  try
+    Impressoras := TFDMemTable.Create(nil);
+    Impressoras.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/padrao'));
+
+    if Impressoras.RecordCount = 0 then
+    begin
+      AddImpressao('SANGRIA', nil, Codigo, 2, 'ERRO',
+        'Impressora padrão não cadastrada!', '');
+      Impressoras.Free;
+      exit;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      // frmMain.Memo1.Lines.Add(E.message);
+      AddImpressao('SANGRIA', Relatorio, Codigo, 2, 'ERRO', E.message,
+        Impressoras.FieldByName('driver').AsString);
+      Impressoras.Free;
+      exit;
+    end;
+  end;
+
+  SANGRIA := TFDMemTable.Create(nil);
+  SANGRIA.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/sangria'));
+
+  if SANGRIA.RecordCount > 0 then
+  begin
+    while not SANGRIA.Eof do
+    begin
+      SANGRIA_UM := TFDMemTable.Create(nil);
+      SANGRIA_UM.LoadFromJSON(SANGRIA.ToJSONObject());
+      dsSangria.DataSet := SANGRIA_UM;
+
+      ConfiguraReport(Relatorio);
+
+      Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
+
+      Relatorio.ShowCancelDialog := False;
+      Relatorio.ShowPrintDialog := False;
+      Relatorio.DeviceType := 'Printer';
+      Relatorio.PrinterSetup.PrinterName :=
+        Impressoras.FieldByName('driver').AsString;
+      ConfiguraVersaoPDV(Relatorio);
+      Relatorio.Print;
+
+      AddImpressao('SANGRIA', Relatorio, Codigo, 1, 'IMPRESSO', '',
+        Impressoras.FieldByName('driver').AsString);
+
+      Post('/impressao/sangria/' + SANGRIA.FieldByName('id').AsString);
+      SANGRIA_UM.Free;
+      SANGRIA.Next;
+    end;
+  end;
+
+  SANGRIA.Free;
+  Impressoras.Free;
+end;
+
+procedure TdmImpressaoV2.ImprimeTeste(CodigoImpressora: Integer);
 var
   Impressoras: TFDQuery;
 begin
@@ -893,20 +1724,25 @@ begin
   end;
 end;
 
-procedure TdmImpressaoV2.ImprimirCaixa(Tipo, Codigo: integer);
+procedure TdmImpressaoV2.ImprimirCaixa(Tipo, Codigo: Integer);
 var
-  Impressoras: TFDQuery;
+  Impressoras: TFDMemTable;
   Relatorio: TppReport;
-  QRYUPDATE: TFDQuery;
-  I: integer;
+  I: Integer;
+
+  RESUMO: TFDMemTable;
+  COMPUTADO: TFDMemTable;
+  RESUMOSANGRIA: TFDMemTable;
+  COMPLETO: TFDMemTable;
+  PRODUTO: TFDMemTable;
+  CATEGORIA: TFDMemTable;
+  MOTOBOY: TFDMemTable;
+  CANCELADO: TFDMemTable;
 begin
 
   try
-    Impressoras := TFDQuery.Create(nil);
-    Impressoras.Connection := dmModulo.BANCO;
-    Impressoras.SQL.Add
-      ('SELECT * FROM impressoras where impressora_padrao = 1 and ativo = 1 limit 1');
-    Impressoras.Open;
+    Impressoras := TFDMemTable.Create(nil);
+    Impressoras.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/padrao'));
 
     if Impressoras.RecordCount = 0 then
     begin
@@ -919,7 +1755,7 @@ begin
   except
     on E: Exception do
     begin
-      frmMain.Memo1.Lines.Add(E.message);
+      // frmMain.Memo1.Lines.Add(E.message);
       AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.message,
         Impressoras.FieldByName('driver').AsString);
       Impressoras.Free;
@@ -945,78 +1781,38 @@ begin
                 Relatorio := dmImpressaoV2.CAIXA_RESUMO80MM;
               end;
             end;
-            CAIXA_RESUMO.SQL.Clear;
-            CAIXA_RESUMO.SQL.Add('select');
-            CAIXA_RESUMO.SQL.Add('max(c.id) as id,');
-            CAIXA_RESUMO.SQL.Add('max(c.data_abertura) as data_abertura,');
-            CAIXA_RESUMO.SQL.Add('max(c.hora_abertura) as hora_abertura,');
-            CAIXA_RESUMO.SQL.Add('max(c.data_fechamento) as data_fechamento,');
-            CAIXA_RESUMO.SQL.Add('max(c.hora_fechamento) as hora_fechamento,');
-            CAIXA_RESUMO.SQL.Add('max(c.valor_abertura) as valor_abertura,');
-            CAIXA_RESUMO.SQL.Add
-              ('max(c.valor_fechamento) as valor_fechamento,');
-            CAIXA_RESUMO.SQL.Add('tp.descricao,');
-            CAIXA_RESUMO.SQL.Add('sum(cm.valor) as valor_tipo_pagamento,');
-            CAIXA_RESUMO.SQL.Add
-              ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha > 0) as valor_mesa,');
-            CAIXA_RESUMO.SQL.Add
-              ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha is null) as valor_vem_buscar,');
-            CAIXA_RESUMO.SQL.Add
-              ('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
-            CAIXA_RESUMO.SQL.Add
-              ('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
-            CAIXA_RESUMO.SQL.Add
-              ('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
-            CAIXA_RESUMO.SQL.Add('from caixa as c');
-            CAIXA_RESUMO.SQL.Add
-              ('join caixa_movimento as cm on cm.id_caixa = c.id');
-            CAIXA_RESUMO.SQL.Add('join pedido as p on p.codigo = cm.id_pedido');
-            CAIXA_RESUMO.SQL.Add
-              ('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
-            CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
-            CAIXA_RESUMO.SQL.Add('group by c.id,tp.codigo, tp.descricao');
-            { CAIXA_RESUMO.SQL.Add('select');
-              CAIXA_RESUMO.SQL.Add('c.id,');
-              CAIXA_RESUMO.SQL.Add('c.data_abertura,');
-              CAIXA_RESUMO.SQL.Add('c.hora_abertura,');
-              CAIXA_RESUMO.SQL.Add('c.data_fechamento,');
-              CAIXA_RESUMO.SQL.Add('c.hora_fechamento,');
-              CAIXA_RESUMO.SQL.Add('c.valor_abertura,');
-              CAIXA_RESUMO.SQL.Add('c.valor_fechamento,');
-              CAIXA_RESUMO.SQL.Add('tp.descricao,');
-              CAIXA_RESUMO.SQL.Add('sum(cm.valor) as valor_tipo_pagamento,');
-              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha > 0) as valor_mesa,');
-              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco = 0 and pl.id_ficha is null) as valor_vem_buscar,');
-              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as valor_delivery,');
-              CAIXA_RESUMO.SQL.Add('(select sum(pl.valor_taxa_entrega) from pedido as pl where pl.id_caixa = c.id and pl.codigo_cliente_endereco > 0) as taxa_entrega,');
-              CAIXA_RESUMO.SQL.Add('(c.valor_fechamento-(select sum(pl.valor_total_pedido) from pedido as pl where pl.id_caixa = c.id)) as valor_diferenca');
-              CAIXA_RESUMO.SQL.Add('from caixa as c');
-              CAIXA_RESUMO.SQL.Add('join caixa_movimento as cm on cm.id_caixa = c.id');
-              CAIXA_RESUMO.SQL.Add('join pedido as p on p.codigo = cm.id_pedido');
-              CAIXA_RESUMO.SQL.Add('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
-              //            CAIXA_RESUMO.SQL.Add('where c.id = :id and cm.tipo = 1');
-              CAIXA_RESUMO.SQL.Add('group by tp.codigo, tp.descricao'); }
-            CAIXA_RESUMO.ParamByName('id').AsInteger := Codigo;
-            CAIXA_RESUMO.Open;
-            if CAIXA_RESUMO.RecordCount = 0 then
+
+            RESUMO := TFDMemTable.Create(nil);
+            RESUMO.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/caixa/tres/'
+              + Codigo.toString()));
+
+            COMPUTADO := TFDMemTable.Create(nil);
+            COMPUTADO.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/tres/lancado/' +
+              Codigo.toString()));
+
+            RESUMOSANGRIA := TFDMemTable.Create(nil);
+            RESUMOSANGRIA.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/tres/sangria/' +
+              Codigo.toString()));
+
+            dsResumoSangria.DataSet := RESUMOSANGRIA;
+            dsComputado.DataSet := COMPUTADO;
+            dsResumo.DataSet := RESUMO;
+
+            if COMPUTADO.RecordCount = 0 then
+              dsComputado.DataSet := VAZIA;
+
+            if RESUMOSANGRIA.RecordCount = 0 then
+              dsResumoSangria.DataSet := VAZIA;
+
+            if RESUMO.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa nâo Existe',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              QRYUPDATE := TFDQuery.Create(nil);
-              QRYUPDATE.Connection := dmModulo.BANCO;
-              QRYUPDATE.Close;
-              QRYUPDATE.SQL.Clear;
-              QRYUPDATE.SQL.Add
-                ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-
-              QRYUPDATE.ParamByName('data').AsDateTime := Date;
-              QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-              QRYUPDATE.ParamByName('status').AsInteger := 2;
-              QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-              QRYUPDATE.ExecSQL;
-
-              QRYUPDATE.Free;
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
               Impressoras.Free;
+              RESUMO.Free;
               exit;
             end;
 
@@ -1033,53 +1829,21 @@ begin
                 Relatorio := dmImpressaoV2.CAIXA_COMPLETO80MM;
               end;
             end;
-            CAIXA_COMPLETO.SQL.Clear;
-            CAIXA_COMPLETO.SQL.Add('select ');
-            CAIXA_COMPLETO.SQL.Add('c.id,');
-            CAIXA_COMPLETO.SQL.Add('c.data_abertura,');
-            CAIXA_COMPLETO.SQL.Add('c.hora_abertura,');
-            CAIXA_COMPLETO.SQL.Add('c.data_fechamento,');
-            CAIXA_COMPLETO.SQL.Add('c.hora_fechamento,');
-            CAIXA_COMPLETO.SQL.Add('c.valor_abertura,');
-            CAIXA_COMPLETO.SQL.Add('c.valor_fechamento,');
-            CAIXA_COMPLETO.SQL.Add
-              ('(select sum(valor) from caixa_movimento as cmm where cmm.id_caixa = c.id and cmm.tipo = 226) as valor_computado,');
-            CAIXA_COMPLETO.SQL.Add
-              ('(select sum(valor) from caixa_movimento as cmm where cmm.id_caixa = c.id and cmm.tipo = 262626) as valor_informado,');
-            CAIXA_COMPLETO.SQL.Add
-              ('((select sum(valor) from caixa_movimento as cmm where cmm.id_caixa = c.id and cmm.tipo = 262626)- (select sum(valor) from caixa_movimento as cmm where cmm.id_caixa = c.id and cmm.tipo = 226)) as valor_diferenca,');
-            CAIXA_COMPLETO.SQL.Add('cm.tipo,');
-            CAIXA_COMPLETO.SQL.Add('cm.valor as transacao_valor,');
-            CAIXA_COMPLETO.SQL.Add('cm.data as transacao_data,');
-            CAIXA_COMPLETO.SQL.Add('cm.hora as transacao_hora,');
-            CAIXA_COMPLETO.SQL.Add
-              ('CONVERT(cm.descricao USING utf8)as transacao_descricao');
-            CAIXA_COMPLETO.SQL.Add('from caixa as c');
-            CAIXA_COMPLETO.SQL.Add
-              ('join caixa_movimento as cm on cm.id_caixa = c.id');
-            CAIXA_COMPLETO.SQL.Add('where c.id = :id and cm.tipo = 1');
-            CAIXA_COMPLETO.SQL.Add('order by cm.id_pedido');
-            CAIXA_COMPLETO.ParamByName('id').AsInteger := Codigo;
-            CAIXA_COMPLETO.Open;
-            if CAIXA_COMPLETO.RecordCount = 0 then
+            // /impressao/caixa/quatro/:codigo
+            COMPLETO := TFDMemTable.Create(nil);
+            COMPLETO.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/quatro/' +
+              Codigo.toString()));
+            dsCompleto.DataSet := COMPLETO;
+
+            if COMPLETO.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa nâo Existe',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              QRYUPDATE := TFDQuery.Create(nil);
-              QRYUPDATE.Connection := dmModulo.BANCO;
-              QRYUPDATE.Close;
-              QRYUPDATE.SQL.Clear;
-              QRYUPDATE.SQL.Add
-                ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
 
-              QRYUPDATE.ParamByName('data').AsDateTime := Date;
-              QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-              QRYUPDATE.ParamByName('status').AsInteger := 2;
-              QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-              QRYUPDATE.ExecSQL;
-
-              QRYUPDATE.Free;
               Impressoras.Free;
+              COMPLETO.Free;
               exit;
             end;
 
@@ -1096,149 +1860,83 @@ begin
                 Relatorio := dmImpressaoV2.CAIXA_PRODUTO80MM;
               end;
             end;
-            for I := 0 to 2 do
+
+            PRODUTO := TFDMemTable.Create(nil);
+            PRODUTO.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/cinco/produto/' +
+              Codigo.toString()));
+            dsProduto.DataSet := PRODUTO;
+
+            CATEGORIA := TFDMemTable.Create(nil);
+            CATEGORIA.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/cinco/categoria/' +
+              Codigo.toString()));
+            dsCategoria.DataSet := CATEGORIA;
+
+            if PRODUTO.RecordCount = 0 then
             begin
-              CAIXA_PRODUTO.SQL.Clear;
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
+                Impressoras.FieldByName('driver').AsString);
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+            end
+            else
+            begin
+              // ConfiguraReport(Relatorio);
 
-              CAIXA_PRODUTO.SQL.Add('SELECT ');
-              CAIXA_PRODUTO.SQL.Add('   produtos.codigo,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.id,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.grupo,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.descricao,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.produto,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.nome,');
-              CAIXA_PRODUTO.SQL.Add('   sum(produtos.total) as total,');
-              CAIXA_PRODUTO.SQL.Add
-                ('   sum(produtos.quantidade) as quantidade,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.tipo,');
-              CAIXA_PRODUTO.SQL.Add('   produtos.adicionais');
-              CAIXA_PRODUTO.SQL.Add('FROM(');
-              CAIXA_PRODUTO.SQL.Add('select');
-              CAIXA_PRODUTO.SQL.Add('pp.codigo,');
-              CAIXA_PRODUTO.SQL.Add(Codigo.ToString + ' as id,');
-              CAIXA_PRODUTO.SQL.Add('tp.codigo as grupo,');
-              CAIXA_PRODUTO.SQL.Add('upper(tp.descricao) as descricao,');
-              CAIXA_PRODUTO.SQL.Add('prod.codigo as produto,');
-              CAIXA_PRODUTO.SQL.Add('upper(prod.nome_produto) as nome,');
-              CAIXA_PRODUTO.SQL.Add('pp.valor_total as total,');
-              CAIXA_PRODUTO.SQL.Add('pp.quantidade,');
-              CAIXA_PRODUTO.SQL.Add('CASE');
-              // CAIXA_PRODUTO.SQL.Add('    WHEN p.codigo = 0 THEN "Vem Buscar"');
-              case I of
-                0:
-                  begin
-                    CAIXA_PRODUTO.SQL.Add
-                      ('    WHEN p.codigo_cliente_endereco = 0 THEN "Mesa"');
-                  end
-              else
-                begin
-                  CAIXA_PRODUTO.SQL.Add
-                    ('    WHEN p.codigo_cliente_endereco = 0 THEN "Vem Buscar"');
-                end;
-              end;
-              CAIXA_PRODUTO.SQL.Add('    ELSE "Delivery"');
-              CAIXA_PRODUTO.SQL.Add('END as tipo,');
+              // Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
 
-              CAIXA_PRODUTO.SQL.Add('group_concat(');
-              CAIXA_PRODUTO.SQL.Add('CASE');
-              CAIXA_PRODUTO.SQL.Add('    WHEN pps.valor = 0 THEN ""');
-              CAIXA_PRODUTO.SQL.Add('    ELSE upper(pps.descricao)');
-              CAIXA_PRODUTO.SQL.Add('END');
-              CAIXA_PRODUTO.SQL.Add('separator ' + QuotedStr('; ') +
-                ') as adicionais');
-              CAIXA_PRODUTO.SQL.Add('from pedido as p ');
-              CAIXA_PRODUTO.SQL.Add
-                ('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
-              CAIXA_PRODUTO.SQL.Add
-                ('join produto as prod on prod.codigo = pp.codigo_produto ');
-              CAIXA_PRODUTO.SQL.Add
-                ('join tipo_produto as tp on tp.codigo = prod.codigo_grupo');
-              CAIXA_PRODUTO.SQL.Add
-                ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo ');
-              // CAIXA_PRODUTO.SQL.Add('where p.id_caixa = :id');
-              case I of
-                0:
-                  begin
-                    // Mesa
-                    CAIXA_PRODUTO.SQL.Add
-                      ('where p.id_caixa = :id and p.codigo_cliente_endereco = 0 and p.id_ficha > 0')
-                  end;
-                1:
-                  begin
-                    // Vem Buscar
-                    CAIXA_PRODUTO.SQL.Add
-                      ('where p.id_caixa = :id and p.codigo_cliente_endereco = 0 and p.id_ficha is null')
-                  end
-              else
-                begin
-                  // Delivery
-                  CAIXA_PRODUTO.SQL.Add
-                    ('where p.id_caixa = :id and p.codigo_cliente_endereco > 0');
-                end;
-              end;
-              CAIXA_PRODUTO.SQL.Add('group by pp.codigo');
-              CAIXA_PRODUTO.SQL.Add
-                ('order by tp.codigo,prod.codigo) as produtos');
-              CAIXA_PRODUTO.SQL.Add
-                ('group by produtos.produto, produtos.adicionais, produtos.codigo');
-
-              CAIXA_PRODUTO.ParamByName('id').AsInteger := Codigo;
-              CAIXA_PRODUTO.Open;
-
-              // CarregaProdutos;
-              if CAIXA_PRODUTO.RecordCount = 0 then
-              begin
-                AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
-                  'Caixa nâo Existe', Impressoras.FieldByName('driver')
-                  .AsString);
-                QRYUPDATE := TFDQuery.Create(nil);
-                QRYUPDATE.Connection := dmModulo.BANCO;
-                QRYUPDATE.Close;
-                QRYUPDATE.SQL.Clear;
-                QRYUPDATE.SQL.Add
-                  ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-                QRYUPDATE.ParamByName('data').AsDateTime := Date;
-                QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-                QRYUPDATE.ParamByName('status').AsInteger := 2;
-                QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-                QRYUPDATE.ExecSQL;
-                QRYUPDATE.Free;
-
-              end
-              else
-              begin
-                if I <> 2 then
-                begin
-                  ConfiguraReport(Relatorio);
-
-                  Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
-
-                  Relatorio.ShowCancelDialog := False;
-                  Relatorio.ShowPrintDialog := False;
-                  Relatorio.DeviceType := 'Printer';
-                  Relatorio.PrinterSetup.PrinterName :=
-                    Impressoras.FieldByName('driver').AsString;
-                  ConfiguraVersaoPDV(Relatorio);
-                  Relatorio.Print;
-
-                  AddImpressao('CAIXA', Relatorio, Codigo, 1, 'IMPRESSO', '',
-                    Impressoras.FieldByName('driver').AsString);
-                end;
-              end;
-
+              // Relatorio.ShowCancelDialog := False;
+              // Relatorio.ShowPrintDialog := False;
+              // Relatorio.DeviceType := 'Printer';
+              // Relatorio.PrinterSetup.PrinterName :=
+              // Impressoras.FieldByName('driver').AsString;
+              // ConfiguraVersaoPDV(Relatorio);
+              // Relatorio.Print;
+              //
+              // AddImpressao('CAIXA', Relatorio, Codigo, 1, 'IMPRESSO', '',
+              // Impressoras.FieldByName('driver').AsString);
             end;
-            QRYUPDATE := TFDQuery.Create(nil);
-            QRYUPDATE.Connection := dmModulo.BANCO;
-            QRYUPDATE.Close;
-            QRYUPDATE.SQL.Clear;
-            QRYUPDATE.SQL.Add
-              ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-            QRYUPDATE.ParamByName('data').AsDateTime := Date;
-            QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-            QRYUPDATE.ParamByName('status').AsInteger := 2;
-            QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-            QRYUPDATE.ExecSQL;
-            QRYUPDATE.Free;
+
+            dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+
+
+
+            // for I := 0 to 2 do
+            // begin
+            // PRODUTO := TFDMemTable.Create(nil);
+            // PRODUTO.LoadFromJSON
+            // (dmImpressaoV2.Consulta('/impressao/caixa/cinco/' +
+            // Codigo.toString()) + '/' + I.toString);
+            //
+            // dsProduto.DataSet := PRODUTO;
+            // if PRODUTO.RecordCount = 0 then
+            // begin
+            // AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
+            // 'Caixa Não Existe!', Impressoras.FieldByName('driver')
+            // .AsString);
+            // dmImpressaoV2.Post('/impressao/caixa/' +
+            // Codigo.toString + '/2');
+            // end
+            // else
+            // begin
+            // ConfiguraReport(Relatorio);
+            //
+            // Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
+            //
+            // Relatorio.ShowCancelDialog := False;
+            // Relatorio.ShowPrintDialog := False;
+            // Relatorio.DeviceType := 'Printer';
+            // Relatorio.PrinterSetup.PrinterName :=
+            // Impressoras.FieldByName('driver').AsString;
+            // ConfiguraVersaoPDV(Relatorio);
+            // Relatorio.Print;
+            //
+            // AddImpressao('CAIXA', Relatorio, Codigo, 1, 'IMPRESSO', '',
+            // Impressoras.FieldByName('driver').AsString);
+            // end;
+            //
+            // dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+            // end;
 
           end;
         6:
@@ -1253,40 +1951,19 @@ begin
                 Relatorio := dmImpressaoV2.CAIXA_MOTOBOY80MM;
               end;
             end;
+            MOTOBOY := TFDMemTable.Create(nil);
+            MOTOBOY.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/caixa/seis/'
+              + Codigo.toString()));
 
-            CAIXA_MOTOBOY.SQL.Clear;
-            CAIXA_MOTOBOY.SQL.Add('select ' + Codigo.ToString +
-              ' as id, upper(m.nome) as motoboy,  group_concat(p.codigo_pedido_dia) as codigo, sum(p.valor_taxa_entrega) as taxa_entrega, sum(p.valor_total_pedido) as total, ce.bairro  from pedido as p ');
-            CAIXA_MOTOBOY.SQL.Add
-              ('join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco');
-            CAIXA_MOTOBOY.SQL.Add
-              ('join pedido_motoboy as pm on pm.codigo_pedido = p.codigo');
-            CAIXA_MOTOBOY.SQL.Add
-              ('join motoboy as m on m.codigo = pm.codigo_motoboy');
-            CAIXA_MOTOBOY.SQL.Add('where p.id_caixa  = :id');
-            CAIXA_MOTOBOY.SQL.Add('group by m.codigo, ce.bairro');
-            CAIXA_MOTOBOY.ParamByName('id').AsInteger := Codigo;
-            CAIXA_MOTOBOY.Open;
-
-            if CAIXA_MOTOBOY.RecordCount = 0 then
+            dsMotoboy.DataSet := MOTOBOY;
+            if MOTOBOY.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa nâo Existe',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              QRYUPDATE := TFDQuery.Create(nil);
-              QRYUPDATE.Connection := dmModulo.BANCO;
-              QRYUPDATE.Close;
-              QRYUPDATE.SQL.Clear;
-              QRYUPDATE.SQL.Add
-                ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-
-              QRYUPDATE.ParamByName('data').AsDateTime := Date;
-              QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-              QRYUPDATE.ParamByName('status').AsInteger := 2;
-              QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-              QRYUPDATE.ExecSQL;
-
-              QRYUPDATE.Free;
-
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+              Impressoras.Free;
+              MOTOBOY.Free;
+              exit;
             end;
 
           end;
@@ -1299,52 +1976,18 @@ begin
                 end
             else
               begin
-                Relatorio := dmImpressaoV2.CAIXA_CANCELAMENTO80MM ;
+                Relatorio := dmImpressaoV2.CAIXA_CANCELAMENTO80MM;
               end;
             end;
-            CAIXA_CANCELAMENTO.Close;
-            CAIXA_CANCELAMENTO.ParamByName('id_caixa').AsInteger := Codigo;
-            CAIXA_CANCELAMENTO.Open;
-
-            if CAIXA_CANCELAMENTO.RecordCount = 0 then
-            begin
-              // AddImpressao('CA', nil, Codigo, 2, 'ERRO', 'Caixa nâo Existe',
-              // Impressoras.FieldByName('driver').AsString);
-              // QRYUPDATE := TFDQuery.Create(nil);
-              // QRYUPDATE.Connection := dmModulo.BANCO;
-              // QRYUPDATE.Close;
-              // QRYUPDATE.SQL.Clear;
-              // QRYUPDATE.SQL.Add
-              // ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-              //
-              // QRYUPDATE.ParamByName('data').AsDateTime := Date;
-              // QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-              // QRYUPDATE.ParamByName('status').AsInteger := 2;
-              // QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-              // QRYUPDATE.ExecSQL;
-              //
-              // QRYUPDATE.Free;
-
-            end;
-
+            CANCELADO := TFDMemTable.Create(nil);
+            CANCELADO.LoadFromJSON
+              (dmImpressaoV2.Consulta('/impressao/caixa/sete/' +
+              Codigo.toString()));
+            dsCancelamento.DataSet := CANCELADO;
           end;
       else
         begin
-          QRYUPDATE := TFDQuery.Create(nil);
-          QRYUPDATE.Connection := dmModulo.BANCO;
-          QRYUPDATE.Close;
-          QRYUPDATE.SQL.Clear;
-          QRYUPDATE.SQL.Add
-            ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-
-          QRYUPDATE.ParamByName('data').AsDateTime := Date;
-          QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-          QRYUPDATE.ParamByName('status').AsInteger := 2;
-          QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-          QRYUPDATE.ExecSQL;
-
-          QRYUPDATE.Free;
-
+          dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
         end;
       end;
 
@@ -1366,20 +2009,7 @@ begin
       Impressoras.Next;
     end;
 
-    QRYUPDATE := TFDQuery.Create(nil);
-    QRYUPDATE.Connection := dmModulo.BANCO;
-    QRYUPDATE.Close;
-    QRYUPDATE.SQL.Clear;
-    QRYUPDATE.SQL.Add
-      ('update impressao_caixa set data_impressao = :data, hora_impressao = :hora, status = :status where id_caixa = :id');
-
-    QRYUPDATE.ParamByName('data').AsDateTime := Date;
-    QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-    QRYUPDATE.ParamByName('status').AsInteger := 1;
-    QRYUPDATE.ParamByName('id').AsInteger := Codigo;
-    QRYUPDATE.ExecSQL;
-
-    QRYUPDATE.Free;
+    dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/1');
     Impressoras.Free;
 
   except
@@ -1387,387 +2017,502 @@ begin
     begin
       AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.message,
         Impressoras.FieldByName('driver').AsString);
-      frmMain.Memo1.Lines.Add(E.message);
+      // frmMain.Memo1.Lines.Add(E.message);
 
     end;
   end;
+
+  if Assigned(RESUMO) then
+    RESUMO.Free;
+
+  if Assigned(COMPLETO) then
+    COMPLETO.Free;
+
+  if Assigned(PRODUTO) then
+    PRODUTO.Free;
+
+  if Assigned(MOTOBOY) then
+    MOTOBOY.Free;
+
+  // Impressoras.Free;
 
 end;
 
 function TdmImpressaoV2.ImprimirComanda(Relatorio: TppReport;
-  CodigoPedido, Vias: integer): Boolean;
+  CodigoPedido, Vias: Integer): Boolean;
 var
   Impressora: Array of String;
   AuxImpressora: String;
-  I: integer;
-  QRYUPDATE: TFDQuery;
-  QryImpressora: TFDQuery;
+  I: Integer;
   logo: String;
-  K: integer;
+  K: Integer;
   ImpressoraImprimir: String;
+  DadosPedido: TFDMemTable;
+  DadosImpressora: TFDMemTable;
+  URL: String;
+  StartTime, EndTime: TDateTime;
+  ConsultaStart, ConsultaEnd: TDateTime;
+  ImpressaoDuration, ConsultaDuration: Double;
 begin
 
-  ConfiguraVersaoPDV(Relatorio);
-
+  // ConfiguraVersaoPDV(Relatorio);
+  // ConfiguraReport(Relatorio);
+  StartTime := now;
+  ConsultaStart := now;
   logo := ExtractFilePath(Application.ExeName);
   logo := logo + 'CONFIGURACAO\LOGO.PNG';
+  URL := '/impressao/pedido/' + IntToStr(CodigoPedido);
 
-  if FileExists(logo) then
+  DadosPedido := TFDMemTable.Create(nil);
+  // frmMain.Memo1.Lines.Add('Buscando Detalhes do Pedido');
+  // frmMain.Memo1.Lines.Add('URL: ' + URL);
+  DadosPedido.LoadFromJSON(Consulta(URL));
+
+  // frmMain.Memo1.Lines.Add('Itens localizados: ' +DadosPedido.RecordCount.toString);
+  ConsultaEnd := now;
+
+  // Calcula a duração da consulta
+  ConsultaDuration := (ConsultaEnd - ConsultaStart) * 24 * 60 * 60;
+  // Convertendo para segundos
+  // frmMain.Memo1.Lines.Add('Tempo para executar a consulta: ' +ConsultaDuration.toString + ' segundos');
+  // frmMain.Memo1.Lines.Add('Itens localizados: ' +DadosPedido.RecordCount.toString);
+
+  if DadosPedido.RecordCount > 0 then
   begin
-    ppLogo80mm.Picture.LoadFromFile(logo);
-    ppLogo56mm.Picture.LoadFromFile(logo);
-  end;
+    dsDados.DataSet := DadosPedido;
+    ppTitleiFood.Visible := DadosPedido.FieldByName('ifoodpedido')
+      .AsString <> '';
 
-  DADOS.Close;
-  DADOS.ParamByName('codigo_pedido').AsInteger := CodigoPedido;
-  Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
-  try
-    DADOS.Open;
-
-    ConfiguraReportComanda(DADOS.FieldByName('origem').AsInteger,
-      FileExists(logo));
-  except
-    on E: Exception do
+    if DadosPedido.FieldByName('troco').AsFloat < 0 then
     begin
-      AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO',
-        E.message, '');
-      frmMain.Memo1.Lines.Add(E.message);
-
+      DadosPedido.Edit;
+      DadosPedido.FieldByName('troco').AsFloat :=
+        DadosPedido.FieldByName('troco').AsFloat * -1;
+      DadosPedido.Post;
     end;
-  end;
-  QRYUPDATE := TFDQuery.Create(nil);
-  QRYUPDATE.Connection := dmModulo.BANCO;
-  QRYUPDATE.SQL.Add
-    ('update impressao_pedido set data_impressao = :data, hora_impressao = :hora, status = :status where id_pedido = :id');
 
-  for I := 1 to Length(DADOS.FieldByName('impressora_delivery').AsString) do
-  begin
-    if DADOS.FieldByName('impressora_delivery').AsString[I] = ',' then
+    pLabelTroco1.Visible := DadosPedido.FieldByName('troco').AsFloat > 0;
+    pLabelTroco2.Visible := DadosPedido.FieldByName('troco').AsFloat > 0;
+
+    for I := 1 to Length(DadosPedido.FieldByName('impressora_delivery')
+      .AsString) do
     begin
-
-      SetLength(Impressora, Length(Impressora) + 1);
-      Impressora[Length(Impressora) - 1] := AuxImpressora;
-      AuxImpressora := '';
-    end
-    else
-    begin
-      AuxImpressora := AuxImpressora + DADOS.FieldByName('impressora_delivery')
-        .AsString[I];
-    end;
-  end;
-
-  Relatorio.ShowCancelDialog := False;
-  Relatorio.ShowPrintDialog := False;
-  Relatorio.DeviceType := 'Printer';
-  QryImpressora := TFDQuery.Create(nil);
-  QryImpressora.Connection := dmModulo.BANCO;
-
-  for I := 0 to Length(Impressora) - 1 do
-  begin
-    QryImpressora.SQL.Clear;
-    QryImpressora.SQL.Add('select * from impressoras where codigo = :codigo');
-    QryImpressora.ParamByName('codigo').AsInteger := Impressora[I].ToInteger;
-    QryImpressora.Open;
-    ImpressoraImprimir := '';
-    if QryImpressora.RecordCount > 0 then
-    begin
-      //
-
-      for K := 0 to Relatorio.PrinterSetup.PrinterNames.Count - 1 do
+      if DadosPedido.FieldByName('impressora_delivery').AsString[I] = ',' then
       begin
-        if Relatorio.PrinterSetup.PrinterNames[K] = QryImpressora.FieldByName
-          ('driver').AsString then
-        begin
-          ImpressoraImprimir := QryImpressora.FieldByName('driver').AsString;
 
-        end;
-
-      end;
-      if QryImpressora.FieldByName('tipo_impressao').AsInteger = 1 then
-        Relatorio := COMANDA80MM
-      else
-        Relatorio := COMANDA56MM;
-
-    end;
-
-    if DADOS.FieldByName('origem').AsInteger = 3 then
-    begin
-      if Relatorio = COMANDA80MM then
-      begin
-        Relatorio := CONFERENCIA80MM;
+        SetLength(Impressora, Length(Impressora) + 1);
+        Impressora[Length(Impressora) - 1] := AuxImpressora;
+        AuxImpressora := '';
       end
       else
       begin
-        Relatorio := CONFERENCIA56MM;
+        AuxImpressora := AuxImpressora + DadosPedido.FieldByName
+          ('impressora_delivery').AsString[I];
       end;
     end;
-    if ImpressoraImprimir = '' then
+
+    for I := 0 to Length(Impressora) - 1 do
     begin
-      ImpressoraImprimir := 'Default';
-
-      AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO',
-        'IMPRESSORA NÃO LOCALIZADA', ImpressoraImprimir);
-    end;
-    Relatorio.PrinterSetup.PrinterName := ImpressoraImprimir;
-    ConfiguraReport(Relatorio);
-    try
-      if Vias = 0 then
-        Relatorio.PrintReport
-      else
+      DadosImpressora := TFDMemTable.Create(nil);
+      // DadosImpressora.LoadFromJSON(Consulta('/impressao/impressoras/' + Impressora[I]));
+      if frmMain.mImpressora.RecordCount > 0 then
       begin
-        Vias := Vias - 1;
-        if (I < Vias) or (I = Vias) then
-          Relatorio.PrintReport;
+
+        frmMain.mImpressora.Locate('codigo', Impressora[I]);
+        DadosImpressora.LoadFromJSON(frmMain.mImpressora.ToJSONObject());
+        // frmMain.Memo1.Lines.Add('/impressao/impressoras/' + Impressora[I]);
+
       end;
-    except
-      on E: Exception do
+      ImpressoraImprimir := '';
+      if DadosImpressora.RecordCount > 0 then
       begin
-        AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO', E.message,
-          Impressora[I]);
-        frmMain.Memo1.Lines.Add(E.message);
-      end;
-    end;
-    AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'IMPRESSO',
-      Relatorio.PrinterSetup.DocumentName, 'Defalt');
+        //
 
-  end;
-
-  QryImpressora.Free;
-
-  QRYUPDATE.ParamByName('data').AsDateTime := Date;
-  QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-  QRYUPDATE.ParamByName('status').AsInteger := 1;
-  QRYUPDATE.ParamByName('id').AsInteger := CodigoPedido;
-  QRYUPDATE.ExecSQL;
-  QRYUPDATE.Close;
-  QRYUPDATE.SQL.Clear;
-  QRYUPDATE.SQL.Add('update pedido set impresso = 1 where codigo = :id');
-  QRYUPDATE.ParamByName('id').AsInteger := CodigoPedido;
-  try
-    QRYUPDATE.ExecSQL;
-  except
-  end;
-  QRYUPDATE.Free;
-
-end;
-
-function TdmImpressaoV2.ImprimirComandaCozinha(Relatorio: TppReport;
-  CodigoPedido: String): Boolean;
-var
-  QRYUPDATE: TFDQuery;
-  QRYAUX: TFDQuery;
-  Ultimo: integer;
-begin
-  ConfiguraVersaoPDV(Relatorio);
-  try
-    QRYUPDATE := TFDQuery.Create(nil);
-    QRYUPDATE.Connection := dmModulo.BANCO;
-    ConfiguraReport(Relatorio);
-    { COZINHA.Close;
-      COZINHA.ParamByName('codigo').AsString := CodigoPedido;
-      COZINHA.Open; }
-    COZINHA.Close;
-    COZINHA.SQL.Clear;
-    COZINHA.SQL.Add('SELECT ');
-    COZINHA.SQL.Add('CASE ');
-    COZINHA.SQL.Add(' when ped.id_ficha > 0 then ped.desc_ficha');
-    COZINHA.SQL.Add(' else CONCAT(''Pedido '',ped.codigo_pedido_dia)');
-    COZINHA.SQL.Add('END as origem_pedido,');
-    COZINHA.SQL.Add('CASE ');
-    COZINHA.SQL.Add(' when ped.origem = 1 then ');
-    COZINHA.SQL.Add
-      (' CONCAT(''WHATSAPP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
-    COZINHA.SQL.Add(' when ped.origem = 2 then ');
-    COZINHA.SQL.Add
-      (' CONCAT(''SITE '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
-    COZINHA.SQL.Add(' when ped.origem = 3 then ');
-    COZINHA.SQL.Add
-      (' CONCAT(''APP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
-    COZINHA.SQL.Add(' else "ORIGEM OUTROS"');
-    COZINHA.SQL.Add('END as origem_local, ');
-    COZINHA.SQL.Add('current_timestamp() as data_impressao,');
-    COZINHA.SQL.Add('pp.codigo,');
-    COZINHA.SQL.Add('pp.valor_unitario as vl_unitario,');
-    COZINHA.SQL.Add('pp.quantidade as qtd,');
-    COZINHA.SQL.Add('pp.valor_total as vl_total,');
-    COZINHA.SQL.Add
-      ('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
-    COZINHA.SQL.Add
-      ('p.nome_produto as produto, c.nome, c.celular, ped.data_pedido, ped.hora_pedido, case  when ped.codigo_cliente_endereco = 0 then "Vem Buscar" else "Delivery" end as tipo,');
-    COZINHA.SQL.Add('pps.nomeclatura as nomeclatura,ped.origem, ');
-    COZINHA.SQL.Add
-      ('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
-    COZINHA.SQL.Add('sum(pps.valor) as vl_adicional,');
-    COZINHA.SQL.Add
-      ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver,');
-    COZINHA.SQL.Add
-      ('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora');
-    COZINHA.SQL.Add('FROM pedido_produtos as pp');
-    COZINHA.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-    COZINHA.SQL.Add
-      ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
-    COZINHA.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
-    COZINHA.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-    COZINHA.SQL.Add('left join cliente as c on c.codigo = ped.codigo_cliente');
-    COZINHA.SQL.Add('where pp.codigo in (' + CodigoPedido +
-      ') and pp.codigo_pedido > 0');
-    COZINHA.SQL.Add('group by pps.nomeclatura, pps.codigo_pedido_produto');
-    COZINHA.SQL.Add('order by pp.codigo');
-
-    COZINHA.Open;
-    Relatorio.PreviewFormSettings.PageDisplay := pdContinuous;
-
-    ppRichText87.Visible := COZINHA.FieldByName('origem').AsInteger <> 3;
-
-    Relatorio.ShowCancelDialog := False;
-    Relatorio.ShowPrintDialog := False;
-    Relatorio.DeviceType := 'Printer';
-    Relatorio.PrinterSetup.PrinterName := COZINHA.FieldByName('driver')
-      .AsString;
-    Ultimo := 0;
-    COZINHA.First;
-    while not COZINHA.Eof do
-    begin
-      if not(Ultimo = COZINHA.FieldByName('codigo').AsInteger) then
-      begin
-        Ultimo := COZINHA.FieldByName('codigo').AsInteger;
-
-        QRYUPDATE.SQL.Clear;
-        QRYUPDATE.SQL.Add
-          ('update pedido_produtos set impresso = 1 where codigo = :codigo');
-        QRYUPDATE.ParamByName('codigo').AsInteger := Ultimo;
-        try
-          QRYUPDATE.ExecSQL;
-          AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'IMPRESSO',
-            Relatorio.PrinterSetup.DocumentName, COZINHA.FieldByName('driver')
-            .AsString);
-        except
-          on E: Exception do
+        ImpressoraImprimir := DadosImpressora.FieldByName('driver').AsString;
+        for K := 0 to Relatorio.PrinterSetup.PrinterNames.Count - 1 do
+        begin
+          if Relatorio.PrinterSetup.PrinterNames[K]
+            = DadosImpressora.FieldByName('driver').AsString then
           begin
-            Ultimo := COZINHA.FieldByName('codigo').AsInteger;
-            AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'ERRO', E.message,
-              Ultimo.ToString);
-            frmMain.Memo1.Lines.Add(E.message);
+            ImpressoraImprimir := DadosImpressora.FieldByName('driver').AsString;
+
           end;
 
         end;
+        if DadosImpressora.FieldByName('tipo_impressao').AsInteger = 1 then
+          Relatorio := COMANDA80MM
+        else
+          Relatorio := COMANDA56MM;
+
       end;
 
-      COZINHA.Next;
+      if DadosPedido.FieldByName('origem').AsInteger = 3 then
+      begin
+        if Relatorio = COMANDA80MM then
+        begin
+          Relatorio := CONFERENCIA80MM;
+        end
+        else
+        begin
+          Relatorio := CONFERENCIA56MM;
+        end;
+      end;
+
+//      Relatorio.ShowCancelDialog := true;
+//      Relatorio.ShowPrintDialog := true;
+//      Relatorio.DeviceType := 'screen';
+
+      if ImpressoraImprimir = '' then
+      begin
+        ImpressoraImprimir := 'default';
+
+        AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO',
+          'IMPRESSORA NÃO LOCALIZADA', ImpressoraImprimir);
+      end;
+
+      Relatorio.PrinterSetup.PrinterName := ImpressoraImprimir;
+
+      ConfiguraReport(Relatorio);
+      try
+
+        if Vias = 0 then
+        begin
+          Relatorio.PrintReport
+        end
+        else
+        begin
+          Vias := Vias - 1;
+          if (I < Vias) or (I = Vias) then
+            Relatorio.PrintReport;
+        end;
+      except
+        on E: Exception do
+        begin
+          AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO', E.message,Impressora[I]);
+          // frmMain.Memo1.Lines.Add(E.message);
+        end;
+      end;
+      AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'IMPRESSO',
+        Relatorio.PrinterSetup.DocumentName, ImpressoraImprimir);
+
     end;
-    // Ultimo
-    {
+    Post('/impressao/pedido/' + IntToStr(CodigoPedido));
+    //
+  end;
 
-    }
+  EndTime := now;
+  // frmMain.Memo1.Lines.Add('Conclui a impressão');
+  ImpressaoDuration := (EndTime - StartTime) * 24 * 60 * 60;
+  // Convertendo para segundos
+  // frmMain.Memo1.Lines.Add('Tempo para imprimir: ' + ImpressaoDuration.toString +' segundos');
 
-    { AddImpressao('COZINHA', Relatorio, CodigoPedido, 2, 'IMPRESSO',
-      Relatorio.PrinterSetup.DocumentName, COZINHA.FieldByName('driver').AsString); }
-    if COZINHA.RecordCount > 0 then
-      Relatorio.Print
-    else
+  DadosPedido.Free;
+
+end;
+
+procedure TdmImpressaoV2.ImprimirComandaLocal(Relatorio, RelatorioCozinha
+  : TppReport);
+var
+  mPedidos: TFDMemTable;
+  mCozinha: TFDMemTable;
+begin
+  frmMain.GravaLog('Buscando Comandas');
+  mPedidos := TFDMemTable.Create(nil);
+  mPedidos.LoadFromJSON(Consulta('/impressao/pedidos'));
+  frmMain.GravaLog('Comandas Localizadas');
+  frmMain.GravaLog('Quantidade: ' + mPedidos.RecordCount.toString);;
+
+  if mPedidos.RecordCount > 0 then
+  begin
+    while not mPedidos.Eof do
     begin
-      frmMain.LogErro('pedido_produtos "' + CodigoPedido +
-        '" não há pedido vinculado!');
-    end;
-    QRYUPDATE.Close;
-    QRYUPDATE.SQL.Clear;
-    QRYUPDATE.SQL.Add
-      ('update impressao_pedido_produto set data_impressao = :data, hora_impressao = :hora, status = :status where id_pedido in ('
-      + CodigoPedido + ')');
-    QRYUPDATE.ParamByName('data').AsDateTime := Date;
-    QRYUPDATE.ParamByName('hora').AsDateTime := Time;
-    QRYUPDATE.ParamByName('status').AsInteger := 1;
-    QRYUPDATE.ExecSQL;
+      frmMain.GravaLog('Imprimindo Pedido: ' + mPedidos.FieldByName('id_pedido')
+        .AsString);
+      dmImpressaoV2.ImprimirComanda(Relatorio, mPedidos.FieldByName('id_pedido')
+        .AsInteger, 0);
+      frmMain.GravaLog('Imprimido Pedido: ' + mPedidos.FieldByName('id_pedido')
+        .AsString);
 
-    QRYUPDATE.Free;
+      // mCozinha := TFDMemTable.Create(nil);
+      // mCozinha.LoadFromJSON(Consulta('/impressao/cozinha/' +
+      // mPedidos.FieldByName('id_pedido').AsString));
+      // if mCozinha.RecordCount > 0 then
+      // begin
+      // while not mCozinha.Eof do
+      // begin
+      // dmImpressaoV2.ImprimirComandaCozinha(RelatorioCozinha,
+      // mCozinha.FieldByName('grupo').AsString,
+      // mCozinha.FieldByName('usuario').AsString);
+      // mCozinha.Next;
+      // end;
+      // end;
+
+      // mCozinha.Free;
+
+      mPedidos.Next;
+    end;
+  end;
+
+  mPedidos.Free;
+  frmMain.GravaLog('Impressão Concluida');
+end;
+
+procedure TdmImpressaoV2.ImprimirCozinhaLocal(Relatorio, RelatorioCozinha
+  : TppReport);
+var
+  mPedidos: TFDMemTable;
+begin
+  // frmMain.Memo1.Lines.Add('Buscando Comandas da Cozinha');
+  // frmMain.Memo1.Lines.Add('');
+  mPedidos := TFDMemTable.Create(nil);
+  mPedidos.LoadFromJSON(Consulta('/impressao/pedidos/cozinha'));
+  // frmMain.Memo1.Lines.Add('Buscado Comandas da Cozinha');
+  // frmMain.Memo1.Lines.Add('Quantidade: ' + mPedidos.RecordCount.toString);
+  if mPedidos.RecordCount > 0 then
+  begin
+    while not mPedidos.Eof do
+    begin
+      // frmMain.Memo1.Lines.Add('Iniciando Impressão Cozinha');
+      frmMain.GravaLog('Grupo: ' + mPedidos.FieldByName('grupo').AsString);
+      dmImpressaoV2.ImprimirComandaCozinha(RelatorioCozinha,
+        mPedidos.FieldByName('grupo').AsString, mPedidos.FieldByName('usuario')
+        .AsString);
+      // frmMain.Memo1.Lines.Add('Concluido Impressão Cozinha');
+      mPedidos.Next;
+    end;
+  end
+  else
+  begin
+    // Fazer o update para não reaparecer
+  end;
+
+  mPedidos.Free;
+end;
+
+procedure TdmImpressaoV2.ImprimirOutrosLocal;
+var
+  Caixa: TFDMemTable;
+begin
+  dmImpressaoV2.ImprimerNFCe;
+  Caixa := TFDMemTable.Create(nil);
+  Caixa.LoadFromJSON(Consulta('/impressao/caixa'));
+
+  if Caixa.RecordCount > 0 then
+  begin
+    // dmImpressaoV2.ImprimirCaixa(7, Caixa.FieldByName('id_caixa').AsInteger);
+
+    while not Caixa.Eof do
+    begin
+      dmImpressaoV2.ImprimirCaixa(Caixa.FieldByName('tipo').AsInteger,
+        Caixa.FieldByName('id_caixa').AsInteger);
+      Caixa.Next;
+    end;
+  end;
+
+  Caixa.Free;
+
+  try
+    dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
+    dmImpressaoV2.iReqImpressaoTest.Execute;
+
+    if frmMain.memImpressao.RecordCount > 0 then
+    begin
+      frmMain.memImpressao.First;
+      while not frmMain.memImpressao.Eof do
+      begin
+        dmImpressaoV2.ImprimeTeste
+          (frmMain.memImpressao.FieldByName('IMPRESSORA').AsInteger);
+        frmMain.memImpressao.Next;
+      end;
+
+    end;
+    frmMain.memImpressao.Close;
   except
     on E: Exception do
     begin
-
-      frmMain.LogErro(E.message);
-      if Assigned(QRYUPDATE) then
-        QRYUPDATE.Free;
+      // ShowMessage(e.Message)
     end;
 
   end;
+
+  dmImpressaoV2.ImprimeSangria;
+  dmImpressaoV2.ImprimePIX;
+  dmImpressaoV2.ImprimeRecibo;
+end;
+
+function TdmImpressaoV2.ImprimirComandaCozinha(Relatorio: TppReport;
+  CodigoPedido, Usuario: String): Boolean;
+var
+
+  Ultimo: Integer;
+
+  DadosPedido: TFDMemTable;
+  URL: String;
+begin
+
+  try
+    // frmMain.Memo1.Lines.Add('Carregando Produtos Cozinha');
+    DadosPedido := TFDMemTable.Create(nil);
+    URL := '/impressao/pedidos/cozinha/' + (CodigoPedido);
+    frmMain.GravaLog('URL: ' + URL);
+    DadosPedido.LoadFromJSON(dmImpressaoV2.Consulta(URL));
+    // frmMain.Memo1.Lines.Add('Carregado Os Produtos Cozinha');
+
+    // frmMain.Memo1.Lines.Add('Quantidade: ' + DadosPedido.RecordCount.toString);
+    if DadosPedido.RecordCount > 0 then
+    begin
+
+      ppLabelUsuario56.Text := UpperCase(Usuario);
+      ppLabelUsuario80.Text := UpperCase(Usuario);
+
+      ppRichText87.Visible := DadosPedido.FieldByName('origem').AsInteger <> 3;
+
+      if DadosPedido.FieldByName('tipoimp').AsInteger = 1 then
+      begin
+        Relatorio := dmImpressaoV2.COZINHA80MM;
+      end
+      else
+      begin
+        Relatorio := dmImpressaoV2.COZINHA56MM;
+      end;
+
+      Relatorio.DeviceType := 'Printer';
+      Relatorio.PrinterSetup.PrinterName :=
+        DadosPedido.FieldByName('driver').AsString;
+
+      ConfiguraVersaoPDV(Relatorio);
+      ConfiguraReport(Relatorio);
+
+      Ultimo := 0;
+      DadosPedido.First;
+      while not DadosPedido.Eof do
+      begin
+        if not(Ultimo = DadosPedido.FieldByName('codigo').AsInteger) then
+        begin
+          Ultimo := DadosPedido.FieldByName('codigo').AsInteger;
+          try
+            dmImpressaoV2.Post('/impressao/pedido/produto/' + Ultimo.toString);
+            AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'IMPRESSO',
+              Relatorio.PrinterSetup.DocumentName,
+              DadosPedido.FieldByName('driver').AsString);
+          except
+            on E: Exception do
+            begin
+              Ultimo := DadosPedido.FieldByName('codigo').AsInteger;
+              AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'ERRO', E.message,
+                Ultimo.toString);
+              // frmMain.Memo1.Lines.Add(E.message);
+            end;
+
+          end;
+        end;
+
+        DadosPedido.Next;
+      end;
+
+      dsCozinha.DataSet := DadosPedido;
+      if DadosPedido.RecordCount > 0 then
+        Relatorio.Print;
+
+      dmImpressaoV2.Post('/impressao/pedido/produtos/' + CodigoPedido);
+
+    end;
+  except
+    on E: Exception do
+    begin
+      // frmMain.Memo1.Lines.Add('Erro: ' + E.message);
+    end;
+
+  end;
+  DadosPedido.Free
+
+end;
+
+procedure TdmImpressaoV2.Post(URL: String);
+var
+  Req: iRequisicao;
+begin
+  Req := iRequisicao.Create(nil);
+  Req.BaseURL := frmMain.urlServer;
+  Req.URL := URL;
+  Req.Metodo := mPost;
+  Req.TempoExpiracao := 60 * 1000;
+  try
+    Req.Execute;
+  except
+  end;
+
+  Req.Free;
 
 end;
 
 function TdmImpressaoV2.VersaoPDV: String;
 begin
-  Result := 'PDV #GooPedir ' + FormatDateTime('yyyy', now) + ' v' +
-    GetVersaoArq;
+  Result := 'PDV #GooPedir v' + GetVersaoArq;
 end;
 
 { TImpressaoPedidos }
 
-constructor TImpressaoPedidos.Create;
+procedure TImpressaoPedidos.CarregaImpressora;
 var
-  QRY: TFDQuery;
+  consult: String;
 begin
-  inherited Create(True);
-
-  QRY := TFDQuery.Create(nil);
-  QRY.Connection := dmModulo.BANCO;
-  QRY.SQL.Add('select * from dados_whatsapp');
-  QRY.Open;
-
-  QRYPEDIDOS := TFDQuery.Create(nil);
-  QRYPEDIDOS.Connection := dmModulo.BANCO;
-  QRYPEDIDOS.SQL.Add
-    ('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
-
-  QRYPEDIDOSPRODUTOS := TFDQuery.Create(nil);
-  QRYPEDIDOSPRODUTOS.Connection := dmModulo.BANCO;
-  QRYPEDIDOSPRODUTOS.SQL.Add('SELECT group_concat(ipp.id_pedido) as grupo');
-  QRYPEDIDOSPRODUTOS.SQL.Add('FROM impressao_pedido_produto as ipp');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join produto as p on p.codigo = pp.codigo_produto');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  QRYPEDIDOSPRODUTOS.SQL.Add
-    ('join impressoras as i on i.codigo = tp.impressora');
-  QRYPEDIDOSPRODUTOS.SQL.Add('where ipp.status = 0');
-
-  try
-    if QRY.FieldByName('impressao_agrupada').AsInteger = 1 then
-    begin
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
-    end
-    else
-    begin
-      // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
-      QRYPEDIDOSPRODUTOS.SQL.Add('group by pp.codigo_pedido');
-    end;
-  except
-    // QRYPEDIDOSPRODUTOS.SQL.Add('group by p.codigo_grupo,pp.codigo_pedido');
+  if frmMain.mImpressora.RecordCount = 0 then
+  begin
+    consult := Consulta('/v1/consulta/generica/impressoras/*/*/*');
+    frmMain.mImpressora.LoadFromJSON(consult);
   end;
+end;
 
-  QRYCAIXA := TFDQuery.Create(nil);
-  QRYCAIXA.Connection := dmModulo.BANCO;
-  QRYCAIXA.SQL.Add
-    ('SELECT * FROM impressao_caixa where status = 0 and id_Caixa > 0');
-  //
+function TImpressaoPedidos.Consulta(URL: String): String;
+begin
+  Result := dmImpressaoV2.Consulta(URL);
+end;
 
+constructor TImpressaoPedidos.Create;
+
+begin
+
+  inherited Create(True);
   Relatorio := dmImpressaoV2.COMANDA80MM;
   RelatorioCozinha := dmImpressaoV2.COZINHA80MM;
 
-  case QRY.FieldByName('tipo_impressao').AsInteger of
-    0:
-      begin
-        Relatorio := dmImpressaoV2.COMANDA56MM;
-        RelatorioCozinha := dmImpressaoV2.COZINHA56MM;
-      end
-  else
-    begin
-      Relatorio := dmImpressaoV2.COMANDA80MM;
-      RelatorioCozinha := dmImpressaoV2.COZINHA80MM;
-    end;
-  end;
+  DadosEmpresa;
+  CarregaImpressora;
 
-  QRY.Free;
+end;
+
+procedure TImpressaoPedidos.DadosEmpresa;
+var
+  DADOS: String;
+begin
+  DADOS := Consulta('/v1/consulta/generica/dados_whatsapp/*/*/*');
+
+  dmImpressaoV2.DADOS_CABECALHO.Close;
+  dmImpressaoV2.DADOS_CABECALHO.LoadFromJSON(DADOS);
+
+  dmImpressaoV2.DADOS_CABECALHO.Edit;
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString :=
+    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString :=
+    FormatarCNPJ(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString :=
+    FormatarNumero(dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString);
+  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString :=
+    FormatarCEP(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString);
+
+
+
 end;
 
 destructor TImpressaoPedidos.Destroy;
@@ -1777,75 +2522,121 @@ begin
 end;
 
 procedure TImpressaoPedidos.Execute;
+var
+  mPedidos: TFDMemTable;
+  PRODUTOS: TFDMemTable;
+
+  mCozinha: TFDMemTable;
+
 begin
   inherited;
 
   while not Terminated do
   begin
-    QRYPEDIDOS.Open;
-    QRYPEDIDOS.First;
-
-    while not QRYPEDIDOS.Eof do
+    inc(Quantidade);
+    if dmImpressaoV2.DADOS_CABECALHO.RecordCount = 0 then
     begin
-      dmImpressaoV2.ImprimirComanda(Relatorio,
-        QRYPEDIDOS.FieldByName('id_pedido').AsInteger, 0);
-      QRYPEDIDOS.Next;
+      frmMain.GravaLog('Buscar Parametros');
+      DadosEmpresa;
+      frmMain.GravaLog('Busca Concluida');
     end;
-    QRYPEDIDOS.Close;
 
-    QRYPEDIDOSPRODUTOS.Open;
-    QRYPEDIDOSPRODUTOS.First;
-    while not QRYPEDIDOSPRODUTOS.Eof do
+    if frmMain.mImpressora.RecordCount = 0 then
     begin
-      dmImpressaoV2.ImprimirComandaCozinha(RelatorioCozinha,
-        QRYPEDIDOSPRODUTOS.FieldByName('grupo').AsString);
-      QRYPEDIDOSPRODUTOS.Next;
+      frmMain.mImpressora.LoadFromJSON
+        (Consulta('/v1/consulta/generica/impressoras/*/*/*'));
     end;
-    QRYPEDIDOSPRODUTOS.Close;
 
-    QRYCAIXA.Open;
-    if QRYCAIXA.RecordCount > 0 then
-    begin
-      dmImpressaoV2.ImprimirCaixa(7, QRYCAIXA.FieldByName('id_caixa')
-        .AsInteger);
-    end;
-    QRYCAIXA.First;
-    while not QRYCAIXA.Eof do
+    // ShowMessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
+
+    frmMain.GravaLog('Validar Tempo: ' + frmMain.ValidarTempo.toString() +
+      ', Validar Status: ' + ValidaStatus.toString());
+    if frmMain.ValidarTempo and ValidaStatus then
     begin
 
-      dmImpressaoV2.ImprimirCaixa(QRYCAIXA.FieldByName('tipo').AsInteger,
-        QRYCAIXA.FieldByName('id_caixa').AsInteger);
-      QRYCAIXA.Next;
-    end;
-    QRYCAIXA.Close;
-
-    try
-      dmImpressaoV2.iReqImpressaoTest.MemTable2 := frmMain.memImpressao;
-      dmImpressaoV2.iReqImpressaoTest.Execute;
-
-      if frmMain.memImpressao.RecordCount > 0 then
+      if (Tipo = tComanda) and (frmMain.PrioridadeComanda) then
       begin
-        frmMain.memImpressao.First;
-        while not frmMain.memImpressao.Eof do
-        begin
-          dmImpressaoV2.ImprimeTeste
-            (frmMain.memImpressao.FieldByName('IMPRESSORA').AsInteger);
-          frmMain.memImpressao.Next;
-        end;
 
-      end;
-      frmMain.memImpressao.Close;
-    except
-      on E: Exception do
-      begin
-        // ShowMessage(e.Message)
+        frmMain.setPrioridadeComanda;
+
+        dmImpressaoV2.ImprimirComandaLocal(Relatorio, RelatorioCozinha);
+
+        frmMain.setPrioridadeNull;
       end;
 
-    end;
+      if (Tipo = tCozinha) and (frmMain.PrioridadeCozinha) then
+      begin
+        frmMain.setPrioridadeCozinha;
+        dmImpressaoV2.ImprimirCozinhaLocal(Relatorio, RelatorioCozinha);
 
-    Sleep(5000);
+        frmMain.setPrioridadeNull;
+      end;
+
+      // if Tipo = tOutro then
+      if (Tipo = tOutro) and (frmMain.PrioridadeOutros) then
+      begin
+        frmMain.setPrioridadeOutros;
+        dmImpressaoV2.ImprimirOutrosLocal;
+        frmMain.setPrioridadeNull;
+      end;
+
+      Sleep(10);
+    end;
   end;
 
+end;
+
+function TImpressaoPedidos.FormatarCEP(CEP: string): string;
+begin
+  // Remove caracteres não numéricos do CEP
+  CEP := StringReplace(CEP, '.', '', [rfReplaceAll]);
+  CEP := StringReplace(CEP, '-', '', [rfReplaceAll]);
+
+  // Verifica se o CEP tem pelo menos 8 dígitos
+  if Length(CEP) < 8 then
+    Result := CEP
+  else
+    Result := Copy(CEP, 1, 5) + '-' + Copy(CEP, 6, 3);
+end;
+
+function TImpressaoPedidos.FormatarCNPJ(CNPJ: string): string;
+begin
+  // Remove caracteres não numéricos do CNPJ
+  CNPJ := StringReplace(CNPJ, '.', '', [rfReplaceAll]);
+  CNPJ := StringReplace(CNPJ, '-', '', [rfReplaceAll]);
+  CNPJ := StringReplace(CNPJ, '/', '', [rfReplaceAll]);
+
+  // Insere pontos, barras e traços na posição correta
+  Result := FormatMaskText('99.999.999/9999-99;0;', CNPJ);
+end;
+
+function TImpressaoPedidos.FormatarNumero(Numeros: string): string;
+begin
+  // Garante que o número tenha pelo menos 9 dígitos
+  while Length(Numeros) < 9 do
+    Numeros := '0' + Numeros;
+
+  // Formatação do número
+  Result := Copy(Numeros, 1, 3) + '.' + Copy(Numeros, 4, 3) + '.' +
+    Copy(Numeros, 7, 3);
+end;
+
+procedure TImpressaoPedidos.Post(URL: String);
+begin
+  dmImpressaoV2.Post(URL);
+end;
+
+function TImpressaoPedidos.Totalizador: Integer;
+begin
+  Result := Quantidade;
+end;
+
+function TImpressaoPedidos.ValidaStatus: Boolean;
+var
+  Retorno: String;
+begin
+  Retorno := Consulta('v1/versao/app');
+  Result := Retorno <> '[]';
 end;
 
 end.

@@ -1,9 +1,8 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Caption = 'Impress'#227'o Papaleguas Sistemas'
-  ClientHeight = 614
-  ClientWidth = 839
+  ClientHeight = 606
+  ClientWidth = 889
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +15,8 @@ object frmMain: TfrmMain
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 839
-    Height = 525
+    Width = 889
+    Height = 517
     Align = alClient
     DataSource = dsImpressao
     Font.Charset = ANSI_CHARSET
@@ -43,7 +42,7 @@ object frmMain: TfrmMain
       item
         Expanded = False
         FieldName = 'DATA_HORA'
-        Width = 125
+        Width = 165
         Visible = True
       end
       item
@@ -69,18 +68,25 @@ object frmMain: TfrmMain
         FieldName = 'OBSERVACAO'
         Width = 300
         Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'URL'
+        Title.Caption = 'Url'
+        Width = 64
+        Visible = True
       end>
   end
   object Memo1: TMemo
     Left = 0
-    Top = 525
-    Width = 839
+    Top = 517
+    Width = 889
     Height = 89
     Align = alBottom
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitTop = 496
-    ExplicitWidth = 835
+    ExplicitTop = 516
+    ExplicitWidth = 885
   end
   object ImageList1: TImageList
     Left = 152
@@ -227,7 +233,11 @@ object frmMain: TfrmMain
   end
   object TrayIcon1: TTrayIcon
     Animate = True
+    Hint = 'A1'
+    BalloonHint = 'A3'
+    BalloonTitle = 'A2'
     Icons = ImageList1
+    PopupMenu = PopupMenu1
     Visible = True
     OnClick = TrayIcon1Click
     Left = 24
@@ -258,6 +268,75 @@ object frmMain: TfrmMain
     end
     object memImpressaoID: TIntegerField
       FieldName = 'ID'
+    end
+  end
+  object memImpressora: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 768
+    Top = 344
+    object memImpressoraID: TIntegerField
+      FieldName = 'ID'
+    end
+    object memImpressoraDRIVER: TStringField
+      FieldName = 'DRIVER'
+      Size = 255
+    end
+  end
+  object timerCloseOpen: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = timerCloseOpenTimer
+    Left = 312
+    Top = 336
+  end
+  object tImpressao: TTimer
+    Enabled = False
+    OnTimer = tImpressaoTimer
+    Left = 560
+    Top = 208
+  end
+  object mImpressora: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 616
+    Top = 408
+  end
+  object tValid: TTimer
+    OnTimer = tValidTimer
+    Left = 528
+    Top = 320
+  end
+  object tCloseO: TTimer
+    Enabled = False
+    OnTimer = tCloseOTimer
+    Left = 424
+    Top = 400
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 384
+    Top = 240
+    object FecharTodos1: TMenuItem
+      Caption = 'Fechar Todos'
+      OnClick = FecharTodos1Click
+    end
+    object Fechar1: TMenuItem
+      Caption = 'Fechar'
+      OnClick = Fechar1Click
+    end
+    object Reiniciar2: TMenuItem
+      Caption = 'Reiniciar'
+      OnClick = Reiniciar2Click
     end
   end
 end

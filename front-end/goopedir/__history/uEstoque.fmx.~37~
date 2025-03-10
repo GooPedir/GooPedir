@@ -1,0 +1,1229 @@
+inherited frmEstoque: TfrmEstoque
+  Caption = 'frmPadrao2'
+  ClientHeight = 700
+  ClientWidth = 1019
+  DesignerMasterStyle = 0
+  inherited layClient: TLayout
+    Size.Width = 1019.000000000000000000
+    Size.Height = 700.000000000000000000
+    inherited rTopo: TRectangle
+      Size.Width = 1019.000000000000000000
+      inherited imgClose: TImage
+        MultiResBitmap.Height = 24
+        MultiResBitmap.Width = 24
+        MultiResBitmap = <
+          item
+            Width = 24
+            Height = 24
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              006749444154484B631805430BFCFBF7AFFEFFFFFF0D502E7501D4F0FF8F1F3F
+              FE0D64EB4085A903D00C0F870A53078C1A8E15D0C5707201D418386082D2F405
+              340D221818084BC2A0C2D40574B70448854285A90BD07CA20D15A62E005902C2
+              50EE28181280810100EA6CF9C852EA1B1B0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ar' +
+              'row_back_white_24dp.png'
+          end>
+      end
+      inherited lNomeForm: TLabel
+        Size.Width = 906.000000000000000000
+        TextSettings.Font.StyleExt = {00060000000000000004000000}
+        TextSettings.HorzAlign = Trailing
+      end
+      inherited imgFiltro: TImage
+        MultiResBitmap.Height = 48
+        MultiResBitmap.Width = 48
+        MultiResBitmap = <
+          item
+            Width = 48
+            Height = 48
+            PNG = {
+              89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
+              87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0227494441546843ED96CB4EC2401486690D10127D009FC1952B790AA30BBCC4
+              07F2B2F511344477C6B7D0F8005E125D7961ABB02815F03FD39F062870682905
+              75BE6432D339FFFC3D874ECBE42C168BC562B158FE310EFB99D0E974F2E8B6DA
+              EDF626DA86E779AB325F2C16DF5DD7BD41BBC6E595E338BECC2F144878DBF7FD
+              27143116D18896CBA687BE2A944740C86DB55AC7816A72B8C6A54D72023B1DCA
+              232091134A62236B69931C7AA950DE876C0586436AB59A87C44E112BE372599A
+              8C654E6246D4C3D4DB893E2A9487602A3FB8E79BCDE62B125AA72482C44443B9
+              811EF2F2670B6E5A311910F975C725DF4534439E4485E1ECC09638E7CD0DB245
+              1852112D9719C48BA1ECC0A3BFE7FD0DF865CB0CA98896CB0CE2C55076341A8D
+              4FDEDF80A4561852112D9719C48B2195E9BFBB33005B68894395D40A28140A6F
+              1C7659633F097DDA52A9F4C1A14AA4003E4515CA4370AEB9E3D000C901872A83
+              5A78DD72181F93DD04501E82A9C5F88CD24085F2104CA5F547F68CAE40497C02
+              1B1DCAFB4042531F25C011EDE603124B7C981350D4370ADCA75DF6208744C7E9
+              5E58C41E2DE7836CA7C1776218D0BCA0E04324ED73CA20D7732F0279E4D12A48
+              F00C893ED6EBF52FD9F7183F60EE426268E68595F18822768DD96F0039FFE922
+              7628190FD7A4066D638165438B40A7FFC105F2F4A06D6CB0345204DE9B2AC3A3
+              A13635689B082C0F8B40F297E8F453AA88D384B68981857CC5AAE8273E625B2C
+              168BC562C9865CEE07D6448C3339ECB28E0000000049454E44AE426082}
+            FileName = 
+              'D:\Projetos\iForth\icepmobile-frontend\src\fotos\icon\outline_ma' +
+              'nage_search_white_24dp.png'
+          end>
+        Position.X = 964.000000000000000000
+      end
+    end
+    inherited tabMain: TTabControl
+      Size.Width = 1019.000000000000000000
+      Size.Height = 650.000000000000000000
+      TabIndex = 0
+      TabPosition = Top
+      Sizes = (
+        1019s
+        624s
+        1019s
+        624s)
+      object tabPrincipal: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 83.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'tabPrincipal'
+        ExplicitSize.cx = 83.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Layout1: TLayout
+          Align = Top
+          Size.Width = 1019.000000000000000000
+          Size.Height = 49.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object iButton4: iButton
+            Position.X = 8.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 241.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            Text = 'iButton4'
+            OnClick = iButton4Click
+            iForthTipoBotao = tSalvar
+            iForthCorFonte = cBranca
+            iForthDescricao = 'Entrada de Estoque Produto/Ingredientes'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 241.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 241.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Entrada de Estoque Produto/Ingredientes'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 241.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 241.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Entrada de Estoque Produto/Ingredientes'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 241.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 241.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Entrada de Estoque Produto/Ingredientes'
+                TabOrder = 0
+              end
+            end
+          end
+          object iButton5: iButton
+            Position.X = 257.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 224.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            Text = 'iButton5'
+            OnClick = iButton5Click
+            iForthTipoBotao = tCancelar
+            iForthCorFonte = cBranca
+            iForthDescricao = 'Arrumar Estoque Negativo'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFF77273
+              HitTest = False
+              Size.Width = 224.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFF77273
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 224.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Arrumar Estoque Negativo'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFF77273
+              HitTest = False
+              Size.Width = 224.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFF77273
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 224.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Arrumar Estoque Negativo'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFF77273
+              HitTest = False
+              Size.Width = 224.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFF77273
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 224.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Arrumar Estoque Negativo'
+                TabOrder = 0
+              end
+            end
+          end
+          object iButton6: iButton
+            Position.X = 489.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 184.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            Text = 'iButton6'
+            OnClick = iButton6Click
+            iForthTipoBotao = tAmarelo
+            iForthCorFonte = cBranca
+            iForthDescricao = 'Zerar Estoque'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFFFC726
+              HitTest = False
+              Size.Width = 184.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFFFC726
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 184.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Zerar Estoque'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFFFC726
+              HitTest = False
+              Size.Width = 184.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFFFC726
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 184.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Zerar Estoque'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFFFFC726
+              HitTest = False
+              Size.Width = 184.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFFFFC726
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 184.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Zerar Estoque'
+                TabOrder = 0
+              end
+            end
+          end
+        end
+        object Grid1: TGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Size.Width = 1019.000000000000000000
+          Size.Height = 525.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          RowHeight = 30.000000000000000000
+          RowCount = 0
+          Options = [Editing, ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
+          OnDrawColumnCell = Grid1DrawColumnCell
+          Viewport.Width = 1019.000000000000000000
+          Viewport.Height = 525.000000000000000000
+        end
+        object iButonSelecionar: iButton
+          Align = Bottom
+          Position.Y = 574.000000000000000000
+          Size.Width = 1019.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          Text = 'iButonSelecionar'
+          OnClick = iButonSelecionarClick
+          iForthTipoBotao = tSalvar
+          iForthCorFonte = cBranca
+          iForthDescricao = 'Selecionar'
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 1019.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 1019.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Selecionar'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 1019.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 1019.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Selecionar'
+              TabOrder = 0
+            end
+          end
+          object TRectangle
+            Align = Client
+            Fill.Color = xFF31CCAF
+            HitTest = False
+            Size.Width = 1019.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = xFF31CCAF
+            XRadius = 1.000000000000000000
+            YRadius = 1.000000000000000000
+            object TLabel
+              Align = Client
+              StyledSettings = [Family, Size]
+              Size.Width = 1019.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.FontColor = claWhite
+              TextSettings.HorzAlign = Center
+              Text = 'Selecionar'
+              TabOrder = 0
+            end
+          end
+        end
+      end
+      object TabEntradaEstoque: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 121.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabEntradaEstoque'
+        ExplicitSize.cx = 121.000000000000000000
+        ExplicitSize.cy = 26.000000000000000000
+        object Layout2: TLayout
+          Align = Top
+          Margins.Top = 5.000000000000000000
+          Position.Y = 5.000000000000000000
+          Size.Width = 1019.000000000000000000
+          Size.Height = 215.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object edtPesquisa: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 0
+            Position.X = 8.000000000000000000
+            Position.Y = 8.000000000000000000
+            Size.Width = 1003.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TextPrompt = 
+              'Tecle "ENTER" para pesquisar o produto/ingrediente ou de um "Dup' +
+              'lo Clique" para mostrar todos'
+            OnKeyDown = edtPesquisaKeyDown
+            OnDblClick = edtPesquisaDblClick
+            object Label1: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 878.000000000000000000
+              Size.Width = 120.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'Pesquisar'
+              TabOrder = 0
+            end
+          end
+          object EdtNome: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 6
+            Position.X = 8.000000000000000000
+            Position.Y = 112.000000000000000000
+            Enabled = False
+            Size.Width = 483.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            object Label2: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 358.000000000000000000
+              Size.Width = 120.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'Nome'
+              TabOrder = 0
+            end
+          end
+          object edtQuantidade: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akTop, akRight]
+            TabOrder = 2
+            Text = '0,000'
+            Position.X = 611.000000000000000000
+            Position.Y = 113.000000000000000000
+            Size.Width = 128.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            OnExit = edtQuantidadeExit
+            object Label4: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 56.000000000000000000
+              Size.Width = 67.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'Quantidade'
+              TabOrder = 0
+            end
+          end
+          object edtFator: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            TabOrder = 5
+            Text = '1,000'
+            Position.X = 8.000000000000000000
+            Position.Y = 147.000000000000000000
+            Size.Width = 216.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            OnExit = edtFatorExit
+            object Label5: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 91.000000000000000000
+              Size.Width = 120.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'Fator de Convers'#227'o'
+              TabOrder = 0
+            end
+          end
+          object cUnidade: TComboBox
+            Anchors = [akTop, akRight]
+            Items.Strings = (
+              'UN'
+              'KG'
+              'CX')
+            ItemIndex = 0
+            Position.X = 499.000000000000000000
+            Position.Y = 113.000000000000000000
+            Size.Width = 104.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            OnChange = cUnidadeChange
+            object Label3: TLabel
+              Align = Right
+              Margins.Right = 20.000000000000000000
+              Position.X = 32.000000000000000000
+              Size.Width = 52.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'Unidade'
+              TabOrder = 0
+            end
+          end
+          object layUltimos2: TLayout
+            Anchors = [akLeft, akTop, akRight]
+            Position.X = 8.000000000000000000
+            Position.Y = 37.000000000000000000
+            Size.Width = 1003.000000000000000000
+            Size.Height = 68.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 7
+            object rProd1: TRectangle
+              Align = Top
+              Cursor = crHandPoint
+              Fill.Kind = None
+              Size.Width = 1003.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              OnClick = rProd1Click
+              object lUn1: TLabel
+                Align = Right
+                StyledSettings = [Family, FontColor]
+                Margins.Right = 5.000000000000000000
+                Position.X = 956.000000000000000000
+                Size.Width = 42.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00060000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'UN'
+                TabOrder = 1
+              end
+              object lNome1: TLabel
+                Align = Client
+                StyledSettings = [Family, FontColor]
+                Margins.Left = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Size.Width = 946.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00060000000000000004000000}
+                Text = 'UN'
+                TabOrder = 0
+              end
+            end
+            object rProd2: TRectangle
+              Align = Top
+              Cursor = crHandPoint
+              Fill.Kind = None
+              Margins.Top = 5.000000000000000000
+              Position.Y = 35.000000000000000000
+              Size.Width = 1003.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              object lUn2: TLabel
+                Align = Right
+                StyledSettings = [Family, FontColor]
+                Margins.Right = 5.000000000000000000
+                Position.X = 956.000000000000000000
+                Size.Width = 42.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00060000000000000004000000}
+                TextSettings.HorzAlign = Trailing
+                Text = 'UN'
+                TabOrder = 1
+              end
+              object lNome2: TLabel
+                Align = Client
+                StyledSettings = [Family, FontColor]
+                Margins.Left = 5.000000000000000000
+                Margins.Right = 5.000000000000000000
+                Size.Width = 946.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.StyleExt = {00060000000000000004000000}
+                Text = 'UN'
+                TabOrder = 0
+              end
+            end
+          end
+          object edtValorUnitario: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akTop, akRight]
+            TabOrder = 3
+            Text = '0,000'
+            Position.X = 747.000000000000000000
+            Position.Y = 113.000000000000000000
+            Size.Width = 128.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            OnExit = edtValorUnitarioExit
+            object Label6: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 40.000000000000000000
+              Size.Width = 83.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'R$ Unit'#225'rio'
+              TabOrder = 0
+            end
+          end
+          object edtValorTotal: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akTop, akRight]
+            TabOrder = 4
+            Text = '0,000'
+            Position.X = 883.000000000000000000
+            Position.Y = 113.000000000000000000
+            Size.Width = 128.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            OnExit = edtValorTotalExit
+            object Label7: TLabel
+              Align = Right
+              Margins.Right = 5.000000000000000000
+              Position.X = 40.000000000000000000
+              Size.Width = 83.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.HorzAlign = Trailing
+              Text = 'R$ Total'
+              TabOrder = 0
+            end
+          end
+          object lDescFator: TLabel
+            StyledSettings = [Family, Size]
+            Position.X = 8.000000000000000000
+            Position.Y = 179.000000000000000000
+            Size.Width = 216.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            TextSettings.FontColor = xFFB7B7B7
+            Text = 'A cada 1,000UN converte em 1,300KG'
+            TabOrder = 8
+          end
+          object lQtdEntrada: TLabel
+            Anchors = [akTop, akRight]
+            StyledSettings = [Family]
+            Position.X = 611.000000000000000000
+            Position.Y = 143.000000000000000000
+            Size.Width = 128.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 11.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            TextSettings.FontColor = xFFC0BDBD
+            TextSettings.HorzAlign = Trailing
+            Text = 'lQtdEntrada'
+            TabOrder = 9
+          end
+          object iButton2: iButton
+            Anchors = [akTop, akRight]
+            Position.X = 883.000000000000000000
+            Position.Y = 147.000000000000000000
+            Size.Width = 128.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 10
+            Text = 'iButton2'
+            OnClick = iButton2Click
+            iForthTipoBotao = tSalvar
+            iForthCorFonte = cBranca
+            iForthDescricao = 'Adicionar'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 128.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Adicionar'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 128.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Adicionar'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF31CCAF
+              HitTest = False
+              Size.Width = 128.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF31CCAF
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Adicionar'
+                TabOrder = 0
+              end
+            end
+            object iButton3: iButton
+              Anchors = [akTop, akRight]
+              Position.Y = 34.000000000000000000
+              Size.Width = 128.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 4
+              Text = 'iButton3'
+              OnClick = iButton3Click
+              iForthTipoBotao = tCancelar
+              iForthCorFonte = cBranca
+              iForthDescricao = 'Deletar Selecionado'
+              object TRectangle
+                Align = Client
+                Fill.Color = xFFF77273
+                HitTest = False
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFFF77273
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 128.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Deletar Selecionado'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFFF77273
+                HitTest = False
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFFF77273
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 128.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Deletar Selecionado'
+                  TabOrder = 0
+                end
+              end
+              object TRectangle
+                Align = Client
+                Fill.Color = xFFF77273
+                HitTest = False
+                Size.Width = 128.000000000000000000
+                Size.Height = 30.000000000000000000
+                Size.PlatformDefault = False
+                Stroke.Color = xFFF77273
+                XRadius = 1.000000000000000000
+                YRadius = 1.000000000000000000
+                object TLabel
+                  Align = Client
+                  StyledSettings = [Family, Size]
+                  Size.Width = 128.000000000000000000
+                  Size.Height = 30.000000000000000000
+                  Size.PlatformDefault = False
+                  TextSettings.FontColor = claWhite
+                  TextSettings.HorzAlign = Center
+                  Text = 'Deletar Selecionado'
+                  TabOrder = 0
+                end
+              end
+            end
+          end
+        end
+        object Grid2: TGrid
+          Align = Client
+          CanFocus = True
+          ClipChildren = True
+          Margins.Left = 6.000000000000000000
+          Margins.Right = 6.000000000000000000
+          Margins.Bottom = 10.000000000000000000
+          Size.Width = 1007.000000000000000000
+          Size.Height = 352.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          RowHeight = 30.000000000000000000
+          RowCount = 0
+          Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
+          OnDrawColumnCell = Grid2DrawColumnCell
+          Viewport.Width = 1007.000000000000000000
+          Viewport.Height = 352.000000000000000000
+        end
+        object Layout3: TLayout
+          Align = Bottom
+          Position.Y = 582.000000000000000000
+          Size.Width = 1019.000000000000000000
+          Size.Height = 42.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object Label8: TLabel
+            Align = Left
+            StyledSettings = [Family, FontColor]
+            Margins.Left = 5.000000000000000000
+            Position.X = 5.000000000000000000
+            Size.Width = 116.000000000000000000
+            Size.Height = 42.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 18.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            Text = 'Quantidade:'
+            TabOrder = 3
+          end
+          object lQuantidade: TLabel
+            Align = Left
+            StyledSettings = [Family, FontColor]
+            Margins.Left = 5.000000000000000000
+            Position.X = 126.000000000000000000
+            Size.Width = 139.000000000000000000
+            Size.Height = 42.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 18.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            Text = '0,000'
+            TabOrder = 1
+          end
+          object Label10: TLabel
+            Align = Left
+            StyledSettings = [Family, FontColor]
+            Margins.Left = 5.000000000000000000
+            Position.X = 270.000000000000000000
+            Size.Width = 91.000000000000000000
+            Size.Height = 42.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 18.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            Text = 'Total R$:'
+            TabOrder = 2
+          end
+          object lTotal: TLabel
+            Align = Left
+            StyledSettings = [Family, FontColor]
+            Margins.Left = 5.000000000000000000
+            Position.X = 366.000000000000000000
+            Size.Width = 139.000000000000000000
+            Size.Height = 42.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 18.000000000000000000
+            TextSettings.Font.StyleExt = {00060000000000000004000000}
+            Text = '0,000'
+            TabOrder = 0
+          end
+          object iButton1: iButton
+            Align = Right
+            Position.X = 760.000000000000000000
+            Size.Width = 259.000000000000000000
+            Size.Height = 42.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 4
+            Text = 'Entrada do Estoque'
+            OnClick = iButton1Click
+            iForthTipoBotao = tIncluir
+            iForthCorFonte = cBranca
+            iForthDescricao = 'Executar Entrada do Estoque'
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF900BFA
+              HitTest = False
+              Size.Width = 259.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF900BFA
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 259.000000000000000000
+                Size.Height = 42.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Executar Entrada do Estoque'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF900BFA
+              HitTest = False
+              Size.Width = 259.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF900BFA
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 259.000000000000000000
+                Size.Height = 42.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Executar Entrada do Estoque'
+                TabOrder = 0
+              end
+            end
+            object TRectangle
+              Align = Client
+              Fill.Color = xFF900BFA
+              HitTest = False
+              Size.Width = 259.000000000000000000
+              Size.Height = 42.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Color = xFF900BFA
+              XRadius = 1.000000000000000000
+              YRadius = 1.000000000000000000
+              object TLabel
+                Align = Client
+                StyledSettings = [Family, Size]
+                Size.Width = 259.000000000000000000
+                Size.Height = 42.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                Text = 'Executar Entrada do Estoque'
+                TabOrder = 0
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  inherited memFiltros: iMemTable
+    Left = 272
+    Top = 450
+  end
+  object DADOS: TFDMemTable
+    FieldDefs = <>
+    IndexDefs = <>
+    IndexFieldNames = 'QTD'
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    StoreDefs = True
+    Left = 248
+    Top = 322
+    object DADOSID: TIntegerField
+      FieldName = 'ID'
+    end
+    object DADOSTIPO: TIntegerField
+      DisplayLabel = 'Tipo'
+      FieldName = 'TIPO'
+    end
+    object DADOSNOME: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object DADOSUN: TStringField
+      DisplayLabel = 'Unidade'
+      FieldName = 'UN'
+      Size = 255
+    end
+    object DADOSENTRADA: TFloatField
+      FieldName = 'ENTRADA'
+    end
+    object DADOSSEQUENCIAL: TIntegerField
+      FieldName = 'SEQUENCIAL'
+    end
+    object DADOSQTD: TCurrencyField
+      DisplayLabel = 'Estoque'
+      FieldName = 'QTD'
+    end
+  end
+  object BindSourceDB1: TBindSourceDB
+    DataSet = DADOS
+    ScopeMappings = <>
+    Left = 96
+    Top = 344
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 852
+    Top = 69
+    object LinkGridToDataSourceBindSourceDB1: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB1
+      GridControl = Grid1
+      Columns = <
+        item
+          MemberName = 'TIPO'
+        end
+        item
+          MemberName = 'NOME'
+          Width = 300
+        end
+        item
+          MemberName = 'UN'
+          Width = 60
+        end
+        item
+          MemberName = 'QTD'
+          Width = 90
+        end>
+    end
+    object LinkGridToDataSourceBindSourceDB2: TLinkGridToDataSource
+      Category = 'Quick Bindings'
+      DataSource = BindSourceDB2
+      GridControl = Grid2
+      Columns = <
+        item
+          MemberName = 'TIPO'
+        end
+        item
+          MemberName = 'NOME'
+          Width = 300
+        end
+        item
+          MemberName = 'UN'
+          Width = 80
+        end
+        item
+          MemberName = 'QTD'
+          Width = 90
+        end
+        item
+          MemberName = 'CUSTOUN'
+          Width = 90
+        end
+        item
+          MemberName = 'CUSTOTOTAL'
+          Width = 90
+        end>
+    end
+  end
+  object memEntradaEstoque: iMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    iforthAtualizaCampoForm = True
+    iForthBloqueado = False
+    iForthPaginacaoTotal = 0
+    iForthPaginacaoLimit = 0
+    iForthPaginacaoPage = 0
+    iForthPaginacaoPages = 0
+    Left = 88
+    Top = 458
+    object memEntradaEstoqueSEQUENCIAL: TIntegerField
+      DisplayLabel = 'Sequencial'
+      FieldName = 'SEQUENCIAL'
+    end
+    object memEntradaEstoqueID: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'ID'
+    end
+    object memEntradaEstoqueTIPO: TIntegerField
+      DisplayLabel = 'Tipo'
+      FieldName = 'TIPO'
+    end
+    object memEntradaEstoqueNOME: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object memEntradaEstoqueUN: TStringField
+      DisplayLabel = 'Unidade'
+      FieldName = 'UN'
+      Size = 255
+    end
+    object memEntradaEstoqueQTD: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'QTD'
+    end
+    object memEntradaEstoqueCUSTOUN: TFloatField
+      DisplayLabel = 'R$ Unit'#225'rio'
+      FieldName = 'CUSTOUN'
+    end
+    object memEntradaEstoqueCUSTOTOTAL: TFloatField
+      DisplayLabel = 'R$ Total'
+      FieldName = 'CUSTOTOTAL'
+    end
+    object memEntradaEstoqueSEQLOCAL: TIntegerField
+      FieldName = 'SEQLOCAL'
+    end
+  end
+  object BindSourceDB2: TBindSourceDB
+    DataSet = memEntradaEstoque
+    ScopeMappings = <>
+    Left = 264
+    Top = 536
+  end
+  object memFatorConversao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 616
+    Top = 338
+    object memFatorConversaovalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+end

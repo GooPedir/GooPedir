@@ -13,13 +13,13 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
             PNG = {
               89504E470D0A1A0A0000000D49484452000000300000003008060000005702F9
               87000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1388E5B
+              00D5494441546843EDD23B0EC2301084618B0E041C8CABC175A000D1F1B88D6B
               0AAF6122D611168F0229F22ECCD7584A5CFC132510511B39E7B9882C718EF591
               1F5D7C4AE97C058CD8BA1AF1185F60C4CEC58857F10546ACF59A4D9FE2638C17
               BC5FE8557B7E21FEA4BD15C60F89F1AD206E86F8A3F656183F24C6B7C2F85618
               DF0A1AA7883FDC736B8CFFC248CFFF818FEDF7172AD0CA1126A095234C402B47
               9880568E3001AD1C61025A39C204B4728409687D3B4244367ACD36B43E8D40FC
-              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801D84CBAE5AB34112D00
+              1EC744AFD887D87E84BBF8A21B81F895CB78223342B801472CBA880463605B00
               00000049454E44AE426082}
             FileName = 'C:\Projeto\empresa\ICONE\outline_arrow_back_ios_white_24dp.png'
           end>
@@ -70,8 +70,8 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
           RowHeight = 50.000000000000000000
           RowCount = 0
           Options = [ColumnResize, ColumnMove, ColLines, RowLines, RowSelect, Tabs, Header, HeaderClick, AutoDisplacement]
-          Viewport.Width = 956.000000000000000000
-          Viewport.Height = 542.000000000000000000
+          Viewport.Width = 952.000000000000000000
+          Viewport.Height = 517.000000000000000000
         end
       end
       inherited TabDados: TTabItem
@@ -90,15 +90,15 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
                   PNG = {
                     89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
                     F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                    00EF49444154484BED95510E82301044C104CFA627F0387ECA3DBC99A0778006
-                    70761D9A2285B6261A3F7889E976676797DAA0D946127DDF1FDBB6AD8644E03B
-                    B3C53A687EA32799A821AC1DB88D028D4F755D1BF105876877E0C66BA809440F
-                    511770E335D4446408D3937CCE5519C51CBC17FA903A868AEBD704D871FD0DF2
-                    0402B7C9D03EF17FFD045103F050FBAEEB2E4DD33CE423B1E428C7A3E703DC5A
-                    902A5FCA8492B285F9E5AF98FAAC006FF89D924572942D94FEF00E8AA2B832B4
-                    F872417842DF1D445DB29A01B773A82F1704A07DF90E8C3195ACAC4BC6EDE105
-                    3F581FFDE18C88173D0E6CB71143963D0168F73BA8205E15200000000049454E
-                    44AE426082}
+                    00EE49444154484BED95510E82301044C104CFA627F0387ECA3DBC998DDE011A
+                    C0D975685A29D09A68FCE025A6DB9D9D5D6A83161B59F47D7F6CDBD60C99C077
+                    668B65D0FC464F364943583B709B041A9F8C31567CAB43B43BF0E325D4049287
+                    A80BF8F1126A223284E9205F725546B104EF8531A48EA1E2FB3501765C7F833C
+                    81C06D36B407FEAF9F2069001E6ADF75DDA5699A877C24961CE574F47C805B07
+                    52F54B09A8293B989FFF8AA94F0AF086DF29392447D941E90FEFA0AAAA2B4347
+                    2CB70A4F18BB83A44B5633E0760AF5F98215689FBF036BAD919575D9F83DA2E0
+                    07EBA33F9C11F1A2C781ED3652288A2740983BA26C592F010000000049454E44
+                    AE426082}
                   FileName = 'A:\PROJETOS\ALLAN\projeto-x\src\img\outline_save_white_24dp.png'
                 end>
             end
@@ -129,6 +129,41 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
             iForthMemInsert = DADOS
             iForthCampoInser = 'bairro'
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -1192,6 +1227,41 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
             iForthMemInsert = DADOS
             iForthCampoInser = 'cidade'
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right
@@ -2606,6 +2676,41 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
               end
             end
             object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
+            object TRectangle
               Align = Right
               Opacity = 0.699999988079071000
               Position.X = 50.000000000000000000
@@ -3422,6 +3527,41 @@ inherited frmTaxaEntrega: TfrmTaxaEntrega
             iForthMemInsert = DADOS
             iForthCampoInser = 'valor_taxa'
             iForthTipoEdit = Texto
+            object TRectangle
+              Tag = 1
+              Align = Right
+              Opacity = 0.699999988079071000
+              Position.X = 50.000000000000000000
+              Size.Width = 100.000000000000000000
+              Size.Height = 30.000000000000000000
+              Size.PlatformDefault = False
+              Visible = False
+              object TLabel
+                Tag = 2
+                Align = Bottom
+                StyledSettings = []
+                Position.Y = 15.000000000000000000
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.Size = 9.000000000000000000
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 0
+              end
+              object TLabel
+                Tag = 3
+                Align = Client
+                StyledSettings = []
+                Size.Width = 100.000000000000000000
+                Size.Height = 15.000000000000000000
+                Size.PlatformDefault = False
+                TextSettings.Font.StyleExt = {00070000000000000004000000}
+                TextSettings.FontColor = claWhite
+                TextSettings.HorzAlign = Center
+                TabOrder = 1
+              end
+            end
             object TRectangle
               Tag = 1
               Align = Right

@@ -88,14 +88,29 @@ uses
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
   uSQL in 'src\sql\uSQL.pas',
   v2 in 'src\modulos\v2\v2.pas',
-  uSite in 'src\uSite.pas';
+  uSite in 'src\uSite.pas',
+  nfce in 'src\modulos\nfce\nfce.pas',
+  uImportacaoProduto in 'src\uImportacaoProduto.pas',
+  imprimir in 'src\modulos\impressao\imprimir.pas',
+  uProcessamentoiFood in 'src\uProcessamentoiFood.pas',
+  PedidoSite in 'src\modulos\Controller\PedidoSite.pas',
+  uToPedindo in 'src\importacao\uToPedindo.pas',
+  GooPedirAPIController in 'src\controller\GooPedirAPIController.pas',
+  Horse.XMLDoc in 'src\other\xml\Horse.XMLDoc.pas',
+  uCacheControl in 'src\controller\uCacheControl.pas',
+  uControllCaches in 'src\controller\uControllCaches.pas',
+  Horse.ExceptionHandler in 'src\other\Horse.ExceptionHandler.pas',
+  Horse.ServerStatic in 'src\other\horse-server-static-master\Horse.ServerStatic.pas',
+  cors in 'src\modulo\cors.pas',
+  uDadosWhatsapp in 'src\controller\uDadosWhatsapp.pas',
+  PedidoController in 'src\modulos\Controller\PedidoController.pas',
+  uLogThread in 'uLogThread.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
 end.

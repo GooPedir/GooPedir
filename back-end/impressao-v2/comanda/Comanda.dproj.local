@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2025/02/19 15:10:33.000.798,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2025/02/19 15:13:49.000.195,C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uPrincipal.dfm=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>2025/02/19 15:13:49.000.195,C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uPrincipal.pas=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2025/02/19 15:14:01.000.853,C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\Comanda.dproj=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
+    <Transaction>2025/02/19 15:33:34.000.691,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\impressao\uModuloImpressao.pas</Transaction>
+    <Transaction>2025/02/19 15:33:50.000.247,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\uModulo.pas</Transaction>
+    <Transaction>2025/02/19 15:35:07.000.502,C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uMain.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uPrincipal.pas</Transaction>
+    <Transaction>2025/02/19 15:35:07.000.502,C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uMain.dfm=C:\Projetos\GooPedir\GooPedir\back-end\impressao-v2\comanda\uPrincipal.dfm</Transaction>
+  </Transactions>
+</BorlandProject>

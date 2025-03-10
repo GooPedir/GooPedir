@@ -38,6 +38,7 @@ object dm: Tdm
       'Password=P4P4L3GU45F00D'
       'Server=localhost'
       'Database=santinho'
+      'CharacterSet=utf8mb4'
       'DriverID=MySQL')
     LoginPrompt = False
     Left = 424

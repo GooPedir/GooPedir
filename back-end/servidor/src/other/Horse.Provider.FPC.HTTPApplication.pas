@@ -125,7 +125,7 @@ begin
     LHTTPApplication := GetDefaultHTTPApplication;
     LHTTPApplication.AllowDefaultModule:= True;
     LHTTPApplication.OnGetModule:= DoGetModule;
-    LHTTPApplication.Threaded:= True;
+    LHTTPApplication.Thread1ed:= True;
     LHTTPApplication.QueueSize:= FListenQueue;
     LHTTPApplication.Port := FPort;
     LHTTPApplication.LegacyRouting := True;

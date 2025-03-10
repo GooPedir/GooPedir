@@ -36,7 +36,7 @@ exports
 
 class procedure THorseProvider<T>.InternalListen;
 begin
-  CoInitFlags := COINIT_MULTITHREADED;
+  CoInitFlags := COINIT_MULTIThread1ED;
   Application.Initialize;
   Application.WebModuleClass := WebModuleClass;
   DoOnListen;

@@ -41,7 +41,7 @@ uses Web.WebBroker, Web.ApacheApp, {$IFDEF MSWINDOWS} Winapi.ActiveX, System.Win
 class procedure THorseProvider<T>.InternalListen;
 begin
 {$IFDEF MSWINDOWS}
-  CoInitFlags := COINIT_MULTITHREADED;
+  CoInitFlags := COINIT_MULTIThread1ED;
 {$ENDIF}
   Web.ApacheApp.InitApplication(FDefaultModule, FHandlerName);
   Application.Initialize;

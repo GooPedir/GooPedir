@@ -53,19 +53,33 @@ end;
 
 function TdmModulo.GerarCodigo(txTabela, txCampo: String): Integer;
 var
-  QRYAux001: TFDQuery;
   Valor: Integer;
-
+  QRYAux001 : TFDQuery;
 begin
-  getCodigo.URL := '/' + txTabela + '/' + txCampo;
-  getCodigo.Execute;
-  try
-    Result := getCodigo.Retorno.ToInteger;
-  except
-    Result := GerarCodigo(txTabela, txCampo);
-  end;
-  { QRYAux001 := CriaQRY('');
+//  getCodigo.URL := '/' + txTabela + '/' + txCampo;
+//  getCodigo.Execute;
+//  try
+//    Result := getCodigo.Retorno.ToInteger;
+//  except
+//    Result := GerarCodigo(txTabela, txCampo);
+//  end;
+   QRYAux001 := CriaQRY('');
 
+    QRYAux001.Close;
+    QRYAux001.SQL.Clear;
+    QRYAux001.SQL.Add('select max(' + txCampo + ')+100 as codigo from ' +
+    txTabela);
+    QRYAux001.Open;
+
+    if QRYAux001.FieldByName('codigo').IsNull then
+    Valor := 1
+    else
+    Valor := QRYAux001.FieldByName('codigo').AsInteger;
+
+
+    Result := Valor;
+
+    QRYAux001.Free;
 
     QRYAux001.SQL.Add
     ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
@@ -105,7 +119,7 @@ begin
 
     Result := Valor;
 
-    QRYAux001.Free; }
+    QRYAux001.Free;
 end;
 
 end.

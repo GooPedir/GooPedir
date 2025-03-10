@@ -182,6 +182,8 @@ begin
     'Informe o ddd para os campos telefone padrão');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressaotipopro',
     'Impressão Cozinha', '1', '0');
+  AdicionaSelecao(Geral, TAlignLayout.Top, 'imprimir_cozinha_site',
+    'Imprimir Comanda Cozinha Para Pedidos Site (Necessário "Impressão Cozinha")', '1', '0');
   AdicionaSelecao(Geral, TAlignLayout.Top, 'impressao_agrupada',
     'Impressão Cozinha (Agrupar)', '1', '0');
 

@@ -3,19 +3,25 @@
         <ProjectGuid>{A579CC24-08D4-491C-99C0-A435C110280F}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="front-end\goopedir\GooPedir.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="back-end\servidor\ServidorGooPedir.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="back-end\site\SiteGooPedir.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\nfce\NFCe.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\impressao\v2\Integracao.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\whatsapp\WhatsappGopedir.dproj">
+        <Projects Include="back-end\servidor\VersionBuild.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\impressao-v2\comanda\Comanda.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -26,15 +32,6 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="GooPedir">
-        <MSBuild Projects="front-end\goopedir\GooPedir.dproj"/>
-    </Target>
-    <Target Name="GooPedir:Clean">
-        <MSBuild Projects="front-end\goopedir\GooPedir.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="GooPedir:Make">
-        <MSBuild Projects="front-end\goopedir\GooPedir.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ServidorGooPedir">
         <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj"/>
     </Target>
@@ -53,6 +50,24 @@
     <Target Name="SiteGooPedir:Make">
         <MSBuild Projects="back-end\site\SiteGooPedir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="NFCe">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj"/>
+    </Target>
+    <Target Name="NFCe:Clean">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NFCe:Make">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Integracao">
+        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj"/>
+    </Target>
+    <Target Name="Integracao:Clean">
+        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Integracao:Make">
+        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj" Targets="Make"/>
+    </Target>
     <Target Name="ImpressaoGooPedir">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj"/>
     </Target>
@@ -62,23 +77,32 @@
     <Target Name="ImpressaoGooPedir:Make">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
     </Target>
-    <Target Name="WhatsappGopedir">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj"/>
+    <Target Name="VersionBuild">
+        <MSBuild Projects="back-end\servidor\VersionBuild.dproj"/>
     </Target>
-    <Target Name="WhatsappGopedir:Clean">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Clean"/>
+    <Target Name="VersionBuild:Clean">
+        <MSBuild Projects="back-end\servidor\VersionBuild.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="WhatsappGopedir:Make">
-        <MSBuild Projects="back-end\whatsapp\WhatsappGopedir.dproj" Targets="Make"/>
+    <Target Name="VersionBuild:Make">
+        <MSBuild Projects="back-end\servidor\VersionBuild.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Comanda">
+        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj"/>
+    </Target>
+    <Target Name="Comanda:Clean">
+        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Comanda:Make">
+        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="GooPedir;ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir;WhatsappGopedir"/>
+        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;Integracao;ImpressaoGooPedir;VersionBuild;Comanda"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="GooPedir:Clean;ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean;WhatsappGopedir:Clean"/>
+        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;Integracao:Clean;ImpressaoGooPedir:Clean;VersionBuild:Clean;Comanda:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="GooPedir:Make;ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make;WhatsappGopedir:Make"/>
+        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;Integracao:Make;ImpressaoGooPedir:Make;VersionBuild:Make;Comanda:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

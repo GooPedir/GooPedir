@@ -2,8 +2,8 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'GooPedir'
-  ClientHeight = 623
-  ClientWidth = 909
+  ClientHeight = 592
+  ClientWidth = 848
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,11 +16,12 @@ object frmPrincipal: TfrmPrincipal
   TextHeight = 13
   object Lbl_Avisos: TLabel
     Left = 0
-    Top = 591
-    Width = 909
+    Top = 560
+    Width = 848
     Height = 13
     Align = alBottom
     Caption = ' '
+    ExplicitTop = 433
     ExplicitWidth = 3
   end
   object lblStatus: TLabel
@@ -2637,8 +2638,8 @@ object frmPrincipal: TfrmPrincipal
   end
   object lStatusFaturamento: TLabel
     Left = 0
-    Top = 574
-    Width = 909
+    Top = 543
+    Width = 848
     Height = 17
     Align = alBottom
     Font.Charset = ANSI_CHARSET
@@ -2647,12 +2648,13 @@ object frmPrincipal: TfrmPrincipal
     Font.Name = 'Segoe UI'
     Font.Style = [fsBold]
     ParentFont = False
+    ExplicitTop = 416
     ExplicitWidth = 4
   end
   object PageControl1: TPageControl
     AlignWithMargins = True
-    Left = 832
-    Top = 54
+    Left = 872
+    Top = 58
     Width = 1096
     Height = 527
     ActivePage = TabSheet1
@@ -5418,8 +5420,8 @@ object frmPrincipal: TfrmPrincipal
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 604
-    Width = 909
+    Top = 573
+    Width = 848
     Height = 19
     Panels = <
       item
@@ -5431,8 +5433,8 @@ object frmPrincipal: TfrmPrincipal
         Width = 50
       end>
     Visible = False
-    ExplicitTop = 603
-    ExplicitWidth = 905
+    ExplicitTop = 445
+    ExplicitWidth = 854
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Imagens|*jpg;*.jpg;*.bmp;*.png;*.pdf;*.mp4;*.mp3;*.rar'
@@ -5542,8 +5544,8 @@ object frmPrincipal: TfrmPrincipal
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 434
-    Top = 118
+    Left = 562
+    Top = 158
   end
   object dadosEnvio: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -5569,8 +5571,8 @@ object frmPrincipal: TfrmPrincipal
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 546
-    Top = 342
+    Left = 562
+    Top = 222
   end
   object Timer2: TTimer
     Enabled = False
@@ -5586,8 +5588,8 @@ object frmPrincipal: TfrmPrincipal
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 8
-    Top = 312
+    Left = 560
+    Top = 96
   end
   object dadosPIX: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -5601,14 +5603,15 @@ object frmPrincipal: TfrmPrincipal
     Top = 312
   end
   object iRequisicao1: iRequisicao
-    BaseURL = 'http://localhost:2121/v1/consulta/generica/dados_whatsapp/*/*/*'
+    BaseURL = 'http://localhost:2121/'
+    URL = 'v1/consulta/generica/dados_whatsapp/*/*/*'
     eTAG = False
     Metodo = mGet
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 48
-    Top = 168
+    Left = 560
+    Top = 32
   end
   object memDadosWhatsapp: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

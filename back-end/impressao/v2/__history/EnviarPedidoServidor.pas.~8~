@@ -1,0 +1,82 @@
+unit EnviarPedidoServidor;
+
+interface
+
+function EnviarPedido(JSON: String): Boolean;
+procedure EnviaConfirmacaoSite(Body:String);
+
+implementation
+
+uses
+  System.IniFiles, uRequisicao, System.SysUtils;
+
+function EnviarPedido(JSON: String): Boolean;
+var
+  IniFile: TIniFile;
+  BaseURL: String;
+
+  Req: iRequisicao;
+
+begin
+  IniFile := TIniFile.Create('./goopedir.ini');
+  BaseURL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
+  IniFile.Free;
+
+  Req := iRequisicao.Create(nil);
+  Req.BaseURL := BaseURL;
+  Req.URL := 'v2/site/grava/pedido';
+  Req.TempoExpiracao := 30 * 1000;
+
+  Req.Metodo := mPost;
+  Req.BODY(JSON);
+
+  try
+    Req.Execute;
+
+    Result := Req.Status = 200;
+
+//    /goopedir/pedidos/importado
+
+
+  except
+    on E: Exception do
+    begin
+      Result := False;
+    end;
+  end;
+
+  Req.Free;
+
+end;
+
+procedure EnviaConfirmacaoSite(Body:String);
+var
+Req: iRequisicao;
+begin
+  Req := iRequisicao.Create(nil);
+  Req.BaseURL := '';
+  Req.URL := 'v2/site/grava/pedido';
+  Req.TempoExpiracao := 30 * 1000;
+
+  Req.Metodo := mPost;
+  Req.BODY(Body);
+
+  try
+    Req.Execute;
+
+
+
+//    /goopedir/pedidos/importado
+
+
+  except
+    on E: Exception do
+    begin
+      Result := False;
+    end;
+  end;
+
+  Req.Free;
+end;
+
+end.

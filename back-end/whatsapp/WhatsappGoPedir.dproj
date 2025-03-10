@@ -138,7 +138,7 @@
             </Platforms>
             <Deployment Version="4">
                 <DeployFile LocalName="BIN\WhatsappGopedir.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="C:\PapaLeguas\WhatsappGopedir.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="C:\goopedir\WhatsappGopedir.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>WhatsappGopedir.exe</RemoteName>
                         <Overwrite>true</Overwrite>

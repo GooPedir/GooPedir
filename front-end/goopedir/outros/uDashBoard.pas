@@ -537,6 +537,8 @@ begin
 
     DM.DADOS_WHATSAPP.Post;
 
+
+
     DM.AtualizaParametro('temp_delivery', nDelivery.Text);
   except
 

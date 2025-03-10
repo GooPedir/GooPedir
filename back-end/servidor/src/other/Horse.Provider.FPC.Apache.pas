@@ -10,7 +10,7 @@ interface
 
 uses
 {$IFDEF unix}
-  cthreads,
+  cThread1s,
 {$ENDIF}
   fphttp, httpdefs, httpd24, fpApache24, custapache24, SysUtils, Classes,
   Horse.Provider.Abstract, Horse.Constants, Horse.Proc;

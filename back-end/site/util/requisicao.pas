@@ -108,6 +108,11 @@ begin
   // exit;
   frmPrincipal.memRequisicoes.DisableControls;
   try
+    if frmPrincipal.memRequisicoes.RecordCount > 99 then
+    begin
+      frmPrincipal.memRequisicoes.Close;
+      frmPrincipal.memRequisicoes.Open;
+    end;
 
     frmPrincipal.memRequisicoes.Last;
     frmPrincipal.memRequisicoes.Insert;
@@ -192,6 +197,7 @@ begin
 
     end;
   end;
+//  if Pos(URL,'ws_pedidos') = 0 then
   AtualizaRequisicao(lResponse, Data, Hora, URL);
   RESTRequest.ClearBody;
 end;
@@ -321,16 +327,16 @@ begin
     Hora := Time;
     RESTClient.BASEURL := URL;
     RESTRequest.Method := TRESTRequestMethod.rmGET;
-    if not frmPrincipal.Homologacao then
-      Sleep(Tempo);
+//    if not frmPrincipal.Homologacao then
+//      Sleep(Tempo);
     RESTRequest.Execute;
     AtualizaRetorno(RESTResponse, Data, Hora, URL);
   except
     on E: Exception do
     begin
       Status := 999;
-       //ShowMessage(BASEURL+URLI+#13+E.Message);
-       //showmessage(E.Message);
+//       ShowMessage(BASEURL+URLI+#13+E.Message);
+//       showmessage(E.Message);
     end;
   end;
 
@@ -376,13 +382,20 @@ begin
     Data := Date;
     Hora := Time;
     RESTClient.BASEURL := URL;
+
     RESTRequest.Method := TRESTRequestMethod.rmPOST;
-    if not frmPrincipal.Homologacao then
-      Sleep(Tempo);
+    RESTRequest.Timeout := 60*1000;
+//    if not frmPrincipal.Homologacao then
+//      Sleep(Tempo);
     RESTRequest.Execute;
     AtualizaRetorno(RESTResponse, Data, Hora, URL);
   except
+  on E : Exception do
+  begin
     Status := 999;
+//    ShowMessage(e.Message)
+  end;
+
   end;
 
 end;

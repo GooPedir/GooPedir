@@ -41,7 +41,7 @@ Coordinates=404,331,135,33
 Coordinates=404,386,129,33
 
 []
-Coordinates=30,268,82,33
+Coordinates=233,415,57,51
 Visible=True
 
 [Tray]
@@ -80,9 +80,6 @@ Coordinates=60,319,48,51
 
 [PageControl1]
 Coordinates=478,441,81,33
-
-[imgLogo]
-Coordinates=233,415,57,51
 
 [Panel1]
 Coordinates=273,78,47,51

@@ -38,7 +38,7 @@ object dmModulo: TdmModulo
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'Report'
     PrinterSetup.PaperName = 'A4'
-    PrinterSetup.PrinterName = 'Microsoft Print to PDF'
+    PrinterSetup.PrinterName = 'EPSON TM-T20 Receipt5'
     PrinterSetup.SaveDeviceSettings = False
     PrinterSetup.mmMarginBottom = 6350
     PrinterSetup.mmMarginLeft = 6350
@@ -46,7 +46,7 @@ object dmModulo: TdmModulo
     PrinterSetup.mmMarginTop = 6350
     PrinterSetup.mmPaperHeight = 297000
     PrinterSetup.mmPaperWidth = 210000
-    PrinterSetup.PaperSize = 9
+    PrinterSetup.PaperSize = 131
     ArchiveFileName = '($MyDocuments)\ReportArchive.raf'
     DeviceType = 'PDF'
     DefaultFileDeviceType = 'PDF'
@@ -1121,7 +1121,7 @@ object dmModulo: TdmModulo
         'ricao, '#39'|'#39', mesa.nr_mesa))))) as link from mesa'
       'join mesa_tipo on mesa_tipo.id_mesa_tipo = mesa.fk_tipo_mesa'
       '')
-    Left = 552
+    Left = 592
     Top = 387
   end
   object ppMesa: TppBDEPipeline

@@ -15,9 +15,9 @@ uses
 
 type
 
-  { THTTPServerThread }
+  { THTTPServerThread1 }
 
-  THTTPServerThread = class(TThread)
+  THTTPServerThread1 = class(TThread1)
   private
     FStarServer : Boolean;
     FHost: String;
@@ -49,9 +49,9 @@ type
     class var FHost: string;
     class var FRunning : Boolean;
     class var FListenQueue: Integer;
-    class var FHTTPServerThread: THTTPServerThread;
-    class function GetDefaultHTTPServerThread: THTTPServerThread;
-    class function HTTPServerThreadIsNil: Boolean;
+    class var FHTTPServerThread1: THTTPServerThread1;
+    class function GetDefaultHTTPServerThread1: THTTPServerThread1;
+    class function HTTPServerThread1IsNil: Boolean;
     class procedure SetListenQueue(const Value: Integer); static;
     class procedure SetPort(const Value: Integer); static;
     class procedure SetHost(const Value: string); static;
@@ -90,11 +90,11 @@ uses
 
 { THorseProvider<T> }
 
-class function THorseProvider<T>.GetDefaultHTTPServerThread: THTTPServerThread;
+class function THorseProvider<T>.GetDefaultHTTPServerThread1: THTTPServerThread1;
 begin
-  if HTTPServerThreadIsNil then
-    FHTTPServerThread := THTTPServerThread.Create(True);
-  Result := FHTTPServerThread;
+  if HTTPServerThread1IsNil then
+    FHTTPServerThread1 := THTTPServerThread1.Create(True);
+  Result := FHTTPServerThread1;
 end;
 
 class function THorseProvider<T>.IsRunning: Boolean;
@@ -102,9 +102,9 @@ begin
   Result := FRunning;
 end;
 
-class function THorseProvider<T>.HTTPServerThreadIsNil: Boolean;
+class function THorseProvider<T>.HTTPServerThread1IsNil: Boolean;
 begin
-  Result := FHTTPServerThread = nil;
+  Result := FHTTPServerThread1 = nil;
 end;
 
 constructor THorseProvider<T>.Create(APort: Integer);
@@ -150,7 +150,7 @@ end;
 
 class procedure THorseProvider<T>.InternalListen;
 var
-  LHTTPServerThread: THTTPServerThread;
+  LHTTPServerThread1: THTTPServerThread1;
 begin
   inherited;
   if FPort <= 0 then
@@ -159,11 +159,11 @@ begin
     FHost := GetDefaultHost;
   if FListenQueue = 0 then
     FListenQueue := 15;
-  LHTTPServerThread := GetDefaultHTTPServerThread;
-  LHTTPServerThread.Port := FPort;
-  LHTTPServerThread.Host := FHost;
-  LHTTPServerThread.ListenQueue := FListenQueue;
-  LHTTPServerThread.StartServer;
+  LHTTPServerThread1 := GetDefaultHTTPServerThread1;
+  LHTTPServerThread1.Port := FPort;
+  LHTTPServerThread1.Host := FHost;
+  LHTTPServerThread1.ListenQueue := FListenQueue;
+  LHTTPServerThread1.StartServer;
   FRunning := True;
   DoOnListen;
 end;
@@ -218,14 +218,14 @@ end;
 
 class destructor THorseProvider<T>.UnInitialize;
 begin
-  FreeAndNil(FHTTPServerThread);
+  FreeAndNil(FHTTPServerThread1);
 end;
 
 class procedure THorseProvider<T>.InternalStopListen;
 begin
-  if not HTTPServerThreadIsNil then
+  if not HTTPServerThread1IsNil then
   begin
-    GetDefaultHTTPServerThread.StopServer;
+    GetDefaultHTTPServerThread1.StopServer;
     FRunning := False;
     DoOnListen;
   end
@@ -233,9 +233,9 @@ begin
     raise Exception.Create('Horse not listen');
 end;
 
-{ THTTPServerThread }
+{ THTTPServerThread1 }
 
-procedure THTTPServerThread.OnRequest(Sender: TObject;
+procedure THTTPServerThread1.OnRequest(Sender: TObject;
   var ARequest: TFPHTTPConnectionRequest;
   var AResponse: TFPHTTPConnectionResponse);
 var
@@ -264,7 +264,7 @@ begin
   end;
 end;
 
-constructor THTTPServerThread.Create(CreateSuspended: Boolean;
+constructor THTTPServerThread1.Create(CreateSuspended: Boolean;
   const StackSize: SizeUInt = DefaultStackSize);
 begin
   inherited Create(CreateSuspended, StackSize);
@@ -276,7 +276,7 @@ begin
   FHorse := THorseCore.GetInstance;
 end;
 
-destructor THTTPServerThread.Destroy;
+destructor THTTPServerThread1.Destroy;
 begin
   if Assigned(FServer) then
     FServer.Active := False;
@@ -284,19 +284,19 @@ begin
   inherited Destroy;
 end;
 
-procedure THTTPServerThread.StartServer;
+procedure THTTPServerThread1.StartServer;
 begin
   Start;
   FStarServer := True;
 end;
 
-procedure THTTPServerThread.StopServer;
+procedure THTTPServerThread1.StopServer;
 begin
   FStarServer := False;
   FServer.Active := FStarServer;
 end;
 
-procedure THTTPServerThread.Execute;
+procedure THTTPServerThread1.Execute;
 begin
   while not Terminated do
   begin
@@ -304,7 +304,7 @@ begin
     begin
       FServer.HostName := FHost;
       FServer.Port := FPort;
-      FServer.Threaded:= True;
+      FServer.Thread1ed:= True;
       FServer.QueueSize := FListenQueue;
       FServer.Active := True;
     end;

@@ -61,12 +61,11 @@ end;
 
 procedure TdmModulo.DataModuleCreate(Sender: TObject);
 begin
-  // Banco.Params.SaveToFile('CONFIGURACAO\Confi.dados');
+
   BANCO.Params.LoadFromFile('CONFIGURACAO\Confi.dados');
 
-  // ppMesaR.PrintToDevices;
   try
-    ppMesaR.Print;
+
   except
 
   end;

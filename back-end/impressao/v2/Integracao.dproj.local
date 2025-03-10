@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2024/05/07 16:02:56.000.484,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 13:07:25.000.480,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 13:07:59.000.607,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\uPrincipal.dfm=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2024/05/09 13:07:59.000.607,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\uPrincipal.pas=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 13:08:05.000.546,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Impressao.dproj=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2024/05/09 14:12:38.000.917,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 14:12:45.000.181,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Controller.pas</Transaction>
+    <Transaction>2024/05/09 17:13:56.000.961,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 17:14:02.000.916,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Pedido.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 17:14:29.000.558,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 17:14:36.000.876,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\ProcessarPedido.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 17:19:25.000.341,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 17:19:31.000.951,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Consulta.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 19:47:48.000.937,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/09 19:47:58.000.284,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\EnviarPedidoServidor.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/10 17:05:11.000.785,=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas</Transaction>
+    <Transaction>2024/05/10 17:05:23.000.877,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\URL.pas</Transaction>
+    <Transaction>2025/02/19 15:07:49.000.316,C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Integracao.dproj=C:\Projetos\GooPedir\GooPedir\back-end\impressao\v2\Impressao.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

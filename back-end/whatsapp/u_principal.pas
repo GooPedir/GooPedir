@@ -7,7 +7,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls,
-  DataSet.Serialize,
+  DataSet.Serialize, IniFiles,
   // ############ ATENCAO AQUI ####################
   // units adicionais obrigatorias
   uTInject.ConfigCEF, uTInject, uTInject.Constant, uTInject.JS,
@@ -288,7 +288,14 @@ uses
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 var
   I: Integer;
+  IniFile: TIniFile;
+  URL: String;
 begin
+  IniFile := TIniFile.Create('./goopedir.ini');
+  URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
+  IniFile.Free;
+  iRequisicao1.BaseURL := URL;
+
   MEMMENSAGEM.Open;
   self.Height := 267;
   self.Width := 316;
@@ -917,6 +924,11 @@ var
   Resumo: Boolean;
   Enviar: Boolean;
   mensagemResumo: String;
+
+  LJSONArray: TJSONArray;
+  LJSONValue: TJSONValue;
+  LJSONObject: TJSONObject;
+
 begin
   try
     RequisicaoDados := iRequisicao.Create(self);
@@ -1081,7 +1093,66 @@ begin
   except
 
   end;
+  // Dados.Free;
+  // Dados := TFDMemTable.Create(nil);
+  RequisicaoDados.URL := 'http://localhost:2121/v2/pix/pendente';
+  RequisicaoDados.Execute;
 
+  try
+    LJSONArray := TJSONObject.ParseJSONValue(RequisicaoDados.Retorno)
+      as TJSONArray;
+
+    if Assigned(LJSONArray) then
+      try
+        for LJSONValue in LJSONArray do
+        begin
+          LJSONObject := LJSONValue as TJSONObject;
+
+          // Obtém os valores dos campos desejados
+          // linkfull := ;
+          // qrcod_pix := LJSONObject.GetValue<string>('qrcod_pix');
+          // url := LJSONObject.GetValue<string>('url');
+
+          // Aqui, você pode usar os valores como quiser. Neste exemplo, estou apenas imprimindo-os.
+
+          mensagem := MONO_ESPACADA + 'Aguardando Pagamento PIX' + MONO_ESPACADA
+            + MENSAGEM_QUEBRA_LINHA_DUPLA;
+          mensagem := mensagem + '*Link do pedido:* ' +
+            LJSONObject.GetValue<string>('linkfull') + MENSAGEM_QUEBRA_LINHA;
+          mensagem := mensagem +
+            '*Recebemos seu pedido basta efetuar o pagamento via pix com o código abaixo:*';
+          Celular := '55' + RemoveNonoDigito
+            (LJSONObject.GetValue<string>('telefone')) + '@c.us';
+          Celular9 := '55' + NonoDigito(LJSONObject.GetValue<string>('telefone')
+            ) + '@c.us';
+
+          TInject1.send(Celular9, mensagem);
+          TInject1.send(Celular, mensagem);
+
+          TInject1.send(Celular9, LJSONObject.GetValue<string>('qrcod_pix'));
+          TInject1.send(Celular, LJSONObject.GetValue<string>('qrcod_pix'));
+
+          RequisicaoDados.URL := 'https://ws.goopedir.com/v1/setqrcod/' +
+            LJSONObject.GetValue<string>('id') + '/a';
+          RequisicaoDados.Execute;
+
+        end;
+      finally
+
+      end;
+  except
+
+  end;
+
+  // while not Dados.Eof do
+  // begin
+
+  //
+  // Dados.Next;
+  // end;
+
+  //
+  LJSONArray.Free;
   Dados.Free;
   RequisicaoDados.Free;
 end;
@@ -1169,11 +1240,11 @@ end;
 procedure TfrmPrincipal.TInject1GetAllGroupContacts(const Contacts
   : TClassAllGroupContacts);
 var
-  JSonValue: TJSonValue;
+  JSonValue: TJSONValue;
   ArrayRows: TJSONArray;
   I: Integer;
 begin
-  JSonValue := TJSonObject.ParseJSONValue(Contacts.Result);
+  JSonValue := TJSONObject.ParseJSONValue(Contacts.Result);
   ArrayRows := JSonValue as TJSONArray;
 
   listaParticipantes.Clear;
@@ -1490,46 +1561,46 @@ begin
 
         if not AMessage.Sender.isMe then // Não exibe mensages enviadas por mim
         begin
-          if not MEMMENSAGEM.Locate('CLIENT',AChat.id) then
+          if not MEMMENSAGEM.locate('CLIENT', AChat.id) then
           begin
-          MEMMENSAGEM.Insert;
-          MEMMENSAGEM.FieldByName('CLIENT').AsString :=AChat.id;
-          MEMMENSAGEM.Post;
+            MEMMENSAGEM.Insert;
+            MEMMENSAGEM.FieldByName('CLIENT').AsString := AChat.id;
+            MEMMENSAGEM.Post;
 
-          memo_unReadMessage.Clear;
-          if memDadosWhatsapp.RecordCount > 0 then
-          begin
-            try
-              memCliente.Close;
-              Cell := AChat.id;
-              Cell := StringReplace(Cell, '@c.us', '', [rfReplaceAll]);
-              ddd := copy(Cell, 3, 2);
-              Cell := copy(Cell, 5, 10);
+            memo_unReadMessage.Clear;
+            if memDadosWhatsapp.RecordCount > 0 then
+            begin
+              try
+                memCliente.Close;
+                Cell := AChat.id;
+                Cell := StringReplace(Cell, '@c.us', '', [rfReplaceAll]);
+                ddd := copy(Cell, 3, 2);
+                Cell := copy(Cell, 5, 10);
 
-              RequisicaoCelular.BaseURL :=
-                'http://localhost:2121/v1/dados/consulta/cliente/celular/' +
-                ddd + Cell;
-              RequisicaoCelular.Execute;
-              memCliente.LoadFromJSON(RequisicaoCelular.Retorno);
-
-              if memCliente.RecordCount = 0 then
-              begin
                 RequisicaoCelular.BaseURL :=
                   'http://localhost:2121/v1/dados/consulta/cliente/celular/' +
-                  ddd + '9' + Cell;
+                  ddd + Cell;
                 RequisicaoCelular.Execute;
                 memCliente.LoadFromJSON(RequisicaoCelular.Retorno);
+
+                if memCliente.RecordCount = 0 then
+                begin
+                  RequisicaoCelular.BaseURL :=
+                    'http://localhost:2121/v1/dados/consulta/cliente/celular/' +
+                    ddd + '9' + Cell;
+                  RequisicaoCelular.Execute;
+                  memCliente.LoadFromJSON(RequisicaoCelular.Retorno);
+                end;
+
+                TInject1.send(AChat.id,
+                  MenuInicial(memDadosWhatsapp.FieldByName('mensagem_Inicio')
+                  .AsString, memCliente.FieldByName('nome').AsString));
+                Exit;
+
+              except
+
               end;
-
-              TInject1.send(AChat.id,
-                MenuInicial(memDadosWhatsapp.FieldByName('mensagem_Inicio')
-                .AsString, memCliente.FieldByName('nome').AsString));
-              Exit;
-
-            except
-
             end;
-          end;
           end;
 
         end;
@@ -1597,45 +1668,61 @@ begin
           begin
             lStatusFaturamento.Caption := 'Enviando Mensagem';
 
-            mensagem := '*' + UpperCase(dadosEnvio.FieldByName('company')
-              .AsString) + '*\n\n';
-            mensagem := mensagem +
-              'Segue link para pagamento da sua fatura com vencimento dia *' +
-              copy(dadosEnvio.FieldByName('duedate').AsString, 9, 2) + '/' +
-              copy(dadosEnvio.FieldByName('duedate').AsString, 6, 2) + '/' +
-              copy(dadosEnvio.FieldByName('duedate').AsString, 0, 4) + '*.\n';
-            mensagem := mensagem + '*' + dadosEnvio.FieldByName('prefix')
-              .AsString + copy(dadosEnvio.FieldByName('duedate').AsString, 0, 4)
-              + '/' + FormatFloat('000000', dadosEnvio.FieldByName('number')
-              .AsInteger) + '* \n';
-            mensagem := mensagem + 'Valor R$: ' + FormatFloat('#0.00',
-              StrToFloat(StringReplace(dadosEnvio.FieldByName('total').AsString,
-              '.', ',', []))) + '\n\n';
+            // prefix
+            if (dadosEnvio.FieldByName('prefix').AsString = 'FAT-') then
+            begin
 
-            mensagem := mensagem +
-              '*ATENÇÃO: Abra sempre o link no navegador, é apos o pagamento so feche quando aparecer "Pagamento Aprovado"!*\n';
-            mensagem := mensagem + 'Link:\n';
-            mensagem := mensagem + 'https://portal.goopedir.com/invoice/' +
-              dadosEnvio.FieldByName('id').AsString + '/' +
-              dadosEnvio.FieldByName('hash').AsString + '\n\n';
+              mensagem := '*' + UpperCase(dadosEnvio.FieldByName('company')
+                .AsString) + '*\n\n';
+              mensagem := mensagem +
+                'Segue link para pagamento da sua fatura com vencimento dia *' +
+                copy(dadosEnvio.FieldByName('duedate').AsString, 9, 2) + '/' +
+                copy(dadosEnvio.FieldByName('duedate').AsString, 6, 2) + '/' +
+                copy(dadosEnvio.FieldByName('duedate').AsString, 0, 4) + '*.\n';
+              mensagem := mensagem + '*' + dadosEnvio.FieldByName('prefix')
+                .AsString + copy(dadosEnvio.FieldByName('duedate').AsString, 0,
+                4) + '/' + FormatFloat('000000',
+                dadosEnvio.FieldByName('number').AsInteger) + '* \n';
+              mensagem := mensagem + 'Valor R$: ' + FormatFloat('#0.00',
+                StrToFloat(StringReplace(dadosEnvio.FieldByName('total')
+                .AsString, '.', ',', []))) + '\n\n';
 
+              mensagem := mensagem +
+                '*ATENÇÃO: Abra sempre o link no navegador, é apos o pagamento so feche quando aparecer "Pagamento Aprovado"!*\n';
+              mensagem := mensagem + 'Link:\n';
+              mensagem := mensagem + 'https://portal.goopedir.com/invoice/' +
+                dadosEnvio.FieldByName('id').AsString + '/' +
+                dadosEnvio.FieldByName('hash').AsString + '\n\n';
+
+            end
+            else
+            begin
+              //
+              mensagem :=
+                'Segue link para pagamento das Taxas referente ao serviço do PIX\n\n';
+              mensagem := mensagem + 'https://portal.goopedir.com/invoice/' +
+                dadosEnvio.FieldByName('id').AsString + '/' +
+                dadosEnvio.FieldByName('hash').AsString + '\n\n';
+              mensagem := mensagem + 'Taxa R$: *' + FormatFloat('#0.00',
+                StrToFloat(StringReplace(dadosEnvio.FieldByName('total')
+                .AsString, '.', ',', []))) + '*\n';
+            end;
             mensagem := mensagem + 'Atenciosamente GooPedir.';
-
             telefone := '55' + dadosEnvio.FieldByName('phonenumber').AsString
               + '@c.us';
             try
+              // telefone := '554898111156@c.us';
               TInject1.send(telefone, mensagem);
             except
 
             end;
             // ShowMessage(mensagem);
-            iConfirmaEnvio.URL := 'https://goopedir.com/ws/v1/wpp/' +
-              dadosEnvio.FieldByName('id').AsString + '/a';
+            iConfirmaEnvio.URL := 'https://goopedir.com/ws/v1/wpp/' + dadosEnvio.FieldByName('id').AsString + '/a';
             // ShowMessage(iConfirmaEnvio.URL);
             iConfirmaEnvio.Execute;
             dadosEnvio.Next;
           end;
-          Application.Terminate;
+
         end;
         {
           dadosPIX.Close;
