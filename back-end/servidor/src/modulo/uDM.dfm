@@ -14,7 +14,6 @@ object dm: Tdm
     ResourceOptions.AssignedValues = [rvAutoReconnect]
     ResourceOptions.AutoReconnect = True
     LoginPrompt = False
-    OnError = SQLiteError
     Left = 368
     Top = 64
   end

@@ -75,6 +75,9 @@ type
     function SoNumero(fField: String): String;
     function UltimoCodigo(Tabela: String): Integer;
 
+    procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
+    function GenerateUUID: string;
+
   end;
 
 implementation
@@ -116,14 +119,14 @@ begin
 
   if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   begin
-//    QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
-//      253) + '", datahora = current_timestamp where id = ' +
-//      CodigoConexao.ToString;
-//    try
-//      QRY.ExecSQL;
-//    except
-//
-//    end;
+    // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+    // 253) + '", datahora = current_timestamp where id = ' +
+    // CodigoConexao.ToString;
+    // try
+    // QRY.ExecSQL;
+    // except
+    //
+    // end;
   end;
 
   // Writeln(SQL);
@@ -162,14 +165,14 @@ begin
 
   SQL := TStringlist.Create;
   Zerar;
-//  try
-//    CodigoConexao := GerarID('conexao', 'id');
-//  except
-//
-//  end;
-//
-//  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-//    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+  // try
+  // CodigoConexao := GerarID('conexao', 'id');
+  // except
+  //
+  // end;
+  //
+  // ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+  // CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
@@ -185,7 +188,7 @@ end;
 
 destructor TConexao.Destroy;
 begin
-//  ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
+  // ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
 
   DataModulo.Banco.Connected := False;
 
@@ -194,6 +197,66 @@ begin
   SQL.Free;
   FTimer.Free;
   inherited;
+end;
+
+procedure TConexao.EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
+var
+  JsonObjec: TJsonObject;
+  Chave, API, JSONBody: string;
+  URL: String;
+  iGlitchtip: iRequisicao;
+begin
+  iGlitchtip := iRequisicao.Create(nil);
+  JsonObjec := TJsonObject.Create;
+  // Extrai a chave e a URL da DSN
+  Chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
+  URL := Copy(DSN, pos('@', DSN) + 1, length(DSN));
+  URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
+  API := Copy(URL, pos('/', URL) + 1, length(URL));
+  URL := StringReplace(URL, '/' + API, '', []);
+
+  JSONBody := '';
+  JSONBody := JSONBody + '{';
+  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
+  JSONBody := JSONBody + '  "timestamp": "' +
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', Now) + '",';
+  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
+  JSONBody := JSONBody + '  "platform": "delphi",';
+  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
+  JSONBody := JSONBody + '  "exception": {';
+  JSONBody := JSONBody + '    "values": [';
+  JSONBody := JSONBody + '      {';
+  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
+  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
+  JSONBody := JSONBody + '      }';
+  JSONBody := JSONBody + '    ]';
+  JSONBody := JSONBody + '  },';
+  JSONBody := JSONBody + '  "tags": {';
+  JSONBody := JSONBody + '    "environment": "production",';
+  JSONBody := JSONBody + '    "user": "'+GetComputerName+'"';
+  JSONBody := JSONBody + '  }';
+  JSONBody := JSONBody + '}';
+  JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
+  JsonObjec.AddPair('autorizacao', Chave);
+  JsonObjec.AddPair('body', JSONBody);
+
+  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.BODY(JsonObjec);
+
+  try
+    iGlitchtip.Metodo := mPost;
+
+    iGlitchtip.Execute;
+    // ShowMessage(iGlitchtip.Retorno);
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage(E.Message);
+    end;
+
+  end;
+  iGlitchtip.Free;
 end;
 
 function TConexao.ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
@@ -281,6 +344,18 @@ begin
     Result := 0;
   end;
   Dados.Free;
+end;
+
+function TConexao.GenerateUUID: string;
+var
+  GUID: TGUID;
+begin
+  // Gera um novo GUID
+  if CreateGUID(GUID) = 0 then
+    // Converte o GUID para string no formato padrão
+    Result := GUIDToString(GUID)
+  else
+    Result := ''; // Retorna uma string vazia em caso de erro
 end;
 
 function TConexao.GenID(Campo: String): Integer;
@@ -481,10 +556,15 @@ procedure TConexao.GerarLog(Erro: String);
 var
   arq: TextFile;
   Requisicao: iRequisicao;
-  JSON: TJSONObject;
+  JSON: TJsonObject;
 begin
+
+
+
+EnviaGlitchtip('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',DataModulo.Banco.Params.Database,DataModulo.Banco.Params.Database,Erro);
+exit;
   try
-    JSON := TJSONObject.Create;
+    JSON := TJsonObject.Create;
     try
       // Configura o JSON com os valores
       JSON.AddPair('computer_name', GetComputerName);
@@ -711,15 +791,17 @@ begin
   UpdateLastActivityTime;
   QryUpdate := DataModulo.CriaQRY;
   try
-    Update := UpperCase(copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
+    Update := UpperCase(Copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
     if Update then
     begin
-      SqlUpdate := copy(SQL, 0, pos('SET', SQL) + 2) + ' modificado_site = 0 ' +
-        copy(SQL, pos('WHERE', SQL), length(SQL));
+      SqlUpdate := Copy(SQL, 0, pos('SET', SQL) + 2) + ' modificado_site = 0 ' +
+        Copy(SQL, pos('WHERE', SQL), length(SQL));
       QryUpdate := DataModulo.CriaQRY;
       QryUpdate.SQL.Add(SqlUpdate);
 
     end;
+    SQL := StringReplace(UpperCase(SQL),'CREATE TABLE', 'CREATE TABLE IF NOT EXISTS',[]);
+
 
     QRY := DataModulo.CriaQRY;
     Result := True;
@@ -772,7 +854,7 @@ begin
 
   if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   begin
-    QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+    QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
       253) + '", datahora = current_timestamp where id = ' +
       CodigoConexao.ToString;
     try
@@ -931,11 +1013,11 @@ end;
 
 procedure TLogThread1.Execute;
 var
-  JSON: TJSONObject;
+  JSON: TJsonObject;
   Requisicao: iRequisicao;
 begin
   try
-    JSON := TJSONObject.Create;
+    JSON := TJsonObject.Create;
     try
       // Configura o JSON com os valores
       JSON.AddPair('computer_name', FComputerName);

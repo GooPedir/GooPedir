@@ -33,8 +33,16 @@
     <Transaction>2025/03/07 20:21:03.000.443,C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\Pedido.pas</Transaction>
     <Transaction>2025/03/07 20:47:33.000.401,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\Pedido.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\PedidoControler.pas</Transaction>
     <Transaction>2025/03/07 20:47:39.000.052,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\PedidoControler.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\PedidoController.pas</Transaction>
-    <Transaction>2025/03/10 00:57:25.786,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
-    <Transaction>2025/03/10 00:57:31.539,C:\Projetos\GooPedir\GooPedir\back-end\servidor\uLogThread.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/10 00:57:25.000.786,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/10 00:57:31.000.539,C:\Projetos\GooPedir\GooPedir\back-end\servidor\uLogThread.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 19:09:41.000.878,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 19:09:58.000.427,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\uMicroServices.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 22:47:16.000.047,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 22:47:28.000.741,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\InserirUpdate.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 22:48:34.000.097,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\uInserirUpdate.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\InserirUpdate.pas</Transaction>
+    <Transaction>2025/03/11 23:07:00.000.483,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 23:07:12.000.615,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\uControlerProduto.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/03/11 23:23:08.000.164,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\uControllerSite.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="src"/>
@@ -43,6 +51,8 @@
     <File Path="src\controller\uCacheControl.pas"/>
     <File Path="src\controller\uControllCaches.pas"/>
     <File Path="src\controller\uDadosWhatsapp.pas"/>
+    <File Path="src\controller\uControlerProduto.pas"/>
+    <File Path="src\controller\uControllerSite.pas"/>
     <File Path="src\importacao"/>
     <File Path="src\importacao\uToPedindo.pas"/>
     <File Path="src\modulo"/>
@@ -50,10 +60,12 @@
     <File Path="src\modulo\cors.pas"/>
     <File Path="src\modulo\uDM.pas"/>
     <File Path="src\modulo\uDM.dfm"/>
+    <File Path="src\modulo\uMicroServices.pas"/>
     <File Path="src\modulos"/>
     <File Path="src\modulos\Controller"/>
     <File Path="src\modulos\Controller\PedidoController.pas"/>
     <File Path="src\modulos\Controller\PedidoSite.pas"/>
+    <File Path="src\modulos\Controller\uInserirUpdate.pas"/>
     <File Path="src\modulos\impressao"/>
     <File Path="src\modulos\impressao\imprimir.pas"/>
     <File Path="src\modulos\nfce"/>

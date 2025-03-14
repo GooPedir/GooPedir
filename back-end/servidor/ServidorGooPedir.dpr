@@ -7,7 +7,6 @@ uses
   util in 'src\util\util.pas',
   uDM in 'src\modulo\uDM.pas' {dm: TDataModule},
   token.autorizacao in 'src\token\token.autorizacao.pas',
-  conexao in 'src\modulo\conexao.pas',
   util.backup in 'src\util\util.backup.pas',
   Data.FireDACJSONReflect in 'src\other\Data.FireDACJSONReflect.pas',
   DataSet.Serialize.Config in 'src\other\DataSet.Serialize.Config.pas',
@@ -104,15 +103,21 @@ uses
   cors in 'src\modulo\cors.pas',
   uDadosWhatsapp in 'src\controller\uDadosWhatsapp.pas',
   PedidoController in 'src\modulos\Controller\PedidoController.pas',
-  uLogThread in 'uLogThread.pas';
+  uLogThread in 'uLogThread.pas',
+  uMicroServices in 'src\modulo\uMicroServices.pas',
+  conexao in 'src\modulo\conexao.pas',
+  uInserirUpdate in 'src\modulos\Controller\uInserirUpdate.pas',
+  uControlerProduto in 'src\controller\uControlerProduto.pas',
+  uControllerSite in 'src\controller\uControllerSite.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
-  Application.MainFormOnTaskbar := True;
+//  Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
 end.
+
 
 

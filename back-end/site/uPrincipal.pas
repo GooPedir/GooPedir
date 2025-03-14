@@ -1761,6 +1761,8 @@ begin
 
   RecebeuProdutos := True;
 
+  cImportaPedido.Checked := not FileExists('psGoopedir.exe') and not FileExists('ServicosGoopedir.exe');
+
 end;
 
 function TfrmPrincipal.getClientID: String;
@@ -3817,8 +3819,7 @@ begin
       while not MemoryTablePedidos.Eof do
       begin
         SAP := false;
-        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id')
-          .AsInteger);
+        Resultado := BuscaItems(UserID, MemoryTablePedidos.FieldByName('id').AsInteger);
         MemoryDadosItem.Close;
         MemoryDadosItem.LoadFromJSON(Resultado);
 
@@ -4070,9 +4071,7 @@ begin
 
               // Aki vai fazer a baixa
 
-              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/produto/' +
-                CodigoProd.ToString + '/' + MemoryDadosItem.FieldByName
-                ('qtd').AsString;
+              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/produto/' +CodigoProd.ToString + '/' + MemoryDadosItem.FieldByName('qtd').AsString;
               frmPrincipal.RequisicaoLocal.metodo := mPost;
               try
                 frmPrincipal.RequisicaoLocal.Execute;
@@ -4080,8 +4079,7 @@ begin
 
               end;
 
-              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/insulmo/' +
-                CodigoPedidoItem.ToString;
+              frmPrincipal.RequisicaoLocal.URL := 'v1/baixa/estoque/insulmo/' + CodigoPedidoItem.ToString;
               frmPrincipal.RequisicaoLocal.metodo := mPost;
               try
                 frmPrincipal.RequisicaoLocal.Execute;
@@ -4300,8 +4298,7 @@ begin
         // FRequestStatus
         // FRequestStatus.BASEURL := FRequestStatus.BASEURL+'v1/pedido/status/'+CodigoNovoPeiddo.ToString+'/'+StatusPedido.ToString+'/';
         try
-          FRequestStatus.URL := 'v1/pedido/status/' + CodigoNovoPeiddo.ToString
-            + '/' + StatusPedido.ToString + '/';
+          FRequestStatus.URL := 'v1/pedido/status/' + CodigoNovoPeiddo.ToString+ '/' + StatusPedido.ToString + '/';
           FRequestStatus.metodo := mPut;
           FRequestStatus.Execute;
         except

@@ -314,7 +314,7 @@ begin
     ('ped.origem, mesa, driver, tipoimp, impressora, pps.descricao, ped.nome, ped.codigo_cliente_endereco');
 
   conexao.SQL.Add('order by pp.codigo');
-//  showmessage1(conexao.SQL.Text);
+  // showmessage1(conexao.SQL.Text);
   Memory.LoadFromJSON(conexao.ConsultaSQL);
 
   if Memory.RecordCount > 0 then
@@ -628,6 +628,11 @@ begin
   conexao := TConexao.Create('imprimir');
   conexao.SQL.Add
     ('update impressao_pedido set data_impressao = current_date, hora_impressao = current_time, status = 1 where id_pedido = :id');
+  conexao.Parametros('id', Req.Params['codigo']);
+  conexao.ExecuteSQL;
+
+  conexao.SQL.Add
+    ('update pedido set status = 1 where codigo = :id and status = -1');
   conexao.Parametros('id', Req.Params['codigo']);
   conexao.ExecuteSQL;
 

@@ -5,7 +5,7 @@ interface
 uses
   IdComponent, IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase,
   IdFTP, System.Zip, ShellAPI, Registry, System.Classes, FMX.StdCtrls,
-  Vcl.StdCtrls, uLogThread;
+  Vcl.StdCtrls;
 
 type
   TCallback = procedure of object;
@@ -95,7 +95,7 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-    LogThread('AtualizarBanco','Inicia');
+
       IniciaAtualizacao;
       TThread.Synchronize(TThread.CurrentThread,
         procedure
@@ -104,7 +104,7 @@ begin
           if Assigned(AposConcluirAtualizacao) then
           begin
             AposConcluirAtualizacao;
-            LogThread('AtualizarBanco','Finaliza');
+
           end;
 
           StatusAtualizacao := 1;
@@ -186,7 +186,6 @@ begin
   conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
   conexao.ExecuteSQL;
   conexao.Free;
-
 
   if not VerificaSQL then
   begin
@@ -1054,6 +1053,13 @@ begin
     91:
       begin
         // alter table caixa add id_site integer;
+        ExecultaSQL('alter table produto add userid integer;');
+      end;
+      92: begin
+        ExecultaSQL('create table index_pedido (id integer, primary key(id), referencia varchar(255));');
+      end;
+      93: begin
+      ExecultaSQL('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
       end;
 
     99999999:
@@ -1069,7 +1075,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '90';
+  Result := '93';
 end;
 
 end.

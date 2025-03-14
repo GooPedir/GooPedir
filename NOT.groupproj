@@ -24,6 +24,15 @@
         <Projects Include="back-end\impressao-v2\comanda\Comanda.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\servicos\ServicosGoopedir.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\produto\ProdutoGoopedir.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="back-end\pedido\psGoopedir.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -95,14 +104,41 @@
     <Target Name="Comanda:Make">
         <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ServicosGoopedir">
+        <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj"/>
+    </Target>
+    <Target Name="ServicosGoopedir:Clean">
+        <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ServicosGoopedir:Make">
+        <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ProdutoGoopedir">
+        <MSBuild Projects="back-end\produto\ProdutoGoopedir.dproj"/>
+    </Target>
+    <Target Name="ProdutoGoopedir:Clean">
+        <MSBuild Projects="back-end\produto\ProdutoGoopedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProdutoGoopedir:Make">
+        <MSBuild Projects="back-end\produto\ProdutoGoopedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="psGoopedir">
+        <MSBuild Projects="back-end\pedido\psGoopedir.dproj"/>
+    </Target>
+    <Target Name="psGoopedir:Clean">
+        <MSBuild Projects="back-end\pedido\psGoopedir.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="psGoopedir:Make">
+        <MSBuild Projects="back-end\pedido\psGoopedir.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;Integracao;ImpressaoGooPedir;VersionBuild;Comanda"/>
+        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;Integracao;ImpressaoGooPedir;VersionBuild;Comanda;ServicosGoopedir;ProdutoGoopedir;psGoopedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;Integracao:Clean;ImpressaoGooPedir:Clean;VersionBuild:Clean;Comanda:Clean"/>
+        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;Integracao:Clean;ImpressaoGooPedir:Clean;VersionBuild:Clean;Comanda:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;Integracao:Make;ImpressaoGooPedir:Make;VersionBuild:Make;Comanda:Make"/>
+        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;Integracao:Make;ImpressaoGooPedir:Make;VersionBuild:Make;Comanda:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

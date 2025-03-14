@@ -6,7 +6,8 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
-  System.Variants, conexao, uCacheControl, uControllCaches, uLogThread;
+  System.Variants, conexao, uCacheControl, uControllCaches, uLogThread,
+  System.Generics.Collections, System.DateUtils;
 
 type
   TValoresPizza = record
@@ -16,8 +17,7 @@ type
   end;
 
 procedure Registry;
-function InserirUpdate(tabela, User: String;
-  ArrayCampos, ArrayValores: Array of String): Integer;
+procedure AtualizaStatus(Pedido, Status: Integer);
 function GetBuildInfo: string;
 function TransformaData(Data: String): TDate;
 function TransformaHora(Hora: String): TTime;
@@ -56,6 +56,10 @@ procedure EnviarCupom;
 procedure LimparCacheProduto;
 procedure LimparPastas(const Caminho: string);
 
+function UnionPedio(Tabela, Tipo: String): String;
+function GerarArrayMesesAno(const DataInicial, DataFinal: TDateTime)
+  : TArray<string>;
+
 
 
 
@@ -76,6 +80,60 @@ uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite,
   ADRIFood.Component;
+
+procedure AtualizaStatus(Pedido, Status: Integer);
+var
+  conexao: Tconexao;
+  StatusDescricao: String;
+  CodigoSite: Integer;
+
+  Requisicao: iRequisicao;
+  ID: Integer;
+begin
+  conexao := Tconexao.Create('Util');
+  conexao.SQL.Add('update pedido set status = :status where codigo = :codigo');
+  conexao.Parametros('codigo', Pedido);
+  conexao.Parametros('status', Status);
+  conexao.ExecuteSQL;
+
+  conexao.SQL.Add('delete from pedido_motoboy where codigo = :codigo');
+  conexao.Parametros('codigo', Pedido);
+  conexao.ExecuteSQL;
+
+  ID := conexao.GerarID('pedido_status', 'id');
+  conexao.SQL.Add
+    ('insert into pedido_status (id,id_pedido,id_status,horario) values (:id,:pedido,:status,current_timestamp())');
+  conexao.Parametros('pedido', Pedido);
+  conexao.Parametros('status', Status);
+  conexao.Parametros('id', ID);
+  conexao.ExecuteSQL;
+
+  try
+    conexao.SQL.Add('select * from pedido where codigo = :codigo');
+    conexao.Parametros('codigo', Pedido);
+    CodigoSite := conexao.FieldByName('id_pedido_site');
+  except
+    CodigoSite := 0;
+  end;
+
+  conexao.SQL.Add('SELECT * FROM status_pedido where id = ' + Status.ToString);
+  StatusDescricao := conexao.FieldByName('descricao');
+
+  if CodigoSite > 0 then
+  begin
+    try
+      Requisicao := iRequisicao.Create(nil);
+      Requisicao.BaseURL :=
+        'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
+        CodigoSite.ToString + '&status=' + StatusDescricao;
+      Requisicao.Execute;
+    except
+
+    end;
+    Requisicao.Free;
+  end;
+  conexao.Free;
+end;
 
 procedure AtualizaValorPedido(Codigo: Integer);
 var
@@ -1161,6 +1219,10 @@ var
   HoraFinal: TTime;
   Tipo: String;
   Faturado: String;
+  SQL: String;
+  MesesAno: TArray<string>;
+  MesAno: string;
+  Dados: TFDMemTable;
 begin
   try
     DataInicial := TransformaData(Req.Params['dataini']);
@@ -1202,86 +1264,30 @@ begin
   end;
 
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('select p.troco,');
-  conexao.SQL.Add('p.codigo as codigo, p.id_caixa as id_caixa,');
-  conexao.SQL.Add('codigo_pedido_dia as codigo_dia,');
-  conexao.SQL.Add('codigo_cliente,');
-  // conexao.SQL.Add('(select nome from cliente where codigo = codigo_cliente) as cliente,');
-  // conexao.SQL.Add('CASE');
-  // conexao.SQL.Add(' WHEN (select nome from cliente where codigo = codigo_cliente) = '+QuotedStr('BALCÃO'));
-  // conexao.SQL.Add(' THEN p.nome');
-  // conexao.SQL.Add(' ELSE (select nome from cliente where codigo = codigo_cliente)');
-  // conexao.SQL.Add('END as cliente,');
+  Dados := TFDMemTable.Create(nil);
+  MesesAno := GerarArrayMesesAno(DataInicial, DataFinal);
+  for MesAno in MesesAno do
+  begin
+    SQL := UnionPedio('pedido_' + MesAno, Tipo);
+    // SQL := SQL + ' order by data desc,codigo_dia';
+    conexao.SQL.Add(SQL);
+    conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
+    conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
+    // conexao.Parametros('tipo', Tipo);
 
-  conexao.SQL.Add('CASE');
-  conexao.SQL.Add
-    (' WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
-    QuotedStr('BALCÃO') + ' AND p.nome <> ''''');
-  conexao.SQL.Add(' THEN p.nome');
-  conexao.SQL.Add
-    (' ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)');
-  conexao.SQL.Add('END AS cliente,');
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
 
-  conexao.SQL.Add
-    ('(select celular from cliente where codigo = codigo_cliente) as celular,');
-  conexao.SQL.Add
-    ('(select cpf from cliente where codigo = codigo_cliente) as documento,');
-  conexao.SQL.Add('codigo_cliente_endereco as cliente_endereco,');
-  conexao.SQL.Add('(SELECT ');
-  conexao.SQL.Add('upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +
-    QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +
-    QuotedStr(' ] ') + ')) ');
-  conexao.SQL.Add
-    ('FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,');
-  conexao.SQL.Add('DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +
-    ') as data,');
-  conexao.SQL.Add('(hora_pedido) as hora,');
-  conexao.SQL.Add('cast(timediff(current_timestamp,concat(data_pedido,' +
-    QuotedStr(' ') + ',hora_pedido)) as char) as tempo,');
-  conexao.SQL.Add('p.status,');
-  conexao.SQL.Add
-    ('(select descricao from status_pedido where id = p.status) status_descricao,');
-  conexao.SQL.Add('REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as valor,');
-  conexao.SQL.Add('REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as taxa,');
-  conexao.SQL.Add('REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as desconto,');
-  conexao.SQL.Add('REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as total,');
-  conexao.SQL.Add('tipo_pagamento as pagamento,');
-  conexao.SQL.Add('motivo_cancelamento,');
-  conexao.SQL.Add
-    ('pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,');
-  conexao.SQL.Add('origem,');
-  conexao.SQL.Add('CASE');
-  conexao.SQL.Add('    WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"');
-  conexao.SQL.Add('     WHEN id_ficha > 0 THEN "Ficha"');
-  conexao.SQL.Add('    ELSE "Delivery"');
-  conexao.SQL.Add('    END as tipo,');
-  conexao.SQL.Add('upper(m.nome) as motoboy,');
-  conexao.SQL.Add('p.id_ifood,');
-  conexao.SQL.Add('p.status_ifood,');
-  conexao.SQL.Add('p.status_ifood_descricao,');
-  conexao.SQL.Add('p.order_ifood,');
-  conexao.SQL.Add(' p.desc_desconto_ifood,');
-  conexao.SQL.Add(' p.estimada_ifood as estimada_ifood,');
-  conexao.SQL.Add(' p.agendada_ifood as agendada_ifood,');
-  conexao.SQL.Add(' p.order_ifood,');
-  conexao.SQL.Add
-    (' (select descricao from tipo_pagamento where codigo = p.tipo_pagamento) as pagamento');
-  conexao.SQL.Add('from pedido as p');
-  conexao.SQL.Add
-    ('left join pedido_motoboy as pm on pm.codigo_pedido = p.codigo');
-  conexao.SQL.Add('left join motoboy as m on m.codigo = pm.codigo_motoboy');
-  conexao.SQL.Add
-    ('where data_pedido between :inicial and :final and p.status > -1 and origem in ('
-    + Tipo + ')');
-  conexao.SQL.Add('order by data_pedido desc,codigo_pedido_dia limit 999');
+  end;
+
+  SQL := UnionPedio('pedido', Tipo);
+  // SQL := SQL + ' order by data desc,codigo_dia';
+  conexao.SQL.Add(SQL);
   conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
   conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-  // //showmessage1(conexao.SQL.Text);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  // conexao.Parametros('tipo', Tipo);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  Res.Send<TJSONArray>(Dados.ToJSONArray());
 
   conexao.Free;
 end;
@@ -3034,6 +3040,7 @@ Next: TProc);
 var
   conexao: Tconexao;
   Pedido: Integer;
+  Origem: String;
 begin
   try
     Pedido := Req.Params['pedido'].ToInteger;
@@ -3043,6 +3050,16 @@ begin
   end;
 
   conexao := Tconexao.Create('Util');
+  conexao.SQL.Add('select * from index_pedido where id = :codigo');
+  conexao.Parametros('codigo', Pedido);
+  Origem := conexao.FieldByName('referencia');
+  if Origem = '0' then
+    Origem := '';
+
+  if Origem <> '' then
+  begin
+    Origem := '_' + Origem;
+  end;
 
   conexao.SQL.Add
     ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
@@ -3052,11 +3069,11 @@ begin
     ('(select sum(quantidade) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga,');
   conexao.SQL.Add
     ('(select sum(valor) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga_tot');
-  conexao.SQL.Add('FROM pedido_produtos as pp');
+  conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  conexao.SQL.Add
-    ('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> '
-    + QuotedStr(' ') + '');
+  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+    ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
+    QuotedStr(' ') + '');
   conexao.SQL.Add('where pp.codigo_pedido = :codigo');
   conexao.SQL.Add('group by pp.codigo');
   conexao.Parametros('codigo', Pedido);
@@ -3251,13 +3268,13 @@ procedure DoPutPedidoStatus(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
   conexao: Tconexao;
-  Pedido: Integer;
-  Status: Integer;
   StatusDescricao: String;
   CodigoSite: Integer;
 
   Requisicao: iRequisicao;
   ID: Integer;
+  Pedido: Integer;
+  Status: Integer;
 
 begin
   try
@@ -3273,50 +3290,8 @@ begin
     Res.Send('Status Não Informado').Status(500);
     exit;
   end;
+  AtualizaStatus(Pedido, Status);
 
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('update pedido set status = :status where codigo = :codigo');
-  conexao.Parametros('codigo', Pedido);
-  conexao.Parametros('status', Status);
-  conexao.ExecuteSQL;
-
-  conexao.SQL.Add('delete from pedido_motoboy where codigo = :codigo');
-  conexao.Parametros('codigo', Pedido);
-  conexao.ExecuteSQL;
-
-  ID := conexao.GerarID('pedido_status', 'id');
-  conexao.SQL.Add
-    ('insert into pedido_status (id,id_pedido,id_status,horario) values (:id,:pedido,:status,current_timestamp())');
-  conexao.Parametros('pedido', Pedido);
-  conexao.Parametros('status', Status);
-  conexao.Parametros('id', ID);
-  conexao.ExecuteSQL;
-
-  try
-    conexao.SQL.Add('select * from pedido where codigo = :codigo');
-    conexao.Parametros('codigo', Pedido);
-    CodigoSite := conexao.FieldByName('id_pedido_site');
-  except
-    CodigoSite := 0;
-  end;
-
-  conexao.SQL.Add('SELECT * FROM status_pedido where id = ' + Status.ToString);
-  StatusDescricao := conexao.FieldByName('descricao');
-
-  if CodigoSite > 0 then
-  begin
-    try
-      Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL :=
-        'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
-        CodigoSite.ToString + '&status=' + StatusDescricao;
-      Requisicao.Execute;
-    except
-
-    end;
-    Requisicao.Free;
-  end;
-  conexao.Free;
 end;
 
 procedure DoGetTodosCliente(Req: THorseRequest; Res: THorseResponse;
@@ -3364,18 +3339,18 @@ procedure DoGetConsultaTodos(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
   conexao: Tconexao;
-  tabela: String;
+  Tabela: String;
 begin
 
   try
-    tabela := Req.Params['tabela'];
+    Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
     exit;
   end;
 
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('SELECT * FROM ' + tabela);
+  conexao.SQL.Add('SELECT * FROM ' + Tabela);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -3459,7 +3434,7 @@ Next: TProc);
 var
   conexao: Tconexao;
   Dados: TFDMemTable;
-  tabela: String;
+  Tabela: String;
   CampoID: String;
   I: Integer;
   ID: Integer;
@@ -3471,7 +3446,7 @@ var
 begin
 
   try
-    tabela := Req.Params['tabela'];
+    Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
     exit;
@@ -3496,7 +3471,7 @@ begin
   Insert := Dados.FieldByName(CampoID).AsInteger = 0;
 
   if Insert then
-    ID := conexao.GerarID(tabela, CampoID)
+    ID := conexao.GerarID(Tabela, CampoID)
   else
     ID := Dados.FieldByName(CampoID).AsInteger;
 
@@ -3544,14 +3519,14 @@ begin
   if Insert then
   begin
     // Insert
-    SQLInsert := 'insert into ' + tabela + ' (' + SQLInsert + ') values (' +
+    SQLInsert := 'insert into ' + Tabela + ' (' + SQLInsert + ') values (' +
       SQLInsertValues + ')';
     conexao.SQL.Add(SQLInsert);
   end
   else
   begin
     // Update
-    SQLUpdate := 'update ' + tabela + ' set ' + SQLUpdate + ' where ' + CampoID
+    SQLUpdate := 'update ' + Tabela + ' set ' + SQLUpdate + ' where ' + CampoID
       + ' = :' + CampoID;
     conexao.SQL.Add(SQLUpdate);
     // Writeln(SQLUpdate);
@@ -3894,9 +3869,8 @@ begin
   while not Dados.Eof do
   begin
     // codigo
-
     conexao.SQL.Add
-      ('update impressao_pedido_produto set status = 0 where id_pedido = :codigo and data_impressao is null');
+      ('update impressao_pedido_produto set status = 0, data_solicitacao = curdate(), hora_solicitacao = curtime() where id_pedido = :codigo and data_impressao is null');
     conexao.Parametros('codigo', Dados.FieldByName('codigo').AsString);
     conexao.ExecuteSQL;
     Dados.Next;
@@ -4085,6 +4059,7 @@ var
   Dados: TFDMemTable;
   ID: Integer;
   Usuario: Integer;
+  Origem: String;
 begin
 
   try
@@ -4118,8 +4093,18 @@ begin
   end;
 
   Dados := TFDMemTable.Create(nil);
-  // conexao.SQL.Add('SELECT id_ficha, desc_ficha, valor_total_pedido, cpf, nome, id_ficha, codigo_pedido_dia, desc_ficha FROM pedido where codigo = :codigo');
-  conexao.SQL.Add('SELECT * FROM pedido where codigo = :codigo');
+  conexao.SQL.Add('select * from index_pedido where id = :codigo');
+  conexao.Parametros('codigo', ID);
+  Origem := conexao.FieldByName('referencia');
+  if Origem = '0' then
+    Origem := '';
+
+  if Origem <> '' then
+  begin
+    Origem := '_' + Origem;
+  end;
+
+  conexao.SQL.Add('SELECT * FROM pedido' + Origem + ' where codigo = :codigo');
   conexao.Parametros('codigo', ID);
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -4503,14 +4488,14 @@ Next: TProc);
 var
   conexao: Tconexao;
   ID: Integer;
-  tabela: String;
+  Tabela: String;
   Campos: String;
   Condicao: String;
   OrderBy: String;
 begin
 
   try
-    tabela := Req.Params['tabela'];
+    Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
     exit;
@@ -4537,7 +4522,7 @@ begin
   end;
 
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('select ' + Campos + ' from ' + tabela + ' where 1 = 1 ' +
+  conexao.SQL.Add('select ' + Campos + ' from ' + Tabela + ' where 1 = 1 ' +
     Condicao + OrderBy);
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -4597,6 +4582,7 @@ procedure DoGetVersao(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 
 begin
+  Res.Send('');
   // conexao := Tconexao.Create('Util');
   // Dados := TFDMemTable.Create(nil);
   //
@@ -6506,13 +6492,13 @@ end;
 procedure DoGetGerador(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: Tconexao;
-  tabela: String;
+  Tabela: String;
   Campo: String;
   Dados: TFDMemTable;
   Valor: Integer;
 begin
   try
-    tabela := Req.Params['tabela'];
+    Tabela := Req.Params['tabela'];
   except
     exit;
   end;
@@ -6526,11 +6512,11 @@ begin
 
   conexao.SQL.Add
     ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
-  conexao.Parametros('tabela', tabela);
+  conexao.Parametros('tabela', Tabela);
   conexao.ExecuteSQL;
 
   conexao.SQL.Add('select * from geradores where tabela = :tabela');
-  conexao.Parametros('tabela', tabela);
+  conexao.Parametros('tabela', Tabela);
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
   if Dados.RecordCount = 1 then
@@ -6542,14 +6528,14 @@ begin
     // conexao.SQL.Add('select max(' + Campo + ') as codigo, 0 as zero from '+ tabela);
 
     try
-      Valor := conexao.GerarID(tabela, Campo);
+      Valor := conexao.GerarID(Tabela, Campo);
     except
       Valor := 99;
     end;
 
     conexao.SQL.Add
       ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
-    conexao.Parametros('tabela', tabela);
+    conexao.Parametros('tabela', Tabela);
     conexao.Parametros('sequencial', Valor);
     conexao.ExecuteSQL;
   end;
@@ -7066,9 +7052,17 @@ Next: TProc);
 var
   Pedido: Integer;
   conexao: Tconexao;
+  mesa: Integer;
 begin
+  try
+    mesa := Req.Params['mesa'].ToInteger;
+  except
+    mesa := 0;
+  end;
+
   conexao := Tconexao.Create('Util');
-  Pedido := NovoPedido(conexao.GerarID('pedido', 'codigo'), 0, conexao.CriaQRY);
+  Pedido := NovoPedido(conexao.GerarID('pedido', 'codigo'), mesa,
+    conexao.CriaQRY);
   conexao.Free;
   Res.Send('{"codigo":' + Pedido.ToString + '}');
 
@@ -7636,6 +7630,7 @@ begin
 
   THorse.Get('v1/codigo/pedido/dia', DoGetCodigoPedidoDia);
   THorse.Get('v1/codigo/pedido', DoGetCodigoPedido);
+  THorse.Get('v1/codigo/pedido/:mesa', DoGetCodigoPedido);
 
   THorse.Post('v1/mensagem/:dia/:celular', DoPostMensagem);
 
@@ -8541,70 +8536,7 @@ begin
   // Ou você pode lançar uma exceção ou definir uma mensagem de erro
 end;
 
-function InserirUpdate(tabela, User: String;
-ArrayCampos, ArrayValores: Array of String): Integer;
-var
-  QRY: TFDQuery;
-  Inserir: Boolean;
 
-  Campos: String;
-  Parametros: String;
-  I: Integer;
-
-  SQL: String;
-
-  Montado: String;
-  Requisicao: iRequisicao;
-  Valor: String;
-
-begin
-
-  Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
-
-  Requisicao.URL := 'insert/' + tabela + '/' + User + '/a';
-  Montado := '';
-
-  for I := 0 to length(ArrayCampos) - 1 do
-  begin
-    Valor := ArrayValores[I];
-
-    try
-      strtofloat(Valor);
-      Valor := StringReplace(Valor, ',', '.', [rfReplaceAll]);
-    except
-
-    end;
-
-    if I = 0 then
-    begin
-      Montado := '"' + ArrayCampos[I] + '":"' + Valor + '"';
-    end
-    else
-    begin
-      Montado := Montado + ',"' + ArrayCampos[I] + '":"' + Valor + '"';
-    end;
-  end;
-  Montado := '{' + Montado + '}';
-  Montado := StringReplace(Montado, '#$A', '', [rfReplaceAll]);
-  Montado := StringReplace(Montado, #$A, '', [rfReplaceAll]);
-  Montado := StringReplace(Montado, #$D, '', [rfReplaceAll]);
-
-  Requisicao.Body(Montado);
-
-  Requisicao.Metodo := mPost;
-  try
-    Requisicao.TempoExpiracao := 15 * 1000;
-    Requisicao.Execute;
-
-    Result := StrToInt(Requisicao.retorno);
-
-  except
-    Result := 0;
-
-  end;
-  Requisicao.Free;
-end;
 //
 // function EnviaProduto(Codigo: Integer): Integer;
 // var
@@ -9981,6 +9913,114 @@ begin
 
   QRY.Free;
   Result := CodigoPedido;
+end;
+
+function UnionPedio(Tabela, Tipo: String): String;
+var
+  SQL: String;
+begin
+  SQL := ' select p.troco,';
+  SQL := SQL + ' p.codigo as codigo, p.id_caixa as id_caixa,';
+  SQL := SQL + ' codigo_pedido_dia as codigo_dia,';
+  SQL := SQL + ' codigo_cliente,';
+  SQL := SQL + ' CASE';
+  SQL := SQL +
+    '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
+    QuotedStr('BALCÃO') + ' AND p.nome <> ''''';
+  SQL := SQL + '  THEN p.nome';
+  SQL := SQL +
+    '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
+  SQL := SQL + ' END AS cliente,';
+  SQL := SQL +
+    ' (select celular from cliente where codigo = codigo_cliente) as celular,';
+  SQL := SQL +
+    ' (select cpf from cliente where codigo = codigo_cliente) as documento,';
+  SQL := SQL + ' codigo_cliente_endereco as cliente_endereco,';
+  SQL := SQL + ' (SELECT ';
+  SQL := SQL + ' upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +
+    QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +
+    QuotedStr(' ] ') + ')) ';
+  SQL := SQL +
+    ' FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,';
+  SQL := SQL + ' DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +
+    ') as data,';
+  SQL := SQL + ' (hora_pedido) as hora,';
+  SQL := SQL + ' cast(timediff(current_timestamp,concat(data_pedido,' +
+    QuotedStr(' ') + ',hora_pedido)) as char) as tempo,';
+  SQL := SQL + ' p.status,';
+  SQL := SQL +
+    ' (select descricao from status_pedido where id = p.status) status_descricao,';
+  SQL := SQL + ' REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' +
+    QuotedStr(',') + ') as valor,';
+  SQL := SQL + ' REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' +
+    QuotedStr(',') + ') as taxa,';
+  SQL := SQL + ' REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' +
+    QuotedStr(',') + ') as desconto,';
+  SQL := SQL + ' REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' +
+    QuotedStr(',') + ') as total,';
+  SQL := SQL + ' tipo_pagamento as pagamento,';
+  SQL := SQL + ' motivo_cancelamento,';
+  SQL := SQL +
+    ' pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,';
+  SQL := SQL + ' origem,';
+  SQL := SQL + ' CASE';
+  SQL := SQL + '     WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"';
+  SQL := SQL + '      WHEN id_ficha > 0 THEN "Ficha"';
+  SQL := SQL + '     ELSE "Delivery"';
+  SQL := SQL + '     END as tipo,';
+  SQL := SQL + ' upper(m.nome) as motoboy,';
+  SQL := SQL + ' p.id_ifood,';
+  SQL := SQL + ' p.status_ifood,';
+  SQL := SQL + ' p.status_ifood_descricao,';
+  SQL := SQL + ' p.order_ifood,';
+  SQL := SQL + '  p.desc_desconto_ifood,';
+  SQL := SQL + '  p.estimada_ifood as estimada_ifood,';
+  SQL := SQL + '  p.agendada_ifood as agendada_ifood,';
+  SQL := SQL + '  p.order_ifood,';
+  SQL := SQL +
+    '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento) as pagamento';
+  SQL := SQL + ' from ' + Tabela + ' as p';
+  SQL := SQL + ' left join pedido_motoboy as pm on pm.codigo_pedido = p.codigo';
+  SQL := SQL + ' left join motoboy as m on m.codigo = pm.codigo_motoboy';
+  SQL := SQL +
+    ' where data_pedido between :inicial and :final and p.status > -1 and origem in ('
+    + Tipo + ')';
+  // SQL := SQL + ' order by data_pedido desc,codigo_pedido_dia';
+  Result := SQL;
+end;
+
+function GerarArrayMesesAno(const DataInicial, DataFinal: TDateTime)
+  : TArray<string>;
+var
+  DataAtual, DataAtualSemDia: TDateTime;
+  AnoMes, AnoMesAtual: string;
+  ListaMesesAno: TList<string>;
+begin
+  ListaMesesAno := TList<string>.Create;
+  try
+    DataAtual := StartOfTheMonth(DataInicial);
+    // Começa no primeiro dia do mês da data inicial
+    DataAtualSemDia := StartOfTheMonth(Now);
+    // Obtém o primeiro dia do mês atual
+
+    while DataAtual <= DataFinal do
+    begin
+      AnoMes := FormatDateTime('yyyy_mm', DataAtual);
+      // Formata a data como 'yyyy_mm'
+      AnoMesAtual := FormatDateTime('yyyy_mm', DataAtualSemDia);
+      // Formata o mês/ano atual
+
+      // Adiciona ao array apenas se não for o mês/ano atual e não estiver duplicado
+      if (AnoMes <> AnoMesAtual) and (not ListaMesesAno.Contains(AnoMes)) then
+        ListaMesesAno.Add(AnoMes);
+
+      DataAtual := IncMonth(DataAtual, 1); // Avança para o próximo mês
+    end;
+
+    Result := ListaMesesAno.ToArray; // Converte a lista para um array
+  finally
+    ListaMesesAno.Free;
+  end;
 end;
 
 end.

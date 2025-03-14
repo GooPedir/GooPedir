@@ -3,7 +3,7 @@ unit uDM;
 interface
 
 uses
-  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.MySQL,
   FireDAC.Phys.MySQLDef, FireDAC.ConsoleUI.Wait, Data.DB, FireDAC.Comp.Client,
@@ -20,8 +20,6 @@ type
     FDPhysFBDriverLink1: TFDPhysFBDriverLink;
     Banco: TFDConnection;
     dados: TFDMemTable;
-    procedure SQLiteError(ASender, AInitiator: TObject;
-      var AException: Exception);
     procedure DataModuleCreate(Sender: TObject);
 
   private
@@ -35,6 +33,7 @@ type
 
     // SQlite Conversao
     function CriaQryConversao: TFDQuery;
+    function PathExe: String;
 
   var
     EmUso: Boolean;
@@ -53,16 +52,11 @@ implementation
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
-uses uMain;
+uses  System.SysUtils, Vcl.Forms;
 {$R *.dfm}
 { Tdm }
 
-procedure Tdm.SQLiteError(ASender, AInitiator: TObject;
-  var AException: Exception);
-begin
-  Writeln(datetostr(date) + ' - ' + timetostr(time) +
-    ' : Erro na conexão com a base de dados -> ' + AException.Message);
-end;
+
 
 
 function Tdm.CriaQry: TFDQuery;
@@ -97,7 +91,7 @@ begin
     Banco.Params.LoadFromFile('configuracao\Confi.dados');
   end
   else begin
-    ForceDirectories(frmServidor.PathExe+'configuracao');
+    ForceDirectories(PathExe+'configuracao');
     Banco.Params.SaveToFile('configuracao\Confi.dados');
   end;
     Banco.Params.Values['CharacterSet'] := 'utf8mb4';
@@ -128,6 +122,11 @@ begin
     Query.Free;
   end;
 
+end;
+
+function Tdm.PathExe: String;
+begin
+ Result := ExtractFilePath(Application.ExeName);
 end;
 
 end.

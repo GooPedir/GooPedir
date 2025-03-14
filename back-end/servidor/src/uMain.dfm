@@ -3,7 +3,7 @@ object frmServidor: TfrmServidor
   Top = 0
   Caption = 'frmServidor'
   ClientHeight = 717
-  ClientWidth = 1037
+  ClientWidth = 1048
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -38,6 +38,14 @@ object frmServidor: TfrmServidor
     Lines.Strings = (
       'memLog')
     TabOrder = 2
+  end
+  object Button1: TButton
+    Left = 512
+    Top = 408
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 3
   end
   object TrayIcon1: TTrayIcon
     Animate = True
@@ -372,6 +380,8 @@ object frmServidor: TfrmServidor
   object PopupMenu1: TPopupMenu
     Left = 744
     Top = 288
+    object mHoraAbertura: TMenuItem
+    end
     object pIdiFood: TMenuItem
       OnClick = pIdiFoodClick
     end
@@ -662,12 +672,6 @@ object frmServidor: TfrmServidor
       FieldName = 'base64'
     end
   end
-  object tAtualizaProcessos: TTimer
-    Interval = 60000
-    OnTimer = tAtualizaProcessosTimer
-    Left = 744
-    Top = 512
-  end
   object EventNFC: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
@@ -762,5 +766,11 @@ object frmServidor: TfrmServidor
     DataSet = dataSetMerchants2
     Left = 48
     Top = 424
+  end
+  object Timer1: TTimer
+    Interval = 600000000
+    OnTimer = Timer1Timer
+    Left = 904
+    Top = 184
   end
 end

@@ -1,0 +1,74 @@
+unit uPedidoSite;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uRequisicao, Vcl.ExtCtrls, System.JSON,
+  Vcl.StdCtrls;
+
+type
+  TfrmPedidoSite = class(TForm)
+    ReqPedidos: iRequisicao;
+    Timer1: TTimer;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+    procedure getPedidos;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPedidoSite: TfrmPedidoSite;
+
+implementation
+
+{$R *.dfm}
+{ TfrmPedidoSite }
+
+procedure TfrmPedidoSite.Button1Click(Sender: TObject);
+begin
+  getPedidos;
+end;
+
+procedure TfrmPedidoSite.getPedidos;
+var
+
+  JSONArray: TJSONArray;
+  JSONValue: TJSONValue;
+  JSONObject: TJSONObject;
+  i: Integer;
+begin
+  ReqPedidos.Execute;
+
+  JSONArray := TJSONObject.ParseJSONValue(ReqPedidos.Retorno) as TJSONArray;
+
+  try
+    // Verifica se o JSONArray não é nulo
+    if Assigned(JSONArray) then
+    begin
+      // Itera sobre cada item do array
+      for i := 0 to JSONArray.Count - 1 do
+      begin
+        // Obtém o objeto JSON atual
+        JSONValue := JSONArray.Items[i];
+        if JSONValue is TJSONObject then
+        begin
+          JSONObject := JSONValue as TJSONObject;
+
+          // Acessa o valor do campo "id"
+          Writeln('ID do Pedido: ' + JSONObject.GetValue<string>('id'));
+        end;
+      end;
+    end;
+  finally
+    // Libera a memória alocada para o JSONArray
+    JSONArray.Free;
+  end;
+
+end;
+
+end.

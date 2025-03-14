@@ -324,6 +324,8 @@ type
       Valor: Real);
 
     function GetComputerName: string;
+        procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
+    function GenerateUUID: string;
   end;
 
 var
@@ -3273,6 +3275,11 @@ begin
 
 end;
 
+function TfrmACBrNFe.GenerateUUID: string;
+begin
+
+end;
+
 procedure TfrmACBrNFe.GerarContabil;
 var
   iReq: iRequisicao;
@@ -3687,6 +3694,12 @@ begin
   // Pede confirmacao de leitura do email
   ACBrMail1.UseThread := False; // Aguarda Envio do Email(nao usa thread)
   ACBrMail1.FromName := 'Projeto ACBr - ACBrNFe';
+end;
+
+procedure TfrmACBrNFe.EnviaGlitchtip(DSN, Tipo, Identificacao,
+  Mensagem: String);
+begin
+
 end;
 
 procedure TfrmACBrNFe.EnviarNotaFiscal(CNPJ, Data, Hora, Chave, Caminho: String;

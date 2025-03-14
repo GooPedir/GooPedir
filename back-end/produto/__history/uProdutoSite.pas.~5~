@@ -1,0 +1,124 @@
+unit uProdutoSite;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,uControllerSite,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao, uInserirUpdate,
+  FireDAC.Comp.Client;
+
+type
+  TfrmProdutoSite = class(TForm)
+    tMinimiza: TTimer;
+    TrayIcon1: TTrayIcon;
+    procedure tMinimizaTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    procedure EnviaProduto(Codigo: Integer);
+  public
+    { Public declarations }
+    var
+    UserID : String;
+    Produto : Integer;
+  end;
+
+var
+  frmProdutoSite: TfrmProdutoSite;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmProdutoSite.EnviaProduto(Codigo: Integer);
+var
+  Conexao: TConexao;
+  Dados: TFDQuery;
+  DadosExtra: TFDQuery;
+  DadosExtraItem: TFDQuery;
+  CodigoExtra: Integer;
+  Result: Integer;
+  Query: TFDQuery;
+
+begin
+
+  // Busca os dados de Cache
+  GetAllProduto(Codigo);
+
+  try
+
+    Conexao := TConexao.Create('uSite');
+    Dados := Conexao.CriaQRY;
+    Dados.SQL.Text := ('select * from produto where codigo = :codigo');
+    Dados.ParamByName('codigo').AsInteger := Codigo;
+    Dados.Open;
+
+    if Dados.FieldByName('valor_desconto').AsFloat > 0 then
+        begin
+          Result := InserirUpdate('ws_itens', UserID,
+            ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
+            'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
+            'nome_item', 'descricao_item', 'preco_item', 'disponivel',
+            'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+            'promo_percentual', 'disponivel', 'fidelidade_valor', 'novidade'],
+            [Dados.FieldByName('id_site').AsString, UserID,
+            'false', '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+            '0', '0', codigo.ToString,
+            EnviaCategoria(Dados.FieldByName('codigo_grupo').AsInteger)
+            .ToString, Dados.FieldByName('nome_produto').AsWideString,
+            Dados.FieldByName('descricao').AsWideString,
+            Dados.FieldByName('valor_desconto').AsString, '1',
+            Dados.FieldByName('valor_embalagem_delivery').AsString, '9999', '',
+            Dados.FieldByName('pessoas').AsString,
+            Dados.FieldByName('valor_venda').AsString,
+            Dados.FieldByName('percentual_desconto').AsString,
+            Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
+            .AsString, Dados.FieldByName('novidade').AsString]);
+        end
+        else
+        begin
+          Result := InserirUpdate('ws_itens', frmServidor.UserID.ToString,
+            ['id', 'user_id', 'config_total_s', 'dia_semana',
+            'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
+            'nome_item', 'descricao_item', 'preco_item', 'disponivel',
+            'valor_delivery', 'estoque', 'pessoas', 'promo_valor',
+            'promo_percentual', 'disponivel', 'fidelidade_valor', 'novidade'],
+            [Dados.FieldByName('id_site').AsString, frmServidor.UserID.ToString,
+            '0', 'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+            codigo.ToString, EnviaCategoria(Dados.FieldByName('codigo_grupo')
+            .AsInteger).ToString, Dados.FieldByName('nome_produto')
+            .AsWideString, Dados.FieldByName('descricao').AsWideString,
+            Dados.FieldByName('valor_venda').AsString, '1',
+            Dados.FieldByName('valor_embalagem_delivery').AsString, '99999',
+            Dados.FieldByName('pessoas').AsString, '0', '0',
+            Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
+            .AsString, Dados.FieldByName('novidade').AsString]);
+        end;
+
+  except
+
+  end;
+
+end;
+
+procedure TfrmProdutoSite.FormCreate(Sender: TObject);
+begin
+  if ParamCount > 0 then
+  begin
+    // Memo1.Lines.Add('Parâmetro recebido: ' + ParamStr(1));
+    ShowMessage('Parametro');
+  end
+  else
+    ShowMessage('Sem Parametro');
+
+end;
+
+procedure TfrmProdutoSite.tMinimizaTimer(Sender: TObject);
+begin
+  tMinimiza.Enabled := false;
+  self.Hide();
+  self.WindowState := wsMinimized;
+end;
+
+end.

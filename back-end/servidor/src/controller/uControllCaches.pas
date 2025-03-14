@@ -3,7 +3,7 @@ unit uControllCaches;
 interface
 
 uses
-  JOSE.Types.JSON, uCacheControl, IOUtils, uLogThread;
+  JOSE.Types.JSON, uCacheControl, IOUtils, uControlerProduto;
 
 function GetProdutoAdiciona(chave: String): TJsonArray;
 function GetProdutoSabores(chave: String): TJsonArray;
@@ -21,7 +21,7 @@ procedure AtualizaParametro;
 implementation
 
 uses
-  conexao, uSite, uMain, System.SysUtils, System.Classes, Vcl.Dialogs;
+  conexao, System.SysUtils, System.Classes, Vcl.Dialogs;
 
 function GetParametros: TJsonArray;
 var
@@ -74,8 +74,10 @@ begin
   if result.Count = 0 then
   begin
     conexao := Tconexao.Create('Util');
-    conexao.SQL.Add('SELECT pp.quantidade_sabores, sc.nome, sc.vl_venda, sc.id, (SELECT tipo_preco_pizza FROM dados_whatsapp limit 1) as tipo_preco, (select nome from tipo_sabor where id = id_tipo_sabor) as tipo FROM produto_pizza as pp');
-    conexao.SQL.Add('join sabores_completo as sc on sc.id_produto = pp.codigo_produto');
+    conexao.SQL.Add
+      ('SELECT pp.quantidade_sabores, sc.nome, sc.vl_venda, sc.id, (SELECT tipo_preco_pizza FROM dados_whatsapp limit 1) as tipo_preco, (select nome from tipo_sabor where id = id_tipo_sabor) as tipo FROM produto_pizza as pp');
+    conexao.SQL.Add
+      ('join sabores_completo as sc on sc.id_produto = pp.codigo_produto');
     conexao.SQL.Add('where sc.id_produto = :codigo');
     conexao.SQL.Add('order by sc.id_tipo_sabor, sc.nome');
     conexao.Parametros('codigo', chave);
@@ -132,8 +134,10 @@ begin
   if result.Count = 0 then
   begin
     conexao := Tconexao.Create('Util');
-    conexao.SQL.Add('select produto_ingredientes.*, ingredientes.descricao, ingredientes.unidade, ingredientes.custo from produto_ingredientes');
-    conexao.SQL.Add('join ingredientes on ingredientes.id = produto_ingredientes.id_ingredientes');
+    conexao.SQL.Add
+      ('select produto_ingredientes.*, ingredientes.descricao, ingredientes.unidade, ingredientes.custo from produto_ingredientes');
+    conexao.SQL.Add
+      ('join ingredientes on ingredientes.id = produto_ingredientes.id_ingredientes');
     conexao.SQL.Add('where produto_ingredientes.id_produto = :produto');
     conexao.Parametros('produto', chave);
     result := conexao.ConsultaSQL;
@@ -167,7 +171,7 @@ begin
       SQL := SQL + ' where codigo_grupo = ' + chave;
       SQL := SQL + ' order by position';
     end;
-    result := frmServidor.ObjetoProduto(SQL);
+    result := ObjetoProduto(SQL);
     GravaCache('GetProdutoCategoria', chave, result.ToString);
   end;
 end;
@@ -227,7 +231,7 @@ begin
       Produto: TJSONObject;
       CodigoProduto: TJSONValue;
     begin
-    LogThread('BuscaCacheGeral','Inicia');
+      // LogThread('BuscaCacheGeral','Inicia');
       try
         LimpaCacheGeral;
         Categorias := GetCategoria('all');
@@ -267,17 +271,17 @@ begin
         on E: Exception do
         begin
 
-        LogThread('BuscaCacheGeral','Erro: '+e.Message);
+          // LogThread('BuscaCacheGeral','Erro: '+e.Message);
         end;
       end;
-      LogThread('BuscaCacheGeral','Finaliza');
+      // LogThread('BuscaCacheGeral','Finaliza');
     end).Start;
 end;
 
 procedure GetAllProduto(Codigo: Integer);
 var
   conexao: Tconexao;
-  CodigoGrupo : Integer;
+  CodigoGrupo: Integer;
 begin
   conexao := Tconexao.Create('GetAllProduto');
   conexao.SQL.Add('select * from produto where codigo = :codigo');
@@ -288,8 +292,7 @@ begin
   LimpaCache('DoGetProdutoSabores', Codigo.ToString);
   LimpaCache('GetFichaProduto', Codigo.ToString);
   LimpaCache('GetProdutoCategoria', CodigoGrupo.ToString);
-//  showmessage1(CodigoGrupo.ToString);
-
+  // showmessage1(CodigoGrupo.ToString);
 
   GetProdutoCategoria(CodigoGrupo.ToString);
   GetProdutoAdiciona(Codigo.ToString);

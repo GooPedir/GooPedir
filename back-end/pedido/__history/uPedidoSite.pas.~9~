@@ -1,0 +1,40 @@
+unit uPedidoSite;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uRequisicao, Vcl.ExtCtrls, System.JSON,
+  Vcl.StdCtrls;
+
+type
+  TfrmPedidoSite = class(TForm)
+    ReqPedidos: iRequisicao;
+    Timer1: TTimer;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+    procedure getPedidos;
+    procedure getPedido(ID: String);
+    procedure ProcessaGravacaoPedido(Body : String);
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPedidoSite: TfrmPedidoSite;
+
+implementation
+
+{$R *.dfm}
+{ TfrmPedidoSite }
+
+procedure TfrmPedidoSite.Button1Click(Sender: TObject);
+begin
+  getPedidos;
+end;
+
+
+end.

@@ -94,7 +94,6 @@ type
     PIX: TFDMemTable;
     PIXvalor: TFloatField;
     PIXbase64: TBCDField;
-    tAtualizaProcessos: TTimer;
     memEstoqueMIN: TFloatField;
     FecharServioSite1: TMenuItem;
     pIdiFood: TMenuItem;
@@ -118,6 +117,9 @@ type
     dataSetMerchants1: TFDMemTable;
     dsMerchants1: TDataSource;
     dsMerchants2: TDataSource;
+    Button1: TButton;
+    Timer1: TTimer;
+    mHoraAbertura: TMenuItem;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Fechar1Click(Sender: TObject);
@@ -215,7 +217,7 @@ type
     procedure SemAtualizacao;
     procedure IniciarAtualizacao;
     procedure FimAtualizacao;
-    procedure Executaveis;
+
     function ConverteValoriFood(Valor: String): Real;
     procedure SetHorSite(const Value: TDateTime);
     procedure SetDataBloqueio(const Value: TDate);
@@ -260,6 +262,10 @@ type
     function GetModulo: String;
 
     procedure AddLog(Text: String);
+    procedure AddErro(Identificacao, Erro: String);
+    procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
+    function GenerateUUID: string;
+
     function DadosProdutos: TJsonArray;
 
     property HorSite: TDateTime read FHorSite write SetHorSite;
@@ -290,6 +296,7 @@ type
 
     procedure ReImpressao;
     procedure setUser;
+    procedure ReiniciarAplicacao;
 
     // property
     property StatusWhatsapp: Boolean read FStatusWhatsapp
@@ -398,6 +405,7 @@ var
   Cache: TCacheItem;
   Port: Integer;
   LogFilePath: String;
+  GerarLog: Boolean;
 
 implementation
 
@@ -436,22 +444,21 @@ begin
     exit;
 
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
-  LogThread('AbrirExe',Nome);
+
+end;
+
+procedure TfrmServidor.AddErro(Identificacao, Erro: String);
+begin
+  EnviaGlitchtip
+    ('https://393ce11c328044b4a747820f31ce790a@nginx-glitchtip.l1p88w.easypanel.host/1',
+    'Erro', Identificacao, Erro);
 end;
 
 procedure TfrmServidor.AddLog(Text: String);
 begin
-  // try
-  // memLog.Lines.Clear;
-  // memLog.Lines.LoadFromFile('log.txt');
-  // except
-  //
-  // end;
-  memLog.Lines.Add(Text);
-  memLog.Lines.Add(FormatDateTime('hh:nn', now));
-  memLog.Lines.Add('');
-  LogThread('AddLog',Text);
-  // memLog.Lines.SaveToFile('log.txt')
+  EnviaGlitchtip
+    ('https://393ce11c328044b4a747820f31ce790a@nginx-glitchtip.l1p88w.easypanel.host/1',
+    'Log', 'AddLog', Text);
 end;
 
 procedure TfrmServidor.AtivaInativaProdutos;
@@ -459,26 +466,36 @@ var
   conexao: Tconexao;
   Dados: TFDMemTable;
 begin
-  conexao := Tconexao.Create('main');
-  Dados := TFDMemTable.Create(nil);
-  conexao.SQL.Add('select * from produto where dias = 1');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
 
-  if Dados.RecordCount > 0 then
-  begin
-    while not Dados.Eof do
+  try
+    conexao := Tconexao.Create('main');
+    Dados := TFDMemTable.Create(nil);
+    conexao.SQL.Add('select * from produto where dias = 1');
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+    if Dados.RecordCount > 0 then
     begin
-      conexao.SQL.Add
-        ('update produto set ativo = :ativo, modificado_site = 0 where codigo = :codigo');
-      conexao.Parametros('ativo', Dados.FieldByName(ObterDiaDaSemana).AsString);
-      conexao.Parametros('codigo', Dados.FieldByName('codigo').AsString);
-      conexao.ExecuteSQL;
-      Dados.Next;
+      while not Dados.Eof do
+      begin
+        conexao.SQL.Add
+          ('update produto set ativo = :ativo, modificado_site = 0 where codigo = :codigo');
+        conexao.Parametros('ativo', Dados.FieldByName(ObterDiaDaSemana)
+          .AsString);
+        conexao.Parametros('codigo', Dados.FieldByName('codigo').AsString);
+        conexao.ExecuteSQL;
+        Dados.Next;
+      end;
     end;
-  end;
 
-  Dados.Free;
-  conexao.Free;
+    Dados.Free;
+    conexao.Free;
+  except
+    on E: Exception do
+    begin
+
+    end;
+
+  end;
 
 end;
 
@@ -496,6 +513,7 @@ var
   Data: TDate;
 
 begin
+
   IniFile := TIniFile.Create('./goopedir.ini');
   Data := IniFile.ReadDate('ATIVA', 'ATIVA', StrToDate('01/01/1999'));
   if Data = Date then
@@ -698,6 +716,7 @@ begin
     on E: Exception do
     begin
       // showmessage1(E.Message);
+
     end;
 
   end;
@@ -708,8 +727,10 @@ procedure TfrmServidor.AtualizaDadosiFood;
 var
   conexao: Tconexao;
 begin
+
   if IntegracaoiFood then
   begin
+
     conexao := Tconexao.Create('main');
     conexao.SQL.Add
       ('update produto set valor_ifood = (valor_venda + ((valor_venda*' +
@@ -719,6 +740,7 @@ begin
     conexao.ExecuteSQL;
     conexao.Free;
   end;
+
 end;
 
 procedure TfrmServidor.AtualizaSaldoEstoque;
@@ -727,6 +749,7 @@ var
   Dados: TFDMemTable;
   Estoque: Real;
 begin
+
   conexao := Tconexao.Create('EstoqueAtualiza');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
@@ -735,6 +758,7 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
+
     while not Dados.Eof do
     begin
       try
@@ -760,6 +784,7 @@ begin
 
   Dados.Free;
   conexao.Free;
+
 end;
 
 procedure TfrmServidor.AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
@@ -772,6 +797,7 @@ var
   Codigo, CodigoIntermo: Integer;
   imprimir: Integer;
 begin
+
   statuscod := OrderHead.code;
   Status := OrderHead.fullCode;
   IFood := OrderHead.orderId;
@@ -837,6 +863,7 @@ begin
   end;
 
   conexao.Free;
+
 end;
 
 procedure TfrmServidor.BuscaDadosiFood;
@@ -1152,6 +1179,7 @@ var
   ErrorValue: Boolean;
   IDValue: string;
 begin
+
   if UserID > 0 then
   begin
     Req := iRequisicao.Create(nil);
@@ -1216,8 +1244,10 @@ end;
 
 procedure TfrmServidor.ComandaStatus;
 begin
+
   DataHoraImpressaoServiceComanda := now;
   ImpressoraStatus;
+
 end;
 
 function TfrmServidor.ConverteValoriFood(Valor: String): Real;
@@ -1227,8 +1257,10 @@ end;
 
 procedure TfrmServidor.CozinhaStatus;
 begin
+
   DataHoraImpressaoServiceCozinha := now;
   ImpressoraStatus;
+
 end;
 
 function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
@@ -1338,6 +1370,7 @@ begin
       on E: Exception do
       begin
         // showmessage1(E.Message);
+
       end;
 
     end;
@@ -1353,6 +1386,7 @@ var
   ErrorValue: Boolean;
   User: TJsonObject;
 begin
+
   if UserID > 0 then
   begin
     Req := iRequisicao.Create(nil);
@@ -1397,6 +1431,7 @@ begin
       on E: Exception do
       begin
         // //showmessage1(e.Message);
+
       end;
 
     end;
@@ -1404,6 +1439,7 @@ begin
     // if Assigned(JsonObject) then
     // JsonObject.Free;
   end;
+
 end;
 
 procedure TfrmServidor.DadosBloqueio;
@@ -1412,6 +1448,7 @@ var
   Requisicao: iRequisicao;
 
 begin
+
   try
     // frmServidor.setUser;
     Requisicao := iRequisicao.Create(nil);
@@ -1466,6 +1503,7 @@ begin
     on E: Exception do
     begin
       // Res.Send(E.Message);
+
     end;
 
   end;
@@ -1502,6 +1540,7 @@ var
   Req: iRequisicao;
   JsonObject: TJsonObject;
 begin
+
   Req := iRequisicao.Create(nil);
   Req.BaseURL := 'https://ws.goopedir.com/whatsapp/qrcod.php?instance=' +
     UserID.ToString;
@@ -1530,6 +1569,7 @@ begin
 
   end;
   Req.Free;
+
 end;
 
 procedure TfrmServidor.DadosWhatsapp;
@@ -1537,6 +1577,7 @@ var
   Req: iRequisicao;
   JsonObject: TJsonObject;
 begin
+
   Req := iRequisicao.Create(nil);
   Req.BaseURL := 'https://ws.goopedir.com/whatsapp/instancia.php?instanceName='
     + UserID.ToString;
@@ -1558,10 +1599,12 @@ begin
     on E: Exception do
     begin
       // //showmessage1(e.Message);
+
     end;
 
   end;
   Req.Free;
+
 end;
 
 procedure TfrmServidor.DescricaoIfood;
@@ -1581,16 +1624,133 @@ begin
 
 end;
 
-procedure TfrmServidor.Executaveis;
+procedure TfrmServidor.EnviaGlitchtip(DSN, Tipo, Identificacao,
+  Mensagem: String);
 var
-  Dados: TFDMemTable;
-  conexao: Tconexao;
+  JsonObjec: TJsonObject;
+  Chave, API, JSONBody: string;
+  URL: String;
+  iGlitchtip: iRequisicao;
+
+  RESTClient1: TRESTClient;
+  RESTRequest1: TRESTRequest;
+  RESTResponse1: TRESTResponse;
 begin
-  conexao := Tconexao.Create('main');
-  Dados := TFDMemTable.Create(self);
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Dados.LoadStructure(conexao.ConsultaSQL);
-  conexao.Free;
+  if not GerarLog then
+    exit;
+
+  JsonObjec := TJsonObject.Create;
+  // Extrai a chave e a URL da DSN
+  Chave := Copy(DSN, Pos('//', DSN) + 2, Pos('@', DSN) - Pos('//', DSN) - 2);
+  URL := Copy(DSN, Pos('@', DSN) + 1, length(DSN));
+  URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
+  API := Copy(URL, Pos('/', URL) + 1, length(URL));
+  URL := StringReplace(URL, '/' + API, '', []);
+
+  JSONBody := JSONBody + '{';
+  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
+  JSONBody := JSONBody + '  "timestamp": "' +
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now) + '",';
+  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
+  JSONBody := JSONBody + '  "platform": "delphi",';
+  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
+  JSONBody := JSONBody + '  "exception": {';
+  JSONBody := JSONBody + '    "values": [';
+  JSONBody := JSONBody + '      {';
+  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
+  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
+  JSONBody := JSONBody + '      }';
+  JSONBody := JSONBody + '    ]';
+  JSONBody := JSONBody + '  },';
+  JSONBody := JSONBody + '  "tags": {';
+  JSONBody := JSONBody + '    "environment": "' + UserID.ToString + '",';
+  JSONBody := JSONBody + '    "user": "' + UserID.ToString + '"';
+  JSONBody := JSONBody + '  }';
+  JSONBody := JSONBody + '}';
+  JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
+  JsonObjec.AddPair('autorizacao', Chave);
+  JsonObjec.AddPair('body', TJsonObject.ParseJSONValue(JSONBody)
+    as TJsonObject);
+
+  // iGlitchtip := iRequisicao.Create(nil);
+  // iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  // iGlitchtip.BODY(JsonObjec);
+  //
+  // try
+  // iGlitchtip.Metodo := mPost;
+  //
+  // iGlitchtip.Execute;
+  //
+  // except
+  // on E: Exception do
+  // begin
+  // ShowMessage(E.Message);
+  // end;
+  //
+  // end;
+  // iGlitchtip.Free;
+
+  // Criando o TRESTClient
+
+  RESTClient1 := TRESTClient.Create(nil);
+  try
+    RESTClient1.BaseURL := 'https://ws.goopedir.com/glitchtip/index.php';
+    RESTClient1.SynchronizedEvents := false;
+
+    // Criando o TRESTResponse
+    RESTResponse1 := TRESTResponse.Create(nil);
+
+    // Criando o TRESTRequest
+    RESTRequest1 := TRESTRequest.Create(nil);
+    try
+      RESTRequest1.Client := RESTClient1;
+      RESTRequest1.Response := RESTResponse1;
+      RESTRequest1.SynchronizedEvents := false;
+      RESTRequest1.Method := rmPOST;
+
+      // Configurando os parâmetros da requisição
+      // with RESTRequest1.Params.AddItem do
+      // begin
+      // Kind := pkREQUESTBODY;
+      // Name := 'body67FAC2D51FE84D139EE71109F4F5AC14';
+      // Value := JsonObjec.ToString;
+      // ContentType := ctAPPLICATION_JSON;
+      // end;
+
+      RESTRequest1.AddBody(JsonObjec);
+
+      // Executando a requisição
+      try
+        RESTRequest1.Execute;
+        // ShowMessage(RESTResponse1.Content);
+      except
+        on E: Exception do
+        begin
+          // ShowMessage(E.Message);
+        end;
+
+      end;
+
+      // Processando a resposta
+      if RESTResponse1.StatusCode = 200 then
+      begin
+        // Sucesso
+        // WriteLn('Requisição bem-sucedida: ' + RESTResponse1.Content);
+      end
+      else
+      begin
+        // Erro
+        // WriteLn('Erro na requisição: ' + RESTResponse1.StatusText);
+      end;
+
+    finally
+      RESTRequest1.Free;
+    end;
+
+  finally
+    RESTClient1.Free;
+    RESTResponse1.Free;
+  end;
 
 end;
 
@@ -1601,6 +1761,7 @@ var
   DadosCliente: TFDMemTable;
   Codigo: Integer;
 begin
+
   conexao := Tconexao.Create('main');
   Dados := TFDMemTable.Create(nil);
 
@@ -1668,22 +1829,19 @@ begin
   end;
   Dados.Free;
   conexao.Free;
+
 end;
 
 procedure TfrmServidor.Fechar1Click(Sender: TObject);
 begin
-
-
-  // FecharExe();
-
+  FecharExe(ExtractFileDir(Application.ExeName) + '\ServicosGoopedir.exe');
+  FecharExe('ServicosGoopedir.exe');
   FecharExe(frmServidor.IMPRESSAO);
   FecharExe(frmServidor.WHATSAPP);
   FecharExe(frmServidor.SITE(NomeExeSite));
   FecharExe(frmServidor.USANFCE);
   FecharExe(Application.ExeName);
   FecharExe('GooPedir.exe');
-
-  // Application.Terminate;
 end;
 
 procedure TfrmServidor.FecharExe(ExeFileName: String);
@@ -1694,6 +1852,7 @@ var
   FSnapshotHandle: THandle;
   FProcessEntry32: TProcessEntry32;
 begin
+
   ExeFileName := ExtractFileName(ExeFileName);
 
   FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -1709,6 +1868,7 @@ begin
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
   CloseHandle(FSnapshotHandle);
+
 end;
 
 procedure TfrmServidor.FecharServioSite1Click(Sender: TObject);
@@ -1726,6 +1886,7 @@ var
   Codigo: Integer;
   I: Integer;
 begin
+
   conexao := Tconexao.Create('main');
   try
     if frmServidor.Configuracoes.FieldByName('ficha_tecnica').AsInteger = 1 then
@@ -1825,48 +1986,19 @@ begin
 
   end;
   conexao.Free;
+
 end;
 
 procedure TfrmServidor.FimAtualizacao;
 begin
   // FichaTecnica;
 
-  if IntegracaoiFood then
-  begin
-    try
 
-      IniciaIfood;
-
-      // IFood.MerchantID(IDiFood);
-      // // BuscaDadosiFood;
-      // // IFood.MerchantStatus.AutoStatus := true;
-      // // IFood.Polling.AutoPolling := true;
-      // // BuscaDadosiFood;
-      //
-      // if not Assigned(ProcessamentoiFood) then
-      // begin
-      // ProcessamentoiFood := TProcessamentoiFood.Create;
-      // ProcessamentoiFood.IFood := IFood;
-      // ProcessamentoiFood.statusiFood := frmServidor.Configuracoes.FieldByName
-      // ('aceitar_pedidos_ifood').AsInteger;
-      // ProcessamentoiFood.Start;
-      // end;
-
-      // ProcessamentoiFood.TestImport;
-    except
-      on E: Exception do
-      begin
-        showmessage('1-' + E.Message);
-      end;
-
-    end;
-
-  end;
 
   // GerarCupom;
   // EnviarCupom;
-  AtivaInativaProdutos;
-  FazExclusaoClientes;
+
+  SemAtualizacao;
 end;
 
 function TfrmServidor.FormatPhoneNumber(const RawNumber: string): string;
@@ -1900,16 +2032,18 @@ var
   PedidosManager: TPedidosManager;
 
 begin
-  // PedidosManager := TPedidosManager.Create('1');
 
-  InitializeLogFile;
+  Caption := FormatDateTime('hh:nn', now);
+  mHoraAbertura.Caption := Caption;
   THorse.Use(LogMiddleware);
   THorse.Use(ConfigurarCORS);
-  // showmessage1(AtualizacaoCustoIngrediente(72).ToString);
-  // BuscaCacheGeral;
+  THorse.Use(ExceptionMiddleware);
+  THorse.Use(Jhonson);
+  // THorse.Use(Etag);
+  THorse.Use(OctetStream);
+  THorse.Use(MiddlewareCORS);
   PIX.Open;
   CodigoPedido := 0;
-  // ImportaProdutos;
 
   IniFile := TIniFile.Create('./goopedir.ini');
   Port := IniFile.ReadInteger('server', 'port', 2121);
@@ -1918,110 +2052,120 @@ begin
   IniFile.WriteString('server', 'baseurl', 'http://localhost:' +
     Port.ToString + '/');
   IniFile.WriteString('server', 'restart', '03:00');
-  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
-  begin
-    HabilitarProduo1Click(nil);
-  end;
-
-  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
-  ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
   NomeExeSite := IniFile.ReadString('server', 'name', '');
 
-  IFood.Credentials.ClientId := ClientId;
-  IFood.Credentials.ClientSecret := ClientSecret;
-  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-  begin
-    IFood.Credentials.AuthorizationType := ctCentralized;
-  end
-  else
-  begin
-    IFood.Credentials.AuthorizationType := ctDistributed;
-  end;
-
-  DescricaoIfood;
-  // THorse.Use(ServerStatic('public'));
   conexao := Tconexao.Create('main');
   VersaoMysql := conexao.ValidaVersao;
-  // if length(VersaoMysql) > 0 then
-  // //showmessage1(VersaoMysql);
+  conexao.SQL.Add('select * from dados_whatsapp');
+  frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+  conexao.Free;
 
-  THorse.Use(ExceptionMiddleware);
-  THorse.Use(Jhonson);
-  // THorse.Use(Etag);
-  THorse.Use(OctetStream);
-  THorse.Use(MiddlewareCORS);
-  // Declaração das URI da API
   token.Registry;
   util.Registry;
   v2.Registry;
   NFCE.Registry;
   imprimir.Registry;
-  // THorse.Use(THorseXMLDoc.New.Intercept);
 
-  // util.backup.Registry;
-
-  // Inicialização do Console
   try
-    THorse.Listen(Port,
-      procedure(Horse: THorse)
-      begin
-        // Writeln('Server is runing on port ' + THorse.Port.ToString);
-        // Writeln('');
-      end);
+    THorse.Listen(Port);
   except
     Application.Terminate;
     exit;
   end;
 
-  conexao.SQL.Add('select * from dados_whatsapp');
-  frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  // conexao.Free;
+  {
+    // PedidosManager := TPedidosManager.Create('1');
 
-  Atualizacao := TSQL.Create;
-  // Atualizacao.LabelInfo := labelInfoAtualizacao;
-  Atualizacao.MemoLog := memoHistorico;
 
-  Atualizacao.SeTiverAtualizacao := TemAtualizacao;
-  Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
-  Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
-  // Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
-  Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
-  Atualizacao.VerificaAtualizacao;
-  Atualizacao.AtualizarBanco;
+    //  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
+    //  begin
+    //    HabilitarProduo1Click(nil);
+    //  end;
 
-  Servicos := TAbrirServicos.Create;
-  Servicos.HorarioRestart := HorarioRestart;
-  Servicos.Start;
-  frmServidor.LoadImpressora;
+    //  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
+    //  ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
+    //  IFood.Credentials.ClientId := ClientId;
+    //  IFood.Credentials.ClientSecret := ClientSecret;
+    //  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+    //  begin
+    //    IFood.Credentials.AuthorizationType := ctCentralized;
+    //  end
+    //  else
+    //  begin
+    //    IFood.Credentials.AuthorizationType := ctDistributed;
+    //  end;
+    //
+    //  DescricaoIfood;
+    Atualizacao := TSQL.Create;
+    Atualizacao.MemoLog := memoHistorico;
 
-  IniFile.WriteString('site', 'clientId',
+    Atualizacao.SeTiverAtualizacao := TemAtualizacao;
+    Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
+    Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
+    Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
+    Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
+
+    Atualizacao.VerificaAtualizacao;
+
+    Servicos := TAbrirServicos.Create;
+    Servicos.HorarioRestart := HorarioRestart;
+    Servicos.Start;
+    frmServidor.LoadImpressora;
+
+    IniFile.WriteString('site', 'clientId',
     frmServidor.Configuracoes.FieldByName('client_id').AsString);
-  IniFile.WriteString('site', 'clientSecurity',
+    IniFile.WriteString('site', 'clientSecurity',
     frmServidor.Configuracoes.FieldByName('client_security').AsString);
+    IniFile.Free;
 
-  IniFile.Free;
+    //  APIGoopedir := TGooPedirAPIController.Create
+    //    ('https://site-api-v2.goopedir.com/',
+    //    frmServidor.Configuracoes.FieldByName('client_id').AsString,
+    //    frmServidor.Configuracoes.FieldByName('client_security').AsString,
+    //    GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
+    exit;
 
-  try
-    frmServidor.memGrupo.LoadFromFile('grupo.whatsapp');
-  except
+    // showmessage1(AtualizacaoCustoIngrediente(72).ToString);
+    // BuscaCacheGeral;
 
-  end;
+    // ImportaProdutos;
 
-  APIGoopedir := TGooPedirAPIController.Create
-    ('https://site-api-v2.goopedir.com/',
-    frmServidor.Configuracoes.FieldByName('client_id').AsString,
-    frmServidor.Configuracoes.FieldByName('client_security').AsString,
-    GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
-  // APIGoopedir.FunctionHorarioAbertura := GetHorarioAbertura;
-  // APIGoopedir.FuncationHorarioFechamento := GetHorarioFechamento;
-  // APIGoopedir.FunctionHorario := GetHorarioAtendimento;
-  FimAtualizacao;
+
+    // THorse.Use(ServerStatic('public'));
+
+    // Declaração das URI da API
+
+
+    // Inicialização do Console
+
+
+
+
+    // APIGoopedir.FunctionHorarioAbertura := GetHorarioAbertura;
+    // APIGoopedir.FuncationHorarioFechamento := GetHorarioFechamento;
+    // APIGoopedir.FunctionHorario := GetHorarioAtendimento;
+    // FimAtualizacao;
+  }
+
+end;
+
+function TfrmServidor.GenerateUUID: string;
+var
+  GUID: TGUID;
+begin
+  // Gera um novo GUID
+  if CreateGUID(GUID) = 0 then
+    // Converte o GUID para string no formato padrão
+    Result := GUIDToString(GUID)
+  else
+    Result := ''; // Retorna uma string vazia em caso de erro
 end;
 
 function TfrmServidor.GerarCodigoPedidoDia: Integer;
 var
   conexao: Tconexao;
 begin
+
   if CodigoPedido > 0 then
   begin
     inc(CodigoPedido);
@@ -2036,6 +2180,7 @@ begin
   conexao.Free;
   CodigoPedido := CodigoPedido + 1;
   Result := CodigoPedido;
+
 end;
 
 function TfrmServidor.GetADRIFoodByTag(TagValue: Integer): TADRIFood;
@@ -2061,6 +2206,7 @@ var
   ResultJson: TJsonObject;
   conexao: Tconexao;
 begin
+
   if (Cache.Data <> '') and (MinutesBetween(now, Cache.Timestamp) <= 1) then
   begin
     Result := Cache.Data;
@@ -2116,12 +2262,14 @@ begin
   end;
   Requisicao.Free;
   Result := Cache.Data;
+
 end;
 
 function TfrmServidor.GetHorarioAbertura(Dia: String): String;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('main');
   conexao.SQL.Add('select * from horario where dia_da_sema = ' +
     QuotedStr(Copy(Dia, 0, 3)));
@@ -2132,12 +2280,14 @@ begin
     Result := '00:00:00';
 
   conexao.Free;
+
 end;
 
 function TfrmServidor.GetHorarioAtendimento(Dia: String): String;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('main');
   conexao.SQL.Add('select * from horario where dia_da_sema = ' +
     QuotedStr(Copy(Dia, 0, 3)));
@@ -2152,12 +2302,14 @@ begin
     Result := 'false';
 
   conexao.Free;
+
 end;
 
 function TfrmServidor.GetHorarioFechamento(Dia: String): String;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('main');
   conexao.SQL.Add('select * from horario where dia_da_sema = ' +
     QuotedStr(Copy(Dia, 0, 3)));
@@ -2167,6 +2319,7 @@ begin
   if Result = '' then
     Result := '00:00:00';
   conexao.Free;
+
 end;
 
 function TfrmServidor.GetInfoSystem: TJsonObject;
@@ -2175,6 +2328,7 @@ var
   MaxConnection: String;
   Connection: String;
 begin
+
   Result := TJsonObject.Create;
 
   conexao := Tconexao.Create('GetInfoSystem');
@@ -2200,12 +2354,14 @@ begin
   Result.AddPair('path', Application.ExeName);
 
   conexao.Free;
+
 end;
 
 function TfrmServidor.GetInstancia(Pedido: String): Integer;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('GetInstancia');
   try
     conexao.SQL.Add
@@ -2216,12 +2372,14 @@ begin
     Result := 0;
   end;
   conexao.Free;
+
 end;
 
 function TfrmServidor.GetModulo: String;
 var
   ConfigFile: TStringList;
 begin
+
   ConfigFile := TStringList.Create;
   try
     ConfigFile.LoadFromFile(ExtractFileDir(Application.ExeName) +
@@ -2230,12 +2388,14 @@ begin
   finally
     ConfigFile.Free;
   end;
+
 end;
 
 function TfrmServidor.GetToken(Numero: Integer): String;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('IFoodRefreshTokenGet');
   conexao.SQL.Add('select * from ifood_connect where id = :id');
   conexao.Parametros('id', Numero);
@@ -2245,6 +2405,7 @@ begin
     Result := '';
   end;
   conexao.Free;
+
 end;
 
 procedure TfrmServidor.HabilitarHomologao1Click(Sender: TObject);
@@ -2285,6 +2446,7 @@ function TfrmServidor.IDiFood: String;
 var
   conexao: Tconexao;
 begin
+
   conexao := Tconexao.Create('main');
   conexao.SQL.Add('select merchant as M, 0 as zero from dados_whatsapp');
   Result := '';
@@ -2315,6 +2477,7 @@ var
 begin
   if AContent = '' then
     exit;
+
   try
     JSON := TJsonObject.Create;
     try
@@ -2346,7 +2509,7 @@ begin
 end;
 
 procedure TfrmServidor.IFoodLogResponse(ARequestId, AContent: string;
-AStatusCode: Integer);
+  AStatusCode: Integer);
 begin
   //
 end;
@@ -2359,12 +2522,6 @@ begin
 end;
 
 procedure TfrmServidor.IFoodMerchantStatusError(AError: Exception);
-// var
-// Erro : String;
-// begin
-// Erro := AError.Message;
-//
-// end;
 var
   arq: TextFile;
   Requisicao: iRequisicao;
@@ -2373,6 +2530,7 @@ var
 begin
   if AError.Message = '' then
     exit;
+
   try
     JSON := TJsonObject.Create;
     try
@@ -2407,6 +2565,7 @@ end;
 procedure TfrmServidor.IFoodOrderArrivedAtOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
 
@@ -2415,169 +2574,214 @@ end;
 procedure TfrmServidor.IFoodOrderAssignDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderCancellationFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
-  // //showmessage1(OrderHead.event.description);
+
 end;
 
 procedure TfrmServidor.IFoodOrderChangePreparationTime
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderConsumerCancellationAccepted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderConsumerCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderDelayNotification
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderGoingToOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
-var bAcknowledgment: Boolean);
+  var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderPickupAreaAssigned
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderPlaced(Order: IADRIFoodModelOrder;
-OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   ProcessamentoiFood.orderId(Order, OrderHead);
 
 end;
 
 procedure TfrmServidor.IFoodOrderPlaced1(Order: IADRIFoodModelOrder;
-OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   ProcessamentoiFood1.orderId(Order, OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderPlaced2(Order: IADRIFoodModelOrder;
-OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
+  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   ProcessamentoiFood2.orderId(Order, OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderPreparationStarted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderReadyToDeliver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderReadyToPickup
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
 
@@ -2586,40 +2790,50 @@ end;
 procedure TfrmServidor.IFoodOrderRecommendedPreparation
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriverAvailability
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriverFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriverSuccess
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
+
   bAcknowledgment := true;
   AtualizaStatus(OrderHead);
+
 end;
 
 procedure TfrmServidor.IFoodPollingEnd(EndPooling: TDateTime;
-OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
+  OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
 var
   test: String;
 begin
@@ -2656,6 +2870,7 @@ begin
   finally
     conexao.Free;
   end;
+
 end;
 
 function TfrmServidor.IFoodRefreshTokenGet1: string;
@@ -3074,6 +3289,7 @@ var
   conexao: Tconexao;
   Dados: TFDMemTable;
 begin
+
   conexao := Tconexao.Create('IniciaIfood');
   Dados := TFDMemTable.Create(nil);
 
@@ -3085,8 +3301,11 @@ begin
 
     while not Dados.Eof do
     begin
-      CreateiFoodConnection(Dados.FieldByName('id').AsString,
-        Dados.FieldByName('merchantid').AsString);
+      if Dados.FieldByName('merchantid').AsString <> '' then
+      begin
+        CreateiFoodConnection(Dados.FieldByName('id').AsString,
+          Dados.FieldByName('merchantid').AsString);
+      end;
       Dados.Next;
     end;
   end;
@@ -3116,19 +3335,20 @@ end;
 
 function TfrmServidor.IntegracaoiFood: Boolean;
 begin
+
   try
     Result := frmServidor.Configuracoes.FieldByName('ifood_integracao')
       .AsInteger = 1;
 
     if Result then
     begin
-      // showmessage1('iFOOD OK');
       if IDiFood = '' then
         Result := false;
     end;
   except
 
   end;
+
 end;
 
 procedure TfrmServidor.LoadImpressora;
@@ -3163,35 +3383,40 @@ begin
 end;
 
 procedure TfrmServidor.LogMiddleware(Req: THorseRequest; Res: THorseResponse;
-Next: TProc);
+  Next: TProc);
 var
   LogLine, BodyContent: string;
   LogFile: TStreamWriter;
 begin
-  try
-    // Monta a linha de log
-
-    LogLine := Format('%s | %s | %s', [DateTimeToStr(now), Metodo(Req),
-      Req.RawWebRequest.PathInfo]);
-
-    // Se for um método POST, adiciona o corpo da requisição
-    if SameText(Metodo(Req), 'POST') then
-    begin
-      BodyContent := Req.BODY;
-      LogLine := LogLine + Format(' | Body: %s', [BodyContent]);
-    end;
-
-    // Abre o arquivo de log e escreve a linha
-    LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
-    try
-      LogFile.WriteLine(LogLine);
-    finally
-      LogFile.Free;
-    end;
-  except
-    on E: Exception do
-
+  if SameText(Metodo(Req), 'POST') then
+  begin
+    BodyContent := Req.BODY;
+    // LogLine := LogLine + Format(' | Body: %s', [BodyContent]);
   end;
+  EnviaGlitchtip
+    ('https://9327eaf954a340cb94c64a8bf4afb696@nginx-glitchtip.l1p88w.easypanel.host/5',
+    Req.RawWebRequest.RawPathInfo, Metodo(Req), BodyContent);
+  // Req.RawWebRequest.RawPathInfo
+  // try
+  // // Monta a linha de log
+  //
+  // LogLine := Format('%s | %s | %s', [DateTimeToStr(now), Metodo(Req),
+  // Req.RawWebRequest.PathInfo]);
+  //
+  // // Se for um método POST, adiciona o corpo da requisição
+
+  //
+  // // Abre o arquivo de log e escreve a linha
+  // LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
+  // try
+  // LogFile.WriteLine(LogLine);
+  // finally
+  // LogFile.Free;
+  // end;
+  // except
+  // on E: Exception do
+  //
+  // end;
 
   // Chama o próximo middleware ou a rota
   Next;
@@ -3233,7 +3458,7 @@ begin
 end;
 
 procedure TfrmServidor.MiddlewareCORS(Req: THorseRequest; Res: THorseResponse;
-Next: TProc);
+  Next: TProc);
 begin
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Origin', '*');
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Methods',
@@ -3804,9 +4029,42 @@ begin
       end;
     end;
 
-    Dados.Free;
   except
 
+  end;
+  Dados.Free;
+  conexao.Free;
+end;
+
+procedure TfrmServidor.ReiniciarAplicacao;
+var
+  StartupInfo: TStartupInfo;
+  ProcessInfo: TProcessInformation;
+begin
+  // Configura a estrutura StartupInfo
+  ZeroMemory(@StartupInfo, sizeof(StartupInfo));
+  StartupInfo.cb := sizeof(StartupInfo);
+  ZeroMemory(@ProcessInfo, sizeof(ProcessInfo));
+
+  // Cria um novo processo para reiniciar o executável
+  if CreateProcess(PChar(Application.ExeName), // Caminho do executável
+    nil, // Parâmetros de linha de comando
+    nil, // Atributos de segurança do processo
+    nil, // Atributos de segurança da thread
+    false, // Herança de handles
+    0, // Flags de criação
+    nil, // Ambiente
+    nil, // Diretório atual
+    StartupInfo, ProcessInfo) then
+  begin
+    // Fecha os handles do processo e da thread
+    CloseHandle(ProcessInfo.hProcess);
+    CloseHandle(ProcessInfo.hThread);
+  end
+  else
+  begin
+    // Se não foi possível criar o processo, exibe uma mensagem de erro
+    RaiseLastOSError;
   end;
 end;
 
@@ -3884,7 +4142,53 @@ end;
 
 procedure TfrmServidor.SemAtualizacao;
 begin
-  //
+  if IntegracaoiFood then
+  begin
+    try
+
+      IniciaIfood;
+
+      // IFood.MerchantID(IDiFood);
+      // // BuscaDadosiFood;
+      // // IFood.MerchantStatus.AutoStatus := true;
+      // // IFood.Polling.AutoPolling := true;
+      // // BuscaDadosiFood;
+      //
+      // if not Assigned(ProcessamentoiFood) then
+      // begin
+      // ProcessamentoiFood := TProcessamentoiFood.Create;
+      // ProcessamentoiFood.IFood := IFood;
+      // ProcessamentoiFood.statusiFood := frmServidor.Configuracoes.FieldByName
+      // ('aceitar_pedidos_ifood').AsInteger;
+      // ProcessamentoiFood.Start;
+      // end;
+
+      // ProcessamentoiFood.TestImport;
+    except
+      on E: Exception do
+      begin
+
+        // ShowMessage('1-' + E.Message);
+
+      end;
+
+    end;
+
+  end;
+
+  AtivaInativaProdutos;
+  FazExclusaoClientes;
+
+  try
+    THorse.Listen(Port,
+      procedure(Horse: THorse)
+      begin
+
+      end);
+  except
+    Application.Terminate;
+    exit;
+  end;
 end;
 
 procedure TfrmServidor.SetBase64Whatsapp(const Value: String);
@@ -4003,7 +4307,8 @@ begin
       Dados.Next;
     end;
   end;
-
+  conexao.Free;
+  Dados.Free;
   StatusSincProdutos := false;
 
 end;
@@ -4035,19 +4340,19 @@ procedure TfrmServidor.tAtualizaProcessosTimer(Sender: TObject);
 var
   myThread1: TThread;
 begin
-  //myThread1 := TThread.CreateAnonymousThread(
-  //  procedure
-  //  begin
-  //  LogThread('tAtualizaProcessosTimer','Iniciando');
-  //    AtivaInativaProdutos;
-  //    FazExclusaoClientes;
-  //    LogThread('tAtualizaProcessosTimer','Finalizada');
-  //  end);
+  // myThread1 := TThread.CreateAnonymousThread(
+  // procedure
+  // begin
+
+  // AtivaInativaProdutos;
+  // FazExclusaoClientes;
+
+  // end);
   //
-  //// Configura a Thread1 para se liberar automaticamente após a execução
-  //myThread1.FreeOnTerminate := true;
+  /// / Configura a Thread1 para se liberar automaticamente após a execução
+  // myThread1.FreeOnTerminate := true;
   //
-  //myThread1.Start();
+  // myThread1.Start();
 end;
 
 function TfrmServidor.TaxaiFood: Real;
@@ -4065,16 +4370,43 @@ begin
 end;
 
 procedure TfrmServidor.Timer1Timer(Sender: TObject);
+var
+  Comando: String;
 begin
-  Application.Terminate;
+  TrayIcon1.Visible := false;
+  // Finaliza o servidor Horse
+  THorse.StopListen;
+
+  // Monta o comando CMD
+  Comando := Format('timeout /t %d /nobreak && start "" "%s"',
+    [1, Application.ExeName]);
+
+  // Executa o comando no CMD
+  ShellExecute(0, 'open', 'cmd.exe', PChar('/c ' + Comando), nil, SW_HIDE);
+  FecharExe(Application.ExeName);
+
 end;
 
 procedure TfrmServidor.tMinimizaTimer(Sender: TObject);
 begin
+
   tMinimiza.Enabled := false;
   self.Hide();
   self.WindowState := wsMinimized;
   // StatusForm := sOcuto;
+  //
+  // THorse.StopListen;
+  // Sleep(1000);
+  //
+  // // Reinicia a aplicação
+  // // ReiniciarAplicacao;
+  //
+  // // Finaliza a aplicação atual
+  // try
+  // Application.Terminate;
+  // except
+  //
+  // end;
 end;
 
 function TfrmServidor.UserID: Integer;
@@ -4085,6 +4417,7 @@ var
   Data: TDate;
   FormatSettings: TFormatSettings;
   DadosThread1: TDadosWhatsappAPI;
+  conexao: Tconexao;
 begin
 
 
@@ -4145,10 +4478,17 @@ begin
         '/' + Copy(JSonDadosSite.Get('confianca').JsonValue.ToString, 2, 4));
       frmServidor.SincronizaHorario;
       SincronizaProdutos;
+
+      conexao := Tconexao.Create('USER');
+      conexao.SQL.Add('update produto set userid = :user where userid is null');
+      conexao.Parametros('user', User);
+      conexao.ExecuteSQL;
+      conexao.Free;
+
     except
       on E: Exception do
       begin
-        frmServidor.AddLog(E.Message);
+        frmServidor.AddErro('UserID', E.Message);
 
       end;
 
@@ -4318,7 +4658,7 @@ begin
   while not Terminated do
   begin
     inc(contador);
-    LogThread('TAbrirServicos','Iniciando');
+
     // conexao.SQL.Add('select * from dados_whatsapp');
     // frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
     // conexao.SQL.Add
@@ -4414,7 +4754,7 @@ begin
     end;
     if contador = 12 then
       contador := 1;
-    LogThread('TAbrirServicos','Finalizando');
+
     Sleep(30 * 1000);
   end;
 
