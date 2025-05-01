@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize;
+  DataSet.Serialize, JSON, uRequisicao;
 
 type
 
@@ -20,15 +20,20 @@ type
     Function VerificaExe(Nome: String): Boolean;
     procedure AbrirExe(Nome: String);
     procedure FecharExe(ExeFileName: String);
+    function ATUALIZADOR : String;
     function USANFCE: String;
     function SITE(Nome: string): String;
     function IMPRESSAO: String;
     function SERVIDOR: String;
-    function PSSITE : String;
+    function PSSITE: String;
+    procedure AlteraExtrasIguais;
 
   var
     conexao: Tconexao;
     Name: String;
+    URL: String;
+    uReq: iRequisicao;
+    ExeAtualizador : Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -52,6 +57,7 @@ type
     procedure FimAtualizacao;
     procedure AtualizaSaldoEstoque;
     procedure AtivaInativaProdutos;
+    procedure AlteraExtrasIguais;
     function ObterDiaDaSemana: string;
     procedure FazExclusaoClientes;
 
@@ -72,6 +78,11 @@ implementation
 
 {$R *.dfm}
 { TAbrirServicos }
+
+procedure TfrmServicosGoopedir.AlteraExtrasIguais;
+begin
+  //
+end;
 
 procedure TfrmServicosGoopedir.AtivaInativaProdutos;
 var
@@ -108,7 +119,6 @@ begin
     begin
       while not Dados.Eof do
       begin
-        //
         prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
         ShellExecute(0, 'open', PChar(prog),
           PChar(Dados.FieldByName('codigo').AsString + ' ' +
@@ -218,16 +228,18 @@ begin
         while not Pedidos.Eof do
         begin
 
-//          conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-//          conexao.SQL.Add('VALUES (' + Pedidos.FieldByName('codigo').AsString +', ' + QuotedStr(Dados.FieldByName('data_formatada').AsString) + ')');
-//          conexao.ExecuteSQL;
-        conexao.SQL.Clear;
-        conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-        conexao.SQL.Add('VALUES (:codigo, :data_formatada)');
-        conexao.SQL.Add('ON DUPLICATE KEY UPDATE referencia = VALUES(referencia)');
-        conexao.Parametros('codigo',Pedidos.FieldByName('codigo').AsString);
-        conexao.Parametros('data_formatada',Dados.FieldByName('data_formatada').AsString);
-        conexao.ExecuteSQL;
+          // conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
+          // conexao.SQL.Add('VALUES (' + Pedidos.FieldByName('codigo').AsString +', ' + QuotedStr(Dados.FieldByName('data_formatada').AsString) + ')');
+          // conexao.ExecuteSQL;
+          conexao.SQL.Clear;
+          conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
+          conexao.SQL.Add('VALUES (:codigo, :data_formatada)');
+          conexao.SQL.Add
+            ('ON DUPLICATE KEY UPDATE referencia = VALUES(referencia)');
+          conexao.Parametros('codigo', Pedidos.FieldByName('codigo').AsString);
+          conexao.Parametros('data_formatada',
+            Dados.FieldByName('data_formatada').AsString);
+          conexao.ExecuteSQL;
 
           Pedido(Pedidos, conexao, Dados.FieldByName('data_formatada').AsString,
             'pedido', 'codigo');
@@ -243,13 +255,14 @@ begin
 
   PedidoProdutos := conexao.CriaQRY;
   PedidoProdutos.SQL.Add
-    ('select * from pedido_produtos where codigo_pedido > 0');
+    ('select * from pedido_produtos where codigo_pedido > 0 and DATE_FORMAT(hora, "%Y_%m")  <> DATE_FORMAT(curdate(), "%Y_%m")');
   PedidoProdutos.Open;
 
   while not PedidoProdutos.Eof do
   begin
     conexao.SQL.Add('select * from index_pedido where id = :id');
-    conexao.Parametros('id', PedidoProdutos.FieldByName('codigo_pedido').AsInteger);
+    conexao.Parametros('id', PedidoProdutos.FieldByName('codigo_pedido')
+      .AsInteger);
     Origem := conexao.FieldByName('referencia');
 
     if Origem <> '' then
@@ -525,6 +538,95 @@ begin
 
 end;
 
+procedure TAbrirServicos.AlteraExtrasIguais;
+var
+  conexao: Tconexao;
+  QRY: TFDQuery;
+  Obje: TJsonObject;
+  Dados: TFDMemTable;
+  prog: String;
+begin
+  prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
+  conexao := Tconexao.Create('AlteraExtrasIguais');
+  QRY := conexao.CriaQRY;
+  QRY.SQL.Add('select * from fila where origem = "AlteraExtrasIguais"');
+  QRY.Open;
+
+  if QRY.RecordCount > 0 then
+  begin
+    while not QRY.Eof do
+    begin
+      try
+        Obje := TJsonObject.ParseJSONValue(QRY.FieldByName('json').AsString)
+          as TJsonObject;
+
+        conexao.SQL.Add
+          ('select paps.id, pap.id_produto, p.codigo, p.userid from pro_adi_personalizado_sabores as paps ');
+        conexao.SQL.Add
+          ('join pro_adi_personalizado as pap on pap.id = paps.id_pro_adi_personalizado ');
+        conexao.SQL.Add('join produto as p on p.codigo = pap.id_produto ');
+        conexao.SQL.Add
+          ('where upper(pap.descricao) = :categoria and upper(paps.nome) = :adicional ');
+        conexao.SQL.Add
+          ('and pap.id_produto <> :produto and paps.valor <> :valor ');
+        Dados := TFDMemTable.Create(nil);
+        conexao.Parametros('categoria',
+          UpperCase(Obje.GetValue<String>('categoria')));
+        conexao.Parametros('adicional',
+          UpperCase(Obje.GetValue<String>('nome')));
+        conexao.Parametros('valor', Obje.GetValue<String>('valor'));
+        conexao.Parametros('produto', Obje.GetValue<String>('codigo'));
+        Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+        if Dados.RecordCount > 0 then
+        begin
+
+          while not Dados.Eof do
+          begin
+            conexao.SQL.Add
+              ('update pro_adi_personalizado_sabores set valor = :valor where id =:id');
+            conexao.Parametros('adicional', Obje.GetValue<String>('nome'));
+            conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
+            conexao.ExecuteSQL;
+
+            if FileExists(prog) then
+            begin
+              ShellExecute(0, 'open', PChar(prog),
+                PChar(Dados.FieldByName('codigo').AsString + ' ' +
+                Dados.FieldByName('userid').AsString), nil, SW_SHOWNORMAL);
+              conexao.SQL.Add('delete from fila where id = :id');
+              conexao.Parametros('id', QRY.FieldByName('id').AsInteger);
+              conexao.ExecuteSQL;
+            end;
+
+            Dados.Next;
+          end;
+
+        end;
+
+        Dados.Free;
+        Obje.Free;
+      except
+        on E: Exception do
+        begin
+          // //showmessage(E.Message)
+        end;
+      end;
+
+      QRY.Next;
+    end;
+  end;
+
+  QRY.Free;
+  conexao.Free;
+
+end;
+
+function TAbrirServicos.ATUALIZADOR: String;
+begin
+   Result := ExtractFileDir(Application.ExeName) + '\' + 'atualizador.exe';
+end;
+
 constructor TAbrirServicos.Create;
 var
   IniFile: TIniFile;
@@ -533,7 +635,11 @@ begin
 
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'SiteGooPedir');
+  URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
   IniFile.Free;
+  uReq := iRequisicao.Create(nil);
+  uReq.BaseURL := URL;
+
 end;
 
 destructor TAbrirServicos.Destroy;
@@ -546,12 +652,49 @@ procedure TAbrirServicos.Execute;
 var
   ServicoNFCe: Boolean;
   contador: Integer;
+  JSONValue: TJSONValue;
+  JSONObject: TJsonObject;
+  ImpressoraObject: TJsonObject;
+  ComandaValue: Boolean;
 begin
   inherited;
   contador := 0;
   while not Terminated do
   begin
+//    if not ExeAtualizador then
+//    begin
+//      AbrirExe(Atualizador);
+//      ExeAtualizador := true;
+//    end;
+
     inc(contador);
+    uReq.URL := '/v2/status';
+    uReq.Metodo := mGet;
+    try
+      uReq.Execute;
+
+      JSONValue := TJsonObject.ParseJSONValue(uReq.Retorno);
+      try
+        if JSONValue is TJsonObject then
+        begin
+          JSONObject := JSONValue as TJsonObject;
+
+          // Acessa o objeto "impressora"
+          ImpressoraObject := JSONObject.GetValue('impressora') as TJsonObject;
+
+          // Obtém o valor da chave "comanda"
+          ComandaValue := ImpressoraObject.GetValue<Boolean>('comanda');
+
+          // Exibe o valor no console
+
+        end;
+      finally
+        JSONValue.Free;
+      end;
+
+    except
+
+    end;
 
     try
       ServicoNFCe := frmServicosGoopedir.Configuracoes.FieldByName('nfce')
@@ -574,11 +717,13 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if (not VerificaExe(PSSITE)) then
-      AbrirExe(PSSITE);
+    if ComandaValue then
+    begin
+      if (not VerificaExe(PSSITE)) then
+        AbrirExe(PSSITE);
+    end;
 
-
-
+    AlteraExtrasIguais;
     Sleep(15 * 1000);
   end;
 

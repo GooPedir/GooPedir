@@ -324,7 +324,7 @@ begin
           (JSONObject.GetValue<TJSONArray>('produtos'));
 
         // Aqui você pode processar o pedido (salvar no banco, exibir, etc.)
-        // showmessage1('Pedido processado: ' + Pedido.ClienteNome);
+        // //showmessage1('Pedido processado: ' + Pedido.ClienteNome);
       finally
 
       end;
@@ -333,7 +333,7 @@ begin
     end;
   except
     on E: Exception do
-      showmessage('Erro ao processar pedido: ' + E.Message);
+      //showmessage('Erro ao processar pedido: ' + E.Message);
   end;
   Qry.Close;
   Qry.SQL.Clear;

@@ -324,7 +324,7 @@ type
       Valor: Real);
 
     function GetComputerName: string;
-        procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
+    procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
     function GenerateUUID: string;
   end;
 
@@ -538,6 +538,7 @@ var
   TotalPago: Real;
   ValorDiferenca1: Real;
   DiferencaCentavos: Real;
+  TotalNota : Real;
 
 begin
   MemoryPagamento := TFDMemTable.Create(nil);
@@ -631,17 +632,19 @@ begin
   // Seus valores aqui devem ser convertidos ou atribuídos corretamente ao tipo Currency
   VlrProdutos := (VlrProdutos); // Arredonda para 2 casas decimais
   TotalPago := (TotalPago); // Arredonda para 2 casas decimais
-  if VlrProdutos > TotalPago then
-  begin
-    TaxaDesconto := VlrProdutos - TotalPago;
-  end;
-  DiferencaCentavos := ((VlrProdutos + TaxaEntrega)-TaxaDesconto) - TotalPago;
+//  if VlrProdutos > TotalPago then
+//  begin
+//    TaxaDesconto := VlrProdutos - TotalPago;
+//  end;
+  DiferencaCentavos := ((VlrProdutos + TaxaEntrega) - TaxaDesconto) - TotalPago;
+  TotalNota := VlrProdutos + TaxaEntrega;
 
-
-  MemoResp.Lines.Add('Produto: '+FloatToStr((VlrProdutos + TaxaEntrega)-TaxaDesconto)+' Pago: '+FloatToStr(TotalPago)+' Diferença: '+FloatToStr(DiferencaCentavos));
+  MemoResp.Lines.Add('Produto: ' + FloatToStr((VlrProdutos + TaxaEntrega) -
+    TaxaDesconto) + ' Pago: ' + FloatToStr(TotalPago) + ' Diferença: ' +
+    FloatToStr(DiferencaCentavos));
 
   VlrProdutos := 0;
-  TotalPago := 0;
+
 
   ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=
     MemoryConfiguracao.FieldByName('certificado').AsString;
@@ -808,11 +811,14 @@ begin
         Prod.vUnCom := mValorUnit;
         Prod.vUnTrib := mValorUnit;
         Prod.vProd := mVlrTotal;
-        Prod.vDesc := TaxaDesconto;
-        Prod.vOutro := TaxaEntrega;
+
+        Prod.vOutro := RoundTo(((Prod.vProd) / TotalNota) * TaxaEntrega,-2);
+        Prod.vDesc := RoundTo(((Prod.vProd + Prod.vOutro) / TotalNota) * TaxaDesconto,-2);
+
+
         Prod.IndTot := itSomaTotalNFe;
         ValorDiferenca1 := 0;
-        TaxaEntrega := 0;
+
 
         // -----------------------------------------------------------------------
         // Tributacao
@@ -1013,10 +1019,12 @@ begin
 
         }
         xPag := MemoryPagamento.FieldByName('descricao').AsString;
-        vPag := RoundTo(MemoryPagamento.FieldByName('valor').AsFloat+DiferencaCentavos, -2);
+        vPag := RoundTo(MemoryPagamento.FieldByName('valor').AsFloat +
+          DiferencaCentavos, -2);
         TotalPagamento := TotalPagamento +
-          RoundTo(MemoryPagamento.FieldByName('valor').AsFloat + DiferencaCentavos, -2);
-          DiferencaCentavos := 0;
+          RoundTo(MemoryPagamento.FieldByName('valor').AsFloat +
+          DiferencaCentavos, -2);
+        DiferencaCentavos := 0;
       end;
       MemoryPagamento.Next;
     end;
@@ -1106,7 +1114,7 @@ begin
     ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.Consultar;
 
-    ShowMessage(ACBrNFe1.WebServices.Consulta.Protocolo);
+    //showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
 
     MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
@@ -1118,7 +1126,7 @@ begin
         [rfIgnoreCase]);
 
     ACBrNFe1.NotasFiscais.Items[0].GravarXML(NomeArq);
-    ShowMessage('Arquivo gravado em: ' + NomeArq);
+    //showmessage('Arquivo gravado em: ' + NomeArq);
     memoLog.Lines.Add('Arquivo gravado em: ' + NomeArq);
   end;
 end;
@@ -1308,9 +1316,9 @@ begin
     MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
     LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
-    ShowMessage(IntToStr(ACBrNFe1.WebServices.EnvEvento.cStat));
-    ShowMessage(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0]
-      .RetInfEvento.nProt);
+    //showmessage(IntToStr(ACBrNFe1.WebServices.EnvEvento.cStat));
+    //showmessage(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0]
+//      .RetInfEvento.nProt);
   end;
 end;
 
@@ -1484,7 +1492,7 @@ begin
   // Certifique-se de que a chave informada tem 44 caracteres
   if length(vChave) <> 44 then
   begin
-    ShowMessage('A chave de acesso deve ter 44 dígitos.');
+    //showmessage('A chave de acesso deve ter 44 dígitos.');
     exit;
   end;
 
@@ -1509,17 +1517,17 @@ begin
       // Salva o XML consultado
       ACBrNFe1.NotasFiscais.Items[0].GravarXML(CaminhoArquivo);
 
-      ShowMessage('XML salvo em: ' + CaminhoArquivo);
+      //showmessage('XML salvo em: ' + CaminhoArquivo);
     end
     else
     begin
-      ShowMessage('A consulta foi realizada, mas não retornou um XML.');
+      //showmessage('A consulta foi realizada, mas não retornou um XML.');
     end;
   end
   else
   begin
-    ShowMessage('Erro ao consultar a NFC-e: ' +
-      ACBrNFe1.WebServices.Consulta.Msg);
+    //showmessage('Erro ao consultar a NFC-e: ' +
+//      ACBrNFe1.WebServices.Consulta.Msg);
   end;
 
   // Exibe as respostas nos memo
@@ -1545,7 +1553,7 @@ begin
     ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.Consultar;
 
-    ShowMessage(ACBrNFe1.WebServices.Consulta.Protocolo);
+    //showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
     MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
     LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
@@ -2020,7 +2028,7 @@ begin
 
 
 
-  // ShowMessage('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items[0].NomeArq);
+  // //showmessage('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items[0].NomeArq);
   // MemoDados.Lines.Add('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items
   // [0].NomeArq);
 
@@ -2062,7 +2070,7 @@ begin
       try
         ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
       except
-        ShowMessage('Arquivo NFe Inválido');
+        //showmessage('Arquivo NFe Inválido');
         exit;
       end;
     end;
@@ -2949,7 +2957,7 @@ begin
       'dhRegEvento: ' + DateTimeToStr(dhRegEvento) + #13 + 'nProt: ' + nProt;
   end;
 
-  ShowMessage(lMsg);
+  //showmessage(lMsg);
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
@@ -3037,7 +3045,7 @@ begin
       MemoResp.Lines.Add('CNPJ: ' + ACBrNFe1.SSL.CertCNPJ);
       MemoResp.Lines.Add('Num.Série: ' + ACBrNFe1.SSL.CertNumeroSerie);
 
-      ShowMessage('ASSINATURA VÁLIDA');
+      //showmessage('ASSINATURA VÁLIDA');
     end;
   end;
 end;
@@ -3066,10 +3074,10 @@ begin
     if not Ok then
     begin
       MemoDados.Lines.Add('Erro: ' + Msg);
-      ShowMessage('Erros encontrados' + sLineBreak + 'Tempo: ' + Tempo);
+      //showmessage('Erros encontrados' + sLineBreak + 'Tempo: ' + Tempo);
     end
     else
-      ShowMessage('Tudo OK' + sLineBreak + 'Tempo: ' + Tempo);
+      //showmessage('Tudo OK' + sLineBreak + 'Tempo: ' + Tempo);
   end;
 end;
 
@@ -3098,7 +3106,7 @@ begin
         MemoDados.Lines.Add('Alertas: ' + ACBrNFe1.NotasFiscais.Items
           [0].Alertas);
 
-      ShowMessage('Nota Fiscal Eletrônica Valida');
+      //showmessage('Nota Fiscal Eletrônica Valida');
     except
       on E: Exception do
       begin
@@ -3276,8 +3284,15 @@ begin
 end;
 
 function TfrmACBrNFe.GenerateUUID: string;
+var
+  GUID: TGUID;
 begin
-
+  // Gera um novo GUID
+  if CreateGUID(GUID) = 0 then
+    // Converte o GUID para string no formato padrão
+    Result := GUIDToString(GUID)
+  else
+    Result := ''; // Retorna uma string vazia em caso de erro
 end;
 
 procedure TfrmACBrNFe.GerarContabil;
@@ -3332,7 +3347,8 @@ begin
   // .AsString);
   // end;
 
-  CaminhoNFCe := edtPathNFe.Text + '\' + MemoryConfiguracao.FieldByName('cnpj').AsString + '\NFCe\' + FormatDateTime('yyyymm', now) + '\';
+  CaminhoNFCe := edtPathNFe.Text + '\' + MemoryConfiguracao.FieldByName('cnpj')
+    .AsString + '\NFCe\' + FormatDateTime('yyyymm', now) + '\';
   CNPJ := MemoryConfiguracao.FieldByName('cnpj').AsString;
 
   ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=
@@ -3444,9 +3460,9 @@ begin
     Ini.Free;
   end;
 
-  cbxPastaMensal.Checked := true;
-  cbxSepararPorCNPJ.Checked := true;
-  cbxSepararPorModelo.Checked := true;
+  cbxPastaMensal.Checked := True;
+  cbxSepararPorCNPJ.Checked := True;
+  cbxSepararPorModelo.Checked := True;
 end;
 
 function TfrmACBrNFe.Internet: Boolean;
@@ -3698,15 +3714,73 @@ end;
 
 procedure TfrmACBrNFe.EnviaGlitchtip(DSN, Tipo, Identificacao,
   Mensagem: String);
+var
+  JsonObjec: TJsonObject;
+  Chave, API, JSONBody: string;
+  URL: String;
+  iGlitchtip: iRequisicao;
 begin
+  iGlitchtip := iRequisicao.Create(nil);
+  JsonObjec := TJsonObject.Create;
+  Mensagem := StringReplace(Mensagem, '"', '', [rfReplaceAll]);
 
+  // Extrai a chave e a URL da DSN
+  Chave := copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
+  URL := copy(DSN, pos('@', DSN) + 1, length(DSN));
+  URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
+  API := copy(URL, pos('/', URL) + 1, length(URL));
+  URL := StringReplace(URL, '/' + API, '', []);
+
+  JSONBody := '';
+  JSONBody := JSONBody + '{';
+  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
+  JSONBody := JSONBody + '  "timestamp": "' +
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now) + '",';
+  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
+  JSONBody := JSONBody + '  "platform": "delphi",';
+  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
+  JSONBody := JSONBody + '  "exception": {';
+  JSONBody := JSONBody + '    "values": [';
+  JSONBody := JSONBody + '      {';
+  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
+  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
+  JSONBody := JSONBody + '      }';
+  JSONBody := JSONBody + '    ]';
+  JSONBody := JSONBody + '  },';
+  JSONBody := JSONBody + '  "tags": {';
+  JSONBody := JSONBody + '    "environment": "production",';
+  JSONBody := JSONBody + '    "user": "' + GetComputerName + '"';
+  JSONBody := JSONBody + '  }';
+  JSONBody := JSONBody + '}';
+  JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
+  JsonObjec.AddPair('autorizacao', Chave);
+  JsonObjec.AddPair('body', JSONBody);
+
+  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  //showmessage(JsonObjec.ToString);
+  iGlitchtip.BODY(JsonObjec);
+
+  try
+    iGlitchtip.Metodo := mPost;
+
+    iGlitchtip.Execute;
+    // //showmessage(iGlitchtip.Retorno);
+
+  except
+    on E: Exception do
+    begin
+      // //showmessage(E.Message);
+    end;
+
+  end;
+  iGlitchtip.Free;
 end;
 
 procedure TfrmACBrNFe.EnviarNotaFiscal(CNPJ, Data, Hora, Chave, Caminho: String;
   Valor: Real);
 var
   Param: TRESTRequestParameter;
-  ResponseJSON: TJSONObject;
+  ResponseJSON: TJsonObject;
 begin
   RESTClient.BaseUrl := 'https://nfce.goopedir.com/gravar.php';
   RESTRequest.Method := rmPOST;
@@ -3745,8 +3819,8 @@ begin
     // Verifica a resposta
     if RESTResponse.StatusCode = 200 then
     begin
-      ResponseJSON := TJSONObject.ParseJSONValue(RESTResponse.Content)
-        as TJSONObject;
+      ResponseJSON := TJsonObject.ParseJSONValue(RESTResponse.Content)
+        as TJsonObject;
       try
         if ResponseJSON.GetValue('success') <> nil then
         begin
@@ -4040,13 +4114,13 @@ var
 
   MemoryConfiguracao: TFDMemTable;
   Requisicao: iRequisicao;
-  JsonObject: TJSONObject;
+  JsonObject: TJsonObject;
 
 begin
   if not cEmissao.Checked then
     exit;
   try
-    {
+
       notasContabilidade.Close;
       iContabilidade.URL := 'nfce/notas/sinc';
       iContabilidade.Metodo := mGet;
@@ -4070,7 +4144,7 @@ begin
 
       notasContabilidade.Next;
       end;
-      end; }
+      end;
 
     dadosEmissao.Close;
     iEmissao.MemTable2 := dadosEmissao;
@@ -4127,12 +4201,13 @@ begin
           except
             on E: Exception do
             begin
-              MemoResp.Lines.Add(E.Message + ' ' + dadosEmissao.FieldByName
-                ('codigo').AsString);
+              // MemoResp.Lines.Add(E.Message + ' ' + dadosEmissao.FieldByName
+              // ('codigo').AsString);
               Erro := E.Message;
+
             end;
           end;
-//
+          //
           if (pos('Duplicidade de NF-e', Erro) > 0) then
           begin
             Chave := ExtrairChaveNFe(Erro);
@@ -4196,6 +4271,12 @@ begin
 
             // Enviar NFC-e
 
+          end
+          else
+          begin
+            EnviaGlitchtip
+              ('https://2321bb196f424d6aa9e80d51cc77273b@nginx-glitchtip.l1p88w.easypanel.host/6',
+              CNPJ, dadosEmissao.FieldByName('codigo').AsString, Erro);
           end;
         end;
 
@@ -4222,7 +4303,8 @@ begin
 
       while not dadosCode.Eof do
       begin
-        Arquivo := CaminhoNFCe + dadosCode.FieldByName('chave').AsString +'-nfe.xml';
+        Arquivo := CaminhoNFCe + dadosCode.FieldByName('chave').AsString +
+          '-nfe.xml';
         if FileExists(Arquivo) then
         begin
           ACBrNFe1.NotasFiscais.Clear;

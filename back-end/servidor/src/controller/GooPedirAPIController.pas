@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Data.Bind.Components, Data.Bind.ObjectScope,
-  uRequisicao, System.JSON, DataSet.Serialize, uLogThread;
+  uRequisicao, System.JSON, DataSet.Serialize, uLogThread, Conexao, Inifiles;
 
 type
   // Define tipos para as funções que serão passadas
@@ -51,6 +51,8 @@ procedure TGooPedirAPIController.BuscarToken;
 var
   JsonObject: TJSONObject;
   FRequisicao: iRequisicao;
+  IniFile: TIniFile;
+
 begin
   FRequisicao := ConfigureRESTClient;
   try
@@ -59,15 +61,21 @@ begin
     FRequisicao.AddHeader('client-id', FClientID);
     FRequisicao.AddHeader('client-security', FClientSecret);
     FRequisicao.Execute;
-    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)
-      as TJSONObject;
+    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno) as TJSONObject;
 
     FUserID := JsonObject.GetValue<Integer>('user');
     FName := JsonObject.GetValue<String>('name');
     FToken := JsonObject.GetValue<String>('token');
 
+    IniFile := TIniFile.Create('./goopedir.ini');
+    IniFile.WriteString('server', 'token', FToken);
+    IniFile.Free;
   except
-    FClientToken := False;
+    on e: exception do
+    begin
+      FClientToken := False;
+    end;
+
   end;
 
   FRequisicao.Free;
@@ -116,7 +124,7 @@ begin
     var
       I: Integer;
     begin
-    LogThread('EnviaFuncionamento','Iniciando');
+      LogThread('EnviaFuncionamento', 'Iniciando');
       JsonCampos := TJSONArray.Create;
       JSonBody := TJSONObject.Create;
       try
@@ -132,7 +140,9 @@ begin
             JsonCampo.AddPair('valor', FStatusHorario(DiasDaSemana[I]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
-          end else begin
+          end
+          else
+          begin
             JsonCampo := TJSONObject.Create;
             JsonCampo.AddPair('campo', 'config_' + DiasDaSemana[I]);
             JsonCampo.AddPair('valor', 'false');
@@ -176,14 +186,13 @@ begin
             JsonCampos.AddElement(JsonCampo);
           end;
 
-
         end;
 
         JSonBody.AddPair('campos', JsonCampos);
         EnviaPostParam(JSonBody);
 
       finally
-       LogThread('EnviaFuncionamento','Finalizando');
+        LogThread('EnviaFuncionamento', 'Finalizando');
       end;
     end).Start;
 end;
@@ -230,7 +239,7 @@ begin
 
     FRequisicao.Execute;
   except
-    on E: Exception do
+    on e: exception do
       // showmessage1('Erro ao enviar os parâmetros: ' + E.Message);
   end;
   FRequisicao.Free;
@@ -256,14 +265,20 @@ var
   JSonBody: TJSONObject;
   JsonCampos: TJSONArray;
   JsonCampo: TJSONObject;
+
 begin
   if FUserID < 1 then
     Exit;
 
   TThread.CreateAnonymousThread(
     procedure
+    var
+      Conexao: TConexao;
+      Qry: TFDQuery;
     begin
-      LogThread('SincronizaParametros','Iniciando');
+      LogThread('SincronizaParametros', 'Iniciando');
+      Conexao := TConexao.Create('SincronizaParametros');
+      Qry := Conexao.CriaQRY;
 
       Dados := TFDMemTable.Create(nil);
       Dados.LoadFromJSON(Param);
@@ -280,8 +295,26 @@ begin
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'img_header');
+      JsonCampo.AddPair('valor', Dados.FieldByName('banner').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'img_logo');
+      JsonCampo.AddPair('valor', Dados.FieldByName('logo').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cnpj_empresa');
       JsonCampo.AddPair('valor', Dados.FieldByName('cnpj').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'pixel');
+      JsonCampo.AddPair('valor', Dados.FieldByName('pixel').AsString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
@@ -348,18 +381,22 @@ begin
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'localizacao_gp');
-      JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'localizacao_gp');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
 
+      Qry.SQL.Add('select mensagem_inicio from dados_whatsapp');
+      Qry.Open;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem');
-      JsonCampo.AddPair('valor', Dados.FieldByName('mensagem_inicio').AsString);
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio')
+        .AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
-
+      Qry.Free;
+      Conexao.Free;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'fidelidade_status');
       JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade').AsString);
@@ -385,11 +422,30 @@ begin
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'cor_topo');
+      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fundo').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'cor_loading');
+      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fundo').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'cor_titulo_produtos');
+      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fonte').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
       JSonBody.AddPair('campos', JsonCampos);
 
       EnviaPostParam(JSonBody);
 
-      LogThread('SincronizaParametros','Finalizando');
+      LogThread('SincronizaParametros', 'Finalizando');
     end).Start;
 end;
 

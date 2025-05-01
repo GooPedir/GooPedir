@@ -4,10 +4,12 @@ interface
 
 uses util, conexao, FireDAC.Comp.Client, DataSet.Serialize, System.SysUtils,
   uLogThread, uInserirUpdate, Winapi.Windows, Winapi.ShellAPI, Vcl.Forms,
-  uControllerSite;
+  uControllerSite, JOSE.Types.JSON;
 
 // Local
 function EnviaProduto(codigo: Integer; Base64Imagem: String): Integer;
+procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
+  CodigoProdutoAtual: Integer);
 
 function EnviaCategoria(codigo: Integer): Integer;
 procedure EnviaSabores(codigoGrupo: Integer);
@@ -38,6 +40,33 @@ end;
 function EnviaCategoria(codigo: Integer): Integer;
 begin
   SiteCategoria(codigo, frmServidor.UserID);
+   frmServidor.AtualizaCacheSite;
+end;
+
+procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
+  CodigoProdutoAtual: Integer);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+
+  JsonObject: TJSONObject;
+  Qry: TFDQuery;
+begin
+  JsonObject := TJSONObject.Create;
+  JsonObject.AddPair('categoria', Categoria);
+  JsonObject.AddPair('nome', Nome);
+  JsonObject.AddPair('valor', Valor);
+  JsonObject.AddPair('codigo', CodigoProdutoAtual);
+  conexao := TConexao.Create('AlteraExtrasIguais');
+  Qry := conexao.CriaQRY;
+  Qry.SQL.Add('insert into fila (origem,json)');
+  Qry.SQL.Add('values (:origem,:json)');
+  Qry.ParamByName('origem').AsString := 'AlteraExtrasIguais';
+  Qry.ParamByName('json').AsString := JsonObject.ToString;
+  Qry.ExecSQL;
+  Qry.Free;
+  conexao.Free;
+  JsonObject.Free;
 end;
 
 function EnviaProduto(codigo: Integer; Base64Imagem: String): Integer;
@@ -63,6 +92,8 @@ begin
       EnviaFotoProduto(Dados.FieldByName('id_site').AsInteger, Base64Imagem);
     end;
   end;
+
+  frmServidor.AtualizaCacheSite;
 end;
 
 procedure EnviaFotoProduto(codigo: Integer; Base64: String);

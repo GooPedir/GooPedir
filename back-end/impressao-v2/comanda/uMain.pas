@@ -102,13 +102,13 @@ begin
   try
     Req.Execute;
     Result := Req.Retorno;
-    // ShowMessage(Result)
+    // //showmessage(Result)
   except
     on E: Exception do
     begin
       Result := '[]';
       TrayIcon1.IconIndex := 2;
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
     end;
   end;
 

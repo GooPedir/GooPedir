@@ -174,11 +174,12 @@ var
   Outros: boolean;
   Descricao: String;
   Resultado: boolean;
+  Count: Integer;
 begin
 
   IniFile := TIniFile.Create('./goopedir.ini');
-  UrlServidor := IniFile.ReadString('server', 'baseurl','http://localhost:2121/');
-
+  UrlServidor := IniFile.ReadString('server', 'baseurl',
+    'http://localhost:2121/');
 
   Tipo := IniFile.ReadString('impressao', 'tipo', '0');
   IniFile.WriteString('impressao', 'tipo', Tipo);
@@ -192,9 +193,10 @@ begin
   Prioridade := priNull;
   TrayIcon1.Hint := TimeToStr(Now);
 
-  // ShowMessage(ParamCount.ToString);
+  // //showmessage(ParamCount.ToString);
+  Count := ParamCount;
 
-  if ParamCount > 0 then
+  if Count > 0 then
   begin
     // Pega o primeiro parâmetro (índice 1)
     Param := ParamStr(1);
@@ -273,7 +275,7 @@ begin
     begin
       while not Terminate do
       begin
-//        Retorno := dmImpressaoV2.Consulta('v1/versao/app');
+        // Retorno := dmImpressaoV2.Consulta('v1/versao/app');
         Retorno := '{}';
 
         if (Retorno = '[]') then
@@ -456,7 +458,7 @@ begin
   except
     on E: exception do
     begin
-      // ShowMessage(E.Message);
+      // //showmessage(E.Message);
     end;
   end;
 

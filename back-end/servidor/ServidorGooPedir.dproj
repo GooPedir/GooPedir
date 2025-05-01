@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Realease</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -222,6 +222,7 @@
         <DCCReference Include="src\modulos\Controller\uInserirUpdate.pas"/>
         <DCCReference Include="src\controller\uControlerProduto.pas"/>
         <DCCReference Include="src\controller\uControllerSite.pas"/>
+        <DCCReference Include="src\modulos\uNewConsultas.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -249,6 +250,12 @@
             </Delphi.Personality>
             <Deployment Version="4">
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ServidorGooPedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Realease" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ServidorGooPedir.exe</RemoteName>
                         <Overwrite>true</Overwrite>

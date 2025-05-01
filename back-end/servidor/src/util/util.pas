@@ -7,7 +7,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
   System.Variants, conexao, uCacheControl, uControllCaches, uLogThread,
-  System.Generics.Collections, System.DateUtils;
+  System.Generics.Collections, System.DateUtils, uNewConsultas;
 
 type
   TValoresPizza = record
@@ -57,8 +57,7 @@ procedure LimparCacheProduto;
 procedure LimparPastas(const Caminho: string);
 
 function UnionPedio(Tabela, Tipo: String): String;
-function GerarArrayMesesAno(const DataInicial, DataFinal: TDateTime)
-  : TArray<string>;
+
 
 
 
@@ -1280,11 +1279,13 @@ begin
   end;
 
   SQL := UnionPedio('pedido', Tipo);
-  // SQL := SQL + ' order by data desc,codigo_dia';
+  SQL := SQL + ' order by data desc,codigo_dia';
   conexao.SQL.Add(SQL);
+  // ShowMessage(SQL);
   conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
   conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
   // conexao.Parametros('tipo', Tipo);
+
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
   Res.Send<TJSONArray>(Dados.ToJSONArray());
@@ -1431,6 +1432,22 @@ begin
   conexao.Free;
 end;
 
+procedure DoGetFechamentoCaixa(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  JSON: TJSONObject;
+begin
+  JSON := TJSONObject.Create;
+
+  if frmServidor.FaturarEmAberto then
+    JSON.AddPair('status', false)
+  else
+    JSON.AddPair('status', true);
+
+  Res.Send<TJSONObject>(JSON);
+
+end;
+
 procedure DoPostFaturarPeido(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -1441,6 +1458,10 @@ var
   ValorTotal: Real;
   Descricao: String;
 begin
+  if frmServidor.FaturarEmAberto then
+    exit;
+
+  frmServidor.FaturarEmAberto := true;
 
   try
     Caixa := Req.Params['caixa'].ToInteger;
@@ -1481,6 +1502,7 @@ begin
   end;
   Dados.Free;
   conexao.Free;
+  frmServidor.FaturarEmAberto := false;
 end;
 
 procedure DoPostFechamentoCaixa(Req: THorseRequest; Res: THorseResponse;
@@ -1547,10 +1569,14 @@ begin
 
     Dados.Free;
 
+    frmServidor.SincronizaCaixa(Caixa);
+
+    // Sincronizar o Caixa
+
   except
     on E: Exception do
     begin
-      // showmessage1(e.Message)
+      // //showmessage1(e.Message)
     end;
 
   end;
@@ -1818,7 +1844,7 @@ begin
       ',ativo,observacao,adicional_personalizado,valor_embalagem_delivery,valor_embalagem_vembusca,usa_tabela_preco,atualizado,modificado_site,valor_ifood) values ';
     SQL := SQL +
       '(:codigo,:interno,current_date,:nome,:descricao,:grupo,:venda,:ativo,1,1,:delivery,:vb,1,0,1,:valor_ifood)';
-    Novo := True;
+    Novo := true;
   end
   else
   begin
@@ -2724,12 +2750,12 @@ begin
   // Memo.Lines.SaveToFile(LocalImagem);
   // Memo.Lines.Clear;
   // Memo.Free;
-  // // //showmessage1(arquivo);
+  // // ////showmessage1(arquivo);
   //
   // except
   // on E: Exception do
   // begin
-  // // //showmessage1(E.Message);
+  // // ////showmessage1(E.Message);
   // end;
   //
   // end;
@@ -3023,6 +3049,8 @@ begin
   conexao.SQL.Add
     ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
   conexao.SQL.Add('pp.html as obs, pp.selecionado,');
+  conexao.SQL.Add
+    ('(select nome from usuario where codigo = pp.usuario) as usuario,');
   conexao.SQL.Add('0 as paga,');
   conexao.SQL.Add('0 as paga_tot');
   conexao.SQL.Add('FROM pedido_produtos as pp');
@@ -3068,7 +3096,9 @@ begin
   conexao.SQL.Add
     ('(select sum(quantidade) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga,');
   conexao.SQL.Add
-    ('(select sum(valor) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga_tot');
+    ('(select sum(valor) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga_tot,');
+  conexao.SQL.Add
+    ('(select nome from usuario where codigo = pp.usuario) as usuario');
   conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
   conexao.SQL.Add('left join pedido_produto_sap' + Origem +
@@ -3113,18 +3143,22 @@ begin
   if Servico > 0 then
   begin
     conexao.SQL.Add
-      ('update pedido set valor_total_pedido = (((select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) * '
+      ('UPDATE pedido SET servico_percentual = :percentual, valor_total_pedido = TRUNCATE((('
+      + '(SELECT SUM(valor_total) FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :cod) * '
       + FloatToStr(Servico) +
-      ') / 100) + (select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod)');
+      ') / 100) + (SELECT SUM(valor_total) FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :cod), 2),');
+
     conexao.SQL.Add
-      (',servico = ((select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) * '
-      + FloatToStr(Servico) + ') / 100');
-    conexao.SQL.Add('where codigo = :cod and id_ficha > 0');
+      ('servico = TRUNCATE((SELECT SUM(valor_total) FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :cod) * '
+      + FloatToStr(Servico) + ' / 100, 2)');
+
+    conexao.SQL.Add('WHERE codigo = :cod AND id_ficha > 0');
+    conexao.Parametros('percentual', Servico);
   end
   else
   begin
     conexao.SQL.Add
-      ('update pedido set servico = 0, valor_total_pedido = (select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) where codigo = :cod and id_ficha > 0');
+      ('update pedido set servico_percentual = 0, servico = 0, valor_total_pedido = (select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) where codigo = :cod and id_ficha > 0');
   end;
   conexao.Parametros('cod', Codigo);
   conexao.ExecuteSQL;
@@ -3571,6 +3605,9 @@ var
   conexao: Tconexao;
   Test: String;
   JsonObject: TJSONObject;
+  MesesAno: TArray<string>;
+  MesAno: string;
+  SQL: String;
 begin
   conexao := Tconexao.Create('Util');
   try
@@ -3602,19 +3639,35 @@ begin
   // conexao.SQL.Add('where status > 0 and origem in (1,2)');
   // conexao.SQL.Add('and data_pedido in (' + Test + ')');
 
-  conexao.SQL.Add('SELECT ');
-  conexao.SQL.Add('    COUNT(*) AS total,');
-  conexao.SQL.Add
-    ('    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS cancelado,');
-  conexao.SQL.Add('    SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS todos,');
-  conexao.SQL.Add('    COUNT(*) DIV 4 AS media,');
-  conexao.SQL.Add
-    ('    (SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) - COUNT(*)) * 100 / SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS media_cancelado,');
-  conexao.SQL.Add
-    ('    100 - (SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) - COUNT(*)) * 100 / SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS media_concluido');
-  conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add('WHERE origem IN (1, 2)');
-  conexao.SQL.Add('AND data_pedido IN (' + Test + ')');
+  SQL := ' SELECT ';
+  SQL := SQL + ' COUNT(*) AS total, ';
+  SQL := SQL + ' SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS cancelado, ';
+  SQL := SQL + ' SUM(CASE WHEN status > 0 THEN 1 ELSE 0 END) AS todos ';
+
+  // SQL := SQL +' COUNT(*) AS total,  ';
+  // SQL := SQL +' SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS cancelado,    ';
+  // SQL := SQL +' COUNT(*) AS todos,  ';
+  // SQL := SQL +' COUNT(*) AS media,  ';
+  // SQL := SQL +' (COUNT(*) - SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END)) * 100 / COUNT(*) AS media_cancelado, ';
+  // SQL := SQL +' 100 - (COUNT(*) - SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END)) * 100 / COUNT(*) AS media_concluido ';
+  // SQL := SQL +' COUNT(*) AS total,';
+  // SQL := SQL +'    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS cancelado,';
+  // SQL := SQL +'    SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS todos,';
+  // SQL := SQL +'    COUNT(*) AS media,';
+  // SQL := SQL +'    (SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) - COUNT(*)) * 100 / SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS media_cancelado,';
+  // SQL := SQL +'    100 - (SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) - COUNT(*)) * 100 / SUM(CASE WHEN status >= 0 THEN 1 ELSE 0 END) AS media_concluido';
+  SQL := SQL + ' from pedido ';
+  SQL := SQL + 'WHERE origem IN (1, 2,4)';
+  SQL := SQL + 'AND data_pedido IN (' + Test + ')';
+
+  //
+  // 'sum(total) as total, sum(cancelado) as cancelado, sum(todos) as todos, sum(media) / 4 as media, sum(media_cancelado) as media_cancelado, sum(media_concluido) as media_concluido'
+
+  conexao.SQL.Add(CriaSubQueryCampos(SQL,
+    'SUM(total) AS total, SUM(cancelado) AS cancelado, SUM(todos) AS todos, ROUND(SUM(todos) DIV 4,2) as media, ROUND((SUM(cancelado) / SUM(total)) * 100,2) AS media_cancelado, ROUND((SUM(todos) / SUM(total)) * 100,2) AS media_concluido ',
+    FormatDateTime('yyyy-mm-dd', IncMonth(Date, -2)),
+    FormatDateTime('yyyy-mm-dd', Date)));
+
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -3669,7 +3722,7 @@ begin
     + Req.Body + ')) as previsao,');
   conexao.SQL.Add
     ('(select count(*) from pedido where origem in (1,2) and status  > 0 and data_pedido = current_date()) as atual');
-  // //showmessage1(conexao.SQL.text);
+  // ////showmessage1(conexao.SQL.text);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -4029,8 +4082,8 @@ var
   LUploadConfig: TUploadConfig;
 begin
   LUploadConfig := TUploadConfig.Create('c:\serverfiles');
-  LUploadConfig.ForceDir := True;
-  LUploadConfig.OverrideFiles := True;
+  LUploadConfig.ForceDir := true;
+  LUploadConfig.OverrideFiles := true;
 
   // Optional: Callback for each file received
   LUploadConfig.UploadFileCallBack :=
@@ -4104,12 +4157,36 @@ begin
     Origem := '_' + Origem;
   end;
 
+  conexao.SQL.Add
+    ('select m.id_mesa as mesa, concat(mt.descricao," ",m.nr_mesa) as descricao, p.id_ficha, m.tot_mesa as valor_total_pedido from pedido as p');
+  conexao.SQL.Add('join mesa as m on m.selecionada = p.codigo');
+  conexao.SQL.Add('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
+  conexao.SQL.Add
+    ('where p.codigo = :codigo and (p.id_ficha <> m.id_mesa or p.id_ficha is null)');
+  conexao.Parametros('codigo', ID);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+
+    conexao.SQL.Add
+      ('update pedido set id_ficha = :mesa, desc_ficha = :descricao, valor_total_pedido = :valor_total_pedido where codigo = :codigo');
+    conexao.Parametros('mesa', Dados.FieldByName('mesa').AsInteger);
+    conexao.Parametros('descricao', Dados.FieldByName('descricao').AsString);
+    conexao.Parametros('valor_total_pedido',
+      Dados.FieldByName('valor_total_pedido').AsFloat);
+    conexao.Parametros('codigo', ID);
+    conexao.ExecuteSQL;
+  end;
+  Dados.Free;
+  Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add('SELECT * FROM pedido' + Origem + ' where codigo = :codigo');
   conexao.Parametros('codigo', ID);
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
   if Dados.RecordCount > 0 then
   begin
+
     Res.Send<TJSONObject>(Dados.ToJSONObject());
   end
   else
@@ -4268,7 +4345,7 @@ begin
   try
     Tipo := (Req.Params['tipo'].ToInteger > 0);
   except
-    Tipo := False;
+    Tipo := false;
   end;
   {
 
@@ -4290,6 +4367,12 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
+    if Dados.FieldByName('produto').AsInteger = 0 then
+    begin
+      Dados.Free;
+      exit;
+    end;
+
     conexao := Tconexao.Create('Util');
     Dados.Edit;
     if Dados.FieldByName('cliente').AsInteger = 0 then
@@ -5632,7 +5715,7 @@ begin
     exit;
   end;
 
-  MovimentacaoInsulmo(ingrediente, Tipo, qtd, Custo, Custo / qtd, False);
+  MovimentacaoInsulmo(ingrediente, Tipo, qtd, Custo, Custo / qtd, false);
 
 end;
 
@@ -6150,7 +6233,7 @@ begin
         MovimentacaoInsulmo(Dados.FieldByName('ID').AsInteger, 1,
           Dados.FieldByName('QTD').AsFloat * Fator,
           Dados.FieldByName('CUSTOTOTAL').AsFloat, Dados.FieldByName('CUSTOUN')
-          .AsFloat, True);
+          .AsFloat, true);
         // Fazer Atualização do custo dos ingredientes cujo são sub-produtos;
         Res.Send<TJSONArray>(AtualizacaoCustoIngrediente(Dados.FieldByName('ID')
           .AsInteger));
@@ -6201,7 +6284,7 @@ begin
     begin
 
       MovimentacaoInsulmo(Dados.FieldByName('id_ingredientes').AsInteger, 2,
-        Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
+        Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
 
       Dados.Next;
     end;
@@ -6232,7 +6315,7 @@ begin
     begin
 
       MovimentacaoInsulmo(Dados.FieldByName('ingredientes').AsInteger, 2,
-        Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
+        Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
 
       Dados.Next;
     end;
@@ -6370,11 +6453,11 @@ begin
         if not frmServidor.FechouWhatsapp then
         begin
           frmServidor.FecharExe(frmServidor.WHATSAPP);
-          frmServidor.FechouWhatsapp := True
+          frmServidor.FechouWhatsapp := true
         end
         else
         begin
-          frmServidor.FechouWhatsapp := False;
+          frmServidor.FechouWhatsapp := false;
           frmServidor.AbrirExe(frmServidor.WHATSAPP);
         end;
       end;
@@ -6384,11 +6467,11 @@ begin
         if not frmServidor.FechouSite then
         begin
           frmServidor.FecharExe(frmServidor.SITE(frmServidor.NomeExeSite));
-          frmServidor.FechouSite := True
+          frmServidor.FechouSite := true
         end
         else
         begin
-          frmServidor.FechouSite := False;
+          frmServidor.FechouSite := false;
           frmServidor.AbrirExe(frmServidor.SITE(frmServidor.NomeExeSite));
         end;
       end;
@@ -6851,17 +6934,69 @@ Next: TProc);
 var
   URL: String;
   conexao: Tconexao;
+  MerchantID: String;
+  JsonObj: TJSONObject;
 begin
-  URL := frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger())
-    .GetURLVerification(False);
+  JsonObj := TJSONObject.Create;
   conexao := Tconexao.Create('DoGetAutenticacaoiFood');
-  conexao.SQL.Add('update ifood_connect set link = :link where id = :id');
-  conexao.Parametros('link', URL);
-  conexao.Parametros('id', Req.Params['id']);
-  conexao.ExecuteSQL;
+
+  if not Assigned(frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger()))
+  then
+  begin
+    conexao.SQL.Add('select * from ifood_connect where id = :id');
+    conexao.Parametros('id', Req.Params['id']);
+    try
+      MerchantID := conexao.FieldByName('merchantid');
+    except
+      MerchantID := '';
+    end;
+
+    if MerchantID = '' then
+    begin
+      JsonObj.AddPair('status', 'error');
+      JsonObj.AddPair('msg', 'MerchantID não configurado!');
+      Res.Status(200).Send(JsonObj);
+
+    end
+    else
+    begin
+      frmServidor.CreateiFoodConnection(Req.Params['id'], MerchantID);
+    end;
+
+  end
+  else
+  begin
+    conexao.SQL.Add('select * from ifood_connect where id = :id');
+    conexao.Parametros('id', Req.Params['id']);
+    try
+      MerchantID := conexao.FieldByName('merchantid');
+    except
+      MerchantID := '';
+    end;
+  end;
+  try
+    if MerchantID <> '' then
+    begin
+      URL := frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger())
+        .GetURLVerification(false);
+
+      conexao.SQL.Add('update ifood_connect set link = :link where id = :id');
+      conexao.Parametros('link', URL);
+      conexao.Parametros('id', Req.Params['id']);
+      conexao.ExecuteSQL;
+
+      // URL := frmServidor.ifood.GetURLVerification(True);
+      JsonObj.AddPair('status', 'sucesso');
+      JsonObj.AddPair('msg', URL);
+      Res.Status(200).Send(JsonObj);
+    end;
+  except
+    JsonObj.AddPair('status', 'error');
+    JsonObj.AddPair('msg',
+      'Não foi possivel localizar a integração com o iFood, verificar com o suporte técnico!');
+    Res.Status(200).Send(JsonObj);
+  end;
   conexao.Free;
-  // URL := frmServidor.ifood.GetURLVerification(True);
-  Res.Send(URL);
 end;
 
 procedure DoGetStatusiFood(Req: THorseRequest; Res: THorseResponse;
@@ -7363,6 +7498,8 @@ begin
   THorse.Post('/v1/caixa/fechamento/:caixa', DoPostFechamentoCaixa);
   THorse.Post('/v1/caixa/fechamento/pedido/automatico/:caixa',
     DoPostFaturarPeido);
+  THorse.Get('/v1/caixa/fechamento/pedido/automatico', DoGetFechamentoCaixa);
+  // frmServidor.FaturarEmAberto := true;
 
   THorse.Post('/v1/fechamento/pedido/automatico/:pedido/:caixa',
     DoPostFechamentoPedido);
@@ -7811,7 +7948,7 @@ end;
   except
   on E: Exception do
   begin
-  //showmessage1(E.Message);
+  ////showmessage1(E.Message);
   Result.Free;
   // raise;
   end;
@@ -8335,7 +8472,7 @@ begin
     while not DadosFicha.Eof do
     begin
       MovimentacaoInsulmo(DadosFicha.FieldByName('id_composicao').AsInteger,
-        TipoInsulmo, DadosFicha.FieldByName('quantidade').AsFloat, 0, 0, False);
+        TipoInsulmo, DadosFicha.FieldByName('quantidade').AsFloat, 0, 0, false);
       DadosFicha.Next;
     end;
 
@@ -8461,7 +8598,7 @@ begin
         begin
 
           MovimentacaoInsulmo(Dados.FieldByName('id_ingredientes').AsInteger, 1,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
 
           Dados.Next;
         end;
@@ -8492,7 +8629,7 @@ begin
         begin
 
           MovimentacaoInsulmo(Dados.FieldByName('ingredientes').AsInteger, 1,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
 
           Dados.Next;
         end;
@@ -8926,7 +9063,7 @@ begin
   try
     Requisicao := iRequisicao.Create(nil);
 
-    Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+    Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
     Requisicao.URL := 'insert/cupom_desconto/' +
       frmServidor.UserID.ToString + '/a';
     Requisicao.Metodo := mPost;
@@ -8970,7 +9107,7 @@ begin
     pastas := TDirectory.GetDirectories(Caminho);
     for pasta in pastas do
     begin
-      TDirectory.Delete(pasta, True);
+      TDirectory.Delete(pasta, true);
       // O segundo parâmetro indica que deve excluir todos os arquivos e subpastas
     end;
   except
@@ -9258,11 +9395,13 @@ var
 
   Dados: TJSONArray;
   Objeto: TJSONObject;
+  Usuario: Integer;
+  DescricaoMesa: String;
 
 begin
   TimeStartGeral := GetTickCount64;
   Dados := TJSONArray.Create;
-  ImprimirInsta := False;
+  ImprimirInsta := false;
   conexao := Tconexao.Create('Util');
   QRY := conexao.CriaQRY;
 
@@ -9292,6 +9431,16 @@ begin
         Pizza := '';
       end;
 
+      try
+        Usuario := JsonObj.GetValue<Integer>('usuario');
+      except
+        Usuario := 0;
+      end;
+
+
+
+      // usuario
+
       Observacao := JsonObj.GetValue<string>('observacao');
       Pedido := JsonObj.GetValue<Integer>('pedido');
       ValorProduto := JsonObj.GetValue<Double>('valorProduto');
@@ -9318,6 +9467,7 @@ begin
 
       if Pedido = 0 then
       begin
+
         if mesa > 0 then
         begin
           // Medir tempo de Open
@@ -9332,8 +9482,13 @@ begin
 
           if QRY.RecordCount > 0 then
           begin
-            Pedido := QRY.FieldByName('selecionada').AsInteger;
+            conexao.SQL.Add
+              ('select codigo, 0 as zero from pedido where codigo = :codigo');
+            conexao.Parametros('codigo', QRY.FieldByName('selecionada')
+              .AsInteger);
+            Pedido := conexao.FieldByName('codigo');
           end;
+
         end;
 
         if Pedido = 0 then
@@ -9344,6 +9499,7 @@ begin
             conexao.CriaQRY);
           TimeEnd := GetTickCount64;
           TempoNovoPedido := TimeEnd - TimeStart;
+
         end;
       end;
 
@@ -9351,9 +9507,9 @@ begin
       TimeStart := GetTickCount64;
       conexao.SQL.Clear;
       conexao.SQL.Add
-        ('insert into pedido_produtos (codigo,codigo_pedido,codigo_produto,valor_unitario,quantidade,valor_total,valor_adicional,impresso,html)');
+        ('insert into pedido_produtos (codigo,codigo_pedido,codigo_produto,valor_unitario,quantidade,valor_total,valor_adicional,impresso,html,usuario)');
       conexao.SQL.Add
-        ('values (:codigo,:codigo_pedido,:codigo_produto,:valor_unitario,:quantidade,:valor_total,:valor_adicional,:impresso,:html)');
+        ('values (:codigo,:codigo_pedido,:codigo_produto,:valor_unitario,:quantidade,:valor_total,:valor_adicional,:impresso,:html,:usuario)');
       conexao.Parametros('codigo', CodigoPedidoProduto);
       conexao.Parametros('codigo_pedido', Pedido);
       conexao.Parametros('codigo_produto', Produto);
@@ -9363,16 +9519,10 @@ begin
       conexao.Parametros('valor_adicional', ValorAdicional * qtd);
       conexao.Parametros('impresso', '0');
       conexao.Parametros('html', Html);
+      conexao.Parametros('usuario', Usuario);
       conexao.ExecuteSQL;
       TimeEnd := GetTickCount64;
       TempoExecuteSQL := TimeEnd - TimeStart;
-
-      conexao.SQL.Clear;
-      conexao.SQL.Add
-        ('update mesa set sts_mesa = 1, tot_mesa = tot_mesa + :tot, hora = current_timestamp() where selecionada = :id');
-      conexao.Parametros('tot', (ValorProduto + ValorAdicional) * qtd);
-      conexao.Parametros('id', Pedido);
-      conexao.ExecuteSQL;
 
       // TThread1.CreateAnonymousThread1(
       // procedure
@@ -9463,13 +9613,36 @@ begin
       Objeto.AddPair('TempoNovoPedido', TempoNovoPedido);
       Objeto.AddPair('TempoOpen', TempoOpen);
       Objeto.AddPair('TempoExecuteSQL', TempoExecuteSQL);
-      Dados.AddElement(Objeto);
+
     end;
   end;
   TimeEndGeral := GetTickCount64;
-  // Objeto := TJSONObject.Create;
-  // Objeto.AddPair('total', TimeEndGeral - TimeStartGeral);
-  // Dados.AddElement(Objeto);
+
+  if mesa > 0 then
+  begin
+    // conexao.SQL.Add('update pedido set id_ficha = :mesa, desc_ficha = select concat((SELECT descricao FROM mesa_tipo where id_mesa_tipo = fk_tipo_mesa)," ",nr_mesa) from mesa where id_mesa = :mesa where codigo = :codigo');
+    // conexao.SQL.Add
+    // ('select concat(mt.descricao," ", m.nr_mesa) as descricao, id_mesa from mesa as m join mesa_tipo as mt on mt.id_mesa_tipo = :mesa');
+    // conexao.Parametros('mesa', mesa);
+    // DescricaoMesa := conexao.FieldByName('descricao');
+    //
+    // conexao.SQL.Add
+    // ('update pedido set id_ficha = :mesa, desc_ficha = :descricao where codigo = :codigo');
+    // conexao.Parametros('mesa', mesa);
+    // conexao.Parametros('descricao', DescricaoMesa);
+    // conexao.Parametros('codigo', Pedido);
+    // conexao.ExecuteSQL;
+
+    conexao.SQL.Clear;
+    conexao.SQL.Add
+      ('update mesa set sts_mesa = 1, tot_mesa = COALESCE(tot_mesa, 0) + :tot where selecionada = :id');
+    conexao.Parametros('tot', (ValorProduto + ValorAdicional) * qtd);
+    conexao.Parametros('id', Pedido);
+    conexao.ExecuteSQL;
+  end;
+
+  Objeto.AddPair('total', TimeEndGeral - TimeStartGeral);
+  Dados.AddElement(Objeto);
   Res.Send<TJSONArray>(Dados);
   conexao.Free;
 end;
@@ -9659,17 +9832,17 @@ var
   ToUpper: Boolean;
 begin
   Result := LowerCase(Input); // Primeiro, colocamos tudo em minúsculas
-  ToUpper := True;
+  ToUpper := true;
   for I := 1 to length(Result) do
   begin
     if ToUpper and (Result[I] <> ' ') then
     begin
       Result[I] := UpCase(Result[I]); // Converte para maiúscula
-      ToUpper := False;
+      ToUpper := false;
     end
     else if Result[I] = ' ' then
     begin
-      ToUpper := True; // Ativa para maiúscula a próxima letra após o espaço
+      ToUpper := true; // Ativa para maiúscula a próxima letra após o espaço
     end;
   end;
 end;
@@ -9841,7 +10014,7 @@ begin
       except
         on E: Exception do
         begin
-          // showmessage1(e.Message)
+          // //showmessage1(e.Message)
         end;
       end;
 
@@ -9894,7 +10067,12 @@ begin
   QRY.ParamByName('troco').AsFloat := 0;
   QRY.ParamByName('tipo_pagamento').AsInteger := 0;
   QRY.ParamByName('pedido_impresso').AsInteger := 0;
-  QRY.ParamByName('origem').AsInteger := 3;
+
+  if mesa > 0 then
+    QRY.ParamByName('origem').AsInteger := 3
+  else
+    QRY.ParamByName('origem').AsInteger := 4;
+
   QRY.ParamByName('desc_ficha').AsString := DescricaoMesa;
   QRY.ParamByName('id_ficha').AsInteger := mesa;
   QRY.ParamByName('ficha_faturada').AsInteger := mesa;
@@ -9905,10 +10083,11 @@ begin
   if mesa > 0 then
   begin
     QRY.SQL.Text :=
-      'update mesa set selecionada = :pedido where id_mesa = :mesa';
+      'update mesa set hora = current_timestamp(), tot_mesa = 0, selecionada = :pedido where id_mesa = :mesa';
     QRY.ParamByName('pedido').AsInteger := CodigoPedido;
     QRY.ParamByName('mesa').AsInteger := mesa;
     QRY.ExecSQL;
+    // update mesa set hora = current_timestamp(), tot_mesa = 0
   end;
 
   QRY.Free;
@@ -9978,7 +10157,7 @@ begin
   SQL := SQL + '  p.agendada_ifood as agendada_ifood,';
   SQL := SQL + '  p.order_ifood,';
   SQL := SQL +
-    '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento) as pagamento';
+    '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento limit 1) as pagamento';
   SQL := SQL + ' from ' + Tabela + ' as p';
   SQL := SQL + ' left join pedido_motoboy as pm on pm.codigo_pedido = p.codigo';
   SQL := SQL + ' left join motoboy as m on m.codigo = pm.codigo_motoboy';
@@ -9987,40 +10166,6 @@ begin
     + Tipo + ')';
   // SQL := SQL + ' order by data_pedido desc,codigo_pedido_dia';
   Result := SQL;
-end;
-
-function GerarArrayMesesAno(const DataInicial, DataFinal: TDateTime)
-  : TArray<string>;
-var
-  DataAtual, DataAtualSemDia: TDateTime;
-  AnoMes, AnoMesAtual: string;
-  ListaMesesAno: TList<string>;
-begin
-  ListaMesesAno := TList<string>.Create;
-  try
-    DataAtual := StartOfTheMonth(DataInicial);
-    // Começa no primeiro dia do mês da data inicial
-    DataAtualSemDia := StartOfTheMonth(Now);
-    // Obtém o primeiro dia do mês atual
-
-    while DataAtual <= DataFinal do
-    begin
-      AnoMes := FormatDateTime('yyyy_mm', DataAtual);
-      // Formata a data como 'yyyy_mm'
-      AnoMesAtual := FormatDateTime('yyyy_mm', DataAtualSemDia);
-      // Formata o mês/ano atual
-
-      // Adiciona ao array apenas se não for o mês/ano atual e não estiver duplicado
-      if (AnoMes <> AnoMesAtual) and (not ListaMesesAno.Contains(AnoMes)) then
-        ListaMesesAno.Add(AnoMes);
-
-      DataAtual := IncMonth(DataAtual, 1); // Avança para o próximo mês
-    end;
-
-    Result := ListaMesesAno.ToArray; // Converte a lista para um array
-  finally
-    ListaMesesAno.Free;
-  end;
 end;
 
 end.

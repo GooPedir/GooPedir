@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 717
-  ClientWidth = 1048
+  ClientHeight = 716
+  ClientWidth = 1044
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -772,5 +772,40 @@ object frmServidor: TfrmServidor
     OnTimer = Timer1Timer
     Left = 904
     Top = 184
+  end
+  object mAtualizacao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 336
+    Top = 360
+    object mAtualizacaoid: TIntegerField
+      FieldName = 'id'
+    end
+    object mAtualizacaoarquivo: TStringField
+      FieldName = 'arquivo'
+      Size = 255
+    end
+    object mAtualizacaopercentual: TIntegerField
+      FieldName = 'percentual'
+    end
+    object mAtualizacaostatus: TStringField
+      FieldName = 'status'
+      Size = 255
+    end
+    object mAtualizacaotamanho: TStringField
+      FieldName = 'tamanho'
+    end
+    object mAtualizacaouuid: TStringField
+      FieldName = 'uuid'
+      Size = 255
+    end
+    object mAtualizacaodata: TDateTimeField
+      FieldName = 'data'
+    end
   end
 end

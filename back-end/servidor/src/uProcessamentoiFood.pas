@@ -602,12 +602,14 @@ begin
           .AsString)));
         conexao.Parametros('valor', 0);
         conexao.ExecuteSQL;
+
+
+        {
         Codigo := conexao.GerarID('impressao_pedido_produto', 'id');
-        conexao.SQL.Add
-          ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:id_pedido,1,0,-5)');
+        conexao.SQL.Add('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:id_pedido,1,0,-5)');
         conexao.Parametros('id', Codigo);
         conexao.Parametros('id_pedido', CodigoItem);
-        conexao.ExecuteSQL;
+        conexao.ExecuteSQL;                                         }
 
         // dataSetOrderSubItems.Filter := 'iditem = '+dataSetOrderItems.FieldByName('iditem').AsString;
         // dataSetOrderSubItems.Filtered := true;
@@ -693,25 +695,23 @@ begin
           begin
             // Aceitar o Pedido
             IFood.Order.Confirmation(OrderId);
+            {
             Codigo := conexao.GerarID('impressao_pedido', 'id');
-            conexao.SQL.Add
-              ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
+            conexao.SQL.Add('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
             conexao.Parametros('id', Codigo);
             conexao.Parametros('pedido', CodigoIntermo);
             conexao.ExecuteSQL;
 
-            conexao.SQL.Add
-              ('update pedido set status_ifood = "CFM" where id_ifood = :id_ifood');
+            conexao.SQL.Add('update pedido set status_ifood = "CFM" where id_ifood = :id_ifood');
             conexao.Parametros('id_ifood', OrderId);
             conexao.ExecuteSQL;
 
             conexao.SQL.Add('UPDATE impressao_pedido_produto');
             conexao.SQL.Add('SET status = 0');
             conexao.SQL.Add('WHERE data_impressao IS NULL');
-            conexao.SQL.Add
-              ('AND id_pedido IN (SELECT codigo FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :pedido);');
+            conexao.SQL.Add('AND id_pedido IN (SELECT codigo FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :pedido);');
             conexao.Parametros('pedido', CodigoIntermo);
-            conexao.ExecuteSQL;
+            conexao.ExecuteSQL;     }
             // Imprimir
           end;
         2:
@@ -756,7 +756,7 @@ begin
           ('update pedido set status = 2 where id_ifood = :id_ifood');
         conexao.Parametros('id_ifood', OrderId);
         conexao.ExecuteSQL;
-
+        {
         conexao.SQL.Add
           ('select count(*) as tot, 0 as zero from impressao_pedido where id_pedido = :id_pedido ');
         conexao.Parametros('id_pedido', CodigoIntermo);
@@ -775,6 +775,7 @@ begin
           conexao.Parametros('pedido', CodigoIntermo);
           conexao.ExecuteSQL;
         end;
+        }
       end;
     end;
 
@@ -801,7 +802,7 @@ begin
     on E: Exception do
     begin
       // Exibir mensagem de erro ou tratar de acordo com a necessidade
-      // showmessage1('Erro ao salvar o arquivo: ' + E.Message);
+      // //showmessage1('Erro ao salvar o arquivo: ' + E.Message);
 
     end;
   end;
@@ -854,8 +855,8 @@ begin
         // Processar o pedido aqui
         // Exemplo de processamento:
         // Exibir os detalhes do pedido em uma MessageBox
-        // //showmessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
-        // //showmessage1('Cliente: ' + OrderPair.Value.CustomerName);
+        // ////showmessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
+        // ////showmessage1('Cliente: ' + OrderPair.Value.CustomerName);
         Processamento(OrderPair.Key, OrderPair.Value);
         LogThread('ifood','Processando');
       end;

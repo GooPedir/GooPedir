@@ -59,8 +59,12 @@ begin
   Pedidos := TFDMemTable.Create(nil);
 
   conexao := TConexao.Create('imprimir');
+  // conexao.SQL.Add('SELECT ip.* FROM impressao_pedido as ip join pedido as p on p.codigo = ip.id_pedido where ip.status = 0 and ip.id_pedido > 0 ');
   conexao.SQL.Add
-    ('SELECT ip.* FROM impressao_pedido as ip join pedido as p on p.codigo = ip.id_pedido where ip.status = 0 and ip.id_pedido > 0 ');
+    ('SELECT distinct id as ides, ip.* FROM impressao_pedido as ip');
+  conexao.SQL.Add('join pedido as p on p.codigo = ip.id_pedido');
+  conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
+  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
   Res.Send<TJSONArray>(Dados.ToJSONArray());
 
@@ -199,6 +203,7 @@ begin
   begin
     conexao.SQL.Add
       ('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
+    // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
   end;
 
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
@@ -244,22 +249,19 @@ begin
   conexao.SQL.Add('SELECT ');
   conexao.SQL.Add('CASE ');
   conexao.SQL.Add(' when ped.id_ficha > 0 then ped.desc_ficha');
-  conexao.SQL.Add(' else CONCAT(''Pedido '',ped.codigo_pedido_dia)');
+
+  conexao.SQL.Add(' else CONCAT(IF(ped.codigo_cliente_endereco > 0, "Delivery ", "Retirada "),ped.codigo_pedido_dia)');
   conexao.SQL.Add('END as origem_pedido,');
   conexao.SQL.Add('CASE ');
   conexao.SQL.Add(' when ped.origem = 1 then ');
-  conexao.SQL.Add
-    (' CONCAT(''WHATSAPP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
+  conexao.SQL.Add(' CONCAT(''WHATSAPP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
   conexao.SQL.Add(' when ped.origem = 2 then ');
-  conexao.SQL.Add
-    (' CONCAT(''SITE '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
+  conexao.SQL.Add(' CONCAT(''SITE '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
   conexao.SQL.Add(' when ped.origem = 3 then ');
-  conexao.SQL.Add
-    (' CONCAT(''APP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
+  conexao.SQL.Add(' CONCAT(''APP '','' '',(select nome from usuario where codigo = case when pp.usuario > 0 then pp.usuario else (select codigo from usuario limit 1) end limit 1))');
   conexao.SQL.Add(' else "ORIGEM OUTROS"');
   conexao.SQL.Add('END as origem_local, ');
-  conexao.SQL.Add
-    ('DATE_FORMAT(current_timestamp(), "%d/%m/%Y %H:%i") AS data_impressao,');
+  conexao.SQL.Add('DATE_FORMAT(current_timestamp(), "%d/%m/%Y %H:%i") AS data_impressao,');
   conexao.SQL.Add('pp.codigo,');
   conexao.SQL.Add('pp.valor_unitario as vl_unitario,');
   conexao.SQL.Add('pp.quantidade as qtd,');
@@ -285,8 +287,8 @@ begin
   conexao.SQL.Add
     ('     DATE_FORMAT(ped.data_pedido, "%d/%m/%Y") as data_pedido,');
   conexao.SQL.Add('upper(pps.nomeclatura) as nomeclatura,ped.origem, ');
-  // conexao.SQL.Add('group_concat(pps.descricao SEPARATOR ''; '')  as descricao,');
   conexao.SQL.Add('upper(pps.descricao) as descricao,');
+  conexao.SQL.Add('pps.id as iddescricao,');
   conexao.SQL.Add('sum(pps.valor) as vl_adicional,');
   conexao.SQL.Add
     ('(select descricao from mesa where id_mesa = ped.id_ficha) as mesa,');
@@ -304,18 +306,18 @@ begin
   conexao.SQL.Add('left join tipo_produto as tp on tp.codigo = p.codigo_grupo');
   conexao.SQL.Add('left join cliente as c on c.codigo = ped.codigo_cliente');
   conexao.SQL.Add('where pp.codigo in (' + Req.Params['codigo'] + ')');
-  // conexao.SQL.Add('group by pps.nomeclatura, pps.codigo_pedido_produto');
   conexao.SQL.Add('GROUP BY');
   conexao.SQL.Add
     ('origem_pedido, origem_local, data_impressao, pp.codigo, pp.valor_unitario, pp.quantidade, pp.valor_total,');
   conexao.SQL.Add
-    ('p.codigo_interno, p.nome_produto, c.nome,  c.celular, tipo, hora_pedido, data_pedido, pps.nomeclatura,');
+    ('p.codigo_interno, p.nome_produto, c.nome,  c.celular, tipo, hora_pedido, data_pedido, pps.nomeclatura, pps.id, pps.descricao,');
   conexao.SQL.Add
-    ('ped.origem, mesa, driver, tipoimp, impressora, pps.descricao, ped.nome, ped.codigo_cliente_endereco');
+    ('ped.origem, mesa, driver, tipoimp, impressora,  ped.nome, ped.codigo_cliente_endereco');
 
   conexao.SQL.Add('order by pp.codigo');
-  // showmessage1(conexao.SQL.Text);
+
   Memory.LoadFromJSON(conexao.ConsultaSQL);
+
 
   if Memory.RecordCount > 0 then
   begin
@@ -440,6 +442,7 @@ begin
   conexao.SQL.Add('END AS nome,');
   conexao.SQL.Add('c.celular, ');
   conexao.SQL.Add('p.desc_desconto_ifood as desc_desconto,');
+  conexao.SQL.Add('p.servico_percentual,');
   conexao.SQL.Add('CASE ');
   conexao.SQL.Add(' when p.origem = 1 then "ORIGEM WHATSAPP"');
   conexao.SQL.Add(' when p.origem = 2 then "ORIGEM SITE"');
@@ -562,7 +565,7 @@ begin
   conexao.SQL.Add('p.ifood_pedido,');
   conexao.SQL.Add('p.id_ficha');
   conexao.Parametros('codigo_pedido', Req.Params['codigo']);
-  // showmessage1(conexao.SQL.Text);
+  // //showmessage1(conexao.SQL.Text);
   Memory.LoadFromJSON(conexao.ConsultaSQL);
 
   if Memory.RecordCount > 0 then
@@ -762,87 +765,15 @@ end;
 
 procedure DoGetCaixaTresLancado(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
-var
-  conexao: TConexao;
-  Sangria: TFDMemTable;
 begin
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add('SELECT');
-  conexao.SQL.Add('    MIN(caixa_movimento.id) AS id,');
-  conexao.SQL.Add('    IFNULL(upper(tipo_pagamento.descricao), ' +
-    QuotedStr('SANGRIA') + ') AS descricao,');
-  conexao.SQL.Add('    SUM(caixa_movimento.valor) AS valor');
-  conexao.SQL.Add('FROM');
-  conexao.SQL.Add('    caixa');
-  conexao.SQL.Add('JOIN');
-  conexao.SQL.Add('    caixa_movimento ON caixa_movimento.id_caixa = caixa.id');
-  conexao.SQL.Add('LEFT JOIN');
-  conexao.SQL.Add
-    ('    tipo_pagamento ON tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento');
-  conexao.SQL.Add('WHERE');
-  conexao.SQL.Add
-    ('    caixa.id = :id AND caixa_movimento.tipo IN (262626, 2) AND caixa_movimento.valor > 0');
-  conexao.SQL.Add('GROUP BY');
-  conexao.SQL.Add('    descricao;');
-  conexao.Parametros('id', Req.Params['codigo']);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTresLancado(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
-
 end;
 
 procedure DoGetCaixaTres(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  conexao: TConexao;
 begin
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add('SELECT');
-  conexao.SQL.Add('    MAX(c.id) as id,');
-  conexao.SQL.Add('    MAX( DATE_FORMAT(c.data_abertura, ' +
-    QuotedStr('%d/%m/%Y') + ')) as data_abertura,');
-  conexao.SQL.Add('    MAX(TIME_FORMAT(c.hora_abertura, ' + QuotedStr('%H:%i') +
-    ')) as hora_abertura,');
-  conexao.SQL.Add('    MAX( DATE_FORMAT(c.data_fechamento, ' +
-    QuotedStr('%d/%m/%Y') + ')) as data_fechamento,');
-  conexao.SQL.Add('    MAX(TIME_FORMAT(c.hora_fechamento, ' + QuotedStr('%H:%i')
-    + ')) as hora_fechamento,');
-  conexao.SQL.Add('    MAX(c.valor_abertura) as valor_abertura,');
-  conexao.SQL.Add('    MAX(c.valor_fechamento) as valor_fechamento,');
-  conexao.SQL.Add('    tp.descricao,');
-  conexao.SQL.Add('    SUM(cm.valor) AS valor,');
-  conexao.SQL.Add('    COALESCE(SUM(cm.valor), 0) as valor_tipo_pagamento,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco = 0 AND pl.id_ficha > 0), 0) as valor_mesa,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco = 0 AND (pl.id_ficha IS NULL or pl.id_ficha = 0)), 0) as valor_vem_buscar,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(pl.valor_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco > 0), 0) as valor_delivery,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(pl.valor_taxa_entrega) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco > 0), 0) as taxa_entrega,');
-  conexao.SQL.Add
-    ('    COALESCE((c.valor_fechamento - (SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id)), 0) as valor_diferenca,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(valor) FROM caixa_movimento WHERE tipo = 2 AND id_caixa = :id), 0) as sangria,');
-  conexao.SQL.Add
-    ('    COALESCE((SELECT SUM(servico) FROM pedido WHERE id_caixa = :id), 0) as servico');
-  conexao.SQL.Add('FROM ');
-  conexao.SQL.Add('    caixa AS c');
-  conexao.SQL.Add('JOIN');
-  conexao.SQL.Add('    caixa_movimento AS cm ON cm.id_caixa = c.id');
-  conexao.SQL.Add('JOIN');
-  conexao.SQL.Add('    pedido AS p ON p.codigo = cm.id_pedido');
-  conexao.SQL.Add('JOIN');
-  conexao.SQL.Add
-    ('    tipo_pagamento AS tp ON tp.codigo = cm.id_tipo_pagamento');
-  conexao.SQL.Add('WHERE');
-  conexao.SQL.Add('    c.id = :id AND cm.tipo = 1');
-  conexao.SQL.Add('GROUP BY');
-  conexao.SQL.Add('    c.id, tp.codigo, tp.descricao;');
-  conexao.Parametros('id', Req.Params['codigo']);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTres(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
-
 end;
 
 procedure DoGetCaixaQuatro(Req: THorseRequest; Res: THorseResponse;
@@ -1202,9 +1133,9 @@ procedure DoPostImpressoras(Req: THorseRequest; Res: THorseResponse;
 begin
   frmServidor.memImpressora.Close;
   try
-    // //showmessage1(req.Body);
+    // ////showmessage1(req.Body);
     frmServidor.memImpressora.LoadFromJSON(Req.Body);
-    // //showmessage1(frmServidor.memImpressora.RecordCount.ToString);
+    // ////showmessage1(frmServidor.memImpressora.RecordCount.ToString);
   except
 
   end;

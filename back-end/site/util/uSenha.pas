@@ -32,7 +32,7 @@ begin
   Correta := edtSenha.Text = DateToStr(Date);
   if not Correta then
   begin
-    ShowMessage('Senha Incorreta!');
+    //showmessage('Senha Incorreta!');
     exit;
   end;
   Close;

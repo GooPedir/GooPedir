@@ -33,7 +33,7 @@ begin
 
   except
     on E: Exception do
-      Showmessage(E.message);
+      //showmessage(E.message);
 
   end;
 end;

@@ -3,11 +3,14 @@ unit uControllerSite;
 interface
 
 uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
-  uRequisicao;
+  uRequisicao, System.DateUtils, System.JSON, JOSE.Core.JWT, JOSE.Core.Builder, System.NetEncoding, System.Hash;
 
 function SiteCategoria(codigo, user: Integer): Integer;
 procedure SiteSabores(codigoGrupo, user: Integer);
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
+function EnviaImagem(Codigo,Base64 : String):String;
+
+function GerarTokenJWT(userId: Integer): string;
 
 implementation
 
@@ -28,9 +31,9 @@ begin
       'ordem', 'descricao', 'borda_topo_direito', 'borda_topo_esquerdo',
       'borda_inferior_direito', 'borda_inferior_esquerdo', 'espacamento',
       'fonte_nome', 'fonte_descricao', 'cor_fundo', 'cor_nome',
-      'cor_descricao'], [Query.FieldByName('id_site').AsString, user.ToString,
+      'cor_descricao','altura','opacidade','local','pizza'], [Query.FieldByName('id_site').AsString, user.ToString,
       'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Query.FieldByName('descricao').AsWideString, '', '',
+      Query.FieldByName('descricao').AsWideString, '', Query.FieldByName('url').AsWideString,
       Query.FieldByName('ordem').AsString, Query.FieldByName('descricao_cat')
       .AsWideString, Query.FieldByName('borda_topo_direito').AsWideString,
       Query.FieldByName('borda_topo_esquerdo').AsWideString,
@@ -40,7 +43,7 @@ begin
       Query.FieldByName('fonte_nome').AsWideString,
       Query.FieldByName('fonte_descricao').AsWideString,
       Query.FieldByName('cor_fundo').AsWideString, Query.FieldByName('cor_nome')
-      .AsWideString, Query.FieldByName('cor_descricao').AsWideString]);
+      .AsWideString, Query.FieldByName('cor_descricao').AsWideString,Query.FieldByName('espacamento').AsString, Query.FieldByName('opacidade').AsString,Query.FieldByName('local').AsString,Query.FieldByName('pizza').AsString]);
 
     if Result > 0 then
     begin
@@ -119,23 +122,10 @@ end;
 
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
 var
-  Requisicao: iRequisicao;
   Conexao: TConexao;
 begin
 
-  Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://fotos.goopedir.com/';
-  Requisicao.AddHEader('nome', codigo.ToString);
-  Requisicao.AddHEader('Content-Type', 'application/json');
-  Requisicao.Metodo := mPost;
-  Requisicao.BODY(Base64);
-  Requisicao.TempoExpiracao := 15 * 1000;
-  try
-    Requisicao.Execute;
-  except
-
-  end;
-
+ EnviaImagem(Codigo.ToString,Base64);
   Conexao := TConexao.Create('uSite');
   Conexao.SQL.Add('update produto set caminho_imagem = concat(' +
     QuotedStr('https://fotos.goopedir.com/fotos/') +
@@ -145,8 +135,85 @@ begin
   Conexao.ExecuteSQL;
   Conexao.Free;
 
-  Requisicao.Free;
 
+
+end;
+
+function EnviaImagem(Codigo, Base64: string): string;
+var
+  Requisicao: iRequisicao;
+  JsonRetorno: TJSONObject;
+begin
+  Requisicao := iRequisicao.Create(nil);
+  try
+    Requisicao.BaseURL := 'https://fotos.goopedir.com/';
+    Requisicao.AddHeader('nome', Codigo);
+    Requisicao.AddHeader('Content-Type', 'application/json');
+    Requisicao.Metodo := mPost;
+    Requisicao.Body(Base64);
+    Requisicao.TempoExpiracao := 15 * 1000;
+
+    Requisicao.Execute;
+
+    // Extrai a URL do JSON retornado
+    JsonRetorno := TJSONObject.ParseJSONValue(Requisicao.Retorno) as TJSONObject;
+    try
+      if Assigned(JsonRetorno) then
+      begin
+        if JsonRetorno.GetValue('url') <> nil then
+          Result := JsonRetorno.GetValue('url').Value
+        else if JsonRetorno.GetValue('success') <> nil then
+          Result := '' // Ou tratar como erro, conforme sua necessidade
+        else
+          Result := ''; // Caso o JSON não tenha a estrutura esperada
+      end
+      else
+        Result := ''; // Caso o retorno não seja um JSON válido
+    finally
+      JsonRetorno.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      // Você pode querer registrar o erro em algum log aqui
+      Result := ''; // Retorna vazio em caso de erro
+    end;
+  end;
+  Requisicao.Free;
+end;
+
+
+
+function GerarTokenJWT(userId: Integer): string;
+const
+  CHAVE_SECRETA = 'ALLAN@GOOPEDIR.COM.BR2023'; // Mesma chave usada no Node.js
+var
+  header, payload, signature: string;
+  headerBase64, payloadBase64, signatureBase64: string;
+  signatureBytes: TBytes;
+begin
+  // 1. Header
+  header := '{"alg":"HS256","typ":"JWT"}';
+  headerBase64 := TNetEncoding.Base64URL.Encode(header);
+
+  // 2. Payload
+  payload := Format('{"userId":%d,"iat":%d,"exp":%d}', [
+    userId,
+    DateTimeToUnix(Now),
+    DateTimeToUnix(IncSecond(Now, 11000)) // 60 segundos
+  ]);
+  payloadBase64 := TNetEncoding.Base64URL.Encode(payload);
+
+  // 3. Assinatura (CRÍTICO)
+  signatureBytes := THashSHA2.GetHMACAsBytes(
+    headerBase64 + '.' + payloadBase64,
+    CHAVE_SECRETA,
+    THashSHA2.TSHA2Version.SHA256
+  );
+  signatureBase64 := TNetEncoding.Base64URL.EncodeBytesToString(signatureBytes);
+
+  // 4. Token final
+  Result := headerBase64 + '.' + payloadBase64 + '.' + signatureBase64;
 end;
 
 end.

@@ -53,17 +53,19 @@ begin
   TempoDecorrido := TempoFinal - TempoInicial;
 
   // Exibe o tempo decorrido em uma mensagem
-  ShowMessage
-    (Format('A função getPedidos demorou %d milissegundos para executar.',
+  // showmessage
+  (Format('A função getPedidos demorou %d milissegundos para executar.',
     [TempoDecorrido]));
 end;
 
 procedure TfrmPedidoSite.tMinimizaTimer(Sender: TObject);
 begin
+
   tMinimiza.Enabled := false;
   self.Hide();
   self.WindowState := wsMinimized;
   getPedidos;
+
   Application.Terminate;
 end;
 

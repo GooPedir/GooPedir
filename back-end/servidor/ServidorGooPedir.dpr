@@ -108,7 +108,8 @@ uses
   conexao in 'src\modulo\conexao.pas',
   uInserirUpdate in 'src\modulos\Controller\uInserirUpdate.pas',
   uControlerProduto in 'src\controller\uControlerProduto.pas',
-  uControllerSite in 'src\controller\uControllerSite.pas';
+  uControllerSite in 'src\controller\uControllerSite.pas',
+  uNewConsultas in 'src\modulos\uNewConsultas.pas';
 
 {$R *.res}
 

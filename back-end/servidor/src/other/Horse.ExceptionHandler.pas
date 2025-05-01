@@ -36,7 +36,7 @@ begin
   except
     on E: Exception do
     begin
-
+      exit;
       JsonObject := TJsonObject.Create;
       JsonObject.AddPair('url', Req.RawWebRequest.PathInfo);
       JsonObject.AddPair('metodo', Req.RawWebRequest.Method);
@@ -120,7 +120,7 @@ begin
   except
     on E: Exception do
     begin
-       ShowMessage(E.Message);
+       //showmessage(E.Message);
     end;
 
   end;

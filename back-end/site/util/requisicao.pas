@@ -335,8 +335,8 @@ begin
     on E: Exception do
     begin
       Status := 999;
-//       ShowMessage(BASEURL+URLI+#13+E.Message);
-//       showmessage(E.Message);
+//       //showmessage(BASEURL+URLI+#13+E.Message);
+//       //showmessage(E.Message);
     end;
   end;
 
@@ -393,7 +393,7 @@ begin
   on E : Exception do
   begin
     Status := 999;
-//    ShowMessage(e.Message)
+//    //showmessage(e.Message)
   end;
 
   end;

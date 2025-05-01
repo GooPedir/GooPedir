@@ -127,7 +127,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -136,7 +136,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -459,7 +459,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Scaled 80mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -468,7 +468,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 124
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -1283,7 +1283,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = 'Normal 58mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -1292,7 +1292,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 120
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1489,7 +1489,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppCozinha
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '56mm'
-          PrinterSetup.PaperName = 'Normal 58mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -1498,7 +1498,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 120
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2350,7 +2350,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -2359,7 +2359,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2556,7 +2556,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppCozinha
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Scaled 80mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -2565,7 +2565,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 124
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2980,7 +2980,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = '48mm * 3276mm'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -2989,7 +2989,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 262
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5027,7 +5027,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -5036,7 +5036,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5410,7 +5410,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppComputado
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Scaled 80mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -5419,7 +5419,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 124
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -5647,7 +5647,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 DataPipeline = ppResumo
                 PrinterSetup.BinName = 'Default'
                 PrinterSetup.DocumentName = '80mm'
-                PrinterSetup.PaperName = 'Scaled 80mm Large'
+                PrinterSetup.PaperName = 'Custom'
                 PrinterSetup.PrinterName = 'Default'
                 PrinterSetup.SaveDeviceSettings = True
                 PrinterSetup.mmMarginBottom = 0
@@ -5656,7 +5656,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 PrinterSetup.mmMarginTop = 0
                 PrinterSetup.mmPaperHeight = 4003900
                 PrinterSetup.mmPaperWidth = 80300
-                PrinterSetup.PaperSize = 124
+                PrinterSetup.PaperSize = 256
                 PrinterSetup.DevMode = {
                   4004000044006100720075006D00610020004400520000000000000000000000
                   0000000000000000000000000000000000000000000000000000000000000000
@@ -5884,7 +5884,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       DataPipeline = ppResumoSangria
                       PrinterSetup.BinName = 'Default'
                       PrinterSetup.DocumentName = '80mm'
-                      PrinterSetup.PaperName = 'Scaled 80mm Large'
+                      PrinterSetup.PaperName = 'Custom'
                       PrinterSetup.PrinterName = 'Default'
                       PrinterSetup.SaveDeviceSettings = True
                       PrinterSetup.mmMarginBottom = 0
@@ -5893,7 +5893,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       PrinterSetup.mmMarginTop = 0
                       PrinterSetup.mmPaperHeight = 4003900
                       PrinterSetup.mmPaperWidth = 80300
-                      PrinterSetup.PaperSize = 124
+                      PrinterSetup.PaperSize = 256
                       PrinterSetup.DevMode = {
                         4004000044006100720075006D00610020004400520000000000000000000000
                         0000000000000000000000000000000000000000000000000000000000000000
@@ -6622,7 +6622,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -6631,7 +6631,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8771,7 +8771,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Normal 58mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -8780,7 +8780,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 119
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9238,7 +9238,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Normal 58mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -9247,7 +9247,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 119
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10030,7 +10030,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -10039,7 +10039,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 123
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10752,7 +10752,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Normal 58mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -10761,7 +10761,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 120
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11158,7 +11158,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11167,7 +11167,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 123
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11413,7 +11413,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Normal 58mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11422,7 +11422,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 120
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11847,7 +11847,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11856,7 +11856,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 123
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -13765,7 +13765,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = '48mm * 3276mm'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -13774,7 +13774,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 262
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -14198,7 +14198,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppProduto
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = '48mm * 3276mm'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -14207,7 +14207,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 3275900
           PrinterSetup.mmPaperWidth = 48000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 262
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -14672,7 +14672,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Small'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -14681,7 +14681,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 123
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -14928,7 +14928,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -14937,7 +14937,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -15260,7 +15260,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Scaled 80mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -15269,7 +15269,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 124
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -15991,7 +15991,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -16000,7 +16000,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16224,9 +16224,12 @@ object dmImpressaoV2: TdmImpressaoV2
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil Arial;}{\f1\fnil Courier New;}}'#13#10'{\*\generator Riched20 1' +
-          '0.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs14 [<dbtext>tipo</dbtext' +
-          '>] - <dbtext>descricao</dbtext>\par'#13#10'\f1\fs20\par'#13#10'}'#13#10#0
+          '0\fnil Arial;}{\f1\fnil\fcharset0 Arial;}{\f2\fnil\fcharset0 Cou' +
+          'rier New;}{\f3\fnil Courier New;}}'#13#10'{\*\generator Riched20 10.0.' +
+          '19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs14 [<dbtext>tipo</dbtext>] -' +
+          ' <dbtext>descricao</dbtext>\f1  \f2\fs12 (\f0 <dbtext displayfor' +
+          'mat='#39'#,0.00;-#,0.00'#39'>\f1 valor\f0 </dbtext>\f2 )\f3\fs20\par'#13#10'}'#13 +
+          #10#0
         RemoveEmptyLines = False
         Stretch = True
         Transparent = True
@@ -16286,31 +16289,11 @@ object dmImpressaoV2: TdmImpressaoV2
         mmStopPosition = 0
         mmMinHeight = 0
       end
-      object ppLabel106: TppLabel
-        DesignLayer = ppDesignLayer36
-        UserName = 'Label34'
-        Border.mmPadding = 0
-        Caption = 'Total'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Name = 'Arial'
-        Font.Size = 10
-        Font.Style = [fsBold]
-        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
-        FormFieldSettings.FormFieldType = fftNone
-        Transparent = True
-        mmHeight = 4233
-        mmLeft = 1852
-        mmTop = 5292
-        mmWidth = 8467
-        BandType = 7
-        LayerName = BandLayer39
-      end
       object ppDBText55: TppDBText
         DesignLayer = ppDesignLayer36
         UserName = 'DBText28'
         Border.mmPadding = 0
-        DataField = 'vl_total'
+        DataField = 'servico'
         DataPipeline = ppDados
         DisplayFormat = '$#,0.00;-$#,0.00'
         Font.Charset = DEFAULT_CHARSET
@@ -16322,9 +16305,9 @@ object dmImpressaoV2: TdmImpressaoV2
         Transparent = True
         DataPipelineName = 'ppDados'
         mmHeight = 4230
-        mmLeft = 10054
+        mmLeft = 20104
         mmTop = 5027
-        mmWidth = 60547
+        mmWidth = 50506
         BandType = 7
         LayerName = BandLayer39
       end
@@ -16398,6 +16381,80 @@ object dmImpressaoV2: TdmImpressaoV2
         mmWidth = 33073
         BandType = 7
         LayerName = BandLayer39
+      end
+      object ppLabel120: TppLabel
+        DesignLayer = ppDesignLayer36
+        UserName = 'Label120'
+        Border.mmPadding = 0
+        Caption = 'Total'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Arial'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        Transparent = True
+        mmHeight = 4233
+        mmLeft = 1852
+        mmTop = 10054
+        mmWidth = 8467
+        BandType = 7
+        LayerName = BandLayer39
+      end
+      object ppDBText68: TppDBText
+        DesignLayer = ppDesignLayer36
+        UserName = 'DBText68'
+        Border.mmPadding = 0
+        DataField = 'vl_total'
+        DataPipeline = ppDados
+        DisplayFormat = '$#,0.00;-$#,0.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Arial'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        TextAlignment = taRightJustified
+        Transparent = True
+        DataPipelineName = 'ppDados'
+        mmHeight = 4233
+        mmLeft = 10054
+        mmTop = 10084
+        mmWidth = 60590
+        BandType = 7
+        LayerName = BandLayer39
+      end
+      object ppRichText142: TppRichText
+        DesignLayer = ppDesignLayer36
+        UserName = 'RichText142'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Arial'
+        Font.Size = 10
+        Font.Style = [fsBold]
+        Border.mmPadding = 0
+        Caption = 'RichText142'
+        ExportRTFAsBitmap = False
+        MailMerge = True
+        RichText = 
+          '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
+          '0\fnil\fcharset0 Arial;}{\f1\fnil Arial;}}'#13#10'{\colortbl ;\red0\gr' +
+          'een0\blue0;}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13 +
+          #10'\pard\cf1\b\fs20 Servi\'#39'e7o (\cf0\f1 <dbtext displayformat='#39'#,0' +
+          '.00;-#,0.00'#39'>\f0 servico_percentual\f1 </dbtext>\f0 %\cf1 )\f1\p' +
+          'ar'#13#10'}'#13#10#0
+        RemoveEmptyLines = False
+        Transparent = True
+        mmHeight = 5292
+        mmLeft = 1862
+        mmTop = 5292
+        mmWidth = 39688
+        BandType = 7
+        LayerName = BandLayer39
+        mmBottomOffset = 0
+        mmOverFlowOffset = 0
+        mmStopPosition = 0
+        mmMinHeight = 0
       end
     end
     object ppGroup13: TppGroup
@@ -16490,9 +16547,10 @@ object dmImpressaoV2: TdmImpressaoV2
           MailMerge = True
           RichText = 
             '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-            '0\fnil Arial;}}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc' +
-            '1 '#13#10'\pard\b\f0\fs14 <dbtext>qtd</dbtext>Un X <dbtext displayform' +
-            'at='#39'#,0.00;-#,0.00'#39'>vl_unitario</dbtext>\par'#13#10'}'#13#10#0
+            '0\fnil Arial;}{\f1\fnil\fcharset0 Arial;}}'#13#10'{\*\generator Riched' +
+            '20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\b\f0\fs14 <dbtext>qtd</dbte' +
+            'xt>Un \f1 -\f0  <dbtext displayformat='#39'#,0.00;-#,0.00'#39'>\f1 total' +
+            '\f0 </dbtext>\par'#13#10'}'#13#10#0
           RemoveEmptyLines = False
           Stretch = True
           Transparent = True
@@ -16535,7 +16593,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Scaled 80mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -16544,7 +16602,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 124
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16867,7 +16925,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Scaled 80mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -16876,7 +16934,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 124
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -17678,7 +17736,7 @@ object dmImpressaoV2: TdmImpressaoV2
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppCustomPos
-    Porta = 'IMPRESSORA'
+    Porta = 'Default'
     EspacoEntreLinhas = 30
     ConfigBarras.MostrarCodigo = False
     ConfigBarras.LarguraLinha = 0
@@ -17740,6 +17798,9 @@ object dmImpressaoV2: TdmImpressaoV2
     CasasDecimais.MaskAliquota = ',0.00'
     ACBrNFe = ACBrNFe1
     TipoDANFE = tiSimplificado
+    ImprimeTotalLiquido = True
+    ImprimeXPedNItemPed = True
+    ImprimeQRCodeLateral = True
     FormularioContinuo = True
     PosPrinter = ACBrPosPrinter1
     Left = 1545
@@ -17790,7 +17851,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = 'Normal 58mm Large'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -17799,7 +17860,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 120
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -18123,7 +18184,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '56mm'
-          PrinterSetup.PaperName = 'Normal 58mm Large'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -18132,7 +18193,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 120
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000

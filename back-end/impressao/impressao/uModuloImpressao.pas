@@ -916,7 +916,6 @@ type
     ppFooterBand32: TppFooterBand;
     ppSummaryBand36: TppSummaryBand;
     ppRichText125: TppRichText;
-    ppLabel106: TppLabel;
     ppDBText55: TppDBText;
     ppLine7: TppLine;
     ppSystemVariable46: TppSystemVariable;
@@ -1038,6 +1037,9 @@ type
     ppDesignLayer40: TppDesignLayer;
     ppParameterList26: TppParameterList;
     ppParameter25: TppParameter;
+    ppLabel120: TppLabel;
+    ppDBText68: TppDBText;
+    ppRichText142: TppRichText;
     procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -1082,7 +1084,7 @@ type
     procedure ImprimirCozinhaLocal(Relatorio, RelatorioCozinha: TppReport);
     procedure ImprimirOutrosLocal;
     procedure Impressora;
-    procedure ImprimeNFCe(URL: String);
+    procedure ImprimeNFCe(URL, Driver: String);
     function FormatarNumero(Numeros: string): string;
   end;
 
@@ -1187,7 +1189,7 @@ begin
     // if Relatorio.PrinterSetup.MarginLeft > 1 then
     // Relatorio.PrinterSetup.MarginLeft := 0.2;
 
-    // ShowMessage(
+    // //showmessage(
     // 'Top '+Relatorio.PrinterSetup.MarginTop.ToString+#13+
     // 'Bottom '+Relatorio.PrinterSetup.MarginBottom.ToString+#13+
     // 'Left '+Relatorio.PrinterSetup.MarginLeft.ToString+#13+
@@ -1304,12 +1306,12 @@ begin
   try
     Req.Execute;
     Result := Req.Retorno;
-    // ShowMessage(Result)
+    // //showmessage(Result)
   except
     on E: Exception do
     begin
       Result := '[]';
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
     end;
   end;
 
@@ -1346,8 +1348,6 @@ begin
   dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString :=
     FormatarCEP(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString);
 
-
-
 end;
 
 function TdmImpressaoV2.FormatarNumero(Numeros: string): string;
@@ -1360,7 +1360,6 @@ begin
   Result := Copy(Numeros, 1, 3) + '.' + Copy(Numeros, 4, 3) + '.' +
     Copy(Numeros, 7, 3);
 end;
-
 
 procedure TdmImpressaoV2.C(Sender: TObject);
 var
@@ -1429,17 +1428,18 @@ begin
   end;
 end;
 
-procedure TdmImpressaoV2.ImprimeNFCe(URL: String);
+procedure TdmImpressaoV2.ImprimeNFCe(URL, Driver: String);
 begin
   iNFCE.BaseURL := URL;
-  try
-    iNFCE.Execute;
-    ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromString(iNFCE.Retorno);
-    ACBrNFe1.NotasFiscais.Imprimir;
-  except
+  ACBrPosPrinter1.Desativar;
+  iNFCE.Execute;
+  ACBrNFe1.NotasFiscais.Clear;
+  ACBrNFe1.NotasFiscais.LoadFromString(iNFCE.Retorno);
 
-  end;
+  ACBrPosPrinter1.Porta := 'RAW:' + Driver;
+  ACBrPosPrinter1.Ativar;
+  ACBrNFe1.NotasFiscais.Imprimir;
+
 end;
 
 procedure TdmImpressaoV2.ImprimerNFCe;
@@ -1470,7 +1470,16 @@ begin
       while not Impressoras.Eof do
       begin
 
-        ImprimeNFCe(DADOS.FieldByName('caminho').AsString);
+        try
+          ImprimeNFCe(DADOS.FieldByName('caminho').AsString,
+            Impressoras.FieldByName('driver').AsString);
+        except
+          on E: Exception do
+          begin
+            // showmessage(E.Message);
+          end;
+
+        end;
 
         AddImpressao('NFCE', nil, DADOS.FieldByName('id_pedido').AsInteger, 1,
           'IMPRESSO', '', Impressoras.FieldByName('driver').AsString);
@@ -1571,7 +1580,7 @@ begin
     on E: Exception do
     begin
       // frmMain.Memo1.Lines.Add(E.message);
-      AddImpressao('RECIBO', Relatorio, Codigo, 2, 'ERRO', E.message,
+      AddImpressao('RECIBO', Relatorio, Codigo, 2, 'ERRO', E.Message,
         Impressoras.FieldByName('driver').AsString);
       Impressoras.Free;
       exit;
@@ -1642,7 +1651,7 @@ begin
     on E: Exception do
     begin
       // frmMain.Memo1.Lines.Add(E.message);
-      AddImpressao('SANGRIA', Relatorio, Codigo, 2, 'ERRO', E.message,
+      AddImpressao('SANGRIA', Relatorio, Codigo, 2, 'ERRO', E.Message,
         Impressoras.FieldByName('driver').AsString);
       Impressoras.Free;
       exit;
@@ -1756,7 +1765,7 @@ begin
     on E: Exception do
     begin
       // frmMain.Memo1.Lines.Add(E.message);
-      AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.message,
+      AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.Message,
         Impressoras.FieldByName('driver').AsString);
       Impressoras.Free;
       exit;
@@ -2015,7 +2024,7 @@ begin
   except
     on E: Exception do
     begin
-      AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.message,
+      AddImpressao('CAIXA', Relatorio, Codigo, 2, 'ERRO', E.Message,
         Impressoras.FieldByName('driver').AsString);
       // frmMain.Memo1.Lines.Add(E.message);
 
@@ -2134,7 +2143,8 @@ begin
           if Relatorio.PrinterSetup.PrinterNames[K]
             = DadosImpressora.FieldByName('driver').AsString then
           begin
-            ImpressoraImprimir := DadosImpressora.FieldByName('driver').AsString;
+            ImpressoraImprimir := DadosImpressora.FieldByName('driver')
+              .AsString;
 
           end;
 
@@ -2158,9 +2168,9 @@ begin
         end;
       end;
 
-//      Relatorio.ShowCancelDialog := true;
-//      Relatorio.ShowPrintDialog := true;
-//      Relatorio.DeviceType := 'screen';
+      // Relatorio.ShowCancelDialog := true;
+      // Relatorio.ShowPrintDialog := true;
+      // Relatorio.DeviceType := 'screen';
 
       if ImpressoraImprimir = '' then
       begin
@@ -2188,7 +2198,8 @@ begin
       except
         on E: Exception do
         begin
-          AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO', E.message,Impressora[I]);
+          AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO', E.Message,
+            Impressora[I]);
           // frmMain.Memo1.Lines.Add(E.message);
         end;
       end;
@@ -2330,7 +2341,7 @@ begin
   except
     on E: Exception do
     begin
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
     end;
 
   end;
@@ -2399,7 +2410,7 @@ begin
             on E: Exception do
             begin
               Ultimo := DadosPedido.FieldByName('codigo').AsInteger;
-              AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'ERRO', E.message,
+              AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'ERRO', E.Message,
                 Ultimo.toString);
               // frmMain.Memo1.Lines.Add(E.message);
             end;
@@ -2490,28 +2501,29 @@ begin
 
   dmImpressaoV2.DADOS_CABECALHO.Close;
   dmImpressaoV2.DADOS_CABECALHO.LoadFromJSON(DADOS);
+  if dmImpressaoV2.DADOS_CABECALHO.RecordCount > 0 then
+  begin
 
-  dmImpressaoV2.DADOS_CABECALHO.Edit;
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString :=
-    UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString :=
-    FormatarCNPJ(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString :=
-    FormatarNumero(dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString);
-  dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString :=
-    FormatarCEP(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString);
-
-
+    dmImpressaoV2.DADOS_CABECALHO.Edit;
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('nome').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('rua').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('bairro').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cidade').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('estado').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString :=
+      UpperCase(dmImpressaoV2.DADOS_CABECALHO.FieldByName('razao').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString :=
+      FormatarCNPJ(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cnpj').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString :=
+      FormatarNumero(dmImpressaoV2.DADOS_CABECALHO.FieldByName('ie').AsString);
+    dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString :=
+      FormatarCEP(dmImpressaoV2.DADOS_CABECALHO.FieldByName('cep').AsString);
+  end;
 
 end;
 
@@ -2547,10 +2559,11 @@ begin
         (Consulta('/v1/consulta/generica/impressoras/*/*/*'));
     end;
 
-    // ShowMessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
+    // //showmessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
 
     frmMain.GravaLog('Validar Tempo: ' + frmMain.ValidarTempo.toString() +
       ', Validar Status: ' + ValidaStatus.toString());
+
     if frmMain.ValidarTempo and ValidaStatus then
     begin
 
@@ -2568,7 +2581,6 @@ begin
       begin
         frmMain.setPrioridadeCozinha;
         dmImpressaoV2.ImprimirCozinhaLocal(Relatorio, RelatorioCozinha);
-
         frmMain.setPrioridadeNull;
       end;
 

@@ -57,7 +57,8 @@ begin
     Dados.ParamByName('codigo').AsInteger := Codigo;
     Dados.Open;
     Conexao.SQL.Add('update produto ser modificado_site = 2 where codigo = :codigo');
-    Dados.ParamByName('codigo').AsInteger := Codigo;
+    Conexao.Parametros('codigo',Codigo);
+//    Conexao.ParamByName('codigo').AsInteger := Codigo;
     Conexao.ExecuteSQL;
 
     if Dados.FieldByName('valor_desconto').AsFloat > 0 then
@@ -68,13 +69,19 @@ begin
         'nome_item', 'descricao_item', 'preco_item', 'disponivel',
         'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
         'promo_percentual', 'disponivel', 'fidelidade_valor', 'novidade'],
-        [Dados.FieldByName('id_site').AsString, UserID.ToString, 'false', '0',
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
-        Codigo.ToString, SiteCategoria(Dados.FieldByName('codigo_grupo')
+        [Dados.FieldByName('id_site').AsString,
+        UserID.ToString,
+        'false',
+        '0',
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+         '0',
+         '0',
+        Dados.FieldByName('position').AsString,
+        SiteCategoria(Dados.FieldByName('codigo_grupo')
         .AsInteger, UserID).ToString, Dados.FieldByName('nome_produto')
         .AsWideString, Dados.FieldByName('descricao').AsWideString,
         Dados.FieldByName('valor_desconto').AsString, '1',
-        Dados.FieldByName('valor_embalagem_delivery').AsString, '9999', '',
+        Dados.FieldByName('valor_embalagem_delivery').AsString, '9999', Dados.FieldByName('foto_ifood').AsString,
         Dados.FieldByName('pessoas').AsString, Dados.FieldByName('valor_venda')
         .AsString, Dados.FieldByName('percentual_desconto').AsString,
         Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
@@ -87,17 +94,22 @@ begin
         'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
         'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
         'estoque', 'pessoas', 'promo_valor', 'promo_percentual', 'disponivel',
-        'fidelidade_valor', 'novidade'], [Dados.FieldByName('id_site').AsString,
-        UserID.ToString, '0',
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
-        Codigo.ToString, SiteCategoria(Dados.FieldByName('codigo_grupo')
+        'fidelidade_valor', 'novidade','img_ifood'], [
+        Dados.FieldByName('id_site').AsString,
+        UserID.ToString,
+         '0',
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+        '0',
+        '0',
+        Dados.FieldByName('position').AsString,
+         SiteCategoria(Dados.FieldByName('codigo_grupo')
         .AsInteger, UserID).ToString, Dados.FieldByName('nome_produto')
         .AsWideString, Dados.FieldByName('descricao').AsWideString,
         Dados.FieldByName('valor_venda').AsString, '1',
         Dados.FieldByName('valor_embalagem_delivery').AsString, '99999',
         Dados.FieldByName('pessoas').AsString, '0', '0',
         Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
-        .AsString, Dados.FieldByName('novidade').AsString]);
+        .AsString, Dados.FieldByName('novidade').AsString, Dados.FieldByName('foto_ifood').AsString]);
     end;
 
     if Result > 0 then

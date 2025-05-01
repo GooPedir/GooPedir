@@ -3,10 +3,11 @@ unit uCacheControl;
 interface
 
 uses
-  SysUtils, IOUtils, System.JSON;
+  SysUtils, IOUtils, System.JSON, Conexao;
 
 procedure GravaCache(Origem, Chave, Dados: String);
 function BuscaCache(Origem, Chave: String): TJSONArray;
+function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 procedure LimpaCache(Origem, Chave: String);
 
 implementation
@@ -44,6 +45,52 @@ begin
   end;
 end;
 
+function BuscaCacheObject(Origem, Chave: String): TJsonObject;
+var
+  CaminhoExecutavel: string;
+  PastaCache: string;
+  CaminhoArquivo: string;
+  NomeArquivo: string;
+  StringStream: TStringStream;
+  Conteudo: string;
+  Conexao: Tconexao;
+begin
+  Conexao := Tconexao.Create('BuscaCacheObject');
+  NomeArquivo := Origem + Chave + '.txt';
+
+  // Obtém o caminho do executável
+  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
+
+  // Define o caminho da pasta cache
+  PastaCache := CaminhoExecutavel + 'cache';
+
+  // Define o caminho completo do arquivo
+  CaminhoArquivo := TPath.Combine(PastaCache, NomeArquivo);
+
+  // Verifica se o arquivo existe
+  if not FileExists(CaminhoArquivo) then
+  begin
+    Result := TJsonObject.Create;
+    Exit;
+  end;
+
+  // Lê o conteúdo do arquivo com encoding UTF-8
+  StringStream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    StringStream.LoadFromFile(CaminhoArquivo);
+    Conteudo := StringStream.DataString;
+
+    // Tenta parsear o conteúdo como JSON
+    try
+      Result := TJsonObject.ParseJSONValue(Conteudo) as TJsonObject;
+    except
+      Result := TJsonObject.Create;
+    end;
+  finally
+    StringStream.Free;
+  end;
+end;
+
 function BuscaCache(Origem, Chave: String): TJSONArray;
 var
   CaminhoExecutavel: string;
@@ -53,6 +100,9 @@ var
   StringStream: TStringStream;
   Conteudo: string;
 begin
+  Result := TJSONArray.Create;
+  Exit;
+
   NomeArquivo := Origem + Chave + '.txt';
 
   // Obtém o caminho do executável
@@ -79,7 +129,7 @@ begin
 
     // Tenta parsear o conteúdo como JSON
     try
-      Result := TJSONObject.ParseJSONValue(Conteudo) as TJSONArray;
+      Result := TJsonObject.ParseJSONValue(Conteudo) as TJSONArray;
     except
       Result := TJSONArray.Create;
     end;

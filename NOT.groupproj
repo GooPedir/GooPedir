@@ -12,16 +12,7 @@
         <Projects Include="back-end\nfce\NFCe.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\impressao\v2\Integracao.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="back-end\servidor\VersionBuild.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="back-end\impressao-v2\comanda\Comanda.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="back-end\servicos\ServicosGoopedir.dproj">
@@ -68,15 +59,6 @@
     <Target Name="NFCe:Make">
         <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Integracao">
-        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj"/>
-    </Target>
-    <Target Name="Integracao:Clean">
-        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="Integracao:Make">
-        <MSBuild Projects="back-end\impressao\v2\Integracao.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ImpressaoGooPedir">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj"/>
     </Target>
@@ -85,24 +67,6 @@
     </Target>
     <Target Name="ImpressaoGooPedir:Make">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="VersionBuild">
-        <MSBuild Projects="back-end\servidor\VersionBuild.dproj"/>
-    </Target>
-    <Target Name="VersionBuild:Clean">
-        <MSBuild Projects="back-end\servidor\VersionBuild.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="VersionBuild:Make">
-        <MSBuild Projects="back-end\servidor\VersionBuild.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="Comanda">
-        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj"/>
-    </Target>
-    <Target Name="Comanda:Clean">
-        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="Comanda:Make">
-        <MSBuild Projects="back-end\impressao-v2\comanda\Comanda.dproj" Targets="Make"/>
     </Target>
     <Target Name="ServicosGoopedir">
         <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj"/>
@@ -132,13 +96,13 @@
         <MSBuild Projects="back-end\pedido\psGoopedir.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;Integracao;ImpressaoGooPedir;VersionBuild;Comanda;ServicosGoopedir;ProdutoGoopedir;psGoopedir"/>
+        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;ImpressaoGooPedir;ServicosGoopedir;ProdutoGoopedir;psGoopedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;Integracao:Clean;ImpressaoGooPedir:Clean;VersionBuild:Clean;Comanda:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean"/>
+        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;ImpressaoGooPedir:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;Integracao:Make;ImpressaoGooPedir:Make;VersionBuild:Make;Comanda:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make"/>
+        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;ImpressaoGooPedir:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

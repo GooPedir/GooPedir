@@ -69,6 +69,9 @@ type
     function GetAll(Tabela: String): String;
     function GetParametro(Campo: String): Variant;
     function NomeBanco: String;
+    function Usuario : String;
+    function Senha : String;
+
     function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
 
     procedure GerarLog(Erro: String);
@@ -77,6 +80,8 @@ type
 
     procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
     function GenerateUUID: string;
+    procedure DisconectBanco;
+    procedure ConectaBanco(Banco: String);
 
   end;
 
@@ -151,6 +156,13 @@ begin
   Result := DataModulo.Banco.Params.Values['CharacterSet'];
 end;
 
+procedure TConexao.ConectaBanco(Banco: String);
+begin
+  DataModulo.Banco.Connected := False;
+  DataModulo.Banco.Params.Database := Banco;
+  DataModulo.Banco.Connected := true;
+end;
+
 function TConexao.ConsultaSQL: TJSONArray;
 begin
   if SQL.Text <> '' then
@@ -177,7 +189,7 @@ begin
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
   FTimer.OnTimer := OnTimer;
-  FTimer.Enabled := True;
+  FTimer.Enabled := true;
 
 end;
 
@@ -197,6 +209,13 @@ begin
   SQL.Free;
   FTimer.Free;
   inherited;
+end;
+
+procedure TConexao.DisconectBanco;
+begin
+  DataModulo.Banco.Connected := False;
+  DataModulo.Banco.Params.Database := '';
+  DataModulo.Banco.Connected := true;
 end;
 
 procedure TConexao.EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
@@ -233,7 +252,7 @@ begin
   JSONBody := JSONBody + '  },';
   JSONBody := JSONBody + '  "tags": {';
   JSONBody := JSONBody + '    "environment": "production",';
-  JSONBody := JSONBody + '    "user": "'+GetComputerName+'"';
+  JSONBody := JSONBody + '    "user": "' + GetComputerName + '"';
   JSONBody := JSONBody + '  }';
   JSONBody := JSONBody + '}';
   JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
@@ -247,12 +266,12 @@ begin
     iGlitchtip.Metodo := mPost;
 
     iGlitchtip.Execute;
-    // ShowMessage(iGlitchtip.Retorno);
+    // //showmessage(iGlitchtip.Retorno);
 
   except
     on E: Exception do
     begin
-      // ShowMessage(E.Message);
+      // showmessage(E.Message);
     end;
 
   end;
@@ -274,7 +293,7 @@ begin
   Tipo := 'SUCESSO';
   Erro := '';
   try
-    Result := True;
+    Result := true;
     QRY.ExecSQL;
   except
     on E: Exception do
@@ -553,43 +572,16 @@ begin
 end;
 
 procedure TConexao.GerarLog(Erro: String);
-var
-  arq: TextFile;
-  Requisicao: iRequisicao;
-  JSON: TJsonObject;
 begin
-
-
-
-EnviaGlitchtip('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',DataModulo.Banco.Params.Database,DataModulo.Banco.Params.Database,Erro);
-exit;
-  try
-    JSON := TJsonObject.Create;
-    try
-      // Configura o JSON com os valores
-      JSON.AddPair('computer_name', GetComputerName);
-      JSON.AddPair('error_message', Erro);
-      JSON.AddPair('banco', DataModulo.Banco.Params.Database);
-
-      // Cria e configura a requisição
-      Requisicao := iRequisicao.Create(nil);
-      try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
-        Requisicao.BODY(JSON);
-        Requisicao.Metodo := mPost;
-        Requisicao.Execute;
-      finally
-        Requisicao.Free;
-      end;
-    finally
-      JSON.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-
-    end;
+  if pos('Duplicate entry', Erro) > 0 then
+  begin
+    exit;
   end;
+
+  EnviaGlitchtip
+    ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
+    DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
+    Erro + ' - ' + SQL.Text);
 
 end;
 
@@ -800,11 +792,11 @@ begin
       QryUpdate.SQL.Add(SqlUpdate);
 
     end;
-    SQL := StringReplace(UpperCase(SQL),'CREATE TABLE', 'CREATE TABLE IF NOT EXISTS',[]);
-
+    SQL := StringReplace(UpperCase(SQL), 'CREATE TABLE',
+      'CREATE TABLE IF NOT EXISTS', []);
 
     QRY := DataModulo.CriaQRY;
-    Result := True;
+    Result := true;
     QRY.Close;
     QRY.SQL.Clear;
     QRY.SQL.Add(SQL);
@@ -879,7 +871,7 @@ begin
   begin
     if FParametros[I] = Parametro then
     begin
-      Achou := True;
+      Achou := true;
       break;
     end;
   end;
@@ -897,6 +889,11 @@ begin
     FValores[I] := Valor;
   end;
 
+end;
+
+function TConexao.Senha: String;
+begin
+     Result := LowerCase(DataModulo.Banco.Params.Password);
 end;
 
 function TConexao.Servidor: String;
@@ -941,6 +938,11 @@ begin
   FLastActivityTime := Now; // Atualiza a última hora de atividade
 end;
 
+function TConexao.Usuario: String;
+begin
+   Result := LowerCase(DataModulo.Banco.Params.UserName);
+end;
+
 function TConexao.ValidaVersao: string;
 Var
   MYSQL: String;
@@ -948,7 +950,7 @@ Var
 begin
   MYSQL := SoNumero(VersaoMYSQL);
   // MYSQL := SoNumero('5.7.37-log');
-  // //showmessage1(MYSQL);
+  // ////showmessage1(MYSQL);
 
   VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
 
@@ -1003,11 +1005,11 @@ end;
 
 constructor TLogThread1.Create(const ComputerName, Erro, Banco: string);
 begin
-  inherited Create(True); // Cria a Thread1 suspensa
+  inherited Create(true); // Cria a Thread1 suspensa
   FComputerName := ComputerName;
   FErro := Erro;
   FBanco := Banco;
-  FreeOnTerminate := True; // Libera a memória automaticamente ao término
+  FreeOnTerminate := true; // Libera a memória automaticamente ao término
   Start; // Inicia a execução da Thread1
 end;
 

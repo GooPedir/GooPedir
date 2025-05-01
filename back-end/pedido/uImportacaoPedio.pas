@@ -53,11 +53,14 @@ type
     CodigoProduto: Integer;
     Codigo: Integer;
     Extra: TArray<TExtra>;
+
   end;
 
   TPagamento = record
     Descricao: string;
     Codigo: Integer;
+    MP: String;
+    Transacao: String;
   end;
 
   TPedido = record
@@ -101,11 +104,16 @@ procedure ProcessarPedido(Pedido: TPedido; Cliente: TCliente;
   Endereco: TEndereco; Produtos: TArray<TProduto>; Pagamento: TPagamento);
 function MontarDescricaoExtras(Extras: TArray<TExtra>): string;
 procedure InserirProduto(Produtos: TArray<TProduto>; Mesa, Pedido: Integer;
-  Conexao: TConexao);
+  Conexao: TConexao; Usuario: Integer);
+procedure ProcessamentoProduto(Pedido: TPedido; Produtos: TArray<TProduto>;
+  Mesa: Integer; Conexao: TConexao; Usuario, StatusCode: Integer);
 procedure ImprimirCozinha(Pedido: Integer);
 function InsertTabelaPedidoBasica(Mesa: Integer): Integer;
 procedure AtualizaStatusPedido(Pedido, Status: Integer);
 procedure AtualizaSite(Pedido, CodigoDia, Codigo: Integer);
+
+function UsuarioMesa: Integer;
+function UsuarioSite: Integer;
 
 implementation
 
@@ -116,6 +124,16 @@ function CreateReq: iRequisicao;
 begin
   Result := iRequisicao.Create(nil);
   Result.BaseURL := GetBaseURL;
+end;
+
+function UsuarioMesa: Integer;
+begin
+  Result := -1;
+end;
+
+function UsuarioSite: Integer;
+begin
+  Result := -2;
 end;
 
 function UserID: Integer;
@@ -143,12 +161,22 @@ var
   iReq: iRequisicao;
   JSON: TJSONObject;
   Retorno: String;
+  Conexao: TConexao;
 begin
+  CodigoDia := GeraCodigoPorDiaPedido;
+  Conexao := TConexao.Create('AtualizaSite');
+  Conexao.SQL.Add
+    ('update pedido set codigo_pedido_dia = :dia where codigo = :codigo');
+  Conexao.Parametros('codigo', Codigo);
+  Conexao.Parametros('dia', CodigoDia);
+  Conexao.ExecuteSQL;
+  Conexao.Free;
+
   iReq := iRequisicao.Create(nil);
   iReq.BaseURL := 'https://ws.goopedir.com/v2/pedido.php';
   JSON := TJSONObject.Create;
   JSON.AddPair('CodigoPedido', Pedido);
-  JSON.AddPair('CodigoDia', CodigoDia);
+  JSON.AddPair('CodigoDia', FormatFloat('000', CodigoDia));
   JSON.AddPair('CodigoSistema', Codigo);
   iReq.Body(JSON);
   iReq.Metodo := mPost;
@@ -160,13 +188,15 @@ begin
   end;
 
   iReq.Free;
+
 end;
 
 procedure AtualizaStatusPedido(Pedido, Status: Integer);
 var
   iReq: iRequisicao;
 begin
-  iReq := iRequisicao.Create(nil);
+
+  iReq := CreateReq;
   try
     iReq.URL := 'v1/pedido/status/' + Pedido.ToString + '/' +
       Status.ToString + '/';
@@ -437,7 +467,7 @@ begin
   if Result.Rua = '' then
   begin
     Result.Codigo := 0;
-    Exit;
+    exit;
   end;
 
   Conexao := TConexao.Create('ExtrairEndereco');
@@ -465,8 +495,8 @@ begin
   else
   begin
     Conexao.SQL.Add
-      ('update cliente_endereco set numero = :numero, rua = :rua, bairro = :bairro, cidade = :cidade, estado = :estado, complemento = :complemento, latitude = :latitude, longitude = :longitude');
-    Conexao.SQL.Add('where codigo = :codigo and cliente = :cliente');
+      ('update cliente_endereco set numero = :numero, rua = :rua, bairro = :bairro, cidade = :cidade, estado = :estado, complemento = :complemento');
+    Conexao.SQL.Add('where codigo = :codigo and codigo_cliente = :cliente');
   end;
   Conexao.Parametros('codigo', Result.Codigo);
   Conexao.Parametros('cliente', Cliente.Codigo);
@@ -500,14 +530,21 @@ begin
     ProdutoJSON := ProdutosArray[I] as TJSONObject;
 
     // Extrai os dados básicos do produto
-    Result[I].ID := ProdutoJSON.GetValue<string>('id', '');
+    Result[I].ID := ProdutoJSON.GetValue<string>('tabela', '');
+    Result[I].CodigoProduto := ProdutoJSON.GetValue<Integer>('id', 0);
     Result[I].Nome := ProdutoJSON.GetValue<string>('nome', '');
-    Result[I].Preco := ProdutoJSON.GetValue<Double>('preco', 0);
-    Result[I].Unitario := ProdutoJSON.GetValue<Double>('unitario', 0);
-    Result[I].Quantidade := ProdutoJSON.GetValue<Integer>('quantidade', 0);
-    Result[I].CodigoProduto := GetCodigoProduto(Result[I].ID.ToInteger);
+    Result[I].Preco := ProdutoJSON.GetValue<Double>('preco');
+    Result[I].Unitario := ProdutoJSON.GetValue<Double>('unitario');
+    Result[I].Quantidade := ProdutoJSON.GetValue<Integer>('quantidade');
+    Result[I].CodigoProduto := GetCodigoProduto(Result[I].CodigoProduto);
     Result[I].Codigo := Conexao.GerarID('pedido_produtos', 'codigo');
     Result[I].ValorExtra := 0;
+
+    if Result[I].Preco = 0 then
+    begin
+      SetLength(Result, 0);
+      exit;
+    end;
 
     // Extrai os extras, se existirem
     if ProdutoJSON.TryGetValue<TJSONArray>('extra', ExtrasArray) then
@@ -547,6 +584,8 @@ var
   Conexao: TConexao;
 begin
   Result.Descricao := JSON.GetValue<string>('pagamento.descricao', '');
+  Result.MP := JSON.GetValue<string>('pagamento.mp', '');
+  Result.Transacao := JSON.GetValue<string>('pagamento.transacao', '');
 
   Conexao := TConexao.Create('ExtrairPagamento');
   Conexao.SQL.Add('select * from tipo_pagamento where descricao = :descricao');
@@ -659,8 +698,81 @@ begin
 
 end;
 
+procedure ProcessamentoProduto(Pedido: TPedido; Produtos: TArray<TProduto>;
+  Mesa: Integer; Conexao: TConexao; Usuario, StatusCode: Integer);
+var
+  ValidaPedido: Boolean;
+  Notificar: Boolean;
+  Impressao: Integer;
+begin
+  // Inserir os produtos
+  case TipoPedido of
+    0:
+      begin
+        Notificar := False;
+
+      end
+  else
+    begin
+      Notificar := True;
+    end;
+  end;
+
+  InserirProduto(Produtos, 0, Pedido.Codigo, Conexao, UsuarioSite);
+
+  Conexao.SQL.Add
+    ('select count(*) as tot, 0 as zero from pedido_produtos where codigo_pedido = :codigo');
+  Conexao.Parametros('codigo', Pedido.Codigo);
+
+  try
+    ValidaPedido := Conexao.FieldByName('tot') = Length(Produtos);
+  except
+    ValidaPedido := False;
+  end;
+
+  if not ValidaPedido then
+    Notificar := ValidaPedido;
+
+  // Libera produtos para serem impressos na cozinha
+  if Notificar then
+    ImprimirCozinha(Pedido.Codigo);
+
+  if ValidaPedido then
+  begin
+    Impressao := Conexao.GerarID('impressao_pedido', 'id');
+    Conexao.SQL.Add('delete from impressao_pedido where id_pedido = :pedido');
+    Conexao.Parametros('pedido', Pedido.Codigo);
+    Conexao.ExecuteSQL;
+
+    Conexao.SQL.Add
+      ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
+    Conexao.SQL.Add('values  (:id,current_date, current_time,:pedido,:status)');
+    Conexao.Parametros('id', Impressao);
+    Conexao.Parametros('pedido', Pedido.Codigo);
+    if Notificar then
+      Conexao.Parametros('status', 0)
+    else
+      Conexao.Parametros('status', 1);
+    Conexao.ExecuteSQL;
+
+    AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia, Pedido.Codigo);
+
+    if Notificar then
+    begin
+      AtualizaStatusPedido(Pedido.Codigo, StatusCode);
+    end;
+  end
+  else
+  begin
+    Conexao.SQL.Add('delete from pedido where codigo = :codigo');
+    Conexao.Parametros('codigo', Pedido.Codigo);
+    Conexao.ExecuteSQL;
+
+  end;
+end;
+
 procedure InserirProduto(Produtos: TArray<TProduto>; Mesa, Pedido: Integer;
-  Conexao: TConexao);
+  Conexao: TConexao; Usuario: Integer);
 var
   Produto: TProduto;
   Extra: TExtra;
@@ -672,10 +784,14 @@ begin
 
   for Produto in Produtos do
   begin
+    Conexao.SQL.Add('delete from pedido_produtos where id_site = :site');
+    Conexao.Parametros('site', Produto.ID);
+    Conexao.ExecuteSQL;
+
     Conexao.SQL.Add
-      ('insert into pedido_produtos (codigo,codigo_pedido,codigo_produto,valor_unitario,quantidade,valor_total,valor_adicional,impressao,html)');
+      ('insert into pedido_produtos (codigo,codigo_pedido,codigo_produto,valor_unitario,quantidade,valor_total,valor_adicional,impressao,html,usuario,id_site)');
     Conexao.SQL.Add
-      ('values (:codigo,:codigo_pedido,:codigo_produto,:valor_unitario,:quantidade,:valor_total,:valor_adicional,0,:html)');
+      ('values (:codigo,:codigo_pedido,:codigo_produto,:valor_unitario,:quantidade,:valor_total,:valor_adicional,0,:html,:usuario, :site)');
     Conexao.Parametros('codigo', Produto.Codigo);
     Conexao.Parametros('codigo_pedido', Pedido);
     Conexao.Parametros('codigo_produto', Produto.CodigoProduto);
@@ -683,6 +799,8 @@ begin
     Conexao.Parametros('quantidade', Produto.Quantidade);
     Conexao.Parametros('valor_total', Produto.Preco);
     Conexao.Parametros('valor_adicional', Produto.ValorExtra);
+    Conexao.Parametros('site', Produto.ID);
+    Conexao.Parametros('usuario', Usuario);
     Conexao.Parametros('html', MontarDescricaoExtras(Produto.Extra));
     Conexao.ExecuteSQL;
 
@@ -746,21 +864,9 @@ var
   Impressao: Integer;
   StatusCode: Integer;
   Notificar: Boolean;
+  Dados: TFDmemTable;
+  ValidaPedido: Boolean;
 begin
-  Conexao := TConexao.Create('ProcessarPedido');
-  Conexao.SQL.Add('select * from pedido where id_pedido_site = :id');
-  Conexao.Parametros('id', Pedido.ID);
-  try
-    Pedido.Codigo := Conexao.FieldByName('codigo');
-  except
-    Pedido.Codigo := 0;
-  end;
-  if Pedido.Codigo > 0 then
-  begin
-    Conexao.Free;
-    Exit;
-  end;
-
   StatusCode := StatusPedidoNovo;
 
   case TipoPedido of
@@ -775,17 +881,43 @@ begin
     end;
   end;
 
+  Conexao := TConexao.Create('ProcessarPedido');
+  Conexao.SQL.Add
+    ('select codigo, codigo_pedido_dia as dia from pedido where id_pedido_site = :id');
+  Conexao.Parametros('id', Pedido.ID);
+  Dados := TFDmemTable.Create(nil);
+  Dados.LoadFromJSON(Conexao.ConsultaSQL);
+  if Dados.RecordCount > 0 then
+  begin
+
+    try
+      Pedido.Codigo := Dados.FieldByName('codigo').AsInteger;
+      Pedido.CodigoDia := Dados.FieldByName('dia').AsInteger;
+    except
+      Pedido.Codigo := 0;
+    end;
+    ProcessamentoProduto(Pedido, Produtos, 0, Conexao, -2, StatusCode);
+    if Pedido.Codigo > 0 then
+    begin
+      AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia, Pedido.Codigo);
+      Conexao.Free;
+      exit;
+    end;
+
+  end;
+
   Pedido.Codigo := InsertTabelaPedidoBasica(0);
   Conexao.SQL.Add
     ('update pedido set codigo_pedido_dia = :dia, codigo_cliente = :cliente, codigo_cliente_endereco = :endereco, status = :status, desc_desconto_ifood = :cupom,');
   Conexao.SQL.Add
     ('valor_pedido = :pedido, valor_desconto = :desconto, valor_taxa_entrega = :entrega, valor_total_pedido = :total, troco = :troco, pedido_site = :site, id_pedido_site = :site,');
   Conexao.SQL.Add
-    ('tipo_pagamento = :pagamento, origem = 4, url = :url, partner = :partner, cpf = :cpf, nome = :nome, latitude = :latitude, longitude = :logitude');
+    ('tipo_pagamento = :pagamento, origem = 2, url = :url, partner = :partner, cpf = :cpf, nome = :nome, latitude = :latitude, longitude = :logitude, mp = :mp');
   Conexao.SQL.Add('where codigo = :codigo');
   Conexao.Parametros('site', Pedido.ID);
   Conexao.Parametros('codigo', Pedido.Codigo);
-  Pedido.CodigoDia := GeraCodigoPorDiaPedido;
+  Pedido.CodigoDia := 0;
+  // Pedido.CodigoDia := GeraCodigoPorDiaPedido;
   Conexao.Parametros('dia', Pedido.CodigoDia);
   Conexao.Parametros('cupom', Pedido.Cupom);
 
@@ -798,6 +930,7 @@ begin
   Conexao.Parametros('total', Pedido.Total);
   Conexao.Parametros('troco', Pedido.Troco);
   Conexao.Parametros('pagamento', Pagamento.Codigo);
+  Conexao.Parametros('mp', Pagamento.Transacao);
   Conexao.Parametros('url', Pedido.URL);
   Conexao.Parametros('partner', Pedido.Partner);
   Conexao.Parametros('cpf', Cliente.CPF);
@@ -806,33 +939,7 @@ begin
   Conexao.Parametros('logitude', Pedido.Longitude);
   Conexao.ExecuteSQL;
 
-  // Inserir os produtos
-  InserirProduto(Produtos, 0, Pedido.Codigo, Conexao);
-
-  // Libera produtos para serem impressos na cozinha
-  if Notificar then
-    ImprimirCozinha(Pedido.Codigo);
-
-  Impressao := Conexao.GerarID('impressao_pedido', 'id');
-  // Conexao.SQL.Add('insert into impressao_pedido (id,id_pedido) values (:id,:pedido)');
-  Conexao.SQL.Add
-    ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
-  Conexao.SQL.Add('values  (:id,current_date, current_time,:pedido,:status)');
-  Conexao.Parametros('id', Impressao);
-  Conexao.Parametros('pedido', Pedido.Codigo);
-  if Notificar then
-    Conexao.Parametros('status', 0)
-  else
-    Conexao.Parametros('status', 1);
-
-  Conexao.ExecuteSQL;
-
-  if Notificar then
-  begin
-    AtualizaStatusPedido(Pedido.Codigo, StatusCode);
-  end;
-
-  AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia, Pedido.Codigo);
+  ProcessamentoProduto(Pedido, Produtos, 0, Conexao, -2, StatusCode);
 
   Conexao.Free;
 end;
@@ -860,7 +967,8 @@ begin
   end;
 
   // Inserir os produtos
-  InserirProduto(Produtos, Cliente.Mesa, Cliente.PedidoMesa, Conexao);
+  InserirProduto(Produtos, Cliente.Mesa, Cliente.PedidoMesa, Conexao,
+    UsuarioMesa);
 
   // Libera produtos para serem impressos na cozinha
   ImprimirCozinha(Cliente.PedidoMesa);
@@ -889,16 +997,20 @@ begin
     Endereco := ExtrairEndereco(JSON, Cliente, Pedido);
     Produtos := ExtrairProdutos(JSON);
 
-    if Cliente.Mesa > 0 then
+    if Assigned(Produtos) then
     begin
-      // Adicionar Itens Na Mesa
-      ProcessarMesa(Cliente, Produtos);
-      AtualizaSite(Pedido.ID.ToInteger, Cliente.Mesa, Cliente.PedidoMesa);
-    end
-    else
-    begin
-      // Adicionar Novos Pedidos
-      ProcessarPedido(Pedido, Cliente, Endereco, Produtos, Pagamento);
+
+      if Cliente.Mesa > 0 then
+      begin
+        // Adicionar Itens Na Mesa
+        ProcessarMesa(Cliente, Produtos);
+        AtualizaSite(Pedido.ID.ToInteger, Cliente.Mesa, Cliente.PedidoMesa);
+      end
+      else
+      begin
+        // Adicionar Novos Pedidos
+        ProcessarPedido(Pedido, Cliente, Endereco, Produtos, Pagamento);
+      end;
     end;
 
     // Agora você pode usar as variáveis Cliente, Endereco, Produtos, Pagamento e Pedido

@@ -1,4 +1,4 @@
-unit uMain;
+Ôªøunit uMain;
 
 interface
 
@@ -24,7 +24,11 @@ uses
   System.IOUtils,
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
   cors,
-  Web.HTTPApp, PedidoController, uLogThread;
+  uControllerSite,
+  Web.HTTPApp, PedidoController, uLogThread,
+  IdHTTP,
+  IdSSLOpenSSL,
+  Winapi.WinInet;
 
 type
   TCacheItem = record
@@ -120,8 +124,17 @@ type
     Button1: TButton;
     Timer1: TTimer;
     mHoraAbertura: TMenuItem;
+    mAtualizacao: TFDMemTable;
+    mAtualizacaoid: TIntegerField;
+    mAtualizacaoarquivo: TStringField;
+    mAtualizacaopercentual: TIntegerField;
+    mAtualizacaostatus: TStringField;
+    mAtualizacaotamanho: TStringField;
+    mAtualizacaouuid: TStringField;
+    mAtualizacaodata: TDateTimeField;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure AposConectarBanco;
     procedure Fechar1Click(Sender: TObject);
     procedure IFoodMerchantStatus
       (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
@@ -198,6 +211,9 @@ type
     procedure IFoodPollingEnd(EndPooling: TDateTime;
       OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
     procedure IFoodPollingError(Error: Exception);
+    procedure VerificarOuCriarBanco;
+    procedure ExecutarSQLScript(const SQLText: string);
+
   private
     FHorSite: TDateTime;
     FDataBloqueio: TDate;
@@ -247,6 +263,7 @@ type
     procedure LoadImpressora;
     procedure FichaTecnica;
     function PathExe: String;
+    function ATUALIZADOR: String;
 
     function IntegracaoiFood: Boolean;
     procedure BuscaDadosiFood;
@@ -257,6 +274,7 @@ type
     procedure AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
 
     function UserID: Integer;
+    procedure buscarAtualizacao(user: Integer);
     procedure SincronizaProdutos;
     procedure BuscarModulo;
     function GetModulo: String;
@@ -343,7 +361,7 @@ type
     procedure MiddlewareCORS(Req: THorseRequest; Res: THorseResponse;
       Next: TProc);
 
-    procedure AtivaInativaSite(User: Integer);
+    procedure AtivaInativaSite(user: Integer);
     procedure ResetUser;
 
     function CreateiFoodConnection(Name, MerchantID: String): String;
@@ -370,6 +388,12 @@ type
       Next: TProc);
     function Metodo(Req: THorseRequest): String;
     procedure InitializeLogFile;
+    function ImpressaoStatus: TJsonObject;
+    procedure SincronizaCaixa(Codigo: Integer);
+    function DoGetCaixaTresLancado(Codigo: Integer): TJsonArray;
+    function DoGetCaixaTres(Codigo: Integer): TJsonArray;
+    procedure EnvioCaixa;
+    procedure AtualizaCacheSite;
 
   var
     FechouWhatsapp: Boolean;
@@ -388,6 +412,8 @@ type
     JsonDadosBloqueio: TJsonObject;
     Faturas: TJsonArray;
     DadosWhatsappBoolean: Boolean;
+    CarregaImagem: Boolean;
+    FaturarEmAberto: Boolean;
 
   end;
 
@@ -396,7 +422,7 @@ var
   Atualizacao: TSQL;
   Servicos: TAbrirServicos;
   statusiFood: Boolean;
-  User: Integer;
+  user: Integer;
   ProcessamentoiFood: TProcessamentoiFood;
 
   ProcessamentoiFood1: TProcessamentoiFood;
@@ -406,6 +432,7 @@ var
   Port: Integer;
   LogFilePath: String;
   GerarLog: Boolean;
+  MeusModulos: String;
 
 implementation
 
@@ -461,6 +488,90 @@ begin
     'Log', 'AddLog', Text);
 end;
 
+procedure TfrmServidor.AposConectarBanco;
+var
+  conexao: Tconexao;
+  VersaoMysql: String;
+  IniFile: TIniFile;
+  HorarioRestart: String;
+  ClientId: String;
+  ClientSecret: String;
+  PedidosManager: TPedidosManager;
+
+  Qry: TFDQuery;
+  nomeBKP : String;
+begin
+  // ‚ö° Tudo que depende que o banco esteja pronto:
+  frmServidor.Configuracoes.Close;
+  conexao := Tconexao.Create('main'); // Se precisar reabrir
+
+  VersaoMysql := conexao.ValidaVersao;
+
+  conexao.SQL.Add('select * from dados_whatsapp');
+  frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+
+  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile.WriteString('site', 'clientId',
+    frmServidor.Configuracoes.FieldByName('client_id').AsString);
+  IniFile.WriteString('site', 'clientSecurity',
+    frmServidor.Configuracoes.FieldByName('client_security').AsString);
+  IniFile.Free;
+
+  token.Registry;
+  util.Registry;
+
+  NFCE.Registry;
+  imprimir.Registry;
+
+  LoadImpressora;
+  DescricaoIfood;
+
+  // Configura√ß√µes adicionais de iFood
+  IniFile := TIniFile.Create('./goopedir.ini');
+  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
+  begin
+    HabilitarProduo1Click(nil);
+  end;
+
+  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
+  ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
+  IniFile.Free;
+
+  IFood.Credentials.ClientId := ClientId;
+  IFood.Credentials.ClientSecret := ClientSecret;
+
+  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+    IFood.Credentials.AuthorizationType := ctCentralized
+  else
+    IFood.Credentials.AuthorizationType := ctDistributed;
+
+  if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
+  begin
+    APIGoopedir := TGooPedirAPIController.Create('https://api.goopedir.com.br/',
+      frmServidor.Configuracoes.FieldByName('client_id').AsString,
+      frmServidor.Configuracoes.FieldByName('client_security').AsString,
+      GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
+  end;
+
+  IniciaIfood;
+  AtualizaCacheSite;
+
+  nomeBKP := ExtractFileDir(Application.ExeName)+'\backup\bd';
+  if not DirectoryExists(nomeBKP) then
+  ForceDirectories(nomeBKP);
+
+  nomeBKP := nomeBKP+'\'+FormatDateTime('ddmmyyyy',now)+'.sql';
+
+  if not FileExists(nomeBKP) then
+  begin
+  ShellExecute(0, 'open', 'cmd.exe',
+  PChar('/C mysqldump -u '+conexao.Usuario+' -p'+conexao.Senha+' --databases '+conexao.NomeBanco+' > "'+nomeBKP+'"'),
+  nil, SW_HIDE);
+  end;
+
+  // Se tiver outros m√≥dulos que dependem do banco, colocar aqui tamb√©m
+end;
+
 procedure TfrmServidor.AtivaInativaProdutos;
 var
   conexao: Tconexao;
@@ -499,7 +610,7 @@ begin
 
 end;
 
-procedure TfrmServidor.AtivaInativaSite(User: Integer);
+procedure TfrmServidor.AtivaInativaSite(user: Integer);
 var
   JsonObject: TJsonObject;
   JsonProduto: TJsonObject;
@@ -518,15 +629,15 @@ begin
   Data := IniFile.ReadDate('ATIVA', 'ATIVA', StrToDate('01/01/1999'));
   if Data = Date then
   begin
+    IniFile.Free;
     exit;
   end;
-  IniFile.WriteDate('ATIVA', 'ATIVA', Date);
-  IniFile.Free;
+
   try
     conexao := Tconexao.Create('AtivaInativaSite');
 
     JsonObject := TJsonObject.Create;
-    JsonObject.AddPair('user', User);
+    JsonObject.AddPair('user', user);
 
     JsonProduto := TJsonObject.Create;
 
@@ -593,13 +704,12 @@ begin
     begin
       while not Dados.Eof do
       begin
-        conexao.SQL.Add
-          ('delete from pro_adi_personalizado_sabores where nome = :nome and id_pro_adi_personalizado = :id_pro_adi_personalizado and id_site <> :id_site');
-        conexao.Parametros('nome', Dados.FieldByName('nome').AsString);
-        conexao.Parametros('id_pro_adi_personalizado',
+        { conexao.SQL.Add('delete from pro_adi_personalizado_sabores where nome = :nome and id_pro_adi_personalizado = :id_pro_adi_personalizado and id_site <> :id_site');
+          conexao.Parametros('nome', Dados.FieldByName('nome').AsString);
+          conexao.Parametros('id_pro_adi_personalizado',
           Dados.FieldByName('id_pro_adi_personalizado').AsString);
-        conexao.Parametros('id_site', Dados.FieldByName('id_site').AsString);
-        conexao.ExecuteSQL;
+          conexao.Parametros('id_site', Dados.FieldByName('codigo').AsString);
+          conexao.ExecuteSQL; }
 
         Valor := Valor + ',' + Dados.FieldByName('codigo').AsString;
         Dados.Next;
@@ -701,7 +811,7 @@ begin
     JsonObject.AddPair('adicional', JsonAdicionais);
     JsonObject.AddPair('sabores', JsonSabores);
 
-    // showmessage1(JsonObject.ToString);
+    // //showmessage1(JsonObject.ToString);
 
     Req := iRequisicao.Create(nil);
     Req.BaseURL := 'https://ws.goopedir.com/v1/itens.php';
@@ -715,10 +825,34 @@ begin
   except
     on E: Exception do
     begin
-      // showmessage1(E.Message);
+      showmessage(E.Message);
 
     end;
 
+  end;
+  IniFile.WriteDate('ATIVA', 'ATIVA', Date);
+  IniFile.Free;
+end;
+
+procedure TfrmServidor.AtualizaCacheSite;
+var
+  Requisicao: iRequisicao;
+  token: String;
+begin
+  Requisicao := iRequisicao.Create(nil);
+  token := GerarTokenJWT(UserID);
+  Requisicao.AddHEader('token', token);
+  Requisicao.BaseURL := 'http://api.goopedir.com.br';
+  Requisicao.URL := '/api/empresa/atualizacao/produto/' + UserID.ToString;
+  Requisicao.Metodo := mPost;
+  try
+    Requisicao.Execute;
+
+  except
+    on E: Exception do
+    begin
+      // ShowMessage(e.Message);
+    end;
   end;
 
 end;
@@ -741,6 +875,11 @@ begin
     conexao.Free;
   end;
 
+end;
+
+function TfrmServidor.ATUALIZADOR: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'atualizador.exe';
 end;
 
 procedure TfrmServidor.AtualizaSaldoEstoque;
@@ -1130,7 +1269,7 @@ begin
   // dataSetProductsItemsOptions.Next;
   // end;
   //
-  // // //showmessage1(memCategoriaExtra.ToJSONArray().ToString);
+  // // ////showmessage1(memCategoriaExtra.ToJSONArray().ToString);
   //
   // dataSetCategoy.Next;
   // end;
@@ -1139,6 +1278,29 @@ begin
   //
   // conexao.Free;
 
+end;
+
+procedure TfrmServidor.buscarAtualizacao(user: Integer);
+var
+  iReq: iRequisicao;
+begin
+  iReq := iRequisicao.Create(nil);
+  iReq.BaseURL :=
+    'https://api.goopedir.com.br/api/atualizacoes/busca/atualizacao/' +
+    user.ToString;
+  try
+    iReq.Execute;
+
+    if iReq.Status <> 404 then
+    begin
+      // Abrir exe
+      AbrirExe(ATUALIZADOR);
+    end;
+
+    // ShowMessage(iReq.Retorno);
+  except
+
+  end;
 end;
 
 procedure TfrmServidor.BuscarModulo;
@@ -1175,7 +1337,7 @@ var
   Req: iRequisicao;
   JSONObj: TJsonObject;
   InstanceData: TJsonObject;
-  User: TJsonObject;
+  user: TJsonObject;
   ErrorValue: Boolean;
   IDValue: string;
 begin
@@ -1201,12 +1363,12 @@ begin
           if Assigned(InstanceData) then
           begin
             // Extrai o campo 'user'
-            User := InstanceData.GetValue<TJsonObject>('user');
-            if Assigned(User) then
+            user := InstanceData.GetValue<TJsonObject>('user');
+            if Assigned(user) then
             begin
               // Extrai o valor do campo 'id'
               try
-                IDValue := User.GetValue<string>('id');
+                IDValue := user.GetValue<string>('id');
                 NumeroWhatsapp := FormatPhoneNumber(IDValue);
               except
                 StatusWhatsapp := false;
@@ -1344,7 +1506,7 @@ begin
     try
       NewIfood.MerchantStatus.AutoStatus := true;
       NewIfood.Polling.AutoPolling := true;
-      NewIfood.MerchantID(IDiFood);
+      NewIfood.MerchantID(MerchantID);
 
       if StrToInt(Name) = 1 then
       begin
@@ -1369,7 +1531,7 @@ begin
     except
       on E: Exception do
       begin
-        // showmessage1(E.Message);
+        // //showmessage1(E.Message);
 
       end;
 
@@ -1384,7 +1546,7 @@ var
   Req: iRequisicao;
   JsonObject: TJsonObject;
   ErrorValue: Boolean;
-  User: TJsonObject;
+  user: TJsonObject;
 begin
 
   if UserID > 0 then
@@ -1407,9 +1569,9 @@ begin
         end;
         if not ErrorValue then
         begin
-          User := JsonObject.GetValue<TJsonObject>('instance');
+          user := JsonObject.GetValue<TJsonObject>('instance');
 
-          if User.GetValue<String>('state') = 'open' then
+          if user.GetValue<String>('state') = 'open' then
           begin
             // Pegar dados
             DadosWhatsapp;
@@ -1421,7 +1583,7 @@ begin
 
           end;
 
-          User.Free;
+          user.Free;
 
           StatusInstanciaCriada := true;
         end;
@@ -1430,7 +1592,7 @@ begin
     except
       on E: Exception do
       begin
-        // //showmessage1(e.Message);
+        // ////showmessage1(e.Message);
 
       end;
 
@@ -1598,7 +1760,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage1(e.Message);
+      // ////showmessage1(e.Message);
 
     end;
 
@@ -1612,15 +1774,98 @@ begin
 
   if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
   begin
-    pTipoIfood.Caption := 'ProduÁ„o';
+    pTipoIfood.Caption := 'Produ√ß√£o';
   end
   else
   begin
-    pTipoIfood.Caption := 'HomologaÁ„o';
+    pTipoIfood.Caption := 'Homologa√ß√£o';
   end;
 
   if (IFood.Credentials.ClientId = '156b1271-4e6b-49c7-98cd-92a49cd1dec7') then
-    pTipoIfood.Caption := 'HomologaÁ„o - Eneway';
+    pTipoIfood.Caption := 'Homologa√ß√£o - Eneway';
+
+end;
+
+function TfrmServidor.DoGetCaixaTres(Codigo: Integer): TJsonArray;
+var
+  conexao: Tconexao;
+begin
+  conexao := Tconexao.Create('imprimir');
+  conexao.SQL.Add('SELECT');
+  conexao.SQL.Add('    MAX(c.id) as id,');
+  conexao.SQL.Add('    MAX( DATE_FORMAT(c.data_abertura, ' +
+    QuotedStr('%d/%m/%Y') + ')) as data_abertura,');
+  conexao.SQL.Add('    MAX(TIME_FORMAT(c.hora_abertura, ' + QuotedStr('%H:%i') +
+    ')) as hora_abertura,');
+  conexao.SQL.Add('    MAX( DATE_FORMAT(c.data_fechamento, ' +
+    QuotedStr('%d/%m/%Y') + ')) as data_fechamento,');
+  conexao.SQL.Add('    MAX(TIME_FORMAT(c.hora_fechamento, ' + QuotedStr('%H:%i')
+    + ')) as hora_fechamento,');
+  conexao.SQL.Add('    MAX(c.valor_abertura) as valor_abertura,');
+  conexao.SQL.Add('    MAX(c.valor_fechamento) as valor_fechamento,');
+  conexao.SQL.Add('    tp.descricao,');
+  conexao.SQL.Add('    SUM(cm.valor) AS valor,');
+  conexao.SQL.Add('    COALESCE(SUM(cm.valor), 0) as valor_tipo_pagamento,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco = 0 AND pl.id_ficha > 0), 0) as valor_mesa,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco = 0 AND (pl.id_ficha IS NULL or pl.id_ficha = 0)), 0) as valor_vem_buscar,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(pl.valor_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco > 0), 0) as valor_delivery,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(pl.valor_taxa_entrega) FROM pedido AS pl WHERE pl.id_caixa = c.id AND pl.codigo_cliente_endereco > 0), 0) as taxa_entrega,');
+  conexao.SQL.Add
+    ('    COALESCE((c.valor_fechamento - (SELECT SUM(pl.valor_total_pedido) FROM pedido AS pl WHERE pl.id_caixa = c.id)), 0) as valor_diferenca,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(valor) FROM caixa_movimento WHERE tipo = 2 AND id_caixa = :id), 0) as sangria,');
+  conexao.SQL.Add
+    ('    COALESCE((SELECT SUM(servico) FROM pedido WHERE id_caixa = :id), 0) as servico');
+  conexao.SQL.Add('FROM ');
+  conexao.SQL.Add('    caixa AS c');
+  conexao.SQL.Add('JOIN');
+  conexao.SQL.Add('    caixa_movimento AS cm ON cm.id_caixa = c.id');
+  conexao.SQL.Add('JOIN');
+  conexao.SQL.Add('    pedido AS p ON p.codigo = cm.id_pedido');
+  conexao.SQL.Add('JOIN');
+  conexao.SQL.Add
+    ('    tipo_pagamento AS tp ON tp.codigo = cm.id_tipo_pagamento');
+  conexao.SQL.Add('WHERE');
+  conexao.SQL.Add('    c.id = :id AND cm.tipo = 1');
+  conexao.SQL.Add('GROUP BY');
+  conexao.SQL.Add('    c.id, tp.codigo, tp.descricao;');
+  conexao.Parametros('id', Codigo);
+  Result := TJsonArray.Create;
+  Result := conexao.ConsultaSQL;
+  conexao.Free;
+
+end;
+
+function TfrmServidor.DoGetCaixaTresLancado(Codigo: Integer): TJsonArray;
+var
+  conexao: Tconexao;
+begin
+  conexao := Tconexao.Create('imprimir');
+  conexao.SQL.Add('SELECT');
+  conexao.SQL.Add('    MIN(caixa_movimento.id) AS id,');
+  conexao.SQL.Add('    IFNULL(upper(tipo_pagamento.descricao), ' +
+    QuotedStr('SANGRIA') + ') AS descricao,');
+  conexao.SQL.Add('    SUM(caixa_movimento.valor) AS valor');
+  conexao.SQL.Add('FROM');
+  conexao.SQL.Add('    caixa');
+  conexao.SQL.Add('JOIN');
+  conexao.SQL.Add('    caixa_movimento ON caixa_movimento.id_caixa = caixa.id');
+  conexao.SQL.Add('LEFT JOIN');
+  conexao.SQL.Add
+    ('    tipo_pagamento ON tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento  and tipo_pagamento.codigo > 0');
+  conexao.SQL.Add('WHERE');
+  conexao.SQL.Add
+    ('    caixa.id = :id AND caixa_movimento.tipo IN (262626, 2) AND caixa_movimento.valor > 0');
+  conexao.SQL.Add('GROUP BY');
+  conexao.SQL.Add('    descricao;');
+  conexao.Parametros('id', Codigo);
+  Result := TJsonArray.Create;
+  Result := conexao.ConsultaSQL;
+  conexao.Free;
 
 end;
 
@@ -1684,7 +1929,7 @@ begin
   // except
   // on E: Exception do
   // begin
-  // ShowMessage(E.Message);
+  // //showmessage(E.Message);
   // end;
   //
   // end;
@@ -1708,7 +1953,7 @@ begin
       RESTRequest1.SynchronizedEvents := false;
       RESTRequest1.Method := rmPOST;
 
-      // Configurando os par‚metros da requisiÁ„o
+      // Configurando os par√¢metros da requisi√ß√£o
       // with RESTRequest1.Params.AddItem do
       // begin
       // Kind := pkREQUESTBODY;
@@ -1719,14 +1964,14 @@ begin
 
       RESTRequest1.AddBody(JsonObjec);
 
-      // Executando a requisiÁ„o
+      // Executando a requisi√ß√£o
       try
         RESTRequest1.Execute;
-        // ShowMessage(RESTResponse1.Content);
+        // //showmessage(RESTResponse1.Content);
       except
         on E: Exception do
         begin
-          // ShowMessage(E.Message);
+          // //showmessage(E.Message);
         end;
 
       end;
@@ -1735,12 +1980,12 @@ begin
       if RESTResponse1.StatusCode = 200 then
       begin
         // Sucesso
-        // WriteLn('RequisiÁ„o bem-sucedida: ' + RESTResponse1.Content);
+        // WriteLn('Requisi√ß√£o bem-sucedida: ' + RESTResponse1.Content);
       end
       else
       begin
         // Erro
-        // WriteLn('Erro na requisiÁ„o: ' + RESTResponse1.StatusText);
+        // WriteLn('Erro na requisi√ß√£o: ' + RESTResponse1.StatusText);
       end;
 
     finally
@@ -1752,6 +1997,129 @@ begin
     RESTResponse1.Free;
   end;
 
+end;
+
+procedure TfrmServidor.EnvioCaixa;
+var
+  conexao: Tconexao;
+  Dados: TFDMemTable;
+begin
+  conexao := Tconexao.Create('EnvioCaixa');
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add
+    ('SELECT 0 as zero, id FROM caixa where id_site = 0 and data_fechamento is not null');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      SincronizaCaixa(Dados.FieldByName('id').AsInteger);
+      Dados.Next;
+    end;
+
+  end;
+  Dados.Free;
+  conexao.Free;
+end;
+
+procedure TfrmServidor.ExecutarSQLScript(const SQLText: string);
+var
+  Lista: TStringList;
+  Qry: TFDQuery;
+  i, Tentativas: Integer;
+  ComandoAtual: string;
+  Pendentes, Erros: TStringList;
+  ExecucaoRestante: Boolean;
+  conexao: Tconexao;
+begin
+  conexao := Tconexao.Create('ExecutarSQLScript');
+  Lista := TStringList.Create;
+  Pendentes := TStringList.Create;
+  Erros := TStringList.Create;
+  Qry := conexao.CriaQRY;
+  try
+    Lista.Text := SQLText;
+    ComandoAtual := '';
+
+    // Primeira rodada: executa tudo poss√≠vel
+    for i := 0 to Lista.Count - 1 do
+    begin
+      if (trim(Lista[i]) = '') or (trim(Lista[i]).StartsWith('--')) or
+        (trim(Lista[i]).StartsWith('/*!')) or
+        (trim(Lista[i]).StartsWith('LOCK TABLES')) or
+        (trim(Lista[i]).StartsWith('UNLOCK TABLES')) or
+        (trim(Lista[i]).StartsWith('ALTER TABLE')) then
+        Continue;
+
+      ComandoAtual := ComandoAtual + sLineBreak + Lista[i];
+
+      if Pos(';', Lista[i]) > 0 then
+      begin
+        try
+          Qry.SQL.Clear;
+          Qry.SQL.Text := ComandoAtual;
+          Qry.ExecSQL;
+        except
+          on E: Exception do
+          begin
+            if Pos('Failed to open the referenced table', E.Message) > 0 then
+            begin
+              // Se for erro de foreign key, adia
+              Pendentes.Add(ComandoAtual);
+            end
+            else
+              raise Exception.Create('Erro executando SQL: ' + E.Message +
+                sLineBreak + 'Comando: ' + ComandoAtual);
+          end;
+        end;
+        ComandoAtual := '';
+      end;
+    end;
+
+    // Agora tenta executar os pendentes
+    Tentativas := 0;
+    repeat
+      ExecucaoRestante := false;
+      Inc(Tentativas);
+
+      for i := Pendentes.Count - 1 downto 0 do
+      begin
+        try
+          Qry.SQL.Clear;
+          Qry.SQL.Text := Pendentes[i];
+          Qry.ExecSQL;
+          Pendentes.Delete(i); // Deu certo, remove da lista
+        except
+          on E: Exception do
+          begin
+            if (Tentativas >= 3) then
+            begin
+              // Se j√° tentou 3x e n√£o deu, grava no erro
+              Erros.Add(Pendentes[i]);
+              Pendentes.Delete(i);
+            end
+            else
+              ExecucaoRestante := true; // Ainda tem pendente, mais uma rodada
+          end;
+        end;
+      end;
+
+    until (not ExecucaoRestante) or (Tentativas >= 3);
+
+    // Se sobrou algum erro grave, salva o log
+    if Erros.Count > 0 then
+    begin
+      Erros.SaveToFile(ExtractFilePath(ParamStr(0)) + 'log_erros_sql.txt');
+      showmessage
+        ('Alguns comandos SQL n√£o puderam ser executados. Veja o arquivo log_erros_sql.txt');
+    end;
+
+  finally
+    Qry.Free;
+    Lista.Free;
+    Pendentes.Free;
+    Erros.Free;
+  end;
 end;
 
 procedure TfrmServidor.FazExclusaoClientes;
@@ -1884,7 +2252,7 @@ var
   Ingrediente: String;
   CodigoIngrediente: Integer;
   Codigo: Integer;
-  I: Integer;
+  i: Integer;
 begin
 
   conexao := Tconexao.Create('main');
@@ -1913,9 +2281,9 @@ begin
 
           Ingrediente := RemoveAcento(Dados.FieldByName('nome').AsString);
           Ingrediente := StringReplace(Ingrediente, 'SEM ', '', [rfReplaceAll]);
-          for I := 0 to 9 do
+          for i := 0 to 9 do
           begin
-            Ingrediente := StringReplace(Ingrediente, I.ToString, '',
+            Ingrediente := StringReplace(Ingrediente, i.ToString, '',
               [rfReplaceAll]);
           end;
           Ingrediente := trim(Ingrediente);
@@ -2008,15 +2376,15 @@ begin
   // Remove o sufixo ':27@s.whatsapp.net'
   Result := RawNumber.Split([':'])[0];
 
-  // Remove o cÛdigo do paÌs, assumindo que o cÛdigo do paÌs È sempre '55'
+  // Remove o c√≥digo do pa√≠s, assumindo que o c√≥digo do pa√≠s √© sempre '55'
   CountryCode := Copy(Result, 1, 2);
   Result := Copy(Result, 3, length(Result) - 2);
 
-  // ExtraÌ o cÛdigo de ·rea e o n˙mero
+  // Extra√≠ o c√≥digo de √°rea e o n√∫mero
   AreaCode := Copy(Result, 1, 2);
   NumberPart := Copy(Result, 3, length(Result) - 2);
 
-  // Formata o n˙mero
+  // Formata o n√∫mero
   Result := Format('+%s (%s) %s-%s', [CountryCode, AreaCode, Copy(NumberPart, 1,
     4), Copy(NumberPart, 5, 4)]);
 end;
@@ -2031,17 +2399,22 @@ var
   ClientSecret: String;
   PedidosManager: TPedidosManager;
 
+  Qry: TFDQuery;
 begin
-
+  // Parte visual / memoria
+  mAtualizacao.Open;
   Caption := FormatDateTime('hh:nn', now);
   mHoraAbertura.Caption := Caption;
+  v2.Registry;
+
+  // Middlewares
   THorse.Use(LogMiddleware);
   THorse.Use(ConfigurarCORS);
   THorse.Use(ExceptionMiddleware);
   THorse.Use(Jhonson);
-  // THorse.Use(Etag);
   THorse.Use(OctetStream);
   THorse.Use(MiddlewareCORS);
+
   PIX.Open;
   CodigoPedido := 0;
 
@@ -2053,99 +2426,46 @@ begin
     Port.ToString + '/');
   IniFile.WriteString('server', 'restart', '03:00');
   NomeExeSite := IniFile.ReadString('server', 'name', '');
+  IniFile.Free;
 
   conexao := Tconexao.Create('main');
   VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
 
-  token.Registry;
-  util.Registry;
-  v2.Registry;
-  NFCE.Registry;
-  imprimir.Registry;
+  try
+    conexao.SQL.Add('select * from dados_whatsapp');
+    frmServidor.Configuracoes.Close;
+    frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
 
+    if frmServidor.Configuracoes.RecordCount = 0 then
+    begin
+      // Banco n√£o existe, criar
+      VerificarOuCriarBanco;
+
+      // Depois que criar o banco, precisa recarregar tudo
+      AposConectarBanco;
+    end
+    else
+    begin
+      // Se banco j√° existe, tamb√©m configura
+      AposConectarBanco;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      showmessage('Erro ao conectar/criar banco: ' + E.Message);
+      Application.Terminate;
+      exit;
+    end;
+  end;
+
+  // Agora pode iniciar Horse
   try
     THorse.Listen(Port);
   except
     Application.Terminate;
     exit;
   end;
-
-  {
-    // PedidosManager := TPedidosManager.Create('1');
-
-
-    //  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
-    //  begin
-    //    HabilitarProduo1Click(nil);
-    //  end;
-
-    //  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
-    //  ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
-    //  IFood.Credentials.ClientId := ClientId;
-    //  IFood.Credentials.ClientSecret := ClientSecret;
-    //  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-    //  begin
-    //    IFood.Credentials.AuthorizationType := ctCentralized;
-    //  end
-    //  else
-    //  begin
-    //    IFood.Credentials.AuthorizationType := ctDistributed;
-    //  end;
-    //
-    //  DescricaoIfood;
-    Atualizacao := TSQL.Create;
-    Atualizacao.MemoLog := memoHistorico;
-
-    Atualizacao.SeTiverAtualizacao := TemAtualizacao;
-    Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
-    Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
-    Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
-    Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
-
-    Atualizacao.VerificaAtualizacao;
-
-    Servicos := TAbrirServicos.Create;
-    Servicos.HorarioRestart := HorarioRestart;
-    Servicos.Start;
-    frmServidor.LoadImpressora;
-
-    IniFile.WriteString('site', 'clientId',
-    frmServidor.Configuracoes.FieldByName('client_id').AsString);
-    IniFile.WriteString('site', 'clientSecurity',
-    frmServidor.Configuracoes.FieldByName('client_security').AsString);
-    IniFile.Free;
-
-    //  APIGoopedir := TGooPedirAPIController.Create
-    //    ('https://site-api-v2.goopedir.com/',
-    //    frmServidor.Configuracoes.FieldByName('client_id').AsString,
-    //    frmServidor.Configuracoes.FieldByName('client_security').AsString,
-    //    GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
-    exit;
-
-    // showmessage1(AtualizacaoCustoIngrediente(72).ToString);
-    // BuscaCacheGeral;
-
-    // ImportaProdutos;
-
-
-    // THorse.Use(ServerStatic('public'));
-
-    // DeclaraÁ„o das URI da API
-
-
-    // InicializaÁ„o do Console
-
-
-
-
-    // APIGoopedir.FunctionHorarioAbertura := GetHorarioAbertura;
-    // APIGoopedir.FuncationHorarioFechamento := GetHorarioFechamento;
-    // APIGoopedir.FunctionHorario := GetHorarioAtendimento;
-    // FimAtualizacao;
-  }
 
 end;
 
@@ -2155,7 +2475,7 @@ var
 begin
   // Gera um novo GUID
   if CreateGUID(GUID) = 0 then
-    // Converte o GUID para string no formato padr„o
+    // Converte o GUID para string no formato padr√£o
     Result := GUIDToString(GUID)
   else
     Result := ''; // Retorna uma string vazia em caso de erro
@@ -2168,7 +2488,7 @@ begin
 
   if CodigoPedido > 0 then
   begin
-    inc(CodigoPedido);
+    Inc(CodigoPedido);
     Result := CodigoPedido;
     exit;
   end;
@@ -2185,16 +2505,17 @@ end;
 
 function TfrmServidor.GetADRIFoodByTag(TagValue: Integer): TADRIFood;
 var
-  I: Integer;
+  i: Integer;
 begin
   Result := nil; // Inicializa o resultado como nil
-  for I := 0 to self.ComponentCount - 1 do
+  for i := 0 to self.ComponentCount - 1 do
   begin
-    if (self.Components[I] is TADRIFood) and
-      (TADRIFood(self.Components[I]).Tag = TagValue) then
+    if (self.Components[i] is TADRIFood) and
+      (TADRIFood(self.Components[i]).Tag = TagValue) then
     begin
-      Result := TADRIFood(self.Components[I]);
-      Break; // Encontrou o componente, ent„o sai do loop
+      Result := TADRIFood(self.Components[i]);
+      exit;
+      // Break; // Encontrou o componente, ent√£o sai do loop
     end;
   end;
 end;
@@ -2205,6 +2526,8 @@ var
   JsonResponse: TJsonObject;
   ResultJson: TJsonObject;
   conexao: Tconexao;
+  LogoURL, HeaderURL: string;
+
 begin
 
   if (Cache.Data <> '') and (MinutesBetween(now, Cache.Timestamp) <= 1) then
@@ -2246,19 +2569,52 @@ begin
       ResultJson.AddPair('titulo',
         JsonResponse.GetValue('cor_titulo_produtos').Value);
       // Atualiza o cache
+      if not CarregaImagem then
+      begin
+        conexao := Tconexao.Create('main');
+
+        conexao.SQL.Add
+          ('update dados_whatsapp set cor_fundo = :cor_fundo, cor_fonte = :cor_fonte, logo = :img_logo, banner = :img_header');
+        conexao.Parametros('cor_fundo',
+          JsonResponse.GetValue('cor_topo').Value);
+        conexao.Parametros('cor_fonte',
+          JsonResponse.GetValue('cor_titulo_produtos').ToString);
+        // conexao.Parametros('img_logo', JsonResponse.GetValue('img_logo').ToString);
+        // conexao.Parametros('img_header', JsonResponse.GetValue('img_header').ToString);
+        if JsonResponse.GetValue('img_logo') <> nil then
+        begin
+          LogoURL := JsonResponse.GetValue('img_logo').Value;
+          LogoURL := StringReplace(LogoURL, '\/', '/', [rfReplaceAll]);
+          conexao.Parametros('img_logo', LogoURL);
+        end
+        else
+          conexao.Parametros('img_logo', '');
+
+        // Banner/Header - com tratamento das barras invertidas
+        if JsonResponse.GetValue('img_header') <> nil then
+        begin
+          HeaderURL := JsonResponse.GetValue('img_header').Value;
+          HeaderURL := StringReplace(HeaderURL, '\/', '/', [rfReplaceAll]);
+          conexao.Parametros('img_header', HeaderURL);
+        end
+        else
+          conexao.Parametros('img_header', '');
+        conexao.ExecuteSQL;
+        conexao.Free;
+        CarregaImagem := true;
+      end;
+
       Cache.Timestamp := now;
       Cache.Data := ResultJson.ToString;
 
-      conexao := Tconexao.Create('main');
-      conexao.SQL.Add('update dados_whatsapp set cor_fundo = ' +
-        QuotedStr(JsonResponse.GetValue('cor_topo').Value) + ', cor_fonte = ' +
-        QuotedStr(JsonResponse.GetValue('cor_titulo_produtos').Value));
-      conexao.ExecuteSQL;
-      conexao.Free;
     end;
 
   except
-    Cache.Data := '{}';
+    on E: Exception do
+    begin
+      Cache.Data := '{}';
+      // ShowMessage(e.Message);
+    end;
   end;
   Requisicao.Free;
   Result := Cache.Data;
@@ -2379,15 +2735,21 @@ function TfrmServidor.GetModulo: String;
 var
   ConfigFile: TStringList;
 begin
+  if MeusModulos = '' then
+  begin
 
-  ConfigFile := TStringList.Create;
-  try
-    ConfigFile.LoadFromFile(ExtractFileDir(Application.ExeName) +
-      '/module.conf');
-    Result := ConfigFile.Text;
-  finally
-    ConfigFile.Free;
+    ConfigFile := TStringList.Create;
+    try
+      ConfigFile.LoadFromFile(ExtractFileDir(Application.ExeName) +
+        '/module.conf');
+      Result := ConfigFile.Text;
+    finally
+      ConfigFile.Free;
+    end;
+    MeusModulos := Result;
   end;
+
+  Result := MeusModulos;
 
 end;
 
@@ -2458,7 +2820,7 @@ begin
   pIdiFood.Caption := Result;
   Result := Result;
   conexao.Free;
-  Result := '13ba1b92-4e7f-4bb1-bb59-e234e4c6cedb';
+  // Result := '13ba1b92-4e7f-4bb1-bb59-e234e4c6cedb';
   // '155cc414-36d0-4ec2-9d06-f85fad9e782a';
 end;
 
@@ -2486,7 +2848,7 @@ begin
       JSON.AddPair('error_message', AContent);
       JSON.AddPair('banco', 'IFOOD' + ARequestId);
 
-      // Cria e configura a requisiÁ„o
+      // Cria e configura a requisi√ß√£o
       Requisicao := iRequisicao.Create(nil);
       try
         Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
@@ -2517,7 +2879,7 @@ end;
 procedure TfrmServidor.IFoodMerchantStatus
   (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
 begin
-  statusiFood := dataSetMerchantStatus.FieldByName('available').AsBoolean;
+  // statusiFood := dataSetMerchantStatus.FieldByName('available').AsBoolean;
 
 end;
 
@@ -2539,7 +2901,7 @@ begin
       JSON.AddPair('error_message', AError.Message);
       JSON.AddPair('banco', 'IFOOD');
 
-      // Cria e configura a requisiÁ„o
+      // Cria e configura a requisi√ß√£o
       Requisicao := iRequisicao.Create(nil);
       try
         Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
@@ -2907,7 +3269,7 @@ end;
 procedure TfrmServidor.ImportaProdutosToPedindo;
 var
   JSONArray: TJsonArray;
-  I, J, K: Integer;
+  i, J, K: Integer;
   JSONItem: TJsonObject;
   Produto: TProdutoToPedindo;
   conexao: Tconexao;
@@ -2929,9 +3291,9 @@ begin
   JSONArray := TJsonArray.ParseJSONValue(RequisicaoToPedindo.Retorno)
     as TJsonArray;
 
-  for I := 0 to JSONArray.Count - 1 do
+  for i := 0 to JSONArray.Count - 1 do
   begin
-    JSONItem := JSONArray.Items[I] as TJsonObject;
+    JSONItem := JSONArray.Items[i] as TJsonObject;
     Produto := TJson.JsonToObject<TProdutoToPedindo>(JSONItem);
 
     conexao.SQL.Add('select * from tipo_produto where id_ifood = :id');
@@ -3279,6 +3641,16 @@ begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ImpressaoGooPedir.exe';
 end;
 
+function TfrmServidor.ImpressaoStatus: TJsonObject;
+begin
+
+  Result := TJsonObject.Create;
+  Result.AddPair('comanda', frmServidor.ValidaTempoImpressaoStatusComanda);
+  Result.AddPair('cozinha', frmServidor.ValidaTempoImpressaoStatusCozinha);
+  Result.AddPair('outros', frmServidor.ValidaTempoImpressaoStatusCozinha);
+  Result.AddPair('status', frmServidor.ValidaTempoImpressaoStatus);
+end;
+
 procedure TfrmServidor.ImpressoraStatus;
 begin
   DataHoraImpressaoService := now;
@@ -3324,11 +3696,11 @@ procedure TfrmServidor.InitializeLogFile;
 var
   FileName: string;
 begin
-  // Gera o nome do arquivo de log com base na data/hora da execuÁ„o
+  // Gera o nome do arquivo de log com base na data/hora da execu√ß√£o
   FileName := 'log/' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', now) + '_log.txt';
   LogFilePath := TPath.Combine(ApplicationPath, FileName);
 
-  // Cria o arquivo vazio para comeÁar o log
+  // Cria o arquivo vazio para come√ßar o log
   TFile.WriteAllText(LogFilePath, '', TEncoding.UTF8);
 
 end;
@@ -3353,7 +3725,7 @@ end;
 
 procedure TfrmServidor.LoadImpressora;
 var
-  I: Integer;
+  i: Integer;
   Id: Integer;
 begin
   memImpressora.Close;
@@ -3362,21 +3734,21 @@ begin
   memImpressora.Insert;
   memImpressora.FieldByName('ID').AsInteger := Id;
   memImpressora.FieldByName('DRIVER').AsString := 'Default';
-  memImpressora.Post;
-  for I := 0 to Printer.Count - 1 do
+  memImpressora.post;
+  for i := 0 to Printer.Count - 1 do
   begin
 
-    if (UpperCase(Printer.Printers[I].Device) <> 'FAX') and
-      (UpperCase(Printer.Printers[I].Device) <> 'MICROSOFT PRINT TO PDF') and
-      (UpperCase(Printer.Printers[I].Device) <> 'MICROSOFT XPS DOCUMENT WRITER')
+    if (UpperCase(Printer.Printers[i].Device) <> 'FAX') and
+      (UpperCase(Printer.Printers[i].Device) <> 'MICROSOFT PRINT TO PDF') and
+      (UpperCase(Printer.Printers[i].Device) <> 'MICROSOFT XPS DOCUMENT WRITER')
     then
     begin
-      inc(Id);
+      Inc(Id);
       memImpressora.Insert;
       memImpressora.FieldByName('ID').AsInteger := Id;
       memImpressora.FieldByName('DRIVER').AsString :=
-        Printer.Printers[I].Device;
-      memImpressora.Post;
+        Printer.Printers[i].Device;
+      memImpressora.post;
     end;
   end;
 
@@ -3388,6 +3760,7 @@ var
   LogLine, BodyContent: string;
   LogFile: TStreamWriter;
 begin
+  exit;
   if SameText(Metodo(Req), 'POST') then
   begin
     BodyContent := Req.BODY;
@@ -3403,7 +3776,7 @@ begin
   // LogLine := Format('%s | %s | %s', [DateTimeToStr(now), Metodo(Req),
   // Req.RawWebRequest.PathInfo]);
   //
-  // // Se for um mÈtodo POST, adiciona o corpo da requisiÁ„o
+  // // Se for um m√©todo POST, adiciona o corpo da requisi√ß√£o
 
   //
   // // Abre o arquivo de log e escreve a linha
@@ -3418,7 +3791,7 @@ begin
   //
   // end;
 
-  // Chama o prÛximo middleware ou a rota
+  // Chama o pr√≥ximo middleware ou a rota
   Next;
 end;
 
@@ -3473,7 +3846,7 @@ end;
 
 procedure TfrmServidor.mModal(Valor: String);
 begin
-  // //showmessage1(Valor);
+  // ////showmessage1(Valor);
 end;
 
 function TfrmServidor.NumeroWpp: String;
@@ -3768,7 +4141,7 @@ begin
             0:
               begin
                 JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Average values / MÈdia');
+                  'Average values / M√©dia');
               end;
             1:
               begin
@@ -3941,10 +4314,10 @@ const
 var
   DiaDaSemana: Integer;
 begin
-  // Obter o Ìndice do dia da semana (1 para domingo, 2 para segunda, etc.)
+  // Obter o √≠ndice do dia da semana (1 para domingo, 2 para segunda, etc.)
   DiaDaSemana := DayOfWeek(now);
 
-  // Mapear o Ìndice para o nome do dia da semana
+  // Mapear o √≠ndice para o nome do dia da semana
   Result := NomesDiasSemana[DiaDaSemana];
 end;
 
@@ -3967,9 +4340,9 @@ end;
 procedure TfrmServidor.pIdiFoodClick(Sender: TObject);
 var
   conexao: Tconexao;
-  I: Integer;
+  i: Integer;
 begin
-  for I := 1 to 1000 do
+  for i := 1 to 1000 do
   begin
     conexao := Tconexao.Create('main');
     conexao.SQL.Add('select * from motoboy');
@@ -4046,15 +4419,15 @@ begin
   StartupInfo.cb := sizeof(StartupInfo);
   ZeroMemory(@ProcessInfo, sizeof(ProcessInfo));
 
-  // Cria um novo processo para reiniciar o execut·vel
-  if CreateProcess(PChar(Application.ExeName), // Caminho do execut·vel
-    nil, // Par‚metros de linha de comando
-    nil, // Atributos de seguranÁa do processo
-    nil, // Atributos de seguranÁa da thread
-    false, // HeranÁa de handles
-    0, // Flags de criaÁ„o
+  // Cria um novo processo para reiniciar o execut√°vel
+  if CreateProcess(PChar(Application.ExeName), // Caminho do execut√°vel
+    nil, // Par√¢metros de linha de comando
+    nil, // Atributos de seguran√ßa do processo
+    nil, // Atributos de seguran√ßa da thread
+    false, // Heran√ßa de handles
+    0, // Flags de cria√ß√£o
     nil, // Ambiente
-    nil, // DiretÛrio atual
+    nil, // Diret√≥rio atual
     StartupInfo, ProcessInfo) then
   begin
     // Fecha os handles do processo e da thread
@@ -4063,7 +4436,7 @@ begin
   end
   else
   begin
-    // Se n„o foi possÌvel criar o processo, exibe uma mensagem de erro
+    // Se n√£o foi poss√≠vel criar o processo, exibe uma mensagem de erro
     RaiseLastOSError;
   end;
 end;
@@ -4076,13 +4449,13 @@ end;
 
 procedure TfrmServidor.ResetUser;
 begin
-  User := 0;
+  user := 0;
 end;
 
 function TfrmServidor.RetornaCertificado: TJsonArray;
 var
   Objeto: TJsonObject;
-  I: Integer;
+  i: Integer;
 begin
   try
     ACBrNFe1.SSL.LerCertificadosStore;
@@ -4098,9 +4471,9 @@ begin
     Objeto.AddPair('cnpj', '');
     Result.AddElement(Objeto);
 
-    for I := 0 to ACBrNFe1.SSL.ListaCertificados.Count - 1 do
+    for i := 0 to ACBrNFe1.SSL.ListaCertificados.Count - 1 do
     begin
-      with ACBrNFe1.SSL.ListaCertificados[I] do
+      with ACBrNFe1.SSL.ListaCertificados[i] do
       begin
         if (CNPJ <> '') then
         begin
@@ -4122,7 +4495,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage1(e.Message)
+      // ////showmessage1(e.Message)
     end;
   end;
 
@@ -4168,7 +4541,7 @@ begin
       on E: Exception do
       begin
 
-        // ShowMessage('1-' + E.Message);
+        // //showmessage('1-' + E.Message);
 
       end;
 
@@ -4260,7 +4633,66 @@ end;
 
 procedure TfrmServidor.setUser;
 begin
-  User := 0;
+  user := 0;
+end;
+
+procedure TfrmServidor.SincronizaCaixa(Codigo: Integer);
+var
+  Req: iRequisicao;
+  conexao: Tconexao;
+  JSON: TJsonObject;
+  LJsonObject: TJsonObject;
+  LCaixaId: Integer;
+  LLink: string;
+begin
+  try
+    conexao := Tconexao.Create('SincronizaCaixa');
+    Req := iRequisicao.Create(nil);
+    Req.BaseURL := 'https://api.goopedir.com.br';
+    Req.URL := '/api/interno/caixa/sinc';
+    Req.Metodo := mPost;
+
+    JSON := TJsonObject.Create;
+    JSON.AddPair('user', UserID);
+    JSON.AddPair('computado', DoGetCaixaTres(Codigo));
+    JSON.AddPair('informado', DoGetCaixaTresLancado(Codigo));
+
+    Req.BODY(JSON);
+    Req.Execute;
+
+    conexao.SQL.Add
+      ('update caixa set id_site = :site, link = :link where id = :id');
+    conexao.Parametros('id', Codigo);
+
+    LJsonObject := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
+    try
+      if Assigned(LJsonObject) then
+      begin
+        // Extrair o valor de caixa_id
+        if LJsonObject.TryGetValue<Integer>('caixa_id', LCaixaId) then
+        begin
+          conexao.Parametros('site', LCaixaId);
+
+        end;
+
+        // Extrair o valor de link
+        if LJsonObject.TryGetValue<string>('link', LLink) then
+        begin
+          conexao.Parametros('link', LLink);
+        end;
+
+      end;
+    finally
+      LJsonObject.Free;
+    end;
+
+  except
+    conexao.Parametros('site', -1);
+    conexao.Parametros('link', '');
+  end;
+  conexao.ExecuteSQL;
+  Req.Free;
+  conexao.Free;
 end;
 
 procedure TfrmServidor.SincronizaHorario;
@@ -4299,6 +4731,11 @@ begin
     ('SELECT 0 as zero, codigo FROM produto where modificado_site = 0 and id_site > 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
+  // Produtos Novos
+  conexao.SQL.Add
+    ('SELECT 0 as zero, codigo FROM produto where id_site is null');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
   if Dados.RecordCount > 0 then
   begin
     while not Dados.Eof do
@@ -4309,6 +4746,7 @@ begin
   end;
   conexao.Free;
   Dados.Free;
+
   StatusSincProdutos := false;
 
 end;
@@ -4349,7 +4787,7 @@ begin
 
   // end);
   //
-  /// / Configura a Thread1 para se liberar automaticamente apÛs a execuÁ„o
+  /// / Configura a Thread1 para se liberar automaticamente ap√≥s a execu√ß√£o
   // myThread1.FreeOnTerminate := true;
   //
   // myThread1.Start();
@@ -4398,10 +4836,10 @@ begin
   // THorse.StopListen;
   // Sleep(1000);
   //
-  // // Reinicia a aplicaÁ„o
+  // // Reinicia a aplica√ß√£o
   // // ReiniciarAplicacao;
   //
-  // // Finaliza a aplicaÁ„o atual
+  // // Finaliza a aplica√ß√£o atual
   // try
   // Application.Terminate;
   // except
@@ -4418,50 +4856,68 @@ var
   FormatSettings: TFormatSettings;
   DadosThread1: TDadosWhatsappAPI;
   conexao: Tconexao;
+  test: String;
+
 begin
 
-
-
   // user := 58;
+  if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
+  begin
+    user := 0;
+    Result := 0;
+    DeleteFiles(ExtractFileDir(Application.ExeName) +
+        '/module.conf');
+    frmServidor.TrayIcon1.Hint := Port.ToString + 'p - N√£o Licenciado';
+    exit;
+  end;
 
-  if User = 0 then
+  if user = 0 then
   begin
     try
       Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL := 'https://goopedir.com/ws/v1/';
+      Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
       Requisicao.URL := 'token2/a';
       BODY := '{' + #13 + '"client_id":"' +
         frmServidor.Configuracoes.FieldByName('client_id').AsString + '",' + #13
         + '"client_security":"' + frmServidor.Configuracoes.FieldByName
         ('client_security').AsString + '"' + #13 + '}';
-
-      Requisicao.BODY(BODY);
-
+      test := '1';
       Requisicao.Metodo := mPost;
-
+      Requisicao.BODY(BODY);
       Requisicao.TempoExpiracao := 60 * 1000;
       Requisicao.Execute;
+      test := '2';
+      // ShowMessage(Requisicao.Retorno);
       JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+
         as TJsonObject;
+      test := '3';
 
       // Data := TransformaData(JSonDadosSite.Get('empresa_data_renovacao').JsonValue.ToString);
       // "2023-01-01"
 
       Result := StrToInt(StringReplace(JSonDadosSite.Get('user')
         .JsonValue.ToString, '"', '', [rfReplaceAll]));
-      User := Result;
-      AtivaInativaSite(User);
+      user := Result;
+      test := '4';
+      AtivaInativaSite(user);
+      test := '5';
       BuscarModulo;
+      test := '6';
       DadosApiWhatsapp;
+      test := '7';
       if not DadosWhatsappBoolean then
       begin
         DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
         DadosThread1.FreeOnTerminate := true;
-        // Libera a memÛria automaticamente quando terminar
+        // Libera a mem√≥ria automaticamente quando terminar
         DadosWhatsappBoolean := true;
       end;
+      test := '8';
       SemDataBloqueio := false;
+
       try
+        test := '9';
         self.DataBloqueio :=
           StrToDate(Copy(JSonDadosSite.Get('empresa_data_renovacao')
           .JsonValue.ToString, 10, 2) + '/' +
@@ -4471,33 +4927,21 @@ begin
       except
         SemDataBloqueio := true;
       end;
-
-      DataConfianca :=
-        StrToDate(Copy(JSonDadosSite.Get('confianca').JsonValue.ToString, 10, 2)
-        + '/' + Copy(JSonDadosSite.Get('confianca').JsonValue.ToString, 7, 2) +
-        '/' + Copy(JSonDadosSite.Get('confianca').JsonValue.ToString, 2, 4));
-      frmServidor.SincronizaHorario;
-      SincronizaProdutos;
-
-      conexao := Tconexao.Create('USER');
-      conexao.SQL.Add('update produto set userid = :user where userid is null');
-      conexao.Parametros('user', User);
-      conexao.ExecuteSQL;
-      conexao.Free;
-
+      test := '10';
     except
       on E: Exception do
       begin
         frmServidor.AddErro('UserID', E.Message);
+        showmessage(E.Message + '-' + test)
 
       end;
 
     end;
   end;
 
-  Result := User;
+  Result := user;
 
-  frmServidor.TrayIcon1.Hint := Port.ToString + 'p - ' + User.ToString + 'u';
+  frmServidor.TrayIcon1.Hint := Port.ToString + 'p - ' + user.ToString + 'u';
 
 end;
 
@@ -4505,19 +4949,19 @@ function TfrmServidor.ValidaTempoImpressaoStatus: Boolean;
 var
   Diff: Int64;
 begin
-  // Verifica se Data1 È maior que Data2
+  // Verifica se Data1 √© maior que Data2
   if now > DataHoraImpressaoService then
   begin
-    // Calcula a diferenÁa em minutos
+    // Calcula a diferen√ßa em minutos
     Diff := Round((now - DataHoraImpressaoService) * 24 * 60);
     // 24 horas * 60 minutos
 
-    // Verifica se a diferenÁa È maior que 3 minutos
+    // Verifica se a diferen√ßa √© maior que 3 minutos
     Result := Diff <= 1;
   end
   else
   begin
-    // Se Data1 n„o for maior que Data2, retorna False
+    // Se Data1 n√£o for maior que Data2, retorna False
     Result := true;
   end;
 end;
@@ -4526,19 +4970,19 @@ function TfrmServidor.ValidaTempoImpressaoStatusComanda: Boolean;
 var
   Diff: Int64;
 begin
-  // Verifica se Data1 È maior que Data2
+  // Verifica se Data1 √© maior que Data2
   if now > DataHoraImpressaoServiceComanda then
   begin
-    // Calcula a diferenÁa em minutos
+    // Calcula a diferen√ßa em minutos
     Diff := Round((now - DataHoraImpressaoServiceComanda) * 24 * 60);
     // 24 horas * 60 minutos
 
-    // Verifica se a diferenÁa È maior que 3 minutos
+    // Verifica se a diferen√ßa √© maior que 3 minutos
     Result := Diff <= 1;
   end
   else
   begin
-    // Se Data1 n„o for maior que Data2, retorna False
+    // Se Data1 n√£o for maior que Data2, retorna False
     Result := true;
   end;
 end;
@@ -4547,19 +4991,19 @@ function TfrmServidor.ValidaTempoImpressaoStatusCozinha: Boolean;
 var
   Diff: Int64;
 begin
-  // Verifica se Data1 È maior que Data2
+  // Verifica se Data1 √© maior que Data2
   if now > DataHoraImpressaoServiceCozinha then
   begin
-    // Calcula a diferenÁa em minutos
+    // Calcula a diferen√ßa em minutos
     Diff := Round((now - DataHoraImpressaoServiceCozinha) * 24 * 60);
     // 24 horas * 60 minutos
 
-    // Verifica se a diferenÁa È maior que 3 minutos
+    // Verifica se a diferen√ßa √© maior que 3 minutos
     Result := Diff <= 1;
   end
   else
   begin
-    // Se Data1 n„o for maior que Data2, retorna False
+    // Se Data1 n√£o for maior que Data2, retorna False
     Result := true;
   end;
 end;
@@ -4568,19 +5012,19 @@ function TfrmServidor.ValidaTempoImpressaoStatusOutros: Boolean;
 var
   Diff: Int64;
 begin
-  // Verifica se Data1 È maior que Data2
+  // Verifica se Data1 √© maior que Data2
   if now > DataHoraImpressaoServiceOutros then
   begin
-    // Calcula a diferenÁa em minutos
+    // Calcula a diferen√ßa em minutos
     Diff := Round((now - DataHoraImpressaoServiceOutros) * 24 * 60);
     // 24 horas * 60 minutos
 
-    // Verifica se a diferenÁa È maior que 3 minutos
+    // Verifica se a diferen√ßa √© maior que 3 minutos
     Result := Diff <= 1;
   end
   else
   begin
-    // Se Data1 n„o for maior que Data2, retorna False
+    // Se Data1 n√£o for maior que Data2, retorna False
     Result := true;
   end;
 end;
@@ -4606,6 +5050,90 @@ begin
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
   CloseHandle(FSnapshotHandle);
+end;
+
+procedure TfrmServidor.VerificarOuCriarBanco;
+var
+  Qry: TFDQuery;
+  HTTP: TIdHTTP;
+  SSL: TIdSSLIOHandlerSocketOpenSSL;
+  SQLScript, DatabaseName: string;
+  Stream: TStringStream;
+  conexao: Tconexao;
+  iReq: iRequisicao;
+begin
+  conexao := Tconexao.Create('VerificarOuCriarBanco');
+  try
+    if frmServidor.Configuracoes.RecordCount = 0 then
+    begin
+      Qry := conexao.CriaQRY;
+      try
+        Qry.SQL.Text := 'SELECT * FROM version';
+        Qry.Open;
+      finally
+        Qry.Free;
+      end;
+    end;
+  except
+    on E: EFDDBEngineException do
+    begin
+      // Captura erro de banco inexistente
+      if Pos('Unknown database', E.Message) > 0 then
+      begin
+        // Extrai nome do banco entre as aspas
+        DatabaseName := Copy(E.Message, Pos('''', E.Message) + 1, MaxInt);
+        DatabaseName := Copy(DatabaseName, 1, Pos('''', DatabaseName) - 1);
+
+        // Valida conex√£o com a internet
+        // if not TestarConexaoInternet then
+        // raise Exception.Create('Sem conex√£o com a internet. N√£o √© poss√≠vel criar o banco de dados.');
+
+        // Faz o download do arquivo .sql
+        // HTTP := TIdHTTP.Create(nil);
+        // SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+        // Stream := TStringStream.Create;
+        // try
+        // HTTP.IOHandler := SSL;
+        // HTTP.ReadTimeout := 15000;
+        // HTTP.Get('https://goopedir.com/new.sql', Stream);
+        // SQLScript := Stream.DataString;
+        // finally
+        // Stream.Free;
+        // SSL.Free;
+        // HTTP.Free;
+        // end;
+
+        iReq := iRequisicao.Create(nil);
+        iReq.URL := 'https://goopedir.com/new.sql';
+        iReq.TempoExpiracao := 15000;
+        try
+          iReq.Execute;
+        finally
+          SQLScript := iReq.Retorno;
+        end;
+
+        // Cria o banco de dados
+        conexao.DisconectBanco;
+        conexao.CriaQRY.ExecSQL('CREATE DATABASE `' + DatabaseName +
+          '` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        conexao.ConectaBanco(DatabaseName);
+        conexao.Free;
+        // Conecta no novo banco
+        // conexao.FDConnection.Params.Database := DatabaseName;
+        // conexao.FDConnection.Connected := False;
+        // conexao.FDConnection.Connected := True;
+
+        // Executa o SQL baixado
+        ExecutarSQLScript(SQLScript);
+
+        showmessage('Banco de dados criado com sucesso.');
+      end
+      else
+      begin
+        raise; // Se for outro erro, apenas repassa
+      end;
+    end;
+  end;
 end;
 
 function TfrmServidor.WHATSAPP: String;
@@ -4657,7 +5185,7 @@ begin
 
   while not Terminated do
   begin
-    inc(contador);
+    Inc(contador);
 
     // conexao.SQL.Add('select * from dados_whatsapp');
     // frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
@@ -4717,12 +5245,12 @@ begin
 
     if (Atual >= Abertura) and (Fechamento >= Atual) then
     begin
-      // Execute a funÁ„o para abrir o caixa
+      // Execute a fun√ß√£o para abrir o caixa
       frmServidor.AbrirExe(frmServidor.WHATSAPP);
     end
     else
     begin
-      // Fora do hor·rio de abertura, n„o faz nada ou execute alguma outra aÁ„o, se necess·rio
+      // Fora do hor√°rio de abertura, n√£o faz nada ou execute alguma outra a√ß√£o, se necess√°rio
       frmServidor.FecharExe(frmServidor.WHATSAPP);
     end;
 

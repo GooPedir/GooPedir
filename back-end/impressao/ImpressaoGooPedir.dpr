@@ -60,8 +60,8 @@ begin
   end;
 
   Application.Initialize;
-//  Application.MainFormOnTaskbar := True;
-  Application.ShowMainForm := False;
+   Application.MainFormOnTaskbar := True;
+//  Application.ShowMainForm := False;
   // Application.CreateForm(TfrmPrincipal, frmPrincipal);
   // Application.CreateForm(TdmModulo, dmModulo);
   Application.CreateForm(TdmImpressaoV2, dmImpressaoV2);

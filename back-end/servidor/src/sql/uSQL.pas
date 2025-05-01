@@ -1055,13 +1055,89 @@ begin
         // alter table caixa add id_site integer;
         ExecultaSQL('alter table produto add userid integer;');
       end;
-      92: begin
-        ExecultaSQL('create table index_pedido (id integer, primary key(id), referencia varchar(255));');
+    92:
+      begin
+        ExecultaSQL
+          ('create table index_pedido (id integer, primary key(id), referencia varchar(255));');
       end;
-      93: begin
-      ExecultaSQL('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
+    93:
+      begin
+        ExecultaSQL
+          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
       end;
+    94:
+      begin
+        ExecultaSQL
+          ('insert into usuario (codigo,nome) values (-1,"Qrcod Mesa")');
+        ExecultaSQL('insert into usuario (codigo,nome) values (-2,"Site")');
+      end;
+    95:
+      begin
+        ExecultaSQL
+          ('create table fila (id integer not null auto_increment,primary key (id),origem varchar(255),json longtext)');
+      end;
+    96:
+      begin
+        ExecultaSQL
+          ('alter table dados_whatsapp add exclusao_itens integer default 0;');
+      end;
+    97:
+      begin
+        SQL := 'ALTER TABLE `dados_whatsapp`';
+        SQL := SQL +
+          ' CHANGE COLUMN `mensagem_inicio` `mensagem_inicio` VARCHAR(2555) CHARACTER SET "utf8mb4" COLLATE "utf8mb4_unicode_ci" NULL DEFAULT NULL ;';
+        ExecultaSQL(SQL);
 
+      end;
+    98:
+      begin
+        ExecultaSQL('alter table caixa add id_site integer default 0;');
+        ExecultaSQL('alter table caixa add link varchar(255);');
+      end;
+    99:
+      begin
+        ExecultaSQL('alter table tipo_produto add url varchar(255);');
+        ExecultaSQL('alter table tipo_produto add opacidade integer;');
+      end;
+    100:
+      begin
+        ExecultaSQL('alter table dados_whatsapp add banner longtext');
+      end;
+    101:
+      begin
+        ExecultaSQL('alter table dados_whatsapp add pixel varchar(20);');
+      end;
+    102:
+      begin
+        ExecultaSQL('alter table pedido add servico_percentual double;');
+      end;
+    103:
+      begin
+        SQL := ' CREATE TABLE despesas (';
+        SQL := SQL + ' id int NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + ' categoria int NOT NULL,';
+        SQL := SQL +
+          ' descricao varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + ' valor decimal(10,2) DEFAULT NULL,';
+        SQL := SQL + ' parcelas int DEFAULT NULL,';
+        SQL := SQL + ' parcela int DEFAULT NULL,';
+        SQL := SQL + ' vencimento date DEFAULT NULL,';
+        SQL := SQL + ' status int DEFAULT NULL,';
+        SQL := SQL + ' excluida int DEFAULT "0",';
+        SQL := SQL + ' PRIMARY KEY (id))';
+        ExecultaSQL(SQL);
+
+        SQL := ' CREATE TABLE descricao (';
+        SQL := SQL + ' id int NOT NULL AUTO_INCREMENT,';
+        SQL := SQL +
+          ' descricao varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + ' PRIMARY KEY (id))  ';
+        ExecultaSQL(SQL);
+
+      end;
+      104: begin
+        ExecultaSQL('ALTER TABLE tipo_pagamento CHANGE COLUMN tipo_chave_pix tipo_chave_pix VARCHAR(50) NULL ;');
+      end;
     99999999:
       begin
         {
@@ -1075,7 +1151,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '93';
+  Result := '104';
 end;
 
 end.

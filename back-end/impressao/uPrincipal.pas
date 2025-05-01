@@ -1120,7 +1120,7 @@ begin
     on E: Exception do
     begin
       Result := -1;
-      // ShowMessage(E.Message);
+      // //showmessage(E.Message);
     end;
 
   end;
@@ -1297,7 +1297,7 @@ begin
               except
                 on E: Exception do
                 begin
-                  // ShowMessage(E.Message);
+                  // //showmessage(E.Message);
                 end;
               end;
             end;
@@ -1795,7 +1795,7 @@ begin
     on E: Exception do
     begin
 
-      // ShowMessage(FRequest.BASEURL+FRequest.URLI+#13+E.Message);
+      // //showmessage(FRequest.BASEURL+FRequest.URLI+#13+E.Message);
     end;
 
   end;
