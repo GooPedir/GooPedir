@@ -567,16 +567,19 @@ begin
 
   if Homologacao then
     exit;
-  EnviaTipoPagamento;
-  EnviaMotoboy;
-  EnviaTaxa;
+
+
+//  EnviaTipoPagamento;
+  // EnviaMotoboy;
+  // EnviaTaxa;
   EnviarPedidosWhatsapp;
-  EnviaCategoria;
-  EnviaProduto;
-  EnviaAdicionais;
-  EnviaComplementoAdicionais;
-  EnviarSabores;
-  AtualizaPrecos;
+
+//  EnviaCategoria;
+//  EnviaProduto;
+//  EnviaAdicionais;
+//  EnviaComplementoAdicionais;
+//  EnviarSabores;
+//  AtualizaPrecos;
 
 end;
 

@@ -109,7 +109,8 @@ uses
   uInserirUpdate in 'src\modulos\Controller\uInserirUpdate.pas',
   uControlerProduto in 'src\controller\uControlerProduto.pas',
   uControllerSite in 'src\controller\uControllerSite.pas',
-  uNewConsultas in 'src\modulos\uNewConsultas.pas';
+  uNewConsultas in 'src\modulos\uNewConsultas.pas',
+  uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas';
 
 {$R *.res}
 

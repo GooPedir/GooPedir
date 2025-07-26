@@ -6,14 +6,15 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, uControllerSite,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
-  uInserirUpdate,
-  FireDAC.Comp.Client;
+  uInserirUpdate, IniFiles,
+  FireDAC.Comp.Client, uRequisicao;
 
 type
   TfrmProdutoSite = class(TForm)
     tMinimiza: TTimer;
     TrayIcon1: TTrayIcon;
     tClose: TTimer;
+    iReq: iRequisicao;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure tCloseTimer(Sender: TObject);
@@ -45,71 +46,106 @@ var
   Query: TFDQuery;
 
 begin
-
+    iReq.URL := 'v2/cache/site';
   // Busca os dados de Cache
-  GetAllProduto(Codigo);
+  if Codigo = 0 then
+  begin
+    exit;
+  end;
 
   try
-
+    GetAllProduto(Codigo);
     Conexao := TConexao.Create('uSite');
     Dados := Conexao.CriaQRY;
     Dados.SQL.Text := ('select * from produto where codigo = :codigo');
     Dados.ParamByName('codigo').AsInteger := Codigo;
+
     Dados.Open;
-    Conexao.SQL.Add('update produto ser modificado_site = 2 where codigo = :codigo');
-    Conexao.Parametros('codigo',Codigo);
-//    Conexao.ParamByName('codigo').AsInteger := Codigo;
+    Conexao.SQL.Add
+      ('update produto ser modificado_site = 2 where codigo = :codigo');
+    Conexao.Parametros('codigo', Codigo);
+    // Conexao.ParamByName('codigo').AsInteger := Codigo;
     Conexao.ExecuteSQL;
 
     if Dados.FieldByName('valor_desconto').AsFloat > 0 then
     begin
       Result := InserirUpdate('ws_itens', UserID.ToString,
-        ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
-        'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
-        'nome_item', 'descricao_item', 'preco_item', 'disponivel',
-        'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
-        'promo_percentual', 'disponivel', 'fidelidade_valor', 'novidade'],
-        [Dados.FieldByName('id_site').AsString,
-        UserID.ToString,
-        'false',
-        '0',
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-         '0',
-         '0',
-        Dados.FieldByName('position').AsString,
-        SiteCategoria(Dados.FieldByName('codigo_grupo')
-        .AsInteger, UserID).ToString, Dados.FieldByName('nome_produto')
-        .AsWideString, Dados.FieldByName('descricao').AsWideString,
-        Dados.FieldByName('valor_desconto').AsString, '1',
-        Dados.FieldByName('valor_embalagem_delivery').AsString, '9999', Dados.FieldByName('foto_ifood').AsString,
-        Dados.FieldByName('pessoas').AsString, Dados.FieldByName('valor_venda')
-        .AsString, Dados.FieldByName('percentual_desconto').AsString,
-        Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
-        .AsString, Dados.FieldByName('novidade').AsString]);
+        ['id',   //1
+        'user_id',  //2
+        'img_item',    //3
+        'config_total_s', //4
+        'dia_semana',        //5
+        'number_adicional',     //6
+        'number_adicional_pago',   //7
+        'posicao',                    //8
+        'id_cat',                        //9
+        'nome_item',                        //10
+        'descricao_item',                       //11
+        'preco_item',                                //12
+        'disponivel',                                    //13
+        'valor_delivery',                                    //14
+        'estoque',                                               //15
+        'img_ifood',                                                 //16
+        'pessoas',                                                       //17
+        'promo_valor',                                                       //18
+        'promo_percentual',                                                      //19
+        'disponivel',                                                                //20
+        'fidelidade_valor',                                                              //21
+        'novidade','vembuscar','delivery','tipos'],                                                                         //22
+        [Dados.FieldByName('id_site').AsString, //1
+        UserID.ToString,                           //2
+        Dados.FieldByName('foto_ifood').AsString,     //3
+        '0',                                             //4
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', //5
+        '0',                                                   //6
+        '0',                                                     //7
+        Dados.FieldByName('position').AsString,                     //8
+        SiteCategoria(Dados.FieldByName('codigo_grupo').AsInteger, UserID).ToString,//9
+        Dados.FieldByName('nome_produto').AsWideString,                                //10
+        Dados.FieldByName('descricao').AsWideString,                                       //11
+        Dados.FieldByName('valor_desconto').AsString,                                          //12
+        '1',                                                                                       //13
+        Dados.FieldByName('valor_embalagem_delivery').AsString,                                        //14
+        '9999',                                                                                            //15
+        Dados.FieldByName('foto_ifood').AsString,                                                              //16
+        Dados.FieldByName('pessoas').AsString,                                                                     //17
+        Dados.FieldByName('valor_venda').AsString,                                                                     //18
+        Dados.FieldByName('percentual_desconto').AsString,                                                                 //19
+        Dados.FieldByName('ativo').AsString,                                                                                   //20
+        Dados.FieldByName('fidelidade').AsString,                                                                                  //21
+        Dados.FieldByName('novidade').AsString,Dados.FieldByName('vembuscar').AsString,Dados.FieldByName('delivery').AsString,Dados.FieldByName('tiposite').AsString]);
     end
     else
     begin
       Result := InserirUpdate('ws_itens', UserID.ToString,
-        ['id', 'user_id', 'config_total_s', 'dia_semana', 'number_adicional',
-        'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
+        ['id',
+        'user_id',
+        'config_total_s',
+        'dia_semana',
+        'number_adicional',
+        'number_adicional_pago',
+        'posicao',
+        'id_cat',
+        'nome_item',
         'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
         'estoque', 'pessoas', 'promo_valor', 'promo_percentual', 'disponivel',
-        'fidelidade_valor', 'novidade','img_ifood'], [
-        Dados.FieldByName('id_site').AsString,
+        'fidelidade_valor', 'novidade', 'img_ifood','vembuscar','delivery','tipos'],
+        [Dados.FieldByName('id_site').AsString,
         UserID.ToString,
-         '0',
+        '0',
         'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
         '0',
         '0',
         Dados.FieldByName('position').AsString,
-         SiteCategoria(Dados.FieldByName('codigo_grupo')
-        .AsInteger, UserID).ToString, Dados.FieldByName('nome_produto')
-        .AsWideString, Dados.FieldByName('descricao').AsWideString,
+        SiteCategoria(Dados.FieldByName('codigo_grupo').AsInteger, UserID).ToString,
+        Dados.FieldByName('nome_produto').AsWideString,
+        Dados.FieldByName('descricao').AsWideString,
         Dados.FieldByName('valor_venda').AsString, '1',
         Dados.FieldByName('valor_embalagem_delivery').AsString, '99999',
         Dados.FieldByName('pessoas').AsString, '0', '0',
         Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
-        .AsString, Dados.FieldByName('novidade').AsString, Dados.FieldByName('foto_ifood').AsString]);
+        .AsString, Dados.FieldByName('novidade').AsString,
+        Dados.FieldByName('foto_ifood').AsString,Dados.FieldByName('vembuscar').AsString,Dados.FieldByName('delivery').AsString,Dados.FieldByName('tiposite').AsString]);
     end;
 
     if Result > 0 then
@@ -216,15 +252,27 @@ begin
     SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, UserID);
     Dados.Free;
     Conexao.Free;
-
+    iReq.Execute;
   except
-
+    on e: exception do
+    begin
+      ShowMessage(e.Message)
+    end;
   end;
 
 end;
 
 procedure TfrmProdutoSite.FormCreate(Sender: TObject);
+var
+  IniFile: TIniFile;
+  BaseUrl: String;
 begin
+  IniFile := TIniFile.Create('./goopedir.ini');
+  BaseUrl := IniFile.ReadString('server', 'baseurl', '');
+  IniFile.Free;
+  iReq.BaseUrl := BaseUrl;
+
+
   if ParamCount > 0 then
   begin
     // Memo1.Lines.Add('Parâmetro recebido: ' + ParamStr(1));
@@ -239,7 +287,6 @@ begin
   else
   begin
     tClose.Enabled := True;
-
   end;
 
 end;

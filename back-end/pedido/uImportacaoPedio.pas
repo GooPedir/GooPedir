@@ -366,7 +366,7 @@ begin
     Req.Execute;
     Result := Req.Retorno.ToInteger;
   except
-    Result := 1;
+    Result := 0;
   end;
 
   Req.Free;
@@ -574,7 +574,10 @@ begin
     if Result[I].ValorExtra > Result[I].Preco then
       Result[I].ValorExtra := Result[I].Preco;
 
-    Result[I].ValorExtra := Result[I].ValorExtra - Result[I].Unitario;
+    if Result[I].ValorExtra > 0 then
+    begin
+      Result[I].ValorExtra := Result[I].ValorExtra - Result[I].Unitario;
+    end;
   end;
 
 end;

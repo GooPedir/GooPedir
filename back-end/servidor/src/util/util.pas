@@ -39,7 +39,7 @@ procedure MovimentacaoProdutoAdicional(Codigo: Integer; Adicional: String;
 procedure MovimentacaoProdutoAdicionalExtorno(Codigo: Integer;
   Adicional: String; Valor, Quantidade: Real);
 function ExtractNumberFromURL(const URL: string): string;
-procedure ApagarProduto(ID: Integer; Motivo: String);
+procedure ApagarProduto(ID: Integer; Motivo: String; CodigoUsuario: Integer);
 
 procedure SalvarImagenBase64(base64, Caminho: String);
 
@@ -57,6 +57,8 @@ procedure LimparCacheProduto;
 procedure LimparPastas(const Caminho: string);
 
 function UnionPedio(Tabela, Tipo: String): String;
+
+function GetDadosProdutoPedido(Pedido:Integer):TJSONArray;
 
 
 
@@ -79,6 +81,47 @@ uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite,
   ADRIFood.Component;
+
+function GetDadosProdutoPedido(Pedido:Integer):TJSONArray;
+var
+  conexao: Tconexao;
+
+  Origem: String;
+begin
+conexao := Tconexao.Create('Util');
+  conexao.SQL.Add('select * from index_pedido where id = :codigo');
+  conexao.Parametros('codigo', Pedido);
+  Origem := conexao.FieldByName('referencia');
+  if Origem = '0' then
+    Origem := '';
+
+  if Origem <> '' then
+  begin
+    Origem := '_' + Origem;
+  end;
+
+  conexao.SQL.Add
+    ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
+  conexao.SQL.Add('group_concat(' + QuotedStr(' ') + ',upper(pps.nomeclatura),'
+    + QuotedStr(' ') + ', upper(pps.descricao)) as obs, pp.selecionado,');
+  conexao.SQL.Add
+    ('(select sum(quantidade) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga,');
+  conexao.SQL.Add
+    ('(select sum(valor) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga_tot,');
+  conexao.SQL.Add
+    ('(select nome from usuario where codigo = pp.usuario) as usuario');
+  conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
+  conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+    ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
+    QuotedStr(' ') + '');
+  conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+  conexao.SQL.Add('group by pp.codigo');
+  conexao.Parametros('codigo', Pedido);
+  Result := conexao.ConsultaSQL;
+
+  conexao.Free;
+end;
 
 procedure AtualizaStatus(Pedido, Status: Integer);
 var
@@ -566,7 +609,8 @@ begin
   end;
 
   try
-    Desconto := Req.Params['desconto'].ToDouble;
+    Desconto := Req.Params['desconto'].ToDouble / 100;
+
   except
     Res.Send('').Status(500);
     exit;
@@ -715,11 +759,8 @@ begin
     end;
     Total := DadosPagamento.FieldByName('VALOR').AsFloat;
     try
-      conexao.SQL.Add('select * from cliente where celular = :celular');
-      conexao.Parametros('celular', DadosPagamento.FieldByName('celular')
-        .AsString);
 
-      CodigoCliente := conexao.FieldByName('codigo');
+      CodigoCliente := DadosPagamento.FieldByName('cliente').AsInteger;
     except
       conexao.SQL.Clear;
     end;
@@ -870,7 +911,7 @@ begin
 
   try
     // ID := Req.Params['id'].ToInteger;
-    ApagarProduto(Req.Params['id'].ToInteger, '');
+    ApagarProduto(Req.Params['id'].ToInteger, '', 0);
   except
     Res.Send('').Status(500);
     exit;
@@ -1279,9 +1320,11 @@ begin
   end;
 
   SQL := UnionPedio('pedido', Tipo);
-  SQL := SQL + ' order by data desc,codigo_dia';
+  // SQL := SQL + ' order by data desc,codigo_dia';
+  SQL := SQL + ' order by data, hora desc,codigo_dia';
+
   conexao.SQL.Add(SQL);
-  // ShowMessage(SQL);
+
   conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
   conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
   // conexao.Parametros('tipo', Tipo);
@@ -3048,14 +3091,18 @@ begin
 
   conexao.SQL.Add
     ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
-  conexao.SQL.Add('pp.html as obs, pp.selecionado,');
   conexao.SQL.Add
-    ('(select nome from usuario where codigo = pp.usuario) as usuario,');
+    ('IF(pp.id_pedido > 0, pp.observacao,pp.html) as obs, pp.selecionado,');
+  // conexao.SQL.Add('(select nome from usuario where codigo = pp.usuario) as usuario,');
+  conexao.SQL.Add
+    ('IF(pp.id_pedido > 0, concat((select nome from usuario where codigo = pp.usuario)," cancelado por ",(select nome from usuario where codigo = pp.usuario_deletado)),(select nome from usuario where codigo = pp.usuario)) as usuario,');
   conexao.SQL.Add('0 as paga,');
-  conexao.SQL.Add('0 as paga_tot');
+  conexao.SQL.Add('0 as paga_tot,');
+  conexao.SQL.Add('IF(pp.id_pedido > 0, 1,0) as cancelado');
   conexao.SQL.Add('FROM pedido_produtos as pp');
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+  conexao.SQL.Add
+    ('where pp.codigo_pedido = :codigo or (pp.id_pedido = :codigo and pp.observacao <> "")');
   conexao.SQL.Add('group by pp.codigo');
   conexao.Parametros('codigo', Req.Params['pedido']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -3065,50 +3112,8 @@ end;
 
 procedure DoGetPedidoProduto(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
-var
-  conexao: Tconexao;
-  Pedido: Integer;
-  Origem: String;
 begin
-  try
-    Pedido := Req.Params['pedido'].ToInteger;
-  except
-    Res.Send('Produto não informado').Status(500);
-    exit;
-  end;
-
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('select * from index_pedido where id = :codigo');
-  conexao.Parametros('codigo', Pedido);
-  Origem := conexao.FieldByName('referencia');
-  if Origem = '0' then
-    Origem := '';
-
-  if Origem <> '' then
-  begin
-    Origem := '_' + Origem;
-  end;
-
-  conexao.SQL.Add
-    ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
-  conexao.SQL.Add('group_concat(' + QuotedStr(' ') + ',upper(pps.nomeclatura),'
-    + QuotedStr(' ') + ', upper(pps.descricao)) as obs, pp.selecionado,');
-  conexao.SQL.Add
-    ('(select sum(quantidade) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga,');
-  conexao.SQL.Add
-    ('(select sum(valor) from caixa_movimento_produto where id_pedido_produto = pp.codigo) as paga_tot,');
-  conexao.SQL.Add
-    ('(select nome from usuario where codigo = pp.usuario) as usuario');
-  conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
-  conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-    ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
-    QuotedStr(' ') + '');
-  conexao.SQL.Add('where pp.codigo_pedido = :codigo');
-  conexao.SQL.Add('group by pp.codigo');
-  conexao.Parametros('codigo', Pedido);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  Res.Send<TJSONArray>(GetDadosProdutoPedido(Req.Params['pedido'].ToInteger));
 end;
 
 procedure DoPostImprimir(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -4113,6 +4118,7 @@ var
   ID: Integer;
   Usuario: Integer;
   Origem: String;
+  DadosObjeto : TJSONObject;
 begin
 
   try
@@ -4134,7 +4140,7 @@ begin
     if ID = 0 then
     begin
       conexao.SQL.Add
-        ('select max(codigo) as codigo, 0 as zero from pedido where usuario = :usuario and codigo_pedido_dia = 0 and status = -1');
+        ('select max(codigo) as codigo, 0 as zero from pedido where usuario = :usuario and codigo_pedido_dia = 0 and status = -1 and id_caixa is null');
       conexao.Parametros('usuario', Usuario);
       try
         ID := conexao.FieldByName('codigo')
@@ -4186,8 +4192,10 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
-
-    Res.Send<TJSONObject>(Dados.ToJSONObject());
+    DadosObjeto := TJSONObject.Create;
+    DadosObjeto := Dados.ToJSONObject();
+    DadosObjeto.AddPair('productList',GetDadosProdutoPedido(ID));
+    Res.Send<TJSONObject>(DadosObjeto);
   end
   else
   begin
@@ -4195,9 +4203,7 @@ begin
     begin
 
       ID := conexao.GerarID('pedido', 'codigo');
-
       // conexao.SQL.Add('SELECT * FROM pedido where status = -1 and origem = 4 order by codigo desc');
-
     end
     else
     begin
@@ -4340,6 +4346,7 @@ var
   DadosEntrega: TFDMemTable;
   TotalProduto: Real;
   ClienteNome: String;
+  Usuario: Integer;
 begin
 
   try
@@ -4377,8 +4384,7 @@ begin
     Dados.Edit;
     if Dados.FieldByName('cliente').AsInteger = 0 then
     begin
-      conexao.SQL.Add
-        ('select * from cliente where celular = :celular or celular = :celular');
+      conexao.SQL.Add('select * from cliente where celular = :celular');
       conexao.Parametros('celular', Dados.FieldByName('celular').AsString);
       try
         Cliente := conexao.FieldByName('codigo');
@@ -4407,6 +4413,12 @@ begin
       ClienteNome := Dados.FieldByName('balcao').AsString;
     except
       ClienteNome := '';
+    end;
+
+    try
+      Usuario := Dados.FieldByName('usuario').AsInteger;
+    except
+      Usuario := 0;
     end;
 
     if Dados.FieldByName('endereco').AsInteger = 0 then
@@ -4440,13 +4452,26 @@ begin
 
     if not Tipo then
     begin
-      CodigoPedido := GeraCodigoPorDiaPedido(Dados.FieldByName('codigo')
-        .AsInteger);
+
       conexao.SQL.Add
-        ('update pedido set codigo_pedido_dia = :codigo_pedido_dia, data_pedido = curdate(), hora_pedido = curtime() where codigo = :codigo');
-      conexao.Parametros('codigo_pedido_dia', CodigoPedido);
+        ('select codigo_pedido_dia as dia, 0 as zero from pedido where codigo = :codigo');
       conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
-      conexao.ExecuteSQL;
+      try
+        CodigoPedido := conexao.FieldByName('dia');
+      except
+        CodigoPedido := 0
+      end;
+      if CodigoPedido = 0 then
+      begin
+        CodigoPedido := GeraCodigoPorDiaPedido(Dados.FieldByName('codigo')
+          .AsInteger);
+        conexao.SQL.Add
+          ('update pedido set codigo_pedido_dia = :codigo_pedido_dia, status = 1, usuario = :usuario, data_pedido = curdate(), hora_pedido = curtime() where codigo = :codigo');
+        conexao.Parametros('usuario', Usuario);
+        conexao.Parametros('codigo_pedido_dia', CodigoPedido);
+        conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
+        conexao.ExecuteSQL;
+      end;
       if Dados.FieldByName('endereco').AsInteger > 0 then
       begin
         conexao.SQL.Add
@@ -4532,7 +4557,7 @@ begin
     conexao.SQL.Add
       ('nome = :nome, cpf = :cpf, hora_pedido = :hora,tipo_pagamento = :tipo_pagamento, status = :status, valor_pedido = :produto, troco = :troco, valor_desconto = :desconto, ');
     conexao.SQL.Add
-      ('valor_taxa_entrega = :entrega, valor_total_pedido = :total, taxa_servico = :acrecimo, nome = :nome where codigo = :codigo');
+      ('valor_taxa_entrega = :entrega, valor_total_pedido = :total, taxa_servico = :acrecimo, usuario = :usuario, nome = :nome where codigo = :codigo');
 
     conexao.Parametros('cliente', Dados.FieldByName('cliente').AsInteger);
     conexao.Parametros('nome', Dados.FieldByName('nome').AsString);
@@ -4542,6 +4567,7 @@ begin
       conexao.Parametros('cpf', '');
     end;
     conexao.Parametros('endereco', Dados.FieldByName('endereco').AsInteger);
+    conexao.Parametros('usuario', Usuario);
     conexao.Parametros('data', Dados.FieldByName('data').AsString);
     conexao.Parametros('hora', (Dados.FieldByName('hora').AsString));
     conexao.Parametros('status', Dados.FieldByName('status').AsInteger);
@@ -5317,7 +5343,7 @@ begin
   conexao.SQL.Add
     ('select max(pap.qtd_minima) as min, max(pap.qtd_maxima) as max,  p.codigo, pap.id as extra_id, upper(CONCAT(pap.descricao)) as juncao, upper(p.nome_produto) as produto,');
   conexao.SQL.Add
-    ('upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.descricao)) as descricao, upper(GROUP_CONCAT(paps.nome)) as itens, GROUP_CONCAT(paps.valor) as valores from produto as p');
+    ('upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.descricao)) as descricao, GROUP_CONCAT(id_prod_estoque) as stock,  upper(GROUP_CONCAT(paps.nome)) as itens, GROUP_CONCAT(paps.valor) as valores from produto as p');
   conexao.SQL.Add
     ('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
   conexao.SQL.Add
@@ -5326,7 +5352,7 @@ begin
   conexao.SQL.Add('group by pap.id');
   conexao.SQL.Add('order by p.codigo)');
   conexao.SQL.Add
-    ('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens,CTE.valores,CTE.min,CTE.max, CTE.descricao');
+    ('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens,CTE.valores,CTE.min,CTE.max, CTE.descricao, CTE.stock');
   conexao.SQL.Add('from CTE');
   // conexao.SQL.Add('GROUP BY CTE.ITENS');
 
@@ -7397,7 +7423,7 @@ begin
   // QuotedStr(' ') + ', ' + QuotedStr('%') + '), ' + QuotedStr('') + ')';
   // SQL := SQL + ' ORDER BY nome_produto;';
 
-  SQL := ' SELECT * FROM produto WHERE upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
+  SQL := ' SELECT * FROM produto WHERE ativo = 1 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
     + UpperCase(Req.Params['nome']) + '%" ORDER BY nome_produto';
 
   Res.Send<TJSONArray>(frmServidor.ObjetoProduto(SQL));
@@ -7465,7 +7491,7 @@ begin
     DoDeletPedidoPagamento);
 
   THorse.Get('/v1/pedido/produtos/:pedido', DoGetPedidoProduto);
-  THorse.Get('/v1/pedido/produtos/mesa/:pedido', DoGetPedidoProdutoMesa);
+  THorse.Get('/v1/pedido/produtos/mesa/:pedido', DoGetPedidoProduto);
   THorse.Get('/v1/produtos/validacao/:produto', DoGetPedidoProdutoStatus);
 
   THorse.Get('/v1/usuario/:usuario/:senha', DoGetUsuario);
@@ -7997,26 +8023,56 @@ end;
 
 function GeraCodigoPorDiaPedido(Pedido: Integer): Integer;
 var
+  Insert: Tconexao;
+  HoraAtual: Word;
+  DifHoras: Double;
+begin
+  Insert := Tconexao.Create('Util');
+  try
+    Insert.SQL.Add
+      ('select codigo_pedido_dia from pedido where codigo = :codigo');
+    Insert.Parametros('codigo', Pedido);
+    Result := Insert.FieldByName('codigo_pedido_dia');
 
+    HoraAtual := HourOf(Now);
+    if (HoraAtual >= 15) then
+    begin
+      // Estamos no segundo turno
+      DifHoras := (Now - frmServidor.UltimoHorarioPedidoTurnoTarde) * 24;
+
+      if (DifHoras >= 2) then
+      begin
+        // Passaram-se mais de 2 horas desde o último pedido do segundo turno
+
+        frmServidor.CodigoPedido := 0;
+
+      end;
+
+      // Atualiza o último horário usado para gerar pedidos no turno da tarde
+      frmServidor.UltimoHorarioPedidoTurnoTarde := Now;
+    end;
+  finally
+    Insert.Free;
+  end;
+  Result := frmServidor.GerarCodigoPedidoDia;
+end;
+
+{
+  function GeraCodigoPorDiaPedido(Pedido: Integer): Integer;
+  var
   Data: TDate;
-
   Insert: Tconexao;
   Dados: TFDMemTable;
   SQL: String;
-
-begin
-
+  begin
   Insert := Tconexao.Create('Util');
-  // Dados := TFDMemTable.Create(nil);
-
   Insert.SQL.Add('select * from pedido where codigo = :codigo');
   Insert.Parametros('codigo', Pedido);
-
   Result := Insert.FieldByName('codigo_pedido_dia');
   if Result > 0 then
   begin
-    Insert.Free;
-    exit;
+  Insert.Free;
+  exit;
   end;
 
   Result := frmServidor.GerarCodigoPedidoDia;
@@ -8025,75 +8081,75 @@ begin
 
   if time > StrToTime('04:59:59') then
   begin
-    SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > -1 and data_pedido ='
-      + QuotedStr(FormatDateTime('yyyy-mm-dd', Date)) + ' and hora_pedido > ' +
-      QuotedStr('05:00:00');
-    try
-      Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-    except
-      Insert.Free;
-      Result := 1;
-      Dados.Free;
-      exit;
-    end;
+  SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > -1 and data_pedido ='
+  + QuotedStr(FormatDateTime('yyyy-mm-dd', Date)) + ' and hora_pedido > ' +
+  QuotedStr('05:00:00');
+  try
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  except
+  Insert.Free;
+  Result := 1;
+  Dados.Free;
+  exit;
+  end;
 
   end
   else
   begin
 
-    SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > -1 and data_pedido ='
-      + QuotedStr(FormatDateTime('yyyy-mm-dd', Date)) + ' and hora_pedido > ' +
-      QuotedStr('00:00:00');
-    try
-      Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-    except
-      Insert.Free;
-      Result := 1;
-      Dados.Free;
-      exit;
-    end;
+  SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > -1 and data_pedido ='
+  + QuotedStr(FormatDateTime('yyyy-mm-dd', Date)) + ' and hora_pedido > ' +
+  QuotedStr('00:00:00');
+  try
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  except
+  Insert.Free;
+  Result := 1;
+  Dados.Free;
+  exit;
+  end;
 
-    if Dados.RecordCount > 0 then
-    begin
-      try
-        Result := Dados.FieldByName('maior').AsInteger + 1;
-      except
-        Result := 1;
-      end;
-    end;
+  if Dados.RecordCount > 0 then
+  begin
+  try
+  Result := Dados.FieldByName('maior').AsInteger + 1;
+  except
+  Result := 1;
+  end;
+  end;
 
-    if Result > 1 then
-    begin
-      Insert.Free;;
-      Dados.Free;
-      exit;
-    end;
-    SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > 0 and data_pedido ='
-      + QuotedStr(FormatDateTime('yyyy-mm-dd', Date - 1)) +
-      ' and hora_pedido > ' + QuotedStr('05:00:00');
-    try
-      Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
-    except
-      Insert.Free;
-      Result := 1;
-      Dados.Free;
-      exit;
-    end;
+  if Result > 1 then
+  begin
+  Insert.Free;;
+  Dados.Free;
+  exit;
+  end;
+  SQL := 'SELECT max(codigo_pedido_dia) as maior, 0 as id FROM pedido where status > 0 and data_pedido ='
+  + QuotedStr(FormatDateTime('yyyy-mm-dd', Date - 1)) +
+  ' and hora_pedido > ' + QuotedStr('05:00:00');
+  try
+  Dados.LoadFromJSON(Insert.ConsultaSQL(SQL));
+  except
+  Insert.Free;
+  Result := 1;
+  Dados.Free;
+  exit;
+  end;
 
   end;
   try
-    Result := Dados.FieldByName('maior').AsInteger + 1;
+  Result := Dados.FieldByName('maior').AsInteger + 1;
   except
-    Result := 1;
+  Result := 1;
   end;
 
   if Dados.RecordCount = 0 then
-    Result := 1;
+  Result := 1;
 
   Dados.Free;
   Insert.Free;
 
-end;
+  end; }
 
 function RemoveAcento(const pText: string): string;
 const
@@ -8487,6 +8543,8 @@ var
   ID: Integer;
   SaldoAtual: Integer;
   SaldoNovo: Integer;
+  Status: Integer;
+  Dados: TFDMemTable;
 begin
   conexao := Tconexao.Create('Util');
   SaldoAtual := 0;
@@ -8497,7 +8555,7 @@ begin
 
     // Subtrai
     conexao.SQL.Add
-      ('update produto set saldo_atual = saldo_atual + :qtd where codigo = :codigo');
+      ('update produto set saldo_atual = IFNULL(saldo_atual, 0) + :qtd where codigo = :codigo');
     conexao.Parametros('codigo', Codigo);
     conexao.Parametros('qtd', Quantidade);
     conexao.ExecuteSQL;
@@ -8507,12 +8565,14 @@ begin
   begin
     // Adiciona
     conexao.SQL.Add
-      ('update produto set saldo_atual = saldo_atual + :qtd where codigo = :codigo');
+      ('update produto set saldo_atual = IFNULL(saldo_atual, 0) + :qtd where codigo = :codigo');
     conexao.Parametros('codigo', Codigo);
     conexao.Parametros('qtd', Quantidade);
     conexao.ExecuteSQL;
 
   end;
+
+  // Fazer ativar/pausar produto aki
 
   ID := conexao.GerarID('produto_estoque', 'codigo');
   conexao.SQL.Add
@@ -8524,11 +8584,73 @@ begin
   conexao.Parametros('saldo_novo', SaldoNovo);
   conexao.Parametros('saldo_atual', SaldoAtual);
   conexao.ExecuteSQL;
+
+  conexao.SQL.Add
+    ('select codigo, saldo_atual from produto where codigo = :codigo');
+  conexao.Parametros('codigo', Codigo);
+
+  try
+    Quantidade := conexao.FieldByName('saldo_atual');
+  except
+    Quantidade := 0;
+  end;
+
+  if Quantidade > 0 then
+  begin
+    // Ativa
+    Status := 1;
+  end
+  else
+  begin
+    // Inativa
+    Status := 0;
+
+  end;
+
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add
+    ('update pro_adi_personalizado_sabores set ativo = :status, modificado_site = 0 where id_prod_estoque = :codigo');
+  conexao.Parametros('codigo', Codigo);
+  conexao.Parametros('status', Status);
+  conexao.ExecuteSQL;
+
+  conexao.SQL.Add
+    ('select p.codigo, 0 as zero from pro_adi_personalizado_sabores as paps');
+  conexao.SQL.Add
+    ('join pro_adi_personalizado as pap on pap.id = paps.id_pro_adi_personalizado');
+  conexao.SQL.Add('join produto as p on p.codigo = pap.id_produto');
+  conexao.SQL.Add('where paps.id_prod_estoque = :codigo');
+  conexao.Parametros('codigo', Codigo);
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      if Dados.FieldByName('controle_estoque').AsInteger = 1 then
+      begin
+        conexao.SQL.Add
+          ('update produto set ativo = :status, modificado_site = 0 where codigo = :codigo');
+        conexao.Parametros('codigo', Codigo);
+        conexao.Parametros('status', Status);
+        conexao.ExecuteSQL;
+        conexao.SQL.Add
+          ('update produto set modificado_site = 0 where codigo = :codigo');
+        conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
+        conexao.ExecuteSQL;
+      end;
+      Dados.Next;
+    end;
+  end;
+
+  Dados.Free;
+
   conexao.Free;
   LimpaCacheGeral;
 end;
 
-procedure ApagarProduto(ID: Integer; Motivo: String);
+procedure ApagarProduto(ID: Integer; Motivo: String; CodigoUsuario: Integer);
 var
   conexao: Tconexao;
   Dados: TFDMemTable;
@@ -8637,8 +8759,9 @@ begin
       Dados.Free;
 
       conexao.SQL.Add
-        ('update pedido_produtos set  id_pedido = codigo_pedido where codigo = :codigo');
+        ('update pedido_produtos set id_pedido = codigo_pedido, usuario_deletado = :usuario where codigo = :codigo');
       conexao.Parametros('codigo', ID);
+      conexao.Parametros('usuario', CodigoUsuario);
       conexao.ExecuteSQL;
 
       conexao.SQL.Add
@@ -9367,7 +9490,7 @@ var
   I: Integer;
   mesa: Integer;
   Produto: Integer;
-  qtd: Integer;
+  qtd: Real;
   Adicionais: string;
   Pizza: string;
   Observacao: string;
@@ -9423,7 +9546,7 @@ begin
 
       mesa := JsonObj.GetValue<Integer>('mesa');
       Produto := JsonObj.GetValue<Integer>('produto');
-      qtd := JsonObj.GetValue<Integer>('qtd');
+      qtd := JsonObj.GetValue<Real>('qtd');
       Adicionais := JsonObj.GetValue<string>('adicionais');
       try
         Pizza := JsonObj.GetValue<string>('pizza');
@@ -9613,33 +9736,19 @@ begin
       Objeto.AddPair('TempoNovoPedido', TempoNovoPedido);
       Objeto.AddPair('TempoOpen', TempoOpen);
       Objeto.AddPair('TempoExecuteSQL', TempoExecuteSQL);
+      if mesa > 0 then
+      begin
 
+        conexao.SQL.Clear;
+        conexao.SQL.Add
+          ('update mesa set sts_mesa = 1, tot_mesa = COALESCE(tot_mesa, 0) + :tot where selecionada = :id');
+        conexao.Parametros('tot', (ValorProduto + ValorAdicional) * qtd);
+        conexao.Parametros('id', Pedido);
+        conexao.ExecuteSQL;
+      end;
     end;
   end;
   TimeEndGeral := GetTickCount64;
-
-  if mesa > 0 then
-  begin
-    // conexao.SQL.Add('update pedido set id_ficha = :mesa, desc_ficha = select concat((SELECT descricao FROM mesa_tipo where id_mesa_tipo = fk_tipo_mesa)," ",nr_mesa) from mesa where id_mesa = :mesa where codigo = :codigo');
-    // conexao.SQL.Add
-    // ('select concat(mt.descricao," ", m.nr_mesa) as descricao, id_mesa from mesa as m join mesa_tipo as mt on mt.id_mesa_tipo = :mesa');
-    // conexao.Parametros('mesa', mesa);
-    // DescricaoMesa := conexao.FieldByName('descricao');
-    //
-    // conexao.SQL.Add
-    // ('update pedido set id_ficha = :mesa, desc_ficha = :descricao where codigo = :codigo');
-    // conexao.Parametros('mesa', mesa);
-    // conexao.Parametros('descricao', DescricaoMesa);
-    // conexao.Parametros('codigo', Pedido);
-    // conexao.ExecuteSQL;
-
-    conexao.SQL.Clear;
-    conexao.SQL.Add
-      ('update mesa set sts_mesa = 1, tot_mesa = COALESCE(tot_mesa, 0) + :tot where selecionada = :id');
-    conexao.Parametros('tot', (ValorProduto + ValorAdicional) * qtd);
-    conexao.Parametros('id', Pedido);
-    conexao.ExecuteSQL;
-  end;
 
   Objeto.AddPair('total', TimeEndGeral - TimeStartGeral);
   Dados.AddElement(Objeto);

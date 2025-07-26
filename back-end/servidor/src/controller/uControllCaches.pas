@@ -149,14 +149,11 @@ begin
   if Result.Count = 0 then
   begin
     conexao := TConexao.Create('Util');
-    conexao.SQL.Add
-      ('select paps.id as codigo, pap.descricao as categoria, paps.nome, paps.valor, p.observacao, qtd_minima as min, qtd_maxima as max from produto as p');
-    conexao.SQL.Add
-      ('inner join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
-    conexao.SQL.Add
-      ('inner join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id and paps.ativo = 1');
-    conexao.SQL.Add
-      ('where p.codigo = :codigo order by paps.id_pro_adi_personalizado');
+    conexao.SQL.Add('select paps.id as codigo, pap.descricao as categoria, paps.nome, paps.valor, p.observacao, qtd_minima as min, qtd_maxima as max from produto as p');
+    conexao.SQL.Add('inner join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
+//    conexao.SQL.Add('inner join pro_adi_personalizado as pap on pap.id_produto = p.codigo or pap.categoria = p.codigo_grupo');
+    conexao.SQL.Add('inner join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id and paps.ativo = 1');
+    conexao.SQL.Add('where p.codigo = :codigo order by pap.categoria desc, paps.id_pro_adi_personalizado');
     conexao.Parametros('codigo', chave);
     Result := conexao.ConsultaSQL;
     GravaCache('DoGetProdutoAdiciona', chave, Result.ToString);
@@ -260,7 +257,7 @@ begin
       SQL := 'select produto.* from produto ';
       SQL := SQL +
         ' join tipo_produto on tipo_produto.codigo = produto.codigo_grupo ';
-      // SQL := SQL + ' where ativo = 1 ';
+      // SQL := SQL + ' where produto.ativo = 1 ';
       SQL := SQL + ' order by codigo_grupo';
     end
     else

@@ -2,7 +2,8 @@ unit uControlerProduto;
 
 interface
 
-uses JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize, System.SysUtils;
+uses JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize,
+  System.SysUtils;
 
 function ObjetoProduto(SQL: String): TJsonArray;
 
@@ -10,7 +11,7 @@ implementation
 
 function ObjetoProduto(SQL: String): TJsonArray;
 var
-  conexao: Tconexao;
+  Conexao: Tconexao;
   Data: TJsonArray;
   DataS: String;
 
@@ -35,15 +36,15 @@ var
   Max: Real;
   Estoque: Real;
 begin
- conexao := Tconexao.Create('main');
+  Conexao := Tconexao.Create('main');
   try
-    DadosProduto := conexao.CriaQRY;
+    DadosProduto := Conexao.CriaQRY;
     DadosCategoria := TFDMemTable.Create(nil);
     DadosAdicionais := TFDMemTable.Create(nil);
     DadosAdicionaisItens := TFDMemTable.Create(nil);
     DadosPizza := TFDMemTable.Create(nil);
 
-    conexao.SQL.Add(SQL);
+    Conexao.SQL.Add(SQL);
     DadosProduto.SQL.Text := SQL;
     DadosProduto.Open;
 
@@ -69,6 +70,32 @@ begin
           .AsString);
         JsonObjeto.AddPair('value',
           DadosProduto.FieldByName('valor_venda').AsFloat);
+        try
+          JsonObjeto.AddPair('vembuscar',
+            DadosProduto.FieldByName('vembuscar').AsFloat);
+        except
+          JsonObjeto.AddPair('vembuscar', 0);
+        end;
+        try
+          JsonObjeto.AddPair('delivery',
+            DadosProduto.FieldByName('delivery').AsFloat);
+        except
+          JsonObjeto.AddPair('delivery', 0);
+        end;
+
+        try
+          JsonObjeto.AddPair('referencia',
+            DadosProduto.FieldByName('referencia').AsFloat);
+        except
+          JsonObjeto.AddPair('referencia', '');
+        end;
+        try
+          JsonObjeto.AddPair('tiposite', DadosProduto.FieldByName('tiposite')
+            .AsString);
+        except
+          JsonObjeto.AddPair('tiposite', '');
+        end;
+
         try
           JsonObjeto.AddPair('tax_delivery',
             DadosProduto.FieldByName('valor_embalagem_delivery').AsFloat);
@@ -153,86 +180,91 @@ begin
         JsonObjeto.AddPair('stock_current',
           DadosProduto.FieldByName('saldo_atual').AsInteger);
 
-        {
-
-          conexao.SQL.Add
+        try
+          JsonObjeto.AddPair('referencia',
+            DadosProduto.FieldByName('referencia').AsString);
+        except
+          JsonObjeto.AddPair('referencia', '');
+        end;
+        Conexao.SQL.Clear;
+        Conexao.SQL.Add
           ('SELECT * FROM pro_adi_personalizado where id_produto = :id_produto');
-          conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
+        Conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
           .AsInteger);
 
-          DadosAdicionais.Close;
-          DadosAdicionais.LoadFromJSON(conexao.ConsultaSQL);
+        DadosAdicionais.Close;
+        DadosAdicionais.LoadFromJSON(Conexao.ConsultaSQL);
 
-          if DadosAdicionais.RecordCount > 0 then
-          begin
+        if DadosAdicionais.RecordCount > 0 then
+        begin
           JSonArrayAdicional := TJsonArray.Create;
           while not DadosAdicionais.Eof do
           begin
-          JsonObjetoCategoriaAdicional := TJsonObject.Create;
-          JsonObjetoCategoriaAdicional.AddPair('categoryId',
-          DadosAdicionais.FieldByName('id').AsInteger);
-          JsonObjetoCategoriaAdicional.AddPair('categoryName',
-          DadosAdicionais.FieldByName('descricao').AsString);
-          JsonObjetoCategoriaAdicional.AddPair('categoryStatus',
-          DadosAdicionais.FieldByName('ativo').AsInteger);
-          JsonObjetoCategoriaAdicional.AddPair('categoryMin',
-          DadosAdicionais.FieldByName('qtd_minima').AsInteger);
-          JsonObjetoCategoriaAdicional.AddPair('categoryMax',
-          DadosAdicionais.FieldByName('qtd_maxima').AsInteger);
+            JsonObjetoCategoriaAdicional := TJsonObject.Create;
+            JsonObjetoCategoriaAdicional.AddPair('categoryId',
+              DadosAdicionais.FieldByName('id').AsInteger);
+            JsonObjetoCategoriaAdicional.AddPair('categoryName',
+              DadosAdicionais.FieldByName('descricao').AsString);
+            JsonObjetoCategoriaAdicional.AddPair('categoryStatus',
+              DadosAdicionais.FieldByName('ativo').AsInteger);
+            JsonObjetoCategoriaAdicional.AddPair('categoryMin',
+              DadosAdicionais.FieldByName('qtd_minima').AsInteger);
+            JsonObjetoCategoriaAdicional.AddPair('categoryMax',
+              DadosAdicionais.FieldByName('qtd_maxima').AsInteger);
 
-          DadosAdicionaisItens.Close;
-          conexao.SQL.Add
-          ('select * from pro_adi_personalizado_sabores where id_pro_adi_personalizado = :id');
-          conexao.Parametros('id', DadosAdicionais.FieldByName('id')
-          .AsInteger);
-          DadosAdicionaisItens.LoadFromJSON(conexao.ConsultaSQL);
-          JSonArrayAdicionalItens := TJsonArray.Create;
+            DadosAdicionaisItens.Close;
+            Conexao.SQL.Add
+              ('select * from pro_adi_personalizado_sabores where id_pro_adi_personalizado = :id');
+            Conexao.Parametros('id', DadosAdicionais.FieldByName('id')
+              .AsInteger);
+            DadosAdicionaisItens.LoadFromJSON(Conexao.ConsultaSQL);
+            JSonArrayAdicionalItens := TJsonArray.Create;
 
-          while not DadosAdicionaisItens.Eof do
-          begin
-          JSonObjetoAdicionalItens := TJsonObject.Create;
-          JSonObjetoAdicionalItens.AddPair('itensId',
-          DadosAdicionaisItens.FieldByName('id').AsInteger);
-          JSonObjetoAdicionalItens.AddPair('itensName',
-          DadosAdicionaisItens.FieldByName('nome').AsString);
-          JSonObjetoAdicionalItens.AddPair('itensDescription',
-          DadosAdicionaisItens.FieldByName('descricao').AsString);
-          JSonObjetoAdicionalItens.AddPair('itensValue',
-          DadosAdicionaisItens.FieldByName('valor').AsFloat);
-          JSonObjetoAdicionalItens.AddPair('itensProdStock',
-          DadosAdicionaisItens.FieldByName('id_prod_estoque').AsInteger);
-          JSonObjetoAdicionalItens.AddPair('itensStatus',
-          DadosAdicionaisItens.FieldByName('ativo').AsInteger);
-          JSonObjetoAdicionalItens.AddPair('itensInsumo',
-          DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
+            while not DadosAdicionaisItens.Eof do
+            begin
+              JSonObjetoAdicionalItens := TJsonObject.Create;
+              JSonObjetoAdicionalItens.AddPair('itensId',
+                DadosAdicionaisItens.FieldByName('id').AsInteger);
+              JSonObjetoAdicionalItens.AddPair('itensName',
+                DadosAdicionaisItens.FieldByName('nome').AsString);
+              JSonObjetoAdicionalItens.AddPair('itensDescription',
+                DadosAdicionaisItens.FieldByName('descricao').AsString);
+              JSonObjetoAdicionalItens.AddPair('itensValue',
+                DadosAdicionaisItens.FieldByName('valor').AsFloat);
+              JSonObjetoAdicionalItens.AddPair('itensProdStock',
+                DadosAdicionaisItens.FieldByName('id_prod_estoque').AsInteger);
+              JSonObjetoAdicionalItens.AddPair('itensStatus',
+                DadosAdicionaisItens.FieldByName('ativo').AsInteger);
+              JSonObjetoAdicionalItens.AddPair('itensInsumo',
+                DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
 
-          JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
+              JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
 
-          if DadosAdicionaisItens.FieldByName('valor').AsFloat > 0 then
-          begin
-          if Min > DadosAdicionaisItens.FieldByName('valor').AsFloat then
-          Min := DadosAdicionaisItens.FieldByName('valor').AsFloat;
+              if DadosAdicionaisItens.FieldByName('valor').AsFloat > 0 then
+              begin
+                if Min > DadosAdicionaisItens.FieldByName('valor').AsFloat then
+                  Min := DadosAdicionaisItens.FieldByName('valor').AsFloat;
 
-          if DadosAdicionaisItens.FieldByName('valor').AsFloat > Max then
-          Max := DadosAdicionaisItens.FieldByName('valor').AsFloat;
-          end;
+                if DadosAdicionaisItens.FieldByName('valor').AsFloat > Max then
+                  Max := DadosAdicionaisItens.FieldByName('valor').AsFloat;
+              end;
 
-          DadosAdicionaisItens.Next;
-          end;
-          JsonObjetoCategoriaAdicional.AddPair('categoryItens',
-          JSonArrayAdicionalItens);
+              DadosAdicionaisItens.Next;
+            end;
+            JsonObjetoCategoriaAdicional.AddPair('categoryItens',
+              JSonArrayAdicionalItens);
 
-          JSonArrayAdicional.Add(JsonObjetoCategoriaAdicional);
-          DadosAdicionais.Next;
+            JSonArrayAdicional.Add(JsonObjetoCategoriaAdicional);
+            DadosAdicionais.Next;
           end;
           JsonObjeto.AddPair('additional', JSonArrayAdicional);
-          end
-          else
-          begin
+        end
+        else
+        begin
           JSonArrayAdicional := TJsonArray.Create;
           JsonObjeto.AddPair('additional', JSonArrayAdicional);
-          end;
-        }
+        end;
+
         { conexao.SQL.Add('select  ');
           conexao.SQL.Add('sabores_completo.id as sabor_id,  ');
           conexao.SQL.Add('sabores_completo.nome as sabor_nome,');
@@ -247,30 +279,30 @@ begin
           conexao.SQL.Add('join tipo_sabor on tipo_sabor.id  = sabores_completo.id_tipo_sabor');
           conexao.SQL.Add('where sabores_completo.id_produto = :id');
           conexao.SQL.Add('order by sabores_completo.id_produto, sabores_completo.id_tipo_sabor, sabores_completo.nome'); }
-        conexao.SQL.Clear;
-        conexao.SQL.Add('SELECT  ');
-        conexao.SQL.Add('    sc.id AS sabor_id,  ');
-        conexao.SQL.Add('    sc.nome AS sabor_nome, ');
-        conexao.SQL.Add('    sc.descricao AS sabor_descricao, ');
-        conexao.SQL.Add('    sc.vl_venda AS sabor_venda, ');
-        conexao.SQL.Add('    sc.ativo AS sabor_status, ');
-        conexao.SQL.Add('    pp.quantidade_sabores AS qtd_sabor, ');
-        conexao.SQL.Add('    ts.id AS tipo_id, ');
-        conexao.SQL.Add('    ts.nome AS tipo_nome, ');
-        conexao.SQL.Add('    ts.descricao AS tipo_descricao, ');
-        conexao.SQL.Add('    ts.ativo AS tipo_status, ');
-        conexao.SQL.Add
+        Conexao.SQL.Clear;
+        Conexao.SQL.Add('SELECT  ');
+        Conexao.SQL.Add('    sc.id AS sabor_id,  ');
+        Conexao.SQL.Add('    sc.nome AS sabor_nome, ');
+        Conexao.SQL.Add('    sc.descricao AS sabor_descricao, ');
+        Conexao.SQL.Add('    sc.vl_venda AS sabor_venda, ');
+        Conexao.SQL.Add('    sc.ativo AS sabor_status, ');
+        Conexao.SQL.Add('    pp.quantidade_sabores AS qtd_sabor, ');
+        Conexao.SQL.Add('    ts.id AS tipo_id, ');
+        Conexao.SQL.Add('    ts.nome AS tipo_nome, ');
+        Conexao.SQL.Add('    ts.descricao AS tipo_descricao, ');
+        Conexao.SQL.Add('    ts.ativo AS tipo_status, ');
+        Conexao.SQL.Add
           ('    (SELECT tipo_preco_pizza FROM dados_whatsapp LIMIT 1) AS tipo_valor ');
-        conexao.SQL.Add('FROM sabores_completo sc ');
-        conexao.SQL.Add
+        Conexao.SQL.Add('FROM sabores_completo sc ');
+        Conexao.SQL.Add
           ('JOIN produto_pizza pp ON pp.codigo_produto = sc.id_produto ');
-        conexao.SQL.Add('JOIN tipo_sabor ts ON ts.id = sc.id_tipo_sabor ');
-        conexao.SQL.Add('WHERE sc.id_produto = :id ');
-        conexao.SQL.Add('ORDER BY sc.id_produto, sc.id_tipo_sabor, sc.nome');
-        conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
+        Conexao.SQL.Add('JOIN tipo_sabor ts ON ts.id = sc.id_tipo_sabor ');
+        Conexao.SQL.Add('WHERE sc.id_produto = :id ');
+        Conexao.SQL.Add('ORDER BY sc.id_produto, sc.id_tipo_sabor, sc.nome');
+        Conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
 
         DadosPizza.Close;
-        DadosPizza.LoadFromJSON(conexao.ConsultaSQL);
+        DadosPizza.LoadFromJSON(Conexao.ConsultaSQL);
         JSonObjectoPizza := TJsonObject.Create;
         if DadosPizza.RecordCount > 0 then
         begin
@@ -355,7 +387,7 @@ begin
 
   end;
   Result := JSONArray;
-  conexao.Free;
+  Conexao.Free;
 end;
 
 end.

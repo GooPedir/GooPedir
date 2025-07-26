@@ -1,0 +1,260 @@
+unit uProdutoSite;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, uControllerSite,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
+  uInserirUpdate,
+  FireDAC.Comp.Client;
+
+type
+  TfrmProdutoSite = class(TForm)
+    tMinimiza: TTimer;
+    TrayIcon1: TTrayIcon;
+    tClose: TTimer;
+    procedure tMinimizaTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure tCloseTimer(Sender: TObject);
+  private
+    { Private declarations }
+    procedure EnviaProduto(Codigo: Integer);
+  public
+    { Public declarations }
+  var
+    UserID: Integer;
+    Produto: Integer;
+  end;
+
+var
+  frmProdutoSite: TfrmProdutoSite;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmProdutoSite.EnviaProduto(Codigo: Integer);
+var
+  Conexao: TConexao;
+  Dados: TFDQuery;
+  DadosExtra: TFDQuery;
+  DadosExtraItem: TFDQuery;
+  CodigoExtra: Integer;
+  Result: Integer;
+  Query: TFDQuery;
+
+begin
+
+  // Busca os dados de Cache
+  if Codigo = 0 then
+  begin
+    exit;
+  end;
+
+  try
+    GetAllProduto(Codigo);
+    Conexao := TConexao.Create('uSite');
+    Dados := Conexao.CriaQRY;
+    Dados.SQL.Text := ('select * from produto where codigo = :codigo');
+    Dados.ParamByName('codigo').AsInteger := Codigo;
+
+    Dados.Open;
+    Conexao.SQL.Add
+      ('update produto ser modificado_site = 2 where codigo = :codigo');
+    Conexao.Parametros('codigo', Codigo);
+    // Conexao.ParamByName('codigo').AsInteger := Codigo;
+    Conexao.ExecuteSQL;
+
+    if Dados.FieldByName('valor_desconto').AsFloat > 0 then
+    begin
+      Result := InserirUpdate('ws_itens', UserID.ToString,
+        ['id', 'user_id', 'img_item', 'config_total_s', 'dia_semana',
+        'number_adicional', 'number_adicional_pago', 'posicao', 'id_cat',
+        'nome_item', 'descricao_item', 'preco_item', 'disponivel',
+        'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
+        'promo_percentual', 'disponivel', 'fidelidade_valor', 'novidade'],
+        [Dados.FieldByName('id_site').AsString, UserID.ToString, 'false', '0',
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+        Dados.FieldByName('position').AsString,
+        SiteCategoria(Dados.FieldByName('codigo_grupo').AsInteger, UserID)
+        .ToString, Dados.FieldByName('nome_produto').AsWideString,
+        Dados.FieldByName('descricao').AsWideString,
+        Dados.FieldByName('valor_desconto').AsString, '1',
+        Dados.FieldByName('valor_embalagem_delivery').AsString, '9999',
+        Dados.FieldByName('foto_ifood').AsString, Dados.FieldByName('pessoas')
+        .AsString, Dados.FieldByName('valor_venda').AsString,
+        Dados.FieldByName('percentual_desconto').AsString,
+        Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
+        .AsString, Dados.FieldByName('novidade').AsString]);
+    end
+    else
+    begin
+      Result := InserirUpdate('ws_itens', UserID.ToString,
+        ['id', 'user_id', 'config_total_s', 'dia_semana', 'number_adicional',
+        'number_adicional_pago', 'posicao', 'id_cat', 'nome_item',
+        'descricao_item', 'preco_item', 'disponivel', 'valor_delivery',
+        'estoque', 'pessoas', 'promo_valor', 'promo_percentual', 'disponivel',
+        'fidelidade_valor', 'novidade', 'img_ifood'],
+        [Dados.FieldByName('id_site').AsString, UserID.ToString, '0',
+        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+        Dados.FieldByName('position').AsString,
+        SiteCategoria(Dados.FieldByName('codigo_grupo').AsInteger, UserID)
+        .ToString, Dados.FieldByName('nome_produto').AsWideString,
+        Dados.FieldByName('descricao').AsWideString,
+        Dados.FieldByName('valor_venda').AsString, '1',
+        Dados.FieldByName('valor_embalagem_delivery').AsString, '99999',
+        Dados.FieldByName('pessoas').AsString, '0', '0',
+        Dados.FieldByName('ativo').AsString, Dados.FieldByName('fidelidade')
+        .AsString, Dados.FieldByName('novidade').AsString,
+        Dados.FieldByName('foto_ifood').AsString]);
+    end;
+
+    if Result > 0 then
+    begin
+      Query := Conexao.CriaQRY;
+      try
+        Query.SQL.Text :=
+          'update produto set modificado_site = 1, id_site = :site, new = 0 where codigo = :codigo';
+        Query.ParamByName('site').AsInteger := Result;
+        Query.ParamByName('codigo').AsInteger := Codigo;
+        Query.ExecSQL;
+
+        // if Base64Imagem <> '' then
+        // begin
+        // EnviaFotoProduto(Result, Base64Imagem);
+        // end;
+
+        DadosExtra := Conexao.CriaQRY;
+        DadosExtraItem := Conexao.CriaQRY;
+        try
+          // Seleciona adicionais personalizados do produto
+          DadosExtra.SQL.Text :=
+            'select * from pro_adi_personalizado where id_produto = :produto';
+          DadosExtra.ParamByName('produto').AsInteger := Codigo;
+          DadosExtra.Open;
+
+          if DadosExtra.RecordCount > 0 then
+          begin
+            while not DadosExtra.Eof do
+            begin
+              if DadosExtra.FieldByName('id_site').IsNull then
+              begin
+                DadosExtra.Edit;
+                DadosExtra.FieldByName('id_site').AsInteger := 0;
+              end;
+
+              CodigoExtra := InserirUpdate('ws_adicionais_cat', UserID.ToString,
+                ['id', 'user_id', 'pay', 'img_cat', 'id_itens', 'id_cat',
+                'name_adicionais_cat', 'minimo', 'amount'],
+                [DadosExtra.FieldByName('id_site').AsWideString,
+                UserID.ToString, '1', '', Result.ToString,
+                DadosExtra.FieldByName('id_site').AsWideString,
+                DadosExtra.FieldByName('descricao').AsWideString,
+                DadosExtra.FieldByName('qtd_minima').AsWideString,
+                DadosExtra.FieldByName('qtd_maxima').AsWideString]);
+
+              Query.SQL.Text :=
+                'update pro_adi_personalizado set modificado_site = 1, id_site = :site where id = :codigo';
+              Query.ParamByName('site').AsInteger := CodigoExtra;
+              Query.ParamByName('codigo').AsInteger :=
+                DadosExtra.FieldByName('id').AsInteger;
+              Query.ExecSQL;
+
+              // Seleciona os itens adicionais personalizados
+              // DadosExtraItem.SQL.Text :=
+              // 'SELECT * FROM pro_adi_personalizado_sabores where id_pro_adi_personalizado = :codigo';
+              DadosExtraItem.SQL.Text :=
+                'SELECT pads.*, pad.id_site as codigo_grupo FROM pro_adi_personalizado_sabores as pads join pro_adi_personalizado as pad on pad.id = pads.id_pro_adi_personalizado where id_pro_adi_personalizado = :codigo';
+
+              DadosExtraItem.ParamByName('codigo').AsInteger :=
+                DadosExtra.FieldByName('id').AsInteger;
+              DadosExtraItem.Open;
+
+              if DadosExtraItem.RecordCount > 0 then
+              begin
+                while not DadosExtraItem.Eof do
+                begin
+                  Codigo := InserirUpdate('ws_adicionais_itens',
+                    UserID.ToString, ['id_adicionais', 'user_id',
+                    'categorias_adicional', 'id_adicionais_cat',
+                    'medida_adicional', 'nome_adicional', 'valor_adicional',
+                    'status_adicional', 'descricao'],
+                    [DadosExtraItem.FieldByName('id_site').AsWideString,
+                    UserID.ToString, DadosExtra.FieldByName('id_site')
+                    .AsWideString, CodigoExtra.ToString, 'UN',
+                    DadosExtraItem.FieldByName('nome').AsWideString,
+                    DadosExtraItem.FieldByName('valor').AsWideString,
+                    DadosExtraItem.FieldByName('ativo').AsWideString,
+                    DadosExtraItem.FieldByName('descricao').AsWideString]);
+
+                  Query.SQL.Text :=
+                    'update pro_adi_personalizado_sabores set modificado_site = 1, id_site = :site where id = :codigo';
+                  Query.ParamByName('site').AsInteger := Codigo;
+                  Query.ParamByName('codigo').AsInteger :=
+                    DadosExtraItem.FieldByName('id').AsInteger;
+                  Query.ExecSQL;
+
+                  DadosExtraItem.Next;
+                end;
+              end;
+
+              DadosExtra.Next;
+            end;
+          end;
+        finally
+          DadosExtra.Free;
+          DadosExtraItem.Free;
+        end;
+      finally
+        Query.Free;
+      end;
+    end;
+
+    SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, UserID);
+    Dados.Free;
+    Conexao.Free;
+
+  except
+    on e: exception do
+    begin
+      ShowMessage(e.Message)
+    end;
+  end;
+
+end;
+
+procedure TfrmProdutoSite.FormCreate(Sender: TObject);
+begin
+
+  if ParamCount > 0 then
+  begin
+    // Memo1.Lines.Add('Parâmetro recebido: ' + ParamStr(1));
+    try
+      Produto := ParamStr(1).ToInteger();
+      UserID := ParamStr(2).ToInteger();
+      EnviaProduto(Produto);
+    except
+
+    end;
+  end
+  else
+  begin
+    tClose.Enabled := True;
+  end;
+
+end;
+
+procedure TfrmProdutoSite.tCloseTimer(Sender: TObject);
+begin
+   Application.Terminate;
+end;
+
+procedure TfrmProdutoSite.tMinimizaTimer(Sender: TObject);
+begin
+  // tMinimiza.Enabled := false;
+  // self.Hide();
+  // self.WindowState := wsMinimized;
+end;
+
+end.

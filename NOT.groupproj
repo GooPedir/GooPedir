@@ -24,6 +24,9 @@
         <Projects Include="back-end\pedido\psGoopedir.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\balanca\balanca.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -95,14 +98,23 @@
     <Target Name="psGoopedir:Make">
         <MSBuild Projects="back-end\pedido\psGoopedir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="balanca">
+        <MSBuild Projects="back-end\balanca\balanca.dproj"/>
+    </Target>
+    <Target Name="balanca:Clean">
+        <MSBuild Projects="back-end\balanca\balanca.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="balanca:Make">
+        <MSBuild Projects="back-end\balanca\balanca.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;ImpressaoGooPedir;ServicosGoopedir;ProdutoGoopedir;psGoopedir"/>
+        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;ImpressaoGooPedir;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;ImpressaoGooPedir:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean"/>
+        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;ImpressaoGooPedir:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;ImpressaoGooPedir:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make"/>
+        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;ImpressaoGooPedir:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -41,11 +41,7 @@ begin
       except
         on E: Exception do
         begin
-          TThread.Synchronize(nil,
-            procedure
-            begin
-              //Writeln('Erro ao executar a procedure: ' + E.Message);
-            end);
+
             LogThread('TDadosWhatsappAPI','Erro: '+E.message);
         end;
       end;

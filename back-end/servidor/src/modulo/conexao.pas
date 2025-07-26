@@ -43,6 +43,7 @@ type
     FTimer: TTimer;
     FLastActivityTime: TDateTime;
     FNome: String;
+    ErrorGerado: String;
   public
     constructor Create(Nome: String);
 
@@ -69,8 +70,8 @@ type
     function GetAll(Tabela: String): String;
     function GetParametro(Campo: String): Variant;
     function NomeBanco: String;
-    function Usuario : String;
-    function Senha : String;
+    function Usuario: String;
+    function Senha: String;
 
     function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
 
@@ -82,6 +83,7 @@ type
     function GenerateUUID: string;
     procedure DisconectBanco;
     procedure ConectaBanco(Banco: String);
+    function LoadMemory(Dados : TFDMemTable): TFDMemTable;
 
   end;
 
@@ -177,14 +179,14 @@ begin
 
   SQL := TStringlist.Create;
   Zerar;
-  // try
-  // CodigoConexao := GerarID('conexao', 'id');
-  // except
+  try
+    CodigoConexao := GerarID('conexao', 'id');
+  except
+
+  end;
   //
-  // end;
-  //
-  // ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-  // CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
@@ -200,7 +202,7 @@ end;
 
 destructor TConexao.Destroy;
 begin
-  // ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
+  ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
 
   DataModulo.Banco.Connected := False;
 
@@ -742,6 +744,13 @@ begin
 
 end;
 
+function TConexao.LoadMemory(Dados: TFDMemTable): TFDMemTable;
+begin
+if not Assigned(Dados) then
+Dados := TFDMemTable.Create(nil);
+Dados.LoadFromJSON(ConsultaSQL);
+end;
+
 function TConexao.MapaErro(Erro: String): String;
 begin
   Erro := UpperCase(Erro);
@@ -839,6 +848,7 @@ begin
     on E: Exception do
     begin
       GerarLog(E.message);
+      Zerar;
 
       Result := False;
     end;
@@ -893,7 +903,7 @@ end;
 
 function TConexao.Senha: String;
 begin
-     Result := LowerCase(DataModulo.Banco.Params.Password);
+  Result := LowerCase(DataModulo.Banco.Params.Password);
 end;
 
 function TConexao.Servidor: String;
@@ -940,7 +950,7 @@ end;
 
 function TConexao.Usuario: String;
 begin
-   Result := LowerCase(DataModulo.Banco.Params.UserName);
+  Result := LowerCase(DataModulo.Banco.Params.UserName);
 end;
 
 function TConexao.ValidaVersao: string;

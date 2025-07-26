@@ -42,8 +42,7 @@ begin
       Query.FieldByName('espacamento').AsWideString,
       Query.FieldByName('fonte_nome').AsWideString,
       Query.FieldByName('fonte_descricao').AsWideString,
-      Query.FieldByName('cor_fundo').AsWideString, Query.FieldByName('cor_nome')
-      .AsWideString, Query.FieldByName('cor_descricao').AsWideString,Query.FieldByName('espacamento').AsString, Query.FieldByName('opacidade').AsString,Query.FieldByName('local').AsString,Query.FieldByName('pizza').AsString]);
+      Query.FieldByName('cor_fundo').AsWideString, Query.FieldByName('cor_nome').AsWideString, Query.FieldByName('cor_descricao').AsWideString,Query.FieldByName('espacamento').AsString, Query.FieldByName('opacidade').AsString,Query.FieldByName('local').AsString,Query.FieldByName('pizza').AsString]);
 
     if Result > 0 then
     begin
@@ -123,14 +122,13 @@ end;
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
 var
   Conexao: TConexao;
+  url : String;
 begin
 
- EnviaImagem(Codigo.ToString,Base64);
+ url := EnviaImagem(Codigo.ToString,Base64);
   Conexao := TConexao.Create('uSite');
-  Conexao.SQL.Add('update produto set caminho_imagem = concat(' +
-    QuotedStr('https://fotos.goopedir.com/fotos/') +
-    ',TO_BASE64(:img)) where id_site = :codigo');
-  Conexao.Parametros('img', codigo);
+  Conexao.SQL.Add('update produto set caminho_imagem = :img, foto_ifood = :img where id_site = :codigo');
+  Conexao.Parametros('img', url);
   Conexao.Parametros('codigo', codigo);
   Conexao.ExecuteSQL;
   Conexao.Free;

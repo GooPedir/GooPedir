@@ -66,8 +66,10 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create('nfce');
-  conexao.SQL.Add('SELECT tipo_pagamento.descricao, TRUNCATE(caixa_movimento.valor, 2) as valor FROM caixa_movimento');
-  conexao.SQL.Add('join tipo_pagamento on tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento');
+  conexao.SQL.Add
+    ('SELECT tipo_pagamento.descricao, TRUNCATE(caixa_movimento.valor, 2) as valor FROM caixa_movimento');
+  conexao.SQL.Add
+    ('join tipo_pagamento on tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento');
   conexao.SQL.Add('where id_pedido = :codigo and caixa_movimento.tipo = 1');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -128,7 +130,9 @@ begin
   conexao.ExecuteSQL;
 
   // conexao.SQL.Add('SELECT * FROM pedido WHERE nfce_emite = 1 AND status > 0  AND data_pedido > DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) and codigo_pedido_dia > 0');
-  conexao.SQL.Add('SELECT * FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '+ QuotedStr('2024-09-01') + ' and codigo_pedido_dia > 0');
+  conexao.SQL.Add
+    ('SELECT * FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '
+    + QuotedStr('2024-09-01') + ' and codigo_pedido_dia > 0');
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -139,6 +143,7 @@ var
   conexao: TConexao;
   DadosNF: TFDMemTable;
   Codigo: Integer;
+  JSON: TJSONObject;
 begin
   DadosNF := TFDMemTable.Create(nil);
   conexao := TConexao.Create('nfce');
@@ -151,22 +156,30 @@ begin
   conexao.Parametros('nfce_chave', Req.Params['chave']);
   DadosNF.LoadFromJSON(conexao.ConsultaSQL);
 
-  if DadosNF.RecordCount > 0 then
-  begin
-    conexao.SQL.Add('delete from pedido_nfce where id_pedido = :pedido');
-    conexao.Parametros('pedido', DadosNF.FieldByName('codigo').AsInteger);
-    conexao.ExecuteSQL;
+  JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
 
-    Codigo := conexao.GerarID('pedido_nfce', 'id');
-    conexao.SQL.Add
-      ('insert into pedido_nfce (id,id_pedido,chave,protocolo,caminho) values (:id,:id_pedido,:chave,:protocolo,:caminho)');
-    conexao.Parametros('id', Codigo);
-    conexao.Parametros('id_pedido', DadosNF.FieldByName('codigo').AsInteger);
-    conexao.Parametros('chave', DadosNF.FieldByName('nfce_chave').AsString);
-    conexao.Parametros('protocolo', DadosNF.FieldByName('nfce_protocolo')
-      .AsString);
-    conexao.Parametros('caminho', Req.Body);
-    conexao.ExecuteSQL;
+  if Assigned(JSON) then
+  begin
+
+    if DadosNF.RecordCount > 0 then
+    begin
+      conexao.SQL.Add('delete from pedido_nfce where id_pedido = :pedido');
+      conexao.Parametros('pedido', DadosNF.FieldByName('codigo').AsInteger);
+      conexao.ExecuteSQL;
+
+      Codigo := conexao.GerarID('pedido_nfce', 'id');
+      conexao.SQL.Add
+        ('insert into pedido_nfce (id,id_pedido,chave,protocolo,caminho,path) values (:id,:id_pedido,:chave,:protocolo,:caminho,:path)');
+      conexao.Parametros('id', Codigo);
+      conexao.Parametros('id_pedido', DadosNF.FieldByName('codigo').AsInteger);
+      conexao.Parametros('chave', DadosNF.FieldByName('nfce_chave').AsString);
+      conexao.Parametros('protocolo', DadosNF.FieldByName('nfce_protocolo')
+        .AsString);
+      conexao.Parametros('path', JSON.GetValue('path').Value);
+      conexao.Parametros('caminho', JSON.GetValue('caminho').Value);
+      conexao.ExecuteSQL;
+
+    end;
 
   end;
 
@@ -180,6 +193,8 @@ procedure DoPostEmissaoNFCe(Req: THorseRequest; Res: THorseResponse;
 var
   conexao: TConexao;
   Chave: String;
+
+  path: String;
 begin
   conexao := TConexao.Create('nfce');
 
@@ -190,21 +205,42 @@ begin
     conexao.Parametros('codigo', Req.Params['codigo']);
     Chave := conexao.FieldByName('nfce_chave');
     DeletarNFCe(frmServidor.Configuracoes.FieldByName('cnpj').AsString, Chave);
-  end else begin
-    conexao.SQL.Add('select 0, nfce_imprimir from pedido where codigo = :codigo');
+  end
+  else
+  begin
+    frmServidor.memErrosNFCE.Close;
+    frmServidor.memErrosNFCE.Open;
+
+    if frmServidor.memErrosNFCE.RecordCount > 0 then
+    begin
+      if frmServidor.memErrosNFCE.Locate('pedido', Req.Params['codigo']) then
+      begin
+        frmServidor.memErrosNFCE.Delete;
+        frmServidor.memErrosNFCE.Last;
+      end;
+    end;
+
+    conexao.SQL.Add
+      ('select 0, nfce_imprimir from pedido where codigo = :codigo');
     conexao.Parametros('codigo', Req.Params['codigo']);
     try
-    if conexao.FieldByName('nfce_imprimir') = '1' then
-    begin
-    conexao.SQL.Add('insert into impressao_pedido_nfce (id_pedido) values (:codigo)');
-    conexao.Parametros('codigo', Req.Params['codigo']);
-    conexao.ExecuteSQL;
-    end;
+      if conexao.FieldByName('nfce_imprimir') = '1' then
+      begin
+        conexao.SQL.Add
+          ('insert into impressao_pedido_nfce (id_pedido) values (:codigo)');
+        conexao.Parametros('codigo', Req.Params['codigo']);
+        conexao.ExecuteSQL;
+      end;
 
     except
 
     end;
+
   end;
+
+
+
+  // alter table pedido_nfce add path varchar(255);
 
   conexao.SQL.Add
     ('update pedido set nfce_hora = current_time, nfce_data = current_date, nfce_chave = :nfce_chave, nfce_protocolo = :nfce_protocolo, nfce_ambiente = :nfce_ambiente, nfce_numero = :nfce_numero, nfce_emite = 2 where codigo = :codigo');
@@ -213,6 +249,7 @@ begin
   conexao.Parametros('nfce_protocolo', Req.Params['protocolo']);
   conexao.Parametros('nfce_ambiente', Req.Params['ambiente']);
   conexao.Parametros('nfce_numero', Req.Params['numero']);
+
   conexao.ExecuteSQL;
   conexao.Free;
 
@@ -320,6 +357,10 @@ begin
   begin
     conexao := TConexao.Create('nfce');
     conexao.SQL.Add
+      ('delete from impressao_pedido_nfce where id_pedido = :codigo');
+    conexao.Parametros('codigo', Objec.GetValue('id').Value);
+    conexao.ExecuteSQL;
+    conexao.SQL.Add
       ('insert into impressao_pedido_nfce (id_pedido) values (:codigo)');
     conexao.Parametros('codigo', Objec.GetValue('id').Value);
     conexao.ExecuteSQL;
@@ -398,7 +439,8 @@ begin
   THorse.Get('/nfce/numero', DoGetNumeroNota);
   THorse.Get('/nfce/lote', DoGetNumeroLote);
   THorse.Get('/nfce/emissao', DOGetNFCeEmissao);
-  THorse.Post('/nfce/emissao/:codigo/:numero/:chave/:protocolo/:ambiente',DoPostEmissaoNFCe);
+  THorse.Post('/nfce/emissao/:codigo/:numero/:chave/:protocolo/:ambiente',
+    DoPostEmissaoNFCe);
 
   THorse.Get('/nfce/contabilidade', DoGetNFceContabilidade);
   THorse.Post('/nfce/contabilidade/:status/:msg', DoPostNFceContabilidade);

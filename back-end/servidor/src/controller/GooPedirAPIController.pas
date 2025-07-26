@@ -61,7 +61,8 @@ begin
     FRequisicao.AddHeader('client-id', FClientID);
     FRequisicao.AddHeader('client-security', FClientSecret);
     FRequisicao.Execute;
-    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno) as TJSONObject;
+    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)
+      as TJSONObject;
 
     FUserID := JsonObject.GetValue<Integer>('user');
     FName := JsonObject.GetValue<String>('name');
@@ -381,11 +382,11 @@ begin
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
-//      JsonCampo := TJSONObject.Create;
-//      JsonCampo.AddPair('campo', 'localizacao_gp');
-//      JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
-//      JsonCampo.AddPair('type', 'string');
-//      JsonCampos.AddElement(JsonCampo);
+      // JsonCampo := TJSONObject.Create;
+      // JsonCampo.AddPair('campo', 'localizacao_gp');
+      // JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
+      // JsonCampo.AddPair('type', 'string');
+      // JsonCampos.AddElement(JsonCampo);
 
       Qry.SQL.Add('select mensagem_inicio from dados_whatsapp');
       Qry.Open;
@@ -434,11 +435,22 @@ begin
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
-
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_titulo_produtos');
       JsonCampo.AddPair('valor', Dados.FieldByName('cor_fonte').AsString);
       JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'lgn');
+      JsonCampo.AddPair('valor', Dados.FieldByName('longitude').AsString);
+      JsonCampo.AddPair('type', 'float');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'lat');
+      JsonCampo.AddPair('valor', Dados.FieldByName('latitude').AsString);
+      JsonCampo.AddPair('type', 'float');
       JsonCampos.AddElement(JsonCampo);
 
       JSonBody.AddPair('campos', JsonCampos);

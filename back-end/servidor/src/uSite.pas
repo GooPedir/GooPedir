@@ -75,10 +75,7 @@ var
   conexao: TConexao;
   Dados: TFDQuery;
 begin
-  prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
-  ShellExecute(0, 'open', PChar(prog),
-    PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,
-    SW_SHOWNORMAL);
+
 
   if Base64Imagem <> '' then
   begin
@@ -92,8 +89,11 @@ begin
       EnviaFotoProduto(Dados.FieldByName('id_site').AsInteger, Base64Imagem);
     end;
   end;
+  prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
+  ShellExecute(0, 'open', PChar(prog),
+    PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,
+    SW_SHOWNORMAL);
 
-  frmServidor.AtualizaCacheSite;
 end;
 
 procedure EnviaFotoProduto(codigo: Integer; Base64: String);

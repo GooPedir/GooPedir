@@ -45,6 +45,8 @@
     <Transaction>2025/03/11 23:23:08.000.164,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\uControllerSite.pas</Transaction>
     <Transaction>2025/03/14 14:10:23.000.499,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
     <Transaction>2025/03/14 14:10:42.000.127,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\uNewConsultas.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/06/30 22:29:56.000.600,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/06/30 22:30:13.000.622,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\uAtualizacaoSite.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="src"/>
@@ -55,6 +57,7 @@
     <File Path="src\controller\uDadosWhatsapp.pas"/>
     <File Path="src\controller\uControlerProduto.pas"/>
     <File Path="src\controller\uControllerSite.pas"/>
+    <File Path="src\controller\uAtualizacaoSite.pas"/>
     <File Path="src\importacao"/>
     <File Path="src\importacao\uToPedindo.pas"/>
     <File Path="src\modulo"/>

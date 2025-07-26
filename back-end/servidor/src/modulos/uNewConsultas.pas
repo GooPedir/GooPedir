@@ -109,8 +109,8 @@ begin
     SQLLocal := SQL;
     SQLLocal := StringReplace(SQLLocal, 'from pedido ', 'from pedido_' + MesAno
       + ' ', [rfReplaceAll]);
-    SQLLocal := StringReplace(SQLLocal, 'join pedido_produtos ',
-      'join pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
+    SQLLocal := StringReplace(SQLLocal, 'join pedido_produtos ','join pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
+    SQLLocal := StringReplace(SQLLocal, 'from pedido_produtos ','from pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
     Result := Result + SQLLocal;
   end;
 

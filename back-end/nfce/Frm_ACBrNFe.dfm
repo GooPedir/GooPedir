@@ -1520,8 +1520,8 @@ object frmACBrNFe: TfrmACBrNFe
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
     DANFE = ACBrNFeDANFeESCPOS1
-    Left = 330
-    Top = 239
+    Left = 370
+    Top = 247
   end
   object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
     MostraStatus = False
@@ -1547,8 +1547,8 @@ object frmACBrNFe: TfrmACBrNFe
     ExibeTotalTributosItem = True
     ImprimeDescPorPercentual = True
     ExibeCampoFatura = False
-    Left = 435
-    Top = 239
+    Left = 475
+    Top = 247
   end
   object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
     Impressora = 'Print ID'
@@ -1586,8 +1586,8 @@ object frmACBrNFe: TfrmACBrNFe
     FonteLinhaItem.Height = -9
     FonteLinhaItem.Name = 'Lucida Console'
     FonteLinhaItem.Style = []
-    Left = 618
-    Top = 247
+    Left = 658
+    Top = 255
   end
   object ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS
     Logo = 
@@ -1617,8 +1617,8 @@ object frmACBrNFe: TfrmACBrNFe
     TipoDANFE = tiSimplificado
     FormularioContinuo = True
     PosPrinter = ACBrPosPrinter1
-    Left = 593
-    Top = 327
+    Left = 633
+    Top = 335
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppCustomPos
@@ -1632,8 +1632,8 @@ object frmACBrNFe: TfrmACBrNFe
     ConfigQRCode.LarguraModulo = 2
     ConfigQRCode.ErrorLevel = 0
     LinhasEntreCupons = 5
-    Left = 409
-    Top = 287
+    Left = 449
+    Top = 295
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -1643,8 +1643,8 @@ object frmACBrNFe: TfrmACBrNFe
     Attempts = 3
     DefaultCharset = UTF_8
     IDECharset = CP1252
-    Left = 330
-    Top = 287
+    Left = 370
+    Top = 295
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-nfe.XML'
@@ -1658,8 +1658,8 @@ object frmACBrNFe: TfrmACBrNFe
   object ACBrIntegrador1: TACBrIntegrador
     PastaInput = 'C:\Integrador\Input\'
     PastaOutput = 'C:\Integrador\Output\'
-    Left = 334
-    Top = 342
+    Left = 374
+    Top = 350
   end
   object ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4
     Sistema = 'GooPedir - www.goopedir.com'
@@ -1683,8 +1683,8 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     FormularioContinuo = True
-    Left = 568
-    Top = 400
+    Left = 608
+    Top = 408
   end
   object iRequisicao1: iRequisicao
     eTAG = False

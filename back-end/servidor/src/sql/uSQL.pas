@@ -1135,8 +1135,56 @@ begin
         ExecultaSQL(SQL);
 
       end;
-      104: begin
-        ExecultaSQL('ALTER TABLE tipo_pagamento CHANGE COLUMN tipo_chave_pix tipo_chave_pix VARCHAR(50) NULL ;');
+    104:
+      begin
+        ExecultaSQL
+          ('ALTER TABLE tipo_pagamento CHANGE COLUMN tipo_chave_pix tipo_chave_pix VARCHAR(50) NULL ;');
+      end;
+    105:
+      begin
+        ExecultaSQL
+          ('ALTER TABLE tipo_pagamento CHANGE COLUMN tipo_chave_pix tipo_chave_pix VARCHAR(255)');
+        ExecultaSQL
+          ('ALTER TABLE pedido_produtos ADD COLUMN usuario_deletado INT NULL AFTER datahora_deletado;');
+        ExecultaSQL
+          ('ALTER TABLE pedido_produtos ADD COLUMN usuario_pedido INT NULL AFTER datahora_deletado;');
+        ExecultaSQL('ALTER TABLE pedido ADD COLUMN usuario_deletado INT NULL');
+
+      end;
+    106:
+      begin
+
+        SQL := 'CREATE TABLE balanca ( ';
+        SQL := SQL + '    id INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '    modelo VARCHAR(100),';
+        SQL := SQL + '    descricao VARCHAR(255),';
+        SQL := SQL + '    protocolo VARCHAR(100),';
+        SQL := SQL + '    porta VARCHAR(50),';
+        SQL := SQL + '    peso DECIMAL(10, 3),';
+        SQL := SQL + '    tara DECIMAL(10, 3),';
+        SQL := SQL + '    ultima_sinc TIMESTAMP NULL DEFAULT NULL';
+        SQL := SQL + ');';
+        ExecultaSQL(SQL);
+        ExecultaSQL('alter table produto add referencia varchar(50);');
+      end;
+    107:
+      begin
+        ExecultaSQL('alter table produto add tipo_produto_site varchar(50)');
+        ExecultaSQL('alter table usuario add percentual float default 0;');
+      end;
+    108:
+      begin
+        ExecultaSQL('alter table usuario add impressora integer default 0');
+        ExecultaSQL('alter table pedido_nfce add path varchar(2555);');
+      end;
+      109: begin
+        ExecultaSQL('delete from impressao_pedido_nfce');
+        ExecultaSQL('ALTER TABLE `impressao_pedido_nfce` CHANGE COLUMN `id_pedido` `id_pedido` INT NOT NULL , ADD UNIQUE INDEX `id_pedido_UNIQUE` (`id_pedido` ASC) VISIBLE;');
+        ExecultaSQL('alter table produto add tiposite varchar(2555);');
+      end;
+      110: begin
+        ExecultaSQL('alter table pro_adi_personalizado add categoria integer');
+        ExecultaSQL('alter table produto add tiposite integer');
       end;
     99999999:
       begin
@@ -1151,7 +1199,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '104';
+  Result := '110';
 end;
 
 end.

@@ -47,6 +47,7 @@ begin
     except
 
     end;
+    Valor := StringReplace(Valor, '"', '', [rfReplaceAll]);
 
     if I = 0 then
     begin

@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Realease</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -223,6 +223,7 @@
         <DCCReference Include="src\controller\uControlerProduto.pas"/>
         <DCCReference Include="src\controller\uControllerSite.pas"/>
         <DCCReference Include="src\modulos\uNewConsultas.pas"/>
+        <DCCReference Include="src\controller\uAtualizacaoSite.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

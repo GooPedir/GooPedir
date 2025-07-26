@@ -1,7 +1,7 @@
 object dmImpressaoV2: TdmImpressaoV2
   OnCreate = C
   Height = 822
-  Width = 1641
+  Width = 1896
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (
@@ -127,7 +127,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -136,7 +136,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -459,7 +459,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Scaled 80mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -468,7 +468,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -1283,7 +1283,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -1292,7 +1292,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1489,7 +1489,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppCozinha
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '56mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Normal 58mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -1498,7 +1498,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 120
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2350,7 +2350,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -2359,7 +2359,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2556,7 +2556,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppCozinha
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Scaled 80mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -2565,7 +2565,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2980,7 +2980,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = '48mm * 3276mm'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -2989,7 +2989,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 262
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5027,7 +5027,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -5036,7 +5036,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5410,7 +5410,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppComputado
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Scaled 80mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -5419,7 +5419,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -5647,7 +5647,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 DataPipeline = ppResumo
                 PrinterSetup.BinName = 'Default'
                 PrinterSetup.DocumentName = '80mm'
-                PrinterSetup.PaperName = 'Custom'
+                PrinterSetup.PaperName = 'Scaled 80mm Large'
                 PrinterSetup.PrinterName = 'Default'
                 PrinterSetup.SaveDeviceSettings = True
                 PrinterSetup.mmMarginBottom = 0
@@ -5656,7 +5656,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 PrinterSetup.mmMarginTop = 0
                 PrinterSetup.mmPaperHeight = 4003900
                 PrinterSetup.mmPaperWidth = 80300
-                PrinterSetup.PaperSize = 256
+                PrinterSetup.PaperSize = 124
                 PrinterSetup.DevMode = {
                   4004000044006100720075006D00610020004400520000000000000000000000
                   0000000000000000000000000000000000000000000000000000000000000000
@@ -5884,7 +5884,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       DataPipeline = ppResumoSangria
                       PrinterSetup.BinName = 'Default'
                       PrinterSetup.DocumentName = '80mm'
-                      PrinterSetup.PaperName = 'Custom'
+                      PrinterSetup.PaperName = 'Scaled 80mm Large'
                       PrinterSetup.PrinterName = 'Default'
                       PrinterSetup.SaveDeviceSettings = True
                       PrinterSetup.mmMarginBottom = 0
@@ -5893,7 +5893,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       PrinterSetup.mmMarginTop = 0
                       PrinterSetup.mmPaperHeight = 4003900
                       PrinterSetup.mmPaperWidth = 80300
-                      PrinterSetup.PaperSize = 256
+                      PrinterSetup.PaperSize = 124
                       PrinterSetup.DevMode = {
                         4004000044006100720075006D00610020004400520000000000000000000000
                         0000000000000000000000000000000000000000000000000000000000000000
@@ -6622,7 +6622,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -6631,7 +6631,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8771,7 +8771,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -8780,7 +8780,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 119
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9238,7 +9238,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -9247,7 +9247,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 119
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10030,7 +10030,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -10039,7 +10039,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10752,7 +10752,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -10761,7 +10761,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11158,7 +11158,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11167,7 +11167,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11413,7 +11413,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11422,7 +11422,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11847,7 +11847,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -11856,7 +11856,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -13765,7 +13765,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-    PrinterSetup.PaperName = '48mm * 3276mm'
+    PrinterSetup.PaperName = 'Custom'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -13774,7 +13774,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 262
+    PrinterSetup.PaperSize = 256
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -14198,7 +14198,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppProduto
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = 'PDV #GooPedir v1.3.15'
-          PrinterSetup.PaperName = '48mm * 3276mm'
+          PrinterSetup.PaperName = 'Custom'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 0
@@ -14207,7 +14207,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 3275900
           PrinterSetup.mmPaperWidth = 48000
-          PrinterSetup.PaperSize = 262
+          PrinterSetup.PaperSize = 256
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -14672,7 +14672,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Small'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -14681,7 +14681,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 123
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -14928,7 +14928,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -14937,7 +14937,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -15260,7 +15260,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Scaled 80mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -15269,7 +15269,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -15991,7 +15991,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 0
@@ -16000,7 +16000,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16593,7 +16593,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '80mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Scaled 80mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -16602,7 +16602,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 124
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16925,7 +16925,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '80mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Scaled 80mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -16934,7 +16934,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 124
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -17662,188 +17662,11 @@ object dmImpressaoV2: TdmImpressaoV2
     Left = 160
     Top = 296
   end
-  object ACBrIntegrador1: TACBrIntegrador
-    PastaInput = 'C:\Integrador\Input\'
-    PastaOutput = 'C:\Integrador\Output\'
-    Left = 1286
-    Top = 126
-  end
-  object ACBrMail1: TACBrMail
-    Host = '127.0.0.1'
-    Port = '25'
-    SetSSL = False
-    SetTLS = False
-    Attempts = 3
-    DefaultCharset = UTF_8
-    IDECharset = CP1252
-    Left = 1282
-    Top = 71
-  end
-  object ACBrNFe1: TACBrNFe
-    MAIL = ACBrMail1
-    Configuracoes.Geral.SSLLib = libNone
-    Configuracoes.Geral.SSLCryptLib = cryNone
-    Configuracoes.Geral.SSLHttpLib = httpNone
-    Configuracoes.Geral.SSLXmlSignLib = xsNone
-    Configuracoes.Geral.FormaEmissao = teContingencia
-    Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
-    Configuracoes.Geral.VersaoDF = ve200
-    Configuracoes.Geral.AtualizarXMLCancelado = True
-    Configuracoes.Geral.VersaoQRCode = veqr000
-    Configuracoes.Arquivos.OrdenacaoPath = <>
-    Configuracoes.WebServices.UF = 'SP'
-    Configuracoes.WebServices.AguardarConsultaRet = 15000
-    Configuracoes.WebServices.AjustaAguardaConsultaRet = True
-    Configuracoes.WebServices.TimeOut = 20000
-    Configuracoes.WebServices.QuebradeLinha = '|'
-    Configuracoes.RespTec.IdCSRT = 0
-    DANFE = ACBrNFeDANFeESCPOS1
-    Left = 1282
-    Top = 23
-  end
   object ACBrValidador1: TACBrValidador
     TipoDocto = docGTIN
     IgnorarChar = './-'
     Left = 1192
     Top = 226
-  end
-  object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
-    MostraStatus = False
-    Sistema = 'GooPedir'
-    Usuario = 'ACBr'
-    MargemInferior = 0.700000000000000000
-    MargemSuperior = 0.700000000000000000
-    MargemEsquerda = 0.700000000000000000
-    MargemDireita = 0.700000000000000000
-    ExpandeLogoMarcaConfig.Altura = 0
-    ExpandeLogoMarcaConfig.Esquerda = 0
-    ExpandeLogoMarcaConfig.Topo = 0
-    ExpandeLogoMarcaConfig.Largura = 0
-    ExpandeLogoMarcaConfig.Dimensionar = False
-    ExpandeLogoMarcaConfig.Esticar = True
-    CasasDecimais.Formato = tdetInteger
-    CasasDecimais.qCom = 4
-    CasasDecimais.vUnCom = 4
-    CasasDecimais.MaskqCom = '###,###,###,##0.00'
-    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
-    CasasDecimais.Aliquota = 2
-    CasasDecimais.MaskAliquota = ',0.00'
-    ExibeTotalTributosItem = True
-    ImprimeDescPorPercentual = True
-    ExibeCampoFatura = False
-    Left = 1387
-    Top = 23
-  end
-  object ACBrPosPrinter1: TACBrPosPrinter
-    Modelo = ppCustomPos
-    Porta = 'Default'
-    EspacoEntreLinhas = 30
-    ConfigBarras.MostrarCodigo = False
-    ConfigBarras.LarguraLinha = 0
-    ConfigBarras.Altura = 0
-    ConfigBarras.Margem = 0
-    ConfigQRCode.Tipo = 1
-    ConfigQRCode.LarguraModulo = 2
-    ConfigQRCode.ErrorLevel = 0
-    ConfigLogo.IgnorarLogo = True
-    LinhasEntreCupons = 5
-    Left = 1385
-    Top = 79
-  end
-  object ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4
-    Sistema = 'GooPedir - www.goopedir.com'
-    Usuario = 'Allan'
-    Site = 'www.goopedir.com'
-    MargemInferior = 8.000000000000000000
-    MargemSuperior = 8.000000000000000000
-    MargemEsquerda = 6.000000000000000000
-    MargemDireita = 5.099999999999999000
-    ExpandeLogoMarcaConfig.Altura = 0
-    ExpandeLogoMarcaConfig.Esquerda = 0
-    ExpandeLogoMarcaConfig.Topo = 0
-    ExpandeLogoMarcaConfig.Largura = 0
-    ExpandeLogoMarcaConfig.Dimensionar = False
-    ExpandeLogoMarcaConfig.Esticar = True
-    CasasDecimais.Formato = tdetInteger
-    CasasDecimais.qCom = 2
-    CasasDecimais.vUnCom = 2
-    CasasDecimais.MaskqCom = ',0.00'
-    CasasDecimais.MaskvUnCom = ',0.00'
-    CasasDecimais.Aliquota = 2
-    CasasDecimais.MaskAliquota = ',0.00'
-    FormularioContinuo = True
-    Left = 1520
-    Top = 184
-  end
-  object ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS
-    Sistema = 'GooPedir - www.goopedir.com'
-    Usuario = 'Allan'
-    Site = 'www.goopedir.com'
-    MargemInferior = 0.800000000000000000
-    MargemSuperior = 0.800000000000000000
-    MargemEsquerda = 0.600000000000000000
-    MargemDireita = 0.510000000000000000
-    ExpandeLogoMarcaConfig.Altura = 0
-    ExpandeLogoMarcaConfig.Esquerda = 0
-    ExpandeLogoMarcaConfig.Topo = 0
-    ExpandeLogoMarcaConfig.Largura = 0
-    ExpandeLogoMarcaConfig.Dimensionar = False
-    ExpandeLogoMarcaConfig.Esticar = False
-    CasasDecimais.Formato = tdetInteger
-    CasasDecimais.qCom = 4
-    CasasDecimais.vUnCom = 4
-    CasasDecimais.MaskqCom = '###,###,###,##0.00'
-    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
-    CasasDecimais.Aliquota = 2
-    CasasDecimais.MaskAliquota = ',0.00'
-    ACBrNFe = ACBrNFe1
-    TipoDANFE = tiSimplificado
-    ImprimeTotalLiquido = True
-    ImprimeXPedNItemPed = True
-    ImprimeQRCodeLateral = True
-    FormularioContinuo = True
-    PosPrinter = ACBrPosPrinter1
-    Left = 1545
-    Top = 111
-  end
-  object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
-    Impressora = 'Print ID'
-    MostraPreview = False
-    MostraStatus = False
-    UsaSeparadorPathPDF = True
-    Sistema = 'GooPedir - www.goopedir.com'
-    Usuario = 'Allan'
-    Site = 'www.goopedir.com'
-    MargemInferior = 0.800000000000000000
-    MargemSuperior = 0.800000000000000000
-    MargemEsquerda = 0.300000000000000000
-    MargemDireita = 0.300000000000000000
-    ExpandeLogoMarcaConfig.Altura = 0
-    ExpandeLogoMarcaConfig.Esquerda = 0
-    ExpandeLogoMarcaConfig.Topo = 0
-    ExpandeLogoMarcaConfig.Largura = 0
-    ExpandeLogoMarcaConfig.Dimensionar = False
-    ExpandeLogoMarcaConfig.Esticar = True
-    CasasDecimais.Formato = tdetInteger
-    CasasDecimais.qCom = 2
-    CasasDecimais.vUnCom = 2
-    CasasDecimais.MaskqCom = '###,###,###,##0.00'
-    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
-    CasasDecimais.Aliquota = 2
-    CasasDecimais.MaskAliquota = ',0.00'
-    TipoDANFE = tiNFCe
-    ImprimeTotalLiquido = True
-    ImprimeNomeFantasia = True
-    ImprimeXPedNItemPed = True
-    ImprimeQRCodeLateral = True
-    FormularioContinuo = True
-    FonteLinhaItem.Charset = DEFAULT_CHARSET
-    FonteLinhaItem.Color = clWindowText
-    FonteLinhaItem.Height = -9
-    FonteLinhaItem.Name = 'Lucida Console'
-    FonteLinhaItem.Style = []
-    Left = 1570
-    Top = 31
   end
   object COMANDA56MM: TppReport
     AutoStop = False
@@ -17851,7 +17674,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PassSetting = psTwoPass
     PrinterSetup.BinName = 'Default'
     PrinterSetup.DocumentName = '56mm'
-    PrinterSetup.PaperName = 'Custom'
+    PrinterSetup.PaperName = 'Normal 58mm Large'
     PrinterSetup.PrinterName = 'Default'
     PrinterSetup.SaveDeviceSettings = True
     PrinterSetup.mmMarginBottom = 2540
@@ -17860,7 +17683,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 120
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -17955,8 +17778,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 104
-    Top = 160
+    Left = 40
+    Top = 200
     Version = '21.02'
     mmColumnWidth = 75220
     DataPipelineName = 'ppDados'
@@ -18184,7 +18007,7 @@ object dmImpressaoV2: TdmImpressaoV2
           DataPipeline = ppDados
           PrinterSetup.BinName = 'Default'
           PrinterSetup.DocumentName = '56mm'
-          PrinterSetup.PaperName = 'Custom'
+          PrinterSetup.PaperName = 'Normal 58mm Large'
           PrinterSetup.PrinterName = 'Default'
           PrinterSetup.SaveDeviceSettings = True
           PrinterSetup.mmMarginBottom = 2540
@@ -18193,7 +18016,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 120
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -18793,5 +18616,177 @@ object dmImpressaoV2: TdmImpressaoV2
         UserName = 'Parameter1'
       end
     end
+  end
+  object ACBrNFe1: TACBrNFe
+    Integrador = ACBrIntegrador1
+    Configuracoes.Geral.SSLLib = libNone
+    Configuracoes.Geral.SSLCryptLib = cryNone
+    Configuracoes.Geral.SSLHttpLib = httpNone
+    Configuracoes.Geral.SSLXmlSignLib = xsNone
+    Configuracoes.Geral.FormaEmissao = teContingencia
+    Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.Geral.VersaoDF = ve200
+    Configuracoes.Geral.AtualizarXMLCancelado = True
+    Configuracoes.Geral.VersaoQRCode = veqr000
+    Configuracoes.Arquivos.OrdenacaoPath = <>
+    Configuracoes.WebServices.UF = 'SP'
+    Configuracoes.WebServices.AguardarConsultaRet = 15000
+    Configuracoes.WebServices.AjustaAguardaConsultaRet = True
+    Configuracoes.WebServices.TimeOut = 20000
+    Configuracoes.WebServices.QuebradeLinha = '|'
+    Configuracoes.RespTec.IdCSRT = 0
+    DANFE = ACBrNFeDANFeESCPOS1
+    Left = 722
+    Top = 39
+  end
+  object ACBrMail1: TACBrMail
+    Host = '127.0.0.1'
+    Port = '25'
+    SetSSL = False
+    SetTLS = False
+    Attempts = 3
+    DefaultCharset = UTF_8
+    IDECharset = CP1252
+    Left = 330
+    Top = 287
+  end
+  object ACBrIntegrador1: TACBrIntegrador
+    PastaInput = 'C:\Integrador\Input\'
+    PastaOutput = 'C:\Integrador\Output\'
+    Left = 334
+    Top = 342
+  end
+  object ACBrPosPrinter1: TACBrPosPrinter
+    Modelo = ppEscPosEpson
+    Porta = 'Defalt'
+    EspacoEntreLinhas = 30
+    ConfigBarras.MostrarCodigo = False
+    ConfigBarras.LarguraLinha = 0
+    ConfigBarras.Altura = 0
+    ConfigBarras.Margem = 0
+    ConfigQRCode.Tipo = 1
+    ConfigQRCode.LarguraModulo = 2
+    ConfigQRCode.ErrorLevel = 0
+    LinhasEntreCupons = 5
+    Left = 409
+    Top = 287
+  end
+  object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
+    MostraStatus = False
+    Sistema = 'GooPedir'
+    Usuario = 'ACBr'
+    MargemInferior = 0.700000000000000000
+    MargemSuperior = 0.700000000000000000
+    MargemEsquerda = 0.700000000000000000
+    MargemDireita = 0.700000000000000000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 4
+    CasasDecimais.vUnCom = 4
+    CasasDecimais.MaskqCom = '###,###,###,##0.00'
+    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    ExibeTotalTributosItem = True
+    ImprimeDescPorPercentual = True
+    ExibeCampoFatura = False
+    Left = 651
+    Top = 135
+  end
+  object ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4
+    Sistema = 'GooPedir - www.goopedir.com'
+    Usuario = 'Allan'
+    Site = 'www.goopedir.com'
+    MargemInferior = 8.000000000000000000
+    MargemSuperior = 8.000000000000000000
+    MargemEsquerda = 6.000000000000000000
+    MargemDireita = 5.099999999999999000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 2
+    CasasDecimais.vUnCom = 2
+    CasasDecimais.MaskqCom = ',0.00'
+    CasasDecimais.MaskvUnCom = ',0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    FormularioContinuo = True
+    Left = 568
+    Top = 400
+  end
+  object ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS
+    Sistema = 'GooPedir - www.goopedir.com'
+    Usuario = 'Allan'
+    Site = 'www.goopedir.com'
+    MargemInferior = 0.800000000000000000
+    MargemSuperior = 0.800000000000000000
+    MargemEsquerda = 0.600000000000000000
+    MargemDireita = 0.510000000000000000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 4
+    CasasDecimais.vUnCom = 4
+    CasasDecimais.MaskqCom = '###,###,###,##0.00'
+    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    ACBrNFe = ACBrNFe1
+    TipoDANFE = tiNFCe
+    PosPrinter = ACBrPosPrinter1
+    Left = 593
+    Top = 327
+  end
+  object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
+    Impressora = 'Print ID'
+    MostraPreview = False
+    MostraStatus = False
+    UsaSeparadorPathPDF = True
+    Sistema = 'GooPedir - www.goopedir.com'
+    Usuario = 'Allan'
+    Site = 'www.goopedir.com'
+    MargemInferior = 0.800000000000000000
+    MargemSuperior = 0.800000000000000000
+    MargemEsquerda = 0.300000000000000000
+    MargemDireita = 0.300000000000000000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 2
+    CasasDecimais.vUnCom = 2
+    CasasDecimais.MaskqCom = '###,###,###,##0.00'
+    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    TipoDANFE = tiNFCe
+    ImprimeTotalLiquido = True
+    ImprimeNomeFantasia = True
+    ImprimeXPedNItemPed = True
+    ImprimeQRCodeLateral = True
+    FormularioContinuo = True
+    FonteLinhaItem.Charset = DEFAULT_CHARSET
+    FonteLinhaItem.Color = clWindowText
+    FonteLinhaItem.Height = -9
+    FonteLinhaItem.Name = 'Lucida Console'
+    FonteLinhaItem.Style = []
+    Left = 618
+    Top = 247
   end
 end

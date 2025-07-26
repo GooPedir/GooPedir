@@ -10,9 +10,9 @@
     <Transaction>2025/03/11 19:26:10.000.316,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\uDM.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.472,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Export.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.560,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Language.pas</Transaction>
-    <Transaction>2025/03/11 19:28:46.000.969,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\Horse.Core.Route.pas</Transaction>
-    <Transaction>2025/03/11 19:28:46.000.505,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Import.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.387,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Config.pas</Transaction>
+    <Transaction>2025/03/11 19:28:46.000.505,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Import.pas</Transaction>
+    <Transaction>2025/03/11 19:28:46.000.969,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\Horse.Core.Route.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.801,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\Horse.Constants.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.418,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Consts.pas</Transaction>
     <Transaction>2025/03/11 19:28:46.000.723,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\Horse.BasicAuthentication.pas</Transaction>
@@ -53,13 +53,13 @@
     <Transaction>2025/03/11 19:28:48.000.893,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Bytes.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.163,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Builder.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.659,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.OpenSSL.Headers.pas</Transaction>
-    <Transaction>2025/03/11 19:28:48.000.393,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWE.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.070,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Consumer.Validators.pas</Transaction>
+    <Transaction>2025/03/11 19:28:48.000.393,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWE.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.225,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Encryption.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.343,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Signing.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.315,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.pas</Transaction>
-    <Transaction>2025/03/11 19:28:48.000.790,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.RSA.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.759,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.ECDSA.pas</Transaction>
+    <Transaction>2025/03/11 19:28:48.000.790,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.RSA.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.601,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Hashing.HMAC.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.420,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWK.pas</Transaction>
     <Transaction>2025/03/11 19:28:48.000.861,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Arrays.pas</Transaction>
