@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   Winapi.ShellAPI, Winapi.TlHelp32,
-  System.Classes, Vcl.Graphics,
+  System.Classes, Vcl.Graphics, System.DateUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, inifiles, FireDAC.Comp.Client,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
@@ -20,7 +20,7 @@ type
     Function VerificaExe(Nome: String): Boolean;
     procedure AbrirExe(Nome: String);
     procedure FecharExe(ExeFileName: String);
-    function ATUALIZADOR : String;
+    function ATUALIZADOR: String;
     function USANFCE: String;
     function SITE(Nome: string): String;
     function IMPRESSAO: String;
@@ -33,7 +33,7 @@ type
     Name: String;
     URL: String;
     uReq: iRequisicao;
-    ExeAtualizador : Boolean;
+    ExeAtualizador: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -624,7 +624,7 @@ end;
 
 function TAbrirServicos.ATUALIZADOR: String;
 begin
-   Result := ExtractFileDir(Application.ExeName) + '\' + 'atualizador.exe';
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'atualizador.exe';
 end;
 
 constructor TAbrirServicos.Create;
@@ -656,16 +656,18 @@ var
   JSONObject: TJsonObject;
   ImpressoraObject: TJsonObject;
   ComandaValue: Boolean;
+  UltimoRestartNFCe: TDateTime;
 begin
   inherited;
   contador := 0;
+  UltimoRestartNFCe := now;
   while not Terminated do
   begin
-//    if not ExeAtualizador then
-//    begin
-//      AbrirExe(Atualizador);
-//      ExeAtualizador := true;
-//    end;
+    // if not ExeAtualizador then
+    // begin
+    // AbrirExe(Atualizador);
+    // ExeAtualizador := true;
+    // end;
 
     inc(contador);
     uReq.URL := '/v2/status';
@@ -703,8 +705,21 @@ begin
       ServicoNFCe := false;
     end;
 
-    if (not VerificaExe(USANFCE)) and ServicoNFCe then
+    if ServicoNFCe and VerificaExe(USANFCE) then
+    begin
+      if MinutesBetween(now, UltimoRestartNFCe) >= 5 then
+      begin
+        FecharExe(USANFCE);
+        Sleep(2000); // Espera 2 segundos antes de abrir novamente
+        AbrirExe(USANFCE);
+        UltimoRestartNFCe := now;
+      end;
+    end
+    else if (not VerificaExe(USANFCE)) and ServicoNFCe then
+    begin
       AbrirExe(USANFCE);
+      UltimoRestartNFCe := now;
+    end;
 
     if (not VerificaExe(SITE(Name))) then
     begin

@@ -83,7 +83,7 @@ type
     function GenerateUUID: string;
     procedure DisconectBanco;
     procedure ConectaBanco(Banco: String);
-    function LoadMemory(Dados : TFDMemTable): TFDMemTable;
+    function LoadMemory(Dados: TFDMemTable): TFDMemTable;
 
   end;
 
@@ -185,8 +185,8 @@ begin
 
   end;
   //
-  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+  // ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+  // CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
@@ -202,7 +202,7 @@ end;
 
 destructor TConexao.Destroy;
 begin
-  ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
+  // ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
 
   DataModulo.Banco.Connected := False;
 
@@ -408,184 +408,212 @@ end;
 
 function TConexao.GerarID(Tabela, Campo: String): Integer;
 var
-  lSQL: String;
-  Dados: TFDMemTable;
-  Valor: Integer;
-  conexao: TConexao;
   QRY: TFDQuery;
+  MaxID: Integer;
 begin
   QRY := CriaQRY;
-
-  QRY.Close;
-  QRY.SQL.Clear;
-  QRY.SQL.Add
-    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
-  QRY.ParamByName('tabela').AsString := Tabela;
-  QRY.ExecSQL;
-
-  QRY.Close;
-  QRY.SQL.Clear;
-  QRY.SQL.Add('select * from geradores where tabela = :tabela');
-  QRY.ParamByName('tabela').AsString := Tabela;
-  QRY.Open;
-
-  if QRY.RecordCount > 0 then
-  begin
-    Result := QRY.FieldByName('sequencial').AsInteger;
-
-    QRY.Close;
-    QRY.SQL.Clear;
-    QRY.SQL.Add('select ' + Campo + ' from ' + Tabela + ' where ' + Campo +
-      ' = :' + Campo);
-    QRY.ParamByName(Campo).AsInteger := Result;
-    QRY.Open;
-
-    if QRY.RecordCount > 0 then
-    begin
-      QRY.Close;
-      QRY.SQL.Clear;
-      QRY.SQL.Add('delete from geradores where tabela = :tabela');
-      QRY.ParamByName('tabela').AsString := Tabela;
-      QRY.ExecSQL;
-      Result := 0;
-    end;
-
-    if Result = 0 then
-    begin
-      QRY.Close;
-      QRY.SQL.Clear;
-      QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
-        + Tabela);
-      QRY.Open;
-      try
-        if QRY.FieldByName('codigo').IsNull then
-          Valor := 1
-        else
-          Valor := QRY.FieldByName('codigo').AsInteger;
-      except
-
-      end;
-      QRY.Close;
-      QRY.SQL.Clear;
-      QRY.SQL.Add
-        ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
-      QRY.ParamByName('tabela').AsString := Tabela;
-      QRY.ParamByName('sequencial').AsInteger := Valor;
-      QRY.ExecSQL;
-      Result := Valor;
-    end;
-
-    QRY.Free;
-    exit;
-  end
-  else
-  begin
-    QRY.Close;
-    QRY.SQL.Clear;
-    QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
-      + Tabela);
-    QRY.Open;
-
-    try
-      if QRY.FieldByName('codigo').IsNull then
-        Valor := 1
-      else
-        Valor := QRY.FieldByName('codigo').AsInteger;
-    except
-
-    end;
-    QRY.Close;
-    QRY.SQL.Clear;
-    QRY.SQL.Add
-      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+  try
+    // Tenta atualizar o contador e usar LAST_INSERT_ID
+    QRY.SQL.Text :=
+      'UPDATE geradores SET sequencial = LAST_INSERT_ID(sequencial + 1) WHERE tabela = :tabela';
     QRY.ParamByName('tabela').AsString := Tabela;
-    QRY.ParamByName('sequencial').AsInteger := Valor;
     QRY.ExecSQL;
-  end;
 
-  Result := Valor;
-  QRY.Free;
-  exit;
-
-  conexao := TConexao.Create('CONEXAO');
-  // Dados.Free;
-  Dados := TFDMemTable.Create(nil);
-  // conexao.SQL.Add('select max(' + Campo + ')+3 as codigo,0 as zero from '
-  // + Tabela);
-  // Dados.LoadFromJSON(conexao.ConsultaSQL);
-  // try
-  // if Dados.FieldByName('codigo').IsNull then
-  // Valor := 3
-  // else
-  // Valor := Dados.FieldByName('codigo').AsInteger;
-  // except
-  //
-  // end;
-  //
-  // Result := Valor;
-  //
-  // conexao.Free;
-  // exit;
-  conexao.SQL.Add
-    ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
-  conexao.Parametros('tabela', Tabela);
-  conexao.ExecuteSQL;
-
-  conexao.SQL.Add('select * from geradores where tabela = :tabela');
-  conexao.Parametros('tabela', Tabela);
-  Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-  if Dados.RecordCount > 0 then
-  begin
-    Valor := Dados.FieldByName('sequencial').AsInteger;
-  end
-  else
-  begin
-
-    Dados.Free;
-    Dados := TFDMemTable.Create(nil);
-    conexao.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
-      + Tabela);
-    Dados.LoadFromJSON(conexao.ConsultaSQL);
-    try
-      if Dados.FieldByName('codigo').IsNull then
-        Valor := 1
+    // Verifica se a tabela existe em `geradores`
+    if QRY.RowsAffected = 0 then
+    begin
+      // Pega o último código da tabela real
+      QRY.SQL.Text := 'SELECT MAX(' + Campo + ') AS max_id FROM ' + Tabela;
+      QRY.Open;
+      MaxID := QRY.FieldByName('max_id').AsInteger;
+      if MaxID = 0 then
+        MaxID := 1
       else
-        Valor := Dados.FieldByName('codigo').AsInteger;
-    except
+        Inc(MaxID);
 
+      QRY.Close;
+      QRY.SQL.Text :=
+        'INSERT INTO geradores (tabela, sequencial) VALUES (:tabela, :valor)';
+      QRY.ParamByName('tabela').AsString := Tabela;
+      QRY.ParamByName('valor').AsInteger := MaxID;
+      QRY.ExecSQL;
+
+      Result := MaxID;
+      exit;
     end;
 
-    conexao.SQL.Add
-      ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
-    conexao.Parametros('tabela', Tabela);
-    conexao.Parametros('sequencial', Valor);
-    conexao.ExecuteSQL;
-
+    // Retorna o novo ID gerado
+    QRY.Close;
+    QRY.SQL.Text := 'SELECT LAST_INSERT_ID() AS novo_id';
+    QRY.Open;
+    Result := QRY.FieldByName('novo_id').AsInteger;
+  finally
+    QRY.Free;
   end;
-
-  if Valor = 0 then
-    Valor := 1;
-  Result := Valor;
-  Dados.Free;
-  conexao.Free;
-
 end;
 
+// function TConexao.GerarID(Tabela, Campo: String): Integer;
+// var
+// lSQL: String;
+// Dados: TFDMemTable;
+// Valor: Integer;
+// conexao: TConexao;
+// QRY: TFDQuery;
+// begin
+// QRY := CriaQRY;
+//
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add
+// ('update geradores set sequencial = sequencial + 1 where tabela = :tabela');
+// QRY.ParamByName('tabela').AsString := Tabela;
+// QRY.ExecSQL;
+//
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add('select * from geradores where tabela = :tabela');
+// QRY.ParamByName('tabela').AsString := Tabela;
+// QRY.Open;
+//
+// if QRY.RecordCount > 0 then
+// begin
+// Result := QRY.FieldByName('sequencial').AsInteger;
+//
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add('select ' + Campo + ' from ' + Tabela + ' where ' + Campo +
+// ' = :' + Campo);
+// QRY.ParamByName(Campo).AsInteger := Result;
+// QRY.Open;
+//
+// if QRY.RecordCount > 0 then
+// begin
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add('delete from geradores where tabela = :tabela');
+// QRY.ParamByName('tabela').AsString := Tabela;
+// QRY.ExecSQL;
+// Result := 0;
+// end;
+//
+// if Result = 0 then
+// begin
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
+// + Tabela);
+// QRY.Open;
+// try
+// if QRY.FieldByName('codigo').IsNull then
+// Valor := 1
+// else
+// Valor := QRY.FieldByName('codigo').AsInteger;
+// except
+//
+// end;
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add
+// ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+// QRY.ParamByName('tabela').AsString := Tabela;
+// QRY.ParamByName('sequencial').AsInteger := Valor;
+// QRY.ExecSQL;
+// Result := Valor;
+// end;
+//
+// QRY.Free;
+// exit;
+// end
+// else
+// begin
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add('select max(' + Campo + ')+1 as codigo,0 as zero from '
+// + Tabela);
+// QRY.Open;
+//
+// try
+// if QRY.FieldByName('codigo').IsNull then
+// Valor := 1
+// else
+// Valor := QRY.FieldByName('codigo').AsInteger;
+// except
+//
+// end;
+// QRY.Close;
+// QRY.SQL.Clear;
+// QRY.SQL.Add
+// ('insert into geradores (tabela,sequencial) values (:tabela,:sequencial)');
+// QRY.ParamByName('tabela').AsString := Tabela;
+// QRY.ParamByName('sequencial').AsInteger := Valor;
+// QRY.ExecSQL;
+// end;
+//
+// Result := Valor;
+// QRY.Free;
+//
+// end;
+
 procedure TConexao.GerarLog(Erro: String);
+var
+  LogPath, LogFile, MsgLog: string;
+  LogStream: TFileStream;
 begin
+  // Ignora erros de chave duplicada, como já fazia
   if pos('Duplicate entry', Erro) > 0 then
-  begin
     exit;
+
+  // Caminho da pasta de log (na mesma pasta do executável)
+  LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
+  if not DirectoryExists(LogPath) then
+    ForceDirectories(LogPath);
+
+  // Arquivo de log do dia
+  LogFile := LogPath + FormatDateTime('yyyy-mm-dd', Now) + '.log';
+
+  // Mensagem de log
+  MsgLog := FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + Erro + ' - ' +
+    SQL.Text + sLineBreak;
+
+  // Escreve no arquivo
+  try
+    if FileExists(LogFile) then
+      LogStream := TFileStream.Create(LogFile, fmOpenReadWrite or
+        fmShareDenyNone)
+    else
+      LogStream := TFileStream.Create(LogFile, fmCreate or fmShareDenyNone);
+
+    try
+      LogStream.Seek(0, soEnd);
+      LogStream.WriteBuffer(Pointer(MsgLog)^, length(MsgLog) * sizeof(Char));
+    finally
+      LogStream.Free;
+    end;
+  except
+    // Se nem salvar log conseguimos, só desiste
   end;
 
+  // Ainda envia pro Glitchtip, se você quiser manter
   EnviaGlitchtip
     ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
     DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
     Erro + ' - ' + SQL.Text);
-
 end;
+
+
+// procedure TConexao.GerarLog(Erro: String);
+// begin
+// if pos('Duplicate entry', Erro) > 0 then
+// begin
+// exit;
+// end;
+//
+// EnviaGlitchtip
+// ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
+// DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
+// Erro + ' - ' + SQL.Text);
+//
+// end;
 
 function TConexao.GetAll(Tabela: String): String;
 begin
@@ -746,9 +774,9 @@ end;
 
 function TConexao.LoadMemory(Dados: TFDMemTable): TFDMemTable;
 begin
-if not Assigned(Dados) then
-Dados := TFDMemTable.Create(nil);
-Dados.LoadFromJSON(ConsultaSQL);
+  if not Assigned(Dados) then
+    Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON(ConsultaSQL);
 end;
 
 function TConexao.MapaErro(Erro: String): String;
@@ -856,14 +884,14 @@ begin
 
   if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   begin
-    QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
-      253) + '", datahora = current_timestamp where id = ' +
-      CodigoConexao.ToString;
-    try
-      QRY.ExecSQL;
-    except
-
-    end;
+    // QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
+    // 253) + '", datahora = current_timestamp where id = ' +
+    // CodigoConexao.ToString;
+    // try
+    // QRY.ExecSQL;
+    // except
+    //
+    // end;
   end;
 
   QRY.Free;

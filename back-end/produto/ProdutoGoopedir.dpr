@@ -2,21 +2,17 @@ program ProdutoGoopedir;
 
 uses
   Vcl.Forms,
-
-  uProdutoSite in 'uProdutoSite.pas' {frmProdutoSite} ,
+  uProdutoSite in 'uProdutoSite.pas' {frmProdutoSite},
   conexao in '..\servidor\src\modulo\conexao.pas',
-  uDM in '..\servidor\src\modulo\uDM.pas' {dm: TDataModule} ,
+  uDM in '..\servidor\src\modulo\uDM.pas' {dm: TDataModule},
   JOSE.Builder in '..\servidor\src\other\JOSE.Builder.pas',
   JOSE.Consumer in '..\servidor\src\other\JOSE.Consumer.pas',
-  JOSE.Consumer.Validators
-    in '..\servidor\src\other\JOSE.Consumer.Validators.pas',
+  JOSE.Consumer.Validators in '..\servidor\src\other\JOSE.Consumer.Validators.pas',
   JOSE.Context in '..\servidor\src\other\JOSE.Context.pas',
   JOSE.Core.Base in '..\servidor\src\other\JOSE.Core.Base.pas',
   JOSE.Core.Builder in '..\servidor\src\other\JOSE.Core.Builder.pas',
-  JOSE.Core.JWA.Compression
-    in '..\servidor\src\other\JOSE.Core.JWA.Compression.pas',
-  JOSE.Core.JWA.Encryption
-    in '..\servidor\src\other\JOSE.Core.JWA.Encryption.pas',
+  JOSE.Core.JWA.Compression in '..\servidor\src\other\JOSE.Core.JWA.Compression.pas',
+  JOSE.Core.JWA.Encryption in '..\servidor\src\other\JOSE.Core.JWA.Encryption.pas',
   JOSE.Core.JWA.Factory in '..\servidor\src\other\JOSE.Core.JWA.Factory.pas',
   JOSE.Core.JWA in '..\servidor\src\other\JOSE.Core.JWA.pas',
   JOSE.Core.JWA.Signing in '..\servidor\src\other\JOSE.Core.JWA.Signing.pas',
@@ -39,9 +35,8 @@ uses
   uControllCaches in '..\servidor\src\controller\uControllCaches.pas',
   uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
   uInserirUpdate in '..\servidor\src\modulos\Controller\uInserirUpdate.pas',
-  uControllerSite in '..\servidor\src\controller\uControllerSite.pas';
-
-
+  uControllerSite in '..\servidor\src\controller\uControllerSite.pas',
+  uGlobais in '..\servidor\uGlobais.pas';
 
 {$R *.res}
 

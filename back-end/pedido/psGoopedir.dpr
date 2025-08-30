@@ -2,22 +2,21 @@ program psGoopedir;
 
 uses
   Vcl.Forms,
-  Windows, Messages, SysUtils,
-  uPedidoSite in 'uPedidoSite.pas' {frmPedidoSite} ,
+  Windows,
+  Messages,
+  SysUtils,
+  uPedidoSite in 'uPedidoSite.pas' {frmPedidoSite},
   uImportacaoPedio in 'uImportacaoPedio.pas',
   conexao in '..\servidor\src\modulo\conexao.pas',
-  uDM in '..\servidor\src\modulo\uDM.pas' {dm: TDataModule} ,
+  uDM in '..\servidor\src\modulo\uDM.pas' {dm: TDataModule},
   JOSE.Builder in '..\servidor\src\other\JOSE.Builder.pas',
   JOSE.Consumer in '..\servidor\src\other\JOSE.Consumer.pas',
-  JOSE.Consumer.Validators
-    in '..\servidor\src\other\JOSE.Consumer.Validators.pas',
+  JOSE.Consumer.Validators in '..\servidor\src\other\JOSE.Consumer.Validators.pas',
   JOSE.Context in '..\servidor\src\other\JOSE.Context.pas',
   JOSE.Core.Base in '..\servidor\src\other\JOSE.Core.Base.pas',
   JOSE.Core.Builder in '..\servidor\src\other\JOSE.Core.Builder.pas',
-  JOSE.Core.JWA.Compression
-    in '..\servidor\src\other\JOSE.Core.JWA.Compression.pas',
-  JOSE.Core.JWA.Encryption
-    in '..\servidor\src\other\JOSE.Core.JWA.Encryption.pas',
+  JOSE.Core.JWA.Compression in '..\servidor\src\other\JOSE.Core.JWA.Compression.pas',
+  JOSE.Core.JWA.Encryption in '..\servidor\src\other\JOSE.Core.JWA.Encryption.pas',
   JOSE.Core.JWA.Factory in '..\servidor\src\other\JOSE.Core.JWA.Factory.pas',
   JOSE.Core.JWA in '..\servidor\src\other\JOSE.Core.JWA.pas',
   JOSE.Core.JWA.Signing in '..\servidor\src\other\JOSE.Core.JWA.Signing.pas',
@@ -36,21 +35,17 @@ uses
   JOSE.Types.Bytes in '..\servidor\src\other\JOSE.Types.Bytes.pas',
   JOSE.Types.JSON in '..\servidor\src\other\JOSE.Types.JSON.pas',
   JOSE.Types.Utils in '..\servidor\src\other\JOSE.Types.Utils.pas',
-  DataSet.Serialize.Config
-    in '..\servidor\src\other\DataSet.Serialize.Config.pas',
-  DataSet.Serialize.Consts
-    in '..\servidor\src\other\DataSet.Serialize.Consts.pas',
-  DataSet.Serialize.Export
-    in '..\servidor\src\other\DataSet.Serialize.Export.pas',
-  DataSet.Serialize.Import
-    in '..\servidor\src\other\DataSet.Serialize.Import.pas',
-  DataSet.Serialize.Language
-    in '..\servidor\src\other\DataSet.Serialize.Language.pas',
+  DataSet.Serialize.Config in '..\servidor\src\other\DataSet.Serialize.Config.pas',
+  DataSet.Serialize.Consts in '..\servidor\src\other\DataSet.Serialize.Consts.pas',
+  DataSet.Serialize.Export in '..\servidor\src\other\DataSet.Serialize.Export.pas',
+  DataSet.Serialize.Import in '..\servidor\src\other\DataSet.Serialize.Import.pas',
+  DataSet.Serialize.Language in '..\servidor\src\other\DataSet.Serialize.Language.pas',
   DataSet.Serialize in '..\servidor\src\other\DataSet.Serialize.pas',
-  DataSet.Serialize.UpdatedStatus
-    in '..\servidor\src\other\DataSet.Serialize.UpdatedStatus.pas',
-  DataSet.Serialize.Utils
-    in '..\servidor\src\other\DataSet.Serialize.Utils.pas';
+  DataSet.Serialize.UpdatedStatus in '..\servidor\src\other\DataSet.Serialize.UpdatedStatus.pas',
+  DataSet.Serialize.Utils in '..\servidor\src\other\DataSet.Serialize.Utils.pas',
+  uExportacaoPedido in 'uExportacaoPedido.pas',
+  uMontaPedido in 'uMontaPedido.pas',
+  uGlobais in '..\servidor\uGlobais.pas';
 
 {$R *.res}
 

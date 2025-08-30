@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -151,6 +151,9 @@
         <DCCReference Include="..\servidor\src\other\DataSet.Serialize.pas"/>
         <DCCReference Include="..\servidor\src\other\DataSet.Serialize.UpdatedStatus.pas"/>
         <DCCReference Include="..\servidor\src\other\DataSet.Serialize.Utils.pas"/>
+        <DCCReference Include="uExportacaoPedido.pas"/>
+        <DCCReference Include="uMontaPedido.pas"/>
+        <DCCReference Include="..\servidor\uGlobais.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -185,6 +188,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="C:\goopedir\psGoopedir.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>psGoopedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="C:\goopedir\psGoopedir.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>psGoopedir.exe</RemoteName>
                         <Overwrite>true</Overwrite>

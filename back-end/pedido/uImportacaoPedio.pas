@@ -110,7 +110,7 @@ procedure ProcessamentoProduto(Pedido: TPedido; Produtos: TArray<TProduto>;
 procedure ImprimirCozinha(Pedido: Integer);
 function InsertTabelaPedidoBasica(Mesa: Integer): Integer;
 procedure AtualizaStatusPedido(Pedido, Status: Integer);
-procedure AtualizaSite(Pedido, CodigoDia, Codigo: Integer);
+function AtualizaSite(Pedido, CodigoDia, Codigo: Integer): Integer;
 
 function UsuarioMesa: Integer;
 function UsuarioSite: Integer;
@@ -156,7 +156,7 @@ begin
   iReq.Free;
 end;
 
-procedure AtualizaSite(Pedido, CodigoDia, Codigo: Integer);
+function AtualizaSite(Pedido, CodigoDia, Codigo: Integer): Integer;
 var
   iReq: iRequisicao;
   JSON: TJSONObject;
@@ -164,6 +164,9 @@ var
   Conexao: TConexao;
 begin
   CodigoDia := GeraCodigoPorDiaPedido;
+  Result := CodigoDia;
+  if CodigoDia = 0 then
+    exit;
   Conexao := TConexao.Create('AtualizaSite');
   Conexao.SQL.Add
     ('update pedido set codigo_pedido_dia = :dia where codigo = :codigo');
@@ -436,19 +439,21 @@ begin
     Result.Codigo := Conexao.GerarID('cliente', 'codigo');
 
     Conexao.SQL.Add
-      ('insert into cliente (codigo,nome,celular,celular_wpp,ativo,origem,cpf)');
-    Conexao.SQL.Add('values (:codigo,:nome,:celular,:celular,1,1,:cpf)');
+      ('insert into cliente (codigo,nome,celular,celular_wpp,ativo,origem,cpf,data_nascimento)');
+    Conexao.SQL.Add('values (:codigo,:nome,:celular,:celular,1,1,:cpf,:data_nascimento)');
 
   end
   else
   begin
     Conexao.SQL.Add
-      ('update cliente set nome = :nome, celular = :celular, celular_wpp = :celular, cpf = :cpf where codigo = :codigo');
+      ('update cliente set nome = :nome, celular = :celular, celular_wpp = :celular, cpf = :cpf, data_nascimento = :data_nascimento where codigo = :codigo');
   end;
   Conexao.Parametros('codigo', Result.Codigo);
   Conexao.Parametros('nome', RemoverAcentos(Result.Nome));
   Conexao.Parametros('celular', (Result.Celular));
   Conexao.Parametros('cpf', Result.CPF);
+  Conexao.Parametros('data_nascimento', Result.Nascimento);
+
   Conexao.ExecuteSQL;
   Conexao.Free;
 end;
@@ -737,8 +742,6 @@ begin
     Notificar := ValidaPedido;
 
   // Libera produtos para serem impressos na cozinha
-  if Notificar then
-    ImprimirCozinha(Pedido.Codigo);
 
   if ValidaPedido then
   begin
@@ -758,10 +761,12 @@ begin
       Conexao.Parametros('status', 1);
     Conexao.ExecuteSQL;
 
-    AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia, Pedido.Codigo);
+    Pedido.CodigoDia := AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia,
+      Pedido.Codigo);
 
-    if Notificar then
+    if ((Notificar) and (Pedido.CodigoDia > 0)) then
     begin
+      ImprimirCozinha(Pedido.Codigo);
       AtualizaStatusPedido(Pedido.Codigo, StatusCode);
     end;
   end
@@ -835,7 +840,7 @@ begin
     end;
 
     Conexao.SQL.Add
-      ('insert into impressao_pedido_produto (id_pedido,status) values (:codigo,1)');
+      ('insert into impressao_pedido_produto (id_pedido,status,data_solicitacao,hora_solicitacao,usuario) values (:codigo,1,curdate(),curtime(),-2)');
     Conexao.Parametros('codigo', Produto.Codigo);
     Conexao.ExecuteSQL;
 

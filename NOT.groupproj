@@ -9,10 +9,10 @@
         <Projects Include="back-end\site\SiteGooPedir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\nfce\NFCe.dproj">
+        <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
+        <Projects Include="back-end\nfce\NFCe.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="back-end\servicos\ServicosGoopedir.dproj">
@@ -53,15 +53,6 @@
     <Target Name="SiteGooPedir:Make">
         <MSBuild Projects="back-end\site\SiteGooPedir.dproj" Targets="Make"/>
     </Target>
-    <Target Name="NFCe">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj"/>
-    </Target>
-    <Target Name="NFCe:Clean">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="NFCe:Make">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ImpressaoGooPedir">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj"/>
     </Target>
@@ -70,6 +61,15 @@
     </Target>
     <Target Name="ImpressaoGooPedir:Make">
         <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="NFCe">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj"/>
+    </Target>
+    <Target Name="NFCe:Clean">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NFCe:Make">
+        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Make"/>
     </Target>
     <Target Name="ServicosGoopedir">
         <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj"/>
@@ -108,13 +108,13 @@
         <MSBuild Projects="back-end\balanca\balanca.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;NFCe;ImpressaoGooPedir;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca"/>
+        <CallTarget Targets="ServidorGooPedir;SiteGooPedir;ImpressaoGooPedir;NFCe;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;NFCe:Clean;ImpressaoGooPedir:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean"/>
+        <CallTarget Targets="ServidorGooPedir:Clean;SiteGooPedir:Clean;ImpressaoGooPedir:Clean;NFCe:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;NFCe:Make;ImpressaoGooPedir:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make"/>
+        <CallTarget Targets="ServidorGooPedir:Make;SiteGooPedir:Make;ImpressaoGooPedir:Make;NFCe:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

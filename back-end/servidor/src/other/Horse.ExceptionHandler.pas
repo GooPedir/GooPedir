@@ -47,22 +47,6 @@ begin
 
       EnviaGlitchtip('https://070641a91ca74f3c8b3f1cec9d5ca962@nginx-glitchtip.l1p88w.easypanel.host/4', 'Erro', Req.RawWebRequest.Host +Req.RawWebRequest.PathInfo, E.Message);
 
-
-      // Cria e configura a requisição
-      // Requisicao := iRequisicao.Create(nil);
-      // Requisicao.BaseURL := 'https://ws.goopedir.com/error.php';
-      // Requisicao.BODY(JsonObject);
-      // Requisicao.Metodo := mPost;
-      // try
-      // try
-      // Requisicao.Execute;
-      // except
-      //
-      // end;
-      // finally
-      // Requisicao.Free;
-      // end;
-
     end;
   end;
 end;

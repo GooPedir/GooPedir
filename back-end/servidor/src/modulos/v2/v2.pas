@@ -8,7 +8,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   uRequisicao, System.RegularExpressions, DateUtils, PedidoSite,
   System.Threading, uControllCaches, uLogThread, System.Generics.Collections,
   uNewConsultas, uControllerSite, GooPedirAPIController, uAtualizacaoSite,
-  System.IOUtils;
+  System.IOUtils, uGlobais, conexao;
 
 procedure Registry;
 function DaysBetweenDates(const Date1, Date2: string): Integer;
@@ -17,11 +17,522 @@ function ConverterData(const dataOriginal: string): string;
 function GetCupomSite: String;
 function RemoverTodasTransferencias(Texto: string): string;
 
+function RetornoObjetoProduto(Dados: TFDMemTable; conexao: TConexao)
+  : TJSONObject;
+function CacheFilePath(const PedidoID: Integer): string;
+function TryLoadCacheJSON(const FileName: string; out Obj: TJSONObject)
+  : Boolean;
+procedure SaveCacheJSON(const FileName: string; const Obj: TJSONObject);
+
 implementation
 
-uses FireDAC.Stan.Option, token, conexao, JOSE.Types.JSON, System.Classes,
+uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, util, uSite;
+
+function CacheFilePath(const PedidoID: Integer): string;
+begin
+  Result := TPath.Combine(TPath.GetTempPath, Format('pedido_%d.json',
+    [PedidoID]));
+end;
+
+function TryLoadCacheJSON(const FileName: string; out Obj: TJSONObject)
+  : Boolean;
+var
+  S: string;
+  V: TJSONValue;
+begin
+  Result := False;
+  Obj := nil;
+  if not TFile.Exists(FileName) then
+    Exit;
+
+  S := TFile.ReadAllText(FileName, TEncoding.UTF8);
+  V := TJSONObject.ParseJSONValue(S);
+  if (V <> nil) and (V is TJSONObject) then
+  begin
+    Obj := TJSONObject(V); // transfere posse
+    Result := True;
+  end
+  else
+    V.Free;
+end;
+
+procedure SaveCacheJSON(const FileName: string; const Obj: TJSONObject);
+begin
+  TFile.WriteAllText(FileName, Obj.ToJSON, TEncoding.UTF8);
+end;
+
+// function RetornoObjetoProduto(Dados: TFDMemTable; conexao: TConexao)
+// : TJSONObject;
+// var
+// DadosPagamento: TFDMemTable;
+// DadosItens: TFDMemTable;
+//
+// Objeto: TJSONObject;
+// ObjetoCliente: TJSONObject;
+// Pagamentos: TJSONArray;
+// ObjetoPagamentos: TJSONObject;
+// ObjetoEndereco: TJSONObject;
+// ObjetoIten: TJSONObject;
+// Itens: TJSONArray;
+// ObjetoAdicional: TJSONObject;
+// Adicionais: TJSONArray;
+// ObjetoSabor: TJSONObject;
+// Sabores: TJSONArray;
+// DadosExtra: TFDMemTable;
+//
+// Canal: String;
+// Atendente: String;
+// Cupom: String;
+// Pagamento: String;
+// begin
+// Objeto := TJSONObject.Create;
+// ObjetoCliente := TJSONObject.Create;
+// ObjetoEndereco := TJSONObject.Create;
+// Pagamentos := TJSONArray.Create;
+// Itens := TJSONArray.Create;
+// DadosPagamento := TFDMemTable.Create(nil);
+// DadosItens := TFDMemTable.Create(nil);
+//
+// Objeto.AddPair('id', Dados.FieldByName('id').AsInteger);
+// Objeto.AddPair('date', Dados.FieldByName('date').AsString);
+// Canal := 'Retirada';
+// Cupom := '';
+// if Dados.FieldByName('id_ifood').AsString <> '' then
+// begin
+// Canal := 'iFood';
+// Cupom := Dados.FieldByName('desc_desconto_ifood').AsString;
+// Cupom := Copy(Cupom, 0, Pos(Cupom, '-'));
+// end;
+// if Dados.FieldByName('id_ficha').AsFloat > 0 then
+// begin
+// Canal := 'Mesa';
+// // Atendente := Dados.FieldByName('atendente').AsString;
+// end;
+// if Dados.FieldByName('bairro').AsString <> '' then
+// begin
+// if Canal <> 'iFood' then
+// Canal := 'Delivery';
+// end;
+// if Dados.FieldByName('origem').AsString = '5' then
+// begin
+// Canal := 'PDV';
+// Atendente := Dados.FieldByName('atendente').AsString;
+// end;
+//
+// if Dados.FieldByName('bairro').AsString <> '' then
+// begin
+// ObjetoEndereco.AddPair('latitude', Dados.FieldByName('latitude').AsFloat);
+// ObjetoEndereco.AddPair('longitude', Dados.FieldByName('longitude').AsFloat);
+// ObjetoEndereco.AddPair('deliveryFee',
+// Dados.FieldByName('valor_taxa_entrega').AsFloat);
+// ObjetoEndereco.AddPair('district', Dados.FieldByName('bairro').AsString);
+// ObjetoEndereco.AddPair('city', Dados.FieldByName('cidade').AsString);
+// end;
+//
+// if Canal <> 'Mesa' then
+// begin
+// ObjetoCliente.AddPair('id', Dados.FieldByName('id_cliente').AsInteger);
+// ObjetoCliente.AddPair('name', Dados.FieldByName('nome_cliente').AsString);
+// ObjetoCliente.AddPair('count', Dados.FieldByName('pedido_cliente')
+// .AsInteger);
+// ObjetoCliente.AddPair('address', ObjetoEndereco)
+// end;
+//
+// if Dados.FieldByName('id_caixa').AsString <> '' then
+// begin
+// // Pedido Faturado
+//
+// conexao.SQL.Add('SELECT tp.descricao, c.valor FROM caixa_movimento as c');
+// conexao.SQL.Add
+// ('join tipo_pagamento as tp on tp.codigo = c.id_tipo_pagamento');
+// conexao.SQL.Add('where c.id_pedido = :id');
+// conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
+// DadosPagamento.LoadFromJSON(conexao.ConsultaSQL);
+// if DadosPagamento.RecordCount > 0 then
+// begin
+// while not DadosPagamento.Eof do
+// begin
+// ObjetoPagamentos := TJSONObject.Create;
+// ObjetoPagamentos.AddPair('payment',
+// DadosPagamento.FieldByName('descricao').AsString);
+// ObjetoPagamentos.AddPair('value', DadosPagamento.FieldByName('valor')
+// .AsString);
+// ObjetoPagamentos.AddPair('invoiced', True);
+// Pagamentos.AddElement(ObjetoPagamentos);
+//
+// DadosPagamento.Next;
+// end;
+// end;
+// end
+// else
+// begin
+// // Pedido nao faturado
+// conexao.SQL.Add
+// ('select codigo, descricao from tipo_pagamento where codigo = :id');
+// conexao.Parametros('id', Dados.FieldByName('tipo_pagamento').AsInteger);
+// try
+// Pagamento := conexao.FieldByName('descricao');
+// except
+// Pagamento := '';
+// end;
+// ObjetoPagamentos := TJSONObject.Create;
+// ObjetoPagamentos.AddPair('payment', Pagamento);
+// ObjetoPagamentos.AddPair('value',
+// DadosPagamento.FieldByName('valor_total_pedido').AsString);
+// ObjetoPagamentos.AddPair('invoiced', false);
+// Pagamentos.AddElement(ObjetoPagamentos);
+// end;
+//
+// conexao.SQL.Add
+// ('SELECT pp.codigo as id, pp.codigo_pedido, p.nome_produto as product, tp. descricao as category, pp.quantidade as qty, pp.valor_total as price,');
+// conexao.SQL.Add('tp.pizza FROM pedido_produtos as pp');
+// conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+// conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
+// conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+// conexao.Parametros('codigo', Dados.FieldByName('id').AsInteger);
+// DadosItens.LoadFromJSON(conexao.ConsultaSQL);
+// if DadosItens.RecordCount > 0 then
+// begin
+// while not DadosItens.Eof do
+// begin
+// Adicionais := TJSONArray.Create;
+// Sabores := TJSONArray.Create;
+// ObjetoIten := TJSONObject.Create;
+// ObjetoIten.AddPair('product', DadosItens.FieldByName('product').AsString);
+// ObjetoIten.AddPair('category', DadosItens.FieldByName('category')
+// .AsString);
+// ObjetoIten.AddPair('qty', DadosItens.FieldByName('qty').AsFloat);
+// ObjetoIten.AddPair('price', DadosItens.FieldByName('price').AsFloat);
+//
+// conexao.SQL.Add
+// ('select pps.*, CASE WHEN ts.id > 30 THEN 1 ELSE 0 END as pizza');
+// conexao.SQL.Add('from pedido_produto_sap as pps');
+// conexao.SQL.Add
+// ('left join tipo_sabor as ts on ts.nome = pps.nomeclatura');
+// conexao.SQL.Add('where pps.valor > 0 and codigo_pedido_produto = :id');
+// conexao.Parametros('id', DadosItens.FieldByName('id').AsInteger);
+// DadosExtra := TFDMemTable.Create(nil);
+// DadosExtra.LoadFromJSON(conexao.ConsultaSQL);
+//
+// if DadosExtra.RecordCount > 0 then
+// begin
+// while not DadosExtra.Eof do
+// begin
+// if DadosExtra.FieldByName('pizza').AsInteger = 0 then
+// begin
+// // Extra
+// if UpperCase(DadosExtra.FieldByName('nomeclatura').AsString) <> 'SABORES'
+// then
+// begin
+// ObjetoAdicional := TJSONObject.Create;
+// ObjetoAdicional.AddPair('extra',
+// DadosExtra.FieldByName('nomeclatura').AsString);
+// ObjetoAdicional.AddPair('name',
+// DadosExtra.FieldByName('descricao').AsString);
+// ObjetoAdicional.AddPair('value',
+// DadosExtra.FieldByName('valor').AsFloat);
+// Adicionais.AddElement(ObjetoAdicional);
+// end
+// else
+// begin
+// ObjetoSabor := TJSONObject.Create;
+// ObjetoSabor.AddPair('name', DadosExtra.FieldByName('descricao')
+// .AsString);
+// ObjetoSabor.AddPair('value',
+// DadosExtra.FieldByName('valor').AsFloat);
+// Sabores.AddElement(ObjetoSabor);
+// end;
+// end
+// else
+// begin
+// // Pizza
+// ObjetoSabor := TJSONObject.Create;
+// ObjetoSabor.AddPair('name', DadosExtra.FieldByName('descricao')
+// .AsString);
+// ObjetoSabor.AddPair('value',
+// DadosExtra.FieldByName('valor').AsFloat);
+// Sabores.AddElement(ObjetoSabor);
+// end;
+// DadosExtra.Next;
+// end;
+// end;
+// ObjetoIten.AddPair('additional', Adicionais);
+// ObjetoIten.AddPair('pizzaFlavors', Sabores);
+// DadosExtra.Free;
+// Itens.AddElement(ObjetoIten);
+// DadosItens.Next;
+// end;
+// end;
+//
+// Objeto.AddPair('channel', Canal);
+// Objeto.AddPair('payment', Pagamentos);
+// Objeto.AddPair('attendant', Atendente);
+// Objeto.AddPair('customer', ObjetoCliente);
+// Objeto.AddPair('coupon', Cupom);
+// Objeto.AddPair('discount', Dados.FieldByName('valor_desconto').AsFloat);
+// Objeto.AddPair('items', Itens);
+// end;
+
+function RetornoObjetoProduto(Dados: TFDMemTable; conexao: TConexao)
+  : TJSONObject;
+var
+  DadosPagamento, DadosItens, DadosExtra: TFDMemTable;
+
+  Objeto, ObjetoCliente, ObjetoEndereco, ObjetoPagamentos, ObjetoIten,
+    ObjetoAdicional, ObjetoSabor: TJSONObject;
+
+  Pagamentos, Itens, Adicionais, Sabores: TJSONArray;
+
+  Canal, Atendente, Cupom, Pagamento: string;
+
+  PedidoID: Integer;
+  CachePath: string;
+  FromCache: TJSONObject;
+begin
+  // ===== Tentativa de usar cache =====
+  PedidoID := Dados.FieldByName('id').AsInteger;
+  CachePath := CacheFilePath(PedidoID);
+
+  if TryLoadCacheJSON(CachePath, FromCache) then
+  begin
+    Result := FromCache;
+    Exit;
+  end;
+
+  // ===== Montagem normal (sem cache) =====
+  Objeto := TJSONObject.Create;
+  ObjetoCliente := TJSONObject.Create;
+  ObjetoEndereco := TJSONObject.Create;
+  Pagamentos := TJSONArray.Create;
+  Itens := TJSONArray.Create;
+  DadosPagamento := TFDMemTable.Create(nil);
+  DadosItens := TFDMemTable.Create(nil);
+
+  try
+    Objeto.AddPair('id', Dados.FieldByName('id').AsInteger);
+    Objeto.AddPair('date', Dados.FieldByName('date').AsString);
+
+    Canal := 'Retirada';
+    Cupom := '';
+    Atendente := '';
+
+    if Dados.FieldByName('id_ifood').AsString <> '' then
+    begin
+      Canal := 'iFood';
+      Cupom := Dados.FieldByName('desc_desconto_ifood').AsString;
+      // (ajuste do Copy: pega parte antes de '-')
+      if Pos('-', Cupom) > 0 then
+        Cupom := Copy(Cupom, 1, Pos('-', Cupom) - 1);
+    end;
+
+    if Dados.FieldByName('id_ficha').AsFloat > 0 then
+      Canal := 'Mesa';
+
+    if Dados.FieldByName('bairro').AsString <> '' then
+      if Canal <> 'iFood' then
+        Canal := 'Delivery';
+
+    if Dados.FieldByName('origem').AsString = '5' then
+    begin
+      Canal := 'PDV';
+      Atendente := Dados.FieldByName('atendente').AsString;
+    end;
+
+    if Dados.FieldByName('bairro').AsString <> '' then
+    begin
+      ObjetoEndereco.AddPair('latitude',
+        TJSONNumber.Create(Dados.FieldByName('latitude').AsFloat));
+      ObjetoEndereco.AddPair('longitude',
+        TJSONNumber.Create(Dados.FieldByName('longitude').AsFloat));
+      ObjetoEndereco.AddPair('deliveryFee',
+        TJSONNumber.Create(Dados.FieldByName('valor_taxa_entrega').AsFloat));
+      ObjetoEndereco.AddPair('district', Dados.FieldByName('bairro').AsString);
+      ObjetoEndereco.AddPair('city', Dados.FieldByName('cidade').AsString);
+    end;
+
+    if Canal <> 'Mesa' then
+    begin
+      ObjetoCliente.AddPair('id', Dados.FieldByName('id_cliente').AsInteger);
+      ObjetoCliente.AddPair('name', Dados.FieldByName('nome_cliente').AsString);
+      ObjetoCliente.AddPair('count', Dados.FieldByName('pedido_cliente')
+        .AsInteger);
+      ObjetoCliente.AddPair('address', ObjetoEndereco);
+    end
+    else
+      ObjetoEndereco.Free; // não usado
+
+    // ===== Pagamentos =====
+    if Dados.FieldByName('id_caixa').AsString <> '' then
+    begin
+      // Pedido faturado
+      conexao.SQL.Add('SELECT tp.descricao, c.valor FROM caixa_movimento as c');
+      conexao.SQL.Add
+        ('join tipo_pagamento as tp on tp.codigo = c.id_tipo_pagamento');
+      conexao.SQL.Add('where c.id_pedido = :id');
+      conexao.Parametros('id', PedidoID);
+
+      DadosPagamento.LoadFromJSON(conexao.ConsultaSQL);
+      if DadosPagamento.RecordCount > 0 then
+      begin
+        DadosPagamento.First;
+        while not DadosPagamento.Eof do
+        begin
+          ObjetoPagamentos := TJSONObject.Create;
+          ObjetoPagamentos.AddPair('payment',
+            DadosPagamento.FieldByName('descricao').AsString);
+          ObjetoPagamentos.AddPair('value',
+            TJSONNumber.Create(DadosPagamento.FieldByName('valor').AsFloat));
+          ObjetoPagamentos.AddPair('invoiced', TJSONBool.Create(True));
+          Pagamentos.AddElement(ObjetoPagamentos);
+          DadosPagamento.Next;
+        end;
+      end;
+    end
+    else
+    begin
+      // Pedido NÃO faturado
+      conexao.SQL.Add
+        ('select codigo, descricao from tipo_pagamento where codigo = :id');
+      conexao.Parametros('id', Dados.FieldByName('tipo_pagamento').AsInteger);
+      try
+        Pagamento := conexao.FieldByName('descricao');
+      except
+        Pagamento := '';
+      end;
+
+      ObjetoPagamentos := TJSONObject.Create;
+      ObjetoPagamentos.AddPair('payment', Pagamento);
+      // Obs.: aqui fazia referência a DadosPagamento; usei Dados (pedido) para total
+      ObjetoPagamentos.AddPair('value',
+        TJSONNumber.Create(Dados.FieldByName('valor_total_pedido').AsFloat));
+      ObjetoPagamentos.AddPair('invoiced', TJSONBool.Create(False));
+      Pagamentos.AddElement(ObjetoPagamentos);
+    end;
+
+    // ===== Itens =====
+    conexao.SQL.Add
+      ('SELECT pp.codigo as id, pp.codigo_pedido, p.nome_produto as product, ' +
+      'tp.descricao as category, pp.quantidade as qty, pp.valor_total as price, '
+      + 'tp.pizza ' + 'FROM pedido_produtos as pp ' +
+      'join produto as p on p.codigo = pp.codigo_produto ' +
+      'join tipo_produto as tp on tp.codigo = p.codigo_grupo ' +
+      'where pp.codigo_pedido = :codigo');
+    conexao.Parametros('codigo', PedidoID);
+
+    DadosItens.LoadFromJSON(conexao.ConsultaSQL);
+
+    if DadosItens.RecordCount > 0 then
+    begin
+      DadosItens.First;
+      while not DadosItens.Eof do
+      begin
+        Adicionais := TJSONArray.Create;
+        Sabores := TJSONArray.Create;
+
+        ObjetoIten := TJSONObject.Create;
+        ObjetoIten.AddPair('product', DadosItens.FieldByName('product')
+          .AsString);
+        ObjetoIten.AddPair('category', DadosItens.FieldByName('category')
+          .AsString);
+        ObjetoIten.AddPair('qty',
+          TJSONNumber.Create(DadosItens.FieldByName('qty').AsFloat));
+        ObjetoIten.AddPair('price',
+          TJSONNumber.Create(DadosItens.FieldByName('price').AsFloat));
+
+        // Extras / Sabores
+        DadosExtra := TFDMemTable.Create(nil);
+        try
+          conexao.SQL.Add
+            ('select pps.*, CASE WHEN ts.id > 30 THEN 1 ELSE 0 END as pizza ' +
+            'from pedido_produto_sap as pps ' +
+            'left join tipo_sabor as ts on ts.nome = pps.nomeclatura ' +
+            'where pps.valor > 0 and codigo_pedido_produto = :id');
+          conexao.Parametros('id', DadosItens.FieldByName('id').AsInteger);
+          DadosExtra.LoadFromJSON(conexao.ConsultaSQL);
+
+          if DadosExtra.RecordCount > 0 then
+          begin
+            DadosExtra.First;
+            while not DadosExtra.Eof do
+            begin
+              if DadosExtra.FieldByName('pizza').AsInteger = 0 then
+              begin
+                // Extra (não-pizza)
+                if UpperCase(DadosExtra.FieldByName('nomeclatura').AsString) <> 'SABORES'
+                then
+                begin
+                  ObjetoAdicional := TJSONObject.Create;
+                  ObjetoAdicional.AddPair('extra',
+                    DadosExtra.FieldByName('nomeclatura').AsString);
+                  ObjetoAdicional.AddPair('name',
+                    DadosExtra.FieldByName('descricao').AsString);
+                  ObjetoAdicional.AddPair('value',
+                    TJSONNumber.Create(DadosExtra.FieldByName('valor')
+                    .AsFloat));
+                  Adicionais.AddElement(ObjetoAdicional);
+                end
+                else
+                begin
+                  ObjetoSabor := TJSONObject.Create;
+                  ObjetoSabor.AddPair('name',
+                    DadosExtra.FieldByName('descricao').AsString);
+                  ObjetoSabor.AddPair('value',
+                    TJSONNumber.Create(DadosExtra.FieldByName('valor')
+                    .AsFloat));
+                  Sabores.AddElement(ObjetoSabor);
+                end;
+              end
+              else
+              begin
+                // Pizza
+                ObjetoSabor := TJSONObject.Create;
+                ObjetoSabor.AddPair('name', DadosExtra.FieldByName('descricao')
+                  .AsString);
+                ObjetoSabor.AddPair('value',
+                  TJSONNumber.Create(DadosExtra.FieldByName('valor').AsFloat));
+                Sabores.AddElement(ObjetoSabor);
+              end;
+
+              DadosExtra.Next;
+            end;
+          end;
+
+          ObjetoIten.AddPair('additional', Adicionais);
+          ObjetoIten.AddPair('pizzaFlavors', Sabores);
+          Itens.AddElement(ObjetoIten);
+        finally
+          DadosExtra.Free;
+        end;
+
+        DadosItens.Next;
+      end;
+    end;
+
+    // ===== Final =====
+    Objeto.AddPair('channel', Canal);
+    Objeto.AddPair('payment', Pagamentos);
+    Objeto.AddPair('attendant', Atendente);
+    if Canal <> 'Mesa' then
+      Objeto.AddPair('customer', ObjetoCliente)
+    else
+      ObjetoCliente.Free; // não será usado
+    Objeto.AddPair('coupon', Cupom);
+    Objeto.AddPair('discount',
+      TJSONNumber.Create(Dados.FieldByName('valor_desconto').AsFloat));
+    Objeto.AddPair('items', Itens);
+
+    // Salva no cache (temp) e retorna
+    SaveCacheJSON(CachePath, Objeto);
+    Result := Objeto;
+
+  finally
+    DadosPagamento.Free;
+    DadosItens.Free;
+    // NÃO liberar Objeto, Pagamentos, Itens, etc., pois são retornados em Result
+  end;
+end;
 
 function RemoverTodasTransferencias(Texto: string): string;
 var
@@ -1480,9 +1991,18 @@ begin
             conexao.Parametros('id', CodigoAux);
             conexao.Parametros('id_pro_adi_personalizado', CodigoExtra);
             conexao.Parametros('nome', ExtraItensItem.Values['name'].Value);
-            conexao.Parametros('descricao',
-              ExtraItensItem.Values['description'].Value);
-            conexao.Parametros('valor', ExtraItensItem.Values['value'].Value);
+            try
+              conexao.Parametros('descricao',
+                ExtraItensItem.Values['description'].Value);
+            except
+              conexao.Parametros('descricao', '');
+            end;
+            try
+              conexao.Parametros('valor', ExtraItensItem.Values['value'].Value);
+            except
+              conexao.Parametros('valor', 0);
+
+            end;
             conexao.Parametros('ativo', ExtraItensItem.Values['status'].Value);
             try
               conexao.Parametros('stock', ExtraItensItem.Values['stock'].Value);
@@ -1690,7 +2210,7 @@ begin
     Lista.LoadFromFile(arquivo + Req.Params['cnpj'] + '.json');
     Res.Send(Lista.Text);
     Lista.Free;
-    exit;
+    Exit;
   end;
   Requisicao := iRequisicao.Create(nil);
   Requisicao.BaseURL := 'https://receitaws.com.br/v1/cnpj/' +
@@ -1756,6 +2276,75 @@ begin
 
 
   // Fazer aki o envio pro site
+
+end;
+
+procedure DoGetDashboardVendaV2(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+  Resultado: TJSONArray;
+
+  DataInicial: TDate;
+  DataFinal: TDate;
+  SQL: String;
+begin
+
+  conexao := TConexao.Create('DoGetDashboardVendaV2');
+  Dados := TFDMemTable.Create(nil);
+
+  DataInicial := ISO8601ToDate(Req.Params['dataini']);
+  DataFinal := ISO8601ToDate(Req.Params['datafim']);
+  Resultado := TJSONArray.Create;
+
+  // Data Inicial '2025-01-01'
+  // Data Final   '2025-01-12'
+
+  while DataInicial <= DataFinal do
+  begin
+
+    if FormatDateTime('mmyyyy', DataInicial) = FormatDateTime('mmyyyy', date)
+    then
+    begin
+      // Mes Atual
+      SQL := 'pedido';
+    end
+    else
+    begin
+      // Mes Anterior
+      SQL := 'pedido_' + FormatDateTime('yyyy_mm', DataInicial);
+    end;
+    conexao.SQL.Add
+      ('select p.codigo as id, p.data_pedido, concat(p.data_pedido,"T",p.hora_pedido) as date, p.origem, p.id_ifood, p.id_ficha, p.latitude, p.longitude, p.url, p.desc_desconto_ifood, ');
+    conexao.SQL.Add
+      ('p.desc_ficha, p.tipo_pagamento, p.id_caixa, p.valor_desconto, p.valor_taxa_entrega, p.valor_total_pedido, c.codigo as id_cliente, c.nome as nome_cliente, c.pedidos as pedido_cliente, ce.bairro, ce.cidade, u.nome as atendente');
+    conexao.SQL.Add('from ' + SQL + ' as p');
+    conexao.SQL.Add('left join cliente as c on c.codigo = p.codigo_cliente');
+    conexao.SQL.Add
+      ('left join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco');
+    conexao.SQL.Add('left join usuario as u on u.codigo = p.usuario');
+    conexao.SQL.Add('where p.codigo_pedido_dia > 0 and p.status > 0');
+    conexao.SQL.Add('and p.data_pedido between "' + FormatDateTime('yyyy-mm-dd',
+      DataInicial) + '" and "' + FormatDateTime('yyyy-mm-dd', DataFinal) + '"');
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+    if Dados.RecordCount > 0 then
+    begin
+      while not Dados.Eof do
+      begin
+        Resultado.AddElement(RetornoObjetoProduto(Dados, conexao));
+        Dados.Next;
+      end;
+
+    end;
+    Dados.Close;
+    DataInicial := IncMonth(DataInicial, 1);
+  end;
+
+  Res.Send<TJSONArray>(Resultado);
+  conexao.Free;
+  Dados.Free;
 
 end;
 
@@ -2500,7 +3089,7 @@ begin
       begin
 
         MovimentacaoInsulmo(Dados.FieldByName('id_ingredientes').AsInteger,
-          Tipo, Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
+          Tipo, Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
 
         Dados.Next;
       end;
@@ -2531,7 +3120,7 @@ begin
       begin
 
         MovimentacaoInsulmo(Dados.FieldByName('ingredientes').AsInteger, Tipo,
-          Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
+          Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
 
         Dados.Next;
       end;
@@ -2735,7 +3324,7 @@ begin
   begin
     conexao.Free;
     LJsonObj.Free;
-    exit;
+    Exit;
   end;
 
   conexao.SQL.Add
@@ -3327,7 +3916,7 @@ begin
           if Dados.FieldByName('pedido').AsString = JSONObject.Values['pedido'].Value
           then
           begin
-            PodeInserir := false;
+            PodeInserir := False;
           end;
           Dados.Next;
         end;
@@ -3930,7 +4519,7 @@ begin
   try
     Usuario := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
     Retorno := TJSONObject.Create;
-    APIGoopedir := TGooPedirAPIController.Create('https://api.goopedir.com.br/',
+    APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
       Usuario.GetValue<String>('id'), Usuario.GetValue<String>('security'), nil,
       nil, nil);
 
@@ -3999,7 +4588,7 @@ begin
     begin
       conexao.Free;
       Res.Status(1);
-      exit;
+      Exit;
     end;
 
   except
@@ -4009,7 +4598,7 @@ begin
   JSONObject := TJSONObject.Create;
   if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
   begin
-    JSONObject.AddPair('licensa', false);
+    JSONObject.AddPair('licensa', False);
   end
   else
   begin
@@ -4059,9 +4648,8 @@ begin
   else
   begin
     JSONNFCe.AddPair('contigencia', 0);
-    JSONNFCe.AddPair('usa', false);
+    JSONNFCe.AddPair('usa', False);
     JSONNFCe.AddPair('erro', '[]');
-
   end;
 
   JSONObject.AddPair('nfce', JSONNFCe);
@@ -4080,6 +4668,22 @@ begin
   end;
   JSONObject.AddPair('taxaEntrega', frmServidor.GetTaxaEntrega);
   JSONObject.AddPair('tipoPagamento', frmServidor.GetTipopagamento);
+
+  if frmServidor.memPaineis.RecordCount = 0 then
+  begin
+    conexao.SQL.Add('SELECT * FROM painel');
+    frmServidor.memPaineis.LoadFromJSON(conexao.ConsultaSQL);
+  end;
+
+  if frmServidor.memBanner.RecordCount = 0 then
+  begin
+    conexao.SQL.Add
+      ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
+    frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
+  end;
+
+  JSONObject.AddPair('banner', frmServidor.memBanner.ToJSONArray());
+  JSONObject.AddPair('painel', frmServidor.memPaineis.ToJSONArray());
 
   conexao.Free;
   try
@@ -4106,8 +4710,35 @@ end;
 
 procedure DoPostWhatsappLogout(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
+var
+  Requisicao: iRequisicao;
+  JSonObjectWhatsapp: TJSONObject;
 begin
   frmServidor.LogoutWhatsapp := True;
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := 'https://ws.goopedir.com/whatsapp/deletar.php?instance='
+    + frmServidor.UserID.ToString;
+  Requisicao.TempoExpiracao := 15 * 1000;
+
+  try
+    Requisicao.Execute;
+
+    frmServidor.StatusWhatsapp := False;
+    frmServidor.NumeroWhatsapp := '';
+    frmServidor.DadosApiWhatsapp;
+    JSonObjectWhatsapp := TJSONObject.Create;
+    JSonObjectWhatsapp.AddPair('status', frmServidor.StatusWhatsapp);
+    JSonObjectWhatsapp.AddPair('celular', frmServidor.NumeroWhatsapp);
+    JSonObjectWhatsapp.AddPair('base64', frmServidor.Base64Whatsapp);
+    JSonObjectWhatsapp.AddPair('logout', frmServidor.LogoutWhatsapp);
+    JSonObjectWhatsapp.AddPair('name', frmServidor.NomeWhatsapp);
+    JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
+
+    Res.Send<TJSONObject>(JSonObjectWhatsapp);
+  except
+    Res.Status(400);
+  end;
+  Requisicao.Free;
 end;
 
 procedure DoPostWhatsappAtualizar(Req: THorseRequest; Res: THorseResponse;
@@ -4126,38 +4757,6 @@ begin
   JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
 
   Res.Send<TJSONObject>(JSonObjectWhatsapp);
-
-end;
-
-procedure DoPostWhatsapp(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  JSONValue: TJSONValue;
-  Requisicao: iRequisicao;
-begin
-
-  try
-    Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := 'whatsapp-api.goopedir.com/instance/logout?key=' +
-      frmServidor.UserID.ToString;
-    Requisicao.Metodo := mDelete;
-    Requisicao.TempoExpiracao := 5000;
-    Requisicao.Execute;
-  except
-
-  end;
-  Requisicao.Free;
-
-  JSONValue := TJSONObject.ParseJSONValue(Req.Body);
-  try
-    frmServidor.StatusWhatsapp := JSONValue.GetValue<Boolean>('status');
-    frmServidor.NumeroWhatsapp := JSONValue.GetValue<String>('celular');
-    frmServidor.Base64Whatsapp := JSONValue.GetValue<String>('base64');
-    frmServidor.LogoutWhatsapp := false;
-  finally
-    JSONValue.Free;
-  end;
-
-  frmServidor.BuscarWhatsappHeroku;
 
 end;
 
@@ -4373,7 +4972,7 @@ begin
         Res.Send('O produto "' + NomeProduto +
           '" foi selecionado uma quantidade maior que a atual, atualize a tela apertando F5!')
           .Status(500);
-        exit;
+        Exit;
 
       end;
 
@@ -4450,7 +5049,7 @@ begin
       conexao.Free;
       Banco.Free;
       Res.Send('Produto não localizado!').Status(500);
-      exit;
+      Exit;
     end;
 
   end;
@@ -4533,7 +5132,7 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  if Result <> FormatDateTime('dd/mm/yyyy', Date) then
+  if Result <> FormatDateTime('dd/mm/yyyy', date) then
   begin
     Res.Send('true');
   end
@@ -4786,7 +5385,7 @@ begin
     JSONValue := JSONObject.GetValue('valor');
     try
       Codigo := JSONValue.Value.ToInteger;
-      Cadastro := false;
+      Cadastro := False;
     except
       Cadastro := True;
       Codigo := conexao.GerarID(Tabela, Campo);
@@ -4882,6 +5481,16 @@ begin
       begin
         SincronizaMotoboy(frmServidor.UserID);
       end;
+    end;
+
+    if Tabela = 'banner' then
+    begin
+      frmServidor.memBanner.Close;
+    end;
+
+    if Tabela = 'painel' then
+    begin
+      frmServidor.memPaineis.Close;
     end;
 
 
@@ -5179,7 +5788,7 @@ begin
   except
     Res.Send('').Status(500);
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   try
@@ -5589,7 +6198,7 @@ begin
   end;
   if CodigoPedido = 0 then
   begin
-    ObjetoResult.AddPair('status', false);
+    ObjetoResult.AddPair('status', False);
     ObjetoResult.AddPair('motivo', 'Pedido Não Localizado!');
   end
   else
@@ -5616,7 +6225,7 @@ begin
 
     if CodigoUsuario = 0 then
     begin
-      ObjetoResult.AddPair('status', false);
+      ObjetoResult.AddPair('status', False);
       ObjetoResult.AddPair('motivo', 'Sem Permissão Para Cancelamento.');
     end
     else
@@ -5807,7 +6416,7 @@ var
   nome, senha: string;
   percentual: Real;
   finalizar, excluir, dashboard, entrada, desconto, aberturacaixa, Parametros,
-    mesa, taxa, impressora, cupom, produto, Pagamento, lancamento, motoboy,
+    mesa, taxa, impressora, Cupom, produto, Pagamento, lancamento, motoboy,
     cancelar, garcom, campanha: Boolean;
 begin
   JSONObj := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
@@ -5827,7 +6436,7 @@ begin
     mesa := JSONObj.GetValue('mesa').AsType<Boolean>;
     taxa := JSONObj.GetValue('taxa').AsType<Boolean>;
     impressora := JSONObj.GetValue('impressora').AsType<Boolean>;
-    cupom := JSONObj.GetValue('cupom').AsType<Boolean>;
+    Cupom := JSONObj.GetValue('cupom').AsType<Boolean>;
     produto := JSONObj.GetValue('produto').AsType<Boolean>;
     Pagamento := JSONObj.GetValue('pagamento').AsType<Boolean>;
     lancamento := JSONObj.GetValue('lancamento').AsType<Boolean>;
@@ -5886,7 +6495,7 @@ begin
   conexao.Parametros('cad_mesa', Integer(mesa));
   conexao.Parametros('cad_motoboy', Integer(motoboy));
   conexao.Parametros('cad_taxa', Integer(taxa));
-  conexao.Parametros('cad_cupom', Integer(cupom));
+  conexao.Parametros('cad_cupom', Integer(Cupom));
   conexao.Parametros('cad_prod', Integer(produto));
   conexao.Parametros('cad_paga', Integer(Pagamento));
   conexao.Parametros('cad_impressora', Integer(impressora));
@@ -6033,9 +6642,9 @@ begin
     // Converte usando o formato especificado
     valor := StrToFloat(JSONObject.Values['valor'].Value, formatSettings);
 
-    Data := StrToDate(copy(JSONObject.Values['data'].Value, 9, 2) + '/' +
-      copy(JSONObject.Values['data'].Value, 6, 2) + '/' +
-      copy(JSONObject.Values['data'].Value, 0, 4));
+    Data := StrToDate(Copy(JSONObject.Values['data'].Value, 9, 2) + '/' +
+      Copy(JSONObject.Values['data'].Value, 6, 2) + '/' +
+      Copy(JSONObject.Values['data'].Value, 0, 4));
     for I := 1 to JSONObject.Values['parcelas'].Value.ToInteger do
     begin
 
@@ -6309,6 +6918,8 @@ begin
 
   THorse.Get('/v2/dashboard/venda/:dataini/:datafim', DoGetDashBoardVenda);
 
+  THorse.Post('/v2/dashboard/venda/:dataini/:datafim', DoGetDashboardVendaV2);
+
   THorse.Get('/v2/status/site', DoGetStatusSite);
   THorse.Get('/v2/test/erro', DoGetTestErro);
 
@@ -6439,7 +7050,6 @@ begin
     DoPostPedidoProdutosSeleciona);
 
   THorse.Get('/whatsapp/goopedir/data', DoGetWhatsapp);
-  THorse.Post('/whatsapp/goopedir/data', DoPostWhatsapp);
   THorse.Post('/whatsapp/goopedir/desconectar', DoPostWhatsappLogout);
   THorse.Post('/whatsapp/goopedir/atualizar', DoPostWhatsappAtualizar);
 
@@ -6632,10 +7242,10 @@ begin
       begin
         if Tipo = 2 then
           MovimentacaoInsulmo(Dados.FieldByName('id_ingredientes').AsInteger, 1,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, false)
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, False)
         else
           MovimentacaoInsulmo(Dados.FieldByName('id_ingredientes').AsInteger, 2,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
         Dados.Next;
       end;
     end;
@@ -6665,10 +7275,10 @@ begin
       begin
         if Tipo = 2 then
           MovimentacaoInsulmo(Dados.FieldByName('ingredientes').AsInteger, 1,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, false)
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, False)
         else
           MovimentacaoInsulmo(Dados.FieldByName('ingredientes').AsInteger, 2,
-            Dados.FieldByName('quantidade').AsFloat, 0, 0, false);
+            Dados.FieldByName('quantidade').AsFloat, 0, 0, False);
 
         Dados.Next;
       end;
@@ -6685,9 +7295,9 @@ var
   ano, mes, dia: Integer;
 begin
   // Tenta extrair ano, mês e dia da string
-  ano := StrToIntDef(copy(dataOriginal, 1, 4), 0);
-  mes := StrToIntDef(copy(dataOriginal, 6, 2), 0);
-  dia := StrToIntDef(copy(dataOriginal, 9, 2), 0);
+  ano := StrToIntDef(Copy(dataOriginal, 1, 4), 0);
+  mes := StrToIntDef(Copy(dataOriginal, 6, 2), 0);
+  dia := StrToIntDef(Copy(dataOriginal, 9, 2), 0);
 
   // Verifica se os valores extraídos são válidos
   if (ano <> 0) and (mes <> 0) and (dia <> 0) then

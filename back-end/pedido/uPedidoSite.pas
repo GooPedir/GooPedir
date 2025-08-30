@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uRequisicao, Vcl.ExtCtrls, System.JSON,
-  Vcl.StdCtrls, uImportacaoPedio;
+  Vcl.StdCtrls, uImportacaoPedio,uExportacaoPedido;
 
 type
   TfrmPedidoSite = class(TForm)
@@ -65,6 +65,7 @@ begin
   self.Hide();
   self.WindowState := wsMinimized;
   getPedidos;
+  Sendpedido(40);
 
   Application.Terminate;
 end;

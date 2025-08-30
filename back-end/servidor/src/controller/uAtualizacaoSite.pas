@@ -4,7 +4,7 @@ interface
 
 uses uRequisicao, JOSE.Types.JSON, Conexao, FireDAC.Comp.Client,
   DataSet.Serialize,
-  System.SysUtils, Dialogs;
+  System.SysUtils, Dialogs,uGlobais;
 
 procedure SincronizaTaxaEntrega(UserId: integer);
 procedure SincronizaFormaPagamento(UserId: integer);
@@ -27,7 +27,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://api.goopedir.com.br/';
+  Requisicao.BaseURL := API_BASE_URL;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaTaxaEntrega');
@@ -112,7 +112,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://api.goopedir.com.br/';
+  Requisicao.BaseURL := API_BASE_URL;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaFormaPagamento');
@@ -213,7 +213,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://api.goopedir.com.br/';
+  Requisicao.BaseURL := API_BASE_URL;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaTaxaEntrega');

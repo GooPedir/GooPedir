@@ -3,58 +3,230 @@ unit uControllerSite;
 interface
 
 uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
-  uRequisicao, System.DateUtils, System.JSON, JOSE.Core.JWT, JOSE.Core.Builder, System.NetEncoding, System.Hash;
+  uRequisicao, System.DateUtils, System.JSON, JOSE.Core.JWT, JOSE.Core.Builder,
+  System.NetEncoding, System.Hash, DataSet.Serialize,
+  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope,uGlobais;
 
 function SiteCategoria(codigo, user: Integer): Integer;
 procedure SiteSabores(codigoGrupo, user: Integer);
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
-function EnviaImagem(Codigo,Base64 : String):String;
+function EnviaImagem(codigo, Base64: String): String;
 
 function GerarTokenJWT(userId: Integer): string;
+function PostCategoriaTipoProdutoExpress(userId, codigo: Integer): Integer;
+function PostProdutoExpress(userId, codigo: Integer): Integer;
+function PostAdicionalCategoriaExpress(userId, idItem, codigo: Integer)
+  : Integer;
+function PostAdicionalItemExpress(userId, idAdicionalCat,
+  codigo: Integer): Integer;
 
 implementation
+
+function PostAdicionalItemExpress(userId, idAdicionalCat,
+  codigo: Integer): Integer;
+var
+  Requisicao: iRequisicao;
+  Conexao: TConexao;
+  A: String;
+  JSONResp: TJSONObject;
+begin
+  Result := -1;
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.TempoExpiracao := 30 * 1000;
+
+  Requisicao.URL := 'api/interno/adicional/item';
+  Requisicao.Metodo := mPost;
+
+  Conexao := TConexao.Create('uSite');
+  Conexao.SQL.Add
+    ('select * from pro_adi_personalizado_sabores where id = :codigo');
+  Conexao.Parametros('codigo', codigo);
+
+  try
+    Requisicao.AddHEader('user', userId.ToString);
+    Requisicao.AddHEader('idadicionalcat', idAdicionalCat.ToString);
+    A := Conexao.ConsultaSQL.ToJSON;
+    A := StringReplace(A, 'Null', '', []);
+    A := StringReplace(A, 'null', '""', [rfReplaceAll]);
+    Requisicao.BODY(A);
+    Requisicao.Execute;
+
+    if Requisicao.Status = 200 then
+    begin
+      JSONResp := TJSONObject.ParseJSONValue(Requisicao.Retorno) as TJSONObject;
+      try
+        if JSONResp.GetValue<Boolean>('sucesso') then
+          Result := JSONResp.GetValue<Integer>('id');
+      finally
+        JSONResp.Free;
+      end;
+    end;
+  finally
+    Conexao.Free;
+    Requisicao.Free;
+  end;
+end;
+
+function PostAdicionalCategoriaExpress(userId, idItem, codigo: Integer)
+  : Integer;
+var
+  Requisicao: iRequisicao;
+  Conexao: TConexao;
+  A: String;
+  JSONResp: TJSONObject;
+begin
+  Result := -1;
+  Requisicao := iRequisicao.Create(nil);
+
+  Requisicao.BaseURL := API_BASE_URL;
+
+  Requisicao.TempoExpiracao := 30 * 1000;
+
+  Requisicao.URL := 'api/interno/adicional/categoria';
+  Requisicao.Metodo := mPost;
+
+  Conexao := TConexao.Create('uSite');
+  Conexao.SQL.Add('select * from pro_adi_personalizado where id = :codigo');
+  Conexao.Parametros('codigo', codigo);
+
+  try
+    Requisicao.AddHEader('user', userId.ToString);
+    Requisicao.AddHEader('iditem', idItem.ToString);
+    A := Conexao.ConsultaSQL.ToJSON;
+    A := StringReplace(A, 'null', '""', [rfReplaceAll]);
+
+    Requisicao.BODY(A);
+    Requisicao.Execute;
+
+    if Requisicao.Status = 200 then
+    begin
+      JSONResp := TJSONObject.ParseJSONValue(Requisicao.Retorno) as TJSONObject;
+      try
+        if JSONResp.GetValue<Boolean>('sucesso') then
+          Result := JSONResp.GetValue<Integer>('id');
+      finally
+        JSONResp.Free;
+      end;
+    end;
+  finally
+    Conexao.Free;
+    Requisicao.Free;
+  end;
+end;
+
+function PostProdutoExpress(userId, codigo: Integer): Integer;
+var
+  Requisicao: iRequisicao;
+  Conexao: TConexao;
+  A: String;
+  JSONResp: TJSONObject;
+  Dados: TFDMemTable;
+  Categoria: Integer;
+begin
+  Result := -1;
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.TempoExpiracao := 30 * 1000;
+  Requisicao.URL := 'api/interno/produto'; // rota no Node
+  Requisicao.Metodo := mPost;
+  Conexao := TConexao.Create('uSite');
+  Conexao.SQL.Add('select * from produto where codigo = :codigo');
+  Conexao.Parametros('codigo', codigo);
+
+  Dados := TFDMemTable.Create(nil);
+
+  try
+    A := Conexao.ConsultaSQL.ToJSON;
+    Dados.LoadFromJSON(A);
+    Requisicao.AddHEader('user', userId.ToString);
+    Requisicao.AddHEader('codigo', codigo.ToString);
+    Categoria := SiteCategoria(Dados.FieldByName('codigo_grupo')
+      .AsInteger, userId);
+    if Categoria > 0 then
+    begin
+      Requisicao.AddHEader('categoria', Categoria.ToString);
+      A := StringReplace(A, 'null', '""', [rfReplaceAll]);
+      Requisicao.BODY(A);
+      Requisicao.Execute;
+
+      if Requisicao.Status = 200 then
+      begin
+        JSONResp := TJSONObject.ParseJSONValue(Requisicao.Retorno)
+          as TJSONObject;
+        try
+          if JSONResp.GetValue<Boolean>('sucesso') then
+            Result := JSONResp.GetValue<Integer>('id');
+        finally
+          JSONResp.Free;
+        end;
+      end;
+    end;
+  finally
+    Conexao.Free;
+    Requisicao.Free;
+    Dados.Free;
+  end;
+end;
+
+function PostCategoriaTipoProdutoExpress(userId, codigo: Integer): Integer;
+var
+
+  Requisicao: iRequisicao;
+  Conexao: TConexao;
+  Query: TFDQuery;
+  A: String;
+begin
+  Result := -1; // valor padrão em caso de erro
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.TempoExpiracao := 30 * 1000;
+  Requisicao.URL := 'api/interno/categoria/tipo/produto';
+  Requisicao.Metodo := mPost;
+
+  Conexao := TConexao.Create('uSite');
+  Conexao.SQL.Add('select * from tipo_produto where codigo = :codigo');
+  Conexao.Parametros('codigo', codigo);
+
+  try
+    Requisicao.AddHEader('user', userId.ToString);
+    Requisicao.AddHEader('codigo', codigo.ToString);
+    A := Conexao.ConsultaSQL.ToJSON;
+    Requisicao.BODY(A);
+    A := StringReplace(A, 'null', '""', [rfReplaceAll]);
+    Requisicao.Execute;
+
+    if Requisicao.Status = 200 then
+    begin
+      var
+      JSONResp := TJSONObject.ParseJSONValue(Requisicao.Retorno) as TJSONObject;
+      try
+        if (JSONResp.GetValue<Boolean>('sucesso')) then
+          Result := JSONResp.GetValue<Integer>('id');
+      finally
+        JSONResp.Free;
+      end;
+    end
+
+  finally
+    Requisicao.Free;
+  end;
+end;
 
 function SiteCategoria(codigo, user: Integer): Integer;
 var
   Conexao: TConexao;
   Query: TFDQuery;
 begin
-  Conexao := TConexao.Create('uSite');
-  Query := Conexao.CriaQRY;
-  try
-    Query.SQL.Text := 'select * from tipo_produto where codigo = :codigo';
-    Query.ParamByName('codigo').AsInteger := codigo;
-    Query.Open;
-
-    Result := InserirUpdate('ws_cat', user.ToString,
-      ['id', 'user_id', 'dias_semana', 'nome_cat', 'desc_cat', 'icon_cat',
-      'ordem', 'descricao', 'borda_topo_direito', 'borda_topo_esquerdo',
-      'borda_inferior_direito', 'borda_inferior_esquerdo', 'espacamento',
-      'fonte_nome', 'fonte_descricao', 'cor_fundo', 'cor_nome',
-      'cor_descricao','altura','opacidade','local','pizza'], [Query.FieldByName('id_site').AsString, user.ToString,
-      'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
-      Query.FieldByName('descricao').AsWideString, '', Query.FieldByName('url').AsWideString,
-      Query.FieldByName('ordem').AsString, Query.FieldByName('descricao_cat')
-      .AsWideString, Query.FieldByName('borda_topo_direito').AsWideString,
-      Query.FieldByName('borda_topo_esquerdo').AsWideString,
-      Query.FieldByName('borda_inferior_direito').AsWideString,
-      Query.FieldByName('borda_inferior_esquerdo').AsWideString,
-      Query.FieldByName('espacamento').AsWideString,
-      Query.FieldByName('fonte_nome').AsWideString,
-      Query.FieldByName('fonte_descricao').AsWideString,
-      Query.FieldByName('cor_fundo').AsWideString, Query.FieldByName('cor_nome').AsWideString, Query.FieldByName('cor_descricao').AsWideString,Query.FieldByName('espacamento').AsString, Query.FieldByName('opacidade').AsString,Query.FieldByName('local').AsString,Query.FieldByName('pizza').AsString]);
-
-    if Result > 0 then
-    begin
-      Query.SQL.Text :=
-        'update tipo_produto set modificado_site = 1, id_site = :site where codigo = :codigo';
-      Query.ParamByName('site').AsInteger := Result;
-      Query.ParamByName('codigo').AsInteger := codigo;
-      Query.ExecSQL;
-    end;
-
-  finally
-    Query.Free;
+  Result := PostCategoriaTipoProdutoExpress(user, codigo);
+  if Result > 0 then
+  begin
+    Conexao := TConexao.Create('uSite');
+    Conexao.SQL.Add
+      ('update tipo_produto set modificado_site = 1, id_site = :site where codigo = :codigo');
+    Conexao.Parametros('site', Result);
+    Conexao.Parametros('codigo', codigo);
+    Conexao.ExecuteSQL;
     Conexao.Free;
   end;
 end;
@@ -122,39 +294,39 @@ end;
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
 var
   Conexao: TConexao;
-  url : String;
+  URL: String;
 begin
 
- url := EnviaImagem(Codigo.ToString,Base64);
+  URL := EnviaImagem(codigo.ToString, Base64);
   Conexao := TConexao.Create('uSite');
-  Conexao.SQL.Add('update produto set caminho_imagem = :img, foto_ifood = :img where id_site = :codigo');
-  Conexao.Parametros('img', url);
+  Conexao.SQL.Add
+    ('update produto set caminho_imagem = :img, foto_ifood = :img where id_site = :codigo');
+  Conexao.Parametros('img', URL);
   Conexao.Parametros('codigo', codigo);
   Conexao.ExecuteSQL;
   Conexao.Free;
 
-
-
 end;
 
-function EnviaImagem(Codigo, Base64: string): string;
+function EnviaImagem(codigo, Base64: string): string;
 var
   Requisicao: iRequisicao;
   JsonRetorno: TJSONObject;
 begin
   Requisicao := iRequisicao.Create(nil);
   try
-    Requisicao.BaseURL := 'https://fotos.goopedir.com/';
-    Requisicao.AddHeader('nome', Codigo);
-    Requisicao.AddHeader('Content-Type', 'application/json');
+    Requisicao.BaseURL := API_FOTO;
+    Requisicao.AddHEader('nome', codigo);
+    Requisicao.AddHEader('Content-Type', 'application/json');
     Requisicao.Metodo := mPost;
-    Requisicao.Body(Base64);
+    Requisicao.BODY(Base64);
     Requisicao.TempoExpiracao := 15 * 1000;
 
     Requisicao.Execute;
 
     // Extrai a URL do JSON retornado
-    JsonRetorno := TJSONObject.ParseJSONValue(Requisicao.Retorno) as TJSONObject;
+    JsonRetorno := TJSONObject.ParseJSONValue(Requisicao.Retorno)
+      as TJSONObject;
     try
       if Assigned(JsonRetorno) then
       begin
@@ -180,8 +352,6 @@ begin
   Requisicao.Free;
 end;
 
-
-
 function GerarTokenJWT(userId: Integer): string;
 const
   CHAVE_SECRETA = 'ALLAN@GOOPEDIR.COM.BR2023'; // Mesma chave usada no Node.js
@@ -195,19 +365,15 @@ begin
   headerBase64 := TNetEncoding.Base64URL.Encode(header);
 
   // 2. Payload
-  payload := Format('{"userId":%d,"iat":%d,"exp":%d}', [
-    userId,
-    DateTimeToUnix(Now),
-    DateTimeToUnix(IncSecond(Now, 11000)) // 60 segundos
-  ]);
+  payload := Format('{"userId":%d,"iat":%d,"exp":%d}',
+    [userId, DateTimeToUnix(Now), DateTimeToUnix(IncSecond(Now, 11000))
+    // 60 segundos
+    ]);
   payloadBase64 := TNetEncoding.Base64URL.Encode(payload);
 
   // 3. Assinatura (CRÍTICO)
-  signatureBytes := THashSHA2.GetHMACAsBytes(
-    headerBase64 + '.' + payloadBase64,
-    CHAVE_SECRETA,
-    THashSHA2.TSHA2Version.SHA256
-  );
+  signatureBytes := THashSHA2.GetHMACAsBytes(headerBase64 + '.' + payloadBase64,
+    CHAVE_SECRETA, THashSHA2.TSHA2Version.SHA256);
   signatureBase64 := TNetEncoding.Base64URL.EncodeBytesToString(signatureBytes);
 
   // 4. Token final

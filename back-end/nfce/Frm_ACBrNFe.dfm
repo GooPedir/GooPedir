@@ -26,7 +26,7 @@ object frmACBrNFe: TfrmACBrNFe
       Top = 0
       Width = 295
       Height = 544
-      ActivePage = TabSheet2
+      ActivePage = TabSheet1
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'Configura'#231#245'es'

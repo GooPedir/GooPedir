@@ -22,7 +22,7 @@ uses
   System.Generics.Collections,
   REST.Types,
   Data.Bind.Components,
-   System.SyncObjs,
+  System.SyncObjs,
   Horse.XMLDoc, Xml.XMLDoc,
   System.IOUtils,
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
@@ -32,12 +32,13 @@ uses
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
-  uAtualizacaoSite;
+  uAtualizacaoSite, uGlobais, uProcedure;
 
 type
   TBalancaManager = class
   private
     FBalancas: TDictionary<string, Double>;
+    FCritica: TCriticalSection;
   public
     constructor Create;
     destructor Destroy; override;
@@ -159,6 +160,9 @@ type
     memErrosNFCEdata: TDateTimeField;
     memErrosNFCEpedido: TIntegerField;
     memErrosNFCEerros: TStringField;
+    tBackupFTP: TTimer;
+    memPaineis: TFDMemTable;
+    memBanner: TFDMemTable;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -245,6 +249,10 @@ type
     procedure ExecutarSQLScript(const SQLText: string);
     function SincronizarBackupFTP(const CaminhoArquivo,
       NomeUsuario: string): Boolean;
+    function FTP_DirectoryExists(FTP: TIdFTP; const Directory: string): Boolean;
+    procedure tBackupFTPTimer(Sender: TObject);
+
+    procedure ReProcessaImpressaoPedidoProduto(conexao: Tconexao);
 
   private
     FHorSite: TDateTime;
@@ -366,7 +374,7 @@ type
     property NomeExeSite: String read FNomeExeSite write SetNomeExeSite;
 
     function GetCachedData: string;
-    procedure BuscarWhatsappHeroku;
+
     procedure DadosApiWhatsapp;
     procedure DadosWhatsapp;
     procedure DadosQrCod;
@@ -434,6 +442,9 @@ type
     function GetTipopagamento: TJsonArray;
 
   var
+    BalancaManager: TBalancaManager;
+
+  var
     FechouWhatsapp: Boolean;
     FechouSite: Boolean;
 
@@ -459,7 +470,8 @@ type
     // Dados Publicos Padrão
     TaxaEntrega: TFDMemTable;
     TipoPagamento: TFDMemTable;
-BalancaManager: TBalancaManager;
+    NomeArquivoBackup: String;
+
   end;
 
 var
@@ -593,7 +605,7 @@ begin
 
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
-    APIGoopedir := TGooPedirAPIController.Create('https://api.goopedir.com.br/',
+    APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
       frmServidor.Configuracoes.FieldByName('client_id').AsString,
       frmServidor.Configuracoes.FieldByName('client_security').AsString,
       GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
@@ -874,10 +886,10 @@ begin
     JsonObject.AddPair('adicional', JsonAdicionais);
     JsonObject.AddPair('sabores', JsonSabores);
 
-    // //showmessage1(JsonObject.ToString);
+    IniFile.WriteString('ATIVA', 'JSON', JsonObject.ToString);
 
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := 'https://ws.goopedir.com/v1/itens.php';
+    Req.BaseURL := 'api.goopedir.com.br/api/empresa/atualiza/cardapio';
     Req.BODY(JsonObject);
 
     Req.Metodo := mPost;
@@ -890,9 +902,7 @@ begin
     on E: Exception do
     begin
       ShowMessage(E.Message);
-
     end;
-
   end;
   IniFile.WriteDate('ATIVA', 'ATIVA', Date);
   IniFile.Free;
@@ -1396,78 +1406,6 @@ begin
 
 end;
 
-procedure TfrmServidor.BuscarWhatsappHeroku;
-var
-  Req: iRequisicao;
-  JSONObj: TJsonObject;
-  InstanceData: TJsonObject;
-  user: TJsonObject;
-  ErrorValue: Boolean;
-  IDValue: string;
-begin
-
-  if UserID > 0 then
-  begin
-    Req := iRequisicao.Create(nil);
-    Req.BaseURL := 'whatsapp-api.goopedir.com/instance/';
-    Req.URL := 'info?key=' + UserID.ToString;
-    Req.Execute;
-
-    JSONObj := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
-    try
-      if Assigned(JSONObj) then
-      begin
-        // Extrai o valor do campo 'error'
-        ErrorValue := JSONObj.GetValue<Boolean>('error');
-        if not ErrorValue then
-        begin
-          StatusWhatsapp := true;
-          // Extrai o campo 'instance_data'
-          InstanceData := JSONObj.GetValue<TJsonObject>('instance_data');
-          if Assigned(InstanceData) then
-          begin
-            // Extrai o campo 'user'
-            user := InstanceData.GetValue<TJsonObject>('user');
-            if Assigned(user) then
-            begin
-              // Extrai o valor do campo 'id'
-              try
-                IDValue := user.GetValue<string>('id');
-                NumeroWhatsapp := FormatPhoneNumber(IDValue);
-              except
-                StatusWhatsapp := false;
-                JSONObj.Free;
-                Req.URL := 'qrbase64?key=' + UserID.ToString;
-                Req.Execute;
-                JSONObj := TJsonObject.ParseJSONValue(Req.Retorno)
-                  as TJsonObject;
-                Base64Whatsapp :=
-                  StringReplace(JSONObj.GetValue<String>('qrcode'),
-                  'data:image/png;base64,', '', [rfReplaceAll]);
-              end;
-
-            end;
-
-          end;
-        end
-        else
-        begin
-          Req.URL := 'init?key=' + UserID.ToString + '&token=goopedir-whatsapp';
-          Req.Execute;
-          Req.Free;
-          BuscarWhatsappHeroku;
-          exit;
-        end;
-      end;
-    finally
-      JSONObj.Free;
-    end;
-
-  end;
-  Req.Free;
-
-end;
-
 procedure TfrmServidor.ComandaStatus;
 begin
 
@@ -1612,7 +1550,7 @@ var
   ErrorValue: Boolean;
   user: TJsonObject;
 begin
-
+  ContadorDePedidos;
   if UserID > 0 then
   begin
     Req := iRequisicao.Create(nil);
@@ -1679,7 +1617,6 @@ begin
     Requisicao := iRequisicao.Create(nil);
     Requisicao.URL := 'https://ws.goopedir.com/v1/faturasn/' +
       frmServidor.UserID.ToString + '/a';
-    // Requisicao.URL := 'https://ws.goopedir.com/v1/faturasn/44/a';
     Requisicao.TempoExpiracao := 60 * 1000;
     Requisicao.Execute;
 
@@ -2052,26 +1989,6 @@ begin
   JsonObjec.AddPair('body', TJsonObject.ParseJSONValue(JSONBody)
     as TJsonObject);
 
-  // iGlitchtip := iRequisicao.Create(nil);
-  // iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
-  // iGlitchtip.BODY(JsonObjec);
-  //
-  // try
-  // iGlitchtip.Metodo := mPost;
-  //
-  // iGlitchtip.Execute;
-  //
-  // except
-  // on E: Exception do
-  // begin
-  // //showmessage(E.Message);
-  // end;
-  //
-  // end;
-  // iGlitchtip.Free;
-
-  // Criando o TRESTClient
-
   RESTClient1 := TRESTClient.Create(nil);
   try
     RESTClient1.BaseURL := 'https://ws.goopedir.com/glitchtip/index.php';
@@ -2312,7 +2229,7 @@ end;
 
 function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
 var
-  CmdLine, MySQLDumpPath, BackupPath, PastaBackup: string;
+  CmdLine, MySQLDumpPath, PastaBackup: string;
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
@@ -2320,8 +2237,14 @@ begin
 
   PastaBackup := ExtractFilePath(ParamStr(0)) + 'backup\bd\';
   ForceDirectories(PastaBackup);
-  BackupPath := PastaBackup + conexao.NomeBanco + FormatDateTime('ddmmyyyy',
-    now) + '.sql';
+  NomeArquivoBackup := PastaBackup + conexao.NomeBanco +
+    FormatDateTime('ddmmyyyy', now) + '.sql';
+
+  if FileExists(NomeArquivoBackup) then
+  begin
+    tBackupFTP.Enabled := true;
+    exit;
+  end;
 
   MySQLDumpPath := GetMySQLDumpPath;
   if MySQLDumpPath = '' then
@@ -2333,7 +2256,7 @@ begin
   // Importante: usar aspas duplas corretas
   CmdLine := Format('cmd.exe /C ""%s" -u%s -p%s --databases %s > "%s""',
     [MySQLDumpPath, conexao.Usuario, conexao.senha, conexao.NomeBanco,
-    BackupPath]);
+    NomeArquivoBackup]);
 
   ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
   StartupInfo.cb := SizeOf(StartupInfo);
@@ -2346,10 +2269,14 @@ begin
     CloseHandle(ProcessInfo.hProcess);
     CloseHandle(ProcessInfo.hThread);
 
-    if FileExists(BackupPath) and (FileSizeByName(BackupPath) > 0) then
-      Result := true
-      // else
-      // ShowMessage('Arquivo gerado, mas está vazio ou inválido: ' + BackupPath);
+    if FileExists(NomeArquivoBackup) and (FileSizeByName(NomeArquivoBackup) > 0)
+    then
+    begin
+      Result := true;
+      tBackupFTP.Enabled := true;
+    end;
+    // else
+    // ShowMessage('Arquivo gerado, mas está vazio ou inválido: ' + BackupPath);
   end;
 
 end;
@@ -2679,7 +2606,7 @@ begin
   conexao.ExecuteSQL;
 
   VersaoMysql := conexao.ValidaVersao;
-
+  GerarLog := true;
   try
     conexao.SQL.Add('select * from dados_whatsapp');
     frmServidor.Configuracoes.Close;
@@ -2715,7 +2642,19 @@ begin
     Application.Terminate;
     exit;
   end;
+  // SincronizarBackupFTP('C:\goopedir\backup\bd\viapian_forquilhinha19072025.sql','1');
+end;
 
+function TfrmServidor.FTP_DirectoryExists(FTP: TIdFTP;
+  const Directory: string): Boolean;
+begin
+  Result := true;
+  try
+    FTP.List(nil, Directory, false);
+  except
+    on E: Exception do
+      Result := false;
+  end;
 end;
 
 function TfrmServidor.GenerateUUID: string;
@@ -4792,6 +4731,164 @@ begin
   AbrirExe(frmServidor.IMPRESSAO);
 end;
 
+procedure TfrmServidor.ReProcessaImpressaoPedidoProduto(conexao: Tconexao);
+var
+  Dados: TFDMemTable;
+  Codigo: Integer;
+begin
+  Dados := TFDMemTable.Create(nil);
+
+  conexao.SQL.Add('SELECT ');
+  conexao.SQL.Add('p.codigo as codigo_imprimir_pedido,');
+  conexao.SQL.Add('ip.id as codigo_impressao_pedido,');
+  conexao.SQL.Add('ip.hora_impressao as hora_impressao_pedido,');
+  conexao.SQL.Add('       CASE ');
+  conexao.SQL.Add('           WHEN p.origem = 3 THEN true');
+  conexao.SQL.Add('           ELSE false');
+  conexao.SQL.Add('       END AS mesa,');
+  conexao.SQL.Add('p.codigo_pedido_dia,');
+  conexao.SQL.Add('pp.codigo as codigo_imprimir_produto,');
+  conexao.SQL.Add('ipp.id as codigo_impressao_pedido_produto,');
+  conexao.SQL.Add('ipp.hora_impressao as hora_impressao_pedido_produto,');
+  conexao.SQL.Add('TIMESTAMPDIFF(MINUTE, pp.hora, NOW()) AS tempo');
+  conexao.SQL.Add('FROM pedido_produtos as pp');
+  conexao.SQL.Add('join pedido as p on p.codigo = pp.codigo_pedido');
+  conexao.SQL.Add
+    ('left join impressao_pedido as ip on ip.id_pedido = p.codigo');
+  conexao.SQL.Add
+    ('left join impressao_pedido_produto as ipp on ipp.id_pedido = pp.codigo');
+  conexao.SQL.Add
+    ('where pp.impresso <> 1 and pp.codigo_pedido > 0 and DATE(pp.hora) = curdate()');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount = 0 then
+  begin
+    Dados.Free;
+    exit;
+  end;
+
+  while not Dados.Eof do
+  begin
+    if (Dados.FieldByName('mesa').AsInteger = 1) and
+      (Dados.FieldByName('tempo').AsInteger > 2) then
+    begin
+
+      if (Dados.FieldByName('codigo_impressao_pedido_produto').AsInteger = 0)
+      then
+      begin
+        // Se for maior que 5m e não estiver na fila, deve lançar ele na fila
+        conexao.SQL.Add
+          ('insert into impressao_pedido_produto (id_pedido,status,data_solicitacao,hora_solicitacao,usuario) values (:codigo,1,curdate(),curtime(),-2)');
+        conexao.Parametros('codigo',
+          Dados.FieldByName('codigo_imprimir_produto').AsInteger);
+        conexao.ExecuteSQL;
+
+      end
+      else
+      begin
+        conexao.SQL.Add
+          ('update impressao_pedido_produto set status = 0 where id = :id');
+        conexao.Parametros('id',
+          Dados.FieldByName('codigo_impressao_pedido_produto').AsInteger);
+        conexao.ExecuteSQL;
+      end;
+
+    end
+    else
+    begin
+      if (Dados.FieldByName('tempo').AsInteger > 2) then
+      begin
+        // Validação do pedido
+        if (Dados.FieldByName('codigo_pedido_dia').AsInteger > 0) then
+        begin
+          if (Dados.FieldByName('codigo_impressao_pedido').AsInteger = 0) then
+          begin
+            // Inserir registro
+            conexao.SQL.Add
+              ('select * from impressao_pedido where impressao_pedido = :pedido');
+            conexao.Parametros('pedido',
+              Dados.FieldByName('codigo_imprimir_pedido').AsInteger);
+            try
+              Codigo := conexao.FieldByName('id');
+            except
+              Codigo := 0;
+            end;
+
+            if Codigo = 0 then
+            begin
+              Codigo := conexao.GerarID('impressao_pedido', 'id');
+              conexao.SQL.Add
+                ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
+              conexao.SQL.Add
+                ('values  (:id,current_date, current_time,:pedido,:status)');
+              conexao.Parametros('id', Codigo);
+              conexao.Parametros('pedido',
+                Dados.FieldByName('codigo_imprimir_pedido').AsInteger);
+              conexao.Parametros('status', 0);
+              conexao.ExecuteSQL;
+            end;
+          end
+          else
+          begin
+            // Liberar
+            if (Dados.FieldByName('hora_impressao_pedido').AsString = '') then
+            begin
+              conexao.SQL.Add
+                ('update impressao_pedido set status = 0 where id = :id');
+              conexao.Parametros('id',
+                Dados.FieldByName('codigo_impressao_pedido').AsInteger);
+              conexao.ExecuteSQL;
+            end;
+          end;
+        end;
+        // Validação Produto
+        if (Dados.FieldByName('codigo_impressao_pedido_produto').AsInteger = 0)
+        then
+        begin
+          conexao.SQL.Add
+            ('insert into impressao_pedido_produto (id_pedido,status,data_solicitacao,hora_solicitacao,usuario) values (:codigo,1,curdate(),curtime(),-2)');
+          conexao.Parametros('codigo',
+            Dados.FieldByName('codigo_imprimir_produto').AsInteger);
+          conexao.ExecuteSQL;
+        end
+        else
+        begin
+          if (Dados.FieldByName('hora_impressao_pedido_produto').AsString = '')
+          then
+          begin
+            conexao.SQL.Add
+              ('update impressao_pedido_produto set status = 0 where id = :id');
+            conexao.Parametros('id',
+              Dados.FieldByName('codigo_impressao_pedido_produto').AsInteger);
+            conexao.ExecuteSQL;
+          end;
+        end;
+
+      end;
+
+
+
+
+      // if Codigo = 0 then
+      // begin
+      //
+
+      // end;
+      // end;
+      // if (Dados.FieldByName('codigo_impressao_pedido').AsInteger > 0) and
+      // (Dados.FieldByName('hora_impressao_pedido_produto').AsString = '') then
+      // begin
+      //
+      // end;
+
+    end;
+
+    Dados.Next;
+  end;
+
+  Dados.Free;
+end;
+
 procedure TfrmServidor.ResetUser;
 begin
   user := 0;
@@ -4990,10 +5087,11 @@ var
   LCaixaId: Integer;
   LLink: string;
 begin
+  exit;
   try
     conexao := Tconexao.Create('SincronizaCaixa');
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := 'https://api.goopedir.com.br';
+    Req.BaseURL := API_BASE_URL;
     Req.URL := '/api/interno/caixa/sinc';
     Req.Metodo := mPost;
 
@@ -5107,62 +5205,85 @@ end;
 
 function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
   NomeUsuario: string): Boolean;
-var
-  FTP: TIdFTP;
-  SSL: TIdSSLIOHandlerSocketOpenSSL;
-  AnoMes, PastaRemota, NomeArquivo: string;
 begin
-  Result := false;
-  FTP := TIdFTP.Create(nil);
-  SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  try
-    try
-      // Dados de conexão FTP
-      FTP.Host := 'ftp.goopedir.com';
-      FTP.Username := 'u567036950.banco';
-      FTP.Password := 'banco#Goopedir@2025';
-      FTP.Passive := true;
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      FTP: TIdFTP;
+      SSL: TIdSSLIOHandlerSocketOpenSSL;
+      AnoMes, PastaRemota, NomeArquivoOriginal, NomeArquivoLimpo,
+        NomeSemExtensao, Extensao: string;
+    begin
+      FTP := TIdFTP.Create(nil);
+      SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+      try
+        try
+          FTP.Host := 'ftp.goopedir.com';
+          FTP.Username := 'u567036950.banco';
+          FTP.Password := 'banco#Goopedir@2025';
+          FTP.Passive := true;
+          FTP.ConnectTimeout := 15000;
+          FTP.Connect;
 
-      // Configurar SSL se necessário (caso use FTPS)
-      // FTP.IOHandler := SSL;
-      // FTP.UseTLS := utUseImplicitTLS;
+          AnoMes := FormatDateTime('yyyy_mm', now);
+          PastaRemota := NomeUsuario + '/' + AnoMes;
 
-      FTP.ConnectTimeout := 15000;
-      FTP.Connect;
+          // Cria diretórios
+          try
+            FTP.MakeDir(NomeUsuario);
+          except
 
-      // Montar o caminho remoto
-      AnoMes := FormatDateTime('yyyy_mm', now);
-      PastaRemota := NomeUsuario + '/' + AnoMes;
+          end;
+          try
+            FTP.MakeDir(PastaRemota);
+          except
 
-      // Criar diretórios se necessário
-      // if not FTP.DirectoryExists(NomeUsuario) then
-      // FTP.MakeDir(NomeUsuario);
-      // if not FTP.DirectoryExists(PastaRemota) then
-      // FTP.MakeDir(PastaRemota);
+          end;
+          FTP.ChangeDir(PastaRemota);
 
-      // Mudar para o diretório remoto de destino
-      FTP.ChangeDir(PastaRemota);
+          NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
 
-      // Nome do arquivo
-      NomeArquivo := ExtractFileName(CaminhoArquivo);
+          // Remove data do nome
+          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
+          Extensao := ExtractFileExt(NomeArquivoOriginal);
+          while (length(NomeSemExtensao) > 0) and
+            (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
+            Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
+          NomeArquivoLimpo := NomeSemExtensao + Extensao;
 
-      // Apagar backup anterior, se existir
-      if FTP.Size(NomeArquivo) > 0 then
-        FTP.Delete(NomeArquivo);
+          // Apaga arquivo anterior, se existir
+          try
+            if FTP.Size(NomeArquivoLimpo) > 0 then
+              FTP.Delete(NomeArquivoLimpo);
+          except
+            // Ignora erro se não existir
+          end;
 
-      // Enviar novo arquivo
-      FTP.Put(CaminhoArquivo, NomeArquivo, false);
+          FTP.Put(CaminhoArquivo, NomeArquivoLimpo, false);
 
-      Result := true;
-    except
-      on E: Exception do
-        Writeln('Erro ao sincronizar backup: ' + E.Message);
-    end;
-  finally
-    FTP.Disconnect;
-    FTP.Free;
-    SSL.Free;
-  end;
+          // Se quiser dar feedback para o usuário na thread principal:
+          TThread.Synchronize(nil,
+            procedure
+            begin
+              // ShowMessage('Backup enviado com sucesso!');
+            end);
+
+        except
+          on E: Exception do
+            TThread.Synchronize(nil,
+              procedure
+              begin
+                ShowMessage('Erro ao sincronizar backup: ' + E.Message);
+
+              end);
+        end;
+      finally
+        if FTP.Connected then
+          FTP.Disconnect;
+        FTP.Free;
+        SSL.Free;
+      end;
+    end).Start;
 end;
 
 function TfrmServidor.SITE(Nome: string): String;
@@ -5214,6 +5335,17 @@ begin
   except
     Result := 0;
   end;
+end;
+
+procedure TfrmServidor.tBackupFTPTimer(Sender: TObject);
+begin
+  if (NomeArquivoBackup = '') then
+    exit;
+
+  if UserID < 1 then
+    exit;
+  tBackupFTP.Enabled := false;
+  SincronizarBackupFTP(NomeArquivoBackup, UserID.ToString);
 end;
 
 procedure TfrmServidor.TemAtualizacao;
@@ -5298,6 +5430,7 @@ begin
         + '"client_security":"' + frmServidor.Configuracoes.FieldByName
         ('client_security').AsString + '"' + #13 + '}';
       test := '1';
+
       Requisicao.Metodo := mPost;
       Requisicao.BODY(BODY);
       Requisicao.TempoExpiracao := 60 * 1000;
@@ -5307,6 +5440,7 @@ begin
 
       JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
         as TJsonObject;
+
       test := '3';
 
       // Data := TransformaData(JSonDadosSite.Get('empresa_data_renovacao').JsonValue.ToString);
@@ -5495,25 +5629,6 @@ begin
         // Extrai nome do banco entre as aspas
         DatabaseName := Copy(E.Message, Pos('''', E.Message) + 1, MaxInt);
         DatabaseName := Copy(DatabaseName, 1, Pos('''', DatabaseName) - 1);
-
-        // Valida conexão com a internet
-        // if not TestarConexaoInternet then
-        // raise Exception.Create('Sem conexão com a internet. Não é possível criar o banco de dados.');
-
-        // Faz o download do arquivo .sql
-        // HTTP := TIdHTTP.Create(nil);
-        // SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-        // Stream := TStringStream.Create;
-        // try
-        // HTTP.IOHandler := SSL;
-        // HTTP.ReadTimeout := 15000;
-        // HTTP.Get('https://goopedir.com/new.sql', Stream);
-        // SQLScript := Stream.DataString;
-        // finally
-        // Stream.Free;
-        // SSL.Free;
-        // HTTP.Free;
-        // end;
 
         iReq := iRequisicao.Create(nil);
         iReq.URL := 'https://goopedir.com/new.sql';
@@ -5767,45 +5882,49 @@ begin
 end;
 
 { TBalancaManager }
+
 constructor TBalancaManager.Create;
 begin
   FBalancas := TDictionary<string, Double>.Create;
+  FCritica := TCriticalSection.Create;
 end;
 
 destructor TBalancaManager.Destroy;
 begin
   FBalancas.Free;
+  FCritica.Free;
   inherited;
 end;
 
-procedure TBalancaManager.AtualizarPeso(const BalancaId: string; const Peso: Double);
+procedure TBalancaManager.AtualizarPeso(const BalancaId: string;
+const Peso: Double);
 begin
-  TMonitor.Enter(FBalancas);
+  FCritica.Acquire;
   try
     FBalancas.AddOrSetValue(BalancaId, Peso);
   finally
-    TMonitor.Exit(FBalancas);
+    FCritica.Release;
   end;
 end;
 
 function TBalancaManager.ObterPeso(const BalancaId: string): Double;
 begin
-  TMonitor.Enter(FBalancas);
+  FCritica.Acquire;
   try
     if not FBalancas.TryGetValue(BalancaId, Result) then
       Result := 0.0;
   finally
-    TMonitor.Exit(FBalancas);
+    FCritica.Release;
   end;
 end;
 
 function TBalancaManager.ExisteBalanca(const BalancaId: string): Boolean;
 begin
-  TMonitor.Enter(FBalancas);
+  FCritica.Acquire;
   try
     Result := FBalancas.ContainsKey(BalancaId);
   finally
-    TMonitor.Exit(FBalancas);
+    FCritica.Release;
   end;
 end;
 

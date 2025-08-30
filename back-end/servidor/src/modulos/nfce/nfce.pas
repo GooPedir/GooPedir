@@ -4,7 +4,7 @@ interface
 
 uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
-  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
+  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,uGlobais,
   uRequisicao, System.RegularExpressions, REST.Client, REST.Types;
 
 procedure Registry;
@@ -401,7 +401,7 @@ var
   RESTRequest: TRESTRequest;
   RESTResponse: TRESTResponse;
 begin
-  RESTClient := TRESTClient.Create('https://nfce.goopedir.com/deletar.php');
+  RESTClient := TRESTClient.Create(API_NFCE+'deletar.php');
   RESTRequest := TRESTRequest.Create(nil);
   RESTResponse := TRESTResponse.Create(nil);
   try

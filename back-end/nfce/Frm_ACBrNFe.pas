@@ -313,6 +313,9 @@ type
     procedure AtualizarSSLLibsCombo;
     procedure PrepararImpressao;
     function SomenteNumeros(const AStr: string): string;
+    function ValidarCPF(const CPF: string): Boolean;
+    function ValidarCNPJ(const CNPJ: string): Boolean;
+    function ValidarDocumento(const Documento: string): Boolean;
   public
     { Public declarations }
     procedure ZipFolder(const SourceFolder, DestinationZip: string);
@@ -763,9 +766,13 @@ begin
       .AsString);
     if MemoryOutros.RecordCount > 0 then
     begin
-      Dest.xNome := MemoryOutros.FieldByName('nome').AsString;
-      Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf').AsString);
-      Dest.indIEDest := inNaoContribuinte;
+      if (ValidarDocumento(MemoryOutros.FieldByName('cpf').AsString)) then
+      begin
+        Dest.xNome := MemoryOutros.FieldByName('nome').AsString;
+        Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf')
+          .AsString);
+        Dest.indIEDest := inNaoContribuinte;
+      end;
 
     end;
 
@@ -1076,9 +1083,9 @@ begin
     // negócios.
     infIntermed.idCadIntTran := '';
 
+    // Nome do responsável técnico
     infRespTec.CNPJ := '51995523000156';
     infRespTec.xContato := 'GOOPEDIR LTDA';
-    // Nome do responsável técnico
     infRespTec.EMAIL := 'allan@goopedir.com';
     infRespTec.fone := '48996914811';
 
@@ -3822,6 +3829,7 @@ begin
   Param.ContentType := 'application/xml';
   Param.Kind := pkFile;
   RESTRequest.TimeOut := 30 * 1000;
+  iContabilidade.TempoExpiracao := RESTRequest.TimeOut;
   try
     RESTRequest.Execute;
 
@@ -4142,8 +4150,8 @@ var
 begin
   if not cEmissao.Checked then
     exit;
-  try
 
+  try
     notasContabilidade.Close;
     iContabilidade.URL := 'nfce/notas/sinc';
     iContabilidade.Metodo := mGet;
@@ -4168,7 +4176,15 @@ begin
         notasContabilidade.Next;
       end;
     end;
+  except
+    on E: Exception do
+    begin
+      MemoResp.Lines.Add('Erro ao enviar as notas da contabilidade: ' +
+        E.Message);
+    end;
 
+  end;
+  try
     dadosEmissao.Close;
     iEmissao.MemTable2 := dadosEmissao;
     iEmissao.Execute;
@@ -4524,6 +4540,99 @@ begin
       self.WindowState := wsMaximized;
       self.Show();
     end;
+  end;
+end;
+
+function TfrmACBrNFe.ValidarCNPJ(const CNPJ: string): Boolean;
+const
+  Pesos1: array [1 .. 12] of Integer = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+  Pesos2: array [1 .. 13] of Integer = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+var
+  i, Soma, Resto: Integer;
+  Num: string;
+begin
+  Result := False;
+  Num := SomenteNumeros(CNPJ);
+  if length(Num) <> 14 then
+    exit;
+
+  if Num = StringOfChar(Num[1], 14) then
+    exit;
+
+  Soma := 0;
+  for i := 1 to 12 do
+    Soma := Soma + StrToInt(copy(Num, i, 1)) * Pesos1[i];
+  Resto := Soma mod 11;
+  if Resto < 2 then
+    Resto := 0
+  else
+    Resto := 11 - Resto;
+  if Resto <> StrToInt(copy(Num, 13, 1)) then
+    exit;
+
+  Soma := 0;
+  for i := 1 to 13 do
+    Soma := Soma + StrToInt(copy(Num, i, 1)) * Pesos2[i];
+  Resto := Soma mod 11;
+  if Resto < 2 then
+    Resto := 0
+  else
+    Resto := 11 - Resto;
+  if Resto <> StrToInt(copy(Num, 14, 1)) then
+    exit;
+
+  Result := True;
+end;
+
+function TfrmACBrNFe.ValidarCPF(const CPF: string): Boolean;
+var
+  i, Soma, Resto: Integer;
+  Num: string;
+begin
+  Result := False;
+  Num := SomenteNumeros(CPF);
+  if length(Num) <> 11 then
+    exit;
+
+  // Verifica se todos os dígitos são iguais
+  if Num = StringOfChar(Num[1], 11) then
+    exit;
+
+  // Primeiro dígito
+  Soma := 0;
+  for i := 1 to 9 do
+    Soma := Soma + StrToInt(Num[i]) * (11 - i);
+  Resto := (Soma * 10) mod 11;
+  if Resto = 10 then
+    Resto := 0;
+  if Resto <> StrToInt(Num[10]) then
+    exit;
+
+  // Segundo dígito
+  Soma := 0;
+  for i := 1 to 10 do
+    Soma := Soma + StrToInt(Num[i]) * (12 - i);
+  Resto := (Soma * 10) mod 11;
+  if Resto = 10 then
+    Resto := 0;
+  if Resto <> StrToInt(Num[11]) then
+    exit;
+
+  Result := True;
+end;
+
+function TfrmACBrNFe.ValidarDocumento(const Documento: string): Boolean;
+var
+  Numeros: string;
+begin
+  Numeros := SomenteNumeros(Documento);
+  case length(Numeros) of
+    11:
+      Result := ValidarCPF(Numeros);
+    14:
+      Result := ValidarCNPJ(Numeros);
+  else
+    Result := False;
   end;
 end;
 

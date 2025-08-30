@@ -110,11 +110,13 @@ uses
   uControlerProduto in 'src\controller\uControlerProduto.pas',
   uControllerSite in 'src\controller\uControllerSite.pas',
   uNewConsultas in 'src\modulos\uNewConsultas.pas',
-  uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas';
+  uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas',
+  uGlobais in 'uGlobais.pas',
+  uProcedure in 'src\procedure\uProcedure.pas';
 
 {$R *.res}
 
-begin
+ begin
   Application.Initialize;
 //  Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmServidor, frmServidor);

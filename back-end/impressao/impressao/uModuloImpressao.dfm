@@ -934,7 +934,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               mmHeight = 3704
               mmLeft = 2646
-              mmTop = 59531
+              mmTop = 58453
               mmWidth = 26194
               BandType = 7
               LayerName = Foreground7
@@ -952,7 +952,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               mmHeight = 3704
               mmLeft = 2646
-              mmTop = 55298
+              mmTop = 54906
               mmWidth = 8996
               BandType = 7
               LayerName = Foreground7
@@ -1040,6 +1040,26 @@ object dmImpressaoV2: TdmImpressaoV2
               mmOverFlowOffset = 0
               mmStopPosition = 0
               mmMinHeight = 0
+            end
+            object ppInfo: TppLabel
+              DesignLayer = ppDesignLayer33
+              UserName = 'Info'
+              Border.mmPadding = 0
+              Caption = 'Info'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Name = 'Arial'
+              Font.Size = 6
+              Font.Style = [fsBold]
+              FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+              FormFieldSettings.FormFieldType = fftNone
+              Transparent = True
+              mmHeight = 2646
+              mmLeft = 2646
+              mmTop = 62177
+              mmWidth = 3969
+              BandType = 7
+              LayerName = Foreground7
             end
           end
           object ppDesignLayers33: TppDesignLayers
@@ -10149,22 +10169,22 @@ object dmImpressaoV2: TdmImpressaoV2
         UserName = 'RichText16'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
-        Font.Name = 'Courier New'
-        Font.Size = 12
-        Font.Style = []
+        Font.Name = 'Arial'
+        Font.Size = 14
+        Font.Style = [fsBold]
         Border.mmPadding = 0
         Caption = 'RichText16'
         ExportRTFAsBitmap = False
         MailMerge = True
         RichText = 
           '{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f' +
-          '0\fnil\fcharset0 Courier New;}}'#13#10'{\colortbl ;\red0\green0\blue0;' +
-          '}'#13#10'{\*\generator Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\' +
-          'b\f0\fs28 Teste de Impress\'#39'e3o GooPedir\par'#13#10'}'#13#10#0
+          '0\fnil Arial;}}'#13#10'{\colortbl ;\red0\green0\blue0;}'#13#10'{\*\generator' +
+          ' Riched20 10.0.19041}\viewkind4\uc1 '#13#10'\pard\cf1\b\f0\fs28 Teste ' +
+          'de Impress\'#39'e3o GooPedir\par'#13#10'}'#13#10#0
         RemoveEmptyLines = False
         Stretch = True
         Transparent = True
-        mmHeight = 16302
+        mmHeight = 10886
         mmLeft = 1896
         mmTop = 0
         mmWidth = 71840
@@ -10205,7 +10225,7 @@ object dmImpressaoV2: TdmImpressaoV2
         DataMatrixSettings.mmModuleSize = 1059
         DataMatrixSettings.mmQuietZone = 1059
         AztecCodeSettings.mmModuleSize = 1600
-        mmHeight = 33867
+        mmHeight = 34521
         mmLeft = 1852
         mmTop = 17727
         mmWidth = 71967
@@ -10235,6 +10255,29 @@ object dmImpressaoV2: TdmImpressaoV2
         LayerName = BandLayer24
         mmBarWidth = 330
         mmWideBarRatio = 76200
+      end
+      object ppDriverTest: TppLabel
+        DesignLayer = ppDesignLayer18
+        UserName = 'DriverTest'
+        AutoSize = False
+        Border.mmPadding = 0
+        Caption = 'DriverTest'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Name = 'Arial'
+        Font.Size = 16
+        Font.Style = [fsBold]
+        FormFieldSettings.FormSubmitInfo.SubmitMethod = fstPost
+        FormFieldSettings.FormFieldType = fftNone
+        TextAlignment = taCentered
+        Transparent = True
+        VerticalAlignment = avCenter
+        mmHeight = 12161
+        mmLeft = 1863
+        mmTop = 5027
+        mmWidth = 67374
+        BandType = 1
+        LayerName = BandLayer24
       end
     end
     object ppHeaderBand16: TppHeaderBand

@@ -184,25 +184,24 @@ procedure DoGetImpressaoPedidosCozinha(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
   conexao: TConexao;
-
 begin
   conexao := TConexao.Create('imprimir');
+  frmServidor.ReProcessaImpressaoPedidoProduto(conexao);
+
   // conexao.SQL.Add('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
 
-  conexao.SQL.Add
-    ('SELECT 0 as zero, group_concat(distinct ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
+  conexao.SQL.Add('SELECT 0 as zero, group_concat(distinct ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
   conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
   if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
   then
   begin
-    conexao.SQL.Add
-      ('join pedido as ped on ped.codigo = pp.codigo_pedido and ped.id_ficha > 0');
+    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and ped.id_ficha > 0');
   end
   else
   begin
-    conexao.SQL.Add
-      ('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
+    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
+//    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.id_ficha)');
     // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
   end;
 
@@ -376,7 +375,8 @@ begin
   conexao := TConexao.Create('imprimir');
   conexao.SQL.Add
     ('select impressao_pedido_nfce.*,pedido_nfce.*, i.driver from impressao_pedido_nfce');
-  conexao.SQL.Add('join pedido_nfce on pedido_nfce.id_pedido = impressao_pedido_nfce.id_pedido');
+  conexao.SQL.Add
+    ('join pedido_nfce on pedido_nfce.id_pedido = impressao_pedido_nfce.id_pedido');
   conexao.SQL.Add('join pedido as p on p.codigo = pedido_nfce.id_pedido');
   conexao.SQL.Add('join caixa as c on c.id = p.id_caixa');
   conexao.SQL.Add('join usuario as u on u.codigo = c.id_usuario');
@@ -469,8 +469,12 @@ procedure DoGetImpressaoPedido(Req: THorseRequest; Res: THorseResponse;
 var
   conexao: TConexao;
   Memory: TFDMemTable;
+  status: Integer;
 begin
   conexao := TConexao.Create('imprimir');
+  conexao.SQL.Add
+    ('SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""));');
+  conexao.ExecuteSQL;
   Memory := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('select p.codigo, p.codigo_pedido_dia as codigo_comanda,p.pedido_site, DATE_FORMAT(p.data_pedido, '
@@ -582,7 +586,9 @@ begin
   conexao.SQL.Add('');
   conexao.SQL.Add
     ('TO_BASE64(upper(concat(p.codigo,"|",p.codigo_pedido_dia,"|",p.data_pedido,"|",p.hora_pedido,"|",c.celular,"|",c.nome,"|",ce.rua,"|",ce.numero,"|",ce.bairro,"|",ce.cidade,"|",ce.estado,"|",p.valor_total_pedido,"|",p.valor_taxa_entrega,"|",tp.descricao))) ');
-  conexao.SQL.Add('  as qrcod_motooby');
+  conexao.SQL.Add('  as qrcod_motooby,');
+  conexao.SQL.Add('upper(usu.nome) as usuario,');
+  conexao.SQL.Add('upper(imp.driver) as driver');
   conexao.SQL.Add('');
   conexao.SQL.Add('from pedido as p ');
   conexao.SQL.Add('left join cliente as c on c.codigo = p.codigo_cliente');
@@ -598,8 +604,10 @@ begin
     ('left join produto as prod on prod.codigo = pp.codigo_produto');
   conexao.SQL.Add
     ('left join tipo_produto as tprod on tprod.codigo = prod.codigo_grupo');
+  conexao.SQL.Add('left join usuario as usu on usu.codigo = p.usuario');
+  conexao.SQL.Add
+    ('left join impressoras as imp on imp.codigo = usu.impressora');
   conexao.SQL.Add('where p.codigo = :codigo_pedido');
-
   conexao.SQL.Add('group by p.codigo,');
   conexao.SQL.Add('p.codigo_pedido_dia,');
   conexao.SQL.Add('p.pedido_site,');
@@ -631,7 +639,6 @@ begin
   conexao.SQL.Add('p.ifood_pedido,');
   conexao.SQL.Add('p.id_ficha');
   conexao.Parametros('codigo_pedido', Req.Params['codigo']);
-  // showmessage(conexao.SQL.Text);
   Memory.LoadFromJSON(conexao.ConsultaSQL);
 
   if Memory.RecordCount > 0 then
@@ -647,12 +654,10 @@ begin
 
       if Memory.FieldByName('tipo').AsString = 'SABORES' then
       begin
-
         Memory.FieldByName('tipo').AsString :=
           AtualizaLetra(Memory.FieldByName('tipo').AsString);
         Memory.FieldByName('descricao').AsString :=
           AtualizaLetra(Memory.FieldByName('descricao').AsString);
-
         Memory.FieldByName('descricao').AsString :=
           StringReplace(Memory.FieldByName('descricao').AsString, ' 1/1 -', '',
           [rfReplaceAll]);
@@ -664,12 +669,36 @@ begin
       end
       else
       begin
-
         Memory.FieldByName('tipo').AsString :=
           AtualizaLetra(Memory.FieldByName('tipo').AsString);
         Memory.FieldByName('descricao').AsString :=
           AtualizaLetra(Memory.FieldByName('descricao').AsString);
       end;
+
+      // Validar se o produto esta na lista para imprimir, se nao tiver colocar ele
+      conexao.SQL.Add
+        ('SELECT * FROM impressao_pedido_produto where id_pedido = :id');
+      conexao.Parametros('id', Memory.FieldByName('codigo_grupo').AsInteger);
+      try
+        status := conexao.FieldByName('id');
+      except
+        status := -1
+      end;
+
+      if status = -1 then
+      begin
+        status := conexao.GerarID('impressao_pedido_produto', 'id');
+        conexao.SQL.Add
+          ('insert into impressao_pedido_produto (id,id_pedido,status,vias,usuario,data_solicitacao,hora_solicitacao) values (:id,:pedido,0,0,-2,curdate(),curtime())');
+        conexao.Parametros('pedido', Memory.FieldByName('codigo_grupo')
+          .AsInteger);
+        conexao.Parametros('id', status);
+        conexao.ExecuteSQL;
+      end;
+
+      conexao.SQL.Add('update impressao_pedido_produto set status = 0, data_solicitacao = curdate(), hora_solicitacao = curtime() where data_impressao is null and id = :id');
+      conexao.Parametros('id', status);
+      conexao.ExecuteSQL;
 
       Memory.Next;
 
@@ -786,7 +815,7 @@ var
 begin
   conexao := TConexao.Create('imprimir');
   conexao.SQL.Add
-    ('update pedido_produtos set impresso = 1 where codigo = :codigo');
+    ('update pedido_produtos set impresso = 1, impressao = 1 where codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   conexao.ExecuteSQL;
   conexao.Free;

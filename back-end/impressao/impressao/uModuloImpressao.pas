@@ -1040,6 +1040,8 @@ type
     ppLabel120: TppLabel;
     ppDBText68: TppDBText;
     ppRichText142: TppRichText;
+    ppInfo: TppLabel;
+    ppDriverTest: TppLabel;
     procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);
   private
@@ -1776,41 +1778,58 @@ end;
 
 procedure TdmImpressaoV2.ImprimeTeste(CodigoImpressora: Integer);
 var
-  Impressoras: TFDQuery;
+  Impressora: TFDMemTable;
+
 begin
   try
-    Impressoras := TFDQuery.Create(nil);
-    Impressoras.Connection := dmModulo.BANCO;
-    Impressoras.SQL.Add('SELECT * FROM impressoras where codigo = :codigo');
-    Impressoras.ParamByName('codigo').AsInteger := CodigoImpressora;
-    Impressoras.Open;
-    if Impressoras.RecordCount = 0 then
+    Impressora := TFDMemTable.Create(nil);
+    Impressora.LoadFromJSON
+      (dmImpressaoV2.Consulta('/v1/consulta/generica/impressoras/*/codigo = ' +
+      CodigoImpressora.ToString + '/*'));
+    if Impressora.RecordCount > 0 then
     begin
-
       AddImpressao('TESTE IMPRESSAO', nil, Codigo, 2, 'ERRO',
         'Impressora não cadastrada!', '');
+      ConfiguraReport(ppTesteImpressao);
 
-      Impressoras.Free;
-      exit;
+      ppTesteImpressao.PreviewFormSettings.PageDisplay := pdContinuous;
+
+      ppTesteImpressao.ShowCancelDialog := False;
+      ppTesteImpressao.ShowPrintDialog := False;
+      ppTesteImpressao.DeviceType := 'Printer';
+      ppTesteImpressao.PrinterSetup.PrinterName :=
+        Impressora.FieldByName('driver').AsString;
+      ppDriverTest.Text := Impressora.FieldByName('driver').AsString;
+      ConfiguraVersaoPDV(ppTesteImpressao);
+      ppTesteImpressao.Print;
+
+      AddImpressao('TESTE IMPRESSAO', ppTesteImpressao, Codigo, 1, 'IMPRESSO',
+        '', Impressora.FieldByName('driver').AsString);
     end;
-    ConfiguraReport(ppTesteImpressao);
-
-    ppTesteImpressao.PreviewFormSettings.PageDisplay := pdContinuous;
-
-    ppTesteImpressao.ShowCancelDialog := False;
-    ppTesteImpressao.ShowPrintDialog := False;
-    ppTesteImpressao.DeviceType := 'Printer';
-    ppTesteImpressao.PrinterSetup.PrinterName :=
-      Impressoras.FieldByName('driver').AsString;
-    ConfiguraVersaoPDV(ppTesteImpressao);
-    ppTesteImpressao.Print;
-
-    AddImpressao('TESTE IMPRESSAO', ppTesteImpressao, Codigo, 1, 'IMPRESSO', '',
-      Impressoras.FieldByName('driver').AsString);
-    Impressoras.Free;
   except
 
   end;
+  Impressora.Free;
+
+  // try
+  // Impressoras := TFDQuery.Create(nil);
+  // Impressoras.Connection := dmModulo.BANCO;
+  // Impressoras.SQL.Add('SELECT * FROM impressoras where codigo = :codigo');
+  // Impressoras.ParamByName('codigo').AsInteger := CodigoImpressora;
+  // Impressoras.Open;
+  // if Impressoras.RecordCount = 0 then
+  // begin
+  //
+
+  //
+  // Impressoras.Free;
+  // exit;
+  // end;
+
+  // Impressoras.Free;
+  // except
+  //
+  // end;
 end;
 
 procedure TdmImpressaoV2.ImprimirCaixa(Tipo, Codigo: Integer);
@@ -1873,17 +1892,17 @@ begin
 
             RESUMO := TFDMemTable.Create(nil);
             RESUMO.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/caixa/tres/'
-              + Codigo.toString()));
+              + Codigo.ToString()));
 
             COMPUTADO := TFDMemTable.Create(nil);
             COMPUTADO.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/tres/lancado/' +
-              Codigo.toString()));
+              Codigo.ToString()));
 
             RESUMOSANGRIA := TFDMemTable.Create(nil);
             RESUMOSANGRIA.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/tres/sangria/' +
-              Codigo.toString()));
+              Codigo.ToString()));
 
             dsResumoSangria.DataSet := RESUMOSANGRIA;
             dsComputado.DataSet := COMPUTADO;
@@ -1899,7 +1918,7 @@ begin
             begin
               AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
               Impressoras.Free;
               RESUMO.Free;
               exit;
@@ -1922,14 +1941,14 @@ begin
             COMPLETO := TFDMemTable.Create(nil);
             COMPLETO.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/quatro/' +
-              Codigo.toString()));
+              Codigo.ToString()));
             dsCompleto.DataSet := COMPLETO;
 
             if COMPLETO.RecordCount = 0 then
             begin
               AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
 
               Impressoras.Free;
               COMPLETO.Free;
@@ -1953,20 +1972,20 @@ begin
             PRODUTO := TFDMemTable.Create(nil);
             PRODUTO.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/cinco/produto/' +
-              Codigo.toString()));
+              Codigo.ToString()));
             dsProduto.DataSet := PRODUTO;
 
             CATEGORIA := TFDMemTable.Create(nil);
             CATEGORIA.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/cinco/categoria/' +
-              Codigo.toString()));
+              Codigo.ToString()));
             dsCategoria.DataSet := CATEGORIA;
 
             if PRODUTO.RecordCount = 0 then
             begin
               AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
             end
             else
             begin
@@ -1986,7 +2005,7 @@ begin
               // Impressoras.FieldByName('driver').AsString);
             end;
 
-            dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+            dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
 
 
 
@@ -2042,14 +2061,14 @@ begin
             end;
             MOTOBOY := TFDMemTable.Create(nil);
             MOTOBOY.LoadFromJSON(dmImpressaoV2.Consulta('/impressao/caixa/seis/'
-              + Codigo.toString()));
+              + Codigo.ToString()));
 
             dsMotoboy.DataSet := MOTOBOY;
             if MOTOBOY.RecordCount = 0 then
             begin
               AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa Não Existe!',
                 Impressoras.FieldByName('driver').AsString);
-              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+              dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
               Impressoras.Free;
               MOTOBOY.Free;
               exit;
@@ -2071,12 +2090,12 @@ begin
             CANCELADO := TFDMemTable.Create(nil);
             CANCELADO.LoadFromJSON
               (dmImpressaoV2.Consulta('/impressao/caixa/sete/' +
-              Codigo.toString()));
+              Codigo.ToString()));
             dsCancelamento.DataSet := CANCELADO;
           end;
       else
         begin
-          dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/2');
+          dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
         end;
       end;
 
@@ -2098,7 +2117,7 @@ begin
       Impressoras.Next;
     end;
 
-    dmImpressaoV2.Post('/impressao/caixa/' + Codigo.toString + '/1');
+    dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/1');
     Impressoras.Free;
 
   except
@@ -2171,6 +2190,11 @@ begin
     dsDados.DataSet := DadosPedido;
     ppTitleiFood.Visible := DadosPedido.FieldByName('ifoodpedido')
       .AsString <> '';
+
+    ppInfo.Text := DadosPedido.FieldByName('usuario').AsString;
+    if DadosPedido.FieldByName('driver').AsString <> '' then
+      ppInfo.Text := ppInfo.Text + ' (' + DadosPedido.FieldByName('driver')
+        .AsString + ')';
 
     if DadosPedido.FieldByName('troco').AsFloat < 0 then
     begin
@@ -2311,7 +2335,7 @@ begin
   mPedidos := TFDMemTable.Create(nil);
   mPedidos.LoadFromJSON(Consulta('/impressao/pedidos'));
   frmMain.GravaLog('Comandas Localizadas');
-  frmMain.GravaLog('Quantidade: ' + mPedidos.RecordCount.toString);;
+  frmMain.GravaLog('Quantidade: ' + mPedidos.RecordCount.ToString);;
 
   if mPedidos.RecordCount > 0 then
   begin
@@ -2421,7 +2445,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(e.Message)
+      showmessage(E.Message)
     end;
 
   end;
@@ -2482,7 +2506,7 @@ begin
         begin
           Ultimo := DadosPedido.FieldByName('codigo').AsInteger;
           try
-            dmImpressaoV2.Post('/impressao/pedido/produto/' + Ultimo.toString);
+            dmImpressaoV2.Post('/impressao/pedido/produto/' + Ultimo.ToString);
             AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'IMPRESSO',
               Relatorio.PrinterSetup.DocumentName,
               DadosPedido.FieldByName('driver').AsString);
@@ -2491,7 +2515,7 @@ begin
             begin
               Ultimo := DadosPedido.FieldByName('codigo').AsInteger;
               AddImpressao('COZINHA', Relatorio, Ultimo, 2, 'ERRO', E.Message,
-                Ultimo.toString);
+                Ultimo.ToString);
               // frmMain.Memo1.Lines.Add(E.message);
             end;
 
@@ -2641,8 +2665,8 @@ begin
 
     // //showmessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
 
-    frmMain.GravaLog('Validar Tempo: ' + frmMain.ValidarTempo.toString() +
-      ', Validar Status: ' + ValidaStatus.toString());
+    frmMain.GravaLog('Validar Tempo: ' + frmMain.ValidarTempo.ToString() +
+      ', Validar Status: ' + ValidaStatus.ToString());
 
     if frmMain.ValidarTempo and ValidaStatus then
     begin

@@ -1177,14 +1177,80 @@ begin
         ExecultaSQL('alter table usuario add impressora integer default 0');
         ExecultaSQL('alter table pedido_nfce add path varchar(2555);');
       end;
-      109: begin
+    109:
+      begin
         ExecultaSQL('delete from impressao_pedido_nfce');
-        ExecultaSQL('ALTER TABLE `impressao_pedido_nfce` CHANGE COLUMN `id_pedido` `id_pedido` INT NOT NULL , ADD UNIQUE INDEX `id_pedido_UNIQUE` (`id_pedido` ASC) VISIBLE;');
+        ExecultaSQL
+          ('ALTER TABLE `impressao_pedido_nfce` CHANGE COLUMN `id_pedido` `id_pedido` INT NOT NULL , ADD UNIQUE INDEX `id_pedido_UNIQUE` (`id_pedido` ASC) VISIBLE;');
         ExecultaSQL('alter table produto add tiposite varchar(2555);');
       end;
-      110: begin
+    110:
+      begin
         ExecultaSQL('alter table pro_adi_personalizado add categoria integer');
         ExecultaSQL('alter table produto add tiposite integer');
+      end;
+    111:
+      begin
+        ExecultaSQL
+          ('CREATE INDEX idx_pedido_usuario_status_caixa ON pedido (usuario, codigo_pedido_dia, status, id_caixa, codigo);');
+        ExecultaSQL
+          ('CREATE INDEX idx_cmp_produto ON caixa_movimento_produto (id_pedido_produto);');
+        ExecultaSQL
+          ('CREATE INDEX idx_sap_produto ON pedido_produto_sap (codigo_pedido_produto);');
+        ExecultaSQL
+          ('CREATE INDEX idx_pedido_produtos_codigo_pedido ON pedido_produtos (codigo_pedido);');
+        ExecultaSQL('CREATE INDEX idx_index_pedido_id ON index_pedido (id);');
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_grupo_ativo ON produto (codigo_grupo, ativo);');
+        ExecultaSQL('CREATE INDEX idx_balanca_id ON balanca (id);');
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_codigo_grupo ON produto (codigo_grupo);');
+
+      end;
+    112:
+      begin
+        ExecultaSQL('alter table produto add referencia varchar(50)');
+        ExecultaSQL('alter table produto add tiposite varchar(50)');
+        ExecultaSQL
+          ('ALTER TABLE tipo_pagamento CHANGE COLUMN tipo_chave_pix tipo_chave_pix VARCHAR(250) NULL DEFAULT "";');
+        ExecultaSQL
+          ('ALTER TABLE pro_adi_personalizado ADD COLUMN categoria INT NULL;');
+
+      end;
+    113:
+      begin
+        ExecultaSQL('ALTER TABLE index_pedido ADD COLUMN count INT default 0;');
+        ExecultaSQL('alter table cliente add pedidos integer default 0;');
+      end;
+    114:
+      begin
+        SQL := 'create table banner (';
+        SQL := SQL + ' id integer not null auto_increment,';
+        SQL := SQL + ' priamry key(id),';
+        SQL := SQL + ' descricao varchar(50),';
+        SQL := SQL + ' dia_semana varchar(50),';
+        SQL := SQL + ' status integer,';
+        SQL := SQL + ' link varchar(255));';
+        ExecultaSQL(SQL);
+
+        SQL := ' create table pedido_painel (';
+        SQL := SQL + ' id integer not null auto_increment,';
+        SQL := SQL + ' datahora timestamp,';
+        SQL := SQL + ' id_pedido integer,';
+        SQL := SQL + ' quantidade integer,';
+        SQL := SQL + ' id_painel  integer,';
+        SQL := SQL + ' primary key(id));';
+        ExecultaSQL(SQL);
+
+        SQL := 'create table painel( ';
+        SQL := SQL + 'id integer not null auto_increment,';
+        SQL := SQL + 'primary key(id),';
+        SQL := SQL + 'descricao varchar(50),';
+        SQL := SQL + 'tipo integer);';
+        ExecultaSQL(SQL);
+
+        ExecultaSQL('alter table banner add tempo integer default 60');
+        ExecultaSQL('alter table banner add paineis varchar(255);');
       end;
     99999999:
       begin
@@ -1199,7 +1265,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '110';
+  Result := '114';
 end;
 
 end.

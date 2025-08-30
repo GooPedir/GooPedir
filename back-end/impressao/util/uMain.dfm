@@ -73,7 +73,6 @@ object frmMain: TfrmMain
         Expanded = False
         FieldName = 'URL'
         Title.Caption = 'Url'
-        Width = 64
         Visible = True
       end>
   end

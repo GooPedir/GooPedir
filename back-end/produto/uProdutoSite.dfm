@@ -36,7 +36,7 @@ object frmProdutoSite: TfrmProdutoSite
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 232
-    Top = 280
+    Left = 208
+    Top = 224
   end
 end
