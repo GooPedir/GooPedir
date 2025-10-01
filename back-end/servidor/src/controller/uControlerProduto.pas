@@ -6,12 +6,243 @@ uses JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize,
   System.SysUtils;
 
 function ObjetoProduto(SQL: String): TJsonArray;
+procedure ValidaPendenciaProduto(Codigo: Integer);
+procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
+  Descricao, Observacao: String);
+function IsIngredienteSem(const Texto: string): Boolean;
 
 implementation
 
+function IsIngredienteSem(const Texto: string): Boolean;
+var
+  PrimeiraPalavra: string;
+  Espaco: Integer;
+begin
+  Espaco := Pos(' ', Texto); // posição do primeiro espaço
+  if Espaco > 0 then
+    PrimeiraPalavra := Copy(Texto, 1, Espaco - 1)
+  else
+    PrimeiraPalavra := Texto; // se não tiver espaço, pega o texto inteiro
+
+  Result := SameText(UpperCase(PrimeiraPalavra), 'SEM');
+  // compara ignorando maiúsculas/minúsculas
+end;
+
+procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
+  Descricao, Observacao: String);
+begin
+  Conexao.SQL.Add
+    ('insert into produto_pendencia (id_produto,detalhe,observacao) values (:id,:detalhe,:observacao)');
+  Conexao.Parametros('id', Produto);
+  Conexao.Parametros('detalhe', Descricao);
+  Conexao.Parametros('observacao', Observacao);
+  Conexao.ExecuteSQL;
+end;
+
+procedure ValidaPendenciaProduto(Codigo: Integer);
+var
+  Conexao: TConexao;
+  Dados: TFDMemTable;
+  MarcarPendenciaExtra: Boolean;
+begin
+  Conexao := TConexao.Create('ValidaPendenciaProduto');
+  Conexao.SQL.Add('delete from produto_pendencia where id_produto = :id');
+  Conexao.Parametros('id', Codigo);
+  Conexao.ExecuteSQL;
+  Dados := TFDMemTable.Create(nil);
+  Conexao.SQL.Add
+    ('select p.codigo as produtoID, p.nome_produto as produto, p.descricao as produtoDescricao, p.foto_ifood as produtoUrl, p.alerta as produtoAlerta, p.valor_venda as produtoValor, p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,p.csosn,');
+  Conexao.SQL.Add
+    ('pap.id as extraId, pap.descricao as extra, pap.qtd_minima as extraMin, pap.qtd_maxima as extraMax, ');
+  Conexao.SQL.Add
+    ('paps.id as itenExtraId, paps.nome as extraIten, paps.alerta as itemExtraAlerta, paps.valor as itemExtraValor, paps.id_prod_estoque as extraItemProdutoBaixa,');
+  Conexao.SQL.Add
+    ('prodExtra.codigo as produtoCodigoItemExtra, prodExtra.valor_venda as produtoValorItemExtra, prodExtra.nome_produto produtoNomeItemExtra,');
+  Conexao.SQL.Add('(select nfce from dados_whatsapp limit 1 ) as nfc');
+  Conexao.SQL.Add('from produto as p');
+  Conexao.SQL.Add
+    ('left join pro_adi_personalizado as pap on pap.id_produto = p.codigo and pap.deletado = 0');
+  Conexao.SQL.Add
+    ('left join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id and paps.deletado = 0');
+  Conexao.SQL.Add
+    ('left join produto as prodExtra on prodExtra.codigo = (select codigo from produto where deletado <> 1 and upper(nome_produto) like concat("%",upper(paps.nome)) limit 1)');
+  Conexao.SQL.Add('where p.codigo = :codigo');
+  Conexao.Parametros('codigo', Codigo);
+  Dados.LoadFromJSON(Conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    // Validação do Produto
+    if Dados.FieldByName('produto').AsString = '' then
+    begin
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem nome', '');
+    end;
+    if Dados.FieldByName('produtoDescricao').AsString = '' then
+    begin
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem descrição',
+        'Um produto com descrição evita transtorno com clientes');
+    end;
+    if Dados.FieldByName('produtoValor').AsFloat = 0 then
+    begin
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem valor', '');
+    end;
+
+    if Dados.FieldByName('produtoUrl').AsString = '' then
+    begin
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem foto',
+        'Um produto com foto chama muito mais atenção');
+    end;
+    if Dados.FieldByName('produtoUrl').AsString = 'https://fotos.goopedir.com//fotos/MA=='
+    then
+    begin
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem foto',
+        'Um produto com foto chama muito mais atenção!');
+    end;
+    if Dados.FieldByName('nfc').AsString = '1' then
+    begin
+      if Dados.FieldByName('un').AsString = '' then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem UNIDADE',
+          'Unidade deve ser informado');
+      end;
+      if Dados.FieldByName('ncm').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem NCM',
+          'NCM deve ser informado');
+      end;
+      if Dados.FieldByName('cest').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CEST',
+          'CEST deve ser informado');
+      end;
+
+      if Dados.FieldByName('cfop').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CFOP',
+          'CFOP deve ser informado');
+      end;
+
+      if Dados.FieldByName('cstipi').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CST IPI',
+          'CST IPI deve ser informado');
+      end;
+
+      if Dados.FieldByName('csticms').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CST ICMS',
+          'CST ICMS deve ser informado');
+      end;
+
+      if Dados.FieldByName('cstpis').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CST PIS',
+          'CST PIS deve ser informado');
+      end;
+
+      if Dados.FieldByName('cstcofins').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CST COFINS',
+          'CST COFINS deve ser informado');
+      end;
+
+      if Dados.FieldByName('csosn').AsFloat = 0 then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CSOSN',
+          'CSOSN deve ser informado');
+      end;
+    end;
+    // Validação dos Adicionais
+    while not Dados.Eof do
+    begin
+      MarcarPendenciaExtra := false;
+      if Dados.FieldByName('itemExtraAlerta').AsString = '' then
+      begin
+        Dados.Edit;
+        Dados.FieldByName('itemExtraAlerta').AsFloat := 2;
+      end;
+      if Dados.FieldByName('itemExtraAlerta').AsFloat <> 2 then
+      begin
+        if Dados.FieldByName('extraMax').AsFloat = 0 then
+        begin
+          AdicionaPendencia(Conexao, Codigo, 'Extra',
+            'Não possue quantidade máxima para ser selecionada');
+        end;
+
+        if Dados.FieldByName('extra').AsString = 'Ingredientes' then
+        begin
+          if (Not IsIngredienteSem(Dados.FieldByName('extraIten').AsString))
+          then
+          begin
+            AdicionaPendencia(Conexao, Codigo,
+              'Extra ' + Dados.FieldByName('extraIten').AsString + '',
+              'Não se encaixa na categoria de ' +
+              UpperCase(Dados.FieldByName('extra').AsString));
+            MarcarPendenciaExtra := True;
+          end;
+        end;
+        if (Not IsIngredienteSem(Dados.FieldByName('extraIten').AsString)) then
+          if Dados.FieldByName('itemExtraValor').AsFloat = 0 then
+          begin
+            AdicionaPendencia(Conexao, Codigo,
+              'Extra ' + Dados.FieldByName('extraIten').AsString + '',
+              'Está com valor ZERADO');
+            MarcarPendenciaExtra := True;
+          end;
+        Dados.Edit;
+        if (Dados.FieldByName('produtoCodigoItemExtra').AsString = '') then
+        begin
+          Dados.FieldByName('produtoCodigoItemExtra').AsInteger := 0;
+        end;
+
+        if Dados.FieldByName('extraItemProdutoBaixa').AsInteger <>
+          Dados.FieldByName('produtoCodigoItemExtra').AsInteger then
+        begin
+        if Dados.FieldByName('produtoValorItemExtra').AsString = '' then
+        begin
+          Dados.Edit;
+          Dados.FieldByName('produtoValorItemExtra').AsFloat := Dados.FieldByName('itemExtraValor').AsFloat;
+        end;
+          if Dados.FieldByName('itemExtraValor').AsFloat <>
+            Dados.FieldByName('produtoValorItemExtra').AsFloat then
+          begin
+            if Dados.FieldByName('itemExtraValor').AsInteger = 0 then
+            begin
+              AdicionaPendencia(Conexao, Codigo,
+                'O extra ' + Dados.FieldByName('extraIten').AsString,
+                'Ele está com o valor ZERADO');
+            end
+            else
+            begin
+              AdicionaPendencia(Conexao, Codigo,
+                'O extra ' + Dados.FieldByName('extraIten').AsString,
+                'Ele está com o valor diferente do produto');
+            end;
+            MarcarPendenciaExtra := True;
+          end;
+
+        end;
+      end;
+      if MarcarPendenciaExtra then
+      begin
+        Conexao.SQL.Add
+          ('update pro_adi_personalizado_sabores set alerta = 1 where id = :id');
+        Conexao.Parametros('id', Dados.FieldByName('itenExtraId').AsInteger);
+        Conexao.ExecuteSQL;
+      end;
+
+      Dados.Next;
+    end;
+  end;
+
+  Dados.Free;
+  Conexao.Free;
+
+end;
+
 function ObjetoProduto(SQL: String): TJsonArray;
 var
-  Conexao: Tconexao;
+  Conexao: TConexao;
   Data: TJsonArray;
   DataS: String;
 
@@ -35,8 +266,11 @@ var
   Min: Real;
   Max: Real;
   Estoque: Real;
+  Observacao: TJsonArray;
+  ObjetoObs: TJsonObject;
 begin
-  Conexao := Tconexao.Create('main');
+
+  Conexao := TConexao.Create('main');
   try
     DadosProduto := Conexao.CriaQRY;
     DadosCategoria := TFDMemTable.Create(nil);
@@ -188,6 +422,11 @@ begin
         end;
         Conexao.SQL.Clear;
         Conexao.SQL.Add
+          ('select * from produto_pendencia where id_produto = :id');
+        Conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
+        JsonObjeto.AddPair('alerta', Conexao.ConsultaSQL);
+        Conexao.SQL.Clear;
+        Conexao.SQL.Add
           ('SELECT * FROM pro_adi_personalizado where id_produto = :id_produto');
         Conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
           .AsInteger);
@@ -237,6 +476,8 @@ begin
                 DadosAdicionaisItens.FieldByName('ativo').AsInteger);
               JSonObjetoAdicionalItens.AddPair('itensInsumo',
                 DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
+              JSonObjetoAdicionalItens.AddPair('alerta',
+                DadosAdicionaisItens.FieldByName('alerta').AsInteger);
 
               JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
 
@@ -383,6 +624,7 @@ begin
   except
     on E: Exception do
     begin
+      DataS := E.Message
     end;
 
   end;

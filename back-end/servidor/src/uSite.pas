@@ -14,7 +14,7 @@ procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
 function EnviaCategoria(codigo: Integer): Integer;
 procedure EnviaSabores(codigoGrupo: Integer);
 
-procedure EnviaFotoProduto(codigo: Integer; Base64: String);
+procedure EnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
 
 procedure EnviaTempoDelivery(Tempo: Integer);
 procedure EnviaTempoVemBuscar(Tempo: Integer);
@@ -40,7 +40,7 @@ end;
 function EnviaCategoria(codigo: Integer): Integer;
 begin
   SiteCategoria(codigo, frmServidor.UserID);
-   frmServidor.AtualizaCacheSite;
+  frmServidor.AtualizaCacheSite;
 end;
 
 procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
@@ -75,19 +75,19 @@ var
   conexao: TConexao;
   Dados: TFDQuery;
 begin
-
-
+  frmServidor.Queue.Enfileirar(codigo);
   if Base64Imagem <> '' then
   begin
-    conexao := TConexao.Create('uSite');
-    Dados := conexao.CriaQRY;
-    Dados.SQL.Text := ('select * from produto where codigo = :codigo');
-    Dados.ParamByName('codigo').AsInteger := codigo;
-    Dados.Open;
-    if Dados.FieldByName('id_site').AsInteger > 0 then
-    begin
-      EnviaFotoProduto(Dados.FieldByName('id_site').AsInteger, Base64Imagem);
-    end;
+    EnviaFotoProduto(codigo, Base64Imagem, frmServidor.UserID);
+    // conexao := TConexao.Create('uSite');
+    // Dados := conexao.CriaQRY;
+    // Dados.SQL.Text := ('select * from produto where codigo = :codigo');
+    // Dados.ParamByName('codigo').AsInteger := codigo;
+    // Dados.Open;
+    // if Dados.FieldByName('id_site').AsInteger > 0 then
+    // begin
+    // EnviaFotoProduto(Dados.FieldByName('id_site').AsInteger, Base64Imagem);
+    // end;
   end;
   prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
   ShellExecute(0, 'open', PChar(prog),
@@ -96,9 +96,9 @@ begin
 
 end;
 
-procedure EnviaFotoProduto(codigo: Integer; Base64: String);
+procedure EnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
 begin
-  SiteEnviaFotoProduto(codigo, Base64);
+  SiteEnviaFotoProduto(codigo, Base64, user);
 end;
 
 procedure EnviaSabores(codigoGrupo: Integer);

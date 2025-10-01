@@ -705,20 +705,28 @@ begin
       ServicoNFCe := false;
     end;
 
-    if ServicoNFCe and VerificaExe(USANFCE) then
+    // if ServicoNFCe and VerificaExe(USANFCE) then
+    // begin
+    // if MinutesBetween(now, UltimoRestartNFCe) >= 5 then
+    // begin
+    // FecharExe(USANFCE);
+    // Sleep(2000); // Espera 2 segundos antes de abrir novamente
+    // AbrirExe(USANFCE);
+    // UltimoRestartNFCe := now;
+    // end;
+    // end
+    // else if (not VerificaExe(USANFCE)) and ServicoNFCe then
+    // begin
+    // AbrirExe(USANFCE);
+    // UltimoRestartNFCe := now;
+    // end;
+
+    if ServicoNFCe then
     begin
-      if MinutesBetween(now, UltimoRestartNFCe) >= 5 then
+      if (not VerificaExe((USANFCE))) then
       begin
-        FecharExe(USANFCE);
-        Sleep(2000); // Espera 2 segundos antes de abrir novamente
         AbrirExe(USANFCE);
-        UltimoRestartNFCe := now;
       end;
-    end
-    else if (not VerificaExe(USANFCE)) and ServicoNFCe then
-    begin
-      AbrirExe(USANFCE);
-      UltimoRestartNFCe := now;
     end;
 
     if (not VerificaExe(SITE(Name))) then

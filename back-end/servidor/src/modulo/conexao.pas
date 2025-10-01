@@ -29,7 +29,7 @@ type
     function MapaErro(Erro: String): String;
     procedure AbrirExe(Nome: String);
     procedure FecharExe(ExeFileName: String);
-    function Servidor: String;
+
     function GetComputerName: string;
     procedure OnTimer(Sender: TObject);
     procedure UpdateLastActivityTime;
@@ -59,6 +59,8 @@ type
     procedure Parametros(Parametro: String; Valor: Variant);
     property SQL: TStringlist read FSQL write SetSQL;
     function GerarID(Tabela, Campo: String): Integer;
+    function Servidor : String;
+    function Porta : String;
 
     function GenID(Campo: String): Integer;
 
@@ -84,6 +86,7 @@ type
     procedure DisconectBanco;
     procedure ConectaBanco(Banco: String);
     function LoadMemory(Dados: TFDMemTable): TFDMemTable;
+
 
   end;
 
@@ -222,13 +225,13 @@ end;
 
 procedure TConexao.EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
 var
-  JsonObjec: TJsonObject;
-  Chave, API, JSONBody: string;
-  URL: String;
+  JsonObjec, JSONBody, ExceptionObj, ExceptionVal, Tags: TJSONObject;
+  ExceptionArr: TJSONArray;
+  Chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
   iGlitchtip := iRequisicao.Create(nil);
-  JsonObjec := TJsonObject.Create;
+
   // Extrai a chave e a URL da DSN
   Chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
   URL := Copy(DSN, pos('@', DSN) + 1, length(DSN));
@@ -236,27 +239,42 @@ begin
   API := Copy(URL, pos('/', URL) + 1, length(URL));
   URL := StringReplace(URL, '/' + API, '', []);
 
-  JSONBody := '';
-  JSONBody := JSONBody + '{';
-  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
-  JSONBody := JSONBody + '  "timestamp": "' +
-    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', Now) + '",';
-  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
-  JSONBody := JSONBody + '  "platform": "delphi",';
-  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
-  JSONBody := JSONBody + '  "exception": {';
-  JSONBody := JSONBody + '    "values": [';
-  JSONBody := JSONBody + '      {';
-  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
-  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
-  JSONBody := JSONBody + '      }';
-  JSONBody := JSONBody + '    ]';
-  JSONBody := JSONBody + '  },';
-  JSONBody := JSONBody + '  "tags": {';
-  JSONBody := JSONBody + '    "environment": "production",';
-  JSONBody := JSONBody + '    "user": "' + GetComputerName + '"';
-  JSONBody := JSONBody + '  }';
-  JSONBody := JSONBody + '}';
+  // Monta JSON
+  JSONBody := TJSONObject.Create;
+  JSONBody.AddPair('event_id', GenerateUUID);
+  JSONBody.AddPair('timestamp',
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', Now));
+  JSONBody.AddPair('level', Tipo);
+  JSONBody.AddPair('platform', 'delphi');
+  JSONBody.AddPair('message', Identificacao);
+
+  // exception
+  ExceptionObj := TJSONObject.Create;
+  ExceptionVal := TJSONObject.Create;
+  ExceptionVal.AddPair('type', UpperCase(Tipo));
+  ExceptionVal.AddPair('value', Mensagem);
+
+  ExceptionArr := TJSONArray.Create;
+  ExceptionArr.AddElement(ExceptionVal);
+  ExceptionObj.AddPair('values', ExceptionArr);
+  JSONBody.AddPair('exception', ExceptionObj);
+
+  // tags
+  Tags := TJSONObject.Create;
+  if (GetComputerName = 'ALLAN-PC') then
+  begin
+    Tags.AddPair('environment', 'desenvolvimento');
+  end
+  else
+  begin
+    Tags.AddPair('environment', 'produção');
+  end;
+
+  Tags.AddPair('user', GetComputerName);
+  JSONBody.AddPair('tags', Tags);
+
+  // wrapper para envio
+  JsonObjec := TJSONObject.Create;
   JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
@@ -266,17 +284,14 @@ begin
 
   try
     iGlitchtip.Metodo := mPost;
-
     iGlitchtip.Execute;
-    // //showmessage(iGlitchtip.Retorno);
-
   except
     on E: Exception do
     begin
-      // showmessage(E.Message);
+      // tratamento
     end;
-
   end;
+
   iGlitchtip.Free;
 end;
 
@@ -929,6 +944,11 @@ begin
 
 end;
 
+function TConexao.Porta: String;
+begin
+  Result := LowerCase(DataModulo.Banco.Params.Values['Port']);
+end;
+
 function TConexao.Senha: String;
 begin
   Result := LowerCase(DataModulo.Banco.Params.Password);
@@ -936,7 +956,7 @@ end;
 
 function TConexao.Servidor: String;
 begin
-  Result := ExtractFileDir(Application.ExeName) + '\' + 'NFCe.exe';
+   Result := LowerCase(DataModulo.Banco.Params.Values['Server']);
 end;
 
 procedure TConexao.SetSQL(const Value: TStringlist);
@@ -1053,11 +1073,11 @@ end;
 
 procedure TLogThread1.Execute;
 var
-  JSON: TJsonObject;
+  JSON: TJSONObject;
   Requisicao: iRequisicao;
 begin
   try
-    JSON := TJsonObject.Create;
+    JSON := TJSONObject.Create;
     try
       // Configura o JSON com os valores
       JSON.AddPair('computer_name', FComputerName);

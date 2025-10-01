@@ -678,6 +678,8 @@ begin
   except
 
   end;
+  if Serie = 0 then
+    Serie := 2;
 
   ValorTotal := 0;
 
@@ -686,7 +688,7 @@ begin
     Ide.natOp := 'VENDA';
     Ide.indPag := ipVista;
     Ide.modelo := 65;
-    Ide.Serie := 1;
+    Ide.Serie := Serie;
     Ide.nNF := StrToInt(NumDFe);
     Ide.cNF := GerarCodigoDFe(Ide.nNF);
     // Ide.cNF := NumeroNota;
@@ -1126,6 +1128,7 @@ begin
   begin
     ACBrNFe1.NotasFiscais.Clear;
     ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+
     ACBrNFe1.Consultar;
 
     // showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
@@ -3320,7 +3323,7 @@ begin
   iReq := iRequisicao.Create(nil);
   MemoryConfiguracao := TFDMemTable.Create(nil);
   iReq.BaseUrl := BaseUrl;
-  iReq.TempoExpiracao := 10 * 1000;
+  iReq.TempoExpiracao := 60 * 1000;
 
   iReq.URL := 'v1/consulta/generica/dados_whatsapp/*/*/*';
   iReq.MemTable2 := MemoryConfiguracao;
@@ -3371,7 +3374,7 @@ begin
     ('id_token_scs').AsString;
   ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName
     ('token_scs').AsString;
-
+  tEmissao.Enabled := True;
 end;
 
 function TfrmACBrNFe.GetComputerName: string;
@@ -3729,14 +3732,12 @@ end;
 procedure TfrmACBrNFe.EnviaGlitchtip(DSN, Tipo, Identificacao,
   Mensagem: String);
 var
-  JsonObjec: TJsonObject;
-  Chave, API, JSONBody: string;
-  URL: String;
+  JsonObjec, JSONBody, ExceptionObj, ExceptionVal, Tags: TJSONObject;
+  ExceptionArr: TJSONArray;
+  Chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
   iGlitchtip := iRequisicao.Create(nil);
-  JsonObjec := TJsonObject.Create;
-  Mensagem := StringReplace(Mensagem, '"', '', [rfReplaceAll]);
 
   // Extrai a chave e a URL da DSN
   Chave := copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
@@ -3745,48 +3746,59 @@ begin
   API := copy(URL, pos('/', URL) + 1, length(URL));
   URL := StringReplace(URL, '/' + API, '', []);
 
-  JSONBody := '';
-  JSONBody := JSONBody + '{';
-  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
-  JSONBody := JSONBody + '  "timestamp": "' +
-    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now) + '",';
-  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
-  JSONBody := JSONBody + '  "platform": "delphi",';
-  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
-  JSONBody := JSONBody + '  "exception": {';
-  JSONBody := JSONBody + '    "values": [';
-  JSONBody := JSONBody + '      {';
-  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
-  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
-  JSONBody := JSONBody + '      }';
-  JSONBody := JSONBody + '    ]';
-  JSONBody := JSONBody + '  },';
-  JSONBody := JSONBody + '  "tags": {';
-  JSONBody := JSONBody + '    "environment": "production",';
-  JSONBody := JSONBody + '    "user": "' + GetComputerName + '"';
-  JSONBody := JSONBody + '  }';
-  JSONBody := JSONBody + '}';
+  // Monta JSON
+  JSONBody := TJSONObject.Create;
+  JSONBody.AddPair('event_id', GenerateUUID);
+  JSONBody.AddPair('timestamp',
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now));
+  JSONBody.AddPair('level', Tipo);
+  JSONBody.AddPair('platform', 'delphi');
+  JSONBody.AddPair('message', Identificacao);
+
+  // exception
+  ExceptionObj := TJSONObject.Create;
+  ExceptionVal := TJSONObject.Create;
+  ExceptionVal.AddPair('type', UpperCase(Tipo));
+  ExceptionVal.AddPair('value', Mensagem);
+
+  ExceptionArr := TJSONArray.Create;
+  ExceptionArr.AddElement(ExceptionVal);
+  ExceptionObj.AddPair('values', ExceptionArr);
+  JSONBody.AddPair('exception', ExceptionObj);
+
+  // tags
+  Tags := TJSONObject.Create;
+  if (GetComputerName = 'ALLAN-PC') then
+  begin
+    Tags.AddPair('environment', 'desenvolvimento');
+  end
+  else
+  begin
+    Tags.AddPair('environment', 'produção');
+  end;
+
+  Tags.AddPair('user', GetComputerName);
+  JSONBody.AddPair('tags', Tags);
+
+  // wrapper para envio
+  JsonObjec := TJSONObject.Create;
   JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
 
   iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
-  // showmessage(JsonObjec.ToString);
   iGlitchtip.BODY(JsonObjec);
 
   try
     iGlitchtip.Metodo := mPost;
-
     iGlitchtip.Execute;
-    // //showmessage(iGlitchtip.Retorno);
-
   except
     on E: Exception do
     begin
-      // //showmessage(E.Message);
+      // tratamento
     end;
-
   end;
+
   iGlitchtip.Free;
 end;
 
@@ -3794,12 +3806,12 @@ procedure TfrmACBrNFe.EnviarNotaFiscal(CNPJ, Data, Hora, Chave, Caminho: String;
   Valor: Real);
 var
   Param: TRESTRequestParameter;
-  ResponseJSON: TJsonObject;
-  JSON: TJsonObject;
+  ResponseJSON: TJSONObject;
+  JSON: TJSONObject;
 begin
   RESTClient.BaseUrl := 'https://nfce.goopedir.com/gravar.php';
   RESTRequest.Method := rmPOST;
-  JSON := TJsonObject.Create;
+  JSON := TJSONObject.Create;
 
   ACBrNFe1.NotasFiscais.Clear;
   ACBrNFe1.NotasFiscais.LoadFromFile(Caminho, False);
@@ -3828,7 +3840,7 @@ begin
   Param.Value := Caminho;
   Param.ContentType := 'application/xml';
   Param.Kind := pkFile;
-  RESTRequest.TimeOut := 30 * 1000;
+  RESTRequest.TimeOut := 60 * 1000;
   iContabilidade.TempoExpiracao := RESTRequest.TimeOut;
   try
     RESTRequest.Execute;
@@ -3836,8 +3848,8 @@ begin
     // Verifica a resposta
     if RESTResponse.StatusCode = 200 then
     begin
-      ResponseJSON := TJsonObject.ParseJSONValue(RESTResponse.Content)
-        as TJsonObject;
+      ResponseJSON := TJSONObject.ParseJSONValue(RESTResponse.Content)
+        as TJSONObject;
       try
         if ResponseJSON.GetValue('success') <> nil then
         begin
@@ -4144,14 +4156,14 @@ var
 
   MemoryConfiguracao: TFDMemTable;
   Requisicao: iRequisicao;
-  JsonObject: TJsonObject;
+  JsonObject: TJSONObject;
   ErroEmissao: Boolean;
 
 begin
   if not cEmissao.Checked then
     exit;
-
-  try
+  {
+    try
     notasContabilidade.Close;
     iContabilidade.URL := 'nfce/notas/sinc';
     iContabilidade.Metodo := mGet;
@@ -4161,29 +4173,31 @@ begin
 
     if notasContabilidade.RecordCount > 0 then
     begin
-      while not notasContabilidade.Eof do
-      begin
-        Arquivo := CaminhoNFCe + notasContabilidade.FieldByName('nfce_chave')
-          .AsString + '-nfe.xml';
-        if FileExists(Arquivo) then
-        begin
-          EnviarNotaFiscal(CNPJ, notasContabilidade.FieldByName('nfce_data')
-            .AsString, notasContabilidade.FieldByName('nfce_hora').AsString,
-            notasContabilidade.FieldByName('nfce_chave').AsString, Arquivo,
-            notasContabilidade.FieldByName('valor_total_pedido').AsFloat);
-        end;
-
-        notasContabilidade.Next;
-      end;
+    while not notasContabilidade.Eof do
+    begin
+    Arquivo := CaminhoNFCe + notasContabilidade.FieldByName('nfce_chave')
+    .AsString + '-nfe.xml';
+    MemoResp.Lines.Add(Arquivo);
+    if FileExists(Arquivo) then
+    begin
+    EnviarNotaFiscal(CNPJ, notasContabilidade.FieldByName('nfce_data')
+    .AsString, notasContabilidade.FieldByName('nfce_hora').AsString,
+    notasContabilidade.FieldByName('nfce_chave').AsString, Arquivo,
+    notasContabilidade.FieldByName('valor_total_pedido').AsFloat);
     end;
-  except
+
+    notasContabilidade.Next;
+    end;
+    end;
+    except
     on E: Exception do
     begin
-      MemoResp.Lines.Add('Erro ao enviar as notas da contabilidade: ' +
-        E.Message);
+    MemoResp.Lines.Add('Erro ao enviar as notas da contabilidade: ' +
+    E.Message);
     end;
 
-  end;
+    end;
+  }
   try
     dadosEmissao.Close;
     iEmissao.MemTable2 := dadosEmissao;
@@ -4514,7 +4528,9 @@ begin
     end;
 
   end;
-
+  tEmissao.Enabled := False;
+  TrayIcon1.Visible := False;
+  Application.Terminate;
 end;
 
 procedure TfrmACBrNFe.tMinimizaTimer(Sender: TObject);

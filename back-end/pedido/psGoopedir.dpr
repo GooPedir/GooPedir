@@ -45,7 +45,8 @@ uses
   DataSet.Serialize.Utils in '..\servidor\src\other\DataSet.Serialize.Utils.pas',
   uExportacaoPedido in 'uExportacaoPedido.pas',
   uMontaPedido in 'uMontaPedido.pas',
-  uGlobais in '..\servidor\uGlobais.pas';
+  uGlobais in '..\servidor\uGlobais.pas',
+  uImportaProduto in 'uImportaProduto.pas';
 
 {$R *.res}
 
@@ -55,7 +56,7 @@ const
 var
   hMutex: THandle;
 
-begin
+ begin
   hMutex := CreateMutex(nil, True, MutexName);
   if GetLastError = ERROR_ALREADY_EXISTS then
   begin

@@ -261,16 +261,16 @@ begin
       SQL := 'select produto.* from produto ';
       SQL := SQL +
         ' join tipo_produto on tipo_produto.codigo = produto.codigo_grupo ';
-      // SQL := SQL + ' where produto.ativo = 1 ';
-      SQL := SQL + ' order by codigo_grupo';
+       SQL := SQL + ' where produto.deletado <> 1 ';
+      SQL := SQL + ' order by codigo_grupo,position';
     end
     else
     begin
       SQL := 'select produto.* from produto ';
       SQL := SQL +
         ' join tipo_produto on tipo_produto.codigo = produto.codigo_grupo ';
-      SQL := SQL + ' where codigo_grupo = ' + chave;
-      SQL := SQL + ' order by position';
+      SQL := SQL + ' where produto.deletado <> 1 and codigo_grupo = ' + chave;
+      SQL := SQL + ' order by codigo_grupo,position';
     end;
     Result := ObjetoProduto(SQL);
     GravaCache('GetProdutoCategoria', chave, Result.ToString);

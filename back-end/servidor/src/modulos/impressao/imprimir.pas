@@ -1,4 +1,4 @@
-unit imprimir;
+﻿unit imprimir;
 
 interface
 
@@ -54,6 +54,7 @@ var
   Dados: TFDMemTable;
   Pedidos: TFDMemTable;
   Codigo: Integer;
+  CodigoAnterior: Integer;
 begin
   Dados := TFDMemTable.Create(nil);
   Pedidos := TFDMemTable.Create(nil);
@@ -61,11 +62,64 @@ begin
   conexao := TConexao.Create('imprimir');
   // conexao.SQL.Add('SELECT ip.* FROM impressao_pedido as ip join pedido as p on p.codigo = ip.id_pedido where ip.status = 0 and ip.id_pedido > 0 ');
   conexao.SQL.Add
-    ('SELECT distinct id as ides, ip.* FROM impressao_pedido as ip');
+    ('SELECT distinct id as ides, ip.*, p.codigo_cliente_endereco, p.pedido_site, TIMESTAMPDIFF(MINUTE, p.hora_pedido, NOW()) AS tempo FROM impressao_pedido as ip');
   conexao.SQL.Add('join pedido as p on p.codigo = ip.id_pedido');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
   conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
+  CodigoAnterior := 0;
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      if CodigoAnterior <> Dados.FieldByName('id_pedido').AsInteger then
+      begin
+        if Dados.FieldByName('codigo_cliente_endereco').AsInteger > 0 then
+        begin
+
+          if Dados.FieldByName('pedido_site').AsString = '' then
+          begin
+            Dados.Edit;
+            Dados.FieldByName('pedido_site').AsFloat := 0;
+          end;
+
+          if Dados.FieldByName('pedido_site').AsInteger > 0 then
+          begin
+            Dados.Next;
+          end
+          else
+          begin
+            //
+            if Dados.FieldByName('tempo').AsInteger > 2 then
+            begin
+              Dados.Next;
+            end
+            else
+            begin
+              Dados.Delete;
+            end;
+          end;
+
+        end
+        else
+        begin
+          Dados.Next;
+        end;
+        CodigoAnterior := Dados.FieldByName('id_pedido').AsInteger;
+      end
+      else
+      begin
+        conexao.SQL.Add('delete from impressao_pedido where id = :id');
+        conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
+        conexao.ExecuteSQL;
+        Dados.Delete;
+        CodigoAnterior := 0;
+      end;
+
+    end;
+
+  end;
+
   Res.Send<TJSONArray>(Dados.ToJSONArray());
 
   frmServidor.ImpressoraStatus;
@@ -139,45 +193,104 @@ procedure DoGetImpressaoPedidosCozinhaPedido(Req: THorseRequest;
 var
   conexao: TConexao;
 begin
+  // conexao := TConexao.Create('imprimir');
+  // // conexao.SQL.Add('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
+  //
+  // conexao.SQL.Add('SELECT 0 as zero, group_concat(distinct  ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
+  // conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
+  // conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
+  // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
+  // conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+  // conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
+  // conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+  // conexao.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
+  // if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
+  // then
+  // begin
+  // conexao.SQL.Add
+  // ('join pedido on pedido.codigo = pp.codigo_pedido and pedido.id_ficha > 0');
+  // end;
+  // conexao.SQL.Add
+  // ('where (ped.codigo_pedido_dia = 0 and ipp.status = 0) OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL or ped.id_ficha = 0)  and ipp.status = 0)   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 and ipp.status = 0)');
+  // conexao.SQL.Add(' and pp.codigo_pedido = :codigo');
+  //
+  // try
+  // if frmServidor.Configuracoes.FieldByName('impressao_agrupada').AsInteger = 1
+  // then
+  // begin
+  // conexao.SQL.Add
+  // ('group by pp.codigo_pedido,i.codigo,i.codigo,ipp.usuario');
+  // end
+  // else
+  // begin
+  // conexao.SQL.Add('group by pp.codigo_pedido,ipp.usuario');
+  // end;
+  // except
+  // end;
+  // conexao.Parametros('codigo', Req.Params['codigo']);
+  //
+  // Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  // conexao.Free;
+  // frmServidor.ImpressoraStatus;
   conexao := TConexao.Create('imprimir');
-  // conexao.SQL.Add('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
 
+  conexao.SQL.Add('SELECT');
+  conexao.SQL.Add('  0 AS zero,');
+  conexao.SQL.Add('  GROUP_CONCAT(DISTINCT ipp.id_pedido) AS grupo,');
+  conexao.SQL.Add('  max(u.nome) AS usuario,');
+  conexao.SQL.Add('  max(i.codigo) AS impressora_codigo,');
+  conexao.SQL.Add('  max(i.descricao)   AS impressora_nome');
+  conexao.SQL.Add('FROM impressao_pedido_produto AS ipp');
   conexao.SQL.Add
-    ('SELECT 0 as zero, group_concat(distinct  ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
-  conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
-  conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
-  conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  conexao.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
+    ('JOIN pedido_produtos AS pp   ON pp.codigo         = ipp.id_pedido');
+  conexao.SQL.Add
+    ('JOIN pedido          AS ped  ON ped.codigo        = pp.codigo_pedido');
+  conexao.SQL.Add
+    ('JOIN produto         AS p    ON p.codigo          = pp.codigo_produto');
+  conexao.SQL.Add
+    ('JOIN tipo_produto    AS tp   ON tp.codigo         = p.codigo_grupo');
+  conexao.SQL.Add
+    ('LEFT JOIN usuario    AS u    ON u.codigo          = pp.usuario');
+
+  /// * 🔽 AQUI ESTÁ A MÁGICA DO FALLBACK:
+  // Usa a impressora do usuário (se > 0), senão a da categoria (tp.impressora) */
+  conexao.SQL.Add
+    ('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
+
   if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
   then
   begin
     conexao.SQL.Add
-      ('join pedido on pedido.codigo = pp.codigo_pedido and pedido.id_ficha > 0');
+      ('JOIN pedido ON pedido.codigo = pp.codigo_pedido AND pedido.id_ficha > 0');
   end;
+
+  conexao.SQL.Add('WHERE (ped.codigo_pedido_dia = 0 AND ipp.status = 0)');
   conexao.SQL.Add
-    ('where (ped.codigo_pedido_dia = 0 and ipp.status = 0) OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL or ped.id_ficha = 0)  and ipp.status = 0)   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 and ipp.status = 0)');
-  conexao.SQL.Add(' and pp.codigo_pedido = :codigo');
+    ('   OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL OR ped.id_ficha = 0) AND ipp.status = 0)');
+  conexao.SQL.Add
+    ('   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 AND ipp.status = 0)');
+  conexao.SQL.Add('  AND pp.codigo_pedido = :codigo');
 
   try
     if frmServidor.Configuracoes.FieldByName('impressao_agrupada').AsInteger = 1
     then
     begin
-      conexao.SQL.Add
-        ('group by pp.codigo_pedido,i.codigo,i.codigo,ipp.usuario');
+      // Agrupa por pedido + impressora + usuário (mantive i.codigo uma única vez)
+      conexao.SQL.Add('GROUP BY pp.codigo_pedido, i.codigo, ipp.usuario');
     end
     else
     begin
-      conexao.SQL.Add('group by pp.codigo_pedido,ipp.usuario');
+      conexao.SQL.Add('GROUP BY pp.codigo_pedido, ipp.usuario');
     end;
   except
   end;
+
   conexao.Parametros('codigo', Req.Params['codigo']);
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
   frmServidor.ImpressoraStatus;
+
 end;
 
 procedure DoGetImpressaoPedidosCozinha(Req: THorseRequest; Res: THorseResponse;
@@ -190,24 +303,29 @@ begin
 
   // conexao.SQL.Add('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
 
-  conexao.SQL.Add('SELECT 0 as zero, group_concat(distinct ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
+  conexao.SQL.Add
+    ('SELECT 0 as zero, group_concat(distinct ipp.id_pedido) as grupo, concat("(",upper(max(i.descricao)),") ",max(u.nome)) as usuario');
   conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
   if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
   then
   begin
-    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and ped.id_ficha > 0');
+    conexao.SQL.Add
+      ('join pedido as ped on ped.codigo = pp.codigo_pedido and ped.id_ficha > 0');
   end
   else
   begin
-    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
-//    conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.id_ficha)');
+    conexao.SQL.Add
+      ('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
+    // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.id_ficha)');
     // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido and (ped.codigo_pedido_dia > 0 or ped.id_ficha)');
   end;
 
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
   conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  conexao.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
+  conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+  conexao.SQL.Add
+    ('join impressoras as i on i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora) ');
   conexao.SQL.Add('where (ipp.status = 0) ');
   // conexao.SQL.Add('where (ipp.status = 0 and (ped.codigo_pedido_dia > 0 or ped.id_ficha))');
   // if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0 then
@@ -248,7 +366,6 @@ begin
   conexao.SQL.Add('SELECT ');
   conexao.SQL.Add('CASE ');
   conexao.SQL.Add(' when ped.id_ficha > 0 then ped.desc_ficha');
-
   conexao.SQL.Add
     (' else CONCAT(IF(ped.codigo_cliente_endereco > 0, "Delivery ", "Retirada "),ped.codigo_pedido_dia)');
   conexao.SQL.Add('END as origem_pedido,');
@@ -281,7 +398,7 @@ begin
     conexao.SQL.Add('tp.descricao as categoria,');
   end;
   conexao.SQL.Add('CASE');
-  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALC�O'));
+  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALCÃO'));
   conexao.SQL.Add(' THEN ped.nome');
   conexao.SQL.Add(' ELSE c.nome');
   conexao.SQL.Add('END as nome,');
@@ -296,18 +413,24 @@ begin
   conexao.SQL.Add('sum(pps.valor) as vl_adicional,');
   conexao.SQL.Add
     ('(select descricao from mesa where id_mesa = ped.id_ficha) as mesa,');
+  // conexao.SQL.Add('max(imp.driver) as driver,');
+  // conexao.SQL.Add('max(imp.tipo_impressao) as tipoimp,');
+  // conexao.SQL.Add('upper(imp.descricao) as impressora');
   conexao.SQL.Add
-    ('(SELECT driver FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as driver,');
+    ('(select driver from impressoras where codigo = COALESCE(NULLIF(usu.impressora, 0), tp.impressora) )as driver,');
   conexao.SQL.Add
-    ('(SELECT tipo_impressao FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as tipoimp,');
+    ('(select tipo_impressao from impressoras where codigo = COALESCE(NULLIF(usu.impressora, 0), tp.impressora) )as tipoimp,');
   conexao.SQL.Add
-    ('(SELECT upper(descricao) FROM impressoras where codigo = (select impressora from tipo_produto where codigo = p.codigo_grupo)) as impressora');
+    ('(select descricao from impressoras where codigo = COALESCE(NULLIF(usu.impressora, 0), tp.impressora) )as impressora');
   conexao.SQL.Add('FROM pedido_produtos as pp');
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
   conexao.SQL.Add
     ('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
   conexao.SQL.Add('left join pedido as ped on ped.codigo = pp.codigo_pedido');
   conexao.SQL.Add('left join tipo_produto as tp on tp.codigo = p.codigo_grupo');
+  conexao.SQL.Add('left join usuario as usu on usu.codigo = pp.usuario');
+  conexao.SQL.Add
+    ('left join impressoras as imp on tp.codigo = COALESCE(NULLIF(usu.impressora, 0), tp.impressora)  ');
   conexao.SQL.Add('left join cliente as c on c.codigo = ped.codigo_cliente');
   conexao.SQL.Add('where pp.codigo in (' + Req.Params['codigo'] + ')');
   conexao.SQL.Add('GROUP BY');
@@ -315,9 +438,7 @@ begin
     ('origem_pedido, origem_local, data_impressao, pp.codigo, pp.valor_unitario, pp.quantidade, pp.valor_total,');
   conexao.SQL.Add
     ('p.codigo_interno, p.nome_produto, c.nome,  c.celular, tipo, hora_pedido, data_pedido, pps.nomeclatura, pps.id, pps.descricao,');
-  conexao.SQL.Add
-    ('ped.origem, mesa, driver, tipoimp, impressora,  ped.nome, ped.codigo_cliente_endereco');
-
+  conexao.SQL.Add('ped.origem, mesa, ped.nome, ped.codigo_cliente_endereco');
   conexao.SQL.Add('order by pp.codigo');
 
   Memory.LoadFromJSON(conexao.ConsultaSQL);
@@ -402,7 +523,7 @@ begin
 
   if FileExists(Dados.FieldByName('caminho').AsString) then
   begin
-    // L� o conte�do do arquivo XML
+    // Lê o conteúdo do arquivo XML
 
     try
       Conteudo.LoadFromFile(Dados.FieldByName('caminho').AsString,
@@ -460,7 +581,7 @@ begin
     Res.Send<TJSONObject>(JsonObject);
 
   finally
-    conexao.Free; // Certifique-se de liberar a mem�ria ap�s o uso
+    conexao.Free; // Certifique-se de liberar a memória após o uso
   end;
 end;
 
@@ -486,7 +607,7 @@ begin
   conexao.SQL.Add('p.servico,');
   conexao.SQL.Add('c.codigo as codigo_cliente, p.mp,');
   conexao.SQL.Add('CASE');
-  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALC�O') +
+  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALCÃO') +
     ' AND p.nome <> ''''');
   conexao.SQL.Add(' THEN p.nome');
   conexao.SQL.Add(' ELSE c.nome');
@@ -521,7 +642,7 @@ begin
   conexao.SQL.Add('CASE');
   conexao.SQL.Add('    WHEN p.codigo_cliente_endereco = 0 THEN ""');
   conexao.SQL.Add
-    ('    ELSE CONCAT("Endere�o: ",ce.rua," ",ce.numero,", ",ce.bairro," - ",ce.cidade," [",ce.complemento,"]") ');
+    ('    ELSE CONCAT("Endereço: ",ce.rua," ",ce.numero,", ",ce.bairro," - ",ce.cidade," [",ce.complemento,"]") ');
   conexao.SQL.Add('END as endereco_completo,');
   conexao.SQL.Add('');
   conexao.SQL.Add('tprod.codigo as tipo_produto_codigo,');
@@ -606,7 +727,7 @@ begin
     ('left join tipo_produto as tprod on tprod.codigo = prod.codigo_grupo');
   conexao.SQL.Add('left join usuario as usu on usu.codigo = p.usuario');
   conexao.SQL.Add
-    ('left join impressoras as imp on imp.codigo = usu.impressora');
+    ('left join impressoras as imp on imp.codigo = COALESCE(NULLIF(usu.impressora, 0), tprod.impressora)  ');
   conexao.SQL.Add('where p.codigo = :codigo_pedido');
   conexao.SQL.Add('group by p.codigo,');
   conexao.SQL.Add('p.codigo_pedido_dia,');
@@ -696,7 +817,8 @@ begin
         conexao.ExecuteSQL;
       end;
 
-      conexao.SQL.Add('update impressao_pedido_produto set status = 0, data_solicitacao = curdate(), hora_solicitacao = curtime() where data_impressao is null and id = :id');
+      conexao.SQL.Add
+        ('update impressao_pedido_produto set status = 0, data_solicitacao = curdate(), hora_solicitacao = curtime() where data_impressao is null and id = :id');
       conexao.Parametros('id', status);
       conexao.ExecuteSQL;
 
@@ -775,7 +897,7 @@ begin
   conexao.SQL.Add
     ('p.codigo_interno as codigo_produto,tp.descricao as categoria,');
   conexao.SQL.Add('CASE');
-  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALC�O'));
+  conexao.SQL.Add(' WHEN c.nome = ' + QuotedStr('BALCÃO'));
   conexao.SQL.Add(' THEN ped.nome');
   conexao.SQL.Add(' ELSE c.nome');
   conexao.SQL.Add('END as nome,');
@@ -1239,6 +1361,21 @@ begin
   end;
 end;
 
+procedure DoPostImpressaoPedidoProdutoUsuario(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoPostImpressaoPedidoProduto');
+  conexao.SQL.Add
+    ('update pedido_produtos set tempo_liberacao = 0 where codigo_pedido = :pedido and usuario = :usuario');
+  conexao.Parametros('pedido', Req.Params['pedido']);
+  conexao.Parametros('usuario', Req.Params['usuario']);
+  conexao.ExecuteSQL;
+  conexao.Free;
+
+end;
+
 procedure DoPostImpressaoRecibo(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -1333,7 +1470,10 @@ begin
   THorse.get('/impressao/status/servico/tempo', DoGetStatusServicoTempo);
 
   THorse.get('/impressao/recibo/fiado', DoGetReciboFiado);
-  THorse.Post('/impressao/recibo/:codigo/:pedido', DoPostImpressaoRecibo)
+  THorse.Post('/impressao/recibo/:codigo/:pedido', DoPostImpressaoRecibo);
+
+  THorse.Post('/impressao/pedido/produto/:pedido/:usuario',
+    DoPostImpressaoPedidoProdutoUsuario)
 
 end;
 

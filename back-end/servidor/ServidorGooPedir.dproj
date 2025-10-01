@@ -226,6 +226,7 @@
         <DCCReference Include="src\controller\uAtualizacaoSite.pas"/>
         <DCCReference Include="uGlobais.pas"/>
         <DCCReference Include="src\procedure\uProcedure.pas"/>
+        <DCCReference Include="src\modulos\Controller\ProdutoQueue.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

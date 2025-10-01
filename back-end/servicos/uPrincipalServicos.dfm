@@ -2,8 +2,8 @@ object frmServicosGoopedir: TfrmServicosGoopedir
   Left = 0
   Top = 0
   Caption = 'frmServicosGoopedir'
-  ClientHeight = 442
-  ClientWidth = 628
+  ClientHeight = 524
+  ClientWidth = 910
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

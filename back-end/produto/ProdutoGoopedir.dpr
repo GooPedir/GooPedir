@@ -1,7 +1,10 @@
 program ProdutoGoopedir;
 
 uses
-  Vcl.Forms,
+    Vcl.Forms,
+  Windows,
+  Messages,
+  SysUtils,
   uProdutoSite in 'uProdutoSite.pas' {frmProdutoSite},
   conexao in '..\servidor\src\modulo\conexao.pas',
   uDM in '..\servidor\src\modulo\uDM.pas' {dm: TDataModule},
@@ -40,8 +43,21 @@ uses
 
 {$R *.res}
 
-begin
+const
+  MutexName = 'psSincProduto';
 
+var
+  hMutex: THandle;
+
+begin
+  hMutex := CreateMutex(nil, True, MutexName);
+  if GetLastError = ERROR_ALREADY_EXISTS then
+  begin
+
+    Halt; // Encerra a aplicação
+    if hMutex <> 0 then
+      CloseHandle(hMutex);
+  end;
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;

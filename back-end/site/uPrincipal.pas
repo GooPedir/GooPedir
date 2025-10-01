@@ -3429,8 +3429,7 @@ begin
                       // Insert.InserirUpdate('pedido', ['codigo', 'status'],
                       // [MemoryPedidosMotoboy.FieldByName('codigo')
                       // .AsString, '5']);
-                      FRequestStatus.URL := 'v1/pedido/status/' +
-                        Pedido.ToString + '/3/';
+                      FRequestStatus.URL := 'v1/pedido/status/' + Pedido.ToString + '/3/';
                       if (MemoryPedidosMotoboy.FieldByName('status')
                         .AsInteger = 1) then
                       begin

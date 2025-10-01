@@ -1252,6 +1252,103 @@ begin
         ExecultaSQL('alter table banner add tempo integer default 60');
         ExecultaSQL('alter table banner add paineis varchar(255);');
       end;
+    115:
+      begin
+        SQL := 'ALTER TABLE pedido_painel ';
+        SQL := SQL +
+          ' CHANGE COLUMN `datahora` `datahora` TIMESTAMP NULL DEFAULT current_timestamp() ,';
+        SQL := SQL +
+          ' CHANGE COLUMN `quantidade` `quantidade` INT NULL DEFAULT 0 ;';
+        ExecultaSQL(SQL);
+      end;
+    116:
+      begin
+        ExecultaSQL('alter table sabores_completo add url varchar(255)');
+      end;
+    117:
+      begin
+        ExecultaSQL
+          ('ALTER TABLE pro_adi_personalizado_sabores ADD COLUMN alerta INT NULL DEFAULT 0;');
+        ExecultaSQL
+          ('ALTER TABLE produto ADD COLUMN alerta INT NULL DEFAULT 0;');
+        ExecultaSQL
+          ('ALTER TABLE sabores_completo ADD COLUMN alerta INT NULL DEFAULT 0;');
+        ExecultaSQL('alter table produto add deletado integer NULL DEFAULT 0;');
+        SQL := 'CREATE TABLE `produto_pendencia` (';
+        SQL := SQL + '  `id` INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + '  `id_produto` INT NULL,';
+        SQL := SQL + '  `detalhe` VARCHAR(225) NULL,';
+        SQL := SQL + '  `observacao` VARCHAR(255) NULL,';
+        SQL := SQL + '  PRIMARY KEY (`id`));';
+        ExecultaSQL(SQL);
+
+        ExecultaSQL
+          ('alter table pro_adi_personalizado_sabores add deletado integer DEFAULT 0');
+
+        ExecultaSQL
+          ('ALTER TABLE pedido_produtos ADD COLUMN tempo_liberacao INT NULL DEFAULT 2');
+      end;
+    118:
+      begin
+        ExecultaSQL
+          ('alter table pro_adi_personalizado add deletado integer DEFAULT 0');
+      end;
+    119:
+      begin
+        SQL := ' CREATE TABLE banner (';
+        SQL := SQL + '   id int NOT NULL AUTO_INCREMENT,';
+        SQL := SQL +
+          '   descricao varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL +
+          '   dia_semana varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + '   status int DEFAULT NULL,';
+        SQL := SQL +
+          '   link varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + '   tempo int DEFAULT 60,';
+        SQL := SQL +
+          '   paines varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL +
+          '   paineis varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + '   PRIMARY KEY (id)';
+        SQL := SQL + ' )';
+        ExecultaSQL(SQL);
+        SQL := ' CREATE TABLE painel (';
+        SQL := SQL + '   id int NOT NULL AUTO_INCREMENT,';
+        SQL := SQL +
+          '   descricao varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,';
+        SQL := SQL + '   tipo int DEFAULT NULL,';
+        SQL := SQL + '   PRIMARY KEY (id)';
+        SQL := SQL + ' )';
+        ExecultaSQL(SQL);
+      end;
+    120:
+      begin
+        ExecultaSQL
+          ('alter table pro_adi_personalizado add categoria integer DEFAULT 0');
+        ExecultaSQL
+          ('ALTER TABLE cliente CHANGE COLUMN data_nascimento data_nascimento VARCHAR(10) NULL DEFAULT NULL ;');
+
+      end;
+    121:
+      begin
+        SQL := SQL + ' CREATE TABLE favoritos (';
+        SQL := SQL + '   id INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + '   usuario INT NULL,';
+        SQL := SQL + '   descricao VARCHAR(45) NULL,';
+        SQL := SQL + '   rota VARCHAR(45) NULL,';
+        SQL := SQL + '   icone VARCHAR(45) NULL DEFAULT "FaHamburger",';
+        SQL := SQL + '   ordem INT NULL,';
+        SQL := SQL + '   ativo INT NULL,';
+        SQL := SQL + '   created_at DATETIME NULL,';
+        SQL := SQL + '   updated_at DATETIME NULL,';
+        SQL := SQL + '   PRIMARY KEY (id));';
+        ExecultaSQL(SQL);
+      end;
+    122:
+      begin
+        ExecultaSQL('alter table pedido_produtos add uuid varchar(50)');
+      end;
+
     99999999:
       begin
         {
@@ -1265,7 +1362,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '114';
+  Result := '122';
 end;
 
 end.

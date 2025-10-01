@@ -23,12 +23,99 @@ function CacheFilePath(const PedidoID: Integer): string;
 function TryLoadCacheJSON(const FileName: string; out Obj: TJSONObject)
   : Boolean;
 procedure SaveCacheJSON(const FileName: string; const Obj: TJSONObject);
+function BuildPedidosUnion(const DataIniStr, DataFimStr: string): string;
 
 implementation
 
 uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, util, uSite;
+
+function ParseISODate(const S: string): TDate;
+var
+  y, m, d: Word;
+begin
+  if (Length(S) >= 10) and (S[5] = '-') and (S[8] = '-') then
+  begin
+    y := StrToInt(Copy(S, 1, 4));
+    m := StrToInt(Copy(S, 6, 2));
+    d := StrToInt(Copy(S, 9, 2));
+    Result := EncodeDate(y, m, d);
+  end
+  else
+    raise Exception.CreateFmt
+      ('Data inválida: %s. Use o formato YYYY-MM-DD.', [S]);
+end;
+
+function BuildPedidosUnion(const DataIniStr, DataFimStr: string): string;
+var
+  DataIni, DataFim, Cur: TDate;
+  y, m, d: Word;
+  y2, m2, d2: Word;
+  Parts: TStringList;
+  Linha, NomeTabela: string;
+
+  conexao: TConexao;
+  Q: TFDQuery;
+
+  function TableExists(const TableName: string): Boolean;
+  begin
+    // Verifica na base atual (DATABASE()) se a tabela existe
+    Q.Close;
+    Q.SQL.Text := 'SELECT 1 ' + 'FROM information_schema.tables ' +
+      'WHERE table_schema = DATABASE() ' + '  AND table_name = :t ' + 'LIMIT 1';
+    Q.ParamByName('t').AsString := TableName;
+    Q.Open;
+    Result := Q.RecordCount > 0;
+    Q.Close;
+  end;
+
+begin
+  DataIni := ParseISODate(DataIniStr);
+  DataFim := ParseISODate(DataFimStr);
+
+  conexao := TConexao.Create('BuildPedidosUnion');
+  Parts := TStringList.Create;
+  Q := conexao.CriaQRY;
+  try
+    DecodeDate(DataIni, y, m, d);
+    DecodeDate(DataFim, y2, m2, d2);
+
+    // Sempre tenta incluir a tabela "pedido" (corrente) se existir
+    if TableExists('pedido') then
+      Parts.Add('SELECT id_caixa, codigo FROM pedido');
+
+    // Normaliza para o 1º dia do mês inicial
+    Cur := EncodeDate(y, m, 1);
+
+    // Meses do intervalo (inclusive)
+    while (YearOf(Cur) < y2) or ((YearOf(Cur) = y2) and (MonthOf(Cur) <= m2)) do
+    begin
+      // Evita repetir o mês corrente caso você já use a "pedido" sem sufixo
+      if not((YearOf(Cur) = YearOf(Now)) and (MonthOf(Cur) = MonthOf(Now))) then
+      begin
+        NomeTabela := Format('pedido_%d_%2.2d', [YearOf(Cur), MonthOf(Cur)]);
+        if TableExists(NomeTabela) then
+        begin
+          Linha := Format('SELECT id_caixa, codigo FROM %s', [NomeTabela]);
+          Parts.Add(Linha);
+        end;
+      end;
+      Cur := IncMonth(Cur, 1);
+    end;
+
+    if Parts.Count = 0 then
+      // Nenhuma tabela encontrada: retorna SELECT vazio compatível
+      Result := '(SELECT id_caixa, codigo FROM (SELECT NULL id_caixa, NULL codigo) x WHERE 1=0)'
+    else
+      Result := '(' + StringReplace(Trim(Parts.Text), sLineBreak, ' UNION ALL ',
+        [rfReplaceAll]) + ')';
+  finally
+    Q.Free;
+    Parts.Free;
+    conexao.Free;
+  end;
+end;
 
 function CacheFilePath(const PedidoID: Integer): string;
 begin
@@ -879,7 +966,7 @@ begin
       Query.ExecSQL;
       if (JSONObject.Values['imagemFundo'].Value <> '') then
       begin
-        CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', now) +
+        CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', Now) +
           'cat' + CodigoGrupo.ToString + '-' + JSONObject.Values['name'].Value +
           frmServidor.UserID.ToString, JSONObject.Values['imagemFundo'].Value);
 
@@ -1116,14 +1203,14 @@ begin
   conexao.Parametros('product', Req.Params['product']);
   conexao.ExecuteSQL;
 
-  // if Dados.RecordCount > 0 then
-  // begin
-  // while not Dados.Eof do
-  // begin
-  // EnviaProduto(Dados.FieldByName('id_produto').AsInteger, '');
-  // Dados.Next;
-  // end;
-  // end;
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      EnviaProduto(Dados.FieldByName('id_produto').AsInteger, '');
+      Dados.Next;
+    end;
+  end;
   Dados.Free;
   conexao.Free;
 end;
@@ -1189,7 +1276,7 @@ begin
     conexao.SQL.Add
       ('join tipo_produto on tipo_produto.codigo = produto.codigo_grupo and tipo_produto.pizza = 1');
     conexao.SQL.Add
-      ('where produto.codigo_grupo = :grupo order by produto.codigo');
+      ('where produto.codigo_grupo = :grupo and deletado <> 1 order by produto.codigo');
     conexao.Parametros('grupo', Req.Params['category']);
     DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -1211,7 +1298,7 @@ begin
     if CodigoProdutos <> '' then
     begin
       conexao.SQL.Add
-        ('SELECT distinct sabores_completo.nome, ativo, descricao, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('
+        ('SELECT distinct sabores_completo.nome, ativo, descricao,url, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('
         + CodigoProdutos + ')');
       Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -1221,6 +1308,7 @@ begin
 
         ObjetoJson := TJSONObject.Create;
         ObjetoJson.AddPair('flavor', Dados.FieldByName('nome').AsString);
+        ObjetoJson.AddPair('url', Dados.FieldByName('url').AsString);
         ObjetoJson.AddPair('description', Dados.FieldByName('descricao')
           .AsString);
         ObjetoJson.AddPair('status', Dados.FieldByName('ativo').AsInteger);
@@ -1305,6 +1393,7 @@ var
   Codigo: Integer;
   SaborAntigo: String;
   CodigoTipoSabor: Integer;
+  Imagem: String;
 begin
   conexao := TConexao.Create('v2');
 
@@ -1319,6 +1408,21 @@ begin
     // ////showmessage1('Description: ' + LJSONObject.GetValue('description').Value);
     // ////showmessage1('Base64: ' + LJSONObject.GetValue('base64').Value);
     // flavorOld
+    try
+      Imagem := LJSONObject.GetValue('base64').Value;
+      if Imagem <> '' then
+      begin
+        Imagem := EnviaImagem(FormatDateTime('ddmmyyyyhhnn', Now) +
+          LJSONObject.GetValue('id').Value, Imagem);
+      end;
+    except
+
+    end;
+
+    // CodigoImagem := codigo.ToString;
+    // if user > 0 then
+    // CodigoImagem := user.ToString + '-' + codigo.ToString;
+    // URL := EnviaImagem(CodigoImagem, Base64);
 
     LSizeValue := LJSONObject.GetValue('size');
 
@@ -1382,7 +1486,13 @@ begin
         end;
 
         conexao.SQL.Add
-          ('update sabores_completo set id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :vl_venda, modificado_site = 0 where id = :id');
+          ('update sabores_completo set id_tipo_sabor = :sabor, nome = :nome, descricao = :descricao, vl_venda = :vl_venda, modificado_site = 0');
+        if Imagem <> '' then
+        begin
+          conexao.SQL.Add(',url = :url');
+          conexao.Parametros('url', Imagem);
+        end;
+        conexao.SQL.Add('where id = :id');
         conexao.Parametros('id', Codigo);
         conexao.Parametros('sabor', CodigoTipoSabor);
         conexao.Parametros('nome',
@@ -1530,6 +1640,9 @@ var
 
   Query: TFDQuery;
 
+  Item: TJSONValue;
+  ID: Integer;
+
 begin
   conexao := TConexao.Create('v2');
   DadosProduto := TFDMemTable.Create(nil);
@@ -1605,63 +1718,6 @@ begin
         end;
 
         Codigo := DadosProduto.FieldByName('codigo').AsInteger;
-
-        // conexao.SQL.Add
-        // ('update produto set nome_produto = :nome_produto, descricao = :descricao, codigo_grupo = :codigo_grupo, valor_venda = :valor_venda,');
-        // conexao.SQL.Add
-        // ('controle_estoque = :controle_estoque, pessoas = :pessoas, valor_desconto = :valor_desconto,');
-        // conexao.SQL.Add
-        // ('estoque_min = :estoque_min, percentual_desconto = :percentual_desconto, saldo_atual = :saldo_atual, fidelidade = :fidelidade, valor_embalagem_delivery = :entrega,');
-        // conexao.SQL.Add('dias = :dias, segunda = :segunda, terca = :terca,');
-        // conexao.SQL.Add('quarta = :quarta, quinta = :quinta, sexta = :sexta,');
-        // conexao.SQL.Add
-        // ('sabado = :sabado, domingo = :domingo, novidade = :novidade,');
-        // conexao.SQL.Add('vembuscar = :vembuscar, delivery = :delivery');
-        // conexao.SQL.Add('where codigo = :codigo');
-        // conexao.Parametros('nome_produto', JSONObject.Values['name'].Value);
-        // conexao.Parametros('descricao', JSONObject.Values['description'].Value);
-        // conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
-        // conexao.Parametros('valor_venda', JSONObject.Values['value'].Value);
-        // conexao.Parametros('controle_estoque',
-        // JSONObject.Values['stock'].Value);
-        // conexao.Parametros('pessoas', JSONObject.Values['people'].Value);
-        // conexao.Parametros('valor_desconto',
-        // JSONObject.Values['value_discont'].Value);
-        // conexao.Parametros('percentual_desconto',
-        // JSONObject.Values['value_percent'].Value);
-        // conexao.Parametros('saldo_atual', JSONObject.Values['quanty'].Value);
-        // conexao.Parametros('fidelidade', JSONObject.Values['fidelidade'].Value);
-        // conexao.Parametros('estoque_min', JSONObject.Values['stock_min'].Value);
-        //
-        // conexao.Parametros('dias', JSONObject.Values['dias'].Value);
-        // conexao.Parametros('segunda', JSONObject.Values['segunda'].Value);
-        // conexao.Parametros('terca', JSONObject.Values['terca'].Value);
-        // conexao.Parametros('quarta', JSONObject.Values['quarta'].Value);
-        // conexao.Parametros('quinta', JSONObject.Values['quinta'].Value);
-        // conexao.Parametros('sexta', JSONObject.Values['sexta'].Value);
-        // conexao.Parametros('sabado', JSONObject.Values['sabado'].Value);
-        // conexao.Parametros('domingo', JSONObject.Values['domingo'].Value);
-        // conexao.Parametros('entrega', JSONObject.Values['entrega'].Value);
-        // try
-        // conexao.Parametros('novidade', JSONObject.Values['novidade'].Value);
-        // except
-        // conexao.Parametros('novidade', 0);
-        // end;
-        //
-        // try
-        // conexao.Parametros('vembuscar', JSONObject.Values['vembuscar'].Value);
-        // except
-        // conexao.Parametros('vembuscar', 0);
-        // end;
-        //
-        // try
-        // conexao.Parametros('delivery', JSONObject.Values['delivery'].Value);
-        // except
-        // conexao.Parametros('delivery', 0);
-        // end;
-        //
-        // conexao.Parametros('codigo', JSONObject.Values['id'].Value);
-        // conexao.ExecuteSQL;
 
       end;
 
@@ -1818,93 +1874,87 @@ begin
         begin
           StrToInt('XXXX');
         end;
-        // conexao.SQL.Clear;
-        // conexao.SQL.Add
-        // ('UPDATE produto SET un = :un WHERE codigo_grupo = :codigo_grupo AND :un IS NOT NULL;');
-        // conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
-        // conexao.Parametros('un', JSONObject.Values['un'].Value);
-        // conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET ncm = :ncm WHERE codigo_grupo = :codigo_grupo AND :ncm IS NOT NULL;');
+          ('UPDATE produto SET ncm = :ncm WHERE codigo_grupo = :codigo_grupo AND ncm IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('ncm', JSONObject.Values['ncm'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cest = :cest WHERE codigo_grupo = :codigo_grupo AND :cest IS NOT NULL;');
+          ('UPDATE produto SET cest = :cest WHERE codigo_grupo = :codigo_grupo AND cest IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cest', JSONObject.Values['cest'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cfop = :cfop WHERE codigo_grupo = :codigo_grupo AND :cfop IS NOT NULL;');
+          ('UPDATE produto SET cfop = :cfop WHERE codigo_grupo = :codigo_grupo AND cfop IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cfop', JSONObject.Values['cfop'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cstipi = :cstipi WHERE codigo_grupo = :codigo_grupo AND :cstipi IS NOT NULL;');
+          ('UPDATE produto SET cstipi = :cstipi WHERE codigo_grupo = :codigo_grupo AND cstipi IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cstipi', JSONObject.Values['cstipi'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET csticms = :csticms WHERE codigo_grupo = :codigo_grupo AND :csticms IS NOT NULL;');
+          ('UPDATE produto SET csticms = :csticms WHERE codigo_grupo = :codigo_grupo AND csticms IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('csticms', JSONObject.Values['csticms'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cstpis = :cstpis WHERE codigo_grupo = :codigo_grupo AND :cstpis IS NOT NULL;');
+          ('UPDATE produto SET cstpis = :cstpis WHERE codigo_grupo = :codigo_grupo AND cstpis IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cstpis', JSONObject.Values['cstpis'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cstcofins = :cstcofins WHERE codigo_grupo = :codigo_grupo AND :cstcofins IS NOT NULL;');
+          ('UPDATE produto SET cstcofins = :cstcofins WHERE codigo_grupo = :codigo_grupo AND cstcofins IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cstcofins', JSONObject.Values['cstcofins'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET csosn = :csosn WHERE codigo_grupo = :codigo_grupo AND :csosn IS NOT NULL;');
+          ('UPDATE produto SET csosn = :csosn WHERE codigo_grupo = :codigo_grupo AND csosn IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('csosn', JSONObject.Values['csosn'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET icms = :icms WHERE codigo_grupo = :codigo_grupo AND :icms IS NOT NULL;');
+          ('UPDATE produto SET icms = :icms WHERE codigo_grupo = :codigo_grupo AND icms IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('icms', JSONObject.Values['icms'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET ipi = :ipi WHERE codigo_grupo = :codigo_grupo AND :ipi IS NOT NULL;');
+          ('UPDATE produto SET ipi = :ipi WHERE codigo_grupo = :codigo_grupo AND ipi IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('ipi', JSONObject.Values['ipi'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET pis = :pis WHERE codigo_grupo = :codigo_grupo AND :pis IS NOT NULL;');
+          ('UPDATE produto SET pis = :pis WHERE codigo_grupo = :codigo_grupo AND pis IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('pis', JSONObject.Values['pis'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET cofins = :cofins WHERE codigo_grupo = :codigo_grupo AND :cofins IS NOT NULL;');
+          ('UPDATE produto SET cofins = :cofins WHERE codigo_grupo = :codigo_grupo AND cofins IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('cofins', JSONObject.Values['cofins'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET frete = :frete WHERE codigo_grupo = :codigo_grupo AND :frete IS NOT NULL;');
+          ('UPDATE produto SET frete = :frete WHERE codigo_grupo = :codigo_grupo AND frete IS NOT NULL;');
         conexao.Parametros('codigo_grupo', JSONObject.Values['category'].Value);
         conexao.Parametros('frete', JSONObject.Values['frete'].Value);
         conexao.ExecuteSQL;
 
         conexao.SQL.Add
-          ('UPDATE produto SET referencia = :referencia WHERE codigo = :codigo AND :frete IS NOT NULL;');
+          ('UPDATE produto SET referencia = :referencia WHERE codigo = :codigo AND frete IS NOT NULL;');
         conexao.Parametros('codigo', Codigo);
         conexao.Parametros('referencia', JSONObject.Values['referencia'].Value);
         conexao.ExecuteSQL;
@@ -1912,8 +1962,6 @@ begin
       except
         conexao.SQL.Clear;
       end;
-
-      // aki
 
       if StrToInt(JSONObject.Values['adicional'].ToString) = 1 then
       begin
@@ -1962,15 +2010,15 @@ begin
               CodigoAux := conexao.GerarID
                 ('pro_adi_personalizado_sabores', 'id');
               conexao.SQL.Add
-                ('insert into pro_adi_personalizado_sabores (id, id_pro_adi_personalizado,nome,descricao,valor,ativo,id_prod_estoque, id_ingredientes)');
+                ('insert into pro_adi_personalizado_sabores (id, id_pro_adi_personalizado,nome,descricao,valor,ativo,id_prod_estoque, id_ingredientes,alerta)');
               conexao.SQL.Add
-                ('values (:id, :id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,:stock, :id_ingredientes)');
+                ('values (:id, :id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,:stock, :id_ingredientes,:alerta)');
             end
             else
             begin
               CodigoAux := StrToInt(ExtraItensItem.Values['id'].Value);
               conexao.SQL.Add
-                ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes, id_prod_estoque = :stock, id_pro_adi_personalizado = :id_pro_adi_personalizado, nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo');
+                ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes,alerta = :alerta, id_prod_estoque = :stock, id_pro_adi_personalizado = :id_pro_adi_personalizado, nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo');
               conexao.SQL.Add('where id = :id');
             end;
             try
@@ -2010,6 +2058,12 @@ begin
               conexao.Parametros('stock', 0);
             end;
             try
+              conexao.Parametros('alerta',
+                ExtraItensItem.Values['alerta'].Value);
+            except
+              conexao.Parametros('alerta', 0);
+            end;
+            try
               conexao.Parametros('id_ingredientes',
                 ExtraItensItem.Values['insulmo'].Value);
             except
@@ -2022,10 +2076,6 @@ begin
 
         end;
       end;
-
-
-
-      // ate aqui
 
       Query := conexao.CriaQRY;
 
@@ -2049,6 +2099,32 @@ begin
       end;
 
       Query.Free;
+
+      if JSONObject.TryGetValue<TJSONArray>('deleteExtras', ExtraArray) and
+        Assigned(ExtraArray) then
+      begin
+        for Item in ExtraArray do
+        begin
+          // cobre os casos: número puro, string numérica, ou (se no futuro vier) objeto com campo id
+          if Item is TJSONNumber then
+            ID := TJSONNumber(Item).AsInt
+          else if Item is TJSONString then
+            ID := StrToIntDef(TJSONString(Item).Value, 0)
+          else if Item is TJSONObject then
+            ID := TJSONObject(Item).GetValue<Integer>('id', 0)
+          else
+            ID := 0;
+
+          if ID > 0 then
+          begin
+            conexao.SQL.Clear;
+            conexao.SQL.Add
+              ('update pro_adi_personalizado_sabores set ativo = 0, deletado = 1, modificado_site = 0 where id = :id');
+            conexao.Parametros('id', ID); // passe como inteiro
+            conexao.ExecuteSQL;
+          end;
+        end;
+      end;
 
       Site := EnviaProduto(Codigo, JSONObject.Values['base64'].Value);
 
@@ -2633,17 +2709,34 @@ begin
 
   JSONObject.AddPair('proprio', conexao.ConsultaSQL);
 
-  conexao.SQL.Add
-    ('SELECT caixa.id as id, (select sum(valor) from caixa_movimento where tipo = 1 and id_caixa = caixa.id) as valor_fechamento, data_abertura, hora_abertura, data_fechamento, hora_fechamento,  usuario.nome,');
-  conexao.SQL.Add('count(pedido.codigo) as quantidade');
-  conexao.SQL.Add('FROM caixa ');
-  conexao.SQL.Add('join usuario on usuario.codigo = caixa.id_usuario');
-  conexao.SQL.Add
-    ('join pedido on pedido.id_caixa = caixa.id and pedido.status > 0');
-  conexao.SQL.Add('where caixa.data_abertura between "' + Req.Params['dataini']
-    + '" and "' + Req.Params['datafim'] + '" and caixa.status = 2');
-  conexao.SQL.Add('group by pedido.id_caixa');
-  conexao.SQL.Add('order by caixa.data_abertura');
+  // conexao.SQL.Add('SELECT caixa.id as id, (select sum(valor) from caixa_movimento where tipo = 1 and id_caixa = caixa.id) as valor_fechamento, data_abertura, hora_abertura, data_fechamento, hora_fechamento,  usuario.nome,');
+  // conexao.SQL.Add('count(pedido.codigo) as quantidade');
+  // conexao.SQL.Add('FROM caixa ');
+  // conexao.SQL.Add('join usuario on usuario.codigo = caixa.id_usuario');
+  // conexao.SQL.Add('join pedido on pedido.id_caixa = caixa.id and pedido.status > 0');
+  // conexao.SQL.Add('where caixa.data_abertura between "' + Req.Params['dataini']+ '" and "' + Req.Params['datafim'] + '" and caixa.status = 2');
+  // conexao.SQL.Add('group by pedido.id_caixa');
+  // conexao.SQL.Add('order by caixa.data_abertura');
+  with conexao do
+  begin
+    SQL.Clear;
+    SQL.Add('SELECT c.id AS id,');
+    SQL.Add('  COALESCE((SELECT SUM(valor) FROM caixa_movimento cm WHERE cm.tipo=1 AND cm.id_caixa=c.id),0) AS valor_fechamento,');
+    SQL.Add('  c.data_abertura, c.hora_abertura, c.data_fechamento, c.hora_fechamento, u.nome,');
+    SQL.Add('  COUNT(p.codigo) AS quantidade');
+    SQL.Add('FROM caixa c');
+    SQL.Add('JOIN usuario u ON u.codigo = c.id_usuario');
+    SQL.Add('JOIN ' + BuildPedidosUnion(Req.Params['dataini'],
+      Req.Params['datafim']) + ' p ON p.id_caixa = c.id');
+    SQL.Add('WHERE c.data_abertura BETWEEN :dataini AND :datafim');
+    SQL.Add('  AND c.status = 2');
+    SQL.Add('GROUP BY c.id, c.data_abertura, c.hora_abertura, c.data_fechamento, c.hora_fechamento, u.nome');
+    SQL.Add('ORDER BY c.data_abertura');
+    Parametros('dataini', Req.Params['dataini']);
+    Parametros('datafim', Req.Params['datafim']);
+
+  end;
+
   JSONObject.AddPair('extrato', conexao.ConsultaSQL);
 
   conexao.Free;
@@ -2653,26 +2746,25 @@ end;
 
 procedure DoGetTestErro(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-  // procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
 
   frmServidor.EnviaGlitchtip
     ('https://070641a91ca74f3c8b3f1cec9d5ca962@nginx-glitchtip.l1p88w.easypanel.host/4',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
   frmServidor.EnviaGlitchtip
     ('https://d8c00b2846b3412dacbdb44d38144456@nginx-glitchtip.l1p88w.easypanel.host/2',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
   frmServidor.EnviaGlitchtip
     ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
   frmServidor.EnviaGlitchtip
     ('https://9327eaf954a340cb94c64a8bf4afb696@nginx-glitchtip.l1p88w.easypanel.host/5',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
   frmServidor.EnviaGlitchtip
     ('https://393ce11c328044b4a747820f31ce790a@nginx-glitchtip.l1p88w.easypanel.host/1',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
   frmServidor.EnviaGlitchtip
     ('https://2321bb196f424d6aa9e80d51cc77273b@nginx-glitchtip.l1p88w.easypanel.host/6',
-    'TEST' + FormatDateTime('ddhhmm', now), 'Test', 'Test');
+    'TEST' + FormatDateTime('ddhhmm', Now), 'Test', 'Test');
 end;
 
 procedure DoGetStatusSite(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -2917,7 +3009,7 @@ begin
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
-  frmServidor.HorSite := now;
+  frmServidor.HorSite := Now;
 
 end;
 
@@ -2953,8 +3045,9 @@ begin
   conexao.SQL.Add
     ('select cliente.codigo,nome,celular,cpf,data_nascimento, cliente_endereco.rua, cliente_endereco.numero,cliente_endereco.bairro, cliente_endereco.complemento,  cliente_endereco.cidade, cliente_endereco.estado from cliente');
   conexao.SQL.Add
-    ('join cliente_endereco on cliente_endereco.codigo_cliente = cliente.codigo and cliente_endereco.codigo = (select max(codigo) from cliente_endereco where codigo_cliente = cliente.codigo)');
-  conexao.SQL.Add('where celular > 999 and nome <> ""');
+    ('left join cliente_endereco on cliente_endereco.codigo_cliente = cliente.codigo and cliente_endereco.codigo = (select max(codigo) from cliente_endereco where codigo_cliente = cliente.codigo)');
+  conexao.SQL.Add
+    ('where nome NOT LIKE "%MESA %" and nome NOT LIKE "%BALCÃO%" and nome NOT LIKE "%BALCAO %" and nome <> ""');
   conexao.SQL.Add('order by nome');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -3783,6 +3876,11 @@ end;
 
 procedure GetCacheSite(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
+  try
+    frmServidor.Queue.Finalizar(Req.Body.ToInteger());
+  except
+
+  end;
   frmServidor.AtualizaCacheSite;
 end;
 
@@ -3926,7 +4024,7 @@ begin
       begin
         frmServidor.memErrosNFCE.Last;
         frmServidor.memErrosNFCE.Insert;
-        frmServidor.memErrosNFCE.FieldByName('data').AsDateTime := now;
+        frmServidor.memErrosNFCE.FieldByName('data').AsDateTime := Now;
         frmServidor.memErrosNFCE.FieldByName('pedido').AsString :=
           JSONObject.Values['pedido'].Value;
         frmServidor.memErrosNFCE.FieldByName('erros').AsString :=
@@ -3939,6 +4037,195 @@ begin
   except
 
   end;
+end;
+
+procedure DoGetPainelChamada(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoGetPainelChamada');
+  conexao.SQL.Add
+    ('select pp.id, p.codigo_pedido_dia as codigo, pp.quantidade,');
+  conexao.SQL.Add('CASE p.nome');
+  conexao.SQL.Add('        WHEN "" THEN c.nome');
+  conexao.SQL.Add('        ELSE p.nome');
+  conexao.SQL.Add('    END AS nome from pedido_painel as pp');
+  conexao.SQL.Add('join pedido as p on p.codigo = pp.id_pedido');
+  conexao.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
+  conexao.SQL.Add('where pp.quantidade < 3 order by id asc limit 5');
+  Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  conexao.Free;
+end;
+
+procedure DoPostAtualizaObsProduto(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+Var
+  JSONValue: TJSONValue;
+  conexao: TConexao;
+  Codigo: Integer;
+  Dados: TFDMemTable;
+  ProductItem: TJSONObject;
+begin
+  conexao := TConexao.Create('DoPostAtualizaObsProduto');
+  Dados := TFDMemTable.Create(nil);
+  JSONValue := TJSONObject.ParseJSONValue(Req.Body);
+  ProductItem := JSONValue as TJSONObject;
+
+  conexao.SQL.Add('SELECT * FROM pedido_produtos where codigo = :codigo');
+  conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+  if Dados.RecordCount > 0 then
+  begin
+    conexao.SQL.Add
+      ('update pedido_produtos set html = :html where codigo = :codigo');
+    conexao.Parametros('html', StringReplace(Dados.FieldByName('html').AsString,
+      ProductItem.GetValue<String>('old'), ProductItem.GetValue<String>('new'),
+      [rfIgnoreCase]));
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    conexao.ExecuteSQL;
+
+    conexao.SQL.Add
+      ('select * from pedido_produto_sap where codigo_pedido_produto = :codigo and upper(nomeclatura) like "%OBSERVA%"');
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    Codigo := conexao.FieldByName('id');
+
+    if Codigo > 0 then
+    begin
+      conexao.SQL.Add
+        ('update pedido_produto_sap set descricao = :obs where id = :codigo');
+      conexao.Parametros('obs', ProductItem.GetValue<String>('new'));
+      conexao.Parametros('codigo', Codigo);
+    end
+    else
+    begin
+      Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+      conexao.SQL.Add
+        ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"OBSERVAÇÃO",:descricao)');
+      conexao.Parametros('id', Codigo);
+      conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+      conexao.Parametros('descricao', ProductItem.GetValue<String>('new'));
+
+    end;
+    conexao.ExecuteSQL;
+  end;
+
+  if ProductItem.GetValue<string>('reimpressao') = '1' then
+  begin
+    conexao.SQL.Add
+      ('update pedido_produtos set impressao = 0, impresso = 0 where codigo = :codigo');
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    conexao.ExecuteSQL;
+
+    conexao.SQL.Add
+      ('delete from pedido_produto_sap where upper(nomeclatura) like "%ATENÇ%" where codigo_pedido_produto = :codigo');
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    conexao.ExecuteSQL;
+
+    Codigo := conexao.GerarID('pedido_produto_sap', 'id');
+    conexao.SQL.Add
+      ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"* * * * ATENÇÃO * * * *",:descricao)');
+    conexao.Parametros('id', Codigo);
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    conexao.Parametros('descricao',
+      'OBSERVAÇÃO FOI ALTERADA E ESSA É UMA REIMPRESSÃO');
+    conexao.ExecuteSQL;
+
+    conexao.SQL.Add
+      ('update impressao_pedido_produto set data_impressao = null, hora_impressao = null, status = 0 where id_pedido = :codigo');
+    conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
+    conexao.ExecuteSQL;
+  end;
+  Codigo := Dados.FieldByName('codigo_pedido').AsInteger;
+  Res.Send<TJSONArray>(GetDadosProdutoPedido(Codigo));
+  conexao.Free;
+  Dados.Free;
+end;
+
+procedure DoGetTipos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Request: iRequisicao;
+begin
+
+  if frmServidor.CacheTiposJSON = '' then
+  begin
+    Request := iRequisicao.Create(nil);
+    Request.BaseURL := API_BASE_URL;
+    Request.URL := 'api/interno/consulta/tipo/produto/geral';
+    try
+
+      Request.Execute;
+      frmServidor.CacheTiposJSON := Request.Retorno;
+    except
+
+    end;
+    Request.Free;
+  end;
+
+  Res.Send<TJSONArray>(TJSONObject.ParseJSONValue
+    (TEncoding.UTF8.GetBytes(frmServidor.CacheTiposJSON), 0) as TJSONArray);
+end;
+
+procedure DoDeleteProduto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoDeleteProduto');
+  conexao.SQL.Add
+    ('update produto set ativo = 0, deletado = 1 where codigo = :codigo');
+  conexao.Parametros('codigo', Req.Params['id'].ToInteger);
+  conexao.ExecuteSQL;
+  conexao.Free;
+  EnviaProduto(Req.Params['id'].ToInteger, '');
+
+end;
+
+procedure DoPutUltimoProduto(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+begin
+  try
+    frmServidor.Queue.Finalizar(Req.Params['id'].ToInteger);
+  except
+
+  end;
+end;
+
+procedure DoGetUltimoProduto(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  Codigo: Integer;
+begin
+  Codigo := frmServidor.Queue.PegarProximo;
+  Res.Send(Codigo.ToString);
+end;
+
+procedure DoPutPainelChamada(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoPostPainelChamada');
+  conexao.SQL.Add
+    ('update pedido_painel set quantidade = quantidade +1 where id = :id');
+  conexao.Parametros('id', Req.Params['id']);
+  conexao.ExecuteSQL;
+  conexao.Free;
+  Res.Send('OK');
+end;
+
+procedure DoPostPainelChamada(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoPostPainelChamada');
+  conexao.SQL.Add('insert into pedido_painel (id_pedido) values (:id)');
+  conexao.Parametros('id', Req.Params['id']);
+  conexao.ExecuteSQL;
+  conexao.Free;
+  Res.Send('OK');
+
 end;
 
 procedure DoGetPesoBalanca(Req: THorseRequest; Res: THorseResponse;
@@ -4008,7 +4295,7 @@ begin
     if (JSONObject.Values['base64'].Value <> '') or
       (JSONObject.Values['base64'].Value <> 'remove') then
     begin
-      CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', now) +
+      CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', Now) +
         'empresa-' + frmServidor.UserID.ToString,
         JSONObject.Values['base64'].Value);
     end;
@@ -4514,6 +4801,8 @@ var
   Usuario: TJSONObject;
   APIGoopedir: TGooPedirAPIController;
   Retorno: TJSONObject;
+  conexao: TConexao;
+  QUANTIDADE: String;
 begin
 
   try
@@ -4529,9 +4818,31 @@ begin
     end
     else
     begin
+      conexao := TConexao.Create('DoPostLicensa');
+      conexao.SQL.Add('select 0 as zero, count(*) as qtd from usuario');
+      QUANTIDADE := conexao.FieldByName('qtd');
       Retorno.AddPair('erro', '');
       Retorno.AddPair('user', APIGoopedir.UserID);
       Retorno.AddPair('name', APIGoopedir.Name);
+      Retorno.AddPair('quantidade', QUANTIDADE);
+      conexao.SQL.Add
+        ('update dados_whatsapp set client_id = :id, client_security = :security');
+      conexao.Parametros('id', Usuario.GetValue<String>('id'));
+      conexao.Parametros('security', Usuario.GetValue<String>('security'));
+      conexao.ExecuteSQL;
+
+      frmServidor.Configuracoes.Close;
+      conexao.SQL.Add('select * from dados_whatsapp');
+      frmServidor.Configuracoes.Close;
+      frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+      frmServidor.APIGoopedir.Free;
+      frmServidor.APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
+        frmServidor.Configuracoes.FieldByName('client_id').AsString,
+        frmServidor.Configuracoes.FieldByName('client_security').AsString,
+        frmServidor.GetHorarioAbertura, frmServidor.GetHorarioFechamento,
+        frmServidor.GetHorarioAtendimento);
+
+      conexao.Free;
     end;
 
   except
@@ -4544,6 +4855,23 @@ begin
   Res.Send<TJSONObject>(Retorno);
 
   APIGoopedir.Free;
+end;
+
+procedure DoGetBanner(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+begin
+
+  if frmServidor.memBanner.RecordCount = 0 then
+  begin
+    conexao := TConexao.Create('DoGetBanner');
+    conexao.SQL.Add
+      ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
+    frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
+    conexao.Free;
+  end;
+
+  Res.Send(frmServidor.memBanner.ToJSONArray());
 end;
 
 procedure DoGetStatus(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -4614,6 +4942,9 @@ begin
   JSonObjectWhatsapp.AddPair('logout', frmServidor.LogoutWhatsapp);
   JSonObjectWhatsapp.AddPair('name', frmServidor.NomeWhatsapp);
   JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
+  JSonObjectWhatsapp.AddPair('msgErro', frmServidor.StatusErroWhatsapp);
+  JSonObjectWhatsapp.AddPair('statusOperacao',
+    frmServidor.StatusMensagemWhatsapp);
 
   try
     JSONObject.AddPair('whatsapp', JSonObjectWhatsapp);
@@ -4639,7 +4970,7 @@ begin
     JSONNFCe.AddPair('usa', True);
     conexao.SQL.Add
       ('SELECT count(*) as quantidade, 0 as zero FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '
-      + QuotedStr(FormatDateTime('yyyy-mm-01', now)) +
+      + QuotedStr(FormatDateTime('yyyy-mm-01', Now)) +
       ' and codigo_pedido_dia > 0');
     QUANTIDADE := conexao.FieldByName('quantidade');
     JSONNFCe.AddPair('contigencia', QUANTIDADE);
@@ -4907,8 +5238,8 @@ begin
     conexao.Parametros('codigo_pedido_dia', '0');
     conexao.Parametros('codigo_cliente', '0');
     conexao.Parametros('codigo_endereco', '0');
-    conexao.Parametros('data_pedido', FormatDateTime('yyyy-mm-dd', now));
-    conexao.Parametros('hora_pedido', FormatDateTime('hh:mm:ss', now));
+    conexao.Parametros('data_pedido', FormatDateTime('yyyy-mm-dd', Now));
+    conexao.Parametros('hora_pedido', FormatDateTime('hh:mm:ss', Now));
     conexao.Parametros('status', '-1');
     conexao.Parametros('valor_pedido', '0');
     conexao.Parametros('valor_taxa_entrega', '0');
@@ -5459,6 +5790,7 @@ begin
 
     if Tabela = 'taxa_entrega' then
     begin
+      frmServidor.TaxaEntrega.Close;
       if frmServidor.UserID > 0 then
       begin
         SincronizaTaxaEntrega(frmServidor.UserID);
@@ -5779,9 +6111,9 @@ begin
   Dados := TFDMemTable.Create(nil);
   try
     // Dados.LoadFromJSON(Req.Body);
-    StartTime := now;
+    StartTime := Now;
     Dados.LoadFromJSON(Req.Body);
-    EndTime := now;
+    EndTime := Now;
     ExecutionTime := EndTime - StartTime;
     MemoLog.Lines.Add('12: ' + FormatDateTime('hh:nn:ss:zzz', ExecutionTime));
 
@@ -5859,8 +6191,8 @@ begin
     conexao.Parametros('codigo_pedido_dia', '0');
     conexao.Parametros('codigo_cliente', '0');
     conexao.Parametros('codigo_endereco', '0');
-    conexao.Parametros('data_pedido', FormatDateTime('yyyy-mm-dd', now));
-    conexao.Parametros('hora_pedido', FormatDateTime('hh:mm:ss', now));
+    conexao.Parametros('data_pedido', FormatDateTime('yyyy-mm-dd', Now));
+    conexao.Parametros('hora_pedido', FormatDateTime('hh:mm:ss', Now));
     conexao.Parametros('status', '-1');
     conexao.Parametros('valor_pedido', '0');
     conexao.Parametros('valor_taxa_entrega', '0');
@@ -5875,9 +6207,9 @@ begin
     conexao.Parametros('id_ficha', mesa);
     conexao.Parametros('ficha_faturada', mesa);
 
-    StartTime := now;
+    StartTime := Now;
     conexao.ExecuteSQL;
-    EndTime := now;
+    EndTime := Now;
     ExecutionTime := EndTime - StartTime;
     MemoLog.Lines.Add('1: ' + FormatDateTime('hh:nn:ss:zzz', ExecutionTime));
 
@@ -5885,9 +6217,9 @@ begin
       ('update mesa set selecionada = :pedido where id_mesa = :mesa');
     conexao.Parametros('pedido', CodigoPedido);
     conexao.Parametros('mesa', mesa);
-    StartTime := now;
+    StartTime := Now;
     conexao.ExecuteSQL;
-    EndTime := now;
+    EndTime := Now;
     ExecutionTime := EndTime - StartTime;
     MemoLog.Lines.Add('2: ' + FormatDateTime('hh:nn:ss:zzz', ExecutionTime));
   end;
@@ -5920,9 +6252,9 @@ begin
       QUANTIDADE);
     conexao.Parametros('valor_adicional', ValorAdicional * QUANTIDADE);
     conexao.Parametros('impresso', '0');
-    StartTime := now;
+    StartTime := Now;
     conexao.ExecuteSQL;
-    EndTime := now;
+    EndTime := Now;
     ExecutionTime := EndTime - StartTime;
     MemoLog.Lines.Add('3: ' + FormatDateTime('hh:nn:ss:zzz', ExecutionTime));
 
@@ -5935,9 +6267,9 @@ begin
     conexao.Parametros('descricao', '');
     conexao.Parametros('valor', 0);
     conexao.Parametros('tipo_valor', '0');
-    StartTime := now;
+    StartTime := Now;
     conexao.ExecuteSQL;
-    EndTime := now;
+    EndTime := Now;
     ExecutionTime := EndTime - StartTime;
     MemoLog.Lines.Add('4: ' + FormatDateTime('hh:nn:ss:zzz', ExecutionTime));
 
@@ -6415,7 +6747,7 @@ var
   Codigo: Integer;
   nome, senha: string;
   percentual: Real;
-  finalizar, excluir, dashboard, entrada, desconto, aberturacaixa, Parametros,
+  Finalizar, excluir, dashboard, entrada, desconto, aberturacaixa, Parametros,
     mesa, taxa, impressora, Cupom, produto, Pagamento, lancamento, motoboy,
     cancelar, garcom, campanha: Boolean;
 begin
@@ -6426,7 +6758,7 @@ begin
     Codigo := JSONObj.GetValue('codigo').AsType<Integer>;
     nome := JSONObj.GetValue('nome').Value;
     senha := JSONObj.GetValue('senha').Value;
-    finalizar := JSONObj.GetValue('finalizar').AsType<Boolean>;
+    Finalizar := JSONObj.GetValue('finalizar').AsType<Boolean>;
     excluir := JSONObj.GetValue('excluir').AsType<Boolean>;
     dashboard := JSONObj.GetValue('dashboard').AsType<Boolean>;
     entrada := JSONObj.GetValue('entrada').AsType<Boolean>;
@@ -6486,9 +6818,9 @@ begin
     ('cad_cli = :cad_cli, cad_pedido = :cad_pedido, desconto = :desconto, param = :param, caixa = :caixa, cancelar = :cancelar, garcom = :garcom, campanha = :campanha');
   conexao.SQL.Add('where codigo = :codigo');
   conexao.Parametros('codigo', Codigo);
-  conexao.Parametros('app', Integer(finalizar));
+  conexao.Parametros('app', Integer(Finalizar));
   conexao.Parametros('cad_cli', 1);
-  conexao.Parametros('encerra', Integer(finalizar));
+  conexao.Parametros('encerra', Integer(Finalizar));
   conexao.Parametros('deleta', Integer(excluir));
   conexao.Parametros('dashboard', Integer(dashboard));
   conexao.Parametros('estoque', Integer(entrada));
@@ -7057,6 +7389,7 @@ begin
   THorse.Post('/v2/registro', DoPostRegistro);
   THorse.Get('/v2/status', DoGetStatus);
   THorse.Post('/v2/status', DoGetStatus);
+  THorse.Get('/v2/banner', DoGetBanner);
   THorse.Get('/v2/user', DoGetUser);
   THorse.Get('/v2/busca/produtos/:busca', DoGetProdutoSaboresExtras);
   THorse.Post('/v2/ativa/inativa/itens/:codigo/:status/:tipo',
@@ -7118,6 +7451,7 @@ begin
   THorse.Get('/v2/balanca/:id', DoGetPesoBalanca);
 
   THorse.Get('/v2/cache/site', GetCacheSite);
+  THorse.Post('/v2/cache/site', GetCacheSite);
 
   THorse.Post('/v2/erro/nfce', DoPostErroNFCE);
   THorse.Post('/v2/zera/nfce', DoPostZeraNFCE);
@@ -7126,6 +7460,18 @@ begin
     DoGetValidaFechamentoCaixa);
 
   THorse.Get('/v2/categoria/extra/:codigo', DoGetCategoriaExtra);
+
+  THorse.Post('/v2/painel/chamada/:id', DoPostPainelChamada);
+  THorse.Get('/v2/painel/chamada', DoGetPainelChamada);
+  THorse.put('/v2/painel/chamada/:id', DoPutPainelChamada);
+
+  THorse.Get('/v2/produto/sincronizacao', DoGetUltimoProduto);
+  THorse.put('/v2/produto/sincronizacao/:id', DoPutUltimoProduto);
+  THorse.Delete('/v2/excluir/produto/:id', DoDeleteProduto);
+
+  THorse.Get('/v2/tipos', DoGetTipos);
+
+  THorse.Post('v2/atualiza/obs/produto', DoPostAtualizaObsProduto);
 
 end;
 
@@ -7284,9 +7630,8 @@ begin
       end;
     end;
     Dados.Free;
-
+    conexao.Free;
   end;
-  conexao.Free;
 
 end;
 

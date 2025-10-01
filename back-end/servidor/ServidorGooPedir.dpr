@@ -112,7 +112,8 @@ uses
   uNewConsultas in 'src\modulos\uNewConsultas.pas',
   uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas',
   uGlobais in 'uGlobais.pas',
-  uProcedure in 'src\procedure\uProcedure.pas';
+  uProcedure in 'src\procedure\uProcedure.pas',
+  ProdutoQueue in 'src\modulos\Controller\ProdutoQueue.pas';
 
 {$R *.res}
 

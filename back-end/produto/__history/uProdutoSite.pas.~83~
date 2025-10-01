@@ -1,0 +1,304 @@
+﻿unit uProdutoSite;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, uControllerSite,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
+  uInserirUpdate, IniFiles, DataSet.Serialize,
+  FireDAC.Comp.Client, uRequisicao, System.IOUtils, uControlerProduto;
+
+type
+  TfrmProdutoSite = class(TForm)
+    tMinimiza: TTimer;
+    TrayIcon1: TTrayIcon;
+    tClose: TTimer;
+    iReq: iRequisicao;
+    procedure tMinimizaTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure tCloseTimer(Sender: TObject);
+  private
+    { Private declarations }
+    procedure EnviaProduto(Codigo: Integer);
+    function BuscaProduto: Integer;
+    procedure SincronizarProdutos;
+
+  public
+    { Public declarations }
+    procedure GerarLog(const Mensagem: string;
+      const NomeArquivo: string = 'log.txt');
+
+  CONST
+    BASEURL = 'http://localhost:3000';
+
+  var
+    userId: Integer;
+
+  end;
+
+var
+  frmProdutoSite: TfrmProdutoSite;
+
+implementation
+
+uses
+  System.JSON;
+
+{$R *.dfm}
+
+function TfrmProdutoSite.BuscaProduto: Integer;
+var
+  req: iRequisicao;
+  Codigo: Integer;
+begin
+  req := iRequisicao.Create(nil);
+  req.BASEURL := iReq.BASEURL;
+  req.URL := 'v2/produto/sincronizacao';
+  try
+    req.Execute;
+    Codigo := req.Retorno.ToInteger;
+  except
+    Codigo := 0;
+  end;
+  req.Free;
+  Result := Codigo;
+end;
+
+procedure TfrmProdutoSite.EnviaProduto(Codigo: Integer);
+var
+  Conexao: TConexao;
+  Dados: TFDQuery;
+  DadosExtra: TFDQuery;
+  DadosExtraItem: TFDQuery;
+  CodigoExtra: Integer;
+  Result: Integer;
+  Query: TFDQuery;
+
+begin
+  iReq.URL := 'v2/cache/site';
+  iReq.BODY(Codigo.ToString);
+  TrayIcon1.Hint := 'Código: ' + Codigo.ToString;
+  // Busca os dados de Cache
+  if Codigo = 0 then
+  begin
+    GerarLog('000', 'erro_produto.log');
+    exit;
+  end;
+
+  try
+    GerarLog(Codigo.ToString, 'erro_produto.log');
+    ValidaPendenciaProduto(Codigo);
+    // GetAllProduto(Codigo);
+
+    Conexao := TConexao.Create('uSite');
+    Dados := Conexao.CriaQRY;
+    Dados.SQL.Text := ('select * from produto where codigo = :codigo');
+    Dados.ParamByName('codigo').AsInteger := Codigo;
+    Dados.Open;
+    Conexao.SQL.Add
+      ('update produto set modificado_site = 2 where codigo = :codigo');
+    Conexao.Parametros('codigo', Codigo);
+    Conexao.ExecuteSQL;
+
+    Result := PostProdutoExpress(userId, Codigo);
+    if Result > 0 then
+    begin
+      Conexao.SQL.Add
+        ('update produto set modificado_site = 1, id_site = :site, new = 0, userid = :user where codigo = :codigo');
+      Conexao.Parametros('site', Result);
+      Conexao.Parametros('user', userId);
+      Conexao.Parametros('codigo', Codigo);
+      Conexao.ExecuteSQL;
+
+      GerarLog('006', 'erro_produto.log');
+      Query := Conexao.CriaQRY;
+      try
+        DadosExtra := Conexao.CriaQRY;
+        DadosExtraItem := Conexao.CriaQRY;
+        try
+          // Seleciona adicionais personalizados do produto
+          DadosExtra.SQL.Text :=
+            'select * from pro_adi_personalizado where id_produto = :produto';
+          DadosExtra.ParamByName('produto').AsInteger := Codigo;
+          DadosExtra.Open;
+          GerarLog('009', 'erro_produto.log');
+
+          if DadosExtra.RecordCount > 0 then
+          begin
+            while not DadosExtra.Eof do
+            begin
+              if DadosExtra.FieldByName('id_site').IsNull then
+              begin
+                DadosExtra.Edit;
+                DadosExtra.FieldByName('id_site').AsInteger := 0;
+              end;
+
+              // 🔹 Envia a categoria de adicional para a API
+              CodigoExtra := PostAdicionalCategoriaExpress(userId, Result,
+                // ID do produto no site
+                DadosExtra.FieldByName('id').AsInteger);
+              if CodigoExtra > 0 then
+              begin
+                Query.SQL.Text :=
+                  'update pro_adi_personalizado set modificado_site = 1, id_site = :site where id = :codigo';
+                Query.ParamByName('site').AsInteger := CodigoExtra;
+                Query.ParamByName('codigo').AsInteger :=
+                  DadosExtra.FieldByName('id').AsInteger;
+                Query.ExecSQL;
+
+                // 🔹 Seleciona itens do adicional
+                DadosExtraItem.SQL.Text :=
+                  'SELECT pads.*, pad.id_site as codigo_grupo ' +
+                  'FROM pro_adi_personalizado_sabores as pads ' +
+                  'JOIN pro_adi_personalizado as pad on pad.id = pads.id_pro_adi_personalizado '
+                  + 'WHERE id_pro_adi_personalizado = :codigo';
+                DadosExtraItem.ParamByName('codigo').AsInteger :=
+                  DadosExtra.FieldByName('id').AsInteger;
+                DadosExtraItem.Open;
+                GerarLog('0010', 'erro_produto.log');
+
+                if DadosExtraItem.RecordCount > 0 then
+                begin
+                  while not DadosExtraItem.Eof do
+                  begin
+                    // 🔹 Envia item do adicional para a API
+                    Codigo := PostAdicionalItemExpress(userId, CodigoExtra,
+                      // ID da categoria do adicional no site
+                      DadosExtraItem.FieldByName('id').AsInteger);
+
+                    Query.SQL.Text :=
+                      'update pro_adi_personalizado_sabores set modificado_site = 1, id_site = :site where id = :codigo';
+                    Query.ParamByName('site').AsInteger := Codigo;
+                    Query.ParamByName('codigo').AsInteger :=
+                      DadosExtraItem.FieldByName('id').AsInteger;
+                    Query.ExecSQL;
+
+                    DadosExtraItem.Next;
+                  end;
+                end;
+              end;
+
+              GerarLog('0011', 'erro_produto.log');
+              DadosExtra.Next;
+            end;
+          end;
+        finally
+          DadosExtra.Free;
+          DadosExtraItem.Free;
+        end;
+      finally
+        Query.Free;
+      end;
+
+    end;
+
+    GerarLog('0012', 'erro_produto.log');
+    SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId);
+    GerarLog('0013', 'erro_produto.log');
+
+  except
+    on e: exception do
+    begin
+      // ShowMessage(e.Message)
+      GerarLog(e.Message, 'erro_produto.log');
+      AdicionaPendencia(Conexao, Codigo,
+        'Ocorreu um erro inesperado, contate o suporte', e.Message);
+
+    end;
+  end;
+
+  try
+    iReq.Metodo := mPost;
+    iReq.Execute;
+  except
+
+  end;
+  Dados.Free;
+  Conexao.Free;
+
+end;
+
+procedure TfrmProdutoSite.FormCreate(Sender: TObject);
+var
+  IniFile: TIniFile;
+  BASEURL: String;
+begin
+try
+  IniFile := TIniFile.Create('./goopedir.ini');
+  BASEURL := IniFile.ReadString('server', 'baseurl', '');
+  IniFile.Free;
+  iReq.BASEURL := BASEURL;
+
+  if ParamCount > 0 then
+  begin
+    try
+      userId := ParamStr(2).ToInteger();
+      SincronizarProdutos;
+    except
+
+    end;
+  end
+  else
+  begin
+    tClose.Enabled := True;
+  end;
+
+end;
+
+procedure TfrmProdutoSite.GerarLog(const Mensagem, NomeArquivo: string);
+var
+  CaminhoLog: string;
+  Linha: string;
+begin
+  exit;
+  try
+    // Caminho padrão: mesmo diretório do executável
+    CaminhoLog := TPath.Combine(ExtractFilePath(ParamStr(0)), NomeArquivo);
+
+    // Formata a linha com data/hora
+    Linha := FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + Mensagem;
+
+    // Adiciona a linha ao arquivo
+    TFile.AppendAllText(CaminhoLog, Linha + sLineBreak, TEncoding.UTF8);
+  except
+    on e: exception do
+      // Em caso de erro no log, exibe ou trata de outra forma
+      OutputDebugString(PChar('Erro ao gerar log: ' + e.Message));
+  end;
+end;
+
+procedure TfrmProdutoSite.SincronizarProdutos;
+var
+  Codigo: Integer;
+begin
+  repeat
+    Codigo := BuscaProduto; // chama sua função
+
+    if Codigo > 0 then
+    begin
+      // aqui você pode colocar o que precisa fazer com o produto
+      EnviaProduto(Codigo);
+    end
+    else
+    begin
+      tClose.Enabled := True;
+    end;
+
+    // se Codigo for 0, o loop vai encerrar
+  until Codigo = 0;
+end;
+
+procedure TfrmProdutoSite.tCloseTimer(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmProdutoSite.tMinimizaTimer(Sender: TObject);
+begin
+  tMinimiza.Enabled := false;
+  self.Hide();
+  self.WindowState := wsMinimized;
+end;
+
+end.

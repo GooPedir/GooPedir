@@ -3,6 +3,7 @@
 interface
 
 uses
+  System.Zip, System.IOUtils,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, uSQL,
@@ -24,7 +25,7 @@ uses
   Data.Bind.Components,
   System.SyncObjs,
   Horse.XMLDoc, Xml.XMLDoc,
-  System.IOUtils,
+
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
   cors,
   uControllerSite,
@@ -32,7 +33,7 @@ uses
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
-  uAtualizacaoSite, uGlobais, uProcedure;
+  uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto;
 
 type
   TBalancaManager = class
@@ -163,6 +164,7 @@ type
     tBackupFTP: TTimer;
     memPaineis: TFDMemTable;
     memBanner: TFDMemTable;
+    memTiposSite: TFDMemTable;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -339,7 +341,7 @@ type
     procedure FazExclusaoClientes;
 
     procedure mModal(Valor: String);
-    function ObjetoProduto(SQL: String): TJsonArray;
+
     function ObjetoProdutoAdicional(Codigo: String): TJsonArray;
 
     procedure ImpressoraStatus;
@@ -471,6 +473,12 @@ type
     TaxaEntrega: TFDMemTable;
     TipoPagamento: TFDMemTable;
     NomeArquivoBackup: String;
+    Queue: TProdutoQueue;
+    CacheTiposJSON: string; // guarda o JSON cru em UTF-8
+    CacheTiposArr: TJsonArray; // opcional se quiser parseado
+    StatusMensagemWhatsapp: Integer;
+    StatusErroWhatsapp: String;
+    Modulos: TJsonObject;
 
   end;
 
@@ -726,7 +734,7 @@ begin
     JsonProduto.AddPair('all', Valor);
 
     conexao.SQL.Add
-      ('select 0 as zero, (id_site) as codigo from produto where id_site > 0 and ativo = 1');
+      ('select 0 as zero, (id_site) as codigo from produto where id_site > 0 and ativo = 1 and deletado = 0');
     Dados := TFDMemTable.Create(nil);
     Dados.LoadFromJSON(conexao.ConsultaSQL);
     Valor := '0';
@@ -1380,28 +1388,26 @@ end;
 procedure TfrmServidor.BuscarModulo;
 var
   Requisicao: iRequisicao;
-  Memo: TMemo;
+  memo: TMemo;
 begin
-
-  Memo := TMemo.Create(nil);
-
+  memo := TMemo.Create(self);
+  memo.Parent := self;
   Requisicao := iRequisicao.Create(self);
   Requisicao.BaseURL := 'https://ws.goopedir.com/modulos/index.php?user=' +
     UserID.ToString;
   try
     Requisicao.Execute;
-    Memo.Text := Requisicao.Retorno;
-
+    memo.Lines.Text := Requisicao.Retorno;
+    memo.Lines.SaveToFile('conf.js');
+    Modulos := TJsonObject.ParseJSONValue(Requisicao.Retorno) as TJsonObject;
   except
     on E: Exception do
     begin
-      Memo.Text := '{}';
+      Modulos := TJsonObject.Create;
 
     end;
   end;
-
-  Memo.Lines.SaveToFile('module.conf');
-  Memo.Free;
+  memo.Free;
   Requisicao.Free;
 
 end;
@@ -1560,7 +1566,6 @@ begin
     try
       Req.Execute;
       ErrorValue := false;
-
       JsonObject := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
       if Assigned(JsonObject) then
       begin
@@ -1577,31 +1582,26 @@ begin
           begin
             // Pegar dados
             DadosWhatsapp;
+            StatusMensagemWhatsapp := 1;
           end
           else
           begin
             // Buscar QRCod
             DadosQrCod;
-
+            StatusMensagemWhatsapp := 2;
           end;
-
           user.Free;
-
           StatusInstanciaCriada := true;
         end;
-
       end;
     except
       on E: Exception do
       begin
-        // ////showmessage1(e.Message);
-
+        StatusErroWhatsapp := E.Message;
+        StatusMensagemWhatsapp := 3;
       end;
-
     end;
     Req.Free;
-    // if Assigned(JsonObject) then
-    // JsonObject.Free;
   end;
 
 end;
@@ -1944,111 +1944,74 @@ end;
 procedure TfrmServidor.EnviaGlitchtip(DSN, Tipo, Identificacao,
   Mensagem: String);
 var
-  JsonObjec: TJsonObject;
-  Chave, API, JSONBody: string;
-  URL: String;
+  JsonObjec, JSONBody, ExceptionObj, ExceptionVal, Tags: TJsonObject;
+  ExceptionArr: TJsonArray;
+  Chave, API, URL: string;
   iGlitchtip: iRequisicao;
-
-  RESTClient1: TRESTClient;
-  RESTRequest1: TRESTRequest;
-  RESTResponse1: TRESTResponse;
 begin
-  if not GerarLog then
-    exit;
+  iGlitchtip := iRequisicao.Create(nil);
 
-  JsonObjec := TJsonObject.Create;
   // Extrai a chave e a URL da DSN
-  Chave := Copy(DSN, Pos('//', DSN) + 2, Pos('@', DSN) - Pos('//', DSN) - 2);
-  URL := Copy(DSN, Pos('@', DSN) + 1, length(DSN));
+  Chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
+  URL := Copy(DSN, pos('@', DSN) + 1, length(DSN));
   URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
-  API := Copy(URL, Pos('/', URL) + 1, length(URL));
+  API := Copy(URL, pos('/', URL) + 1, length(URL));
   URL := StringReplace(URL, '/' + API, '', []);
 
-  JSONBody := JSONBody + '{';
-  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
-  JSONBody := JSONBody + '  "timestamp": "' +
-    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now) + '",';
-  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
-  JSONBody := JSONBody + '  "platform": "delphi",';
-  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
-  JSONBody := JSONBody + '  "exception": {';
-  JSONBody := JSONBody + '    "values": [';
-  JSONBody := JSONBody + '      {';
-  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
-  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
-  JSONBody := JSONBody + '      }';
-  JSONBody := JSONBody + '    ]';
-  JSONBody := JSONBody + '  },';
-  JSONBody := JSONBody + '  "tags": {';
-  JSONBody := JSONBody + '    "environment": "' + UserID.ToString + '",';
-  JSONBody := JSONBody + '    "user": "' + UserID.ToString + '"';
-  JSONBody := JSONBody + '  }';
-  JSONBody := JSONBody + '}';
-  JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
-  JsonObjec.AddPair('autorizacao', Chave);
-  JsonObjec.AddPair('body', TJsonObject.ParseJSONValue(JSONBody)
-    as TJsonObject);
+  // Monta JSON
+  JSONBody := TJsonObject.Create;
+  JSONBody.AddPair('event_id', GenerateUUID);
+  JSONBody.AddPair('timestamp',
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now));
+  JSONBody.AddPair('level', Tipo);
+  JSONBody.AddPair('platform', 'delphi');
+  JSONBody.AddPair('message', Identificacao);
 
-  RESTClient1 := TRESTClient.Create(nil);
-  try
-    RESTClient1.BaseURL := 'https://ws.goopedir.com/glitchtip/index.php';
-    RESTClient1.SynchronizedEvents := false;
+  // exception
+  ExceptionObj := TJsonObject.Create;
+  ExceptionVal := TJsonObject.Create;
+  ExceptionVal.AddPair('type', UpperCase(Tipo));
+  ExceptionVal.AddPair('value', Mensagem);
 
-    // Criando o TRESTResponse
-    RESTResponse1 := TRESTResponse.Create(nil);
+  ExceptionArr := TJsonArray.Create;
+  ExceptionArr.AddElement(ExceptionVal);
+  ExceptionObj.AddPair('values', ExceptionArr);
+  JSONBody.AddPair('exception', ExceptionObj);
 
-    // Criando o TRESTRequest
-    RESTRequest1 := TRESTRequest.Create(nil);
-    try
-      RESTRequest1.Client := RESTClient1;
-      RESTRequest1.Response := RESTResponse1;
-      RESTRequest1.SynchronizedEvents := false;
-      RESTRequest1.Method := rmPOST;
-
-      // Configurando os parâmetros da requisição
-      // with RESTRequest1.Params.AddItem do
-      // begin
-      // Kind := pkREQUESTBODY;
-      // Name := 'body67FAC2D51FE84D139EE71109F4F5AC14';
-      // Value := JsonObjec.ToString;
-      // ContentType := ctAPPLICATION_JSON;
-      // end;
-
-      RESTRequest1.AddBody(JsonObjec);
-
-      // Executando a requisição
-      try
-        RESTRequest1.Execute;
-        // //showmessage(RESTResponse1.Content);
-      except
-        on E: Exception do
-        begin
-          // //showmessage(E.Message);
-        end;
-
-      end;
-
-      // Processando a resposta
-      if RESTResponse1.StatusCode = 200 then
-      begin
-        // Sucesso
-        // WriteLn('Requisição bem-sucedida: ' + RESTResponse1.Content);
-      end
-      else
-      begin
-        // Erro
-        // WriteLn('Erro na requisição: ' + RESTResponse1.StatusText);
-      end;
-
-    finally
-      RESTRequest1.Free;
-    end;
-
-  finally
-    RESTClient1.Free;
-    RESTResponse1.Free;
+  // tags
+  Tags := TJsonObject.Create;
+  if (GetEnvironmentVariable('COMPUTERNAME') = 'ALLAN-PC') then
+  begin
+    Tags.AddPair('environment', 'desenvolvimento');
+  end
+  else
+  begin
+    Tags.AddPair('environment', 'produção');
   end;
 
+  Tags.AddPair('user', GetEnvironmentVariable('COMPUTERNAME'));
+  JSONBody.AddPair('tags', Tags);
+
+  // wrapper para envio
+  JsonObjec := TJsonObject.Create;
+  JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
+  JsonObjec.AddPair('autorizacao', Chave);
+  JsonObjec.AddPair('body', JSONBody);
+
+  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.BODY(JsonObjec);
+
+  try
+    iGlitchtip.Metodo := mPost;
+    iGlitchtip.Execute;
+  except
+    on E: Exception do
+    begin
+      // tratamento
+    end;
+  end;
+
+  iGlitchtip.Free;
 end;
 
 procedure TfrmServidor.EnvioCaixa;
@@ -2105,7 +2068,7 @@ begin
 
       ComandoAtual := ComandoAtual + sLineBreak + Lista[i];
 
-      if Pos(';', Lista[i]) > 0 then
+      if pos(';', Lista[i]) > 0 then
       begin
         try
           Qry.SQL.Clear;
@@ -2114,7 +2077,7 @@ begin
         except
           on E: Exception do
           begin
-            if Pos('Failed to open the referenced table', E.Message) > 0 then
+            if pos('Failed to open the referenced table', E.Message) > 0 then
             begin
               // Se for erro de foreign key, adia
               Pendentes.Add(ComandoAtual);
@@ -2227,18 +2190,75 @@ begin
 
 end;
 
+// function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
+// var
+// CmdLine, MySQLDumpPath, PastaBackup: string;
+// StartupInfo: TStartupInfo;
+// ProcessInfo: TProcessInformation;
+// begin
+// Result := false;
+//
+// PastaBackup := ExtractFilePath(ParamStr(0)) + 'backup\bd\';
+// ForceDirectories(PastaBackup);
+// NomeArquivoBackup := PastaBackup + conexao.NomeBanco +
+// FormatDateTime('ddmmyyyy', now) + '.sql';
+//
+// if FileExists(NomeArquivoBackup) then
+// begin
+// tBackupFTP.Enabled := true;
+// exit;
+// end;
+//
+// MySQLDumpPath := GetMySQLDumpPath;
+// if MySQLDumpPath = '' then
+// begin
+// ShowMessage('mysqldump.exe não encontrado.');
+// exit;
+// end;
+//
+// // Importante: usar aspas duplas corretas
+// CmdLine := Format('cmd.exe /C ""%s" -u%s -p%s --databases %s > "%s""',
+// [MySQLDumpPath, conexao.Usuario, conexao.senha, conexao.NomeBanco,
+// NomeArquivoBackup]);
+//
+// ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
+// StartupInfo.cb := SizeOf(StartupInfo);
+// ZeroMemory(@ProcessInfo, SizeOf(ProcessInfo));
+//
+// if CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW, nil,
+// nil, StartupInfo, ProcessInfo) then
+// begin
+// WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+// CloseHandle(ProcessInfo.hProcess);
+// CloseHandle(ProcessInfo.hThread);
+//
+// if FileExists(NomeArquivoBackup) and (FileSizeByName(NomeArquivoBackup) > 0)
+// then
+// begin
+// Result := true;
+// tBackupFTP.Enabled := true;
+// end;
+// // else
+// // ShowMessage('Arquivo gerado, mas está vazio ou inválido: ' + BackupPath);
+// end;
+//
+// end;
+
 function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
 var
-  CmdLine, MySQLDumpPath, PastaBackup: string;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
+  MySQLDumpPath, PastaBackup, CmdLine: string;
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  ExitCode: DWORD;
 begin
   Result := false;
 
-  PastaBackup := ExtractFilePath(ParamStr(0)) + 'backup\bd\';
+  PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
+    'backup\bd');
   ForceDirectories(PastaBackup);
-  NomeArquivoBackup := PastaBackup + conexao.NomeBanco +
-    FormatDateTime('ddmmyyyy', now) + '.sql';
+  NomeArquivoBackup := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
+    FormatDateTime('yyyymmdd', now) // evita colisão/overwrite
+    ]);
 
   if FileExists(NomeArquivoBackup) then
   begin
@@ -2247,38 +2267,60 @@ begin
   end;
 
   MySQLDumpPath := GetMySQLDumpPath;
-  if MySQLDumpPath = '' then
+  // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
+  if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
   begin
     ShowMessage('mysqldump.exe não encontrado.');
     exit;
   end;
 
-  // Importante: usar aspas duplas corretas
-  CmdLine := Format('cmd.exe /C ""%s" -u%s -p%s --databases %s > "%s""',
-    [MySQLDumpPath, conexao.Usuario, conexao.senha, conexao.NomeBanco,
-    NomeArquivoBackup]);
+  // IMPORTANTE:
+  // - sem redirecionamento ">"
+  // - grava direto com --result-file
+  // - flags para bases grandes e InnoDB
+  // - GTID OFF evita barulho quando não precisa de replicação
+  // - hex-blob garante binários seguros
+  CmdLine := '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor + ' -P' +
+    (conexao.Porta) + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
+  // se a senha tiver caracteres especiais, considere usar --defaults-file (ver nota abaixo)
+    ' --databases ' + conexao.NomeBanco +
+    ' --single-transaction --quick --hex-blob' +
+    ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
+    ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
+    ' --result-file="' + NomeArquivoBackup + '"';
 
-  ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
-  StartupInfo.cb := SizeOf(StartupInfo);
-  ZeroMemory(@ProcessInfo, SizeOf(ProcessInfo));
+  ZeroMemory(@SI, SizeOf(SI));
+  SI.cb := SizeOf(SI);
+  SI.dwFlags := STARTF_USESHOWWINDOW;
+  SI.wShowWindow := SW_HIDE;
 
-  if CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW, nil,
-    nil, StartupInfo, ProcessInfo) then
-  begin
-    WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-    CloseHandle(ProcessInfo.hProcess);
-    CloseHandle(ProcessInfo.hThread);
+  ZeroMemory(@PI, SizeOf(PI));
 
-    if FileExists(NomeArquivoBackup) and (FileSizeByName(NomeArquivoBackup) > 0)
-    then
+  if not CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW,
+    nil, nil, SI, PI) then
+    exit;
+
+  try
+    WaitForSingleObject(PI.hProcess, INFINITE);
+    if GetExitCodeProcess(PI.hProcess, ExitCode) then
     begin
-      Result := true;
-      tBackupFTP.Enabled := true;
+      // mysqldump retorna 0 em sucesso
+      if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
+        (FileSizeByName(NomeArquivoBackup) > 0) then
+      begin
+        Result := true;
+        tBackupFTP.Enabled := true;
+      end
+      else
+      begin
+        // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
+        // ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
+      end;
     end;
-    // else
-    // ShowMessage('Arquivo gerado, mas está vazio ou inválido: ' + BackupPath);
+  finally
+    CloseHandle(PI.hThread);
+    CloseHandle(PI.hProcess);
   end;
-
 end;
 
 procedure TfrmServidor.FazExclusaoClientes;
@@ -2570,8 +2612,19 @@ var
   PedidosManager: TPedidosManager;
 
   Qry: TFDQuery;
-
+  memo: TMemo;
 begin
+  memo := TMemo.Create(nil);
+  memo.Parent := self;
+
+  try
+    memo.Lines.LoadFromFile('conf.js');
+    Modulos := TJsonObject.ParseJSONValue(memo.Lines.Text) as TJsonObject;
+  except
+
+  end;
+  memo.Free;
+  Queue := TProdutoQueue.Create;
   BalancaManager := TBalancaManager.Create;
   // Parte visual / memoria
   memErrosNFCE.Open;
@@ -2590,7 +2643,7 @@ begin
 
   PIX.Open;
   CodigoPedido := 0;
-
+  StatusMensagemWhatsapp := 0;
   IniFile := TIniFile.Create('./goopedir.ini');
   Port := IniFile.ReadInteger('server', 'port', 2121);
   HorarioRestart := IniFile.ReadString('server', 'restart', '03:00');
@@ -2642,6 +2695,7 @@ begin
     Application.Terminate;
     exit;
   end;
+
   // SincronizarBackupFTP('C:\goopedir\backup\bd\viapian_forquilhinha19072025.sql','1');
 end;
 
@@ -2953,24 +3007,9 @@ begin
 end;
 
 function TfrmServidor.GetModulo: String;
-var
-  ConfigFile: TStringList;
 begin
-  if MeusModulos = '' then
-  begin
 
-    ConfigFile := TStringList.Create;
-    try
-      ConfigFile.LoadFromFile(ExtractFileDir(Application.ExeName) +
-        '/module.conf');
-      Result := ConfigFile.Text;
-    finally
-      ConfigFile.Free;
-    end;
-    MeusModulos := Result;
-  end;
-
-  Result := MeusModulos;
+  Result := Modulos.ToString;
 
 end;
 
@@ -4148,357 +4187,6 @@ begin
   Result := FNumeroWhatsapp;
 end;
 
-function TfrmServidor.ObjetoProduto(SQL: String): TJsonArray;
-var
-  conexao: Tconexao;
-  Data: TJsonArray;
-  DataS: String;
-
-  JSONArray: TJsonArray;
-  JsonObjeto: TJsonObject;
-  JSonArrayAdicional: TJsonArray;
-  JsonObjetoCategoriaAdicional: TJsonObject;
-
-  JSonArrayAdicionalItens: TJsonArray;
-  JSonObjetoAdicionalItens: TJsonObject;
-
-  JSonObjectoPizza: TJsonObject;
-  JSonArraySabores: TJsonArray;
-  JSonObjectoSabores: TJsonObject;
-
-  DadosProduto: TFDQuery;
-  DadosCategoria: TFDMemTable;
-  DadosAdicionais: TFDMemTable;
-  DadosAdicionaisItens: TFDMemTable;
-  DadosPizza: TFDMemTable;
-  Min: Real;
-  Max: Real;
-  Estoque: Real;
-begin
-  conexao := Tconexao.Create('main');
-  try
-    DadosProduto := conexao.CriaQRY;
-    DadosCategoria := TFDMemTable.Create(nil);
-
-    DadosAdicionaisItens := TFDMemTable.Create(nil);
-    DadosPizza := TFDMemTable.Create(nil);
-
-    conexao.SQL.Add(SQL);
-    DadosProduto.SQL.Text := SQL;
-    DadosProduto.Open;
-
-    JSONArray := TJsonArray.Create;
-    if DadosProduto.RecordCount > 0 then
-    begin
-
-      while not DadosProduto.Eof do
-      begin
-        Min := 9999999;
-        Max := 0;
-
-        JsonObjeto := TJsonObject.Create;
-
-        JsonObjeto.AddPair('id', DadosProduto.FieldByName('codigo').AsInteger);
-        JsonObjeto.AddPair('position', DadosProduto.FieldByName('position')
-          .AsInteger);
-        JsonObjeto.AddPair('new', DadosProduto.FieldByName('novidade')
-          .AsInteger);
-        JsonObjeto.AddPair('name', DadosProduto.FieldByName('nome_produto')
-          .AsWideString);
-        JsonObjeto.AddPair('ativo', DadosProduto.FieldByName('ativo')
-          .AsInteger);
-        JsonObjeto.AddPair('description', DadosProduto.FieldByName('descricao')
-          .AsString);
-        JsonObjeto.AddPair('value',
-          DadosProduto.FieldByName('valor_venda').AsFloat);
-        try
-          JsonObjeto.AddPair('tax_delivery',
-            DadosProduto.FieldByName('valor_embalagem_delivery').AsFloat);
-        except
-          JsonObjeto.AddPair('tax_delivery', 0);
-        end;
-        try
-          JsonObjeto.AddPair('stock_min',
-            DadosProduto.FieldByName('estoque_min').AsFloat);
-        except
-          JsonObjeto.AddPair('stock_min', 0);
-        end;
-        try
-          JsonObjeto.AddPair('tax_vb',
-            DadosProduto.FieldByName('valor_embalagem_delivery').AsFloat);
-        except
-          JsonObjeto.AddPair('tax_delivery', 0);
-        end;
-        JsonObjeto.AddPair('status', DadosProduto.FieldByName('ativo')
-          .AsInteger);
-        JsonObjeto.AddPair('stock', DadosProduto.FieldByName('controle_estoque')
-          .AsInteger);
-        JsonObjeto.AddPair('img', DadosProduto.FieldByName('caminho_imagem')
-          .AsString);
-        JsonObjeto.AddPair('category', DadosProduto.FieldByName('codigo_grupo')
-          .AsInteger);
-
-        JsonObjeto.AddPair('ifood_id', DadosProduto.FieldByName('id_ifood')
-          .AsString);
-        JsonObjeto.AddPair('ifood_value',
-          DadosProduto.FieldByName('valor_ifood').AsString);
-        JsonObjeto.AddPair('ifood_img', DadosProduto.FieldByName('foto_ifood')
-          .AsString);
-        JsonObjeto.AddPair('ncm', DadosProduto.FieldByName('ncm').AsInteger);
-        JsonObjeto.AddPair('cest', DadosProduto.FieldByName('cest').AsInteger);
-        JsonObjeto.AddPair('cfop', DadosProduto.FieldByName('cfop').AsInteger);
-        JsonObjeto.AddPair('cstipi', DadosProduto.FieldByName('cstipi')
-          .AsInteger);
-        JsonObjeto.AddPair('csticms', DadosProduto.FieldByName('csticms')
-          .AsInteger);
-        JsonObjeto.AddPair('cstpis', DadosProduto.FieldByName('cstpis')
-          .AsInteger);
-        JsonObjeto.AddPair('cstcofins', DadosProduto.FieldByName('cstcofins')
-          .AsInteger);
-        JsonObjeto.AddPair('csosn', DadosProduto.FieldByName('csosn')
-          .AsInteger);
-        JsonObjeto.AddPair('icms', DadosProduto.FieldByName('icms').AsFloat);
-        JsonObjeto.AddPair('ipi', DadosProduto.FieldByName('ipi').AsFloat);
-        JsonObjeto.AddPair('pis', DadosProduto.FieldByName('pis').AsFloat);
-        JsonObjeto.AddPair('cofins', DadosProduto.FieldByName('cofins')
-          .AsString);
-        JsonObjeto.AddPair('frete', DadosProduto.FieldByName('frete').AsFloat);
-        JsonObjeto.AddPair('un', DadosProduto.FieldByName('un').AsString);
-        JsonObjeto.AddPair('fidelidade', DadosProduto.FieldByName('fidelidade')
-          .AsString);
-        JsonObjeto.AddPair('dias', DadosProduto.FieldByName('dias').AsString);
-        JsonObjeto.AddPair('segunda', DadosProduto.FieldByName('segunda')
-          .AsString);
-        JsonObjeto.AddPair('terca', DadosProduto.FieldByName('terca').AsString);
-        JsonObjeto.AddPair('quarta', DadosProduto.FieldByName('quarta')
-          .AsString);
-        JsonObjeto.AddPair('quinta', DadosProduto.FieldByName('quinta')
-          .AsString);
-        JsonObjeto.AddPair('sexta', DadosProduto.FieldByName('sexta').AsString);
-        JsonObjeto.AddPair('sabado', DadosProduto.FieldByName('sabado')
-          .AsString);
-        JsonObjeto.AddPair('domingo', DadosProduto.FieldByName('domingo')
-          .AsString);
-
-        JsonObjeto.AddPair('people', DadosProduto.FieldByName('pessoas')
-          .AsString);
-        JsonObjeto.AddPair('value_discont',
-          DadosProduto.FieldByName('valor_desconto').AsString);
-        JsonObjeto.AddPair('value_percent',
-          DadosProduto.FieldByName('percentual_desconto').AsString);
-        JsonObjeto.AddPair('quanty', DadosProduto.FieldByName('saldo_atual')
-          .AsString);
-        JsonObjeto.AddPair('externalCode', DadosProduto.FieldByName('id_site')
-          .AsInteger);
-        JsonObjeto.AddPair('usaStock',
-          DadosProduto.FieldByName('controle_estoque').AsInteger);
-        JsonObjeto.AddPair('stock_current',
-          DadosProduto.FieldByName('saldo_atual').AsInteger);
-
-        conexao.SQL.Add
-          ('SELECT * FROM pro_adi_personalizado where id_produto = :id_produto');
-        conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
-          .AsInteger);
-
-        DadosAdicionais := TFDMemTable.Create(nil);
-        DadosAdicionais.LoadFromJSON(conexao.ConsultaSQL);
-
-        if DadosAdicionais.RecordCount > 0 then
-        begin
-          JSonArrayAdicional := TJsonArray.Create;
-          while not DadosAdicionais.Eof do
-          begin
-            JsonObjetoCategoriaAdicional := TJsonObject.Create;
-            JsonObjetoCategoriaAdicional.AddPair('categoryId',
-              DadosAdicionais.FieldByName('id').AsInteger);
-            JsonObjetoCategoriaAdicional.AddPair('categoryName',
-              DadosAdicionais.FieldByName('descricao').AsString);
-            JsonObjetoCategoriaAdicional.AddPair('categoryStatus',
-              DadosAdicionais.FieldByName('ativo').AsInteger);
-            JsonObjetoCategoriaAdicional.AddPair('categoryMin',
-              DadosAdicionais.FieldByName('qtd_minima').AsInteger);
-            JsonObjetoCategoriaAdicional.AddPair('categoryMax',
-              DadosAdicionais.FieldByName('qtd_maxima').AsInteger);
-
-            DadosAdicionaisItens.Close;
-            conexao.SQL.Add
-              ('select * from pro_adi_personalizado_sabores where id_pro_adi_personalizado = :id');
-            conexao.Parametros('id', DadosAdicionais.FieldByName('id')
-              .AsInteger);
-            DadosAdicionaisItens.LoadFromJSON(conexao.ConsultaSQL);
-            JSonArrayAdicionalItens := TJsonArray.Create;
-
-            while not DadosAdicionaisItens.Eof do
-            begin
-              JSonObjetoAdicionalItens := TJsonObject.Create;
-              JSonObjetoAdicionalItens.AddPair('itensId',
-                DadosAdicionaisItens.FieldByName('id').AsInteger);
-              JSonObjetoAdicionalItens.AddPair('itensName',
-                DadosAdicionaisItens.FieldByName('nome').AsString);
-              JSonObjetoAdicionalItens.AddPair('itensDescription',
-                DadosAdicionaisItens.FieldByName('descricao').AsString);
-              JSonObjetoAdicionalItens.AddPair('itensValue',
-                DadosAdicionaisItens.FieldByName('valor').AsFloat);
-              JSonObjetoAdicionalItens.AddPair('itensProdStock',
-                DadosAdicionaisItens.FieldByName('id_prod_estoque').AsInteger);
-              JSonObjetoAdicionalItens.AddPair('itensStatus',
-                DadosAdicionaisItens.FieldByName('ativo').AsInteger);
-              JSonObjetoAdicionalItens.AddPair('itensInsumo',
-                DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
-
-              JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
-
-              if DadosAdicionaisItens.FieldByName('valor').AsFloat > 0 then
-              begin
-                if Min > DadosAdicionaisItens.FieldByName('valor').AsFloat then
-                  Min := DadosAdicionaisItens.FieldByName('valor').AsFloat;
-
-                if DadosAdicionaisItens.FieldByName('valor').AsFloat > Max then
-                  Max := DadosAdicionaisItens.FieldByName('valor').AsFloat;
-              end;
-
-              DadosAdicionaisItens.Next;
-            end;
-            JsonObjetoCategoriaAdicional.AddPair('categoryItens',
-              JSonArrayAdicionalItens);
-
-            JSonArrayAdicional.Add(JsonObjetoCategoriaAdicional);
-            DadosAdicionais.Next;
-          end;
-          JsonObjeto.AddPair('additional', JSonArrayAdicional);
-        end
-        else
-        begin
-          JSonArrayAdicional := TJsonArray.Create;
-          JsonObjeto.AddPair('additional', JSonArrayAdicional);
-        end;
-        DadosAdicionais.Free;
-
-        { conexao.SQL.Add('select  ');
-          conexao.SQL.Add('sabores_completo.id as sabor_id,  ');
-          conexao.SQL.Add('sabores_completo.nome as sabor_nome,');
-          conexao.SQL.Add('sabores_completo.descricao as sabor_descricao,');
-          conexao.SQL.Add('sabores_completo.vl_venda as sabor_venda,');
-          conexao.SQL.Add('sabores_completo.ativo as sabor_status,');
-          conexao.SQL.Add('produto_pizza.quantidade_sabores as qtd_sabor, ');
-          conexao.SQL.Add('tipo_sabor.id as tipo_id,');
-          conexao.SQL.Add('tipo_sabor.nome as tipo_nome, tipo_sabor.descricao as tipo_descricao, tipo_sabor.ativo as tipo_status, ');
-          conexao.SQL.Add('(select tipo_preco_pizza from dados_whatsapp limit 1) as tipo_valor from sabores_completo');
-          conexao.SQL.Add('join produto_pizza on produto_pizza.codigo_produto = sabores_completo.id_produto');
-          conexao.SQL.Add('join tipo_sabor on tipo_sabor.id  = sabores_completo.id_tipo_sabor');
-          conexao.SQL.Add('where sabores_completo.id_produto = :id');
-          conexao.SQL.Add('order by sabores_completo.id_produto, sabores_completo.id_tipo_sabor, sabores_completo.nome'); }
-        conexao.SQL.Clear;
-        conexao.SQL.Add('SELECT  ');
-        conexao.SQL.Add('    sc.id AS sabor_id,  ');
-        conexao.SQL.Add('    sc.nome AS sabor_nome, ');
-        conexao.SQL.Add('    sc.descricao AS sabor_descricao, ');
-        conexao.SQL.Add('    sc.vl_venda AS sabor_venda, ');
-        conexao.SQL.Add('    sc.ativo AS sabor_status, ');
-        conexao.SQL.Add('    pp.quantidade_sabores AS qtd_sabor, ');
-        conexao.SQL.Add('    ts.id AS tipo_id, ');
-        conexao.SQL.Add('    ts.nome AS tipo_nome, ');
-        conexao.SQL.Add('    ts.descricao AS tipo_descricao, ');
-        conexao.SQL.Add('    ts.ativo AS tipo_status, ');
-        conexao.SQL.Add
-          ('    (SELECT tipo_preco_pizza FROM dados_whatsapp LIMIT 1) AS tipo_valor ');
-        conexao.SQL.Add('FROM sabores_completo sc ');
-        conexao.SQL.Add
-          ('JOIN produto_pizza pp ON pp.codigo_produto = sc.id_produto ');
-        conexao.SQL.Add('JOIN tipo_sabor ts ON ts.id = sc.id_tipo_sabor ');
-        conexao.SQL.Add('WHERE sc.id_produto = :id ');
-        conexao.SQL.Add('ORDER BY sc.id_produto, sc.id_tipo_sabor, sc.nome');
-        conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
-
-        DadosPizza.Close;
-        DadosPizza.LoadFromJSON(conexao.ConsultaSQL);
-        JSonObjectoPizza := TJsonObject.Create;
-        if DadosPizza.RecordCount > 0 then
-        begin
-          Min := 9999999;
-          Max := 0;
-          JSonObjectoPizza.AddPair('amountOfFlavors',
-            DadosPizza.FieldByName('qtd_sabor').AsInteger);
-          JSonObjectoPizza.AddPair('typeOfValue',
-            DadosPizza.FieldByName('tipo_valor').AsInteger);
-          case DadosPizza.FieldByName('tipo_valor').AsInteger of
-            0:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Average values / Média');
-              end;
-            1:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Highest Value / Valor mais alto');
-              end;
-            2:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Sum Of Values / Soma dos Valores');
-              end
-          else
-            begin
-              JSonObjectoPizza.AddPair('typeOfValueDescription', 'None');
-            end;
-          end;
-
-          JSonArraySabores := TJsonArray.Create;
-          while not DadosPizza.Eof do
-          begin
-            if Min > DadosPizza.FieldByName('sabor_venda').AsFloat then
-              Min := DadosPizza.FieldByName('sabor_venda').AsFloat;
-
-            if DadosPizza.FieldByName('sabor_venda').AsFloat > Max then
-              Max := DadosPizza.FieldByName('sabor_venda').AsFloat;
-
-            JSonObjectoSabores := TJsonObject.Create;
-            JSonObjectoSabores.AddPair('typeId',
-              DadosPizza.FieldByName('tipo_id').AsInteger);
-            JSonObjectoSabores.AddPair('typeName',
-              DadosPizza.FieldByName('tipo_nome').AsString);
-            JSonObjectoSabores.AddPair('typeDescription',
-              DadosPizza.FieldByName('tipo_descricao').AsString);
-            JSonObjectoSabores.AddPair('typeStatus',
-              DadosPizza.FieldByName('tipo_status').AsString);
-            JSonObjectoSabores.AddPair('flavorId',
-              DadosPizza.FieldByName('sabor_id').AsInteger);
-            JSonObjectoSabores.AddPair('flavorName',
-              DadosPizza.FieldByName('sabor_nome').AsString);
-            JSonObjectoSabores.AddPair('flavorDescription',
-              DadosPizza.FieldByName('sabor_descricao').AsString);
-            JSonObjectoSabores.AddPair('flavorValue',
-              DadosPizza.FieldByName('sabor_venda').AsFloat);
-            JSonObjectoSabores.AddPair('flavorId',
-              DadosPizza.FieldByName('sabor_id').AsInteger);
-            JSonObjectoSabores.AddPair('flavorStatus',
-              DadosPizza.FieldByName('sabor_status').AsInteger);
-            JSonArraySabores.AddElement(JSonObjectoSabores);
-            DadosPizza.Next;
-          end;
-          JSonObjectoPizza.AddPair('min', Min);
-          JSonObjectoPizza.AddPair('max', Max);
-          JSonObjectoPizza.AddPair('flavor', JSonArraySabores);
-
-        end;
-
-        JsonObjeto.AddPair('min', Min);
-        JsonObjeto.AddPair('max', Max);
-        JsonObjeto.AddPair('pizza', JSonObjectoPizza);
-        JSONArray.AddElement(JsonObjeto);
-        DadosProduto.Next;
-      end;
-    end;
-  except
-    on E: Exception do
-    begin
-    end;
-
-  end;
-  Result := JSONArray;
-  conexao.Free;
-end;
-
 function TfrmServidor.ObjetoProdutoAdicional(Codigo: String): TJsonArray;
 var
   conexao: Tconexao;
@@ -4540,7 +4228,7 @@ begin
 
       DadosAdicionaisItens.Close;
       conexao.SQL.Add
-        ('select * from pro_adi_personalizado_sabores where id_pro_adi_personalizado = :id');
+        ('select * from pro_adi_personalizado_sabores where id_pro_adi_personalizado = :id and deletado = 0');
       conexao.Parametros('id', DadosAdicionais.FieldByName('id').AsInteger);
       DadosAdicionaisItens.LoadFromJSON(conexao.ConsultaSQL);
       JSonArrayAdicionalItens := TJsonArray.Create;
@@ -4562,6 +4250,8 @@ begin
           DadosAdicionaisItens.FieldByName('ativo').AsInteger);
         JSonObjetoAdicionalItens.AddPair('itensInsumo',
           DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
+        JSonObjetoAdicionalItens.AddPair('itensAlerta',
+          DadosAdicionaisItens.FieldByName('alerta').AsInteger);
 
         JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
 
@@ -4747,10 +4437,11 @@ begin
   conexao.SQL.Add('           ELSE false');
   conexao.SQL.Add('       END AS mesa,');
   conexao.SQL.Add('p.codigo_pedido_dia,');
-  conexao.SQL.Add('pp.codigo as codigo_imprimir_produto,');
+  conexao.SQL.Add('pp.codigo as codigo_imprimir_produto, pp.tempo_liberacao,');
   conexao.SQL.Add('ipp.id as codigo_impressao_pedido_produto,');
   conexao.SQL.Add('ipp.hora_impressao as hora_impressao_pedido_produto,');
-  conexao.SQL.Add('TIMESTAMPDIFF(MINUTE, pp.hora, NOW()) AS tempo');
+  conexao.SQL.Add('TIMESTAMPDIFF(MINUTE, pp.hora, NOW()) AS tempo,');
+  conexao.SQL.Add('TIMESTAMPDIFF(SECOND, pp.hora, NOW()) AS segundos');
   conexao.SQL.Add('FROM pedido_produtos as pp');
   conexao.SQL.Add('join pedido as p on p.codigo = pp.codigo_pedido');
   conexao.SQL.Add
@@ -4770,7 +4461,8 @@ begin
   while not Dados.Eof do
   begin
     if (Dados.FieldByName('mesa').AsInteger = 1) and
-      (Dados.FieldByName('tempo').AsInteger > 2) then
+      (Dados.FieldByName('tempo').AsInteger >=
+      Dados.FieldByName('tempo_liberacao').AsInteger) then
     begin
 
       if (Dados.FieldByName('codigo_impressao_pedido_produto').AsInteger = 0)
@@ -4796,7 +4488,7 @@ begin
     end
     else
     begin
-      if (Dados.FieldByName('tempo').AsInteger > 2) then
+      if (Dados.FieldByName('tempo').AsInteger >= 2) then
       begin
         // Validação do pedido
         if (Dados.FieldByName('codigo_pedido_dia').AsInteger > 0) then
@@ -4804,28 +4496,32 @@ begin
           if (Dados.FieldByName('codigo_impressao_pedido').AsInteger = 0) then
           begin
             // Inserir registro
-            conexao.SQL.Add
-              ('select * from impressao_pedido where impressao_pedido = :pedido');
-            conexao.Parametros('pedido',
-              Dados.FieldByName('codigo_imprimir_pedido').AsInteger);
-            try
-              Codigo := conexao.FieldByName('id');
-            except
-              Codigo := 0;
-            end;
-
-            if Codigo = 0 then
+            if Dados.FieldByName('segundos').AsInteger > 60 then
             begin
-              Codigo := conexao.GerarID('impressao_pedido', 'id');
+
               conexao.SQL.Add
-                ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
-              conexao.SQL.Add
-                ('values  (:id,current_date, current_time,:pedido,:status)');
-              conexao.Parametros('id', Codigo);
+                ('select * from impressao_pedido where id_pedido = :pedido');
               conexao.Parametros('pedido',
                 Dados.FieldByName('codigo_imprimir_pedido').AsInteger);
-              conexao.Parametros('status', 0);
-              conexao.ExecuteSQL;
+              try
+                Codigo := conexao.FieldByName('id');
+              except
+                Codigo := 0;
+              end;
+
+              if Codigo = 0 then
+              begin
+                Codigo := conexao.GerarID('impressao_pedido', 'id');
+                conexao.SQL.Add
+                  ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status,vias)');
+                conexao.SQL.Add
+                  ('values  (:id,current_date, current_time,:pedido,:status,-1)');
+                conexao.Parametros('id', Codigo);
+                conexao.Parametros('pedido',
+                  Dados.FieldByName('codigo_imprimir_pedido').AsInteger);
+                conexao.Parametros('status', 0);
+                conexao.ExecuteSQL;
+              end;
             end;
           end
           else
@@ -5086,13 +4782,14 @@ var
   LJsonObject: TJsonObject;
   LCaixaId: Integer;
   LLink: string;
+  test: String;
 begin
-  exit;
+
   try
     conexao := Tconexao.Create('SincronizaCaixa');
     Req := iRequisicao.Create(nil);
     Req.BaseURL := API_BASE_URL;
-    Req.URL := '/api/interno/caixa/sinc';
+    Req.URL := 'api/interno/caixa/sinc';
     Req.Metodo := mPost;
 
     JSON := TJsonObject.Create;
@@ -5105,9 +4802,8 @@ begin
 
     // Pedidos Cancelados
 
-
     // Produtos Excluidos
-
+    test := JSON.ToString;
     // ShowMessage(JSON.ToString);
     Req.BODY(JSON);
     Req.Execute;
@@ -5124,13 +4820,20 @@ begin
         if LJsonObject.TryGetValue<Integer>('caixa_id', LCaixaId) then
         begin
           conexao.Parametros('site', LCaixaId);
-
+        end
+        else
+        begin
+          conexao.Parametros('site', -99);
         end;
 
         // Extrair o valor de link
         if LJsonObject.TryGetValue<string>('link', LLink) then
         begin
           conexao.Parametros('link', LLink);
+        end
+        else
+        begin
+          conexao.Parametros('link', 'dado incompleto');
         end;
 
       end;
@@ -5203,6 +4906,89 @@ begin
 
 end;
 
+// function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
+// NomeUsuario: string): Boolean;
+// begin
+// TThread.CreateAnonymousThread(
+// procedure
+// var
+// FTP: TIdFTP;
+// SSL: TIdSSLIOHandlerSocketOpenSSL;
+// AnoMes, PastaRemota, NomeArquivoOriginal, NomeArquivoLimpo,
+// NomeSemExtensao, Extensao: string;
+// begin
+// FTP := TIdFTP.Create(nil);
+// SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+// try
+// try
+// FTP.Host := 'ftp.goopedir.com';
+// FTP.Username := 'u567036950.banco';
+// FTP.Password := 'banco#Goopedir@2025';
+// FTP.Passive := true;
+// FTP.ConnectTimeout := 15000;
+// FTP.Connect;
+//
+// AnoMes := FormatDateTime('yyyy_mm', now);
+// PastaRemota := NomeUsuario + '/' + AnoMes;
+//
+// // Cria diretórios
+// try
+// FTP.MakeDir(NomeUsuario);
+// except
+//
+// end;
+// try
+// FTP.MakeDir(PastaRemota);
+// except
+//
+// end;
+// FTP.ChangeDir(PastaRemota);
+//
+// NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
+//
+// // Remove data do nome
+// NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
+// Extensao := ExtractFileExt(NomeArquivoOriginal);
+// while (length(NomeSemExtensao) > 0) and
+// (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
+// Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
+// NomeArquivoLimpo := NomeSemExtensao + Extensao;
+//
+// // Apaga arquivo anterior, se existir
+// try
+// if FTP.Size(NomeArquivoLimpo) > 0 then
+// FTP.Delete(NomeArquivoLimpo);
+// except
+// // Ignora erro se não existir
+// end;
+//
+// FTP.Put(CaminhoArquivo, NomeArquivoLimpo, false);
+//
+// // Se quiser dar feedback para o usuário na thread principal:
+// TThread.Synchronize(nil,
+// procedure
+// begin
+// // ShowMessage('Backup enviado com sucesso!');
+// end);
+//
+// except
+// on E: Exception do
+// TThread.Synchronize(nil,
+// procedure
+// begin
+// ShowMessage('Erro ao sincronizar backup: ' + E.Message);
+//
+// end);
+// end;
+// finally
+// if FTP.Connected then
+// FTP.Disconnect;
+// FTP.Free;
+// SSL.Free;
+// end;
+// end).Start;
+// end;
+
 function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
   NomeUsuario: string): Boolean;
 begin
@@ -5211,8 +4997,9 @@ begin
     var
       FTP: TIdFTP;
       SSL: TIdSSLIOHandlerSocketOpenSSL;
-      AnoMes, PastaRemota, NomeArquivoOriginal, NomeArquivoLimpo,
-        NomeSemExtensao, Extensao: string;
+      AnoMes, PastaRemota, NomeArquivoOriginal, NomeZip, NomeSemExtensao,
+        NomeArquivoLimpo: string;
+      Zip: TZipFile;
     begin
       FTP := TIdFTP.Create(nil);
       SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
@@ -5232,40 +5019,48 @@ begin
           try
             FTP.MakeDir(NomeUsuario);
           except
-
           end;
           try
             FTP.MakeDir(PastaRemota);
           except
-
           end;
           FTP.ChangeDir(PastaRemota);
 
           NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
+          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
 
           // Remove data do nome
           NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-          Extensao := ExtractFileExt(NomeArquivoOriginal);
           while (length(NomeSemExtensao) > 0) and
             (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
             Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-          NomeArquivoLimpo := NomeSemExtensao + Extensao;
+          Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
+          NomeZip := TPath.ChangeExtension(NomeSemExtensao, '.zip');
 
-          // Apaga arquivo anterior, se existir
+          // Caminho local do ZIP
+          NomeArquivoLimpo := TPath.Combine(TPath.GetTempPath, NomeZip);
+
+          // Cria o ZIP
+          if FileExists(NomeArquivoLimpo) then
+            DeleteFile(NomeArquivoLimpo);
+
+          Zip := TZipFile.Create;
           try
-            if FTP.Size(NomeArquivoLimpo) > 0 then
-              FTP.Delete(NomeArquivoLimpo);
-          except
-            // Ignora erro se não existir
+            Zip.Open(NomeArquivoLimpo, zmWrite);
+            Zip.Add(CaminhoArquivo, NomeArquivoOriginal);
+            // mantém nome original dentro do zip
+            Zip.Close;
+          finally
+            Zip.Free;
           end;
 
-          FTP.Put(CaminhoArquivo, NomeArquivoLimpo, false);
+          // Envia o .zip em vez do .sql
+          FTP.Put(NomeArquivoLimpo, NomeZip, false);
 
-          // Se quiser dar feedback para o usuário na thread principal:
           TThread.Synchronize(nil,
             procedure
             begin
-              // ShowMessage('Backup enviado com sucesso!');
+              // ShowMessage('Backup zipado e enviado com sucesso!');
             end);
 
         except
@@ -5273,8 +5068,7 @@ begin
             TThread.Synchronize(nil,
               procedure
               begin
-                ShowMessage('Erro ao sincronizar backup: ' + E.Message);
-
+                // ShowMessage('Erro ao sincronizar backup: ' + E.Message);
               end);
         end;
       finally
@@ -5404,16 +5198,14 @@ var
   conexao: Tconexao;
   test: String;
   ArquivoExcluir: String;
-
+  StatusWhatsapp: Boolean;
 begin
 
-  // user := 58;
   if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
   begin
     user := 0;
     Result := 0;
-    ArquivoExcluir := ExtractFilePath(Application.ExeName) + 'module.conf';
-    DeleteFiles(ArquivoExcluir);
+    Modulos := TJsonObject.Create;
     frmServidor.TrayIcon1.Hint := Port.ToString + 'p - Não Licenciado';
     exit;
   end;
@@ -5421,56 +5213,40 @@ begin
   if user = 0 then
   begin
     try
-      Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
-      Requisicao.URL := 'token2/a';
+      user := APIGoopedir.UserID;
+      Result := APIGoopedir.UserID;
 
-      BODY := '{' + #13 + '"client_id":"' +
-        frmServidor.Configuracoes.FieldByName('client_id').AsString + '",' + #13
-        + '"client_security":"' + frmServidor.Configuracoes.FieldByName
-        ('client_security').AsString + '"' + #13 + '}';
-      test := '1';
-
-      Requisicao.Metodo := mPost;
-      Requisicao.BODY(BODY);
-      Requisicao.TempoExpiracao := 60 * 1000;
-
-      Requisicao.Execute;
-      test := '2';
-
-      JSonDadosSite := TJsonObject.ParseJSONValue(Requisicao.Retorno)
-        as TJsonObject;
-
-      test := '3';
-
-      // Data := TransformaData(JSonDadosSite.Get('empresa_data_renovacao').JsonValue.ToString);
-      // "2023-01-01"
-
-      Result := StrToInt(StringReplace(JSonDadosSite.Get('user')
-        .JsonValue.ToString, '"', '', [rfReplaceAll]));
-      user := Result;
-      buscarAtualizacao(Result);
-      AtivaInativaSite(user);
       BuscarModulo;
-      DadosApiWhatsapp;
-      if not DadosWhatsappBoolean then
+
+      try
+        StatusWhatsapp := Modulos.GetValue<TJsonObject>('whatsapp')
+          .GetValue<Boolean>('status');
+      except
+        StatusWhatsapp := false;
+        StatusMensagemWhatsapp := -1;
+      end;
+
+      if StatusWhatsapp then
       begin
-        DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
-        DadosThread1.FreeOnTerminate := true;
-        // Libera a memória automaticamente quando terminar
-        DadosWhatsappBoolean := true;
+        DadosApiWhatsapp;
+        if not DadosWhatsappBoolean then
+        begin
+          DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
+          DadosThread1.FreeOnTerminate := true;
+          // Libera a memória automaticamente quando terminar
+          DadosWhatsappBoolean := true;
+        end;
+      end
+      else
+      begin
+        StatusMensagemWhatsapp := -1;
       end;
 
       SemDataBloqueio := false;
 
       try
         test := '9';
-        self.DataBloqueio :=
-          StrToDate(Copy(JSonDadosSite.Get('empresa_data_renovacao')
-          .JsonValue.ToString, 10, 2) + '/' +
-          Copy(JSonDadosSite.Get('empresa_data_renovacao').JsonValue.ToString,
-          7, 2) + '/' + Copy(JSonDadosSite.Get('empresa_data_renovacao')
-          .JsonValue.ToString, 2, 4));
+        self.DataBloqueio := APIGoopedir.GetBloqueio;
       except
         SemDataBloqueio := true;
       end;
@@ -5624,11 +5400,11 @@ begin
     on E: EFDDBEngineException do
     begin
       // Captura erro de banco inexistente
-      if Pos('Unknown database', E.Message) > 0 then
+      if pos('Unknown database', E.Message) > 0 then
       begin
         // Extrai nome do banco entre as aspas
-        DatabaseName := Copy(E.Message, Pos('''', E.Message) + 1, MaxInt);
-        DatabaseName := Copy(DatabaseName, 1, Pos('''', DatabaseName) - 1);
+        DatabaseName := Copy(E.Message, pos('''', E.Message) + 1, MaxInt);
+        DatabaseName := Copy(DatabaseName, 1, pos('''', DatabaseName) - 1);
 
         iReq := iRequisicao.Create(nil);
         iReq.URL := 'https://goopedir.com/new.sql';
@@ -5876,6 +5652,7 @@ begin
     end;
     frmServidor.ExtornoPedidoNaoFinalizado;
     frmServidor.AtivaInativaProdutos;
+    frmServidor.EnvioCaixa;
     Sleep(30000); // pausa de 30 segundos
   end;
 

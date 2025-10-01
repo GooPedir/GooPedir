@@ -2,8 +2,8 @@ object frmProdutoSite: TfrmProdutoSite
   Left = 0
   Top = 0
   Caption = 'frmProdutoSite'
-  ClientHeight = 441
-  ClientWidth = 624
+  ClientHeight = 431
+  ClientWidth = 804
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,11 +20,15 @@ object frmProdutoSite: TfrmProdutoSite
     Top = 240
   end
   object TrayIcon1: TTrayIcon
+    Hint = '1'
+    BalloonHint = '3'
+    BalloonTitle = '2'
     Visible = True
     Left = 384
     Top = 176
   end
   object tClose: TTimer
+    Enabled = False
     Interval = 1
     OnTimer = tCloseTimer
     Left = 208

@@ -53,41 +53,56 @@ end;
 
 procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
 var
-  JsonObjec: TJsonObject;
-  Chave, API, JSONBody: string;
-  URL: String;
+  JsonObjec, JSONBody, ExceptionObj, ExceptionVal, Tags: TJSONObject;
+  ExceptionArr: TJSONArray;
+  Chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
   iGlitchtip := iRequisicao.Create(nil);
-  JsonObjec := TJsonObject.Create;
+
   // Extrai a chave e a URL da DSN
-  Chave := Copy(DSN, Pos('//', DSN) + 2, Pos('@', DSN) - Pos('//', DSN) - 2);
-  URL := Copy(DSN, Pos('@', DSN) + 1, length(DSN));
+  Chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
+  URL := Copy(DSN, pos('@', DSN) + 1, length(DSN));
   URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
-  API := Copy(URL, Pos('/', URL) + 1, length(URL));
+  API := Copy(URL, pos('/', URL) + 1, length(URL));
   URL := StringReplace(URL, '/' + API, '', []);
 
-  JSONBody := '';
-  JSONBody := JSONBody + '{';
-  JSONBody := JSONBody + '  "event_id": "' + GenerateUUID + '",';
-  JSONBody := JSONBody + '  "timestamp": "' +
-    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', now) + '",';
-  JSONBody := JSONBody + '  "level": "' + Tipo + '",';
-  JSONBody := JSONBody + '  "platform": "delphi",';
-  JSONBody := JSONBody + '  "message": "' + Identificacao + '",';
-  JSONBody := JSONBody + '  "exception": {';
-  JSONBody := JSONBody + '    "values": [';
-  JSONBody := JSONBody + '      {';
-  JSONBody := JSONBody + '        "type": "' + UpperCase(Tipo) + '",';
-  JSONBody := JSONBody + '        "value": "' + Mensagem + '"';
-  JSONBody := JSONBody + '      }';
-  JSONBody := JSONBody + '    ]';
-  JSONBody := JSONBody + '  },';
-  JSONBody := JSONBody + '  "tags": {';
-  JSONBody := JSONBody + '    "environment": "production",';
-  JSONBody := JSONBody + '    "user": "0"';
-  JSONBody := JSONBody + '  }';
-  JSONBody := JSONBody + '}';
+  // Monta JSON
+  JSONBody := TJSONObject.Create;
+  JSONBody.AddPair('event_id', GenerateUUID);
+  JSONBody.AddPair('timestamp',
+    FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"Z"', Now));
+  JSONBody.AddPair('level', Tipo);
+  JSONBody.AddPair('platform', 'delphi');
+  JSONBody.AddPair('message', Identificacao);
+
+  // exception
+  ExceptionObj := TJSONObject.Create;
+  ExceptionVal := TJSONObject.Create;
+  ExceptionVal.AddPair('type', UpperCase(Tipo));
+  ExceptionVal.AddPair('value', Mensagem);
+
+  ExceptionArr := TJSONArray.Create;
+  ExceptionArr.AddElement(ExceptionVal);
+  ExceptionObj.AddPair('values', ExceptionArr);
+  JSONBody.AddPair('exception', ExceptionObj);
+
+  // tags
+  Tags := TJSONObject.Create;
+  if (GetEnvironmentVariable('COMPUTERNAME') = 'ALLAN-PC') then
+  begin
+    Tags.AddPair('environment', 'desenvolvimento');
+  end
+  else
+  begin
+    Tags.AddPair('environment', 'produção');
+  end;
+
+  Tags.AddPair('user', GetEnvironmentVariable('COMPUTERNAME'));
+  JSONBody.AddPair('tags', Tags);
+
+  // wrapper para envio
+  JsonObjec := TJSONObject.Create;
   JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
@@ -97,17 +112,14 @@ begin
 
   try
     iGlitchtip.Metodo := mPost;
-
     iGlitchtip.Execute;
-
-
   except
     on E: Exception do
     begin
-       //showmessage(E.Message);
+      // tratamento
     end;
-
   end;
+
   iGlitchtip.Free;
 end;
 

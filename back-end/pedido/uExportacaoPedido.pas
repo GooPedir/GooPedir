@@ -4,7 +4,7 @@ interface
 
 uses uRequisicao, System.JSON, System.SysUtils, Conexao, DataSet.Serialize,
   System.Generics.Collections, System.StrUtils, System.Classes, uMontaPedido,
-  Vcl.Dialogs;
+  Vcl.Dialogs, uGlobais;
 
 procedure Sendpedido(codigo: Integer);
 procedure EnviarPedidos;
@@ -24,7 +24,7 @@ begin
 
   Conexao := TConexao.Create('TSendPedido');
   Conexao.SQL.Add
-    ('SELECT * FROM goopedir.pedido where codigo_pedido_dia > 0 and pedido_site is null and data_pedido >= "2025-08-25"');
+    ('SELECT * FROM pedido where codigo_pedido_dia > 0 and pedido_site is null and data_pedido >= "2025-08-25"');
   Pedidos := TFDmemtable.Create(nil);
   Pedidos.LoadFromJSON(Conexao.ConsultaSQL);
 
@@ -85,7 +85,7 @@ begin
   JSON := BuildPedidoJSON(DadosPedido, DadosItens);
 
   Req := iRequisicao.Create(nil);
-  Req.BaseURL := 'http://localhost:3001/';
+  Req.BaseURL := API_BASE_URL;
   Req.URL := 'api/pedido';
   Req.BODY(JSON);
   Req.Metodo := mPost;
@@ -94,7 +94,7 @@ begin
     Req.Execute;
     JSON := TJSONObject.ParseJSONValue(Req.Retorno) as TJSONObject;
     Conexao.SQL.Add
-      ('update pedido set id_pedido_site = : id_pedido_site, url = :url, partner = :partner, pedido_site = :site where codigo = :codigo');
+      ('update pedido set id_pedido_site = :id_pedido_site, url = :url, partner = :partner, pedido_site = :site where codigo = :codigo');
     Conexao.Parametros('url', JSON.GetValue<string>('url'));
     Conexao.Parametros('partner', 'pdv');
     Conexao.Parametros('site', JSON.GetValue<string>('order'));

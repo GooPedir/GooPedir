@@ -5,11 +5,11 @@ interface
 uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
   uRequisicao, System.DateUtils, System.JSON, JOSE.Core.JWT, JOSE.Core.Builder,
   System.NetEncoding, System.Hash, DataSet.Serialize,
-  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope,uGlobais;
+  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope, uGlobais;
 
 function SiteCategoria(codigo, user: Integer): Integer;
 procedure SiteSabores(codigoGrupo, user: Integer);
-procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
+procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
 function EnviaImagem(codigo, Base64: String): String;
 
 function GerarTokenJWT(userId: Integer): string;
@@ -291,16 +291,19 @@ begin
   end;
 end;
 
-procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String);
+procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
 var
   Conexao: TConexao;
   URL: String;
+  CodigoImagem: String;
 begin
-
-  URL := EnviaImagem(codigo.ToString, Base64);
+  CodigoImagem := codigo.ToString;
+  if user > 0 then
+    CodigoImagem := user.ToString + '-' + codigo.ToString;
+  URL := EnviaImagem(CodigoImagem, Base64);
   Conexao := TConexao.Create('uSite');
   Conexao.SQL.Add
-    ('update produto set caminho_imagem = :img, foto_ifood = :img where id_site = :codigo');
+    ('update produto set caminho_imagem = :img, foto_ifood = :img where codigo = :codigo');
   Conexao.Parametros('img', URL);
   Conexao.Parametros('codigo', codigo);
   Conexao.ExecuteSQL;

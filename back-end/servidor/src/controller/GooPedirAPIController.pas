@@ -4,7 +4,8 @@ interface
 
 uses
   System.SysUtils, System.Classes, Data.Bind.Components, Data.Bind.ObjectScope,
-  uRequisicao, System.JSON, DataSet.Serialize, uLogThread, Conexao, Inifiles;
+  uRequisicao, System.JSON, DataSet.Serialize, uLogThread, Conexao, Inifiles,
+  DateUtils;
 
 type
   // Define tipos para as funções que serão passadas
@@ -19,6 +20,7 @@ type
     FToken: string;
     FName: String;
     FUserID: Integer;
+    FDataBloqueio: TDate;
     FHorarioAberturaFunc: TFunctionHorarioAbertura;
     // Campo para armazenar a função de abertura
     FHorarioFechamentoFunc: TFunctionHorarioAbertura;
@@ -35,6 +37,7 @@ type
     function GetToken: string;
     function Name: String;
     function UserID: Integer;
+    function GetBloqueio: TDate;
     procedure SincronizaParametros(Param: String);
     procedure EnviaParametroUnico(Campo, Valor, Tipo: String);
     procedure EnviaFuncionamento;
@@ -64,10 +67,21 @@ begin
     JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)
       as TJSONObject;
 
+    try
+      if JsonObject.GetValue<String>('error') <> '' then
+      begin
+        FUserID := -1;
+        FRequisicao.Free;
+        exit;
+      end;
+    except
+
+    end;
+
     FUserID := JsonObject.GetValue<Integer>('user');
     FName := JsonObject.GetValue<String>('name');
     FToken := JsonObject.GetValue<String>('token');
-
+    FDataBloqueio := ISO8601ToDate(JsonObject.GetValue<String>('bloqueio'));
     IniFile := TIniFile.Create('./goopedir.ini');
     IniFile.WriteString('server', 'token', FToken);
     IniFile.Free;
@@ -230,7 +244,7 @@ var
   FRequisicao: iRequisicao;
 begin
   if FUserID < 1 then
-    Exit;
+    exit;
 
   FRequisicao := ConfigureRESTClient;
   FRequisicao.Metodo := mPost;
@@ -239,11 +253,17 @@ begin
     FRequisicao.BODY(JSON);
 
     FRequisicao.Execute;
+    // ShowMessage(JSON.ToString);
   except
     on e: exception do
       // showmessage1('Erro ao enviar os parâmetros: ' + E.Message);
   end;
   FRequisicao.Free;
+end;
+
+function TGooPedirAPIController.GetBloqueio: TDate;
+begin
+  Result := FDataBloqueio;
 end;
 
 function TGooPedirAPIController.GetToken: string;
@@ -269,7 +289,7 @@ var
 
 begin
   if FUserID < 1 then
-    Exit;
+    exit;
 
   TThread.CreateAnonymousThread(
     procedure

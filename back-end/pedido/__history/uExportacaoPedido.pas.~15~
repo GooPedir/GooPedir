@@ -1,0 +1,112 @@
+unit uExportacaoPedido;
+
+interface
+
+uses uRequisicao, System.JSON, System.SysUtils, Conexao, DataSet.Serialize,
+  System.Generics.Collections, System.StrUtils, System.Classes, uMontaPedido,
+  Vcl.Dialogs;
+
+procedure Sendpedido(codigo: Integer);
+procedure EnviarPedidos;
+
+implementation
+
+uses
+  FireDAC.Comp.Client, Vcl.Forms;
+
+{ TSendpedido }
+
+procedure EnviarPedidos;
+var
+  Conexao: TConexao;
+  Pedidos: TFDmemtable;
+begin
+
+  Conexao := TConexao.Create('TSendPedido');
+  Conexao.SQL.Add
+    ('SELECT * FROM goopedir.pedido where codigo_pedido_dia > 0 and pedido_site is null and data_pedido >= "2025-08-25"');
+  Pedidos := TFDmemtable.Create(nil);
+  Pedidos.LoadFromJSON(Conexao.ConsultaSQL);
+
+  if Pedidos.RecordCount > 0 then
+  begin
+    while not Pedidos.Eof do
+    begin
+      Sendpedido(Pedidos.FieldByName('codigo').AsInteger);
+      Pedidos.Next;
+    end;
+  end;
+
+  Conexao.Free;
+  Pedidos.Free;
+
+end;
+
+procedure Sendpedido(codigo: Integer);
+var
+  Conexao: TConexao;
+  DadosPedido: TFDmemtable;
+  DadosItens: TFDmemtable;
+  JSON: TJSONObject;
+  Req: iRequisicao;
+begin
+
+  Conexao := TConexao.Create('Sendpedido');
+  DadosPedido := TFDmemtable.Create(nil);
+  DadosItens := TFDmemtable.Create(nil);
+  Conexao.SQL.Add
+    ('select c.nome, c.celular, c.cpf, c.data_nascimento, ce.rua, ce.bairro, ce.cidade, ce.estado as uf, ce.numero, ce.complemento,');
+  Conexao.SQL.Add
+    ('tp.descricao as tipoPagamento, p.valor_pedido as totalizadorProdutos, p.valor_taxa_entrega as totalizadorEntrega,');
+  Conexao.SQL.Add
+    ('p.valor_desconto as totalizadorDesconto, p.valor_total_pedido as totalizadorPedido, p.troco as totalizadorTroco,');
+  Conexao.SQL.Add
+    ('p.codigo, p.codigo_pedido_dia as codigoDia, sp.descricao as statusPedido from pedido as p ');
+  Conexao.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente ');
+  Conexao.SQL.Add
+    ('left join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco');
+  Conexao.SQL.Add('join tipo_pagamento as tp on tp.codigo = p.tipo_pagamento');
+  Conexao.SQL.Add('join status_pedido as sp on sp.id = p.status');
+  Conexao.SQL.Add('where p.codigo = :codigo');
+  Conexao.Parametros('codigo', codigo);
+  DadosPedido.LoadFromJSON(Conexao.ConsultaSQL);
+
+  Conexao.SQL.Add
+    ('select p.codigo as codigoAgrupamentoProduto, p.id_site as idProduto, p.nome_produto as nomeProduto, pp.valor_total as valorProduto, pp.quantidade as quantidadeProduto, ');
+  Conexao.SQL.Add
+    ('pps.nomeclatura as categoriaExtra, pps.descricao as nomeExtra, 1 as quantidadeExtra, pps.valor as valorExtra from pedido_produtos as pp');
+  Conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+  Conexao.SQL.Add
+    ('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
+  Conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+  Conexao.Parametros('codigo', codigo);
+  DadosItens.LoadFromJSON(Conexao.ConsultaSQL);
+
+  JSON := BuildPedidoJSON(DadosPedido, DadosItens);
+
+  Req := iRequisicao.Create(nil);
+  Req.BaseURL := 'http://localhost:3001/';
+  Req.URL := 'api/pedido';
+  Req.BODY(JSON);
+  Req.Metodo := mPost;
+  JSON.Free;
+  try
+    Req.Execute;
+    JSON := TJSONObject.ParseJSONValue(Req.Retorno) as TJSONObject;
+    Conexao.SQL.Add
+      ('update pedido set id_pedido_site = :id_pedido_site, url = :url, partner = :partner, pedido_site = :site where codigo = :codigo');
+    Conexao.Parametros('url', JSON.GetValue<string>('url'));
+    Conexao.Parametros('partner', 'pdv');
+    Conexao.Parametros('site', JSON.GetValue<string>('order'));
+    Conexao.Parametros('id_pedido_site', JSON.GetValue<string>('order'));
+    Conexao.Parametros('codigo', codigo);
+    Conexao.ExecuteSQL;
+    JSON.Free;
+  except
+
+  end;
+  Req.Free;
+  Conexao.Free;
+end;
+
+end.

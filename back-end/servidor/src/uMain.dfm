@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 715
-  ClientWidth = 1040
+  ClientHeight = 710
+  ClientWidth = 1020
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -831,7 +831,7 @@ object frmServidor: TfrmServidor
   end
   object tBackupFTP: TTimer
     Enabled = False
-    Interval = 1800000
+    Interval = 1
     OnTimer = tBackupFTPTimer
     Left = 360
     Top = 312
@@ -857,5 +857,16 @@ object frmServidor: TfrmServidor
     UpdateOptions.AutoCommitUpdates = True
     Left = 169
     Top = 520
+  end
+  object memTiposSite: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 376
+    Top = 440
   end
 end
