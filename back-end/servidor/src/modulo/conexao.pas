@@ -6,7 +6,7 @@ uses Winapi.Windows, uDM, FireDAC.Comp.Client, DataSet.Serialize,
   System.Classes,
   uRequisicao,
   JOSE.Types.JSON, Winapi.TlHelp32, Winapi.ShellAPI, Vcl.Controls, Vcl.Forms,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls, System.Hash, System.IOUtils;
 
 type
 
@@ -24,6 +24,7 @@ type
   TConexao = class
   private
     FSQL: TStringlist;
+    Fcache: boolean;
     procedure Zerar;
     procedure SetSQL(const Value: TStringlist);
     function MapaErro(Erro: String): String;
@@ -33,6 +34,10 @@ type
     function GetComputerName: string;
     procedure OnTimer(Sender: TObject);
     procedure UpdateLastActivityTime;
+    procedure Setcache(const Value: boolean);
+    function HashSQL(const ASQL: string): string;
+    function GetCache(Hash: String): TJSONArray;
+    procedure SaveCache(Hash: String; Result: TJSONArray);
 
   var
 
@@ -52,22 +57,22 @@ type
     function ValidaVersao: string;
     function CriaQRY: TFDQuery;
     function Charset: String;
-    function ExecuteSQL(SQL: String): Boolean; overload;
+    function ExecuteSQL(SQL: String): boolean; overload;
     procedure ExecuteSQL; overload;
     function ConsultaSQL(SQL: String): TJSONArray; overload;
     function ConsultaSQL: TJSONArray; overload;
     procedure Parametros(Parametro: String; Valor: Variant);
     property SQL: TStringlist read FSQL write SetSQL;
     function GerarID(Tabela, Campo: String): Integer;
-    function Servidor : String;
-    function Porta : String;
+    function Servidor: String;
+    function Porta: String;
 
     function GenID(Campo: String): Integer;
 
     function FieldByName(Campo: String): Variant;
 
     function Insert(Tabela, CampoID: String; ID: Variant;
-      DadoBody: String): Boolean;
+      DadoBody: String): boolean;
 
     function GetAll(Tabela: String): String;
     function GetParametro(Campo: String): Variant;
@@ -75,7 +80,7 @@ type
     function Usuario: String;
     function Senha: String;
 
-    function ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
+    function ExecutarSQLAtualizacao(SQlText, Versao: String): boolean;
 
     procedure GerarLog(Erro: String);
     function SoNumero(fField: String): String;
@@ -86,7 +91,10 @@ type
     procedure DisconectBanco;
     procedure ConectaBanco(Banco: String);
     function LoadMemory(Dados: TFDMemTable): TFDMemTable;
+    property cache: boolean read Fcache write Setcache;
 
+    function BuscarCache(Hash: String): TJSONArray;
+    procedure SalvarCache(Hash: String; Result: TJSONArray);
 
   end;
 
@@ -102,6 +110,7 @@ var
   QRY: TFDQuery;
   I: Integer;
   New: String;
+  Dados: String;
 begin
   UpdateLastActivityTime;
   QRY := CriaQRY;
@@ -123,9 +132,15 @@ begin
     end;
 
   end;
-
+  Dados := QRY.ToJSONArray().ToString;
   // Result := TFDMemTable.Create(nil);
-  Result := QRY.ToJSONArray();
+  Result := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(Dados), 0)
+    as TJSONArray;
+  if cache then
+  begin
+    SaveCache(HashSQL(SQL), TJSONObject.ParseJSONValue
+      (TEncoding.UTF8.GetBytes(Dados), 0) as TJSONArray);
+  end;
 
   if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   begin
@@ -156,6 +171,25 @@ begin
   ShellExecute(Handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
 end;
 
+function TConexao.BuscarCache(Hash: String): TJSONArray;
+var
+  TempDir: String;
+  FileJson: String;
+  Dados: TFDMemTable;
+  JSONText: string;
+begin
+  TempDir := TPath.GetTempPath + 'goopedir\cache\';
+  FileJson := TempDir + Hash + '.json';
+  ForceDirectories(TempDir);
+  if FileExists(FileJson) then
+  begin
+    JSONText := TFile.ReadAllText(FileJson);
+    Result := TJSONObject.ParseJSONValue(JSONText) as TJSONArray;
+    exit;
+  end;
+  Result := TJSONArray.Create;
+end;
+
 function TConexao.Charset: String;
 begin
   Result := DataModulo.Banco.Params.Values['CharacterSet'];
@@ -171,7 +205,21 @@ end;
 function TConexao.ConsultaSQL: TJSONArray;
 begin
   if SQL.Text <> '' then
+  begin
+    if cache then
+    begin
+      Result := GetCache(HashSQL(SQL.Text));
+      try
+        if Result.Count > 0 then
+        begin
+          exit;
+        end;
+      except
+
+      end;
+    end;
     Result := ConsultaSQL(SQL.Text);
+  end;
 end;
 
 constructor TConexao.Create(Nome: String);
@@ -295,7 +343,7 @@ begin
   iGlitchtip.Free;
 end;
 
-function TConexao.ExecutarSQLAtualizacao(SQlText, Versao: String): Boolean;
+function TConexao.ExecutarSQLAtualizacao(SQlText, Versao: String): boolean;
 var
   QRY: TFDQuery;
   Tipo: String;
@@ -638,6 +686,27 @@ begin
   Result := ConsultaSQL(Tabela).ToString;
 end;
 
+function TConexao.GetCache(Hash: String): TJSONArray;
+var
+  TempDir: String;
+  FileJson: String;
+  Dados: TFDMemTable;
+  JSONText: string;
+begin
+  TempDir := TPath.GetTempPath + 'goopedir\cache\';
+  FileJson := TempDir + Hash + '.json';
+  ForceDirectories(TempDir);
+  if FileExists(FileJson) then
+  begin
+
+    JSONText := TFile.ReadAllText(FileJson);
+    Result := TJSONObject.ParseJSONValue(JSONText) as TJSONArray;
+    exit;
+    // Dados := TFDMemTable.Create(nil);
+  end;
+  Result := TJSONArray.Create;
+end;
+
 function TConexao.GetComputerName: string;
 begin
   Result := GetEnvironmentVariable('COMPUTERNAME');
@@ -662,8 +731,13 @@ begin
   // FieldByName
 end;
 
+function TConexao.HashSQL(const ASQL: string): string;
+begin
+  Result := THashMD5.GetHashString(ASQL);
+end;
+
 function TConexao.Insert(Tabela, CampoID: String; ID: Variant;
-  DadoBody: String): Boolean;
+  DadoBody: String): boolean;
 var
   Dados: TFDMemTable;
   DadosQry: TFDMemTable;
@@ -816,19 +890,21 @@ end;
 
 procedure TConexao.OnTimer(Sender: TObject);
 begin
-  if not Assigned(Self) then
-    exit;
-  if (Now - FLastActivityTime) * 24 * 60 > 1 then
-    // Converte o tempo de inatividade em minutos
-    Self.Free; // Libera o objeto se mais de 1 minuto de inatividade
+ FTimer.Enabled := False;
+  try
+    if (Now - FLastActivityTime) * 24 * 60 > 1 then
+      FreeAndNil(FTimer);
+  finally
+    // nunca chame Self.Free dentro do próprio objeto temporizado
+  end;
 end;
 
-function TConexao.ExecuteSQL(SQL: String): Boolean;
+function TConexao.ExecuteSQL(SQL: String): boolean;
 var
   QRY: TFDQuery;
   I: Integer;
   New: String;
-  Update: Boolean;
+  Update: boolean;
   SqlUpdate: String;
   QryUpdate: TFDQuery;
 begin
@@ -917,7 +993,7 @@ end;
 procedure TConexao.Parametros(Parametro: String; Valor: Variant);
 var
   I: Integer;
-  Achou: Boolean;
+  Achou: boolean;
 begin
   Achou := False;
   for I := 0 to length(FParametros) - 1 do
@@ -949,6 +1025,31 @@ begin
   Result := LowerCase(DataModulo.Banco.Params.Values['Port']);
 end;
 
+procedure TConexao.SalvarCache(Hash: String; Result: TJSONArray);
+begin
+  SaveCache(Hash, Result);
+end;
+
+procedure TConexao.SaveCache(Hash: String; Result: TJSONArray);
+var
+  TempDir: String;
+  FileJson: String;
+  JsonStr: TStringlist;
+begin
+  TempDir := TPath.Combine(TPath.GetTempPath, 'goopedir\cache');
+  FileJson := TPath.Combine(TempDir, Hash + '.json');
+  ForceDirectories(TempDir);
+
+  JsonStr := TStringlist.Create;
+  try
+    JsonStr.Text := Result.Format;
+    // ou Result.ToJSON se estiver usando System.JSON.Writers
+    JsonStr.SaveToFile(FileJson, TEncoding.UTF8);
+  finally
+    JsonStr.Free;
+  end;
+end;
+
 function TConexao.Senha: String;
 begin
   Result := LowerCase(DataModulo.Banco.Params.Password);
@@ -956,7 +1057,12 @@ end;
 
 function TConexao.Servidor: String;
 begin
-   Result := LowerCase(DataModulo.Banco.Params.Values['Server']);
+  Result := LowerCase(DataModulo.Banco.Params.Values['Server']);
+end;
+
+procedure TConexao.Setcache(const Value: boolean);
+begin
+  Fcache := Value;
 end;
 
 procedure TConexao.SetSQL(const Value: TStringlist);

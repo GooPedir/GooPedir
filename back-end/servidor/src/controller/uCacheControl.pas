@@ -146,6 +146,8 @@ var
 begin
   NomeArquivo := Origem + Chave + '.txt';
 
+
+
   // Obtém o caminho do executável
   CaminhoExecutavel := ExtractFilePath(ParamStr(0));
 

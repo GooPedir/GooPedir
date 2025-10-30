@@ -54,17 +54,27 @@
     <Transaction>2025/09/02 23:52:59.000.655,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
     <Transaction>2025/09/02 23:53:07.000.863,C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulos\Controller\ProdutoQueue.pas</Transaction>
     <Transaction>2025/09/05 21:38:01.000.904,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/17 22:26:48.000.959,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/17 22:27:00.000.399,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\Tasks.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/17 22:30:58.000.476,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/17 22:31:04.000.495,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\TaskManager.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/22 22:28:00.000.117,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas</Transaction>
+    <Transaction>2025/10/22 22:28:15.000.103,C:\Projetos\GooPedir\GooPedir\back-end\servidor\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\controller\uControlerProdutoNotaFiscal.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="src"/>
     <File Path="src\controller"/>
     <File Path="src\controller\GooPedirAPIController.pas"/>
+    <File Path="src\controller\TaskManager.pas"/>
+    <File Path="src\controller\Tasks.pas"/>
     <File Path="src\controller\uAtualizacaoSite.pas"/>
     <File Path="src\controller\uCacheControl.pas"/>
     <File Path="src\controller\uControlerProduto.pas"/>
     <File Path="src\controller\uControllCaches.pas"/>
     <File Path="src\controller\uControllerSite.pas"/>
     <File Path="src\controller\uDadosWhatsapp.pas"/>
+    <File Path="src\controller\uRelatorios.pas"/>
+    <File Path="src\controller\uControlerProdutoNotaFiscal.pas"/>
     <File Path="src\importacao"/>
     <File Path="src\importacao\uToPedindo.pas"/>
     <File Path="src\modulo"/>

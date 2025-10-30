@@ -84,7 +84,6 @@ uses
   ThirdParty.Posix.Syslog in 'src\other\ThirdParty.Posix.Syslog.pas',
   Web.WebConst in 'src\other\Web.WebConst.pas',
   Horse.OctetStream in 'src\other\horse-octet-stream-master\src\Horse.OctetStream.pas',
-  Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
   uSQL in 'src\sql\uSQL.pas',
   v2 in 'src\modulos\v2\v2.pas',
   uSite in 'src\uSite.pas',
@@ -113,7 +112,12 @@ uses
   uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas',
   uGlobais in 'uGlobais.pas',
   uProcedure in 'src\procedure\uProcedure.pas',
-  ProdutoQueue in 'src\modulos\Controller\ProdutoQueue.pas';
+  ProdutoQueue in 'src\modulos\Controller\ProdutoQueue.pas',
+  Tasks in 'src\controller\Tasks.pas',
+  TaskManager in 'src\controller\TaskManager.pas',
+  uRelatorios in 'src\controller\uRelatorios.pas',
+  Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
+  uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas';
 
 {$R *.res}
 

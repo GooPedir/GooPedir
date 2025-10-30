@@ -310,7 +310,7 @@ begin
                   .Items[K].GetValue<TJSONArray>('itens')
                   .Items[L].GetValue<String>('id'));
                 conexao.ExecuteSQL;
-
+                LItem.Free;
               end;
             finally
               LAdicional.Free;
@@ -325,6 +325,7 @@ begin
     end;
 
   end;
+  LJSONArray.Free;
   Requisicao.Free;
   conexao.Free;
 

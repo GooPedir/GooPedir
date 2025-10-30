@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 710
-  ClientWidth = 1020
+  ClientHeight = 709
+  ClientWidth = 1016
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -855,7 +855,7 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 169
+    Left = 129
     Top = 520
   end
   object memTiposSite: TFDMemTable
@@ -866,7 +866,7 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 376
-    Top = 440
+    Left = 360
+    Top = 384
   end
 end

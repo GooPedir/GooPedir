@@ -3,7 +3,7 @@
         <ProjectGuid>{C0D24FE9-0F7A-403B-8F19-D752F0C08050}</ProjectGuid>
         <MainSource>NFCe.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>

@@ -61,11 +61,11 @@ begin
 
   conexao := TConexao.Create('imprimir');
   // conexao.SQL.Add('SELECT ip.* FROM impressao_pedido as ip join pedido as p on p.codigo = ip.id_pedido where ip.status = 0 and ip.id_pedido > 0 ');
-  conexao.SQL.Add
-    ('SELECT distinct id as ides, ip.*, p.codigo_cliente_endereco, p.pedido_site, TIMESTAMPDIFF(MINUTE, p.hora_pedido, NOW()) AS tempo FROM impressao_pedido as ip');
+  conexao.SQL.Add('SELECT distinct id as ides, ip.*, p.codigo_cliente_endereco, p.pedido_site, TIMESTAMPDIFF(MINUTE, p.hora_pedido, NOW()) AS tempo FROM impressao_pedido as ip');
   conexao.SQL.Add('join pedido as p on p.codigo = ip.id_pedido');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
-  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
+
+  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0 and pedido_impresso = 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
   CodigoAnterior := 0;
   if Dados.RecordCount > 0 then
@@ -698,7 +698,7 @@ begin
   conexao.SQL.Add
     ('(select count(driver) from impressoras  where impressora_padrao = 1 and ativo = 1 group by descricao limit 1) as via_impressao,');
   conexao.SQL.Add
-    ('(select CONCAT(group_concat(driver),",") from impressoras where upper(descricao) = "COMANDA" and ativo = 1 group by descricao limit 1) as impressora_separado,');
+    ('(select CONCAT(group_concat(codigo),",") from impressoras where upper(descricao) = "COMANDA" and ativo = 1 group by descricao limit 1) as impressora_separado,');
   conexao.SQL.Add
     ('(select CONCAT(group_concat(codigo),",") from impressoras where upper(descricao) = "DELIVERY" and ativo = 1 limit 1) as impressora_delivery,');
   conexao.SQL.Add
@@ -767,7 +767,9 @@ begin
     while not Memory.Eof do
     begin
       Memory.Edit;
-      if Memory.FieldByName('impressora_usuario').AsString <> '' then
+      if Memory.FieldByName('impressora_usuario').AsString = '0' then
+      Memory.FieldByName('impressora_usuario').AsString := '';
+      if (Memory.FieldByName('impressora_usuario').AsString <> '') then
       begin
         Memory.FieldByName('impressora_delivery').AsString :=
           Memory.FieldByName('impressora_usuario').AsString + ',';

@@ -29,10 +29,11 @@ type
     function ConfigureRESTClient: iRequisicao;
     procedure BuscarToken;
     procedure EnviaPostParam(JSON: TJSONObject);
+    function ApenasLetrasENumeros(const S: string): string;
   public
     constructor Create(const ABaseURL, ClientId, ClientSecret: string;
       HorarioAberturaFunc, HorarioFechamentoFunc, StatusHorario
-      : TFunctionHorarioAbertura);
+      : TFunctionHorarioAbertura;User : String);
     destructor Destroy; override;
     function GetToken: string;
     function Name: String;
@@ -49,6 +50,18 @@ uses
   FireDAC.Comp.Client, Vcl.Dialogs;
 
 { TGooPedirAPIController }
+
+function TGooPedirAPIController.ApenasLetrasENumeros(const S: string): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 1 to Length(S) do
+  begin
+    if S[i] in ['A'..'Z', 'a'..'z', '0'..'9'] then
+      Result := Result + S[i];
+  end;
+end;
 
 procedure TGooPedirAPIController.BuscarToken;
 var
@@ -88,6 +101,7 @@ begin
   except
     on e: exception do
     begin
+      FUserID := -1;
       FClientToken := False;
     end;
 
@@ -107,7 +121,7 @@ end;
 
 constructor TGooPedirAPIController.Create(const ABaseURL, ClientId,
   ClientSecret: string; HorarioAberturaFunc, HorarioFechamentoFunc,
-  StatusHorario: TFunctionHorarioAbertura);
+  StatusHorario: TFunctionHorarioAbertura; User : String);
 begin
   FBaseURL := ABaseURL;
   FClientID := ClientId;
@@ -116,6 +130,7 @@ begin
   FHorarioFechamentoFunc := HorarioFechamentoFunc;
   FStatusHorario := StatusHorario;
   BuscarToken;
+  FDataBloqueio := IncDay(date,1);
 end;
 
 destructor TGooPedirAPIController.Destroy;
@@ -253,10 +268,9 @@ begin
     FRequisicao.BODY(JSON);
 
     FRequisicao.Execute;
-    // ShowMessage(JSON.ToString);
   except
     on e: exception do
-      // showmessage1('Erro ao enviar os parâmetros: ' + E.Message);
+       ShowMessage('Erro ao enviar os parâmetros: ' + E.Message);
   end;
   FRequisicao.Free;
 end;
@@ -412,8 +426,7 @@ begin
       Qry.Open;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio')
-        .AsWideString);
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio').AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
       Qry.Free;
@@ -445,19 +458,19 @@ begin
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_topo');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fundo').AsString);
+      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_loading');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fundo').AsString);
+      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_titulo_produtos');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cor_fonte').AsString);
+      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fonte').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 

@@ -1,7 +1,7 @@
 object dmImpressaoV2: TdmImpressaoV2
   OnCreate = C
-  Height = 822
-  Width = 1896
+  Height = 1067
+  Width = 2695
   object DADOS: TFDQuery
     Connection = dmModulo.BANCO
     SQL.Strings = (
@@ -113,8 +113,8 @@ object dmImpressaoV2: TdmImpressaoV2
       
         'group by pp.codigo, pps.codigo_pedido_produto,pps.nomeclatura, p' +
         'ps.codigo_pedido_produto, tp.descricao')
-    Left = 40
-    Top = 136
+    Left = 360
+    Top = 8
     ParamData = <
       item
         Name = 'CODIGO_PEDIDO'
@@ -231,7 +231,7 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 40
+    Left = 74
     Top = 8
     Version = '21.02'
     mmColumnWidth = 75220
@@ -1284,8 +1284,8 @@ object dmImpressaoV2: TdmImpressaoV2
       ''
       'group by pps.nomeclatura, pps.codigo_pedido_produto'
       'order by pp.codigo')
-    Left = 344
-    Top = 136
+    Left = 880
+    Top = 344
   end
   object ppCozinha: TppBDEPipeline
     DataSource = dsCozinha
@@ -1408,8 +1408,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 384
-    Top = 96
+    Left = 218
+    Top = 600
     Version = '21.02'
     mmColumnWidth = 58000
     DataPipelineName = 'ppCozinha'
@@ -1898,14 +1898,14 @@ object dmImpressaoV2: TdmImpressaoV2
   end
   object dsFechamentoCaixaCabechado: TDataSource
     DataSet = qryFechamentoCaixaCabechado
-    Left = 848
-    Top = 184
+    Left = 1024
+    Top = 216
   end
   object ppFechamentoCaixaCabechado: TppBDEPipeline
     DataSource = dsFechamentoCaixaCabechado
     UserName = 'FechamentoCaixaCabechado'
-    Left = 1048
-    Top = 184
+    Left = 1728
+    Top = 720
   end
   object CAIXA80MM: TppReport
     AutoStop = False
@@ -2475,8 +2475,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 472
-    Top = 96
+    Left = 50
+    Top = 608
     Version = '21.02'
     mmColumnWidth = 55800
     DataPipelineName = 'ppCozinha'
@@ -3103,8 +3103,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 40
-    Top = 72
+    Left = 1000
+    Top = 128
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppDados'
@@ -3981,7 +3981,7 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 264
+    Left = 1064
     Top = 24
     Version = '21.02'
     mmColumnWidth = 80300
@@ -4496,8 +4496,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 200
-    Top = 88
+    Left = 210
+    Top = 96
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppDados'
@@ -5027,19 +5027,19 @@ object dmImpressaoV2: TdmImpressaoV2
       'join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento'
       'where c.id = 26 and cm.tipo = 1'
       'group by tp.codigo, tp.descricao')
-    Left = 48
-    Top = 272
+    Left = 1064
+    Top = 280
   end
   object ppResumo: TppBDEPipeline
     DataSource = dsResumo
     UserName = 'Resumo'
-    Left = 48
-    Top = 392
+    Left = 1488
+    Top = 728
   end
   object dsResumo: TDataSource
     DataSet = CAIXA_RESUMO
-    Left = 48
-    Top = 336
+    Left = 1064
+    Top = 344
   end
   object CAIXA_RESUMO80MM: TppReport
     AutoStop = False
@@ -5150,8 +5150,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 48
-    Top = 463
+    Left = 58
+    Top = 207
     Version = '21.02'
     mmColumnWidth = 66548
     DataPipelineName = 'ppResumo'
@@ -6083,7 +6083,7 @@ object dmImpressaoV2: TdmImpressaoV2
                         Border.mmPadding = 0
                         PrintHeight = phDynamic
                         mmBottomOffset = 0
-                        mmHeight = 5027
+                        mmHeight = 15610
                         mmPrintPosition = 0
                         object ppLabel82: TppLabel
                           DesignLayer = ppDesignLayer26
@@ -6622,19 +6622,19 @@ object dmImpressaoV2: TdmImpressaoV2
       'join caixa_movimento as cm on cm.id_caixa = c.id'
       'where c.id = 26 and cm.tipo = 1'
       'order by cm.id_pedido')
-    Left = 296
-    Top = 288
+    Left = 1312
+    Top = 296
   end
   object ppCompleto: TppBDEPipeline
     DataSource = dsCompleto
     UserName = 'Completo'
-    Left = 296
-    Top = 408
+    Left = 1424
+    Top = 720
   end
   object dsCompleto: TDataSource
     DataSet = CAIXA_COMPLETO
-    Left = 296
-    Top = 352
+    Left = 1312
+    Top = 360
   end
   object CAIXA_COMPLETO80MM: TppReport
     AutoStop = False
@@ -6745,8 +6745,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 296
-    Top = 472
+    Left = 58
+    Top = 304
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppCompleto'
@@ -7115,19 +7115,19 @@ object dmImpressaoV2: TdmImpressaoV2
       'join motoboy as m on m.codigo = pm.codigo_motoboy'
       'where p.id_caixa  = 609'
       'group by m.codigo, ce.bairro')
-    Left = 448
-    Top = 296
+    Left = 1464
+    Top = 304
   end
   object ppMotoboy: TppBDEPipeline
     DataSource = dsMotoboy
     UserName = 'Motoboy'
-    Left = 448
-    Top = 416
+    Left = 1336
+    Top = 720
   end
   object dsMotoboy: TDataSource
     DataSet = CAIXA_MOTOBOY
-    Left = 448
-    Top = 360
+    Left = 1464
+    Top = 368
   end
   object CAIXA_MOTOBOY80MM: TppReport
     AutoStop = False
@@ -7238,8 +7238,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 448
-    Top = 480
+    Left = 50
+    Top = 432
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppMotoboy'
@@ -7955,19 +7955,19 @@ object dmImpressaoV2: TdmImpressaoV2
       'group by pp.codigo'
       'order by tp.codigo,prod.codigo) as produtos'
       'group by produtos.produto, produtos.adicionais')
-    Left = 616
-    Top = 304
+    Left = 1024
+    Top = 184
   end
   object ppProduto: TppBDEPipeline
     DataSource = dsProduto
     UserName = 'Produto'
-    Left = 616
-    Top = 424
+    Left = 1088
+    Top = 768
   end
   object dsProduto: TDataSource
     DataSet = CAIXA_PRODUTO
-    Left = 616
-    Top = 368
+    Left = 1632
+    Top = 376
   end
   object CAIXA_PRODUTO80MM: TppReport
     AutoStop = False
@@ -8078,8 +8078,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 616
-    Top = 488
+    Left = 50
+    Top = 520
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppCategoria'
@@ -8894,8 +8894,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 288
-    Top = 560
+    Left = 210
+    Top = 312
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppCompleto'
@@ -9361,8 +9361,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 432
-    Top = 560
+    Left = 218
+    Top = 432
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppMotoboy'
@@ -10043,8 +10043,8 @@ object dmImpressaoV2: TdmImpressaoV2
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 48
-    Top = 696
+    Left = 872
+    Top = 264
   end
   object ppTesteImpressao: TppReport
     PassSetting = psTwoPass
@@ -10153,8 +10153,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 48
-    Top = 639
+    Left = 872
+    Top = 207
     Version = '21.02'
     mmColumnWidth = 72000
     object ppTitleBand16: TppTitleBand
@@ -11304,8 +11304,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 1128
-    Top = 495
+    Left = 50
+    Top = 679
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppSangria'
@@ -11559,8 +11559,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 1128
-    Top = 575
+    Left = 1376
+    Top = 167
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppSangria'
@@ -11843,8 +11843,8 @@ object dmImpressaoV2: TdmImpressaoV2
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 616
-    Top = 248
+    Left = 1632
+    Top = 256
     object PRODUTOScodigo: TIntegerField
       FieldName = 'codigo'
     end
@@ -11993,8 +11993,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 256
-    Top = 647
+    Left = 1048
+    Top = 679
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'pPix'
@@ -12188,8 +12188,8 @@ object dmImpressaoV2: TdmImpressaoV2
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 160
-    Top = 696
+    Left = 960
+    Top = 672
     object PIXvalor: TFloatField
       FieldName = 'valor'
     end
@@ -12200,14 +12200,14 @@ object dmImpressaoV2: TdmImpressaoV2
   end
   object dsPIX: TDataSource
     DataSet = PIX
-    Left = 312
-    Top = 648
+    Left = 1096
+    Top = 672
   end
   object pPix: TppBDEPipeline
     DataSource = dsPIX
     UserName = 'PIX'
-    Left = 216
-    Top = 704
+    Left = 1008
+    Top = 680
     object pPixppField1: TppField
       Alignment = taRightJustify
       FieldAlias = 'valor'
@@ -12228,35 +12228,35 @@ object dmImpressaoV2: TdmImpressaoV2
   object ppComputado: TppBDEPipeline
     DataSource = dsComputado
     UserName = 'Computado'
-    Left = 104
-    Top = 392
+    Left = 1544
+    Top = 728
   end
   object dsComputado: TDataSource
     DataSet = CAIXA_RESUMO
-    Left = 104
-    Top = 336
+    Left = 1120
+    Top = 344
   end
   object ppResumoSangria: TppBDEPipeline
     DataSource = dsResumoSangria
     UserName = 'ResumoSangria'
-    Left = 176
-    Top = 392
+    Left = 1616
+    Top = 728
   end
   object dsResumoSangria: TDataSource
     DataSet = CAIXA_RESUMO
-    Left = 176
-    Top = 336
+    Left = 1192
+    Top = 344
   end
   object ppCategoria: TppBDEPipeline
     DataSource = dsCategoria
     UserName = 'Categoria'
-    Left = 704
-    Top = 432
+    Left = 1160
+    Top = 624
   end
   object dsCategoria: TDataSource
     DataSet = CAIXA_PRODUTO
-    Left = 704
-    Top = 376
+    Left = 1720
+    Top = 384
   end
   object CAIXA_RESUMO56MM: TppReport
     AutoStop = False
@@ -12367,8 +12367,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 48
-    Top = 527
+    Left = 218
+    Top = 215
     Version = '21.02'
     mmColumnWidth = 67300
     DataPipelineName = 'ppResumo'
@@ -13911,8 +13911,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 608
-    Top = 560
+    Left = 218
+    Top = 528
     Version = '21.02'
     mmColumnWidth = 80300
     DataPipelineName = 'ppCategoria'
@@ -14632,8 +14632,8 @@ object dmImpressaoV2: TdmImpressaoV2
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 448
-    Top = 184
+    Left = 984
+    Top = 392
     object DADOS_CABECALHOnome: TStringField
       FieldName = 'nome'
       Size = 255
@@ -14678,14 +14678,14 @@ object dmImpressaoV2: TdmImpressaoV2
   end
   object dsCabecalho: TDataSource
     DataSet = DADOS_CABECALHO
-    Left = 448
-    Top = 240
+    Left = 1464
+    Top = 248
   end
   object ppCabecalho: TppBDEPipeline
     DataSource = dsCabecalho
     UserName = 'Cabecalho'
-    Left = 608
-    Top = 616
+    Left = 1168
+    Top = 720
   end
   object DADOS_RECIBO: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -14818,8 +14818,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 1256
-    Top = 495
+    Left = 50
+    Top = 775
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppRecibo'
@@ -15075,7 +15075,7 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 160
+    Left = 976
     Top = 24
     Version = '21.02'
     mmColumnWidth = 75220
@@ -16137,8 +16137,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 168
-    Top = 216
+    Left = 66
+    Top = 96
     Version = '21.02'
     mmColumnWidth = 72000
     DataPipelineName = 'ppDados'
@@ -16740,8 +16740,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 176
-    Top = 152
+    Left = 1088
+    Top = 80
     Version = '21.02'
     mmColumnWidth = 75220
     DataPipelineName = 'ppDados'
@@ -17702,8 +17702,8 @@ object dmImpressaoV2: TdmImpressaoV2
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 160
-    Top = 296
+    Left = 1104
+    Top = 176
   end
   object ACBrValidador1: TACBrValidador
     TipoDocto = docGTIN
@@ -17821,8 +17821,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CloudDriveSettings.GoogleDriveSettings.DirectorySupport = False
     CloudDriveSettings.OneDriveSettings.OAuth2.RedirectPort = 0
     CloudDriveSettings.OneDriveSettings.DirectorySupport = True
-    Left = 40
-    Top = 200
+    Left = 218
+    Top = 16
     Version = '21.02'
     mmColumnWidth = 75220
     DataPipelineName = 'ppDados'
@@ -18679,8 +18679,8 @@ object dmImpressaoV2: TdmImpressaoV2
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
     DANFE = ACBrNFeDANFeESCPOS1
-    Left = 722
-    Top = 39
+    Left = 818
+    Top = 383
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -18690,14 +18690,14 @@ object dmImpressaoV2: TdmImpressaoV2
     Attempts = 3
     DefaultCharset = UTF_8
     IDECharset = CP1252
-    Left = 330
-    Top = 287
+    Left = 1346
+    Top = 295
   end
   object ACBrIntegrador1: TACBrIntegrador
     PastaInput = 'C:\Integrador\Input\'
     PastaOutput = 'C:\Integrador\Output\'
-    Left = 334
-    Top = 342
+    Left = 1350
+    Top = 350
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppEscPosEpson
@@ -18711,8 +18711,8 @@ object dmImpressaoV2: TdmImpressaoV2
     ConfigQRCode.LarguraModulo = 2
     ConfigQRCode.ErrorLevel = 0
     LinhasEntreCupons = 5
-    Left = 409
-    Top = 287
+    Left = 1425
+    Top = 295
   end
   object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
     MostraStatus = False
@@ -18763,8 +18763,8 @@ object dmImpressaoV2: TdmImpressaoV2
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     FormularioContinuo = True
-    Left = 568
-    Top = 400
+    Left = 1584
+    Top = 408
   end
   object ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS
     Sistema = 'GooPedir - www.goopedir.com'
@@ -18790,7 +18790,7 @@ object dmImpressaoV2: TdmImpressaoV2
     ACBrNFe = ACBrNFe1
     TipoDANFE = tiNFCe
     PosPrinter = ACBrPosPrinter1
-    Left = 593
+    Left = 1625
     Top = 327
   end
   object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
@@ -18829,7 +18829,7 @@ object dmImpressaoV2: TdmImpressaoV2
     FonteLinhaItem.Height = -9
     FonteLinhaItem.Name = 'Lucida Console'
     FonteLinhaItem.Style = []
-    Left = 618
-    Top = 247
+    Left = 1634
+    Top = 255
   end
 end

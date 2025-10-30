@@ -1348,7 +1348,120 @@ begin
       begin
         ExecultaSQL('alter table pedido_produtos add uuid varchar(50)');
       end;
-
+    123:
+      begin
+        // ============================================================
+        // TABELA: fornecedor
+        // ============================================================
+        SQL := 'CREATE TABLE fornecedor (';
+        SQL := SQL + '    id CHAR(36) PRIMARY KEY,';
+        SQL := SQL + '    cnpj VARCHAR(20) NOT NULL UNIQUE,';
+        SQL := SQL + '    nome VARCHAR(255) NOT NULL,';
+        SQL := SQL + '    inscricao_estadual VARCHAR(30),';
+        SQL := SQL + '    endereco VARCHAR(255),';
+        SQL := SQL + '    municipio VARCHAR(100),';
+        SQL := SQL + '    uf CHAR(2),';
+        SQL := SQL + '    email VARCHAR(150),';
+        SQL := SQL + '    telefone VARCHAR(50),';
+        SQL := SQL + '    tipo_fornecedor ENUM("PJ", "PF") DEFAULT "PJ",';
+        SQL := SQL + '    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP';
+        SQL := SQL + ');';
+        ExecultaSQL(SQL);
+        // ============================================================
+        // TABELA: fornecedor_item (catálogo do fornecedor)
+        // ============================================================
+        SQL := ' CREATE TABLE fornecedor_item (';
+        SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
+        SQL := SQL + '     fornecedor_id CHAR(36) NOT NULL,';
+        SQL := SQL + '     cprod VARCHAR(60) NOT NULL,';
+        SQL := SQL + '     cEAN VARCHAR(20),';
+        SQL := SQL + '     xProd VARCHAR(255),';
+        SQL := SQL + '     NCM VARCHAR(20),';
+        SQL := SQL + '     CEST VARCHAR(10),';
+        SQL := SQL + '     CFOP VARCHAR(10),';
+        SQL := SQL + '     uCom VARCHAR(10),';
+        SQL := SQL + '     ultimo BOOLEAN DEFAULT TRUE,';
+        SQL := SQL + '     tabela_vinculo ENUM("produto", "ingrediente"),';
+        SQL := SQL + '     campo_vinculo VARCHAR(100),';
+        SQL := SQL + '     codigo_vinculo CHAR(36),';
+        SQL := SQL + '     ativo BOOLEAN DEFAULT TRUE,';
+        SQL := SQL + '     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)';
+        SQL := SQL + ' );';
+        ExecultaSQL(SQL);
+        // ============================================================
+        // TABELA: unidade_conversao
+        // ============================================================
+        SQL := ' CREATE TABLE unidade_conversao (';
+        SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
+        SQL := SQL + '     fornecedor_item_id CHAR(36) NOT NULL,';
+        SQL := SQL + '     unidade_fornecedor VARCHAR(10) NOT NULL,';
+        SQL := SQL + '     unidade_interna VARCHAR(10) NOT NULL,';
+        SQL := SQL + '     fator DECIMAL(15,6) NOT NULL,';
+        SQL := SQL + '     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     FOREIGN KEY (fornecedor_item_id) REFERENCES fornecedor_item(id)';
+        SQL := SQL + ' );';
+        ExecultaSQL(SQL);
+        // ============================================================
+        // TABELA: nota_fiscal
+        // ============================================================
+        SQL := ' CREATE TABLE nota_fiscal (';
+        SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
+        SQL := SQL + '     fornecedor_id CHAR(36) NOT NULL,';
+        SQL := SQL + '     serie VARCHAR(10),';
+        SQL := SQL + '     numero VARCHAR(20),';
+        SQL := SQL + '     chave VARCHAR(44) UNIQUE,';
+        SQL := SQL + '     modelo VARCHAR(5),';
+        SQL := SQL + '     tipo ENUM("NF", "NFCe"),';
+        SQL := SQL + '     data_emissao DATETIME,';
+        SQL := SQL + '     data_entrada DATETIME,';
+        SQL := SQL + '     vNF DECIMAL(15,2),';
+        SQL := SQL + '     vFrete DECIMAL(15,2),';
+        SQL := SQL + '     vDesc DECIMAL(15,2),';
+        SQL := SQL + '     vOutro DECIMAL(15,2),';
+        SQL := SQL + '     xml_original LONGTEXT,';
+        SQL := SQL +
+          '     status_importacao ENUM("pendente", "processada", "erro") DEFAULT "pendente",';
+        SQL := SQL + '     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)';
+        SQL := SQL + ' );';
+        ExecultaSQL(SQL);
+        // ============================================================
+        // TABELA: nota_fiscal_item
+        // ============================================================
+        SQL := ' CREATE TABLE nota_fiscal_item (';
+        SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
+        SQL := SQL + '     nota_fiscal_id CHAR(36) NOT NULL,';
+        SQL := SQL + '     fornecedor_item_id CHAR(36),';
+        SQL := SQL + '     cProd VARCHAR(60),';
+        SQL := SQL + '     xProd VARCHAR(255),';
+        SQL := SQL + '     NCM VARCHAR(20),';
+        SQL := SQL + '     CFOP VARCHAR(10),';
+        SQL := SQL + '     qCom DECIMAL(15,6),';
+        SQL := SQL + '     uCom VARCHAR(10),';
+        SQL := SQL + '     vUnCom DECIMAL(15,6),';
+        SQL := SQL + '     vProd DECIMAL(15,2),';
+        SQL := SQL + '     vDesc DECIMAL(15,2),';
+        SQL := SQL + '     vFrete DECIMAL(15,2),';
+        SQL := SQL + '     vOutro DECIMAL(15,2),';
+        SQL := SQL +
+          '     vTotal DECIMAL(15,2) GENERATED ALWAYS AS (vProd - IFNULL(vDesc,0) + IFNULL(vFrete,0) + IFNULL(vOutro,0)) STORED,';
+        SQL := SQL + '     uTrib VARCHAR(10),';
+        SQL := SQL + '     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     FOREIGN KEY (nota_fiscal_id) REFERENCES nota_fiscal(id),';
+        SQL := SQL +
+          '     FOREIGN KEY (fornecedor_item_id) REFERENCES fornecedor_item(id)';
+        SQL := SQL + ' );';
+        ExecultaSQL(SQL);
+        ExecultaSQL
+          ('insert into usuario (codigo,nome) values (-1,"QRCOD MESA");');
+        ExecultaSQL
+          ('insert into usuario (codigo,nome) values (-2,"PEDIDO SITE");');
+      end;
     99999999:
       begin
         {
@@ -1362,7 +1475,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '122';
+  Result := '123';
 end;
 
 end.

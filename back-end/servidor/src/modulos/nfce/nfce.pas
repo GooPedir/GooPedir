@@ -4,7 +4,7 @@ interface
 
 uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
-  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,uGlobais,
+  Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer, uGlobais,
   uRequisicao, System.RegularExpressions, REST.Client, REST.Types;
 
 procedure Registry;
@@ -25,11 +25,18 @@ var
 begin
 
   conexao := TConexao.Create('nfce');
-  SQL := 'select pedido.servico, pedido.valor_desconto as discont, pedido.cpf, pedido.nome, ';
-  SQL := SQL + 'pedido.valor_taxa_entrega as entrega ';
-  SQL := SQL + 'FROM pedido where codigo = ' + Req.Params['codigo'];
-  // conexao.Parametros('codigo', Req.Params['codigo']);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL(SQL));
+  // SQL := 'select pedido.servico, pedido.valor_desconto as discont, pedido.cpf, pedido.nome, ';
+  // SQL := SQL + 'pedido.valor_taxa_entrega as entrega ';
+  // SQL := SQL + 'FROM pedido where codigo = ' + Req.Params['codigo'];
+  SQL := ' select pedido.servico, pedido.valor_desconto as discont, pedido.cpf, pedido.nome, pedido.valor_taxa_entrega as entrega, impressoras.driver';
+  SQL := SQL + ' FROM pedido';
+  SQL := SQL + ' left join usuario on usuario.codigo = pedido.usuario';
+  SQL := SQL +
+    ' left join impressoras on impressoras.codigo = usuario.impressora or impressoras.impressora_padrao = 1';
+  SQL := SQL + ' where pedido.codigo = :codigo ';
+  conexao.SQL.Add(SQL);
+  conexao.Parametros('codigo', Req.Params['codigo']);
+  Res.Send<TJSONArray>(conexao.ConsultaSQL());
   conexao.Free;
   // Res.Send(SQL);
 end;
@@ -401,7 +408,7 @@ var
   RESTRequest: TRESTRequest;
   RESTResponse: TRESTResponse;
 begin
-  RESTClient := TRESTClient.Create(API_NFCE+'deletar.php');
+  RESTClient := TRESTClient.Create(API_NFCE + 'deletar.php');
   RESTRequest := TRESTRequest.Create(nil);
   RESTResponse := TRESTResponse.Create(nil);
   try

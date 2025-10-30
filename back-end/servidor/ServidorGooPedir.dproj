@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Realease</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -197,7 +197,6 @@
         <DCCReference Include="src\other\ThirdParty.Posix.Syslog.pas"/>
         <DCCReference Include="src\other\Web.WebConst.pas"/>
         <DCCReference Include="src\other\horse-octet-stream-master\src\Horse.OctetStream.pas"/>
-        <DCCReference Include="src\other\horse-upload-master\src\Horse.Upload.pas"/>
         <DCCReference Include="src\sql\uSQL.pas"/>
         <DCCReference Include="src\modulos\v2\v2.pas"/>
         <DCCReference Include="src\uSite.pas"/>
@@ -227,6 +226,11 @@
         <DCCReference Include="uGlobais.pas"/>
         <DCCReference Include="src\procedure\uProcedure.pas"/>
         <DCCReference Include="src\modulos\Controller\ProdutoQueue.pas"/>
+        <DCCReference Include="src\controller\Tasks.pas"/>
+        <DCCReference Include="src\controller\TaskManager.pas"/>
+        <DCCReference Include="src\controller\uRelatorios.pas"/>
+        <DCCReference Include="src\other\horse-upload-master\src\Horse.Upload.pas"/>
+        <DCCReference Include="src\controller\uControlerProdutoNotaFiscal.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

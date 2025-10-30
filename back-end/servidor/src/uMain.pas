@@ -33,9 +33,12 @@ uses
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
-  uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto;
+  uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
+  Tasks, TaskManager;
 
 type
+  TTaskProc = reference to procedure;
+
   TBalancaManager = class
   private
     FBalancas: TDictionary<string, Double>;
@@ -498,6 +501,7 @@ var
   LogFilePath: String;
   GerarLog: Boolean;
   MeusModulos: String;
+  TaskRegistry: TDictionary<string, TTaskProc>;
 
 implementation
 
@@ -567,6 +571,11 @@ var
   nomeBKP: String;
   comando: String;
 begin
+  try
+    TDirectory.Delete(ExtractFilePath(ParamStr(0)) + 'cache\', True);
+  except
+
+  end;
   // ⚡ Tudo que depende que o banco esteja pronto:
   frmServidor.Configuracoes.Close;
   conexao := Tconexao.Create('main'); // Se precisar reabrir
@@ -616,7 +625,8 @@ begin
     APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
       frmServidor.Configuracoes.FieldByName('client_id').AsString,
       frmServidor.Configuracoes.FieldByName('client_security').AsString,
-      GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento);
+      GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento,
+      frmServidor.Configuracoes.FieldByName('user_id').AsString);
   end;
 
   IniciaIfood;
@@ -624,6 +634,19 @@ begin
   FazerBackupMySQL(conexao);
   TSincronizaProdutosThread.Create;
   // EnvioCaixa;
+  try
+    RegisterAllTasks;
+
+    // Executar uma task em paralelo
+    TTaskManager.Run('sabores');
+    TTaskManager.Run('clientes');
+    TTaskManager.Run('vendas');
+
+    // Evita que o programa termine antes das tasks concluírem
+    Readln;
+  except
+
+  end;
 
   // Se tiver outros módulos que dependem do banco, colocar aqui também
 end;
@@ -1393,8 +1416,9 @@ begin
   memo := TMemo.Create(self);
   memo.Parent := self;
   Requisicao := iRequisicao.Create(self);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/modulos/index.php?user=' +
-    UserID.ToString;
+  // Requisicao.BaseURL := 'https://ws.goopedir.com/modulos/index.php?user=' +UserID.ToString;
+  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.URL := 'api/modulos?user=' + UserID.ToString;
   try
     Requisicao.Execute;
     memo.Lines.Text := Requisicao.Retorno;
@@ -1403,7 +1427,7 @@ begin
   except
     on E: Exception do
     begin
-      Modulos := TJsonObject.Create;
+//      Modulos := TJsonObject.Create;
 
     end;
   end;
@@ -1512,8 +1536,8 @@ begin
   if (MerchantID <> '') then
   begin
     try
-      NewIfood.MerchantStatus.AutoStatus := true;
-      NewIfood.Polling.AutoPolling := true;
+      NewIfood.MerchantStatus.AutoStatus := True;
+      NewIfood.Polling.AutoPolling := True;
       NewIfood.MerchantID(MerchantID);
 
       if StrToInt(Name) = 1 then
@@ -1591,7 +1615,7 @@ begin
             StatusMensagemWhatsapp := 2;
           end;
           user.Free;
-          StatusInstanciaCriada := true;
+          StatusInstanciaCriada := True;
         end;
       end;
     except
@@ -1658,13 +1682,14 @@ begin
     end
     else
     begin
-      JsonDadosBloqueio.AddPair('confianca', true);
+      JsonDadosBloqueio.AddPair('confianca', True);
     end;
 
   except
     on E: Exception do
     begin
       // Res.Send(E.Message);
+      JsonDadosBloqueio := TJsonObject.Create;
 
     end;
 
@@ -1754,7 +1779,7 @@ begin
       ImagemWhatsapp := JsonObject.GetValue<String>('profilePicUrl');
       NumeroWhatsapp := FormatPhoneNumber
         (JsonObject.GetValue<String>('ownerJid'));
-      StatusWhatsapp := true;
+      StatusWhatsapp := True;
     end;
 
   except
@@ -2114,7 +2139,7 @@ begin
               Pendentes.Delete(i);
             end
             else
-              ExecucaoRestante := true; // Ainda tem pendente, mais uma rodada
+              ExecucaoRestante := True; // Ainda tem pendente, mais uma rodada
           end;
         end;
       end;
@@ -2262,7 +2287,7 @@ begin
 
   if FileExists(NomeArquivoBackup) then
   begin
-    tBackupFTP.Enabled := true;
+    tBackupFTP.Enabled := True;
     exit;
   end;
 
@@ -2308,8 +2333,8 @@ begin
       if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
         (FileSizeByName(NomeArquivoBackup) > 0) then
       begin
-        Result := true;
-        tBackupFTP.Enabled := true;
+        Result := True;
+        tBackupFTP.Enabled := True;
       end
       else
       begin
@@ -2659,7 +2684,7 @@ begin
   conexao.ExecuteSQL;
 
   VersaoMysql := conexao.ValidaVersao;
-  GerarLog := true;
+  GerarLog := True;
   try
     conexao.SQL.Add('select * from dados_whatsapp');
     frmServidor.Configuracoes.Close;
@@ -2682,6 +2707,7 @@ begin
   except
     on E: Exception do
     begin
+
       ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
       Application.Terminate;
       exit;
@@ -2702,7 +2728,7 @@ end;
 function TfrmServidor.FTP_DirectoryExists(FTP: TIdFTP;
   const Directory: string): Boolean;
 begin
-  Result := true;
+  Result := True;
   try
     FTP.List(nil, Directory, false);
   except
@@ -2876,7 +2902,7 @@ begin
           conexao.Parametros('img_header', '');
         conexao.ExecuteSQL;
         conexao.Free;
-        CarregaImagem := true;
+        CarregaImagem := True;
       end;
 
       Cache.Timestamp := now;
@@ -3250,7 +3276,7 @@ procedure TfrmServidor.IFoodOrderArrivedAtOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3259,7 +3285,7 @@ procedure TfrmServidor.IFoodOrderAssignDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3268,7 +3294,7 @@ procedure TfrmServidor.IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3277,7 +3303,7 @@ procedure TfrmServidor.IFoodOrderCancellationFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3286,7 +3312,7 @@ procedure TfrmServidor.IFoodOrderCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3295,7 +3321,7 @@ procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3304,7 +3330,7 @@ procedure TfrmServidor.IFoodOrderChangePreparationTime
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3313,7 +3339,7 @@ procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3322,7 +3348,7 @@ procedure TfrmServidor.IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3331,7 +3357,7 @@ procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3340,7 +3366,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationAccepted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3349,7 +3375,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3358,7 +3384,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3367,7 +3393,7 @@ procedure TfrmServidor.IFoodOrderDelayNotification
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3376,7 +3402,7 @@ procedure TfrmServidor.IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3385,7 +3411,7 @@ procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3394,7 +3420,7 @@ procedure TfrmServidor.IFoodOrderGoingToOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3403,7 +3429,7 @@ procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3412,7 +3438,7 @@ procedure TfrmServidor.IFoodOrderPickupAreaAssigned
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3421,7 +3447,7 @@ procedure TfrmServidor.IFoodOrderPlaced(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   ProcessamentoiFood.orderId(Order, OrderHead);
 
 end;
@@ -3430,7 +3456,7 @@ procedure TfrmServidor.IFoodOrderPlaced1(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   ProcessamentoiFood1.orderId(Order, OrderHead);
 
 end;
@@ -3439,7 +3465,7 @@ procedure TfrmServidor.IFoodOrderPlaced2(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   ProcessamentoiFood2.orderId(Order, OrderHead);
 
 end;
@@ -3448,7 +3474,7 @@ procedure TfrmServidor.IFoodOrderPreparationStarted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3457,7 +3483,7 @@ procedure TfrmServidor.IFoodOrderReadyToDeliver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3466,7 +3492,7 @@ procedure TfrmServidor.IFoodOrderReadyToPickup
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3475,7 +3501,7 @@ procedure TfrmServidor.IFoodOrderRecommendedPreparation
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3484,7 +3510,7 @@ procedure TfrmServidor.IFoodOrderRequestDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3493,7 +3519,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverAvailability
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3502,7 +3528,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -3511,7 +3537,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverSuccess
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := true;
+  bAcknowledgment := True;
   AtualizaStatus(OrderHead);
 
 end;
@@ -4879,7 +4905,7 @@ var
 begin
   if StatusSincProdutos then
     exit;
-  StatusSincProdutos := true;
+  StatusSincProdutos := True;
   conexao := Tconexao.Create('main');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
@@ -5008,7 +5034,7 @@ begin
           FTP.Host := 'ftp.goopedir.com';
           FTP.Username := 'u567036950.banco';
           FTP.Password := 'banco#Goopedir@2025';
-          FTP.Passive := true;
+          FTP.Passive := True;
           FTP.ConnectTimeout := 15000;
           FTP.Connect;
 
@@ -5209,6 +5235,12 @@ begin
     frmServidor.TrayIcon1.Hint := Port.ToString + 'p - Não Licenciado';
     exit;
   end;
+  if user = -1 then
+  begin
+    // Fazer opção para recuperar o cache e não sincronizar produtos
+    Result := user;
+    exit;
+  end;
 
   if user = 0 then
   begin
@@ -5232,9 +5264,9 @@ begin
         if not DadosWhatsappBoolean then
         begin
           DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
-          DadosThread1.FreeOnTerminate := true;
+          DadosThread1.FreeOnTerminate := True;
           // Libera a memória automaticamente quando terminar
-          DadosWhatsappBoolean := true;
+          DadosWhatsappBoolean := True;
         end;
       end
       else
@@ -5243,12 +5275,18 @@ begin
       end;
 
       SemDataBloqueio := false;
+      if UserID = -1 then
+      begin
+        self.DataBloqueio := IncDay(Data, 1);
 
+        exit;
+      end;
       try
         test := '9';
         self.DataBloqueio := APIGoopedir.GetBloqueio;
       except
-        SemDataBloqueio := true;
+        self.DataBloqueio := IncDay(Data, 1);
+        SemDataBloqueio := True;
       end;
 
     except
@@ -5284,7 +5322,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -5305,7 +5343,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -5326,7 +5364,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -5347,7 +5385,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -5367,7 +5405,7 @@ begin
     if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile)) = UpperCase(Nome)
       ) or (UpperCase(FProcessEntry32.szExeFile) = UpperCase(Nome))) then
     begin
-      Result := true;
+      Result := True;
     end;
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
@@ -5452,7 +5490,7 @@ var
   IniFile: TIniFile;
 begin
 
-  inherited Create(true);
+  inherited Create(True);
   conexao := Tconexao.Create('main');
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'GooPedir');
@@ -5606,7 +5644,7 @@ end;
 constructor TSincronizaProdutosThread.Create;
 begin
   inherited Create(false); // inicia automaticamente
-  FreeOnTerminate := true;
+  FreeOnTerminate := True;
 end;
 
 procedure TSincronizaProdutosThread.Execute;

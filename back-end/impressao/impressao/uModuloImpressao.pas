@@ -2343,8 +2343,7 @@ begin
     begin
       frmMain.GravaLog('Imprimindo Pedido: ' + mPedidos.FieldByName('id_pedido')
         .AsString);
-      dmImpressaoV2.ImprimirComanda(Relatorio, mPedidos.FieldByName('id_pedido')
-        .AsInteger, 0);
+      dmImpressaoV2.ImprimirComanda(Relatorio, mPedidos.FieldByName('id_pedido').AsInteger, 0);
       frmMain.GravaLog('Imprimido Pedido: ' + mPedidos.FieldByName('id_pedido')
         .AsString);
 

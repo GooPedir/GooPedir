@@ -200,7 +200,7 @@ begin
     end;
 
     GerarLog('0012', 'erro_produto.log');
-    SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId);
+    GerarLog(SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId), 'erro_produto.log');
     GerarLog('0013', 'erro_produto.log');
 
   except

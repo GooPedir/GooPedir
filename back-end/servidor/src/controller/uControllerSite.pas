@@ -8,7 +8,7 @@ uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
   REST.Client, Data.Bind.Components, Data.Bind.ObjectScope, uGlobais;
 
 function SiteCategoria(codigo, user: Integer): Integer;
-procedure SiteSabores(codigoGrupo, user: Integer);
+function SiteSabores(codigoGrupo, user: Integer): String;
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
 function EnviaImagem(codigo, Base64: String): String;
 
@@ -231,16 +231,16 @@ begin
   end;
 end;
 
-procedure SiteSabores(codigoGrupo, user: Integer);
+function SiteSabores(codigoGrupo, user: Integer): String;
 var
   Conexao: TConexao;
   Query: TFDQuery;
-  codigo: Integer;
-  SQL: String;
+  Requisicao: iRequisicao;
+  Sabores: TJsonArray;
+  I: Integer;
 begin
   Conexao := TConexao.Create('uSite');
   Query := Conexao.CriaQRY;
-
   try
     Query.SQL.Text :=
       'SELECT cs.id, cs.id_site, cs.nome, cs.descricao, cs.vl_venda as valor, cs.ativo, ts.nome as tipo, '
@@ -253,42 +253,82 @@ begin
       'where p.codigo_grupo = :codigo';
     Query.ParamByName('codigo').AsInteger := codigoGrupo;
     Query.Open;
-
     if Query.RecordCount > 0 then
     begin
-      while not Query.Eof do
+
+      Result := Query.ToJSONArray().ToString;
+      Requisicao := iRequisicao.Create(nil);
+      Requisicao.BaseURL := API_BASE_URL;
+      Requisicao.URL := 'api/sabores';
+      Requisicao.Metodo := mPost;
+      Requisicao.BODY(Result);
+      Requisicao.TempoExpiracao := (60 * 1000);
+      Requisicao.Execute;
+
+      Sabores := TJsonArray.ParseJSONValue(Requisicao.Retorno) as TJsonArray;
+      for I := 0 to Sabores.Count - 1 do
       begin
-        codigo := InserirUpdate('ws_sabores', user.ToString,
-          ['id', 'user_id', 'id_itens', 'qtd_sabor', 'ativo', 'tipo_valor',
-          'valor', 'tipo', 'sabor', 'descricao'],
-          [Query.FieldByName('id_site').AsWideString, user.ToString,
-          Query.FieldByName('id_itens').AsWideString,
-          Query.FieldByName('qtd_sabor').AsWideString,
-          Query.FieldByName('ativo').AsWideString,
-          Query.FieldByName('tipo_valor').AsWideString,
-          Query.FieldByName('valor').AsWideString, Query.FieldByName('tipo')
-          .AsWideString, Trim(Query.FieldByName('nome').AsWideString),
-          Trim(Query.FieldByName('descricao').AsWideString)]);
-
-        if codigo > 0 then
+        if Sabores[I].GetValue<Integer>('idSite') > 0 then
         begin
-          SQL := 'update sabores_completo set modificado_site = 1 where id = ' +
-            Query.FieldByName('id').AsWideString;
-          Conexao.ExecuteSQL(SQL);
-
-          SQL := 'update sabores_completo set id_site = ' + codigo.ToString +
-            ' where id = ' + Query.FieldByName('id').AsWideString;
-          Conexao.ExecuteSQL(SQL);
+          Conexao.SQL.Add('update sabores_completo set modificado_site = 1, id_site = :site where id = :id');
+          Conexao.Parametros('site',Sabores[I].GetValue<Integer>('idSite'));
+          Conexao.Parametros('id',Sabores[I].GetValue<Integer>('id'));
+          Conexao.ExecuteSQL;
         end;
 
-        Query.Next;
       end;
+      Sabores.Free;
     end;
 
-  finally
-    Query.Free;
-    Conexao.Free;
+  except
+  on E : Exception do
+  begin
+    Result := E.Message;
   end;
+
+  end;
+  Query.Free;
+  Conexao.Free;
+  //
+  // try
+
+  //
+  // if Query.RecordCount > 0 then
+  // begin
+  //
+  // while not Query.Eof do
+  // begin
+  // codigo := InserirUpdate('ws_sabores', user.ToString,
+  // ['id', 'user_id', 'id_itens', 'qtd_sabor', 'ativo', 'tipo_valor',
+  // 'valor', 'tipo', 'sabor', 'descricao'],
+  // [Query.FieldByName('id_site').AsWideString, user.ToString,
+  // Query.FieldByName('id_itens').AsWideString,
+  // Query.FieldByName('qtd_sabor').AsWideString,
+  // Query.FieldByName('ativo').AsWideString,
+  // Query.FieldByName('tipo_valor').AsWideString,
+  // Query.FieldByName('valor').AsWideString, Query.FieldByName('tipo')
+  // .AsWideString, Trim(Query.FieldByName('nome').AsWideString),
+  // Trim(Query.FieldByName('descricao').AsWideString)]);
+  //
+  // if codigo > 0 then
+  // begin
+  // SQL := 'update sabores_completo set modificado_site = 1 where id = ' +
+  // Query.FieldByName('id').AsWideString;
+  // Conexao.ExecuteSQL(SQL);
+  //
+  // SQL := 'update sabores_completo set id_site = ' + codigo.ToString +
+  // ' where id = ' + Query.FieldByName('id').AsWideString;
+  // Conexao.ExecuteSQL(SQL);
+  // end;
+  //
+  // Query.Next;
+  // end;
+  // end;
+  //
+  // finally
+  // Query.Free;
+  // Conexao.Free;
+  // end;
 end;
 
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);

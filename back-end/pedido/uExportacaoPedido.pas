@@ -71,13 +71,10 @@ begin
   Conexao.Parametros('codigo', codigo);
   DadosPedido.LoadFromJSON(Conexao.ConsultaSQL);
 
-  Conexao.SQL.Add
-    ('select p.codigo as codigoAgrupamentoProduto, p.id_site as idProduto, p.nome_produto as nomeProduto, pp.valor_total as valorProduto, pp.quantidade as quantidadeProduto, ');
-  Conexao.SQL.Add
-    ('pps.nomeclatura as categoriaExtra, pps.descricao as nomeExtra, 1 as quantidadeExtra, pps.valor as valorExtra from pedido_produtos as pp');
+  Conexao.SQL.Add('select p.codigo as codigoAgrupamentoProduto, p.id_site as idProduto, p.nome_produto as nomeProduto, pp.valor_total as valorProduto, pp.quantidade as quantidadeProduto, ');
+  Conexao.SQL.Add('0 as categoriaExtra, pps.descricao as nomeExtra, 1 as quantidadeExtra, pps.valor as valorExtra from pedido_produtos as pp');
   Conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  Conexao.SQL.Add
-    ('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
+  Conexao.SQL.Add('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
   Conexao.SQL.Add('where pp.codigo_pedido = :codigo');
   Conexao.Parametros('codigo', codigo);
   DadosItens.LoadFromJSON(Conexao.ConsultaSQL);
