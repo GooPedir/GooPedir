@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2025/11/04 20:02:50.370,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2025/11/04 20:03:20.186,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\ufrmCore.pas=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2025/11/04 20:03:20.186,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\ufrmCore.dfm=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>2025/11/04 20:03:27.623,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\core.dproj=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
+    <Transaction>2025/11/04 20:26:22.482,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\conexao.pas</Transaction>
+    <Transaction>2025/11/04 20:26:23.235,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\uDM.pas</Transaction>
+    <Transaction>2025/11/04 20:26:32.421,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\uGlobais.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.398,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Builder.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.445,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Consumer.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.461,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Consumer.Validators.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.477,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Context.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.516,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Base.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.532,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Builder.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.572,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Compression.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.589,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Encryption.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.606,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Factory.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.643,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.672,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Signing.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.690,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWE.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.707,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWK.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.734,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWS.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.752,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWT.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.777,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Parts.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.794,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Encoding.Base64.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.812,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Hashing.HMAC.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.843,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.OpenSSL.Headers.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.878,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.Base.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.907,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.ECDSA.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.925,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.RSA.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.958,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Arrays.pas</Transaction>
+    <Transaction>2025/11/04 20:27:06.977,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Bytes.pas</Transaction>
+    <Transaction>2025/11/04 20:27:07.012,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.JSON.pas</Transaction>
+    <Transaction>2025/11/04 20:27:07.031,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Utils.pas</Transaction>
+    <Transaction>2025/11/04 20:27:30.809,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\coreGoopedir.dproj=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\core.dproj</Transaction>
+    <Transaction>2025/11/04 20:33:27.968,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\uProcessamentoiFood.pas</Transaction>
+  </Transactions>
+</BorlandProject>

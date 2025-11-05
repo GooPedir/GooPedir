@@ -6,7 +6,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao, Web.HTTPApp,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, DateUtils, PedidoSite,
-  System.Threading, uControllCaches, uLogThread, System.Generics.Collections,
+  System.Threading, uControllCaches,  System.Generics.Collections,
   uNewConsultas, uControllerSite, GooPedirAPIController, uAtualizacaoSite,
   System.IOUtils, uGlobais, conexao, Xml.XMLDoc, Xml.XMLIntf,
   uControlerProdutoNotaFiscal;
@@ -73,7 +73,8 @@ begin
     if Resultado.Count > 0 then
     begin
       Result := Resultado;
-      conexao.Free;
+
+      conexao.free;
       exit;
     end;
 
@@ -125,17 +126,17 @@ begin
       DataInicial := IncDay(DataInicial, 1);
     end;
 
-    Dados.Free;
+    Dados.free;
     SQL := Resultado.ToString;
-
 
     if (FormatDateTime('yyyy-mm-dd', now) <> DataFim) then
     begin
       if DataIni <> DataFim then
-        conexao.SalvarCache(Chave, TJSONObject.ParseJSONValue(SQL) as TJSONArray);
+        conexao.SalvarCache(Chave, TJSONObject.ParseJSONValue(SQL)
+          as TJsonArray);
     end;
     Result := Resultado;
-    conexao.Free;
+    conexao.free;
   except
     on E: Exception do
     begin
@@ -215,10 +216,10 @@ begin
       Result := Req.Retorno;
 
     finally
-      Req.Free;
+      Req.free;
     end;
   finally
-    JsonObj.Free;
+    JsonObj.free;
   end;
 end;
 
@@ -286,9 +287,9 @@ begin
       Result := '(' + StringReplace(Trim(Parts.Text), sLineBreak, ' UNION ALL ',
         [rfReplaceAll]) + ')';
   finally
-    Q.Free;
-    Parts.Free;
-    conexao.Free;
+    Q.free;
+    Parts.free;
+    conexao.free;
   end;
 end;
 
@@ -317,7 +318,7 @@ begin
     Result := True;
   end
   else
-    V.Free;
+    V.free;
 end;
 
 procedure SaveCacheJSON(const FileName: string; const Obj: TJSONObject);
@@ -623,7 +624,7 @@ begin
       ObjetoCliente.AddPair('address', ObjetoEndereco);
     end
     else
-      ObjetoEndereco.Free; // não usado
+      ObjetoEndereco.free; // não usado
 
     // ===== Pagamentos =====
     if Dados.FieldByName('id_caixa').AsString <> '' then
@@ -765,7 +766,7 @@ begin
           ObjetoIten.AddPair('pizzaFlavors', Sabores);
           Itens.AddElement(ObjetoIten);
         finally
-          DadosExtra.Free;
+          DadosExtra.free;
         end;
 
         DadosItens.Next;
@@ -779,7 +780,7 @@ begin
     if Canal <> 'Mesa' then
       Objeto.AddPair('customer', ObjetoCliente)
     else
-      ObjetoCliente.Free; // não será usado
+      ObjetoCliente.free; // não será usado
     Objeto.AddPair('coupon', Cupom);
     Objeto.AddPair('discount',
       TJSONNumber.Create(Dados.FieldByName('valor_desconto').AsFloat));
@@ -790,8 +791,8 @@ begin
     Result := Objeto;
 
   finally
-    DadosPagamento.Free;
-    DadosItens.Free;
+    DadosPagamento.free;
+    DadosItens.free;
     // NÃO liberar Objeto, Pagamentos, Itens, etc., pois são retornados em Result
   end;
 end;
@@ -860,7 +861,7 @@ begin
   conexao.Parametros('codigo', Codigo);
   conexao.ExecuteSQL;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -880,7 +881,7 @@ begin
   conexao.SQL.Add('where produto.codigo_grupo = :grupo');
   conexao.Parametros('grupo', Req.Params['category']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -1000,13 +1001,13 @@ begin
         Dados.Next;
       end;
     end;
-    Dados.Free;
+    Dados.free;
 
     conexao.SQL.Add('delete from geradores');
     conexao.ExecuteSQL;
 
     EnviaProduto(CodigoAux, '');
-    conexao.Free;
+    conexao.free;
   end;
 
 end;
@@ -1225,7 +1226,7 @@ begin
         conexao.ExecuteSQL;
       end;
     end;
-    DadosTipo.Free;
+    DadosTipo.free;
     EnviaCategoria(CodigoGrupo);
 
     ExtraArray := JSONObject.Values['extra'] as TJsonArray;
@@ -1327,9 +1328,9 @@ begin
     end;
 
   end;
-  Query.Free;
-  JSONValue.Free; // Liberar a memória alocada pelo JSONValue
-  conexao.Free;
+  Query.free;
+  JSONValue.free; // Liberar a memória alocada pelo JSONValue
+  conexao.free;
   // Limpar as categorias
   LimpaCacheGeral;
 end;
@@ -1355,7 +1356,7 @@ begin
   except
     Res.Send('[]');
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoPostNovoValorFlavor(Req: THorseRequest; Res: THorseResponse;
@@ -1386,8 +1387,8 @@ begin
       Dados.Next;
     end;
   end;
-  Dados.Free;
-  conexao.Free;
+  Dados.free;
+  conexao.free;
 end;
 
 procedure DoPostStatusFlavor(Req: THorseRequest; Res: THorseResponse;
@@ -1417,8 +1418,8 @@ begin
       Dados.Next;
     end;
   end;
-  Dados.Free;
-  conexao.Free;
+  Dados.free;
+  conexao.free;
 
 end;
 
@@ -1553,8 +1554,8 @@ begin
     EnviaProduto(StrToInt(LSizeObject.GetValue('id').Value), '');
   end;
 
-  LJSONValue.Free;
-  conexao.Free;
+  LJSONValue.free;
+  conexao.free;
 end;
 
 procedure DoGetMovimentacaoPagamento(Req: THorseRequest; Res: THorseResponse;
@@ -1585,7 +1586,7 @@ begin
   conexao.Parametros('ini', DataInicial);
   conexao.Parametros('fim', DataFinal);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -1609,7 +1610,7 @@ begin
   conexao.SQL.Add(CriaSubQueryCampos(SQL, '*', Req.Headers['inicio'],
     Req.Headers['fim']));
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -1629,7 +1630,7 @@ begin
   conexao.SQL.Add(CriaSubQueryCampos(SQL, '*', Req.Headers['inicio'],
     Req.Headers['fim']));
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetProdutoDeletado(Req: THorseRequest; Res: THorseResponse;
@@ -1654,7 +1655,7 @@ begin
     Req.Headers['fim']));
   conexao.SQL.Add('order by datahora_deletado');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -2143,7 +2144,7 @@ begin
         Query.ExecSQL;
       end;
 
-      Query.Free;
+      Query.free;
 
       if JSONObject.TryGetValue<TJsonArray>('deleteExtras', ExtraArray) and
         Assigned(ExtraArray) then
@@ -2183,9 +2184,9 @@ begin
     end;
   end;
 
-  conexao.Free;
-  DadosProduto.Free;
-  JSONValue.Free;
+  conexao.free;
+  DadosProduto.free;
+  JSONValue.free;
 end;
 
 procedure DoGetPedidosMotoboy(Req: THorseRequest; Res: THorseResponse;
@@ -2217,7 +2218,7 @@ begin
 
   end;
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure PostGetPedidosMotoboy(Req: THorseRequest; Res: THorseResponse;
@@ -2297,7 +2298,7 @@ begin
           except
 
           end;
-          Requisicao.Free;
+          Requisicao.free;
         end;
 
       end;
@@ -2307,9 +2308,9 @@ begin
       // Writeln(Format('Codigo: %d, Tipo: %d, Motoboy: %d', [Codigo, Tipo, Motoboy]));
     end;
   finally
-    JSONArr.Free;
+    JSONArr.free;
   end;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetProdutosiFood(Req: THorseRequest; Res: THorseResponse;
@@ -2330,7 +2331,7 @@ begin
   begin
     Lista.LoadFromFile(arquivo + Req.Params['cnpj'] + '.json');
     Res.Send(Lista.Text);
-    Lista.Free;
+    Lista.free;
     exit;
   end;
   Requisicao := iRequisicao.Create(nil);
@@ -2347,13 +2348,13 @@ begin
       Lista.SaveToFile(arquivo + Req.Params['cnpj'] + '.json', TEncoding.UTF8);
       // ou TEncoding.ANSI, conforme necessário
     finally
-      Lista.Free;
+      Lista.free;
     end;
     Res.Send(Requisicao.Retorno);
   except
 
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 //
@@ -2380,7 +2381,7 @@ begin
     Qry.ParamByName('mensagem').AsWideString :=
       JsonObj.GetValue<string>('valor');
     Qry.ExecSQL;
-    Qry.Free;
+    Qry.free;
   end
   else
   begin
@@ -2391,7 +2392,7 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
+  conexao.free;
 
 
 
@@ -2724,7 +2725,7 @@ begin
 
   JSONObject.AddPair('extrato', conexao.ConsultaSQL);
 
-  conexao.Free;
+  conexao.free;
   Res.Send<TJSONObject>(JSONObject);
 
 end;
@@ -2765,7 +2766,7 @@ begin
   except
     Res.Send('[]');
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoPostStatusSiteClose(Req: THorseRequest; Res: THorseResponse;
@@ -2783,7 +2784,7 @@ begin
   except
     Res.Send('[]');
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoPostStatusSiteOpen(Req: THorseRequest; Res: THorseResponse;
@@ -2801,7 +2802,7 @@ begin
   except
     Res.Send('[]');
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoPostMarketingGerarCupom(Req: THorseRequest; Res: THorseResponse;
@@ -2831,7 +2832,7 @@ begin
   conexao.SQL.Add
     ('SELECT marketing.*, cliente.celular, cliente.celular_wpp FROM marketing join cliente on cliente.codigo = marketing.id_cliente where validade > current_date() and status = 1');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostGravacaoGenerica(Req: THorseRequest; Res: THorseResponse;
@@ -2908,9 +2909,9 @@ begin
     end;
     conexao.SQL.Add(SQL);
     conexao.ExecuteSQL;
-    conexao.Free;
+    conexao.free;
   finally
-    LJSONObject.Free;
+    LJSONObject.free;
   end;
 end;
 
@@ -2993,7 +2994,7 @@ begin
   conexao.SQL.Add(SQL);
 
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
   frmServidor.HorSite := now;
 
 end;
@@ -3039,7 +3040,7 @@ begin
     ('where nome NOT LIKE "%MESA %" and nome NOT LIKE "%BALCÃO%" and nome NOT LIKE "%BALCAO %" and nome <> ""');
   conexao.SQL.Add('order by nome');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -3102,8 +3103,8 @@ begin
   except
 
   end;
-  LJsonObj.Free;
-  conexao.Free;
+  LJsonObj.free;
+  conexao.free;
 end;
 
 procedure DoPostProdutoEntradaSaida(Req: THorseRequest; Res: THorseResponse;
@@ -3152,7 +3153,7 @@ begin
       end;
     end;
 
-    Dados.Free;
+    Dados.free;
 
     Dados := TFDMemTable.Create(nil);
 
@@ -3176,7 +3177,7 @@ begin
         Dados.Next;
       end;
     end;
-    Dados.Free;
+    Dados.free;
     Dados := TFDMemTable.Create(nil);
 
     conexao.SQL.Add
@@ -3207,8 +3208,8 @@ begin
         Dados.Next;
       end;
     end;
-    Dados.Free;
-    conexao.Free;
+    Dados.free;
+    conexao.free;
 
   end;
 
@@ -3236,7 +3237,7 @@ begin
   end;
   conexao.Parametros('id', Req.Params['codigo']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetConsultaCPF(Req: THorseRequest; Res: THorseResponse;
@@ -3248,7 +3249,7 @@ begin
   conexao.SQL.Add('SELECT distinct nome, cpf FROM pedido where cpf = :cpf');
   conexao.Parametros('cpf', Req.Params['cpf']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetConsultaFiado(Req: THorseRequest; Res: THorseResponse;
@@ -3261,7 +3262,7 @@ begin
     ('select * from caixa_receber where id_cliente = :cliente order by data');
   conexao.Parametros('cliente', Req.Params['cliente']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetConsultaClientesFiado(Req: THorseRequest; Res: THorseResponse;
@@ -3312,7 +3313,7 @@ begin
   end;
 
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostNovoCadastro(Req: THorseRequest; Res: THorseResponse;
@@ -3337,9 +3338,9 @@ begin
     NonoDigito(LJsonObj.GetValue<string>('celular')));
   conexao.ExecuteSQL;
 
-  conexao.Free;
+  conexao.free;
 
-  LJsonObj.Free;
+  LJsonObj.free;
 
 end;
 
@@ -3404,8 +3405,8 @@ begin
 
   if Codigo = 0 then
   begin
-    conexao.Free;
-    LJsonObj.Free;
+    conexao.free;
+    LJsonObj.free;
     exit;
   end;
 
@@ -3470,8 +3471,8 @@ begin
 
   end;
 
-  conexao.Free;
-  LJsonObj.Free;
+  conexao.free;
+  LJsonObj.free;
 end;
 
 procedure DoGetComanda(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -3499,7 +3500,7 @@ begin
     conexao.Parametros('id', Req.Params['id'].ToInteger);
   end;
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostMesa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -3518,7 +3519,7 @@ begin
 
   conexao.Parametros('id', IntToStr(Req.Params['codigo'].ToInteger));
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostComandaDescricao(Req: THorseRequest; Res: THorseResponse;
@@ -3533,7 +3534,7 @@ begin
   conexao.Parametros('descricao', Req.Params['mesa']);
   conexao.Parametros('id', IntToStr(Req.Params['codigo'].ToInteger));
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetTempoDelivery(Req: THorseRequest; Res: THorseResponse;
@@ -3552,7 +3553,7 @@ begin
     conexao.ExecuteSQL;
     EnviaTempoDelivery(Req.Params['tempo'].ToInteger);
   end;
-  conexao.Free;
+  conexao.free;
 
 end;
 // var
@@ -3617,7 +3618,7 @@ begin
   conexao.SQL.Add('where c.id_caixa = :id and c.tipo = 2');
   conexao.Parametros('id', IntToStr(Req.Params['id'].ToInteger));
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetPixPendenteTabela(Req: THorseRequest; Res: THorseResponse;
@@ -3629,13 +3630,13 @@ begin
   Requisicao := iRequisicao.Create(nil);
   Dados := TFDMemTable.Create(nil);
   Requisicao.BaseURL := API_BASE_URL;
-  Requisicao.URL := 'api/empresa/pix/pendentes/'+frmServidor.UserID.ToString;
+  Requisicao.URL := 'api/empresa/pix/pendentes/' + frmServidor.UserID.ToString;
   Requisicao.MemTable2 := Dados;
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.Execute;
   Res.Send(Requisicao.Retorno);
-  Requisicao.Free;
-  Dados.Free;
+  Requisicao.free;
+  Dados.free;
 
 end;
 
@@ -3662,8 +3663,8 @@ begin
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.Execute;
   Res.Send<TJsonArray>(Dados.ToJSONArray());
-  Requisicao.Free;
-  Dados.Free;
+  Requisicao.free;
+  Dados.free;
 end;
 
 procedure DoPostGravaMesa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -3702,8 +3703,8 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
-  JSONObject.Free;
+  conexao.free;
+  JSONObject.free;
 
 
   //
@@ -3756,7 +3757,7 @@ begin
       // Definir o parâmetro usando os bytes UTF-8 do TMemoryStream
       Query.ParamByName('texto').LoadFromStream(MemoryStream, ftBlob);
       Mensagem := True;
-      MemoryStream.Free;
+      MemoryStream.free;
     except
 
     end;
@@ -3776,7 +3777,7 @@ begin
       // Definir o parâmetro usando os bytes UTF-8 do TMemoryStream
       Query.ParamByName('imagem').LoadFromStream(ImagemMemoryStream, ftBlob);
       Imagem := True;
-      ImagemMemoryStream.Free;
+      ImagemMemoryStream.free;
     except
 
     end;
@@ -3796,7 +3797,7 @@ begin
     Query.ParamByName('dia').AsString := JSONObject.GetValue('dia').Value;
     // Substitua isso pelo seu emoji
     Query.ExecSQL;
-    Query.Free;
+    Query.free;
 
     // conexao.SQL.Add('insert into mensagem (dia,texto) value (:dia,:texto)');
     // conexao.Parametros('dia', JSONObject.GetValue('dia').Value);
@@ -3804,7 +3805,7 @@ begin
     // conexao.Parametros('dia', JSONObject.GetValue('dia').Value);
     // conexao.ExecuteSQL;
 
-    conexao.Free;
+    conexao.free;
   except
     on E: Exception do
     begin
@@ -3841,7 +3842,7 @@ begin
   conexao.SQL.Add
     ('select distinct foto_ifood as imagem, nome_produto as nome from produto where foto_ifood <> ""');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetProdutoFiscal(Req: THorseRequest; Res: THorseResponse;
@@ -3853,7 +3854,7 @@ begin
   conexao.SQL.Add
     ('select codigo, nome_produto, un, ncm,cest,cfop,cstipi,csticms,csosn, icms,ipi, pis,cofins, frete from produto');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostSincronizaParametros(Req: THorseRequest; Res: THorseResponse;
@@ -3957,9 +3958,9 @@ begin
     // JsonObjeto.AddPair('additional', JSonArrayAdicional);
   end;
   Res.Send<TJsonArray>(JSonArrayAdicional);
-  DadosAdicionaisItens.Free;
-  DadosAdicionais.Free;
-  conexao.Free;
+  DadosAdicionaisItens.free;
+  DadosAdicionais.free;
+  conexao.free;
 end;
 
 procedure DoGetValidaFechamentoCaixa(Req: THorseRequest; Res: THorseResponse;
@@ -4008,7 +4009,7 @@ begin
           Dados.Next;
         end;
       end;
-      Dados.Free;
+      Dados.free;
       if PodeInserir then
       begin
         frmServidor.memErrosNFCE.Last;
@@ -4044,7 +4045,7 @@ begin
   conexao.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
   conexao.SQL.Add('where pp.quantidade < 3 order by id asc limit 5');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 function XMLToJSON(Node: IXMLNode): TJSONObject;
@@ -4149,8 +4150,8 @@ begin
   end;
   Codigo := Dados.FieldByName('codigo_pedido').AsInteger;
   Res.Send<TJsonArray>(GetDadosProdutoPedido(Codigo));
-  conexao.Free;
-  Dados.Free;
+  conexao.free;
+  Dados.free;
 end;
 
 procedure DoGetTipos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -4170,7 +4171,7 @@ begin
     except
 
     end;
-    Request.Free;
+    Request.free;
   end;
 
   Res.Send<TJsonArray>(TJSONObject.ParseJSONValue
@@ -4186,7 +4187,7 @@ begin
     ('update produto set ativo = 0, deletado = 1 where codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['id'].ToInteger);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
   EnviaProduto(Req.Params['id'].ToInteger, '');
 
 end;
@@ -4220,7 +4221,7 @@ begin
     ('update pedido_painel set quantidade = quantidade +1 where id = :id');
   conexao.Parametros('id', Req.Params['id']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
   Res.Send('OK');
 end;
 
@@ -4233,7 +4234,7 @@ begin
   conexao.SQL.Add('insert into pedido_painel (id_pedido) values (:id)');
   conexao.Parametros('id', Req.Params['id']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
   Res.Send('OK');
 
 end;
@@ -4280,8 +4281,8 @@ begin
     conexao.Parametros('peso', JSONObject.Values['peso'].Value);
     conexao.Parametros('id', JSONObject.Values['id'].Value);
     conexao.ExecuteSQL;
-    conexao.Free;
-    JSONObject.Free;
+    conexao.free;
+    JSONObject.free;
 
   end;
 end;
@@ -4327,7 +4328,7 @@ begin
         conexao.SQL.Add('update dados_whatsapp set banner = :url');
       conexao.Parametros('url', CaminhoImagem);
       conexao.ExecuteSQL;
-      conexao.Free;
+      conexao.free;
     end;
 
   end;
@@ -4349,7 +4350,7 @@ begin
     ('select nome_produto, saldo_atual  from produto where codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetProdutoVendas(Req: THorseRequest; Res: THorseResponse;
@@ -4368,7 +4369,7 @@ begin
     ('select * from cmv where codigo_produto = :id and data_final is null limit 1');
   conexao.Parametros('id', Req.Params['codigo'].ToInteger);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostCMV(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -4412,7 +4413,7 @@ begin
     JSONObject.GetValue<Real>('custoIndireto'));
   conexao.ExecuteSQL;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -4496,10 +4497,10 @@ begin
       // Query.ExecSQL;
     end;
   finally
-    JSONData.Free;
+    JSONData.free;
   end;
 
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostRecontagemEstoque(Req: THorseRequest; Res: THorseResponse;
@@ -4528,7 +4529,7 @@ var
 begin
   conexao := TConexao.Create('DoPostTempoEntregaPedido');
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -4545,7 +4546,7 @@ begin
   conexao.SQL.Add('where ingf.id_ingrediente = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostParametroVemBuscar(Req: THorseRequest; Res: THorseResponse;
@@ -4570,7 +4571,7 @@ begin
 
   frmServidor.SincronizaParametros;
 
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostParametroEntrega(Req: THorseRequest; Res: THorseResponse;
@@ -4593,7 +4594,7 @@ begin
   end;
   conexao.ExecuteSQL;
   frmServidor.SincronizaParametros;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -4606,7 +4607,7 @@ begin
   conexao.SQL.Add
     ('select retirada, delivery, temp_delivery, temp_vembuscar from dados_whatsapp');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostReImpressaoCozinha(Req: THorseRequest; Res: THorseResponse;
@@ -4637,7 +4638,7 @@ begin
   conexao.SQL.Add('update impressao_pedido_produto set status = 0 where id in ('
     + Codigos + ')');
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -4659,15 +4660,12 @@ begin
         TThread.Synchronize(TThread.CurrentThread,
           procedure
           begin
-            LogThread('DoPostImportacaoToPedindo', 'Inicia');
-
             frmServidor.ImportaProdutosToPedindo;
-            LogThread('DoPostImportacaoToPedindo', 'Finaliza');
           end);
       end).start;
 
   finally
-    JSONObject.Free;
+    JSONObject.free;
   end;
 end;
 
@@ -4700,7 +4698,7 @@ begin
 
   conexao.Parametros('status', Req.Params['status']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetProdutoSaboresExtras(Req: THorseRequest; Res: THorseResponse;
@@ -4762,7 +4760,7 @@ begin
   conexao.SQL.Add('         pro_adi_personalizado_sabores.descricao, ');
   conexao.SQL.Add('         pro_adi_personalizado_sabores.ativo;');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -4802,7 +4800,7 @@ begin
   conexao.Parametros('nome', Usuario.GetValue<String>('usuario'));
   conexao.Parametros('senha', Usuario.GetValue<String>('senha'));
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 
   frmServidor.AposConectarBanco;
 end;
@@ -4821,7 +4819,7 @@ begin
     Retorno := TJSONObject.Create;
     APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
       Usuario.GetValue<String>('id'), Usuario.GetValue<String>('security'), nil,
-      nil, nil,'');
+      nil, nil, '');
 
     if APIGoopedir.UserID = 0 then
     begin
@@ -4846,14 +4844,14 @@ begin
       conexao.SQL.Add('select * from dados_whatsapp');
       frmServidor.Configuracoes.Close;
       frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-      frmServidor.APIGoopedir.Free;
+      frmServidor.APIGoopedir.free;
       frmServidor.APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
         frmServidor.Configuracoes.FieldByName('client_id').AsString,
         frmServidor.Configuracoes.FieldByName('client_security').AsString,
         frmServidor.GetHorarioAbertura, frmServidor.GetHorarioFechamento,
-        frmServidor.GetHorarioAtendimento,'');
+        frmServidor.GetHorarioAtendimento, '');
 
-      conexao.Free;
+      conexao.free;
     end;
 
   except
@@ -4865,7 +4863,7 @@ begin
   end;
   Res.Send<TJSONObject>(Retorno);
 
-  APIGoopedir.Free;
+  APIGoopedir.free;
 end;
 
 procedure DoGetBanner(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -4879,7 +4877,7 @@ begin
     conexao.SQL.Add
       ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
     frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
-    conexao.Free;
+    conexao.free;
   end;
 
   Res.Send(frmServidor.memBanner.ToJSONArray());
@@ -4925,7 +4923,7 @@ begin
     CodigoUsuario := Usuario.GetValue<String>('codigo');
     if Consulta <> CodigoUsuario then
     begin
-      conexao.Free;
+      conexao.free;
       Res.Status(1);
       exit;
     end;
@@ -5002,7 +5000,7 @@ begin
     try
       JSONStr := Reader.ReadToEnd;
     finally
-      Reader.Free;
+      Reader.free;
     end;
 
     JSONObject.AddPair('atualizacao', TJSONObject.ParseJSONValue(JSONStr)
@@ -5029,7 +5027,7 @@ begin
   JSONObject.AddPair('banner', frmServidor.memBanner.ToJSONArray());
   JSONObject.AddPair('painel', frmServidor.memPaineis.ToJSONArray());
 
-  conexao.Free;
+  conexao.free;
   try
     Res.Send(JSONObject);
 
@@ -5082,7 +5080,7 @@ begin
   except
     Res.Status(400);
   end;
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoPostWhatsappAtualizar(Req: THorseRequest; Res: THorseResponse;
@@ -5116,7 +5114,7 @@ begin
   conexao.Parametros('codigo', Req.Params['codigo']);
   conexao.Parametros('selecionado', Req.Params['selecionado']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5133,7 +5131,7 @@ begin
 
   Res.Send(conexao.ConsultaSQL.ToString);
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5194,7 +5192,7 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostTransferenciaProdutos(Req: THorseRequest; Res: THorseResponse;
@@ -5311,8 +5309,8 @@ begin
           .AsInteger);
 
         NomeProduto := conexao.FieldByName('nome');
-        conexao.Free;
-        Banco.Free;
+        conexao.free;
+        Banco.free;
         Res.Send('O produto "' + NomeProduto +
           '" foi selecionado uma quantidade maior que a atual, atualize a tela apertando F5!')
           .Status(500);
@@ -5390,8 +5388,8 @@ begin
     end
     else
     begin
-      conexao.Free;
-      Banco.Free;
+      conexao.free;
+      Banco.free;
       Res.Send('Produto não localizado!').Status(500);
       exit;
     end;
@@ -5401,8 +5399,8 @@ begin
   AtualizaValorPedido(Banco.FieldByName('codigo_pedido').AsInteger);
   AtualizaValorPedido(CodigoPedido);
 
-  conexao.Free;
-  Banco.Free;
+  conexao.free;
+  Banco.free;
   Res.Send('OK');
 
 end;
@@ -5422,12 +5420,12 @@ begin
     Requisicao.Execute;
   except
   end;
-  Requisicao.Free;
+  Requisicao.free;
 
   conexao := TConexao.Create('v2');
   conexao.SQL.Add('delete from geradores');
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
   // res.Send(conexao.GerarID(Req.Params['tabela'],Req.Params['campo']).ToString);
 
   Res.Send('ok');
@@ -5440,7 +5438,7 @@ begin
 
   conexao := TConexao.Create('v2');
   Res.Send(conexao.GerarID(Req.Params['tabela'], Req.Params['campo']).ToString);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5485,7 +5483,7 @@ begin
     Res.Send('false');
   end;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5539,7 +5537,7 @@ begin
   except
     Res.Status(400).Send('Body invalido!');
   end;
-  DadosPedido.Free;
+  DadosPedido.free;
 end;
 
 procedure DoPostDelete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -5550,7 +5548,7 @@ begin
   conexao.SQL.Add('delete from mesa where id_mesa = :id');
   conexao.Parametros('id', Req.Params['id']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5563,7 +5561,7 @@ begin
   conexao.SQL.Add('delete from horario where dia_da_sema = :dia');
   conexao.Parametros('dia', Req.Params['dia']);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5695,8 +5693,8 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
-  JSONObject.Free;
+  conexao.free;
+  JSONObject.free;
 
   frmServidor.SincronizaHorario;
 
@@ -5872,8 +5870,8 @@ begin
   conexao.Parametros('id', JSONObject.GetValue('id').Value);
   conexao.ExecuteSQL;
 
-  conexao.Free;
-  JSONObject.Free;
+  conexao.free;
+  JSONObject.free;
 
 end;
 
@@ -5891,8 +5889,8 @@ begin
   conexao.Parametros('id', JSONObject.GetValue('id').Value);
   conexao.ExecuteSQL;
 
-  conexao.Free;
-  JSONObject.Free;
+  conexao.free;
+  JSONObject.free;
 
 end;
 
@@ -5912,8 +5910,8 @@ begin
   conexao.Parametros('codigo', JSONObject.GetValue('pedido').Value);
   conexao.ExecuteSQL;
 
-  conexao.Free;
-  JSONObject.Free;
+  conexao.free;
+  JSONObject.free;
 
 end;
 
@@ -5933,7 +5931,7 @@ begin
 
   end;
   Res.Send(Requisicao.Retorno);
-  Requisicao.Free;
+  Requisicao.free;
 end;
 
 procedure DoGetUserAgent(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -5949,7 +5947,7 @@ begin
   conexao.SQL.Add('select * from agent where id = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5969,7 +5967,7 @@ begin
   conexao.Parametros('codigo', Req.Params['codigo']);
   conexao.ExecuteSQL;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -5987,8 +5985,8 @@ begin
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.Execute;
   Res.Send<TJsonArray>(Dados.ToJSONArray());
-  Requisicao.Free;
-  Dados.Free;
+  Requisicao.free;
+  Dados.free;
 end;
 
 procedure DoGetNotificacaoProdutosAbaixoEstoque(Req: THorseRequest;
@@ -6008,7 +6006,7 @@ begin
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
   conexao.SQL.Add('update dados_whatsapp set estoque_wpp = curdate()');
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetRelatorioProdutosPeriodo(Req: THorseRequest; Res: THorseResponse;
@@ -6076,9 +6074,9 @@ begin
   conexao.Parametros('fim', JSONObject.GetValue('final').Value);
 
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
-  JSONObject.Free;
+  JSONObject.free;
 end;
 
 procedure DoGravaVariosProdutos(Req: THorseRequest; Res: THorseResponse;
@@ -6132,7 +6130,7 @@ begin
 
   except
     Res.Send('').Status(500);
-    Dados.Free;
+    Dados.free;
     exit;
   end;
 
@@ -6318,22 +6316,20 @@ begin
     TThread.CreateAnonymousThread(
       procedure
       begin
-        LogThread('DoGravaVariosProdutos', 'Inicia');
         MovimentoProduto(CodigoPedidoItem, 1);
-        LogThread('DoGravaVariosProdutos', 'Finaliza');
       end).start();
 
     if Assigned(DadosProdutos) then
-      DadosProdutos.Free;
+      DadosProdutos.free;
 
     Dados.Next;
   end;
 
   if Assigned(conexao) then
-    conexao.Free;
+    conexao.free;
 
   if Assigned(Dados) then
-    Dados.Free;
+    Dados.free;
 
   // AtualizaValorPedido(CodigoPedido);
   Res.Send(MemoLog.Lines.Text);
@@ -6349,7 +6345,7 @@ begin
   conexao.SQL.Add('delete from caixa_movimento where id = :id');
   conexao.Parametros('id', IntToStr(Req.Params['codigo'].ToInteger));
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoPostCaixaImprimeSangria(Req: THorseRequest; Res: THorseResponse;
@@ -6361,7 +6357,7 @@ begin
   conexao.SQL.Add('update caixa_movimento set impressao = 0 where id = :id');
   conexao.Parametros('id', IntToStr(Req.Params['codigo'].ToInteger));
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetEstornoPedido(Req: THorseRequest; Res: THorseResponse;
@@ -6392,7 +6388,7 @@ begin
     mesa := 0;
   end;
 
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetMovimentacaoCaixa(Req: THorseRequest; Res: THorseResponse;
@@ -6427,13 +6423,13 @@ begin
     end;
 
   end;
-  Dados.Free;
+  Dados.free;
 
   conexao.SQL.Add('order by codigo_pedido_dia, id_ficha desc');
   conexao.Parametros('id', IntToStr(Req.Params['id'].ToInteger));
 
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetFormaPagamentoCaixa(Req: THorseRequest; Res: THorseResponse;
@@ -6453,7 +6449,7 @@ begin
   conexao.SQL.Add('where c.id_caixa = :id and c.tipo = 2');
   conexao.Parametros('id', IntToStr(Req.Params['id'].ToInteger));
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetCupomDescontoSite(Req: THorseRequest; Res: THorseResponse;
@@ -6507,9 +6503,9 @@ begin
       Dados.Next;
     end;
 
-    Dados.Free;
+    Dados.free;
 
-    conexao.Free;
+    conexao.free;
   except
 
   end;
@@ -6586,7 +6582,6 @@ begin
         TThread.CreateAnonymousThread(
           procedure
           begin
-            LogThread('DoPostCancelarPedido', 'Inicia');
             if Dados.RecordCount > 0 then
             begin
               while not Dados.Eof do
@@ -6595,8 +6590,7 @@ begin
                 Dados.Next;
               end;
             end;
-            Dados.Free;
-            LogThread('DoPostCancelarPedido', 'Finaliza');
+            Dados.free;
           end).start();
 
         conexao.SQL.Add
@@ -6644,11 +6638,11 @@ begin
       except
 
       end;
-      Requisicao.Free;
+      Requisicao.free;
     end;
   end;
 
-  conexao.Free;
+  conexao.free;
 
 
 
@@ -6669,7 +6663,7 @@ begin
   conexao.SQL.Add
     ('select codigo as value, nome_produto as label from produto where controle_estoque = 1');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 end;
 
 procedure DoGetDadosPedidoImpressao(Req: THorseRequest; Res: THorseResponse;
@@ -6692,7 +6686,7 @@ begin
   conexao.Parametros('codigo', Req.Params['pedido'].ToInteger);
   JsonObj.AddPair('cozinha', conexao.ConsultaSQL);
   Res.Send<TJSONObject>(JsonObj);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -6727,7 +6721,7 @@ begin
   conexao.SQL.Add('where p.codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['pedido'].ToInteger);
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -6747,7 +6741,7 @@ begin
     conexao.ExecuteSQL;
     EnviaTempoVemBuscar(Req.Params['tempo'].ToInteger);
   end;
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -6795,7 +6789,7 @@ begin
       percentual := 0;
     end;
   finally
-    JsonObj.Free;
+    JsonObj.free;
   end;
 
   if Codigo = 0 then
@@ -6853,7 +6847,7 @@ begin
   conexao.Parametros('campanha', Integer(campanha));
   conexao.Parametros('percentual', percentual);
   conexao.ExecuteSQL;
-  conexao.Free;
+  conexao.free;
   // if finalizar then
   // begin
   // conexao.Parametros('encerra', 1);
@@ -7041,7 +7035,7 @@ begin
 
   end;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -7071,8 +7065,8 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
-  JSON.Free;
+  conexao.free;
+  JSON.free;
 
 end;
 
@@ -7177,8 +7171,8 @@ begin
   end;
 
   Res.Send<TJSONObject>(JObject);
-  conexao.Free;
-  Dados.Free;
+  conexao.free;
+  Dados.free;
 end;
 
 procedure DoPostDespesaCategoria(Req: THorseRequest; Res: THorseResponse;
@@ -7202,7 +7196,7 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -7215,7 +7209,7 @@ begin
   conexao.SQL.Add
     ('SELECT DISTINCT YEAR(vencimento) AS ano, 0 as zero FROM despesas;');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -7227,7 +7221,7 @@ begin
   conexao := TConexao.Create('v2');
   conexao.SQL.Add('select * from descricao');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  conexao.free;
 
 end;
 
@@ -7488,6 +7482,8 @@ begin
 
   THorse.Post('v2/proxy', DoPostPonte);
   THorse.Post('v2/notafiscal/fornecedor', DoPostDadosNotaFiscalFornecedor);
+  THorse.Post('v2/notafiscal/fornecedor/item/fator',
+    DoPostDadosNotaFiscalFornecedorItemFator);
 
 end;
 
@@ -7580,12 +7576,12 @@ begin
         // Fazer extorno do pedido
 
       end;
-      DadosBaixaComposta.Free;
+      DadosBaixaComposta.free;
       Dados.Next;
     end;
   end;
 
-  Dados.Free;
+  Dados.free;
 
   Dados := TFDMemTable.Create(nil);
 
@@ -7611,7 +7607,7 @@ begin
       Dados.Next;
     end;
   end;
-  Dados.Free;
+  Dados.free;
   Dados := TFDMemTable.Create(nil);
 
   conexao.SQL.Add
@@ -7645,8 +7641,8 @@ begin
       Dados.Next;
     end;
   end;
-  Dados.Free;
-  conexao.Free;
+  Dados.free;
+  conexao.free;
 
 end;
 
@@ -7686,7 +7682,7 @@ begin
   except
     Result := '[]';
   end;
-  Requisicao.Free;
+  Requisicao.free;
 
 end;
 

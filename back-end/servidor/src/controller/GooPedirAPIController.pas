@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Data.Bind.Components, Data.Bind.ObjectScope,
-  uRequisicao, System.JSON, DataSet.Serialize, uLogThread, Conexao, Inifiles,
+  uRequisicao, System.JSON, DataSet.Serialize, Conexao, Inifiles,
   DateUtils;
 
 type
@@ -33,7 +33,7 @@ type
   public
     constructor Create(const ABaseURL, ClientId, ClientSecret: string;
       HorarioAberturaFunc, HorarioFechamentoFunc, StatusHorario
-      : TFunctionHorarioAbertura;User : String);
+      : TFunctionHorarioAbertura; User: String);
     destructor Destroy; override;
     function GetToken: string;
     function Name: String;
@@ -42,6 +42,7 @@ type
     procedure SincronizaParametros(Param: String);
     procedure EnviaParametroUnico(Campo, Valor, Tipo: String);
     procedure EnviaFuncionamento;
+    function GetCupom: String;
   end;
 
 implementation
@@ -58,7 +59,7 @@ begin
   Result := '';
   for i := 1 to Length(S) do
   begin
-    if S[i] in ['A'..'Z', 'a'..'z', '0'..'9'] then
+    if S[i] in ['A' .. 'Z', 'a' .. 'z', '0' .. '9'] then
       Result := Result + S[i];
   end;
 end;
@@ -121,7 +122,7 @@ end;
 
 constructor TGooPedirAPIController.Create(const ABaseURL, ClientId,
   ClientSecret: string; HorarioAberturaFunc, HorarioFechamentoFunc,
-  StatusHorario: TFunctionHorarioAbertura; User : String);
+  StatusHorario: TFunctionHorarioAbertura; User: String);
 begin
   FBaseURL := ABaseURL;
   FClientID := ClientId;
@@ -130,7 +131,7 @@ begin
   FHorarioFechamentoFunc := HorarioFechamentoFunc;
   FStatusHorario := StatusHorario;
   BuscarToken;
-  FDataBloqueio := IncDay(date,1);
+  FDataBloqueio := IncDay(date, 1);
 end;
 
 destructor TGooPedirAPIController.Destroy;
@@ -147,34 +148,34 @@ var
   JSonBody: TJSONObject;
   JsonCampos: TJSONArray;
   JsonCampo: TJSONObject;
-  I: Integer;
+  i: Integer;
 begin
   TThread.CreateAnonymousThread(
     procedure
     var
-      I: Integer;
+      i: Integer;
     begin
-      LogThread('EnviaFuncionamento', 'Iniciando');
+
       JsonCampos := TJSONArray.Create;
       JSonBody := TJSONObject.Create;
       try
         JSonBody.AddPair('user', TJSONNumber.Create(FUserID));
 
-        for I := Low(DiasDaSemana) to High(DiasDaSemana) do
+        for i := Low(DiasDaSemana) to High(DiasDaSemana) do
         begin
 
           if Assigned(FStatusHorario) then
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', 'config_' + DiasDaSemana[I]);
-            JsonCampo.AddPair('valor', FStatusHorario(DiasDaSemana[I]));
+            JsonCampo.AddPair('campo', 'config_' + DiasDaSemana[i]);
+            JsonCampo.AddPair('valor', FStatusHorario(DiasDaSemana[i]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end
           else
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', 'config_' + DiasDaSemana[I]);
+            JsonCampo.AddPair('campo', 'config_' + DiasDaSemana[i]);
             JsonCampo.AddPair('valor', 'false');
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
@@ -183,8 +184,8 @@ begin
           if Assigned(FHorarioAberturaFunc) then
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', DiasDaSemana[I] + '_tarde_de');
-            JsonCampo.AddPair('valor', FHorarioAberturaFunc(DiasDaSemana[I]));
+            JsonCampo.AddPair('campo', DiasDaSemana[i] + '_tarde_de');
+            JsonCampo.AddPair('valor', FHorarioAberturaFunc(DiasDaSemana[i]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end;
@@ -192,8 +193,8 @@ begin
           if Assigned(FHorarioFechamentoFunc) then
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', DiasDaSemana[I] + '_tarde_ate');
-            JsonCampo.AddPair('valor', FHorarioFechamentoFunc(DiasDaSemana[I]));
+            JsonCampo.AddPair('campo', DiasDaSemana[i] + '_tarde_ate');
+            JsonCampo.AddPair('valor', FHorarioFechamentoFunc(DiasDaSemana[i]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end;
@@ -201,8 +202,8 @@ begin
           if Assigned(FHorarioAberturaFunc) then
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', DiasDaSemana[I] + '_manha_de');
-            JsonCampo.AddPair('valor', FHorarioAberturaFunc(DiasDaSemana[I]));
+            JsonCampo.AddPair('campo', DiasDaSemana[i] + '_manha_de');
+            JsonCampo.AddPair('valor', FHorarioAberturaFunc(DiasDaSemana[i]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end;
@@ -210,8 +211,8 @@ begin
           if Assigned(FHorarioFechamentoFunc) then
           begin
             JsonCampo := TJSONObject.Create;
-            JsonCampo.AddPair('campo', DiasDaSemana[I] + '_manha_ate');
-            JsonCampo.AddPair('valor', FHorarioFechamentoFunc(DiasDaSemana[I]));
+            JsonCampo.AddPair('campo', DiasDaSemana[i] + '_manha_ate');
+            JsonCampo.AddPair('valor', FHorarioFechamentoFunc(DiasDaSemana[i]));
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end;
@@ -222,7 +223,7 @@ begin
         EnviaPostParam(JSonBody);
 
       finally
-        LogThread('EnviaFuncionamento', 'Finalizando');
+
       end;
     end).Start;
 end;
@@ -270,7 +271,7 @@ begin
     FRequisicao.Execute;
   except
     on e: exception do
-       ShowMessage('Erro ao enviar os parâmetros: ' + E.Message);
+      ShowMessage('Erro ao enviar os parâmetros: ' + e.Message);
   end;
   FRequisicao.Free;
 end;
@@ -278,6 +279,11 @@ end;
 function TGooPedirAPIController.GetBloqueio: TDate;
 begin
   Result := FDataBloqueio;
+end;
+
+function TGooPedirAPIController.GetCupom: String;
+begin
+  //
 end;
 
 function TGooPedirAPIController.GetToken: string;
@@ -311,7 +317,7 @@ begin
       Conexao: TConexao;
       Qry: TFDQuery;
     begin
-      LogThread('SincronizaParametros', 'Iniciando');
+
       Conexao := TConexao.Create('SincronizaParametros');
       Qry := Conexao.CriaQRY;
 
@@ -426,7 +432,8 @@ begin
       Qry.Open;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio').AsWideString);
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio')
+        .AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
       Qry.Free;
@@ -458,19 +465,22 @@ begin
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_topo');
-      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
+      JsonCampo.AddPair('valor',
+        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_loading');
-      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
+      JsonCampo.AddPair('valor',
+        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'cor_titulo_produtos');
-      JsonCampo.AddPair('valor', ApenasLetrasENumeros(Dados.FieldByName('cor_fonte').AsString));
+      JsonCampo.AddPair('valor',
+        ApenasLetrasENumeros(Dados.FieldByName('cor_fonte').AsString));
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
@@ -490,7 +500,6 @@ begin
 
       EnviaPostParam(JSonBody);
 
-      LogThread('SincronizaParametros', 'Finalizando');
     end).Start;
 end;
 

@@ -1,5 +1,6 @@
 program ServidorGooPedir;
 
+  {$I FastMM4Options.inc}
 uses
   Vcl.Forms,
   uMain in 'src\uMain.pas' {frmServidor},
@@ -102,7 +103,6 @@ uses
   cors in 'src\modulo\cors.pas',
   uDadosWhatsapp in 'src\controller\uDadosWhatsapp.pas',
   PedidoController in 'src\modulos\Controller\PedidoController.pas',
-  uLogThread in 'uLogThread.pas',
   uMicroServices in 'src\modulo\uMicroServices.pas',
   conexao in 'src\modulo\conexao.pas',
   uInserirUpdate in 'src\modulos\Controller\uInserirUpdate.pas',
@@ -117,16 +117,18 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
-  uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas';
+  {$R}
+  uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
+  System.SysUtils,
+  uGenericaFuncion in 'src\util\uGenericaFuncion.pas';
 
 {$R *.res}
 
- begin
+begin
+
   Application.Initialize;
-//  Application.MainFormOnTaskbar := True;
+  // Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
+
 end.
-
-
-

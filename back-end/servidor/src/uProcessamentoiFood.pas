@@ -5,8 +5,8 @@ interface
 uses
   System.Classes, System.SysUtils, System.Generics.Collections, System.SyncObjs,
   ADRIFood.Model.Interfaces, ADRIFood.Model.Types,
-  ADRIFood.Component.Events, ADRIFood.Component, util, DataSet.Serialize,
-  Vcl.StdCtrls, uLogthread;
+  ADRIFood.Component.Events, ADRIFood.Component,  DataSet.Serialize,
+  Vcl.StdCtrls, uGenericaFuncion;
 
 type
    TProcessamentoiFood = class(TThread)
@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  FireDAC.Comp.Client, conexao, Vcl.Dialogs, uMain;
+  FireDAC.Comp.Client, conexao, Vcl.Dialogs;
 
 { TProcessamentoiFood }
 
@@ -216,7 +216,7 @@ begin
     if DadosPedido.RecordCount = 0 then
     begin
       CodigoIntermo := conexao.GerarID('pedido', 'codigo');
-      CodigoPedidoDia := frmServidor.GerarCodigoPedidoDia;
+//      CodigoPedidoDia := frmServidor.GerarCodigoPedidoDia;
       DadosCli.Close;
 
       if dataSetOrders.FieldByName('customerDocumentNumber').AsString = '' then
@@ -846,7 +846,6 @@ var
 begin
   while not Terminated do
   begin
-  LogThread('ifood','Iniciando');
     FLock.Enter;
     try
       if FQueue.Count > 0 then
@@ -858,7 +857,6 @@ begin
         // ////showmessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
         // ////showmessage1('Cliente: ' + OrderPair.Value.CustomerName);
         Processamento(OrderPair.Key, OrderPair.Value);
-        LogThread('ifood','Processando');
       end;
     finally
       FLock.Leave;

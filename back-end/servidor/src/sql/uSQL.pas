@@ -1462,6 +1462,9 @@ begin
         ExecultaSQL
           ('insert into usuario (codigo,nome) values (-2,"PEDIDO SITE");');
       end;
+      124: begin
+        ExecultaSQL('ALTER TABLE fornecedor_item ADD COLUMN fator FLOAT NULL DEFAULT 0;');
+      end;
     99999999:
       begin
         {

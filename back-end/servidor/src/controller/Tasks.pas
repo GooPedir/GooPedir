@@ -9,7 +9,7 @@ implementation
 uses
   TaskManager, conexao, System.SysUtils, System.Classes, Vcl.Dialogs,
   FireDAC.Comp.Client, uCacheControl, Dataset.Serialize, uControllCaches, v2,
-  System.DateUtils;
+  System.DateUtils, JOSE.Types.JSON;
 
 procedure Sabores;
 var
@@ -46,6 +46,7 @@ procedure RelatorioVenda;
 var
   AnoAtual, MesAtual, Mes: Word;
   DataIni, DataFim: TDate;
+  Data: TJsonArray;
 begin
   AnoAtual := YearOf(Date);
   MesAtual := MonthOf(Date);
@@ -63,27 +64,25 @@ begin
         // Meses anteriores: até o fim do mês
         DataFim := EndOfTheMonth(DataIni);
 
-      BuscarRelatorioVenda(
-        FormatDateTime('yyyy-mm-dd', DataIni),
-        FormatDateTime('yyyy-mm-dd', DataFim)
-      );
+      Data := BuscarRelatorioVenda(FormatDateTime('yyyy-mm-dd', DataIni),
+        FormatDateTime('yyyy-mm-dd', DataFim));
+
+      Data.Free;
     end;
 
     // Depois faz o relatório dos últimos 3 meses
     DataFim := Date;
     DataIni := IncMonth(Date, -3);
 
-    BuscarRelatorioVenda(
-      FormatDateTime('yyyy-mm-dd', DataIni),
-      FormatDateTime('yyyy-mm-dd', DataFim)
-    );
+    Data := BuscarRelatorioVenda(FormatDateTime('yyyy-mm-dd', DataIni),
+      FormatDateTime('yyyy-mm-dd', DataFim));
+    Data.Free;
 
   except
     on E: Exception do
       ShowMessage(E.Message);
   end;
 end;
-
 
 procedure RegisterAllTasks;
 begin

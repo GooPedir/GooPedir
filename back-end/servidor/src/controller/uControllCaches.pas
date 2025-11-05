@@ -138,6 +138,7 @@ begin
       Dados.Free;
       DadosAux.Free;
       DadosProduto.Free;
+      DadosSabores.Free;
     except
       ArrayJson := TJsonArray.Create;
       Result := ArrayJson;
@@ -407,7 +408,7 @@ var
   PastaCache: String;
   Arquivo: TSearchRec;
 begin
-  // Obtém o caminho do executável
+  // Obtï¿½m o caminho do executï¿½vel
   CaminhoExecutavel := ExtractFilePath(ParamStr(0));
 
   // Define o caminho da pasta cache
@@ -420,7 +421,7 @@ begin
     if FindFirst(PastaCache + '\*.*', faAnyFile, Arquivo) = 0 then
       try
         repeat
-          // Verifica se o arquivo não é diretório "." ou ".."
+          // Verifica se o arquivo nï¿½o ï¿½ diretï¿½rio "." ou ".."
           if (Arquivo.Name <> '.') and (Arquivo.Name <> '..') then
           begin
             // Se for um arquivo, apaga
@@ -428,7 +429,7 @@ begin
             begin
               DeleteFile(PastaCache + '\' + Arquivo.Name);
             end
-            // Se for uma pasta, usa TDirectory para apagá-la recursivamente
+            // Se for uma pasta, usa TDirectory para apagï¿½-la recursivamente
             else
             begin
               TDirectory.Delete(PastaCache + '\' + Arquivo.Name, True);
@@ -455,14 +456,13 @@ begin
       K: Integer;
       Produto: TJSONObject;
       CodigoProduto: TJSONValue;
-    begin
-      // LogThread('BuscaCacheGeral','Inicia');
+    begin      
       try
         LimpaCacheGeral;
         Categorias := GetCategoria('all');
         GetAllCategoria('all');
 
-        // Verifica se o array de categorias é válido
+        // Verifica se o array de categorias ï¿½ vï¿½lido
         if Assigned(Categorias) then
         begin
           for I := 0 to Categorias.Count - 1 do
@@ -496,10 +496,8 @@ begin
         on E: Exception do
         begin
 
-          // LogThread('BuscaCacheGeral','Erro: '+e.Message);
         end;
       end;
-      // LogThread('BuscaCacheGeral','Finaliza');
     end).Start;
 end;
 

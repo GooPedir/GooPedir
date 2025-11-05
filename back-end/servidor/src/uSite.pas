@@ -3,7 +3,7 @@ unit uSite;
 interface
 
 uses util, conexao, FireDAC.Comp.Client, DataSet.Serialize, System.SysUtils,
-  uLogThread, uInserirUpdate, Winapi.Windows, Winapi.ShellAPI, Vcl.Forms,
+   uInserirUpdate, Winapi.Windows, Winapi.ShellAPI, Vcl.Forms,
   uControllerSite, JOSE.Types.JSON;
 
 // Local

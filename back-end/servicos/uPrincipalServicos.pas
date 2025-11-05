@@ -22,6 +22,7 @@ type
     procedure FecharExe(ExeFileName: String);
     function ATUALIZADOR: String;
     function USANFCE: String;
+    function SERVIDORB: String;
     function SITE(Nome: string): String;
     function IMPRESSAO: String;
     function SERVIDOR: String;
@@ -32,6 +33,7 @@ type
     conexao: Tconexao;
     Name: String;
     URL: String;
+    URLBKP: String;
     uReq: iRequisicao;
     ExeAtualizador: Boolean;
   public
@@ -636,6 +638,7 @@ begin
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'SiteGooPedir');
   URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
+  URLBKP := IniFile.ReadString('server', 'baseurlB', '');
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
@@ -663,13 +666,24 @@ begin
   UltimoRestartNFCe := now;
   while not Terminated do
   begin
-    // if not ExeAtualizador then
-    // begin
-    // AbrirExe(Atualizador);
-    // ExeAtualizador := true;
-    // end;
 
     inc(contador);
+    if URLBKP <> '' then
+    begin
+
+      uReq.BaseURL := URLBKP;
+      uReq.URL := '/v2/status';
+      uReq.Metodo := mGet;
+      try
+        uReq.Execute;
+      except
+         FecharExe(SERVIDORB);
+         AbrirExe(SERVIDORB);
+      end;
+
+    end;
+
+    uReq.BaseURL := URL;
     uReq.URL := '/v2/status';
     uReq.Metodo := mGet;
     try
@@ -704,22 +718,6 @@ begin
     except
       ServicoNFCe := false;
     end;
-
-    // if ServicoNFCe and VerificaExe(USANFCE) then
-    // begin
-    // if MinutesBetween(now, UltimoRestartNFCe) >= 5 then
-    // begin
-    // FecharExe(USANFCE);
-    // Sleep(2000); // Espera 2 segundos antes de abrir novamente
-    // AbrirExe(USANFCE);
-    // UltimoRestartNFCe := now;
-    // end;
-    // end
-    // else if (not VerificaExe(USANFCE)) and ServicoNFCe then
-    // begin
-    // AbrirExe(USANFCE);
-    // UltimoRestartNFCe := now;
-    // end;
 
     if ServicoNFCe then
     begin
@@ -792,6 +790,11 @@ end;
 function TAbrirServicos.SERVIDOR: String;
 begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ServidorGooPedir.exe';
+end;
+
+function TAbrirServicos.SERVIDORB: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'ServidorGooPedirB.exe';
 end;
 
 function TAbrirServicos.SITE(Nome: string): String;

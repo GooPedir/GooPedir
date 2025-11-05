@@ -29,7 +29,7 @@ uses
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
   cors,
   uControllerSite,
-  Web.HTTPApp, PedidoController, uLogThread,
+  Web.HTTPApp, PedidoController,
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
@@ -482,6 +482,9 @@ type
     StatusMensagemWhatsapp: Integer;
     StatusErroWhatsapp: String;
     Modulos: TJsonObject;
+    BackupExe: Boolean;
+
+    Test: Integer;
 
   end;
 
@@ -571,35 +574,27 @@ var
   nomeBKP: String;
   comando: String;
 begin
-  try
+  {
+    Está no core
+    try
     TDirectory.Delete(ExtractFilePath(ParamStr(0)) + 'cache\', True);
-  except
+    except
 
-  end;
-  // ⚡ Tudo que depende que o banco esteja pronto:
-  frmServidor.Configuracoes.Close;
-  conexao := Tconexao.Create('main'); // Se precisar reabrir
+    end;
+    // ⚡ Tudo que depende que o banco esteja pronto:
+    frmServidor.Configuracoes.Close;
+    conexao := Tconexao.Create('main'); // Se precisar reabrir
 
-  VersaoMysql := conexao.ValidaVersao;
+    VersaoMysql := conexao.ValidaVersao;
 
-  conexao.SQL.Add('select * from dados_whatsapp');
-  frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+    conexao.SQL.Add('select * from dados_whatsapp');
+    frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
 
-  IniFile := TIniFile.Create('./goopedir.ini');
-  IniFile.WriteString('site', 'clientId',
-    frmServidor.Configuracoes.FieldByName('client_id').AsString);
-  IniFile.WriteString('site', 'clientSecurity',
-    frmServidor.Configuracoes.FieldByName('client_security').AsString);
-  IniFile.Free;
-
-  token.Registry;
-  util.Registry;
-
-  NFCE.Registry;
-  imprimir.Registry;
-
-  LoadImpressora;
-  DescricaoIfood;
+    IniFile := TIniFile.Create('./goopedir.ini');
+    IniFile.WriteString('site', 'clientId',    frmServidor.Configuracoes.FieldByName('client_id').AsString);
+    IniFile.WriteString('site', 'clientSecurity',frmServidor.Configuracoes.FieldByName('client_security').AsString);
+    IniFile.Free;
+  }
 
   // Configurações adicionais de iFood
   IniFile := TIniFile.Create('./goopedir.ini');
@@ -632,23 +627,23 @@ begin
   IniciaIfood;
   AtualizaCacheSite;
   FazerBackupMySQL(conexao);
-  TSincronizaProdutosThread.Create;
-  // EnvioCaixa;
-  try
-    RegisterAllTasks;
-
-    // Executar uma task em paralelo
-    TTaskManager.Run('sabores');
-    TTaskManager.Run('clientes');
-    TTaskManager.Run('vendas');
-
-    // Evita que o programa termine antes das tasks concluírem
-    Readln;
-  except
-
-  end;
-
-  // Se tiver outros módulos que dependem do banco, colocar aqui também
+//  TSincronizaProdutosThread.Create;
+//  // EnvioCaixa;
+//  try
+//    RegisterAllTasks;
+//
+//    // Executar uma task em paralelo
+//    TTaskManager.Run('sabores');
+//    TTaskManager.Run('clientes');
+//    // TTaskManager.Run('vendas');
+//
+//    // Evita que o programa termine antes das tasks concluírem
+//    Readln;
+//  except
+//
+//  end;
+//
+//  // Se tiver outros módulos que dependem do banco, colocar aqui também
 end;
 
 procedure TfrmServidor.AtivaInativaProdutos;
@@ -1427,7 +1422,7 @@ begin
   except
     on E: Exception do
     begin
-//      Modulos := TJsonObject.Create;
+      // Modulos := TJsonObject.Create;
 
     end;
   end;
@@ -2215,60 +2210,6 @@ begin
 
 end;
 
-// function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
-// var
-// CmdLine, MySQLDumpPath, PastaBackup: string;
-// StartupInfo: TStartupInfo;
-// ProcessInfo: TProcessInformation;
-// begin
-// Result := false;
-//
-// PastaBackup := ExtractFilePath(ParamStr(0)) + 'backup\bd\';
-// ForceDirectories(PastaBackup);
-// NomeArquivoBackup := PastaBackup + conexao.NomeBanco +
-// FormatDateTime('ddmmyyyy', now) + '.sql';
-//
-// if FileExists(NomeArquivoBackup) then
-// begin
-// tBackupFTP.Enabled := true;
-// exit;
-// end;
-//
-// MySQLDumpPath := GetMySQLDumpPath;
-// if MySQLDumpPath = '' then
-// begin
-// ShowMessage('mysqldump.exe não encontrado.');
-// exit;
-// end;
-//
-// // Importante: usar aspas duplas corretas
-// CmdLine := Format('cmd.exe /C ""%s" -u%s -p%s --databases %s > "%s""',
-// [MySQLDumpPath, conexao.Usuario, conexao.senha, conexao.NomeBanco,
-// NomeArquivoBackup]);
-//
-// ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
-// StartupInfo.cb := SizeOf(StartupInfo);
-// ZeroMemory(@ProcessInfo, SizeOf(ProcessInfo));
-//
-// if CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW, nil,
-// nil, StartupInfo, ProcessInfo) then
-// begin
-// WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-// CloseHandle(ProcessInfo.hProcess);
-// CloseHandle(ProcessInfo.hThread);
-//
-// if FileExists(NomeArquivoBackup) and (FileSizeByName(NomeArquivoBackup) > 0)
-// then
-// begin
-// Result := true;
-// tBackupFTP.Enabled := true;
-// end;
-// // else
-// // ShowMessage('Arquivo gerado, mas está vazio ou inválido: ' + BackupPath);
-// end;
-//
-// end;
-
 function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
 var
   MySQLDumpPath, PastaBackup, CmdLine: string;
@@ -2638,7 +2579,11 @@ var
 
   Qry: TFDQuery;
   memo: TMemo;
+
+  Nome: String;
 begin
+  Test := Random(500);
+  Nome := ExtractFileName(Application.ExeName);
   memo := TMemo.Create(nil);
   memo.Parent := self;
 
@@ -2648,24 +2593,6 @@ begin
   except
 
   end;
-  memo.Free;
-  Queue := TProdutoQueue.Create;
-  BalancaManager := TBalancaManager.Create;
-  // Parte visual / memoria
-  memErrosNFCE.Open;
-  mAtualizacao.Open;
-  Caption := FormatDateTime('hh:nn', now);
-  mHoraAbertura.Caption := Caption;
-  v2.Registry;
-
-  // Middlewares
-  THorse.Use(LogMiddleware);
-  THorse.Use(ConfigurarCORS);
-  THorse.Use(ExceptionMiddleware);
-  THorse.Use(Jhonson);
-  THorse.Use(OctetStream);
-  THorse.Use(MiddlewareCORS);
-
   PIX.Open;
   CodigoPedido := 0;
   StatusMensagemWhatsapp := 0;
@@ -2678,41 +2605,70 @@ begin
   IniFile.WriteString('server', 'restart', '03:00');
   NomeExeSite := IniFile.ReadString('server', 'name', '');
   IniFile.Free;
+  memo.Free;
+  Queue := TProdutoQueue.Create;
+  BalancaManager := TBalancaManager.Create;
+  memErrosNFCE.Open;
+  mAtualizacao.Open;
+  Caption := FormatDateTime('hh:nn', now);
+  mHoraAbertura.Caption := Caption;
 
-  conexao := Tconexao.Create('main');
-  conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
-  conexao.ExecuteSQL;
+  // Rotas
+  v2.Registry;
+  token.Registry;
+  util.Registry;
+  NFCE.Registry;
+  imprimir.Registry;
+  LoadImpressora;
+  DescricaoIfood;
 
-  VersaoMysql := conexao.ValidaVersao;
-  GerarLog := True;
-  try
-    conexao.SQL.Add('select * from dados_whatsapp');
-    frmServidor.Configuracoes.Close;
-    frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+  // Middlewares
+  THorse.Use(LogMiddleware);
+  THorse.Use(ConfigurarCORS);
+  THorse.Use(ExceptionMiddleware);
+  THorse.Use(Jhonson);
+  THorse.Use(OctetStream);
+  THorse.Use(MiddlewareCORS);
 
-    if frmServidor.Configuracoes.RecordCount = 0 then
-    begin
-      // Banco não existe, criar
-      VerificarOuCriarBanco;
 
-      // Depois que criar o banco, precisa recarregar tudo
-      AposConectarBanco;
-    end
-    else
-    begin
-      // Se banco já existe, também configura
-      AposConectarBanco;
-    end;
 
-  except
-    on E: Exception do
-    begin
 
-      ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
-      Application.Terminate;
-      exit;
-    end;
-  end;
+
+  // conexao := Tconexao.Create('main');
+  // conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
+  // conexao.ExecuteSQL;
+  //
+  // VersaoMysql := conexao.ValidaVersao;
+  // GerarLog := True;
+  // Migrado Para o Core
+  // try
+  // conexao.SQL.Add('select * from dados_whatsapp');
+  // frmServidor.Configuracoes.Close;
+  // frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+  //
+  // if frmServidor.Configuracoes.RecordCount = 0 then
+  // begin
+  // // Banco não existe, criar
+  // VerificarOuCriarBanco;
+  //
+  // // Depois que criar o banco, precisa recarregar tudo
+  // AposConectarBanco;
+  // end
+  // else
+  // begin
+  // // Se banco já existe, também configura
+  // AposConectarBanco;
+  // end;
+  //
+  // except
+  // on E: Exception do
+  // begin
+  //
+  // ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
+  // Application.Terminate;
+  // exit;
+  // end;
+  // end;
 
   // Agora pode iniciar Horse
   try
@@ -3545,23 +3501,23 @@ end;
 procedure TfrmServidor.IFoodPollingEnd(EndPooling: TDateTime;
   OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
 var
-  test: String;
+  Test: String;
 begin
-  test := test;
+  Test := Test;
 end;
 
 procedure TfrmServidor.IFoodPollingError(Error: Exception);
 var
-  test: String;
+  Test: String;
 begin
-  test := test;
+  Test := Test;
 end;
 
 procedure TfrmServidor.IFoodPollingStart(StartPolling: TDateTime);
 var
-  test: String;
+  Test: String;
 begin
-  test := test;
+  Test := Test;
 end;
 
 function TfrmServidor.IFoodRefreshTokenGet: string;
@@ -4102,45 +4058,97 @@ begin
 
 end;
 
+// procedure TfrmServidor.LogMiddleware(Req: THorseRequest; Res: THorseResponse;
+// Next: TProc);
+// var
+// LogLine, BodyContent: string;
+// LogFile: TStreamWriter;
+// begin
+// exit;
+// if SameText(Metodo(Req), 'POST') then
+// begin
+// BodyContent := Req.BODY;
+// // LogLine := LogLine + Format(' | Body: %s', [BodyContent]);
+// end;
+// EnviaGlitchtip
+// ('https://9327eaf954a340cb94c64a8bf4afb696@nginx-glitchtip.l1p88w.easypanel.host/5',
+// Req.RawWebRequest.RawPathInfo, Metodo(Req), BodyContent);
+// // Req.RawWebRequest.RawPathInfo
+// // try
+// // // Monta a linha de log
+// //
+// // LogLine := Format('%s | %s | %s', [DateTimeToStr(now), Metodo(Req),
+// // Req.RawWebRequest.PathInfo]);
+// //
+// // // Se for um método POST, adiciona o corpo da requisição
+//
+// //
+// // // Abre o arquivo de log e escreve a linha
+// // LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
+// // try
+// // LogFile.WriteLine(LogLine);
+// // finally
+// // LogFile.Free;
+// // end;
+// // except
+// // on E: Exception do
+// //
+// // end;
+//
+// // Chama o próximo middleware ou a rota
+// Next;
+// end;
+
 procedure TfrmServidor.LogMiddleware(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
-  LogLine, BodyContent: string;
+  LogDir, LogFilePath, LogLine, BodyContent, MetodoHTTP: string;
   LogFile: TStreamWriter;
 begin
+  // continua o fluxo normal da requisição
+  Next;
   exit;
-  if SameText(Metodo(Req), 'POST') then
-  begin
-    BodyContent := Req.BODY;
-    // LogLine := LogLine + Format(' | Body: %s', [BodyContent]);
-  end;
+
   EnviaGlitchtip
     ('https://9327eaf954a340cb94c64a8bf4afb696@nginx-glitchtip.l1p88w.easypanel.host/5',
     Req.RawWebRequest.RawPathInfo, Metodo(Req), BodyContent);
-  // Req.RawWebRequest.RawPathInfo
-  // try
-  // // Monta a linha de log
-  //
-  // LogLine := Format('%s | %s | %s', [DateTimeToStr(now), Metodo(Req),
-  // Req.RawWebRequest.PathInfo]);
-  //
-  // // Se for um método POST, adiciona o corpo da requisição
 
-  //
-  // // Abre o arquivo de log e escreve a linha
-  // LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
-  // try
-  // LogFile.WriteLine(LogLine);
-  // finally
-  // LogFile.Free;
-  // end;
-  // except
-  // on E: Exception do
-  //
-  // end;
+  try
+    MetodoHTTP := Req.RawWebRequest.Method;
 
-  // Chama o próximo middleware ou a rota
-  Next;
+    // Define pasta base dos logs
+    LogDir := ExtractFilePath(ParamStr(0)) + 'logs\rotas\';
+    if not DirectoryExists(LogDir) then
+      ForceDirectories(LogDir);
+
+    // Cria um arquivo novo por dia: ex: rotas_2025-11-03.log
+    LogFilePath := LogDir + 'rotas_' + FormatDateTime('yyyy-mm-dd', now) + '-' +
+      Test.ToString + '.log';
+
+    // Captura o body apenas se for POST
+    if SameText(MetodoHTTP, 'POST') then
+      BodyContent := Req.BODY
+    else
+      BodyContent := '';
+
+    // Monta a linha de log
+    LogLine := Format('[%s] %s %s | IP: %s | Body: %s',
+      [FormatDateTime('hh:nn:ss.zzz', now), MetodoHTTP,
+      Req.RawWebRequest.RawPathInfo, Req.RawWebRequest.RemoteAddr,
+      BodyContent]);
+
+    // Abre o arquivo e escreve
+    LogFile := TStreamWriter.Create(LogFilePath, True, TEncoding.UTF8);
+    try
+      LogFile.WriteLine(LogLine);
+    finally
+      LogFile.Free;
+    end;
+  except
+    on E: Exception do
+      // opcional: tratamento de falha no log
+      Writeln('Erro ao registrar log: ' + E.Message);
+  end;
 end;
 
 function TfrmServidor.Metodo(Req: THorseRequest): String;
@@ -4423,14 +4431,13 @@ begin
   if CreateProcess(PChar(Application.ExeName), // Caminho do executável
     nil, // Parâmetros de linha de comando
     nil, // Atributos de segurança do processo
-    nil, // Atributos de segurança da thread
-    false, // Herança de handles
+    nil, false, // Herança de handles
     0, // Flags de criação
     nil, // Ambiente
     nil, // Diretório atual
     StartupInfo, ProcessInfo) then
   begin
-    // Fecha os handles do processo e da thread
+
     CloseHandle(ProcessInfo.hProcess);
     CloseHandle(ProcessInfo.hThread);
   end
@@ -4683,7 +4690,8 @@ begin
   begin
     try
 
-      IniciaIfood;
+      if not BackupExe then
+        IniciaIfood;
 
       // IFood.MerchantID(IDiFood);
       // // BuscaDadosiFood;
@@ -4808,7 +4816,7 @@ var
   LJsonObject: TJsonObject;
   LCaixaId: Integer;
   LLink: string;
-  test: String;
+  Test: String;
 begin
 
   try
@@ -4829,7 +4837,7 @@ begin
     // Pedidos Cancelados
 
     // Produtos Excluidos
-    test := JSON.ToString;
+    Test := JSON.ToString;
     // ShowMessage(JSON.ToString);
     Req.BODY(JSON);
     Req.Execute;
@@ -4931,89 +4939,6 @@ begin
   StatusSincProdutos := false;
 
 end;
-
-// function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
-// NomeUsuario: string): Boolean;
-// begin
-// TThread.CreateAnonymousThread(
-// procedure
-// var
-// FTP: TIdFTP;
-// SSL: TIdSSLIOHandlerSocketOpenSSL;
-// AnoMes, PastaRemota, NomeArquivoOriginal, NomeArquivoLimpo,
-// NomeSemExtensao, Extensao: string;
-// begin
-// FTP := TIdFTP.Create(nil);
-// SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-// try
-// try
-// FTP.Host := 'ftp.goopedir.com';
-// FTP.Username := 'u567036950.banco';
-// FTP.Password := 'banco#Goopedir@2025';
-// FTP.Passive := true;
-// FTP.ConnectTimeout := 15000;
-// FTP.Connect;
-//
-// AnoMes := FormatDateTime('yyyy_mm', now);
-// PastaRemota := NomeUsuario + '/' + AnoMes;
-//
-// // Cria diretórios
-// try
-// FTP.MakeDir(NomeUsuario);
-// except
-//
-// end;
-// try
-// FTP.MakeDir(PastaRemota);
-// except
-//
-// end;
-// FTP.ChangeDir(PastaRemota);
-//
-// NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
-//
-// // Remove data do nome
-// NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-// Extensao := ExtractFileExt(NomeArquivoOriginal);
-// while (length(NomeSemExtensao) > 0) and
-// (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
-// Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-// NomeArquivoLimpo := NomeSemExtensao + Extensao;
-//
-// // Apaga arquivo anterior, se existir
-// try
-// if FTP.Size(NomeArquivoLimpo) > 0 then
-// FTP.Delete(NomeArquivoLimpo);
-// except
-// // Ignora erro se não existir
-// end;
-//
-// FTP.Put(CaminhoArquivo, NomeArquivoLimpo, false);
-//
-// // Se quiser dar feedback para o usuário na thread principal:
-// TThread.Synchronize(nil,
-// procedure
-// begin
-// // ShowMessage('Backup enviado com sucesso!');
-// end);
-//
-// except
-// on E: Exception do
-// TThread.Synchronize(nil,
-// procedure
-// begin
-// ShowMessage('Erro ao sincronizar backup: ' + E.Message);
-//
-// end);
-// end;
-// finally
-// if FTP.Connected then
-// FTP.Disconnect;
-// FTP.Free;
-// SSL.Free;
-// end;
-// end).Start;
-// end;
 
 function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
   NomeUsuario: string): Boolean;
@@ -5222,7 +5147,7 @@ var
   FormatSettings: TFormatSettings;
   DadosThread1: TDadosWhatsappAPI;
   conexao: Tconexao;
-  test: String;
+  Test: String;
   ArquivoExcluir: String;
   StatusWhatsapp: Boolean;
 begin
@@ -5282,7 +5207,7 @@ begin
         exit;
       end;
       try
-        test := '9';
+        Test := '9';
         self.DataBloqueio := APIGoopedir.GetBloqueio;
       except
         self.DataBloqueio := IncDay(Data, 1);
@@ -5453,18 +5378,11 @@ begin
           SQLScript := iReq.Retorno;
         end;
 
-        // Cria o banco de dados
         conexao.DisconectBanco;
         conexao.CriaQRY.ExecSQL('CREATE DATABASE `' + DatabaseName +
           '` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
         conexao.ConectaBanco(DatabaseName);
         conexao.Free;
-        // Conecta no novo banco
-        // conexao.FDConnection.Params.Database := DatabaseName;
-        // conexao.FDConnection.Connected := False;
-        // conexao.FDConnection.Connected := True;
-
-        // Executa o SQL baixado
         ExecutarSQLScript(SQLScript);
 
         ShowMessage('Banco de dados criado com sucesso.');

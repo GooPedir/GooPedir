@@ -29,9 +29,6 @@ type
     procedure GerarLog(const Mensagem: string;
       const NomeArquivo: string = 'log.txt');
 
-  CONST
-    BASEURL = 'http://localhost:3000';
-
   var
     userId: Integer;
 
@@ -200,7 +197,8 @@ begin
     end;
 
     GerarLog('0012', 'erro_produto.log');
-    GerarLog(SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId), 'erro_produto.log');
+    GerarLog(SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId),
+      'erro_produto.log');
     GerarLog('0013', 'erro_produto.log');
 
   except
@@ -228,12 +226,10 @@ var
   IniFile: TIniFile;
   BASEURL: String;
 begin
-
   IniFile := TIniFile.Create('./goopedir.ini');
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
   iReq.BASEURL := BASEURL;
-
   if ParamCount > 0 then
   begin
     try

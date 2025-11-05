@@ -315,7 +315,7 @@ begin
   end
   else
   begin
-    Tags.AddPair('environment', 'produção');
+    Tags.AddPair('environment', 'produï¿½ï¿½o');
   end;
 
   Tags.AddPair('user', GetComputerName);
@@ -436,7 +436,7 @@ var
 begin
   // Gera um novo GUID
   if CreateGUID(GUID) = 0 then
-    // Converte o GUID para string no formato padrão
+    // Converte o GUID para string no formato padrï¿½o
     Result := GUIDToString(GUID)
   else
     Result := ''; // Retorna uma string vazia em caso de erro
@@ -485,7 +485,7 @@ begin
     // Verifica se a tabela existe em `geradores`
     if QRY.RowsAffected = 0 then
     begin
-      // Pega o último código da tabela real
+      // Pega o ï¿½ltimo cï¿½digo da tabela real
       QRY.SQL.Text := 'SELECT MAX(' + Campo + ') AS max_id FROM ' + Tabela;
       QRY.Open;
       MaxID := QRY.FieldByName('max_id').AsInteger;
@@ -622,11 +622,11 @@ var
   LogPath, LogFile, MsgLog: string;
   LogStream: TFileStream;
 begin
-  // Ignora erros de chave duplicada, como já fazia
+  // Ignora erros de chave duplicada, como jï¿½ fazia
   if pos('Duplicate entry', Erro) > 0 then
     exit;
 
-  // Caminho da pasta de log (na mesma pasta do executável)
+  // Caminho da pasta de log (na mesma pasta do executï¿½vel)
   LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
   if not DirectoryExists(LogPath) then
     ForceDirectories(LogPath);
@@ -653,10 +653,10 @@ begin
       LogStream.Free;
     end;
   except
-    // Se nem salvar log conseguimos, só desiste
+    // Se nem salvar log conseguimos, sï¿½ desiste
   end;
 
-  // Ainda envia pro Glitchtip, se você quiser manter
+  // Ainda envia pro Glitchtip, se vocï¿½ quiser manter
   EnviaGlitchtip
     ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
     DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
@@ -788,7 +788,7 @@ begin
           ', 1) as ID, 0 as zero FROM RDB$DATABASE'));
         Codigo := DadosQry.FieldByName(DadosQry.Fields[0].FieldName).AsInteger;
       except
-        // Não foi dessa vez
+        // Nï¿½o foi dessa vez
       end;
 
       if Codigo = 0 then
@@ -874,12 +874,12 @@ begin
   Result := Erro;
   if pos('TOKEN UNKNOWN', Erro) > 0 then
   begin
-    Result := 'Tabela Não Localizada';
+    Result := 'Tabela Nï¿½o Localizada';
   end;
 
   if pos('TABLE SQL ALREADY EXISTS', Erro) > 0 then
   begin
-    Result := 'Tabela já Existente';
+    Result := 'Tabela jï¿½ Existente';
   end;
 end;
 
@@ -895,7 +895,7 @@ begin
     if (Now - FLastActivityTime) * 24 * 60 > 1 then
       FreeAndNil(FTimer);
   finally
-    // nunca chame Self.Free dentro do próprio objeto temporizado
+    // nunca chame Self.Free dentro do prï¿½prio objeto temporizado
   end;
 end;
 
@@ -1099,7 +1099,7 @@ end;
 
 procedure TConexao.UpdateLastActivityTime;
 begin
-  FLastActivityTime := Now; // Atualiza a última hora de atividade
+  FLastActivityTime := Now; // Atualiza a ï¿½ltima hora de atividade
 end;
 
 function TConexao.Usuario: String;
@@ -1124,8 +1124,8 @@ begin
   end
   else
   begin
-    // Result := 'A sua versão do mysql (' + VersaoMYSQL +
-    // ') está desatualizada, para o funcionamento do sistema deve-se instalar a versão (8.0.27)';
+    // Result := 'A sua versï¿½o do mysql (' + VersaoMYSQL +
+    // ') estï¿½ desatualizada, para o funcionamento do sistema deve-se instalar a versï¿½o (8.0.27)';
     Result := '';
   end;
 
@@ -1173,8 +1173,8 @@ begin
   FComputerName := ComputerName;
   FErro := Erro;
   FBanco := Banco;
-  FreeOnTerminate := true; // Libera a memória automaticamente ao término
-  Start; // Inicia a execução da Thread1
+  FreeOnTerminate := true; // Libera a memï¿½ria automaticamente ao tï¿½rmino
+  Start; 
 end;
 
 procedure TLogThread1.Execute;
@@ -1190,7 +1190,7 @@ begin
       JSON.AddPair('error_message', FErro);
       JSON.AddPair('banco', FBanco);
 
-      // Cria e configura a requisição
+      // Cria e configura a requisiï¿½ï¿½o
       Requisicao := iRequisicao.Create(nil);
       try
         Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';

@@ -1,14 +1,14 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{4C0816DF-D250-4AA3-9584-5F1BA71B3616}</ProjectGuid>
+        <ProjectGuid>{954D84B5-CFEA-4BEA-8B7F-5B060DC90F4E}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Realease</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>ServidorGooPedir.dpr</MainSource>
+        <MainSource>coreGoopedir.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -34,7 +34,7 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Realease' or '$(Cfg_2)'!=''">
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
@@ -57,25 +57,19 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>ServidorGooPedir</SanitizedProjectName>
-        <VerInfo_Locale>1046</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <DCC_UnitSearchPath>C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\xml;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_Define>EUREKALOG_VER7;EUREKALOG;$(DCC_Define)</DCC_Define>
-        <DCC_MapFile>3</DCC_MapFile>
-        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <SanitizedProjectName>coreGoopedir</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;FmxTeeUI;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;ibmonitor;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;Tee;soapmidas;vclactnband;TeeUI;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;TeeDB;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;vcldb;ibxbindings;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;iForthComponent;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;ibxpress;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;vclib;fmxobj;bindcompvclsmp;DataSnapNativeClient;FMXTee;DatasnapConnectorsFreePascal;soaprtl;DCEF_DX10;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vclwinx;DataSnapServer;ACBr_BPeDabpeESCPOS;ACBr_TCP;ACBr_ONE;fmx;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;ACBr_OpenSSL;appanalytics;IndyProtocols;vclx;dbxcds;vcledge;FmxTeeUI;ACBr_BoletoRL;DBXFirebirdDriver;ACBr_NFCeECFVirtual;FireDACSqliteDriver;DbxClientDriver;TInjectCollection;soapmidas;ACBr_NF3eDANF3eESCPOS;TeeUI;ACBr_PagFor;dbexpress;dclRBDBE2128;ACBr_Reinf;inet;ACBr_BoletoFPDF;vcltouch;FireDACDBXDriver;fmxdae;CustomIPTransport;FireDACMSSQLDriver;ACBr_NFSeX;rbDAD2128;ACBr_NFe;ACBr_CTeDacteRL;IndySystem;ACBr_Diversos;ACBr_GNREGuiaRL;ACBr_NFSeXDanfseRL;ACBr_SAT;ibxbindings;ACBr_CIOT;ACBr_TEFD;rbRAP2128;vclFireDAC;ACBr_SPED;ACBr_CTe;ACBr_SATWS;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;ACBr_SEF2;ACBr_LCDPR;rbDIDE2128;bindcompdbx;rtl;FireDACMySQLDriver;dclRBIBE2128;frce;ACBr_BPe;rbUSERDesign2128;DBXSqliteDriver;ACBr_Sintegra;rbRest2128;DBXSybaseASEDriver;iForthComponent;rbTCUI2128;ACBr_Serial;ACBr_Comum;ACBr_MDFe;ACBr_NFeDanfeESCPOS;vclimg;DataSnapFireDAC;inetdbxpress;FireDAC;rbUSER2128;xmlrtl;ibxpress;dsnap;pkgADRIFood;FireDACDb2Driver;DBXOracleDriver;DBXInformixDriver;vclib;ACBr_SATECFVirtual;fmxobj;bindcompvclsmp;DataSnapNativeClient;CEF4Delphi;DatasnapConnectorsFreePascal;rbIDE2128;ACBr_NF3e;ACBr_PAF;ACBr_OpenDelivery;rbTC2128;ACBr_SPEDImportar;dclRBADO2128;emshosting;rbBDE2128;FireDACCommonDriver;ACBr_ADRCST;ACBr_MTER;IndyIPClient;rbCIDE2128;rbRIDE2128;bindcompvclwinx;ACBr_Convenio115;dclRBE2128;emsedge;bindcompfmx;inetdb;ibmonitor;rbFireDAC2128;FireDACASADriver;ACBr_LFD;Tee;vclactnband;fmxFireDAC;FireDACInfxDriver;DBXMySQLDriver;VclSmp;ACBr_Ponto;DataSnapCommon;fmxase;DBXOdbcDriver;dbrtl;FireDACOracleDriver;ACBr_NFSeDanfseRL;ACBr_NFSe;TeeDB;ACBre_Social;FireDACMSAccDriver;rbRCL2128;DataSnapIndy10ServerTransport;DataSnapConnectors;ACBr_ANe;ACBr_SATExtratoRL;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;ACBR_DeSTDA;ACBr_GNRE;ACBr_EDI;FireDACTDataDriver;vcldb;ACBr_Integrador;ACBr_PIXCD;rbIBE2128;bindcomp;rbDBE2128;IndyCore;RESTBackendComponents;rbDB2128;rbCloudSC2128;FireDACADSDriver;RESTComponents;IndyIPServer;vcl;dsnapxml;adortl;dsnapcon;DataSnapClient;DataSnapProviderClient;ACBr_MDFeDamdfeRL;DBXDb2Driver;rbADO2128;ACBr_Boleto;emsclientfiredac;FireDACPgDriver;FireDACDSDriver;ACBr_BlocoX;ACBr_SATExtratoESCPOS;tethering;bindcompvcl;ACBr_GTIN;rbRTL2128;CloudService;DBXSybaseASADriver;ACBr_OFX;ACBr_PAFNFCe;FMXTee;ACBr_DebitoAutomatico;ACBr_NFeDanfeRL;dclRBFireDAC2128;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;FmxTeeUI;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;ibmonitor;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;Tee;soapmidas;vclactnband;TeeUI;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;TeeDB;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;vcldb;ibxbindings;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;ibxpress;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;vclib;fmxobj;bindcompvclsmp;DataSnapNativeClient;FMXTee;DatasnapConnectorsFreePascal;soaprtl;DCEF_DX10;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;appanalytics;IndyProtocols;vclx;dbxcds;vcledge;FmxTeeUI;DBXFirebirdDriver;FireDACSqliteDriver;DbxClientDriver;soapmidas;TeeUI;dbexpress;inet;vcltouch;FireDACDBXDriver;fmxdae;CustomIPTransport;FireDACMSSQLDriver;IndySystem;ibxbindings;vclFireDAC;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;bindcompdbx;rtl;FireDACMySQLDriver;DBXSqliteDriver;DBXSybaseASEDriver;vclimg;DataSnapFireDAC;inetdbxpress;FireDAC;xmlrtl;ibxpress;dsnap;FireDACDb2Driver;DBXOracleDriver;DBXInformixDriver;vclib;fmxobj;bindcompvclsmp;DataSnapNativeClient;CEF4Delphi;DatasnapConnectorsFreePascal;emshosting;FireDACCommonDriver;IndyIPClient;bindcompvclwinx;emsedge;bindcompfmx;inetdb;ibmonitor;FireDACASADriver;Tee;vclactnband;fmxFireDAC;FireDACInfxDriver;DBXMySQLDriver;VclSmp;DataSnapCommon;fmxase;DBXOdbcDriver;dbrtl;FireDACOracleDriver;TeeDB;FireDACMSAccDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;FireDACTDataDriver;vcldb;bindcomp;IndyCore;RESTBackendComponents;FireDACADSDriver;RESTComponents;IndyIPServer;vcl;dsnapxml;adortl;dsnapcon;DataSnapClient;DataSnapProviderClient;DBXDb2Driver;emsclientfiredac;FireDACPgDriver;FireDACDSDriver;tethering;bindcompvcl;CloudService;DBXSybaseASADriver;FMXTee;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -90,150 +84,58 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <Icon_MainIcon>servidor_Icon1.ico</Icon_MainIcon>
-        <DCC_ExeOutput>C:\goopedir</DCC_ExeOutput>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <DCC_Define>REALEASE;$(DCC_Define)</DCC_Define>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <DCC_ExeOutput>C:\goopedir</DCC_ExeOutput>
-        <Icon_MainIcon>ServidorGooPedir_Icon.ico</Icon_MainIcon>
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="src\uMain.pas">
-            <Form>frmServidor</Form>
+        <DCCReference Include="ufrmCore.pas">
+            <Form>frmCore</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="src\token\token.pas"/>
-        <DCCReference Include="src\util\util.pas"/>
-        <DCCReference Include="src\modulo\uDM.pas">
+        <DCCReference Include="..\modulo\conexao.pas"/>
+        <DCCReference Include="..\modulo\uDM.pas">
             <Form>dm</Form>
+            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\token\token.autorizacao.pas"/>
-        <DCCReference Include="src\util\util.backup.pas"/>
-        <DCCReference Include="src\other\Data.FireDACJSONReflect.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Config.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Consts.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Export.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Import.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Language.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.UpdatedStatus.pas"/>
-        <DCCReference Include="src\other\DataSet.Serialize.Utils.pas"/>
-        <DCCReference Include="src\other\Horse.BasicAuthentication.pas"/>
-        <DCCReference Include="src\other\Horse.Commons.pas"/>
-        <DCCReference Include="src\other\Horse.Constants.pas"/>
-        <DCCReference Include="src\other\Horse.Core.Group.Contract.pas"/>
-        <DCCReference Include="src\other\Horse.Core.Group.pas"/>
-        <DCCReference Include="src\other\Horse.Core.pas"/>
-        <DCCReference Include="src\other\Horse.Core.Route.Contract.pas"/>
-        <DCCReference Include="src\other\Horse.Core.Route.pas"/>
-        <DCCReference Include="src\other\Horse.Core.RouterTree.pas"/>
-        <DCCReference Include="src\other\Horse.Etag.pas"/>
-        <DCCReference Include="src\other\Horse.Exception.pas"/>
-        <DCCReference Include="src\other\Horse.HTTP.pas"/>
-        <DCCReference Include="src\other\Horse.Jhonson.pas"/>
-        <DCCReference Include="src\other\Horse.JWT.pas"/>
-        <DCCReference Include="src\other\Horse.Paginate.pas"/>
-        <DCCReference Include="src\other\Horse.pas"/>
-        <DCCReference Include="src\other\Horse.Proc.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.Abstract.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.Apache.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.CGI.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.Console.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.Daemon.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.FPC.Apache.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.FPC.CGI.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.FPC.Daemon.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.FPC.FastCGI.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.FPC.HTTPApplication.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.ISAPI.pas"/>
-        <DCCReference Include="src\other\Horse.Provider.VCL.pas"/>
-        <DCCReference Include="src\other\Horse.WebModule.pas">
-            <Form>HorseWebModule</Form>
-            <DesignClass>TWebModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\other\JOSE.Builder.pas"/>
-        <DCCReference Include="src\other\JOSE.Consumer.pas"/>
-        <DCCReference Include="src\other\JOSE.Consumer.Validators.pas"/>
-        <DCCReference Include="src\other\JOSE.Context.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.Base.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.Builder.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWA.Compression.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWA.Encryption.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWA.Factory.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWA.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWA.Signing.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWE.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWK.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWS.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.JWT.pas"/>
-        <DCCReference Include="src\other\JOSE.Core.Parts.pas"/>
-        <DCCReference Include="src\other\JOSE.Encoding.Base64.pas"/>
-        <DCCReference Include="src\other\JOSE.Hashing.HMAC.pas"/>
-        <DCCReference Include="src\other\JOSE.OpenSSL.Headers.pas"/>
-        <DCCReference Include="src\other\JOSE.Signing.Base.pas"/>
-        <DCCReference Include="src\other\JOSE.Signing.ECDSA.pas"/>
-        <DCCReference Include="src\other\JOSE.Signing.RSA.pas"/>
-        <DCCReference Include="src\other\JOSE.Types.Arrays.pas"/>
-        <DCCReference Include="src\other\JOSE.Types.Bytes.pas"/>
-        <DCCReference Include="src\other\JOSE.Types.JSON.pas"/>
-        <DCCReference Include="src\other\JOSE.Types.Utils.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Request.Client.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Request.Contract.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Response.Client.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Response.Contract.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Response.Indy.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Response.NetHTTP.pas"/>
-        <DCCReference Include="src\other\RESTRequest4D.Utils.pas"/>
-        <DCCReference Include="src\other\ThirdParty.Posix.Syslog.pas"/>
-        <DCCReference Include="src\other\Web.WebConst.pas"/>
-        <DCCReference Include="src\other\horse-octet-stream-master\src\Horse.OctetStream.pas"/>
-        <DCCReference Include="src\sql\uSQL.pas"/>
-        <DCCReference Include="src\modulos\v2\v2.pas"/>
-        <DCCReference Include="src\uSite.pas"/>
-        <DCCReference Include="src\modulos\nfce\nfce.pas"/>
-        <DCCReference Include="src\uImportacaoProduto.pas"/>
-        <DCCReference Include="src\modulos\impressao\imprimir.pas"/>
-        <DCCReference Include="src\uProcessamentoiFood.pas"/>
-        <DCCReference Include="src\modulos\Controller\PedidoSite.pas"/>
-        <DCCReference Include="src\importacao\uToPedindo.pas"/>
-        <DCCReference Include="src\controller\GooPedirAPIController.pas"/>
-        <DCCReference Include="src\other\xml\Horse.XMLDoc.pas"/>
-        <DCCReference Include="src\controller\uCacheControl.pas"/>
-        <DCCReference Include="src\controller\uControllCaches.pas"/>
-        <DCCReference Include="src\other\Horse.ExceptionHandler.pas"/>
-        <DCCReference Include="src\other\horse-server-static-master\Horse.ServerStatic.pas"/>
-        <DCCReference Include="src\modulo\cors.pas"/>
-        <DCCReference Include="src\controller\uDadosWhatsapp.pas"/>
-        <DCCReference Include="src\modulos\Controller\PedidoController.pas"/>
-        <DCCReference Include="src\modulo\uMicroServices.pas"/>
-        <DCCReference Include="src\modulo\conexao.pas"/>
-        <DCCReference Include="src\modulos\Controller\uInserirUpdate.pas"/>
-        <DCCReference Include="src\controller\uControlerProduto.pas"/>
-        <DCCReference Include="src\controller\uControllerSite.pas"/>
-        <DCCReference Include="src\modulos\uNewConsultas.pas"/>
-        <DCCReference Include="src\controller\uAtualizacaoSite.pas"/>
-        <DCCReference Include="uGlobais.pas"/>
-        <DCCReference Include="src\procedure\uProcedure.pas"/>
-        <DCCReference Include="src\modulos\Controller\ProdutoQueue.pas"/>
-        <DCCReference Include="src\controller\Tasks.pas"/>
-        <DCCReference Include="src\controller\TaskManager.pas"/>
-        <DCCReference Include="src\controller\uRelatorios.pas"/>
-        <DCCReference Include="src\other\horse-upload-master\src\Horse.Upload.pas"/>
-        <DCCReference Include="src\controller\uControlerProdutoNotaFiscal.pas">
-            <Form>$R *.res</Form>
-        </DCCReference>
-        <DCCReference Include="src\util\uGenericaFuncion.pas"/>
-        <None Include="FastMM4Options.inc"/>
+        <DCCReference Include="..\..\uGlobais.pas"/>
+        <DCCReference Include="..\other\JOSE.Builder.pas"/>
+        <DCCReference Include="..\other\JOSE.Consumer.pas"/>
+        <DCCReference Include="..\other\JOSE.Consumer.Validators.pas"/>
+        <DCCReference Include="..\other\JOSE.Context.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.Base.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.Builder.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWA.Compression.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWA.Encryption.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWA.Factory.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWA.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWA.Signing.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWE.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWK.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWS.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.JWT.pas"/>
+        <DCCReference Include="..\other\JOSE.Core.Parts.pas"/>
+        <DCCReference Include="..\other\JOSE.Encoding.Base64.pas"/>
+        <DCCReference Include="..\other\JOSE.Hashing.HMAC.pas"/>
+        <DCCReference Include="..\other\JOSE.OpenSSL.Headers.pas"/>
+        <DCCReference Include="..\other\JOSE.Signing.Base.pas"/>
+        <DCCReference Include="..\other\JOSE.Signing.ECDSA.pas"/>
+        <DCCReference Include="..\other\JOSE.Signing.RSA.pas"/>
+        <DCCReference Include="..\other\JOSE.Types.Arrays.pas"/>
+        <DCCReference Include="..\other\JOSE.Types.Bytes.pas"/>
+        <DCCReference Include="..\other\JOSE.Types.JSON.pas"/>
+        <DCCReference Include="..\other\JOSE.Types.Utils.pas"/>
+        <DCCReference Include="..\uProcessamentoiFood.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -241,7 +143,7 @@
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
-        <BuildConfiguration Include="Realease">
+        <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
@@ -252,36 +154,13 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">ServidorGooPedir.dpr</Source>
+                    <Source Name="MainSource">coreGoopedir.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\coreGoopedir.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>ServidorGooPedir.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Realease" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>ServidorGooPedir.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="C:\papaleguas\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="FastMM4Options.inc" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="FastMM4Options.inc" Configuration="Realease" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
+                        <RemoteName>coreGoopedir.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1101,7 +980,6 @@
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>

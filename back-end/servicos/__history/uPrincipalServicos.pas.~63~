@@ -5,12 +5,12 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   Winapi.ShellAPI, Winapi.TlHelp32,
-  System.Classes, Vcl.Graphics,
+  System.Classes, Vcl.Graphics, System.DateUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, inifiles, FireDAC.Comp.Client,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON;
+  DataSet.Serialize, JSON, uRequisicao;
 
 type
 
@@ -20,6 +20,7 @@ type
     Function VerificaExe(Nome: String): Boolean;
     procedure AbrirExe(Nome: String);
     procedure FecharExe(ExeFileName: String);
+    function ATUALIZADOR: String;
     function USANFCE: String;
     function SITE(Nome: string): String;
     function IMPRESSAO: String;
@@ -30,6 +31,9 @@ type
   var
     conexao: Tconexao;
     Name: String;
+    URL: String;
+    uReq: iRequisicao;
+    ExeAtualizador: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -605,7 +609,7 @@ begin
       except
         on E: Exception do
         begin
-          ShowMessage(E.Message)
+          // //showmessage(E.Message)
         end;
       end;
 
@@ -618,6 +622,11 @@ begin
 
 end;
 
+function TAbrirServicos.ATUALIZADOR: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'atualizador.exe';
+end;
+
 constructor TAbrirServicos.Create;
 var
   IniFile: TIniFile;
@@ -626,7 +635,11 @@ begin
 
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'SiteGooPedir');
+  URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
   IniFile.Free;
+  uReq := iRequisicao.Create(nil);
+  uReq.BaseURL := URL;
+
 end;
 
 destructor TAbrirServicos.Destroy;
@@ -639,12 +652,46 @@ procedure TAbrirServicos.Execute;
 var
   ServicoNFCe: Boolean;
   contador: Integer;
+  JSONValue: TJSONValue;
+  JSONObject: TJsonObject;
+  ImpressoraObject: TJsonObject;
+  ComandaValue: Boolean;
+  UltimoRestartNFCe: TDateTime;
 begin
   inherited;
   contador := 0;
+  UltimoRestartNFCe := now;
   while not Terminated do
   begin
+
     inc(contador);
+    uReq.URL := '/v2/status';
+    uReq.Metodo := mGet;
+    try
+      uReq.Execute;
+
+      JSONValue := TJsonObject.ParseJSONValue(uReq.Retorno);
+      try
+        if JSONValue is TJsonObject then
+        begin
+          JSONObject := JSONValue as TJsonObject;
+
+          // Acessa o objeto "impressora"
+          ImpressoraObject := JSONObject.GetValue('impressora') as TJsonObject;
+
+          // Obtém o valor da chave "comanda"
+          ComandaValue := ImpressoraObject.GetValue<Boolean>('comanda');
+
+          // Exibe o valor no console
+
+        end;
+      finally
+        JSONValue.Free;
+      end;
+
+    except
+
+    end;
 
     try
       ServicoNFCe := frmServicosGoopedir.Configuracoes.FieldByName('nfce')
@@ -653,8 +700,13 @@ begin
       ServicoNFCe := false;
     end;
 
-    if (not VerificaExe(USANFCE)) and ServicoNFCe then
-      AbrirExe(USANFCE);
+    if ServicoNFCe then
+    begin
+      if (not VerificaExe((USANFCE))) then
+      begin
+        AbrirExe(USANFCE);
+      end;
+    end;
 
     if (not VerificaExe(SITE(Name))) then
     begin
@@ -667,8 +719,11 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if (not VerificaExe(PSSITE)) then
-      AbrirExe(PSSITE);
+    if ComandaValue then
+    begin
+      if (not VerificaExe(PSSITE)) then
+        AbrirExe(PSSITE);
+    end;
 
     AlteraExtrasIguais;
     Sleep(15 * 1000);

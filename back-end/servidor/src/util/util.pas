@@ -6,7 +6,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
-  System.Variants, conexao, uCacheControl, uControllCaches, uLogThread,
+  System.Variants, conexao, uCacheControl, uControllCaches,
   System.Generics.Collections, System.DateUtils, uNewConsultas,
   uControlerProduto, uGlobais;
 
@@ -280,31 +280,6 @@ begin
   // conexao.SQL.Add(SQL);
   // conexao.ExecuteSQL;
   // end;
-
-  {
-    myThread1 := TThread1.CreateAnonymousThread1(
-    procedure
-    var
-    conexao: Tconexao;
-    begin
-    conexao := Tconexao.Create('Util');
-    conexao.SQL.Add('UPDATE mesa ');
-    conexao.SQL.Add('SET tot_mesa = COALESCE(');
-    conexao.SQL.Add('    (');
-    conexao.SQL.Add('        SELECT SUM(pedido_produtos.valor_total) ');
-    conexao.SQL.Add('        FROM pedido_produtos ');
-    conexao.SQL.Add
-    ('        WHERE pedido_produtos.codigo_pedido = selecionada AND codigo_pedido > 0');
-    conexao.SQL.Add('    ), ');
-    conexao.SQL.Add('    0');
-    conexao.SQL.Add(')');
-    conexao.ExecuteSQL;
-
-    conexao.Free;
-    end);
-
-    myThread1.start(); }
-
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('SELECT TIMESTAMPDIFF(SECOND, hora, NOW()) as tempo, ');
   conexao.SQL.Add
@@ -917,7 +892,6 @@ begin
       var
         Requisicao: iRequisicao;
       begin
-        LogThread('DoPutFinalizaPedido', 'Inicia');
         try
           Requisicao := iRequisicao.Create(nil);
           try
@@ -931,7 +905,6 @@ begin
         except
 
         end;
-        LogThread('DoPutFinalizaPedido', 'Finaliza');
       end).start; // Inicie a Thread1
   end;
 
@@ -1367,29 +1340,20 @@ begin
   for MesAno in MesesAno do
   begin
     SQL := UnionPedio('pedido_' + MesAno, Tipo);
-    // SQL := SQL + ' order by data desc,codigo_dia';
     conexao.SQL.Add(SQL);
     conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
     conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-    // conexao.Parametros('tipo', Tipo);
-
     Dados.LoadFromJSON(conexao.ConsultaSQL);
-
   end;
 
   SQL := UnionPedio('pedido', Tipo);
-  // SQL := SQL + ' order by data desc,codigo_dia';
   SQL := SQL + ' order by data, hora desc,codigo_dia';
   conexao.SQL.Add(SQL);
   conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
   conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-  // conexao.Parametros('tipo', Tipo);
-  // ShowMessage(sql);
-
   Dados.LoadFromJSON(conexao.ConsultaSQL);
-
   Res.Send<TJSONArray>(Dados.ToJSONArray());
-
+  Dados.Free;
   conexao.Free;
 end;
 
@@ -2835,26 +2799,6 @@ begin
   ForceDirectories(LocalImagem);
   LocalImagem := LocalImagem + ID.ToString + '.txt';
 
-  // TThread1.CreateAnonymousThread1(
-  // procedure
-  // begin
-  // try
-  // // frmServidor.EnvioImagem.Body(arquivo + Req.Body);
-  // // frmServidor.EnvioImagem.Execute;
-  // Memo.Lines.Text := Req.Body;
-  // Memo.Lines.SaveToFile(LocalImagem);
-  // Memo.Lines.Clear;
-  // Memo.Free;
-  // // ////showmessage1(arquivo);
-  //
-  // except
-  // on E: Exception do
-  // begin
-  // // ////showmessage1(E.Message);
-  // end;
-  //
-  // end;
-  // end).start;
 
   {
     try
@@ -4149,7 +4093,6 @@ begin
   end;
   try
     VendaDireta := (Req.Params['completo'].ToInteger = 1);
-
   except
 
   end;
@@ -4234,13 +4177,12 @@ begin
       ('values (:codigo,0,-1,4,0,0,0,0,0,0,0,current_date, current_time,:usuario,:pedido_impresso)');
     conexao.Parametros('codigo', ID);
     conexao.Parametros('usuario', Usuario);
-    if VendaDireta then
-      conexao.Parametros('pedido_impresso', 1)
-    else
-      conexao.Parametros('pedido_impresso', 0);
+    // if VendaDireta then
+    // conexao.Parametros('pedido_impresso', 1)
+    // else
+    conexao.Parametros('pedido_impresso', 0);
 
     conexao.ExecuteSQL;
-
     conexao.SQL.Add
       ('SELECT * FROM pedido where status = -1 and origem = 4 and codigo = ' +
       ID.ToString + ' order by codigo desc');
@@ -8868,7 +8810,7 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-      LogThread('ApagarProduto', 'Inicia');
+
       MovimentacaoProduto(Produto, 1, Quantidade);
 
       Dados := TFDMemTable.Create(nil);
@@ -8937,7 +8879,7 @@ begin
       conexao.Parametros('obs', Motivo);
       conexao.ExecuteSQL;
       conexao.Free;
-      LogThread('ApagarProduto', 'Finaliza');
+
     end).start();
 
 end;

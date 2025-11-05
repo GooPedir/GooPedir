@@ -262,6 +262,7 @@ begin
       Requisicao.URL := 'api/sabores';
       Requisicao.Metodo := mPost;
       Requisicao.BODY(Result);
+
       Requisicao.TempoExpiracao := (60 * 1000);
       Requisicao.Execute;
 
@@ -283,7 +284,7 @@ begin
   except
   on E : Exception do
   begin
-    Result := E.Message;
+//    Result := E.Message;
   end;
 
   end;

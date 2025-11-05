@@ -33,6 +33,9 @@ type
 procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 
+procedure DoPostDadosNotaFiscalFornecedorItemFator(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
 implementation
 
 procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
@@ -144,16 +147,29 @@ begin
 
       end;
 
-
       // Aqui você pode integrar com o banco
       // Exemplo:
       // Conexao.InserirEmpresa(Empresa);
       // Conexao.InserirNota(Nota, Empresa.CNPJ);
       // for ProdutoItem in Produtos do
       // Conexao.InserirProduto(ProdutoItem, NotaID);
-
+      Conexao.SQL.Add('select fi.*, ');
+      Conexao.SQL.Add('CASE');
       Conexao.SQL.Add
-        ('select * from fornecedor_item  where fornecedor_id = :fornecedor');
+        ('    WHEN fi.tabela_vinculo = "produto" THEN upper(p.nome_produto)');
+      Conexao.SQL.Add('    ELSE upper(i.descricao)');
+      Conexao.SQL.Add('  END AS insumo_nome,');
+      Conexao.SQL.Add('CASE');
+      Conexao.SQL.Add
+        ('    WHEN fi.tabela_vinculo = "produto" THEN upper(p.un)');
+      Conexao.SQL.Add('    ELSE upper(i.unidade)');
+      Conexao.SQL.Add('  END AS insumo_unidade  ');
+      Conexao.SQL.Add('from fornecedor_item as fi');
+      Conexao.SQL.Add('left join produto as p on p.codigo = fi.codigo_vinculo');
+      Conexao.SQL.Add
+        ('left join ingredientes as i on i.id = fi.codigo_vinculo');
+
+      Conexao.SQL.Add('where fornecedor_id = :fornecedor');
       Conexao.Parametros('fornecedor', CodigoFornecedor);
 
       Res.Send<TJSONArray>(Conexao.ConsultaSQL);
@@ -163,6 +179,28 @@ begin
   finally
     Conexao.Free;
   end;
+end;
+
+procedure DoPostDadosNotaFiscalFornecedorItemFator(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  Conexao: TConexao;
+  JSONBody: TJSONObject;
+begin
+  Conexao := TConexao.Create('DoPostDadosNotaFiscalFornecedorItemFator');
+  JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
+
+  // JSONBody.GetValue<TJSONObject>('empresa');
+  Conexao.SQL.Add
+    ('update fornecedor_item set tabela_vinculo = :vinculo, campo_vinculo = "codigo", codigo_vinculo = :codigo, fator = :fator where fornecedor_id = :fornecedor and cprod = :prod');
+  Conexao.Parametros('vinculo', JSONBody.GetValue<string>('tipo'));
+  Conexao.Parametros('codigo', JSONBody.GetValue<string>('vinculoId'));
+  Conexao.Parametros('fator', JSONBody.GetValue<string>('conversionFactor'));
+  Conexao.Parametros('fornecedor', JSONBody.GetValue<string>('fornecedorId'));
+  Conexao.Parametros('prod', JSONBody.GetValue<string>('codigo'));
+  Conexao.ExecuteSQL;
+  JSONBody.Free;
+  Conexao.Free;
 end;
 
 end.
