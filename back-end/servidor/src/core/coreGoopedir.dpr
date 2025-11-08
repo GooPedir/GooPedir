@@ -32,7 +32,21 @@ uses
   JOSE.Types.Bytes in '..\other\JOSE.Types.Bytes.pas',
   JOSE.Types.JSON in '..\other\JOSE.Types.JSON.pas',
   JOSE.Types.Utils in '..\other\JOSE.Types.Utils.pas',
-  uProcessamentoiFood in '..\uProcessamentoiFood.pas';
+  uProcessamentoiFood in '..\uProcessamentoiFood.pas',
+  uGenericaFuncion in '..\util\uGenericaFuncion.pas',
+  uAtualizador in 'controller\uAtualizador.pas',
+  Data.FireDACJSONReflect in '..\other\Data.FireDACJSONReflect.pas',
+  DataSet.Serialize.Config in '..\other\DataSet.Serialize.Config.pas',
+  DataSet.Serialize.Consts in '..\other\DataSet.Serialize.Consts.pas',
+  DataSet.Serialize.Export in '..\other\DataSet.Serialize.Export.pas',
+  DataSet.Serialize.Import in '..\other\DataSet.Serialize.Import.pas',
+  DataSet.Serialize.Language in '..\other\DataSet.Serialize.Language.pas',
+  DataSet.Serialize in '..\other\DataSet.Serialize.pas',
+  DataSet.Serialize.UpdatedStatus in '..\other\DataSet.Serialize.UpdatedStatus.pas',
+  DataSet.Serialize.Utils in '..\other\DataSet.Serialize.Utils.pas',
+  uBackupBanco in 'controller\uBackupBanco.pas',
+  uUtil in 'controller\uUtil.pas',
+  uIfood in 'controller\uIfood.pas';
 
 {$R *.res}
 

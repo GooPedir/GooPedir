@@ -7091,7 +7091,7 @@ begin
     end
     else
     begin
-      frmServidor.CreateiFoodConnection(Req.Params['id'], MerchantID);
+
     end;
 
   end

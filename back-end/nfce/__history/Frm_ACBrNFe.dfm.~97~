@@ -11,6 +11,7 @@ object frmACBrNFe: TfrmACBrNFe
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poScreenCenter
+  WindowState = wsMinimized
   OnCreate = FormCreate
   TextHeight = 13
   object pnlMenus: TPanel
@@ -1067,7 +1068,7 @@ object frmACBrNFe: TfrmACBrNFe
       Top = 1
       Width = 911
       Height = 197
-      ActivePage = tsEnvios
+      ActivePage = tsDistribuicao
       Align = alTop
       TabOrder = 0
       ExplicitWidth = 907
@@ -1520,7 +1521,7 @@ object frmACBrNFe: TfrmACBrNFe
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
     DANFE = ACBrNFeDANFeESCPOS1
-    Left = 370
+    Left = 354
     Top = 247
   end
   object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
@@ -1551,7 +1552,7 @@ object frmACBrNFe: TfrmACBrNFe
     Top = 247
   end
   object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
-    Impressora = 'Print ID'
+    Impressora = 'Defalt'
     MostraPreview = False
     MostraStatus = False
     UsaSeparadorPathPDF = True
@@ -1621,7 +1622,7 @@ object frmACBrNFe: TfrmACBrNFe
     Top = 335
   end
   object ACBrPosPrinter1: TACBrPosPrinter
-    Modelo = ppCustomPos
+    Modelo = ppEscPosEpson
     Porta = 'Defalt'
     EspacoEntreLinhas = 30
     ConfigBarras.MostrarCodigo = False
@@ -1632,8 +1633,8 @@ object frmACBrNFe: TfrmACBrNFe
     ConfigQRCode.LarguraModulo = 2
     ConfigQRCode.ErrorLevel = 0
     LinhasEntreCupons = 5
-    Left = 449
-    Top = 295
+    Left = 497
+    Top = 343
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -1643,8 +1644,8 @@ object frmACBrNFe: TfrmACBrNFe
     Attempts = 3
     DefaultCharset = UTF_8
     IDECharset = CP1252
-    Left = 370
-    Top = 295
+    Left = 338
+    Top = 311
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-nfe.XML'
@@ -1658,8 +1659,8 @@ object frmACBrNFe: TfrmACBrNFe
   object ACBrIntegrador1: TACBrIntegrador
     PastaInput = 'C:\Integrador\Input\'
     PastaOutput = 'C:\Integrador\Output\'
-    Left = 374
-    Top = 350
+    Left = 334
+    Top = 390
   end
   object ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4
     Sistema = 'GooPedir - www.goopedir.com'
@@ -1683,8 +1684,8 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     FormularioContinuo = True
-    Left = 608
-    Top = 408
+    Left = 648
+    Top = 424
   end
   object iRequisicao1: iRequisicao
     eTAG = False
@@ -1703,8 +1704,8 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 454
-    Top = 446
+    Left = 334
+    Top = 470
   end
   object ACBrValidador1: TACBrValidador
     TipoDocto = docGTIN
@@ -1713,6 +1714,7 @@ object frmACBrNFe: TfrmACBrNFe
     Top = 442
   end
   object tEmissao: TTimer
+    Enabled = False
     Interval = 10000
     OnTimer = tEmissaoTimer
     Left = 918

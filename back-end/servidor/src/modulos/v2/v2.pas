@@ -7482,8 +7482,9 @@ begin
 
   THorse.Post('v2/proxy', DoPostPonte);
   THorse.Post('v2/notafiscal/fornecedor', DoPostDadosNotaFiscalFornecedor);
-  THorse.Post('v2/notafiscal/fornecedor/item/fator',
-    DoPostDadosNotaFiscalFornecedorItemFator);
+  THorse.Post('v2/notafiscal/fornecedor/item/fator',DoPostDadosNotaFiscalFornecedorItemFator);
+  THorse.Post('v2/notafiscal/fornecedor/validar',DoPostValidarNotaFiscalDespesa);
+
 
 end;
 

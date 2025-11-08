@@ -1,31 +1,31 @@
-{ ****************************************************************************** }
+Ôªø{ ****************************************************************************** }
 { Projeto: Componentes ACBr }
-{ Biblioteca multiplataforma de componentes Delphi para interaÁ„o com equipa- }
-{ mentos de AutomaÁ„o Comercial utilizados no Brasil }
+{ Biblioteca multiplataforma de componentes Delphi para intera√ß√£o com equipa- }
+{ mentos de Automa√ß√£o Comercial utilizados no Brasil }
 { }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida }
 { }
-{ VocÍ pode obter a ˙ltima vers„o desse arquivo na pagina do  Projeto ACBr }
+{ Voc√™ pode obter a √∫ltima vers√£o desse arquivo na pagina do  Projeto ACBr }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr }
 { }
-{ Esta biblioteca È software livre; vocÍ pode redistribuÌ-la e/ou modific·-la }
-{ sob os termos da LicenÁa P˙blica Geral Menor do GNU conforme publicada pela }
-{ Free Software Foundation; tanto a vers„o 2.1 da LicenÁa, ou (a seu critÈrio) }
-{ qualquer vers„o posterior. }
+{ Esta biblioteca √© software livre; voc√™ pode redistribu√≠-la e/ou modific√°-la }
+{ sob os termos da Licen√ßa P√∫blica Geral Menor do GNU conforme publicada pela }
+{ Free Software Foundation; tanto a vers√£o 2.1 da Licen√ßa, ou (a seu crit√©rio) }
+{ qualquer vers√£o posterior. }
 { }
-{ Esta biblioteca È distribuÌda na expectativa de que seja ˙til, porÈm, SEM }
-{ NENHUMA GARANTIA; nem mesmo a garantia implÌcita de COMERCIABILIDADE OU }
-{ ADEQUA«√O A UMA FINALIDADE ESPECÕFICA. Consulte a LicenÁa P˙blica Geral Menor }
-{ do GNU para mais detalhes. (Arquivo LICEN«A.TXT ou LICENSE.TXT) }
+{ Esta biblioteca √© distribu√≠da na expectativa de que seja √∫til, por√©m, SEM }
+{ NENHUMA GARANTIA; nem mesmo a garantia impl√≠cita de COMERCIABILIDADE OU }
+{ ADEQUA√á√ÉO A UMA FINALIDADE ESPEC√çFICA. Consulte a Licen√ßa P√∫blica Geral Menor }
+{ do GNU para mais detalhes. (Arquivo LICEN√áA.TXT ou LICENSE.TXT) }
 { }
-{ VocÍ deve ter recebido uma cÛpia da LicenÁa P˙blica Geral Menor do GNU junto }
-{ com esta biblioteca; se n„o, escreva para a Free Software Foundation, Inc., }
-{ no endereÁo 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA. }
-{ VocÍ tambÈm pode obter uma copia da licenÁa em: }
+{ Voc√™ deve ter recebido uma c√≥pia da Licen√ßa P√∫blica Geral Menor do GNU junto }
+{ com esta biblioteca; se n√£o, escreva para a Free Software Foundation, Inc., }
+{ no endere√ßo 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA. }
+{ Voc√™ tamb√©m pode obter uma copia da licen√ßa em: }
 { http://www.opensource.org/licenses/lgpl-license.php }
 { }
-{ Daniel Simıes de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br }
-{ Rua Coronel Aureliano de Camargo, 963 - TatuÌ - SP - 18270-170 }
+{ Daniel Sim√µes de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br }
+{ Rua Coronel Aureliano de Camargo, 963 - Tatu√≠ - SP - 18270-170 }
 { ****************************************************************************** }
 
 unit Frm_ACBrNFe;
@@ -432,7 +432,7 @@ begin
         if (frmStatus = nil) then
           frmStatus := TfrmStatus.Create(Application);
 
-        frmStatus.lblStatus.Caption := 'Enviando pedido de InutilizaÁ„o...';
+        frmStatus.lblStatus.Caption := 'Enviando pedido de Inutiliza√ß√£o...';
         frmStatus.Show;
         frmStatus.BringToFront;
       end;
@@ -472,7 +472,7 @@ begin
         if (frmStatus = nil) then
           frmStatus := TfrmStatus.Create(Application);
 
-        frmStatus.lblStatus.Caption := 'Enviando Carta de CorreÁ„o...';
+        frmStatus.lblStatus.Caption := 'Enviando Carta de Corre√ß√£o...';
         frmStatus.Show;
         frmStatus.BringToFront;
       end;
@@ -588,7 +588,7 @@ begin
   end
   else
   begin
-    // N„o emitir
+    // N√£o emitir
     iReq := iRequisicao.Create(nil);
     iReq.BaseUrl := BaseUrl;
     iReq.URL := 'nfce/emissao/' + NumDFe + '/' + IntToStr(0) + '/' +
@@ -633,13 +633,13 @@ begin
     // ValorDiferenca1 := TaxaEntrega; // Valor inicial
     // TaxaEntrega := RoundTo(TaxaEntrega / Memory.RecordCount, -6); // Distribuir proporcionalmente
     //
-    /// / Corrigir a diferenÁa acumulada
+    /// / Corrigir a diferen√ßa acumulada
     // ValorDiferenca1 := (TaxaEntrega * Memory.RecordCount);
     // ValorDiferenca1 := RoundTo(ValorDiferenca1, -2) - RoundTo(TaxaEntrega * Memory.RecordCount, -2);
 
   end;
 
-  // Seus valores aqui devem ser convertidos ou atribuÌdos corretamente ao tipo Currency
+  // Seus valores aqui devem ser convertidos ou atribu√≠dos corretamente ao tipo Currency
   VlrProdutos := (VlrProdutos); // Arredonda para 2 casas decimais
   TotalPago := (TotalPago); // Arredonda para 2 casas decimais
   // if VlrProdutos > TotalPago then
@@ -650,7 +650,7 @@ begin
   TotalNota := VlrProdutos + TaxaEntrega;
 
   MemoResp.Lines.Add('Produto: ' + FloatToStr((VlrProdutos + TaxaEntrega) -
-    TaxaDesconto) + ' Pago: ' + FloatToStr(TotalPago) + ' DiferenÁa: ' +
+    TaxaDesconto) + ' Pago: ' + FloatToStr(TotalPago) + ' Diferen√ßa: ' +
     FloatToStr(DiferencaCentavos));
 
   VlrProdutos := 0;
@@ -710,7 +710,7 @@ begin
     begin
       Ide.tpEmis := teContingencia;
       Ide.dhCont := date;
-      Ide.xJust := 'Sem conex„o com a internet!';
+      Ide.xJust := 'Sem conex√£o com a internet!';
     end;
 
     Ide.tpAmb := Ambiente;
@@ -811,7 +811,7 @@ begin
         Prod.CFOP := Memory.FieldByName('cfop').AsString;
         Prod.NCM := Memory.FieldByName('ncm').AsString;
         Prod.nItem := nSequencia;
-        // N˙mero sequencial, para cada item deve ser incrementado
+        // N√∫mero sequencial, para cada item deve ser incrementado
         Prod.cProd := Memory.FieldByName('code').AsString;
         Prod.xProd := Memory.FieldByName('name').AsString;
         Prod.EXTIPI := '';
@@ -867,15 +867,15 @@ begin
           begin
             // --------------------------------------------------------------------------------------------
             // Regime Tributario "Normal"
-            // CST = È utilizado pelos contribuintes que optam pelo regime normal de tributaÁ„o
-            // CSOSN = È utilizado pelos contribuintes optantes pelo regime do Simples Nacional.
+            // CST = √© utilizado pelos contribuintes que optam pelo regime normal de tributa√ß√£o
+            // CSOSN = √© utilizado pelos contribuintes optantes pelo regime do Simples Nacional.
             // --------------------------------------------------------------------------------------------
             if Emit.CRT = crtRegimeNormal then
             begin
               ICMS.CST := StrToCSTICMS(ConverteOk, mID_ST_ICMS.ToString);
               if not ConverteOk then
                 raise EDatabaseError.CreateFmt
-                  ('SituaÁ„o tribut·ria "%s" desconhecida.',
+                  ('Situa√ß√£o tribut√°ria "%s" desconhecida.',
                   [mID_ST_ICMS.ToString]);
               if Imposto.ICMS.CST in [cst10, cst30, cst60, cst70, cst90] then
                 Prod.CEST := Memory.FieldByName('cest').AsString;
@@ -903,13 +903,13 @@ begin
             begin
               // --------------------------------------------------------------------------------------------
               // Regime Tributario "Simples Nacional"
-              // CST = È utilizado pelos contribuintes que optam pelo regime normal de tributaÁ„o
-              // CSOSN = È utilizado pelos contribuintes optantes pelo regime do Simples Nacional.
+              // CST = √© utilizado pelos contribuintes que optam pelo regime normal de tributa√ß√£o
+              // CSOSN = √© utilizado pelos contribuintes optantes pelo regime do Simples Nacional.
               // --------------------------------------------------------------------------------------------
               ICMS.CSOSN := StrToCSOSNIcms(ConverteOk, mID_CSOSN_ICMS.ToString);
               if not ConverteOk then
                 raise EDatabaseError.CreateFmt
-                  ('SituaÁ„o tribut·ria no simples nacional "%s" desconhecida.',
+                  ('Situa√ß√£o tribut√°ria no simples nacional "%s" desconhecida.',
                   [mID_CSOSN_ICMS.ToString]);
 
               if Imposto.ICMS.CSOSN in [csosn201, csosn202, csosn203, csosn500,
@@ -922,8 +922,8 @@ begin
             ICMS.pFCP := 0; // Verificar Posteriormente.
             // -----------------------------------------------------------------------
             // Essas tags foram adicionadas em: maio/2019 atendendo "NT 2019/001".
-            // TributaÁ„o ICMS cobrado anteriormente por substituiÁ„o tribut·ria
-            // (CST=60) ou TributaÁ„o ICMS pelo Simples Nacional (CSOSN=500);
+            // Tributa√ß√£o ICMS cobrado anteriormente por substitui√ß√£o tribut√°ria
+            // (CST=60) ou Tributa√ß√£o ICMS pelo Simples Nacional (CSOSN=500);
             // -----------------------------------------------------------------------
             // if (FConfiguracao.RegimeTributario in [2, 3]) then
             if (Emit.CRT in [crtRegimeNormal]) then
@@ -944,7 +944,7 @@ begin
           PIS.CST := StrToCSTPIS(ConverteOk, FormatFloat('00', mID_CST_PIS));
           if not ConverteOk then
             raise EDatabaseError.CreateFmt
-              ('SituaÁ„o tribut·ria do PIS "%s" desconhecida.', [mID_CST_PIS]);
+              ('Situa√ß√£o tribut√°ria do PIS "%s" desconhecida.', [mID_CST_PIS]);
 
           PIS.vBC := mVlrTotal;
           PIS.pPIS := Memory.FieldByName('cstpis').AsFloat;
@@ -955,7 +955,7 @@ begin
             FormatFloat('00', mID_CST_COFINS));
           if not ConverteOk then
             raise EDatabaseError.CreateFmt
-              ('SituaÁ„o tribut·ria do COFINS "%s" desconhecida.',
+              ('Situa√ß√£o tribut√°ria do COFINS "%s" desconhecida.',
               [mID_CST_COFINS]);
 
           COFINS.vBC := mVlrTotal;
@@ -968,7 +968,7 @@ begin
         //
         // -----------------------------------------------------------------------
         Prod.indEscala := StrToIndEscala(LOKResp, mInd_Escala.ToString);
-        // AtenÁ„o: Se for "N" (N√O) È obrigatÛrio informar o CNPJ do fabricante.
+        // Aten√ß√£o: Se for "N" (N√ÉO) √© obrigat√≥rio informar o CNPJ do fabricante.
         if (Prod.indEscala = ieNaoRelevante) then
         begin
           // Prod.CNPJFab := GetCNPJFabricante
@@ -1059,7 +1059,7 @@ begin
     //
 
 
-    // O grupo infIntermed sÛ deve ser gerado nos casos de operaÁ„o n„o presencial
+    // O grupo infIntermed s√≥ deve ser gerado nos casos de opera√ß√£o n√£o presencial
     // pela internet em site de terceiros (Intermediadores).
     // infIntermed.CNPJ := '';
     // infIntermed.idCadIntTran := '';
@@ -1082,15 +1082,15 @@ begin
     {
       abaixo o campo incluido no layout a partir da NT 2020/006
     }
-    // CNPJ do Intermediador da TransaÁ„o (agenciador, plataforma de delivery,
-    // marketplace e similar) de serviÁos e de negÛcios.
+    // CNPJ do Intermediador da Transa√ß√£o (agenciador, plataforma de delivery,
+    // marketplace e similar) de servi√ßos e de neg√≥cios.
     infIntermed.CNPJ := '';
-    // Nome do usu·rio ou identificaÁ„o do perfil do vendedor no site do intermediador
-    // (agenciador, plataforma de delivery, marketplace e similar) de serviÁos e de
-    // negÛcios.
+    // Nome do usu√°rio ou identifica√ß√£o do perfil do vendedor no site do intermediador
+    // (agenciador, plataforma de delivery, marketplace e similar) de servi√ßos e de
+    // neg√≥cios.
     infIntermed.idCadIntTran := '';
 
-    // Nome do respons·vel tÈcnico
+    // Nome do respons√°vel t√©cnico
     infRespTec.CNPJ := '51995523000156';
     infRespTec.xContato := 'GOOPEDIR LTDA';
     infRespTec.EMAIL := 'allan@goopedir.com';
@@ -1161,8 +1161,8 @@ var
 begin
   {
     Esse evento consta na NT 2020/007
-    SÛ ser· possÌvel realizar testes em ambiente de homologaÁ„o a partir de 01/11/2021
-    E enviar em produÁ„o a partir de 30/11/2021
+    S√≥ ser√° poss√≠vel realizar testes em ambiente de homologa√ß√£o a partir de 01/11/2021
+    E enviar em produ√ß√£o a partir de 30/11/2021
   }
   xTitulo := 'Evento Ator Interessado na NF-e - Transportador';
 
@@ -1191,7 +1191,7 @@ begin
 
   {
     1 = Empresa Emitente,
-    2 = Empresa Destinat·ria,
+    2 = Empresa Destinat√°ria,
     3 = Empresa Transportadora.
   }
   TipoAtor := '1';
@@ -1200,7 +1200,7 @@ begin
     exit;
 
   VerAplic := '1.00';
-  if not(InputQuery(xTitulo, 'Vers„o do Aplicativo do emitente', VerAplic)) then
+  if not(InputQuery(xTitulo, 'Vers√£o do Aplicativo do emitente', VerAplic)) then
     exit;
 
   AutXML := '';
@@ -1208,12 +1208,12 @@ begin
     exit;
 
   {
-    0 = N„o permite;
-    1 = Permite o transportador autorizado pelo emitente ou destinat·rio
+    0 = N√£o permite;
+    1 = Permite o transportador autorizado pelo emitente ou destinat√°rio
     autorizar outros transportadores para ter acesso ao download da NF-e
   }
   TipoAutoriz := '0';
-  if not(InputQuery(xTitulo, 'Tipo de AutorizaÁ„o (0 ou 1)', TipoAutoriz)) then
+  if not(InputQuery(xTitulo, 'Tipo de Autoriza√ß√£o (0 ou 1)', TipoAutoriz)) then
     exit;
 
   ACBrNFe1.EventoNFe.Evento.Clear;
@@ -1230,7 +1230,7 @@ begin
     infEvento.detEvento.tpAutor := StrToTipoAutor(Ok, TipoAtor);
     infEvento.detEvento.VerAplic := VerAplic;
 
-    // No momento a SEFAZ sÛ aceita apenas 1 CNPJ/CPF
+    // No momento a SEFAZ s√≥ aceita apenas 1 CNPJ/CPF
     with infEvento.detEvento.AutXML.New do
       CNPJCPF := AutXML;
 
@@ -1262,7 +1262,7 @@ begin
     exit;
   Protocolo := '';
   if not(InputQuery('WebServices Eventos: Cancelamento',
-    'Protocolo de AutorizaÁ„o', Protocolo)) then
+    'Protocolo de Autoriza√ß√£o', Protocolo)) then
     exit;
   Justificativa := 'Justificativa do Cancelamento';
   if not(InputQuery('WebServices Eventos: Cancelamento',
@@ -1381,9 +1381,9 @@ begin
   //
   // Emit.IEST := '';
   // Emit.IM := '';
-  // // Preencher no caso de existir serviÁos na nota
-  // Emit.CNAE := ''; // Verifique na cidade do emissor da NFe se È permitido
-  // // a inclus„o de serviÁos na NFe
+  // // Preencher no caso de existir servi√ßos na nota
+  // Emit.CNAE := ''; // Verifique na cidade do emissor da NFe se √© permitido
+  // // a inclus√£o de servi√ßos na NFe
   // Emit.CRT := StrToCRT(Ok, IntToStr(cbTipoEmpresa.ItemIndex + 1));
   // end;
   //
@@ -1417,26 +1417,26 @@ var
   Chave, idLote, CNPJ, nSeqEvento, Correcao: string;
 begin
   Chave := '';
-  if not(InputQuery('WebServices Eventos: Carta de CorreÁ„o', 'Chave da NF-e',
+  if not(InputQuery('WebServices Eventos: Carta de Corre√ß√£o', 'Chave da NF-e',
     Chave)) then
     exit;
   Chave := Trim(OnlyNumber(Chave));
   idLote := '1';
-  if not(InputQuery('WebServices Eventos: Carta de CorreÁ„o',
+  if not(InputQuery('WebServices Eventos: Carta de Corre√ß√£o',
     'Identificador de controle do Lote de envio do Evento', idLote)) then
     exit;
   CNPJ := copy(Chave, 7, 14);
-  if not(InputQuery('WebServices Eventos: Carta de CorreÁ„o',
+  if not(InputQuery('WebServices Eventos: Carta de Corre√ß√£o',
     'CNPJ ou o CPF do autor do Evento', CNPJ)) then
     exit;
   nSeqEvento := '1';
-  if not(InputQuery('WebServices Eventos: Carta de CorreÁ„o',
+  if not(InputQuery('WebServices Eventos: Carta de Corre√ß√£o',
     'Sequencial do evento para o mesmo tipo de evento', nSeqEvento)) then
     exit;
   Correcao :=
-    'CorreÁ„o a ser considerada, texto livre. A correÁ„o mais recente substitui as anteriores.';
-  if not(InputQuery('WebServices Eventos: Carta de CorreÁ„o',
-    'CorreÁ„o a ser considerada', Correcao)) then
+    'Corre√ß√£o a ser considerada, texto livre. A corre√ß√£o mais recente substitui as anteriores.';
+  if not(InputQuery('WebServices Eventos: Carta de Corre√ß√£o',
+    'Corre√ß√£o a ser considerada', Correcao)) then
     exit;
 
   ACBrNFe1.EventoNFe.Evento.Clear;
@@ -1514,7 +1514,7 @@ begin
   // Certifique-se de que a chave informada tem 44 caracteres
   if length(vChave) <> 44 then
   begin
-    // showmessage('A chave de acesso deve ter 44 dÌgitos.');
+    // showmessage('A chave de acesso deve ter 44 d√≠gitos.');
     exit;
   end;
 
@@ -1533,7 +1533,7 @@ begin
     // Verifica se o XML foi retornado
     if ACBrNFe1.NotasFiscais.Count > 0 then
     begin
-      // Define o caminho do arquivo onde o XML ser· salvo
+      // Define o caminho do arquivo onde o XML ser√° salvo
       CaminhoArquivo := 'C:\goopedir\' + vChave + '.xml';
 
       // Salva o XML consultado
@@ -1543,7 +1543,7 @@ begin
     end
     else
     begin
-      // showmessage('A consulta foi realizada, mas n„o retornou um XML.');
+      // showmessage('A consulta foi realizada, mas n√£o retornou um XML.');
     end;
   end
   else
@@ -1556,7 +1556,7 @@ begin
   MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
 
-  // Carrega a resposta no WebBrowser (se aplic·vel)
+  // Carrega a resposta no WebBrowser (se aplic√°vel)
   LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
 end;
 
@@ -1587,7 +1587,7 @@ var
   aux: String;
 begin
   aux := '';
-  if not(InputQuery('Consultar Recibo Lote', 'N˙mero do Recibo', aux)) then
+  if not(InputQuery('Consultar Recibo Lote', 'N√∫mero do Recibo', aux)) then
     exit;
 
   ACBrNFe1.WebServices.Recibo.Recibo := aux;
@@ -1631,7 +1631,7 @@ begin
 
   if Trim(vNumLote) = '' then
   begin
-    MessageDlg('N˙mero do Lote inv·lido.', mtError, [mbok], 0);
+    MessageDlg('N√∫mero do Lote inv√°lido.', mtError, [mbok], 0);
     exit;
   end;
 
@@ -1652,14 +1652,14 @@ begin
 
     if ACBrNFe1.NotasFiscais.Count > 1 then
       {
-        Se o lote tem 2 ou mais notas (atÈ 50) o envio tem que ser no modo
-        assÌncrono (terceiro par‚metro tem que valer False)
+        Se o lote tem 2 ou mais notas (at√© 50) o envio tem que ser no modo
+        ass√≠ncrono (terceiro par√¢metro tem que valer False)
       }
       ACBrNFe1.Enviar(vNumLote, True, False)
     else
       {
         Se o lote tem apenas 1 nota o envio tem que ser no modo
-        sÌncrono (terceiro par‚metro tem que valer True)
+        s√≠ncrono (terceiro par√¢metro tem que valer True)
       }
       ACBrNFe1.Enviar(vNumLote, True, True);
   end;
@@ -1735,9 +1735,9 @@ procedure TfrmACBrNFe.btnDistrDFePorChaveClick(Sender: TObject);
 var
   xTitulo, cUFAutor, CNPJ, Chave: string;
 begin
-  xTitulo := 'DistribuiÁ„o DFe Por Chave';
+  xTitulo := 'Distribui√ß√£o DFe Por Chave';
   cUFAutor := '';
-  if not(InputQuery(xTitulo, 'CÛdigo da UF do Autor', cUFAutor)) then
+  if not(InputQuery(xTitulo, 'C√≥digo da UF do Autor', cUFAutor)) then
     exit;
 
   CNPJ := '';
@@ -1760,18 +1760,18 @@ procedure TfrmACBrNFe.btnDistrDFePorNSUClick(Sender: TObject);
 var
   xTitulo, cUFAutor, CNPJ, ANSU: string;
 begin
-  xTitulo := 'DistribuiÁ„o DF-e por NSU';
+  xTitulo := 'Distribui√ß√£o DF-e por NSU';
 
   cUFAutor := '';
-  if not(InputQuery(xTitulo, 'CÛdigo da UF do Autor', cUFAutor)) then
+  if not(InputQuery(xTitulo, 'C√≥digo da UF do Autor', cUFAutor)) then
     exit;
 
   CNPJ := '';
   if not(InputQuery(xTitulo, 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
     exit;
-
+  ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
   ANSU := '';
-  if not(InputQuery(xTitulo, 'NSU especÌfico', ANSU)) then
+  if not(InputQuery(xTitulo, 'NSU espec√≠fico', ANSU)) then
     exit;
 
   ACBrNFe1.DistribuicaoDFePorNSU(StrToInt(cUFAutor), CNPJ, ANSU);
@@ -1781,47 +1781,278 @@ begin
 
   LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
 end;
+//
+// procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
+// var
+// xTitulo, cUFAutor,  AultNSU: string;
+// i: Integer;
+// begin
+// ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
+// ACBrNFe1.Configuracoes.WebServices.UF := 'SC';
+// ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
+// // Op√ß√£o para simular uma consulta ao WebService lendo o arquivo de retorno e populando o componente
+// OpenDialog1.Title :=
+// 'Selecione um Arquivo de Distribui√ß√£o para simular uma consulta ou feche para consultar o WebService';
+// OpenDialog1.DefaultExt := '*-dist-dfe.XML';
+// OpenDialog1.Filter :=
+// 'Arquivos Distribui√ß√£o DFe (*-dist-dfe.XML)|*-dist-dfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
+//
+// OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+//
+// // L√™ o arquivo selecionado
+// if OpenDialog1.Execute then
+// begin
+// ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.Leitor.CarregarArquivo
+// (OpenDialog1.FileName);
+// ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.LerXml;
+//
+// AultNSU := ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.ultNSU;
+// end
+// // Consulta o WebService
+// else
+// begin
+// xTitulo := 'Distribui√ß√£o DF-e por √∫ltimo NSU';
+//
+// cUFAutor := IntToStr(ACBrNFe1.Configuracoes.WebServices.UFCodigo);
+// if not(InputQuery(xTitulo, 'C√≥digo da UF do Autor', cUFAutor)) then
+// exit;
+//
+// CNPJ := CNPJ;
+// if not(InputQuery(xTitulo, 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
+// exit;
+//
+// AultNSU := '';
+// if not(InputQuery(xTitulo, '√öltimo NSU recebido pelo ator', AultNSU)) then
+// exit;
+//
+// ACBrNFe1.DistribuicaoDFePorUltNSU(StrToInt(cUFAutor), CNPJ, AultNSU);
+// end;
+//
+// with ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt do
+// begin
+// // Caso n√£o retorne registros, ocorra consumo indevido ou seja o √∫ltimo lote, gera alerta
+// if ((cStat = 137) or (cStat = 656) or (ultNSU = maxNSU)) then
+// begin
+// // 656-Consumo indevido
+// if cStat = 656 then
+// begin
+// MemoDados.Lines.Add('Aten√ß√£o...: Consumo indevido.');
+//
+// if AultNSU <> ultNSU then
+// MemoDados.Lines.Add('            ultNSU utilizado nesta consulta [' +
+// AultNSU + '] √© diferente ' + 'do ultNSU consultado na Sefaz [' +
+// ultNSU + '].');
+// end
+// // 137-Nenhum documento localizado
+// else if cStat = 137 then
+// MemoDados.Lines.Add
+// ('Aten√ß√£o...: N√£o existem mais registros dispon√≠veis.')
+// // ultNSU = maxNSU - Documentos Localizados, mas √© o √∫ltimo lote
+// else
+// MemoDados.Lines.Add
+// ('Aten√ß√£o...: Este √© o √∫ltimo lote de registros dispon√≠veis para distribui√ß√£o.');
+//
+// MemoDados.Lines.Add
+// ('Aten√ß√£o...: Aguarde 1 hora para a pr√≥xima consulta.');
+// MemoDados.Lines.Add(' ');
+// end;
+//
+// MemoDados.Lines.Add('Qtde Documentos Retornados: ' +
+// IntToStr(docZip.Count));
+// MemoDados.Lines.Add('Status....: ' + IntToStr(cStat));
+// MemoDados.Lines.Add('Motivo....: ' + xMotivo);
+// MemoDados.Lines.Add('√öltimo NSU: ' + ultNSU);
+// MemoDados.Lines.Add('M√°ximo NSU: ' + maxNSU);
+// MemoDados.Lines.Add(' ');
+// MemoDados.Lines.Add('Documentos Retornados:');
+//
+// for i := 0 to docZip.Count - 1 do
+// begin
+// case docZip[i].schema of
+// schresNFe:
+// MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
+// ' (Resumo Nota) Chave: ' + docZip[i].resDFe.chDFe);
+//
+// schprocNFe:
+// MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
+// ' (Nota Completa) Chave: ' + docZip[i].resDFe.chDFe);
+//
+// schresEvento:
+// MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
+// ' (Resumo Evento) Chave: ' + docZip[i].resEvento.chDFe);
+//
+// schprocEventoNFe:
+// MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
+// ' (Evento Completo) ID: ' + docZip[i].procEvento.Id);
+// end;
+// end;
+// end;
+//
+// MemoResp.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetWS;
+// memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
+//
+// LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
+//
+// pgRespostas.ActivePage := Dados;
+// end;
+
+// procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
+// var
+// xTitulo, cUFAutor, AultNSU, UltimoNSUSalvo: string;
+// DataHoraUltConsulta: TDateTime;
+// PastaDFE, NomeArquivo: string;
+// i: Integer;
+// SL: TStringList;
+// begin
+// ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
+// ACBrNFe1.Configuracoes.WebServices.UF := 'SC';
+// ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
+//
+// OpenDialog1.Title :=
+// 'Selecione um Arquivo de Distribui√ß√£o para simular uma consulta ou feche para consultar o WebService';
+// OpenDialog1.DefaultExt := '*-dist-dfe.XML';
+// OpenDialog1.Filter :=
+// 'Arquivos Distribui√ß√£o DFe (*-dist-dfe.XML)|*-dist-dfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
+// OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+//
+// UltimoNSUSalvo := '';
+// DataHoraUltConsulta := 0;
+//
+// // Cria pasta DFE
+// PastaDFE := IncludeTrailingPathDelimiter(ACBrNFe1.Configuracoes.Arquivos.PathSalvar) + 'DFE\';
+// if not DirectoryExists(PastaDFE) then
+// ForceDirectories(PastaDFE);
+//
+// // Simula√ß√£o ou consulta real
+// if OpenDialog1.Execute then
+// begin
+// ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.Leitor.CarregarArquivo(OpenDialog1.FileName);
+// ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.LerXml;
+// AultNSU := ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.ultNSU;
+// end
+// else
+// begin
+// xTitulo := 'Distribui√ß√£o DF-e por √∫ltimo NSU';
+//
+// cUFAutor := IntToStr(ACBrNFe1.Configuracoes.WebServices.UFCodigo);
+// if not(InputQuery(xTitulo, 'C√≥digo da UF do Autor', cUFAutor)) then
+// exit;
+//
+// if not(InputQuery(xTitulo, 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
+// exit;
+//
+// if UltimoNSUSalvo <> '' then
+// AultNSU := UltimoNSUSalvo
+// else
+// AultNSU := '';
+//
+// if not(InputQuery(xTitulo, '√öltimo NSU recebido pelo ator', AultNSU)) then
+// exit;
+//
+// ACBrNFe1.DistribuicaoDFePorUltNSU(StrToInt(cUFAutor), CNPJ, AultNSU);
+// end;
+//
+// with ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt do
+// begin
+// if (cStat = 138) then
+// begin
+// UltimoNSUSalvo := ultNSU;
+// DataHoraUltConsulta := Now;
+//
+// MemoDados.Lines.Add('Consulta realizada com sucesso em: ' + DateTimeToStr(DataHoraUltConsulta));
+// MemoDados.Lines.Add('√öltimo NSU salvo: ' + UltimoNSUSalvo);
+// MemoDados.Lines.Add('');
+//
+// // Salva cada XML j√° descompactado
+// for i := 0 to docZip.Count - 1 do
+// begin
+// if Trim(docZip[i].XML) = '' then
+// Continue;
+//
+// NomeArquivo := PastaDFE + 'NSU_' + docZip[i].NSU + '.xml';
+// SL := TStringList.Create;
+// try
+// SL.Text := docZip[i].XML;
+// SL.SaveToFile(NomeArquivo);
+// MemoDados.Lines.Add('XML salvo: ' + NomeArquivo);
+// except
+// on E: Exception do
+// MemoDados.Lines.Add('Erro ao salvar XML (' + NomeArquivo + '): ' + E.Message);
+// end;
+// SL.Free;
+// end;
+// end
+// else
+// begin
+// MemoDados.Lines.Add('Nenhum documento novo. Status: ' + IntToStr(cStat) + ' - ' + xMotivo);
+// end;
+//
+// MemoDados.Lines.Add('');
+// MemoDados.Lines.Add('Qtde Documentos Retornados: ' + IntToStr(docZip.Count));
+// MemoDados.Lines.Add('√öltimo NSU: ' + ultNSU);
+// MemoDados.Lines.Add('M√°ximo NSU: ' + maxNSU);
+// end;
+//
+// MemoResp.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetWS;
+// memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
+// LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
+// pgRespostas.ActivePage := Dados;
+// end;
 
 procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
 var
-  xTitulo, cUFAutor,  AultNSU: string;
+  xTitulo, cUFAutor, AultNSU, UltimoNSUSalvo: string;
+  DataHoraUltConsulta: TDateTime;
+  PastaDFE, NomeArquivo: string;
   i: Integer;
+  SL: TStringList;
+  JSONRoot, JSONInfo, JSONItem: TJSONObject;
+  JSONArray: TJSONArray;
+  XMLText: string;
 begin
-ACBrNFe1.Configuracoes.WebServices.UF := 'SC';
-ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
-  // OpÁ„o para simular uma consulta ao WebService lendo o arquivo de retorno e populando o componente
+  ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
+  ACBrNFe1.Configuracoes.WebServices.UF := 'SC';
+  ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
+
   OpenDialog1.Title :=
-    'Selecione um Arquivo de DistribuiÁ„o para simular uma consulta ou feche para consultar o WebService';
+    'Selecione um Arquivo de Distribui√ß√£o para simular uma consulta ou feche para consultar o WebService';
   OpenDialog1.DefaultExt := '*-dist-dfe.XML';
   OpenDialog1.Filter :=
-    'Arquivos DistribuiÁ„o DFe (*-dist-dfe.XML)|*-dist-dfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
-
+    'Arquivos Distribui√ß√£o DFe (*-dist-dfe.XML)|*-dist-dfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
   OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
 
-  // LÍ o arquivo selecionado
+  UltimoNSUSalvo := '';
+  DataHoraUltConsulta := 0;
+
+  PastaDFE := IncludeTrailingPathDelimiter
+    (ACBrNFe1.Configuracoes.Arquivos.PathSalvar) + 'DFE\';
+  if not DirectoryExists(PastaDFE) then
+    ForceDirectories(PastaDFE);
+
   if OpenDialog1.Execute then
   begin
     ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.Leitor.CarregarArquivo
       (OpenDialog1.FileName);
     ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.LerXml;
-
     AultNSU := ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.ultNSU;
   end
-  // Consulta o WebService
   else
   begin
-    xTitulo := 'DistribuiÁ„o DF-e por ˙ltimo NSU';
+    xTitulo := 'Distribui√ß√£o DF-e por √∫ltimo NSU';
 
     cUFAutor := IntToStr(ACBrNFe1.Configuracoes.WebServices.UFCodigo);
-    if not(InputQuery(xTitulo, 'CÛdigo da UF do Autor', cUFAutor)) then
+    if not(InputQuery(xTitulo, 'C√≥digo da UF do Autor', cUFAutor)) then
       exit;
 
-    CNPJ := CNPJ;
     if not(InputQuery(xTitulo, 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
       exit;
 
-    AultNSU := '';
-    if not(InputQuery(xTitulo, '⁄ltimo NSU recebido pelo ator', AultNSU)) then
+    if UltimoNSUSalvo <> '' then
+      AultNSU := UltimoNSUSalvo
+    else
+      AultNSU := '';
+
+    if not(InputQuery(xTitulo, '√öltimo NSU recebido pelo ator', AultNSU)) then
       exit;
 
     ACBrNFe1.DistribuicaoDFePorUltNSU(StrToInt(cUFAutor), CNPJ, AultNSU);
@@ -1829,69 +2060,96 @@ ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
 
   with ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt do
   begin
-    // Caso n„o retorne registros, ocorra consumo indevido ou seja o ˙ltimo lote, gera alerta
-    if ((cStat = 137) or (cStat = 656) or (ultNSU = maxNSU)) then
+    if (cStat = 138) then
     begin
-      // 656-Consumo indevido
-      if cStat = 656 then
-      begin
-        MemoDados.Lines.Add('AtenÁ„o...: Consumo indevido.');
+      UltimoNSUSalvo := ultNSU;
+      DataHoraUltConsulta := now;
 
-        if AultNSU <> ultNSU then
-          MemoDados.Lines.Add('            ultNSU utilizado nesta consulta [' +
-            AultNSU + '] È diferente ' + 'do ultNSU consultado na Sefaz [' +
-            ultNSU + '].');
-      end
-      // 137-Nenhum documento localizado
-      else if cStat = 137 then
-        MemoDados.Lines.Add
-          ('AtenÁ„o...: N„o existem mais registros disponÌveis.')
-        // ultNSU = maxNSU - Documentos Localizados, mas È o ˙ltimo lote
-      else
-        MemoDados.Lines.Add
-          ('AtenÁ„o...: Este È o ˙ltimo lote de registros disponÌveis para distribuiÁ„o.');
+      MemoDados.Lines.Add('Consulta realizada com sucesso em: ' +
+        DateTimeToStr(DataHoraUltConsulta));
+      MemoDados.Lines.Add('√öltimo NSU salvo: ' + UltimoNSUSalvo);
+      MemoDados.Lines.Add('');
 
-      MemoDados.Lines.Add
-        ('AtenÁ„o...: Aguarde 1 hora para a prÛxima consulta.');
-      MemoDados.Lines.Add(' ');
-    end;
+      JSONRoot := TJSONObject.Create;
+      JSONArray := TJSONArray.Create;
 
-    MemoDados.Lines.Add('Qtde Documentos Retornados: ' +
-      IntToStr(docZip.Count));
-    MemoDados.Lines.Add('Status....: ' + IntToStr(cStat));
-    MemoDados.Lines.Add('Motivo....: ' + xMotivo);
-    MemoDados.Lines.Add('⁄ltimo NSU: ' + ultNSU);
-    MemoDados.Lines.Add('M·ximo NSU: ' + maxNSU);
-    MemoDados.Lines.Add(' ');
-    MemoDados.Lines.Add('Documentos Retornados:');
+      try
+        // percorre os documentos
+        for i := 0 to docZip.Count - 1 do
+        begin
+          if Trim(docZip[i].XML) = '' then
+            Continue;
 
-    for i := 0 to docZip.Count - 1 do
-    begin
-      case docZip[i].schema of
-        schresNFe:
-          MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
-            ' (Resumo Nota) Chave: ' + docZip[i].resDFe.chDFe);
+          NomeArquivo := PastaDFE + 'NSU_' + docZip[i].NSU + '.xml';
+          SL := TStringList.Create;
+          try
+            SL.Text := docZip[i].XML;
+            SL.SaveToFile(NomeArquivo);
 
-        schprocNFe:
-          MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
-            ' (Nota Completa) Chave: ' + docZip[i].resDFe.chDFe);
+            // gera item JSON
+            JSONItem := TJSONObject.Create;
+            JSONItem.AddPair('nsu', docZip[i].NSU);
+            JSONItem.AddPair('chave', docZip[i].resDFe.chDFe);
+            JSONItem.AddPair('cnpj_emitente', docZip[i].resDFe.CNPJCPF);
+            JSONItem.AddPair('emitente', docZip[i].resDFe.xNome);
+            JSONItem.AddPair('valor', TJSONNumber.Create(docZip[i].resDFe.vNF));
+            JSONItem.AddPair('data_emissao', DateToStr(docZip[i].resDFe.dhEmi));
+            JSONItem.AddPair('situacao', GetEnumName(TypeInfo(TSituacaoDFe),
+              Ord(docZip[i].resDFe.cSitDFe)));
 
-        schresEvento:
-          MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
-            ' (Resumo Evento) Chave: ' + docZip[i].resEvento.chDFe);
+            // adiciona XML puro (opcional, se quiser mandar junto)
+            XMLText := docZip[i].XML;
+            JSONItem.AddPair('xml_base64', EncodeStringBase64(XMLText));
 
-        schprocEventoNFe:
-          MemoDados.Lines.Add(IntToStr(i + 1) + ' NSU: ' + docZip[i].NSU +
-            ' (Evento Completo) ID: ' + docZip[i].procEvento.Id);
+            // adiciona ao array
+            JSONArray.AddElement(JSONItem);
+
+            MemoDados.Lines.Add('XML salvo e JSON criado: ' + NomeArquivo);
+          finally
+            SL.Free;
+          end;
+        end;
+
+        // cria o bloco de informa√ß√µes da consulta
+        JSONInfo := TJSONObject.Create;
+        JSONInfo.AddPair('data_consulta', DateToStr(DataHoraUltConsulta));
+        JSONInfo.AddPair('hora_consulta', TimeToStr(DataHoraUltConsulta));
+        JSONInfo.AddPair('ultimo_nsu', UltimoNSUSalvo);
+        JSONInfo.AddPair('qtd_documentos', TJSONNumber.Create(docZip.Count));
+
+        // junta tudo no JSON raiz
+        JSONRoot.AddPair('consulta', JSONInfo);
+        JSONRoot.AddPair('documentos', JSONArray);
+
+        // salva para debug
+        NomeArquivo := PastaDFE + 'resultado_' +
+          FormatDateTime('yyyymmdd_hhnnss', now) + '.json';
+        SL := TStringList.Create;
+        try
+          SL.Text := JSONRoot.Format(2);
+          SL.SaveToFile(NomeArquivo);
+          MemoDados.Lines.Add('JSON salvo em: ' + NomeArquivo);
+        finally
+          SL.Free;
+        end;
+
+        // üëâ aqui tu pode enviar JSONRoot.ToJSON para tua API via HTTP POST
+        // usando um TNetHTTPClient ou IdHTTP
+        // Exemplo:
+        // HTTPClient.Post('https://tuaapi.com/importar_notas', TStringStream.Create(JSONRoot.ToJSON, TEncoding.UTF8));
+
+      finally
+        JSONRoot.Free;
       end;
-    end;
+    end
+    else
+      MemoDados.Lines.Add('Nenhum documento novo. Status: ' + IntToStr(cStat) +
+        ' - ' + xMotivo);
   end;
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
-
   LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
-
   pgRespostas.ActivePage := Dados;
 end;
 
@@ -2031,7 +2289,7 @@ begin
 
   if Trim(vNumLote) = '' then
   begin
-    MessageDlg('N˙mero do Lote inv·lido.', mtError, [mbok], 0);
+    MessageDlg('N√∫mero do Lote inv√°lido.', mtError, [mbok], 0);
     exit;
   end;
 
@@ -2094,7 +2352,7 @@ begin
       try
         ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
       except
-        // showmessage('Arquivo NFe Inv·lido');
+        // showmessage('Arquivo NFe Inv√°lido');
         exit;
       end;
     end;
@@ -2835,24 +3093,24 @@ var
   modelo, Serie, Ano, NumeroInicial, NumeroFinal, Justificativa: String;
 begin
   // Ano := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'Ano', Ano)) then
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'Ano', Ano)) then
   // exit;
   // modelo := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'Modelo', modelo)) then
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'Modelo', modelo)) then
   // exit;
   // Serie := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'Serie', Serie)) then
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'Serie', Serie)) then
   // exit;
   // NumeroInicial := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'N˙mero Inicial',
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'N√∫mero Inicial',
   // NumeroInicial)) then
   // exit;
   // NumeroFinal := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'N˙mero Final', NumeroFinal))
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'N√∫mero Final', NumeroFinal))
   // then
   // exit;
   // Justificativa := '';
-  // if not(InputQuery('WebServices InutilizaÁ„o ', 'Justificativa', Justificativa))
+  // if not(InputQuery('WebServices Inutiliza√ß√£o ', 'Justificativa', Justificativa))
   // then
   // exit;
   //
@@ -2867,7 +3125,7 @@ begin
   // pgRespostas.ActivePageIndex := 1;
   //
   // MemoDados.Lines.Add('');
-  // MemoDados.Lines.Add('InutilizaÁ„o');
+  // MemoDados.Lines.Add('Inutiliza√ß√£o');
   // MemoDados.Lines.Add('tpAmb: ' +
   // TpAmbToStr(ACBrNFe1.WebServices.Inutilizacao.tpAmb));
   // MemoDados.Lines.Add('verAplic: ' + ACBrNFe1.WebServices.Inutilizacao.
@@ -2896,7 +3154,7 @@ end;
 
 procedure TfrmACBrNFe.btnInutilizarImprimirClick(Sender: TObject);
 begin
-  OpenDialog1.Title := 'Selecione o InutilizaÁ„o';
+  OpenDialog1.Title := 'Selecione o Inutiliza√ß√£o';
   OpenDialog1.DefaultExt := '*.XML';
   OpenDialog1.Filter :=
     'Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
@@ -2924,7 +3182,7 @@ begin
   else if Sender = btnManifDestOperNaoRealizada then
     AtpEvento := teManifDestOperNaoRealizada;
 
-  Titulo := 'ManifestaÁ„o Destinatario - ' +
+  Titulo := 'Manifesta√ß√£o Destinatario - ' +
     StringReplace(TpEventoToDescStr(AtpEvento), 'ManifDest', '',
     [rfReplaceAll]);
 
@@ -2944,19 +3202,19 @@ begin
   with ACBrNFe1.EventoNFe.Evento.New do
   begin
     {
-      Como os Eventos de ManifestaÁ„o do Destinat·rio s„o enviados para o
-      Ambiente Nacional, o cÛdigo informado em cOrgao deve ser sempre 91
+      Como os Eventos de Manifesta√ß√£o do Destinat√°rio s√£o enviados para o
+      Ambiente Nacional, o c√≥digo informado em cOrgao deve ser sempre 91
     }
     infEvento.cOrgao := 91;
     infEvento.chNFe := Chave;
-    infEvento.CNPJ := CNPJ; // CNPJ/CPF do Destinat·rio da Mercadoria
+    infEvento.CNPJ := CNPJ; // CNPJ/CPF do Destinat√°rio da Mercadoria
     infEvento.dhEvento := now;
     {
-      Tipos de Eventos de ManifestaÁ„o do Destinat·rio:
-      teManifDestConfirmacao      = ConfirmaÁ„o da OperaÁ„o
-      teManifDestCiencia          = CiÍncia da OperaÁ„o
-      teManifDestDesconhecimento  = Desconhecimento da OperaÁ„o
-      teManifDestOperNaoRealizada = OperaÁ„o N„o Realizada
+      Tipos de Eventos de Manifesta√ß√£o do Destinat√°rio:
+      teManifDestConfirmacao      = Confirma√ß√£o da Opera√ß√£o
+      teManifDestCiencia          = Ci√™ncia da Opera√ß√£o
+      teManifDestDesconhecimento  = Desconhecimento da Opera√ß√£o
+      teManifDestOperNaoRealizada = Opera√ß√£o N√£o Realizada
     }
     infEvento.tpEvento := AtpEvento;
 
@@ -3005,7 +3263,7 @@ begin
   pgRespostas.ActivePageIndex := 1;
 
   MemoDados.Lines.Add('');
-  MemoDados.Lines.Add('Status ServiÁo');
+  MemoDados.Lines.Add('Status Servi√ßo');
   MemoDados.Lines.Add('tpAmb: ' +
     TpAmbToStr(ACBrNFe1.WebServices.StatusServico.tpAmb));
   MemoDados.Lines.Add('verAplic: ' +
@@ -3062,14 +3320,14 @@ begin
       MemoResp.Lines.Add('Erro: ' + Msg)
     else
     begin
-      MemoResp.Lines.Add('OK: Assinatura V·lida');
+      MemoResp.Lines.Add('OK: Assinatura V√°lida');
       ACBrNFe1.SSL.CarregarCertificadoPublico
         (ACBrNFe1.NotasFiscais[0].NFe.signature.X509Certificate);
       MemoResp.Lines.Add('Assinado por: ' + ACBrNFe1.SSL.CertRazaoSocial);
       MemoResp.Lines.Add('CNPJ: ' + ACBrNFe1.SSL.CertCNPJ);
-      MemoResp.Lines.Add('Num.SÈrie: ' + ACBrNFe1.SSL.CertNumeroSerie);
+      MemoResp.Lines.Add('Num.S√©rie: ' + ACBrNFe1.SSL.CertNumeroSerie);
 
-      // showmessage('ASSINATURA V¡LIDA');
+      // showmessage('ASSINATURA V√ÅLIDA');
     end;
   end;
 end;
@@ -3114,7 +3372,7 @@ begin
 
   OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
 
-  // Sugest„o de configuraÁ„o para apresentaÁ„o de mensagem mais amig·vel ao usu·rio final
+  // Sugest√£o de configura√ß√£o para apresenta√ß√£o de mensagem mais amig√°vel ao usu√°rio final
   ACBrNFe1.Configuracoes.Geral.ExibirErroSchema := False;
   ACBrNFe1.Configuracoes.Geral.FormatoAlerta := 'Campo:%DESCRICAO% - %MSG%';
 
@@ -3130,7 +3388,7 @@ begin
         MemoDados.Lines.Add('Alertas: ' + ACBrNFe1.NotasFiscais.Items
           [0].Alertas);
 
-      // showmessage('Nota Fiscal EletrÙnica Valida');
+      // showmessage('Nota Fiscal Eletr√¥nica Valida');
     except
       on E: Exception do
       begin
@@ -3313,7 +3571,7 @@ var
 begin
   // Gera um novo GUID
   if CreateGUID(GUID) = 0 then
-    // Converte o GUID para string no formato padr„o
+    // Converte o GUID para string no formato padr√£o
     Result := GUIDToString(GUID)
   else
     Result := ''; // Retorna uma string vazia em caso de erro
@@ -3393,7 +3651,7 @@ begin
   if Windows.GetComputerName(Buffer, Size) then
     Result := Buffer
   else
-    Result := 'Nome do computador n„o encontrado';
+    Result := 'Nome do computador n√£o encontrado';
 end;
 
 procedure TfrmACBrNFe.GravarConfiguracao;
@@ -3782,7 +4040,7 @@ begin
   end
   else
   begin
-    Tags.AddPair('environment', 'produÁ„o');
+    Tags.AddPair('environment', 'produ√ß√£o');
   end;
 
   Tags.AddPair('user', GetComputerName);
@@ -3824,7 +4082,7 @@ begin
   ACBrNFe1.NotasFiscais.Clear;
   ACBrNFe1.NotasFiscais.LoadFromFile(Caminho, False);
 
-  // Adiciona os par‚metros ao corpo da requisiÁ„o
+  // Adiciona os par√¢metros ao corpo da requisi√ß√£o
   RESTRequest.Params.AddItem('cnpj', CNPJ,
     TRESTRequestParameterKind.pkGETorPOST);
   RESTRequest.Params.AddItem('data', FormatDateTime('yyyy-mm-dd',
@@ -3877,7 +4135,7 @@ begin
         begin
 
           if (ResponseJSON.GetValue('error')
-            .Value = 'J· existe uma nota fiscal com esta chave para o CNPJ informado.')
+            .Value = 'J√° existe uma nota fiscal com esta chave para o CNPJ informado.')
           then
           begin
             try
@@ -3925,7 +4183,7 @@ function TfrmACBrNFe.ExtrairNItemDoErro(const Erro: string): Integer;
 var
   Match: TMatch;
 begin
-  Result := -1; // valor padr„o caso n„o encontre
+  Result := -1; // valor padr√£o caso n√£o encontre
   Match := TRegEx.Match(Erro, '\[nItem:(\d+)\]');
   if Match.Success then
     Result := StrToIntDef(Match.Groups[1].Value, -1);
@@ -3997,8 +4255,8 @@ begin
 
   if not DirectoryExists(Caminho) then
   begin
-    MemoResp.Lines.Add('Diretorio N„o Existe!');
-    req.URL := 'nfce/contabilidade/2/Diretorio n„o existe';
+    MemoResp.Lines.Add('Diretorio N√£o Existe!');
+    req.URL := 'nfce/contabilidade/2/Diretorio n√£o existe';
     req.Metodo := mPost;
     req.Execute;
     req.Free;
@@ -4268,7 +4526,7 @@ begin
 
             // Fazer rota para armazenar as notas em contigencia
 
-            Chave := 'CONTING NCIA';
+            Chave := 'CONTING√äNCIA';
             Protocolo := '0';
 
             iReq := iRequisicao.Create(nil);
@@ -4489,7 +4747,7 @@ begin
               if (EventoRetorno.retEvento.Items[0].RetInfEvento.cStat = 135) or
                 (EventoRetorno.retEvento.Items[0].RetInfEvento.cStat = 573) then
               begin
-                // Coloque aqui o cÛdigo a ser executado se cStat for 573 ou 135
+                // Coloque aqui o c√≥digo a ser executado se cStat for 573 ou 135
                 case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
                   taProducao:
                     begin
@@ -4636,11 +4894,11 @@ begin
   if length(Num) <> 11 then
     exit;
 
-  // Verifica se todos os dÌgitos s„o iguais
+  // Verifica se todos os d√≠gitos s√£o iguais
   if Num = StringOfChar(Num[1], 11) then
     exit;
 
-  // Primeiro dÌgito
+  // Primeiro d√≠gito
   Soma := 0;
   for i := 1 to 9 do
     Soma := Soma + StrToInt(Num[i]) * (11 - i);
@@ -4650,7 +4908,7 @@ begin
   if Resto <> StrToInt(Num[10]) then
     exit;
 
-  // Segundo dÌgito
+  // Segundo d√≠gito
   Soma := 0;
   for i := 1 to 10 do
     Soma := Soma + StrToInt(Num[i]) * (12 - i);

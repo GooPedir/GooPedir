@@ -1462,8 +1462,52 @@ begin
         ExecultaSQL
           ('insert into usuario (codigo,nome) values (-2,"PEDIDO SITE");');
       end;
-      124: begin
-        ExecultaSQL('ALTER TABLE fornecedor_item ADD COLUMN fator FLOAT NULL DEFAULT 0;');
+    124:
+      begin
+        ExecultaSQL
+          ('ALTER TABLE fornecedor_item ADD COLUMN fator FLOAT NULL DEFAULT 0;');
+        ExecultaSQL
+          ('alter table dados_whatsapp add mensagem_conclusao varchar(2555);');
+        ExecultaSQL
+          ('alter table dados_whatsapp add conclusao_envio_range varchar(20) default "3,24";');
+      end;
+    125:
+      begin
+        SQL := 'CREATE TABLE dfe_consulta (';
+        SQL := SQL + '  id INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '  cnpj_empresa VARCHAR(18) NOT NULL,';
+        SQL := SQL + '  data_consulta DATE NOT NULL,';
+        SQL := SQL + '  hora_consulta TIME NOT NULL,';
+        SQL := SQL + '  ultimo_nsu VARCHAR(15) NOT NULL,';
+        SQL := SQL + '  qtd_documentos INT DEFAULT 0,';
+        SQL := SQL +
+          '  ambiente ENUM("producao", "homologacao") DEFAULT "producao",';
+        SQL := SQL + '  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
+        SQL := ' CREATE TABLE dfe_documento (';
+        SQL := SQL + '   id INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '   id_consulta INT NOT NULL,';
+        SQL := SQL + '   nsu VARCHAR(15) NOT NULL,';
+        SQL := SQL + '   chave VARCHAR(44) NOT NULL,';
+        SQL := SQL + '   cnpj_emitente VARCHAR(18),';
+        SQL := SQL + '   nome_emitente VARCHAR(150),';
+        SQL := SQL + '   valor DECIMAL(15,2),';
+        SQL := SQL + '   data_emissao DATETIME,';
+        SQL := SQL + '   situacao VARCHAR(30),';
+        SQL := SQL + '   xml_base64 LONGTEXT,';
+        SQL := SQL + '   tipo ENUM("nfe", "evento", "resumo") DEFAULT "nfe",';
+        SQL := SQL + '   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '   UNIQUE KEY uk_chave (chave),';
+        SQL := SQL + '   INDEX idx_nsu (nsu),';
+        SQL := SQL +
+          '   CONSTRAINT fk_dfe_consulta FOREIGN KEY (id_consulta) REFERENCES dfe_consulta(id)';
+        SQL := SQL + '     ON DELETE CASCADE';
+        SQL := SQL +
+          ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN `chave_nota` VARCHAR(45);');
       end;
     99999999:
       begin

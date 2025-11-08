@@ -117,7 +117,6 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
-  {$R}
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas';

@@ -2,8 +2,8 @@
 <BorlandProject>
   <Transactions>
     <Transaction>2025/11/04 20:02:50.370,=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
-    <Transaction>2025/11/04 20:03:20.186,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\ufrmCore.pas=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
     <Transaction>2025/11/04 20:03:20.186,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\ufrmCore.dfm=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>2025/11/04 20:03:20.186,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\ufrmCore.pas=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
     <Transaction>2025/11/04 20:03:27.623,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\core.dproj=C:\Users\GooPedir\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
     <Transaction>2025/11/04 20:26:22.482,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\conexao.pas</Transaction>
     <Transaction>2025/11/04 20:26:23.235,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\modulo\uDM.pas</Transaction>
@@ -36,5 +36,26 @@
     <Transaction>2025/11/04 20:27:07.031,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Utils.pas</Transaction>
     <Transaction>2025/11/04 20:27:30.809,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\coreGoopedir.dproj=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\core.dproj</Transaction>
     <Transaction>2025/11/04 20:33:27.968,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\uProcessamentoiFood.pas</Transaction>
+    <Transaction>2025/11/04 20:34:20.347,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\util\util.pas</Transaction>
+    <Transaction>2025/11/04 20:34:43.115,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\util\util.pas=</Transaction>
+    <Transaction>2025/11/04 20:35:33.675,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 20:35:47.480,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\util\uGenericaFuncion.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 20:42:35.247,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 20:42:51.310,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\controller\uAtualizador.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.615,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\Data.FireDACJSONReflect.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.669,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Config.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.689,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Consts.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.724,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Export.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.744,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Import.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.796,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Language.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.844,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.864,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.UpdatedStatus.pas</Transaction>
+    <Transaction>2025/11/04 20:46:08.903,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\DataSet.Serialize.Utils.pas</Transaction>
+    <Transaction>2025/11/04 21:05:22.006,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 21:05:35.135,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\controller\uBackupBanco.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 21:19:13.619,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 21:19:20.138,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\controller\uUtil.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 21:23:00.710,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
+    <Transaction>2025/11/04 21:23:10.446,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\controller\uIfood.pas=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\core\Unit1.pas</Transaction>
   </Transactions>
 </BorlandProject>

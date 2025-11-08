@@ -428,12 +428,24 @@ begin
       // JsonCampo.AddPair('type', 'string');
       // JsonCampos.AddElement(JsonCampo);
 
-      Qry.SQL.Add('select mensagem_inicio from dados_whatsapp');
+      Qry.SQL.Add('select mensagem_inicio, mensagem_conclusao, conclusao_envio_range from dados_whatsapp');
       Qry.Open;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem');
       JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio')
         .AsWideString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'mensagem_conclusao');
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_conclusao').AsWideString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'conclusao_envio_range');
+      JsonCampo.AddPair('valor', Qry.FieldByName('conclusao_envio_range').AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
       Qry.Free;

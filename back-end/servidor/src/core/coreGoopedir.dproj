@@ -136,6 +136,20 @@
         <DCCReference Include="..\other\JOSE.Types.JSON.pas"/>
         <DCCReference Include="..\other\JOSE.Types.Utils.pas"/>
         <DCCReference Include="..\uProcessamentoiFood.pas"/>
+        <DCCReference Include="..\util\uGenericaFuncion.pas"/>
+        <DCCReference Include="controller\uAtualizador.pas"/>
+        <DCCReference Include="..\other\Data.FireDACJSONReflect.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Config.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Consts.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Export.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Import.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Language.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.UpdatedStatus.pas"/>
+        <DCCReference Include="..\other\DataSet.Serialize.Utils.pas"/>
+        <DCCReference Include="controller\uBackupBanco.pas"/>
+        <DCCReference Include="controller\uUtil.pas"/>
+        <DCCReference Include="controller\uIfood.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

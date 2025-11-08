@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'frmServidor'
-  ClientHeight = 709
-  ClientWidth = 1016
+  ClientHeight = 708
+  ClientWidth = 1012
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -500,62 +500,6 @@ object frmServidor: TfrmServidor
     DataSet = dataSetPolling
     Left = 88
     Top = 128
-  end
-  object IFood: TADRIFood
-    Credentials.AuthorizationType = ctCentralized
-    Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176'
-    Credentials.ClientSecret = 
-      'a9ah7r443j4v323011ybtqol5l2ihpmsjbz5lbydto8vcjpi79jdpl3sa8ftkm23' +
-      'b1hukhzdp90in0x9iyge31yzyitty2j8qr3'
-    Servers.IFoodAPI = cMerchantAPI
-    SoftwareHouse.Id = '09071157997'
-    SoftwareHouse.DiasAlerta = 30
-    Polling.AutoPolling = False
-    Polling.DataSource = dsPolling
-    Polling.Interval = 30
-    Polling.InvokeEvents = False
-    MerchantStatus.AutoStatus = False
-    MerchantStatus.Interval = 30
-    MerchantStatus.DataSource = dsMerchantStatus
-    OnOrderPlaced = IFoodOrderPlaced
-    OnOrderIntegrated = IFoodOrderIntegrated
-    OnOrderConfirmed = IFoodOrderConfirmed
-    OnOrderCancellationRequested = IFoodOrderCancellationRequested
-    OnOrderCancellationFailed = IFoodOrderCancellationFailed
-    OnOrderCancelled = IFoodOrderCancelled
-    OnOrderGoingToOrigin = IFoodOrderGoingToOrigin
-    OnOrderArrivedAtOrigin = IFoodOrderArrivedAtOrigin
-    OnOrderReadyToDeliver = IFoodOrderReadyToDeliver
-    OnOrderCollected = IFoodOrderCollected
-    OnOrderDispatched = IFoodOrderDispatched
-    OnOrderDelivered = IFoodOrderDelivered
-    OnOrderConcluded = IFoodOrderConcluded
-    OnOrderPickupAreaAssigned = IFoodOrderPickupAreaAssigned
-    OnOrderDelayNotification = IFoodOrderDelayNotification
-    OnOrderChangePreparationTime = IFoodOrderChangePreparationTime
-    OnOrderRequestDriverAvailability = IFoodOrderRequestDriverAvailability
-    OnOrderRequestDriver = IFoodOrderRequestDriver
-    OnOrderRequestDriverSuccess = IFoodOrderRequestDriverSuccess
-    OnOrderRequestDriverFailed = IFoodOrderRequestDriverFailed
-    OnOrderAssignDriver = IFoodOrderAssignDriver
-    OnOrderConsumerCancellationRequested = IFoodOrderConsumerCancellationRequested
-    OnOrderConsumerCancellationAccepted = IFoodOrderConsumerCancellationAccepted
-    OnOrderConsumerCancellationDenied = IFoodOrderConsumerCancellationDenied
-    OnOrderBoxAssigned = IFoodOrderBoxAssigned
-    OnOrderRecommendedPreparation = IFoodOrderRecommendedPreparation
-    OnOrderReadyToPickup = IFoodOrderReadyToPickup
-    OnOrderPreparationStarted = IFoodOrderPreparationStarted
-    OnPollingEnd = IFoodPollingEnd
-    OnPollingStart = IFoodPollingStart
-    OnPollingError = IFoodPollingError
-    OnLogRequest = IFoodLogRequest
-    OnLogResponse = IFoodLogResponse
-    OnMerchantStatus = IFoodMerchantStatus
-    OnMerchantStatusError = IFoodMerchantStatusError
-    OnRefreshTokenSave = IFoodRefreshTokenSave
-    OnRefreshTokenGet = IFoodRefreshTokenGet
-    Left = 600
-    Top = 192
   end
   object dataSetMerchantStatus: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

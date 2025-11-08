@@ -3,23 +3,22 @@ unit uBackupBanco;
 interface
 
 uses
-  conexao, Winapi.Windows,DataSet.Serialize, FireDAC.Comp.Client, Vcl.Dialogs, System.SysUtils,
+  conexao, Winapi.Windows, DataSet.Serialize, FireDAC.Comp.Client, Vcl.Dialogs,
+  System.SysUtils,
   IdHTTP, IdSSLOpenSSL, FireDAC.Stan.Error,
   System.IniFiles;
 
 type
   TBackupBanco = class
   var
-  NomeArquivoBackup : String;
-  function GetMySQLDumpPath: string;
-  function FileSizeByName(const FileName: string): Int64;
+    NomeArquivoBackup: String;
+    function GetMySQLDumpPath: string;
+    function FileSizeByName(const FileName: string): Int64;
   public
     procedure Iniciar;
   end;
 
 implementation
-
-
 
 { TBackupBanco }
 
@@ -58,13 +57,14 @@ begin
   // Como fallback, tenta buscar no PATH do sistema
   Result := 'mysqldump.exe'; // O sistema tentará achar se estiver no PATH
 end;
+
 procedure TBackupBanco.Iniciar;
 var
   MySQLDumpPath, PastaBackup, CmdLine: string;
   SI: TStartupInfo;
   PI: TProcessInformation;
   ExitCode: DWORD;
-  conexao : TConexao;
+  conexao: TConexao;
 begin
 
   conexao := TConexao.Create('bkpBanco');
@@ -77,7 +77,7 @@ begin
 
   if FileExists(NomeArquivoBackup) then
   begin
-//    tBackupFTP.Enabled := True;
+    // tBackupFTP.Enabled := True;
     exit;
   end;
 
@@ -123,7 +123,7 @@ begin
       if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
         (FileSizeByName(NomeArquivoBackup) > 0) then
       begin
-//        Result := True;
+        // Result := True;
         // tBackupFTP.Enabled := True;
       end
       else
