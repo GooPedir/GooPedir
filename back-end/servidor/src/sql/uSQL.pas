@@ -1,18 +1,18 @@
-unit uSQL;
+ï»¿unit uSQL;
 
 interface
 
 uses
   IdComponent, IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase,
   IdFTP, System.Zip, ShellAPI, Registry, System.Classes, FMX.StdCtrls,
-  Vcl.StdCtrls;
+  Vcl.StdCtrls, FireDAC.Comp.Client, DataSet.Serialize;
 
 type
   TCallback = procedure of object;
 
   TSQL = class
   private
-    { O Controle de atualização do banco vai ser por enquanto com base na versão do executavel }
+    { O Controle de atualizaÃ§Ã£o do banco vai ser por enquanto com base na versÃ£o do executavel }
     Function VersaoExe: String;
     procedure AtualizaCodigoUltimaVersao;
     function ExecultaSQL(SQL: String): Boolean;
@@ -21,6 +21,9 @@ type
     procedure Banco(Versao: Integer);
     procedure IniciaAtualizacao;
     function UltimoCodigo(tabela, campo: String): string;
+
+    function MaiorValorDaLista(const Lista: string): Integer;
+    function ValoresSemMaior(const Lista: string): string;
 
   var
 
@@ -32,6 +35,8 @@ type
     constructor Create;
     procedure VerificaAtualizacao;
     procedure AtualizarBanco;
+    procedure LimpaClientesDuplicado;
+    procedure ProcessaHistoricoCliente(DataBase: TDate);
 
   var
     SeTiverAtualizacao: TCallback;
@@ -136,7 +141,7 @@ begin
   MemoLog.Lines.Add
     ('****************************************************************************');
   MemoLog.Lines.Add('');
-  MemoLog.Lines.Add('Inicio Atualização');
+  MemoLog.Lines.Add('Inicio AtualizaÃ§Ã£o');
   MemoLog.Lines.Add('Data/Hora: ' + FormatDateTime('dd/mm/yyyy hh:nn:ss', now));
   MemoLog.Lines.Add('');
   MemoLog.Lines.Add
@@ -166,6 +171,200 @@ begin
   conexao.Free;
 end;
 
+procedure TSQL.LimpaClientesDuplicado;
+var
+  conexao: TConexao;
+  dados: TFDMemTable;
+  nomeTabela: TFDMemTable;
+  CodigoCliente: Integer;
+begin
+  conexao := TConexao.Create('LimpaClientesDuplicado');
+  nomeTabela := TFDMemTable.Create(nil);
+  conexao.SQL.Add
+    ('SELECT distinct concat("pedido_",referencia) as tabela, 0 FROM index_pedido');
+  nomeTabela.LoadFromJSON(conexao.ConsultaSQL);
+
+  conexao.SQL.Add('SELECT');
+  conexao.SQL.Add('    nome_norm,');
+  conexao.SQL.Add('    contato_norm,');
+  conexao.SQL.Add('    COUNT(*) AS total,');
+  conexao.SQL.Add('    GROUP_CONCAT(codigo) AS ids');
+  conexao.SQL.Add('FROM (');
+  conexao.SQL.Add('    SELECT ');
+  conexao.SQL.Add('        CASE ');
+  conexao.SQL.Add
+    ('            WHEN nome IS NULL OR nome = "" THEN "__SEM_NOME__"');
+  conexao.SQL.Add('            ELSE UPPER(TRIM(nome))');
+  conexao.SQL.Add('        END AS nome_norm,');
+  conexao.SQL.Add('        CASE');
+  conexao.SQL.Add
+    ('            WHEN cpf IS NOT NULL AND cpf <> "" THEN REPLACE(REPLACE(REPLACE(cpf, ".", ""), "-", ""), " ", "")');
+  conexao.SQL.Add
+    ('            WHEN celular IS NOT NULL AND celular <> "" THEN REPLACE(REPLACE(REPLACE(REPLACE(celular, "(", ""), ")", ""), "-", ""), " ", "")');
+  conexao.SQL.Add
+    ('            WHEN celular_wpp IS NOT NULL AND celular_wpp <> "" THEN REPLACE(REPLACE(REPLACE(REPLACE(celular_wpp, "(", ""), ")", ""), "-", ""), " ", "")');
+  conexao.SQL.Add('            ELSE ""');
+  conexao.SQL.Add('        END AS contato_norm,');
+  conexao.SQL.Add('');
+  conexao.SQL.Add('        codigo');
+  conexao.SQL.Add('    FROM cliente');
+  conexao.SQL.Add(') AS t');
+  conexao.SQL.Add('GROUP BY nome_norm, contato_norm');
+  conexao.SQL.Add('HAVING COUNT(*) > 1;');
+
+  dados := TFDMemTable.Create(nil);
+  dados.LoadFromJSON(conexao.ConsultaSQL);
+  if dados.RecordCount > 0 then
+  begin
+    while not dados.Eof do
+    begin
+      CodigoCliente := MaiorValorDaLista(dados.FieldByName('ids').AsString);
+
+      if nomeTabela.RecordCount > 0 then
+      begin
+        nomeTabela.First;
+        while not nomeTabela.Eof do
+        begin
+          conexao.SQL.Add('update ' + nomeTabela.FieldByName('tabela').AsString
+            + ' set codigo_cliente = :cliente where codigo_cliente in (' +
+            dados.FieldByName('ids').AsString + ')');
+          conexao.Parametros('cliente', CodigoCliente);
+          conexao.ExecuteSQL;
+          nomeTabela.Next;
+        end;
+      end;
+      conexao.SQL.Add
+        ('update cliente_endereco set codigo_cliente = :codigo where codigo in ('
+        + dados.FieldByName('ids').AsString + ')');
+      conexao.Parametros('codigo', CodigoCliente);
+      conexao.ExecuteSQL;
+
+      conexao.SQL.Add('delete from cliente where codigo in (' +
+        ValoresSemMaior(dados.FieldByName('ids').AsString) + ')');
+      conexao.ExecuteSQL;
+
+      dados.Next;
+    end;
+  end;
+
+  dados.Free;
+  nomeTabela.Free;
+  conexao.Free;
+
+end;
+
+function TSQL.MaiorValorDaLista(const Lista: string): Integer;
+var
+  Partes: TArray<string>;
+  I, N, Maior: Integer;
+begin
+  Result := 0;
+  if Trim(Lista) = '' then
+    Exit;
+
+  Partes := Lista.Split([',']);
+  Maior := Low(Integer);
+
+  for I := 0 to High(Partes) do
+  begin
+    if TryStrToInt(Trim(Partes[I]), N) then
+      if N > Maior then
+        Maior := N;
+  end;
+
+  Result := Maior;
+end;
+
+procedure TSQL.ProcessaHistoricoCliente(DataBase: TDate);
+var
+  conexao: TConexao;
+  DataAtual: TDate;
+  AnoInicial, MesInicial, Dia: Word;
+  AnoAtual, MesAtual: Word;
+  Ano, Mes: Integer;
+  DataInicioMes, DataFimMes: TDate;
+  tabela: String;
+  dados: TFDMemTable;
+begin
+  conexao := TConexao.Create('ProcessaHistoricoCliente');
+  try
+    DataAtual := Date; // hoje
+
+    DecodeDate(DataBase, AnoInicial, MesInicial, Dia);
+    DecodeDate(DataAtual, AnoAtual, MesAtual, Dia);
+
+    // Loop do ano/mÃªs inicial atÃ© o ano/mÃªs anterior ao atual
+    Ano := AnoInicial;
+    Mes := MesInicial;
+
+    while (Ano < AnoAtual) or ((Ano = AnoAtual) and (Mes < MesAtual)) do
+    begin
+      // Monta inÃ­cio e fim do mÃªs
+      DataInicioMes := EncodeDate(Ano, Mes, 1);
+      tabela := 'pedido_' + Ano.ToString + '_' + FormatFloat('00', Mes);
+      dados := TFDMemTable.Create(nil);
+      conexao.SQL.Add('SELECT ');
+      conexao.SQL.Add('    codigo_cliente,    ');
+      conexao.SQL.Add('    COUNT(*) AS total_pedidos,');
+      conexao.SQL.Add('    SUM(valor_total_pedido) AS total_valor_pedidos,');
+      conexao.SQL.Add
+        ('    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS qtd_cancelados,');
+      conexao.SQL.Add
+        ('    SUM(CASE WHEN status = 0 THEN valor_total_pedido ELSE 0 END) AS valor_cancelado,');
+      conexao.SQL.Add
+        ('    SUM(CASE WHEN status <> 0 THEN 1 ELSE 0 END) AS qtd_finalizados,');
+      conexao.SQL.Add
+        ('    SUM(CASE WHEN status <> 0 THEN valor_total_pedido ELSE 0 END) AS valor_finalizado,');
+      conexao.SQL.Add('	MAX(data_pedido) as ultimo');
+      conexao.SQL.Add('FROM ' + tabela);
+      conexao.SQL.Add('GROUP BY codigo_cliente');
+      conexao.SQL.Add('ORDER BY total_pedidos DESC');
+      dados.LoadFromJSON(conexao.ConsultaSQL);
+
+      if dados.RecordCount > 0 then
+      begin
+        while not dados.Eof do
+        begin
+
+          conexao.SQL.Add
+            ('update cliente set total_cancelados = total_cancelados+ :total_cancelados, total_efetivados = total_efetivados + :total_efetivados,');
+          conexao.SQL.Add
+            ('valor_total_cancelado = valor_total_cancelado + :valor_total_cancelado, valor_total_pedidos = valor_total_pedidos + :valor_total_pedidos,');
+          conexao.SQL.Add
+            ('data_ultima_atualizacao = :data where codigo = :codigo and data_ultima_atualizacao < :data');
+          conexao.Parametros('total_cancelados',
+            dados.FieldByName('qtd_cancelados').AsInteger);
+          conexao.Parametros('total_efetivados',
+            dados.FieldByName('qtd_finalizados').AsInteger);
+          conexao.Parametros('valor_total_cancelado',
+            dados.FieldByName('valor_cancelado').AsFloat);
+          conexao.Parametros('valor_total_pedidos',
+            dados.FieldByName('valor_finalizado').AsFloat);
+          conexao.Parametros('codigo', dados.FieldByName('codigo_cliente')
+            .AsInteger);
+          conexao.Parametros('data', dados.FieldByName('ultimo').AsString);
+          conexao.ExecuteSQL;
+
+          dados.Next;
+        end;
+      end;
+
+      dados.Free;
+
+      // PrÃ³ximo mÃªs
+      Inc(Mes);
+      if Mes > 12 then
+      begin
+        Mes := 1;
+        Inc(Ano);
+      end;
+    end;
+
+  finally
+    conexao.Free;
+  end;
+end;
+
 function TSQL.UltimoCodigo(tabela, campo: String): string;
 var
   conexao: TConexao;
@@ -175,6 +374,47 @@ begin
     ')+1,0) AS codigo,0 as zero FROM ' + tabela);
   Result := conexao.FieldByName('codigo');
   conexao.Free;
+end;
+
+function TSQL.ValoresSemMaior(const Lista: string): string;
+var
+  Partes: TArray<string>;
+  I, N, Maior: Integer;
+  ResultList: TStringList;
+begin
+  Result := '';
+
+  if Trim(Lista) = '' then
+    Exit;
+
+  Partes := Lista.Split([',']);
+  Maior := Low(Integer);
+
+  // Primeiro: descobrir o maior valor
+  for I := 0 to High(Partes) do
+    if TryStrToInt(Trim(Partes[I]), N) then
+      if N > Maior then
+        Maior := N;
+
+  // Segundo: montar lista sem os valores iguais ao maior
+  ResultList := TStringList.Create;
+  try
+    ResultList.Delimiter := ',';
+    ResultList.StrictDelimiter := True;
+
+    for I := 0 to High(Partes) do
+    begin
+      if TryStrToInt(Trim(Partes[I]), N) then
+      begin
+        if N <> Maior then
+          ResultList.Add(IntToStr(N));
+      end;
+    end;
+
+    Result := ResultList.DelimitedText;
+  finally
+    ResultList.Free;
+  end;
 end;
 
 procedure TSQL.VerificaAtualizacao;
@@ -191,7 +431,7 @@ begin
   begin
     if Assigned(SeTiverAtualizacao) then
       SeTiverAtualizacao;
-    MemoLog.Lines.Add('Nova atualização disponível!');
+    MemoLog.Lines.Add('Nova atualizaÃ§Ã£o disponÃ­vel!');
     // AtualizaBanco;
   end
   else
@@ -225,7 +465,7 @@ begin
 
   conexao.Free;
   MemoLog.Lines.Clear;
-  MemoLog.Lines.Add('Verificando Atualizações . . .');
+  MemoLog.Lines.Add('Verificando AtualizaÃ§Ãµes . . .');
 end;
 
 procedure TSQL.Banco(Versao: Integer);
@@ -256,7 +496,7 @@ begin
           ('CREATE TABLE status_pedido (id int NOT NULL, descricao varchar(255) DEFAULT NULL, PRIMARY KEY (id));');
 
         ExecultaSQL
-          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em Produção"),(3,"Pronto"),(4,"Disponível Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
+          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em ProduÃ§Ã£o"),(3,"Pronto"),(4,"DisponÃ­vel Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
       end;
     4:
       begin
@@ -265,7 +505,7 @@ begin
     5:
       begin
         ExecultaSQL('update tipo_sabor set ativo = 0 where nome not in (' +
-          QuotedStr('Promoção') + ',' + QuotedStr('Tradicional') + ',' +
+          QuotedStr('PromoÃ§Ã£o') + ',' + QuotedStr('Tradicional') + ',' +
           QuotedStr('Especial') + ',' + QuotedStr('Doce') + ')');
       end;
     6:
@@ -648,7 +888,7 @@ begin
         SQL := SQL + '         SET tempo_estimado = media_tempo';
         SQL := SQL + '         WHERE codigo = codigo_pedido;';
         SQL := SQL +
-          '         -- Remove o código de pedido da tabela temporária';
+          '         -- Remove o cÃ³digo de pedido da tabela temporÃ¡ria';
         SQL := SQL +
           '         DELETE FROM temp_pedidos WHERE codigo = codigo_pedido;';
         SQL := SQL + '     END WHILE;';
@@ -870,7 +1110,7 @@ begin
       end;
     69:
       begin
-        // Só fiz 1x
+        // SÃ³ fiz 1x
         ExecultaSQL('alter table pedido add nfce_imprimir integer default 0');
       end;
     70:
@@ -1063,7 +1303,7 @@ begin
     93:
       begin
         ExecultaSQL
-          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
+          ('insert into status_pedido (id,descricao) values (9,"Aguardando ConfirmaÃ§Ã£o")');
       end;
     94:
       begin
@@ -1368,7 +1608,7 @@ begin
         SQL := SQL + ');';
         ExecultaSQL(SQL);
         // ============================================================
-        // TABELA: fornecedor_item (catálogo do fornecedor)
+        // TABELA: fornecedor_item (catÃ¡logo do fornecedor)
         // ============================================================
         SQL := ' CREATE TABLE fornecedor_item (';
         SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
@@ -1507,8 +1747,97 @@ begin
         SQL := SQL +
           ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
         ExecultaSQL(SQL);
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN `chave_nota` VARCHAR(45);');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN `chave_nota` VARCHAR(45);');
       end;
+    126:
+      begin
+        ExecultaSQL
+          ('CREATE INDEX idx_estoque_ingrediente_id_desc ON ingredientes_estoque (id_ingredientes, id DESC);');
+        ExecultaSQL
+          ('CREATE INDEX idx_estoque_ingrediente_quantidade ON ingredientes_estoque (id_ingredientes, quantidade);');
+        ExecultaSQL
+          ('CREATE INDEX idx_cliente_endereco_cliente_codigo ON cliente_endereco (codigo_cliente, codigo DESC);');
+        ExecultaSQL('CREATE INDEX idx_cliente_nome ON cliente (nome);');
+        ExecultaSQL
+          ('CREATE INDEX idx_cliente_endereco_cliente_codigo ON cliente_endereco (codigo_cliente, codigo);');
+        ExecultaSQL
+          ('ALTER TABLE fornecedor_item ADD COLUMN fator FLOAT NULL DEFAULT 1;');
+        ExecultaSQL('delete from produto_estoque');
+        ExecultaSQL('alter table produto_estoque add transacao varchar(255)');
+        ExecultaSQL
+          ('ALTER TABLE produto_estoque ADD UNIQUE KEY unq_pedido_item (transacao);');
+      end;
+    127:
+      begin
+
+        SQL := ' CREATE TRIGGER trg_produto_estoque_after_insert';
+        SQL := SQL + ' AFTER INSERT ON produto_estoque';
+        SQL := SQL + ' FOR EACH ROW';
+        SQL := SQL + ' BEGIN';
+        SQL := SQL + '     DECLARE v_saldo INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_status INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_mov INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_controle INT DEFAULT 0;';
+        SQL := SQL + '     SET v_mov := CASE';
+        SQL := SQL + '         WHEN NEW.operacao = 1 THEN NEW.quantidade';
+        SQL := SQL + '         WHEN NEW.operacao = 2 THEN -NEW.quantidade';
+        SQL := SQL + '         ELSE 0';
+        SQL := SQL + '     END;';
+        SQL := SQL + '     SELECT controle_estoque INTO v_controle';
+        SQL := SQL + '     FROM produto';
+        SQL := SQL + '     WHERE codigo = NEW.codigo_produto;';
+        SQL := SQL + '     IF v_controle = 1 THEN';
+        SQL := SQL + '         UPDATE produto';
+        SQL := SQL + '         SET saldo_atual = IFNULL(saldo_atual, 0) + v_mov';
+        SQL := SQL + '         WHERE codigo = NEW.codigo_produto;';
+        SQL := SQL + '         SELECT saldo_atual INTO v_saldo';
+        SQL := SQL + '         FROM produto';
+        SQL := SQL + '         WHERE codigo = NEW.codigo_produto;';
+        SQL := SQL + '         IF v_saldo > 0 THEN';
+        SQL := SQL + '             SET v_status = 1;';
+        SQL := SQL + '         ELSE';
+        SQL := SQL + '             SET v_status = 0;';
+        SQL := SQL + '         END IF;';
+        SQL := SQL + '         UPDATE produto';
+        SQL := SQL + '         SET ativo = v_status,';
+        SQL := SQL + '             modificado_site = 0';
+        SQL := SQL + '         WHERE codigo = NEW.codigo_produto;';
+        SQL := SQL + '     END IF;';
+        SQL := SQL + '     UPDATE pro_adi_personalizado_sabores';
+        SQL := SQL + '     SET ativo = v_status,';
+        SQL := SQL + '         modificado_site = 0';
+        SQL := SQL + '     WHERE id_prod_estoque = NEW.codigo_produto;';
+        SQL := SQL + ' END';
+        ExecultaSQL(SQL);
+      end;
+    128:
+      begin
+        SQL := ' ALTER TABLE `cliente`';
+        SQL := SQL + ' DROP COLUMN `fidelidade_desconto`,';
+        SQL := SQL + ' DROP COLUMN `fidelidade_ponto`,';
+        SQL := SQL + ' DROP COLUMN `id_cliente_site`,';
+        SQL := SQL + ' DROP COLUMN `cashback_saldo`,';
+        SQL := SQL + ' DROP COLUMN `oculto`,';
+        SQL := SQL + ' DROP COLUMN `salvar_dados`,';
+        SQL := SQL + ' DROP COLUMN `bloqueado`;';
+        ExecultaSQL(SQL);
+
+        SQL := ' ALTER TABLE cliente';
+        SQL := SQL + ' ADD total_pedidos INT DEFAULT 0,';
+        SQL := SQL + ' ADD total_cancelados INT DEFAULT 0,';
+        SQL := SQL + ' ADD total_efetivados INT DEFAULT 0,';
+        SQL := SQL + ' ADD percentual_cancelado DECIMAL(5,2) DEFAULT 0,';
+        SQL := SQL + ' ADD percentual_efetivado DECIMAL(5,2) DEFAULT 0,';
+        SQL := SQL + ' ADD nota_cliente DECIMAL(3,2) DEFAULT 0,';
+        SQL := SQL + ' ADD valor_total_pedidos DECIMAL(10,2) DEFAULT 0,';
+        SQL := SQL + ' ADD valor_total_cancelado DECIMAL(10,2) DEFAULT 0,';
+        SQL := SQL + ' ADD data_ultima_atualizacao DATETIME NULL;';
+        ExecultaSQL(SQL);
+        ExecultaSQL
+          ('update cliente set total_efetivados = 0, valor_total_pedidos = 0, data_ultima_atualizacao = "2000-01-01"');
+      end;
+
     99999999:
       begin
         {
@@ -1522,7 +1851,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '123';
+  Result := '128';
 end;
 
 end.

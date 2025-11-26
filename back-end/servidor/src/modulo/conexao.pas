@@ -1,4 +1,4 @@
-unit conexao;
+﻿unit conexao;
 
 interface
 
@@ -111,6 +111,7 @@ var
   I: Integer;
   New: String;
   Dados: String;
+  JsonArray: TJSONArray;
 begin
   UpdateLastActivityTime;
   QRY := CriaQRY;
@@ -124,6 +125,35 @@ begin
   end;
   try
     QRY.Open;
+
+    JsonArray := QRY.ToJSONArray();
+    try
+      Result := TJSONObject.ParseJSONValue
+        (TEncoding.UTF8.GetBytes(JsonArray.ToJSON), 0) as TJSONArray;
+      // Dados.LoadFromJSON(JsonArray.ToString);
+    finally
+      JsonArray.Free; // sem isso, você vazava memória a cada chamada
+    end;
+    // Result := TFDMemTable.Create(nil);
+
+    if cache then
+    begin
+      SaveCache(HashSQL(SQL),
+        TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(Dados), 0)
+        as TJSONArray);
+    end;
+
+    if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+    begin
+      // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+      // 253) + '", datahora = current_timestamp where id = ' +
+      // CodigoConexao.ToString;
+      // try
+      // QRY.ExecSQL;
+      // except
+      //
+      // end;
+    end;
   except
     on E: Exception do
     begin
@@ -131,27 +161,6 @@ begin
       GerarLog(E.message);
     end;
 
-  end;
-  Dados := QRY.ToJSONArray().ToString;
-  // Result := TFDMemTable.Create(nil);
-  Result := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(Dados), 0)
-    as TJSONArray;
-  if cache then
-  begin
-    SaveCache(HashSQL(SQL), TJSONObject.ParseJSONValue
-      (TEncoding.UTF8.GetBytes(Dados), 0) as TJSONArray);
-  end;
-
-  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
-  begin
-    // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
-    // 253) + '", datahora = current_timestamp where id = ' +
-    // CodigoConexao.ToString;
-    // try
-    // QRY.ExecSQL;
-    // except
-    //
-    // end;
   end;
 
   // Writeln(SQL);
@@ -208,8 +217,9 @@ begin
   begin
     if cache then
     begin
-      Result := GetCache(HashSQL(SQL.Text));
+
       try
+        Result := GetCache(HashSQL(SQL.Text));
         if Result.Count > 0 then
         begin
           exit;
@@ -254,13 +264,13 @@ end;
 destructor TConexao.Destroy;
 begin
   // ExecuteSQL('delete from conexao where id = ' + CodigoConexao.ToString);
-
-  DataModulo.Banco.Connected := False;
-
-  DataModulo.Banco.Free;
-  DataModulo.Free;
-  SQL.Free;
-  FTimer.Free;
+  if Assigned(DataModulo) then
+  begin
+    DataModulo.Banco.Connected := False;
+    FreeAndNil(DataModulo); // libera tudo corretamente
+  end;
+  FreeAndNil(SQL);
+  FreeAndNil(FTimer);
   inherited;
 end;
 
@@ -890,7 +900,7 @@ end;
 
 procedure TConexao.OnTimer(Sender: TObject);
 begin
- FTimer.Enabled := False;
+  FTimer.Enabled := False;
   try
     if (Now - FLastActivityTime) * 24 * 60 > 1 then
       FreeAndNil(FTimer);
@@ -1174,7 +1184,7 @@ begin
   FErro := Erro;
   FBanco := Banco;
   FreeOnTerminate := true; // Libera a mem�ria automaticamente ao t�rmino
-  Start; 
+  Start;
 end;
 
 procedure TLogThread1.Execute;

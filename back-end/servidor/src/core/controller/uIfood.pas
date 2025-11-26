@@ -165,36 +165,7 @@ var
   Requisicao: iRequisicao;
   JSON: TJsonObject;
 begin
-  if AContent = '' then
-    exit;
-
-  try
-    JSON := TJsonObject.Create;
-    try
-      // Configura o JSON com os valores
-      JSON.AddPair('computer_name', 'ifood');
-      JSON.AddPair('error_message', AContent);
-      JSON.AddPair('banco', 'IFOOD' + ARequestId);
-
-      // Cria e configura a requisição
-      Requisicao := iRequisicao.Create(nil);
-      try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
-        Requisicao.BODY(JSON);
-        Requisicao.Metodo := mPost;
-        Requisicao.Execute;
-      finally
-        Requisicao.Free;
-      end;
-    finally
-      JSON.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-
-    end;
-  end;
+  
 
 end;
 
@@ -217,37 +188,7 @@ var
   JSON: TJsonObject;
   a: String;
 begin
-  if AError.Message = '' then
-    exit;
-
-  try
-    JSON := TJsonObject.Create;
-    try
-      // Configura o JSON com os valores
-      JSON.AddPair('computer_name', 'ifood');
-      JSON.AddPair('error_message', AError.Message);
-      JSON.AddPair('banco', 'IFOOD');
-
-      // Cria e configura a requisição
-      Requisicao := iRequisicao.Create(nil);
-      try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
-        a := JSON.ToString;
-        Requisicao.BODY(JSON);
-        Requisicao.Metodo := mPost;
-        Requisicao.Execute;
-      finally
-        Requisicao.Free;
-      end;
-    finally
-      JSON.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-
-    end;
-  end;
+  
 
 end;
 

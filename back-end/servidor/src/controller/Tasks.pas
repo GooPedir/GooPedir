@@ -7,7 +7,7 @@ procedure RegisterAllTasks;
 implementation
 
 uses
-  TaskManager, conexao, System.SysUtils, System.Classes, Vcl.Dialogs,
+  uSQL, TaskManager, conexao, System.SysUtils, System.Classes, Vcl.Dialogs,
   FireDAC.Comp.Client, uCacheControl, Dataset.Serialize, uControllCaches, v2,
   System.DateUtils, JOSE.Types.JSON;
 
@@ -38,8 +38,23 @@ begin
 end;
 
 procedure Clientes;
+var
+  Atualizacao: TSQL;
+  conexao: TConexao;
+  Data: String;
 begin
+  Atualizacao.LimpaClientesDuplicado;
+  conexao := TConexao.Create('TaskCliente');
+  conexao.SQL.Add('SELECT * FROM index_pedido order by id limit 1');
+  Data := StringReplace(conexao.FieldByName('referencia') + '-01', '_', '-',
+    [rfReplaceAll]);
 
+  try
+    Atualizacao.ProcessaHistoricoCliente(ISO8601ToDate(Data));
+  except
+    Atualizacao.ProcessaHistoricoCliente(date);
+  end;
+  conexao.Free;
 end;
 
 procedure RelatorioVenda;
@@ -48,8 +63,8 @@ var
   DataIni, DataFim: TDate;
   Data: TJsonArray;
 begin
-  AnoAtual := YearOf(Date);
-  MesAtual := MonthOf(Date);
+  AnoAtual := YearOf(date);
+  MesAtual := MonthOf(date);
 
   try
     // Gera relatórios do mês atual até janeiro
@@ -59,7 +74,7 @@ begin
 
       if Mes = MesAtual then
         // Mês atual: até o dia anterior
-        DataFim := Date - 1
+        DataFim := date - 1
       else
         // Meses anteriores: até o fim do mês
         DataFim := EndOfTheMonth(DataIni);
@@ -71,8 +86,8 @@ begin
     end;
 
     // Depois faz o relatório dos últimos 3 meses
-    DataFim := Date;
-    DataIni := IncMonth(Date, -3);
+    DataFim := date;
+    DataIni := IncMonth(date, -3);
 
     Data := BuscarRelatorioVenda(FormatDateTime('yyyy-mm-dd', DataIni),
       FormatDateTime('yyyy-mm-dd', DataFim));

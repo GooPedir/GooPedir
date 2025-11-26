@@ -381,19 +381,13 @@ begin
         Conexao.Parametros('CFOP', Produtos[I].CFOP);
         Conexao.Parametros('qCom', Produtos[I].qCom);
         Conexao.Parametros('uCom', Produtos[I].uCom);
-        Conexao.Parametros('qCom', FormatFloat('0.######',
-          Produtos[I].qCom, Fmt));
-        Conexao.Parametros('vUnCom', FormatFloat('0.######',
-          Produtos[I].vUnCom, Fmt));
-        Conexao.Parametros('vProd', FormatFloat('0.##',
-          Produtos[I].vProd, Fmt));
-        Conexao.Parametros('vDesc', FormatFloat('0.##',
-          Produtos[I].vDesc, Fmt));
-        Conexao.Parametros('vFrete', FormatFloat('0.##',
-          Produtos[I].vFrete, Fmt));
-        Conexao.Parametros('vOutro', FormatFloat('0.##',
-          Produtos[I].vOutro, Fmt));
-
+        Conexao.Parametros('qCom', FormatFloat('0.######',Produtos[I].qCom, Fmt));
+        Conexao.Parametros('vUnCom', FormatFloat('0.######',Produtos[I].vUnCom, Fmt));
+        Conexao.Parametros('vProd', FormatFloat('0.##',Produtos[I].vProd, Fmt));
+        Conexao.Parametros('vDesc', FormatFloat('0.##',Produtos[I].vDesc, Fmt));
+        Conexao.Parametros('vFrete', FormatFloat('0.##',Produtos[I].vFrete, Fmt));
+        Conexao.Parametros('vOutro', FormatFloat('0.##',Produtos[I].vOutro, Fmt));
+        Conexao.Parametros('uTrib', Produtos[I].uTrib);
         Conexao.ExecuteSQL;
       end;
 

@@ -704,7 +704,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               DataPipelineName = 'ppDados'
               mmHeight = 3704
-              mmLeft = 30427
+              mmLeft = 26409
               mmTop = 5027
               mmWidth = 38457
               BandType = 7
@@ -746,7 +746,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               DataPipelineName = 'ppDados'
               mmHeight = 3704
-              mmLeft = 30427
+              mmLeft = 26409
               mmTop = 8731
               mmWidth = 38457
               BandType = 7
@@ -788,7 +788,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               DataPipelineName = 'ppDados'
               mmHeight = 3704
-              mmLeft = 30427
+              mmLeft = 26409
               mmTop = 12435
               mmWidth = 38457
               BandType = 7
@@ -830,7 +830,7 @@ object dmImpressaoV2: TdmImpressaoV2
               Transparent = True
               DataPipelineName = 'ppDados'
               mmHeight = 5556
-              mmLeft = 30427
+              mmLeft = 26409
               mmTop = 15610
               mmWidth = 38457
               BandType = 7
@@ -884,7 +884,7 @@ object dmImpressaoV2: TdmImpressaoV2
               mmHeight = 3704
               mmLeft = 30427
               mmTop = 26458
-              mmWidth = 38457
+              mmWidth = 34422
               BandType = 7
               LayerName = Foreground7
             end

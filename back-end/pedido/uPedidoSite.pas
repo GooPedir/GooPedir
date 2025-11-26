@@ -11,7 +11,6 @@ uses
 type
   TfrmPedidoSite = class(TForm)
     ReqPedidos: iRequisicao;
-    Timer1: TTimer;
     Button1: TButton;
     tMinimiza: TTimer;
     TrayIcon1: TTrayIcon;

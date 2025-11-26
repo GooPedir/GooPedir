@@ -230,6 +230,7 @@ begin
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
   iReq.BASEURL := BASEURL;
+
   if ParamCount > 0 then
   begin
     try

@@ -1,4 +1,4 @@
-unit uControllCaches;
+﻿unit uControllCaches;
 
 interface
 
@@ -11,6 +11,7 @@ function GetProdutoSabores(chave: String): TJsonArray;
 function GetCategoria(chave: String): TJsonArray;
 function GetAllCategoria(chave: String): TJsonArray;
 function GetFichaProduto(chave: String): TJsonArray;
+function GetFichaSabor(chave: String): TJsonArray;
 function GetProdutoCategoria(chave: String): TJsonArray;
 function GetParametros: TJsonArray;
 function GetFlavor(chave: String): TJsonArray;
@@ -54,10 +55,8 @@ begin
       DadosSabores := TFDMemTable.Create(nil);
 
       conexao.SQL.Add('select * from produto');
-      conexao.SQL.Add
-        ('join tipo_produto on tipo_produto.codigo = produto.codigo_grupo and tipo_produto.pizza = 1');
-      conexao.SQL.Add
-        ('where produto.codigo_grupo = :grupo and deletado <> 1 order by produto.position');
+      conexao.SQL.Add('join tipo_produto on tipo_produto.codigo = produto.codigo_grupo and tipo_produto.pizza = 1');
+      conexao.SQL.Add('where produto.codigo_grupo = :grupo and deletado <> 1 order by produto.position');
       conexao.Parametros('grupo', chave);
       DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -78,9 +77,19 @@ begin
 
       if CodigoProdutos <> '' then
       begin
-        conexao.SQL.Add
-          ('SELECT distinct sabores_completo.nome, ativo, descricao,url, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('
-          + CodigoProdutos + ') order by id_tipo_sabor');
+//        conexao.SQL.Add('SELECT distinct sabores_completo.nome, ativo, descricao,url, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('+ CodigoProdutos + ') order by id_tipo_sabor');
+        conexao.sql.add('SELECT ');
+        conexao.sql.add('  (s.nome) AS nome,');
+        conexao.sql.add('  MAX(s.ativo) AS ativo,');
+        conexao.sql.add('  MAX(s.descricao) AS descricao,');
+        conexao.sql.add('  MAX(s.url) AS url,');
+        conexao.sql.add('  UPPER(MAX(ts.nome)) AS tipo_sabor,');
+        conexao.sql.add('  MAX(s.id_tipo_sabor) AS id_tipo_sabor');
+        conexao.sql.add('FROM sabores_completo s');
+        conexao.sql.add('LEFT JOIN tipo_sabor ts ON ts.id = s.id_tipo_sabor');
+        conexao.sql.add('WHERE s.id_produto IN ('+CodigoProdutos+')');
+        conexao.sql.add('GROUP BY (s.nome)');
+        conexao.sql.add('ORDER BY tipo_sabor;');
         Dados.LoadFromJSON(conexao.ConsultaSQL);
 
         DadosProduto.First;
@@ -102,7 +111,7 @@ begin
 
             DadosSabores.Close;
             conexao.SQL.Add
-              ('select * from sabores_completo where id_produto = :produto and nome = :sabor');
+              ('select * from sabores_completo where id_produto = :produto and nome = :sabor order by vl_venda desc limit 1');
             conexao.Parametros('produto', DadosProduto.FieldByName('codigo')
               .AsInteger);
             conexao.Parametros('sabor', Dados.FieldByName('nome').AsString);
@@ -140,8 +149,12 @@ begin
       DadosProduto.Free;
       DadosSabores.Free;
     except
+    on e : exception do
+    begin
       ArrayJson := TJsonArray.Create;
       Result := ArrayJson;
+      ShowMessage(e.Message);
+    end;
     end;
     conexao.Free;
     GravaCache('GetFlavor', chave, Result.ToString);
@@ -440,6 +453,7 @@ begin
         FindClose(Arquivo);
       end;
   end;
+  //
 end;
 
 procedure BuscaCacheGeral;
@@ -530,5 +544,31 @@ begin
   GetParametros;
 
 end;
+
+function GetFichaSabor(chave: String): TJsonArray;
+var
+  conexao: TConexao;
+begin
+  Result := BuscaCache('GetFichaSabor', chave);
+
+  if Result.Count = 0 then
+  begin
+    conexao := TConexao.Create('Util');
+    try
+      conexao.SQL.Add(
+        'SELECT sci.*, ing.descricao, ing.unidade, ing.custo ' +
+        'FROM sabores_completo_ingrediente sci ' +
+        'JOIN ingredientes ing ON ing.id = sci.id_ingrediente ' +
+        'WHERE sci.id_sabor_completo = :id_sabor_completo'
+      );
+      conexao.Parametros('id_sabor_completo', chave);
+      Result := conexao.ConsultaSQL;
+      GravaCache('GetFichaSabor', chave, Result.ToString);
+    finally
+      conexao.Free;
+    end;
+  end;
+end;
+
 
 end.

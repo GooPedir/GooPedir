@@ -2444,7 +2444,7 @@ begin
   except
     on E: Exception do
     begin
-      showmessage(E.Message)
+      //showmessage(E.Message)
     end;
 
   end;

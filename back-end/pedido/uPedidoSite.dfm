@@ -30,11 +30,6 @@ object frmPedidoSite: TfrmPedidoSite
     Left = 64
     Top = 8
   end
-  object Timer1: TTimer
-    Interval = 30000
-    Left = 8
-    Top = 8
-  end
   object tMinimiza: TTimer
     Interval = 1
     OnTimer = tMinimizaTimer

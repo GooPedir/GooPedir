@@ -198,11 +198,12 @@ begin
         if Dados.FieldByName('extraItemProdutoBaixa').AsInteger <>
           Dados.FieldByName('produtoCodigoItemExtra').AsInteger then
         begin
-        if Dados.FieldByName('produtoValorItemExtra').AsString = '' then
-        begin
-          Dados.Edit;
-          Dados.FieldByName('produtoValorItemExtra').AsFloat := Dados.FieldByName('itemExtraValor').AsFloat;
-        end;
+          if Dados.FieldByName('produtoValorItemExtra').AsString = '' then
+          begin
+            Dados.Edit;
+            Dados.FieldByName('produtoValorItemExtra').AsFloat :=
+              Dados.FieldByName('itemExtraValor').AsFloat;
+          end;
           if Dados.FieldByName('itemExtraValor').AsFloat <>
             Dados.FieldByName('produtoValorItemExtra').AsFloat then
           begin
@@ -405,8 +406,11 @@ begin
           DadosProduto.FieldByName('valor_desconto').AsString);
         JsonObjeto.AddPair('value_percent',
           DadosProduto.FieldByName('percentual_desconto').AsString);
-        JsonObjeto.AddPair('quanty', DadosProduto.FieldByName('saldo_atual')
-          .AsString);
+        if DadosProduto.FieldByName('saldo_atual').AsString = '' then
+          JsonObjeto.AddPair('quanty', 0)
+        else
+          JsonObjeto.AddPair('quanty', DadosProduto.FieldByName('saldo_atual')
+            .AsString);
         JsonObjeto.AddPair('externalCode', DadosProduto.FieldByName('id_site')
           .AsInteger);
         JsonObjeto.AddPair('usaStock',

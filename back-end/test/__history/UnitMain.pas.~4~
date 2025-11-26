@@ -1,0 +1,137 @@
+unit UnitMain;
+
+interface
+
+uses
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  System.Classes, System.SysUtils, Vcl.Samples.Spin, MassRequester;
+
+type
+  TFormMain = class(TForm)
+    MemoLog: TMemo;
+    ButtonStart: TButton;
+    ButtonStop: TButton;
+    Label1: TLabel;
+    SpinWorkers: TSpinEdit;
+    Label2: TLabel;
+    EditTimeout: TEdit;
+    PanelTop: TPanel;
+    Progress: TProgressBar;
+    LabelProgress: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure ButtonStartClick(Sender: TObject);
+    procedure ButtonStopClick(Sender: TObject);
+  private
+    FRequester: TMassRequester;
+    FTotalURLs: Integer;
+    FCompleted: Integer;
+    procedure OnResult(const AResult: TRequestResult);
+    procedure OnAllFinished;
+    procedure AddLog(const S: string);
+    procedure UpdateProgress;
+  public
+  end;
+
+var
+  FormMain: TFormMain;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  Caption := 'Mass Requester - VCL';
+  SpinWorkers.Value := 10;
+  EditTimeout.Text := '10000';
+  ButtonStop.Enabled := False;
+end;
+
+procedure TFormMain.ButtonStartClick(Sender: TObject);
+var
+  urls: TArray<string>;
+  sl: TStringList;
+  i: Integer;
+begin
+  ButtonStart.Enabled := False;
+  ButtonStop.Enabled := True;
+  MemoLog.Clear;
+  sl := TStringList.Create;
+  try
+    // default test urls (local)
+    sl.Add('http://localhost:2121/v1/codigo/pedido');
+    sl.Add('http://localhost:2121/v1/consulta/generica/favoritos/*/usuario=1/*');
+    sl.Add('http://localhost:2121/v2/status');
+    sl.Add('http://localhost:2121/v2/reset/bloqueio');
+    sl.Add('http://localhost:2121/v2/servico/impressao');
+    sl.Add('http://localhost:2121/v1/pedidos/05102025/10112025/000000/235959/1,2,4,5,9/X');
+    sl.Add('http://localhost:2121/v1/motoboy/ativo/all/');
+    sl.Add('http://localhost:2121/v1/consulta/generica/status_pedido/*/*/*');
+    sl.Add('http://localhost:2121/v1/mesas/');
+
+    SetLength(urls, sl.Count);
+    for i := 0 to sl.Count - 1 do
+      urls[i] := sl[i];
+    FTotalURLs := Length(urls);
+    FCompleted := 0;
+    Progress.Max := FTotalURLs;
+    Progress.Position := 0;
+    LabelProgress.Caption := Format('0 / %d', [FTotalURLs]);
+  finally
+    sl.Free;
+  end;
+
+  FRequester := TMassRequester.Create(urls, SpinWorkers.Value,
+    StrToIntDef(EditTimeout.Text, 10000));
+  FRequester.OnResult := OnResult;
+  FRequester.OnAllFinished := OnAllFinished;
+  FRequester.Start;
+  AddLog(Format('Started %d workers, %d urls', [SpinWorkers.Value,
+    FTotalURLs]));
+end;
+
+procedure TFormMain.ButtonStopClick(Sender: TObject);
+begin
+  if Assigned(FRequester) then
+  begin
+    FRequester.Stop;
+    AddLog('Stop requested');
+    ButtonStop.Enabled := False;
+  end;
+end;
+
+procedure TFormMain.AddLog(const S: string);
+begin
+  MemoLog.Lines.Add(Format('[%s] %s', [FormatDateTime('hh:nn:ss', Now), S]));
+end;
+
+procedure TFormMain.OnResult(const AResult: TRequestResult);
+var
+  S: string;
+begin
+  if AResult.ErrorMsg <> '' then
+    S := Format('[%d ms] %s -> ERROR: %s', [AResult.DurationMs, AResult.URL,
+      AResult.ErrorMsg])
+  else
+    S := Format('[%d ms] %s -> %d', [AResult.DurationMs, AResult.URL,
+      AResult.StatusCode]);
+  AddLog(S);
+  Inc(FCompleted);
+  UpdateProgress;
+end;
+
+procedure TFormMain.UpdateProgress;
+begin
+  Progress.Position := FCompleted;
+  LabelProgress.Caption := Format('%d / %d', [FCompleted, FTotalURLs]);
+end;
+
+procedure TFormMain.OnAllFinished;
+begin
+  AddLog('--- ALL FINISHED ---');
+  ButtonStart.Enabled := True;
+  ButtonStop.Enabled := False;
+  FreeAndNil(FRequester);
+end;
+
+end.

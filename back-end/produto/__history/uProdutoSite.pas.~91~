@@ -29,9 +29,6 @@ type
     procedure GerarLog(const Mensagem: string;
       const NomeArquivo: string = 'log.txt');
 
-  CONST
-    BASEURL = 'http://localhost:3000';
-
   var
     userId: Integer;
 
@@ -87,8 +84,14 @@ begin
   end;
 
   try
-    GerarLog(Codigo.ToString, 'erro_produto.log');
     ValidaPendenciaProduto(Codigo);
+  except
+
+  end;
+
+  try
+    GerarLog(Codigo.ToString, 'erro_produto.log');
+
     // GetAllProduto(Codigo);
 
     Conexao := TConexao.Create('uSite');
@@ -97,7 +100,7 @@ begin
     Dados.ParamByName('codigo').AsInteger := Codigo;
     Dados.Open;
     Conexao.SQL.Add
-      ('update produto ser modificado_site = 2 where codigo = :codigo');
+      ('update produto set modificado_site = 2 where codigo = :codigo');
     Conexao.Parametros('codigo', Codigo);
     Conexao.ExecuteSQL;
 
@@ -194,7 +197,8 @@ begin
     end;
 
     GerarLog('0012', 'erro_produto.log');
-    SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId);
+    GerarLog(SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId),
+      'erro_produto.log');
     GerarLog('0013', 'erro_produto.log');
 
   except
@@ -202,8 +206,6 @@ begin
     begin
       // ShowMessage(e.Message)
       GerarLog(e.Message, 'erro_produto.log');
-      AdicionaPendencia(Conexao, Codigo,
-        'Ocorreu um erro inesperado, contate o suporte', e.Message);
 
     end;
   end;
@@ -228,7 +230,6 @@ begin
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
   iReq.BASEURL := BASEURL;
-
   if ParamCount > 0 then
   begin
     try
@@ -250,7 +251,7 @@ var
   CaminhoLog: string;
   Linha: string;
 begin
-  exit;
+
   try
     // Caminho padrão: mesmo diretório do executável
     CaminhoLog := TPath.Combine(ExtractFilePath(ParamStr(0)), NomeArquivo);

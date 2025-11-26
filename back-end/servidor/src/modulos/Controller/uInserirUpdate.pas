@@ -32,7 +32,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
+  Requisicao.BaseURL := 'https://goopedir.com/v1/';
 
   Requisicao.URL := 'insert/' + tabela + '/' + User + '/a';
   Montado := '';

@@ -124,10 +124,7 @@ uses
 {$R *.res}
 
 begin
-
   Application.Initialize;
-  // Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
-
 end.

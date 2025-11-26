@@ -2,8 +2,8 @@ object frmACBrNFe: TfrmACBrNFe
   Left = 252
   Top = 127
   Caption = 'Goopedir NFC-e'
-  ClientHeight = 619
-  ClientWidth = 1210
+  ClientHeight = 618
+  ClientWidth = 1206
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,10 +18,10 @@ object frmACBrNFe: TfrmACBrNFe
     Left = 0
     Top = 0
     Width = 297
-    Height = 619
+    Height = 618
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 618
+    ExplicitHeight = 617
     object PageControl1: TPageControl
       Left = 1
       Top = 0
@@ -1057,21 +1057,21 @@ object frmACBrNFe: TfrmACBrNFe
   object pnlCentral: TPanel
     Left = 297
     Top = 0
-    Width = 913
-    Height = 619
+    Width = 909
+    Height = 618
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 909
-    ExplicitHeight = 618
+    ExplicitWidth = 905
+    ExplicitHeight = 617
     object pgcBotoes: TPageControl
       Left = 1
       Top = 1
-      Width = 911
+      Width = 907
       Height = 197
       ActivePage = tsDistribuicao
       Align = alTop
       TabOrder = 0
-      ExplicitWidth = 907
+      ExplicitWidth = 903
       object tsEnvios: TTabSheet
         Caption = 'Envios'
         ImageIndex = 2
@@ -1350,7 +1350,6 @@ object frmACBrNFe: TfrmACBrNFe
           Height = 25
           Caption = 'Distribui'#231#227'o DF-e por '#250'ltimo NSU'
           TabOrder = 0
-          OnClick = btnDistrDFePorUltNSUClick
         end
         object btnDistrDFePorNSU: TButton
           Left = 192
@@ -1397,30 +1396,39 @@ object frmACBrNFe: TfrmACBrNFe
           TabOrder = 6
           OnClick = btnManifDestConfirmacaoClick
         end
+        object Button1: TButton
+          Left = 240
+          Top = 115
+          Width = 75
+          Height = 25
+          Caption = 'Button1'
+          TabOrder = 7
+          OnClick = Button1Click
+        end
       end
     end
     object pgRespostas: TPageControl
       Left = 1
       Top = 198
-      Width = 911
-      Height = 420
+      Width = 907
+      Height = 419
       ActivePage = TabSheet5
       Align = alClient
       TabOrder = 1
-      ExplicitWidth = 907
-      ExplicitHeight = 419
+      ExplicitWidth = 903
+      ExplicitHeight = 418
       object TabSheet5: TTabSheet
         Caption = 'Respostas'
         object MemoResp: TMemo
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
-          ExplicitWidth = 899
-          ExplicitHeight = 391
+          ExplicitWidth = 895
+          ExplicitHeight = 390
         end
       end
       object TabSheet6: TTabSheet
@@ -1429,14 +1437,14 @@ object frmACBrNFe: TfrmACBrNFe
         object WBResposta: TWebBrowser
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 559
-          ExplicitHeight = 385
+          ExplicitWidth = 903
+          ExplicitHeight = 392
           ControlData = {
-            4C000000545D0000842800000000000000000000000000000000000000000000
+            4C000000EA5C0000692800000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126208000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -1449,8 +1457,8 @@ object frmACBrNFe: TfrmACBrNFe
         object memoLog: TMemo
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1462,8 +1470,8 @@ object frmACBrNFe: TfrmACBrNFe
         object trvwDocumento: TTreeView
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           Indent = 19
           TabOrder = 0
@@ -1475,8 +1483,8 @@ object frmACBrNFe: TfrmACBrNFe
         object memoRespWS: TMemo
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1488,8 +1496,8 @@ object frmACBrNFe: TfrmACBrNFe
         object MemoDados: TMemo
           Left = 0
           Top = 0
-          Width = 903
-          Height = 392
+          Width = 899
+          Height = 391
           Align = alClient
           Lines.Strings = (
             '')
@@ -1644,8 +1652,8 @@ object frmACBrNFe: TfrmACBrNFe
     Attempts = 3
     DefaultCharset = UTF_8
     IDECharset = CP1252
-    Left = 338
-    Top = 311
+    Left = 18
+    Top = 399
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-nfe.XML'
@@ -1710,8 +1718,8 @@ object frmACBrNFe: TfrmACBrNFe
   object ACBrValidador1: TACBrValidador
     TipoDocto = docGTIN
     IgnorarChar = './-'
-    Left = 240
-    Top = 442
+    Left = 16
+    Top = 338
   end
   object tEmissao: TTimer
     Enabled = False
@@ -1753,8 +1761,8 @@ object frmACBrNFe: TfrmACBrNFe
   object tMinimiza: TTimer
     Interval = 1
     OnTimer = tMinimizaTimer
-    Left = 640
-    Top = 152
+    Left = 984
+    Top = 32
   end
   object dadosCode: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -1830,5 +1838,37 @@ object frmACBrNFe: TfrmACBrNFe
   object RESTRequestDataSetAdapter: TRESTRequestDataSetAdapter
     Left = 1064
     Top = 256
+  end
+  object ACBrNFe2: TACBrNFe
+    Configuracoes.Geral.SSLLib = libNone
+    Configuracoes.Geral.SSLCryptLib = cryNone
+    Configuracoes.Geral.SSLHttpLib = httpNone
+    Configuracoes.Geral.SSLXmlSignLib = xsNone
+    Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.Arquivos.OrdenacaoPath = <>
+    Configuracoes.WebServices.UF = 'SP'
+    Configuracoes.WebServices.AguardarConsultaRet = 0
+    Configuracoes.WebServices.QuebradeLinha = '|'
+    Configuracoes.RespTec.IdCSRT = 0
+    Left = 702
+    Top = 129
+  end
+  object timerBuscaDFE: TTimer
+    Enabled = False
+    Interval = 1
+    OnTimer = timerBuscaDFETimer
+    Left = 446
+    Top = 145
+  end
+  object MemoryConfiguracao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 600
+    Top = 312
   end
 end

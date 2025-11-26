@@ -11,11 +11,114 @@ procedure Registry;
 
 procedure DeletarNFCe(CNPJ, Chave: String);
 
+function BuscaDadosFornecedor(DataIni, DataFim: String): String;
+
 implementation
 
 uses FireDAC.Stan.Option, token, conexao, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, util, uSite;
+
+function BuscaDadosFornecedor(DataIni, DataFim: String): String;
+var
+  conexao: TConexao;
+  Retorno: TJSONArray;
+  Fornecedor: TJSONObject;
+  NotasFiscais: TJSONArray;
+  Notafiscal: TJSONObject;
+  Itens: TJSONArray;
+  Item: TJSONObject;
+
+  Dados: TFDMemTable;
+  DadosNotas: TFDMemTable;
+  DadosNotasItem: TFDMemTable;
+begin
+
+  conexao := TConexao.Create('Notas');
+  Dados := TFDMemTable.Create(nil);
+  conexao.SQL.Add('select * from fornecedor');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+  Retorno := TJSONArray.Create;
+  while not Dados.Eof do
+  begin
+
+    Fornecedor := TJSONObject.Create;
+    Fornecedor.AddPair('id', Dados.FieldByName('id').AsString);
+    Fornecedor.AddPair('cnpj', Dados.FieldByName('cnpj').AsString);
+    Fornecedor.AddPair('nome', UpperCase(Dados.FieldByName('nome').AsString));
+
+    conexao.SQL.Add
+      ('select id, serie, numero, chave,modelo,tipo,data_emissao as emissao, vNF, status_importacao from nota_fiscal where fornecedor_id = :fornecedor');
+    if DataIni <> '' then
+    begin
+      conexao.SQL.Add(' AND data_emissao >= "' + DataIni + '"');
+    end;
+    if DataFim <> '' then
+    begin
+      conexao.SQL.Add(' AND data_emissao <= "' + DataFim + '"');
+    end;
+    conexao.Parametros('fornecedor', Dados.FieldByName('id').AsString);
+    DadosNotas := TFDMemTable.Create(nil);
+    DadosNotas.LoadFromJSON(conexao.ConsultaSQL);
+    NotasFiscais := TJSONArray.Create;
+    while not DadosNotas.Eof do
+    begin
+      Notafiscal := TJSONObject.Create;
+      Notafiscal.AddPair('chave', DadosNotas.FieldByName('chave').AsString);
+      Notafiscal.AddPair('serie', DadosNotas.FieldByName('serie').AsString);
+      Notafiscal.AddPair('numero', DadosNotas.FieldByName('numero').AsString);
+      Notafiscal.AddPair('modelo', DadosNotas.FieldByName('modelo').AsString);
+      Notafiscal.AddPair('tipo', DadosNotas.FieldByName('tipo').AsString);
+      Notafiscal.AddPair('emissao', DadosNotas.FieldByName('emissao').AsString);
+      Notafiscal.AddPair('valor', DadosNotas.FieldByName('vNF').AsString);
+      Notafiscal.AddPair('status', DadosNotas.FieldByName('status_importacao')
+        .AsString);
+
+      DadosNotasItem := TFDMemTable.Create(nil);
+//      conexao.SQL.Add('select * from nota_fiscal_item where nota_fiscal_id = :nota');
+      conexao.SQL.Add('select nfi.*, fi.codigo_vinculo, fi.fator, fi.tabela_vinculo from nota_fiscal_item nfi');
+      conexao.SQL.Add('join fornecedor_item fi on fi.id = nfi.fornecedor_item_id');
+      conexao.SQL.Add('where nfi.nota_fiscal_id = :nota');
+
+      conexao.Parametros('nota', DadosNotas.FieldByName('id').AsString);
+      DadosNotasItem.LoadFromJSON(conexao.ConsultaSQL);
+      Itens := TJSONArray.Create;
+      while not DadosNotasItem.Eof do
+      begin
+        Item := TJSONObject.Create;
+        Item.AddPair('cProd', DadosNotasItem.FieldByName('cProd').AsString);
+        Item.AddPair('xProd', DadosNotasItem.FieldByName('xProd').AsString);
+        Item.AddPair('NCM', DadosNotasItem.FieldByName('NCM').AsString);
+        Item.AddPair('qCom', DadosNotasItem.FieldByName('qCom').AsString);
+        Item.AddPair('valor', DadosNotasItem.FieldByName('vTotal').AsString);
+        Item.AddPair('UN', DadosNotasItem.FieldByName('uTrib').AsString);
+        Item.AddPair('fator', DadosNotasItem.FieldByName('fator').AsString);
+        Item.AddPair('vinculo', DadosNotasItem.FieldByName('codigo_vinculo').AsString);
+        if DadosNotasItem.FieldByName('tabela_vinculo').AsString = 'ingrediente' then
+          Item.AddPair('tipo', 2)
+        else
+          Item.AddPair('tipo', 1);
+        Itens.AddElement(Item);
+        DadosNotasItem.Next;
+      end;
+
+      DadosNotasItem.Free;
+
+      Notafiscal.AddPair('itens', Itens);
+      NotasFiscais.AddElement(Notafiscal);
+      DadosNotas.Next;
+    end;
+    DadosNotas.Free;
+
+    Fornecedor.AddPair('notas', NotasFiscais);
+    Retorno.AddElement(Fornecedor);
+    Dados.Next;
+  end;
+  Result := Retorno.ToString;
+  Retorno.Free;
+  conexao.Free;
+  Dados.Free;
+end;
 
 procedure DoGetPedidoOutros(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
@@ -269,7 +372,7 @@ begin
     ('SELECT codigo, nfce_chave as chave FROM pedido where nfce_emite = 2 and DATE_FORMAT(data_pedido, "%Y%m") = "'
     + Req.Params['mes'] + '"');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  // Res.Send(conexao.SQL.Text);
+
   conexao.Free;
 end;
 
@@ -456,14 +559,9 @@ begin
     idConsulta := conexao.GerarID('dfe_consulta', 'id');
     conexao.SQL.Add
       ('INSERT INTO dfe_consulta (id, cnpj_empresa, data_consulta, hora_consulta, ultimo_nsu, qtd_documentos, ambiente) '
-      + 'VALUES (:id, :cnpj_empresa, :data_consulta, :hora_consulta, :ultimo_nsu, :qtd_documentos, :ambiente)');
+      + 'VALUES (:id, :cnpj_empresa, curdate(), curtime(), :ultimo_nsu, :qtd_documentos, :ambiente)');
     conexao.Parametros('id', idConsulta);
     conexao.Parametros('cnpj_empresa', Req.Params['cnpj']);
-    // vem da rota ou header
-    conexao.Parametros('data_consulta',
-      JSONConsulta.GetValue('data_consulta').Value);
-    conexao.Parametros('hora_consulta',
-      JSONConsulta.GetValue('hora_consulta').Value);
     conexao.Parametros('ultimo_nsu', JSONConsulta.GetValue('ultimo_nsu').Value);
     conexao.Parametros('qtd_documentos',
       JSONConsulta.GetValue('qtd_documentos').Value);
@@ -479,21 +577,25 @@ begin
         JSONDoc := JSONArray.Items[i] as TJSONObject;
         idDoc := conexao.GerarID('dfe_documento', 'id');
         conexao.SQL.Add
-          ('INSERT INTO dfe_documento (id, id_consulta, nsu, chave, cnpj_emitente, nome_emitente, valor, data_emissao, situacao, xml_base64, tipo) '
-          + 'VALUES (:id, :id_consulta, :nsu, :chave, :cnpj_emitente, :nome_emitente, :valor, :data_emissao, :situacao, :xml_base64, :tipo)');
+          ('INSERT INTO dfe_documento (id, id_consulta, nsu, chave, cnpj_emitente, nome_emitente, valor, data_emissao, situacao, tipo) '
+          + 'VALUES (:id, :id_consulta, :nsu, :chave, :cnpj_emitente, :nome_emitente, :valor, :data_emissao, :situacao, :tipo)');
         conexao.Parametros('id', idDoc);
         conexao.Parametros('id_consulta', idConsulta);
-        conexao.Parametros('nsu', JSONDoc.GetValue('nsu').Value);
-        conexao.Parametros('chave', JSONDoc.GetValue('chave').Value);
-        conexao.Parametros('cnpj_emitente',
-          JSONDoc.GetValue('cnpj_emitente').Value);
-        conexao.Parametros('nome_emitente', JSONDoc.GetValue('emitente').Value);
-        conexao.Parametros('valor', JSONDoc.GetValue('valor').Value);
-        conexao.Parametros('data_emissao', FormatDateTime('yyyy-mm-dd hh:nn:ss',
-          StrToDateDef(JSONDoc.GetValue('data_emissao').Value, 0)));
+        conexao.Parametros('nsu', JSONDoc.GetValue('nsu')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('chave', JSONDoc.GetValue('chave')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('cnpj_emitente', JSONDoc.GetValue('cnpj_emitente')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('nome_emitente', JSONDoc.GetValue('emitente')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('valor', JSONDoc.GetValue('valor')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('data_emissao', JSONDoc.GetValue('data_emissao')
+          .ToString.Replace('"', ''));
+        conexao.Parametros('situacao', JSONDoc.GetValue('situacao')
+          .ToString.Replace('"', ''));
 
-        conexao.Parametros('situacao', JSONDoc.GetValue('situacao').Value);
-        conexao.Parametros('xml_base64', JSONDoc.GetValue('xml_base64').Value);
         conexao.Parametros('tipo', 'nfe');
         conexao.ExecuteSQL;
       end;
@@ -538,22 +640,14 @@ begin
     DataInicio := Req.Params['data_inicio'];
     DataFim := Req.Params['data_fim'];
 
-
-    SQL :=
-      'SELECT ' +
-      '  dfe.id, ' +
-      '  dfe.nsu, ' +
-      '  dfe.chave, ' +
-      '  dfe.cnpj_emitente, ' +
-      '  dfe.nome_emitente, ' +
-      '  dfe.valor AS vNF, ' +
-      '  dfe.data_emissao, ' +
+    SQL := 'SELECT ' + '  dfe.id, ' + '  dfe.nsu, ' + '  dfe.chave, ' +
+      '  dfe.cnpj_emitente, ' + '  dfe.nome_emitente, ' + '  dfe.valor AS vNF, '
+      + '  dfe.data_emissao, ' +
       '  CASE WHEN nf.id IS NOT NULL THEN "sim" ELSE "nao" END AS importada ' +
       'FROM dfe_documento dfe ' +
-      'LEFT JOIN nota_fiscal nf ON nf.chave COLLATE utf8mb4_general_ci = dfe.chave COLLATE utf8mb4_general_ci ' +
-      'WHERE DATE(dfe.data_emissao) BETWEEN :data_inicio AND :data_fim ' +
+      'LEFT JOIN nota_fiscal nf ON nf.chave COLLATE utf8mb4_general_ci = dfe.chave COLLATE utf8mb4_general_ci '
+      + 'WHERE DATE(dfe.data_emissao) BETWEEN :data_inicio AND :data_fim ' +
       'ORDER BY dfe.data_emissao DESC';
-
     conexao.SQL.Add(SQL);
     conexao.Parametros('data_inicio', DataInicio);
     conexao.Parametros('data_fim', DataFim);
@@ -564,104 +658,131 @@ begin
   end;
 end;
 
-procedure DoGetNotasFiscais(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure DoVerificaConsulta(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+  ambiente: string;
+begin
+  ambiente := Req.Params['ambiente'];
+
+  conexao := TConexao.Create(''); // ou o database correto
+  try
+    conexao.SQL.Add('SELECT ' + '   dc.id, ' + '   dc.ultimo_nsu, ' +
+      '   dc.data_consulta, ' + '   dc.hora_consulta, ' + '   CASE ' +
+      '       WHEN TIMESTAMP(dc.data_consulta, dc.hora_consulta) <= NOW() - INTERVAL 1 HOUR '
+      + '       THEN 1 ELSE 0 ' + '   END AS status ' + 'FROM dfe_consulta dc '
+      + 'WHERE dc.ambiente =  ' + ambiente + ' ORDER BY dc.id DESC ' +
+      'LIMIT 1');
+
+    Res.Send(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
+
+procedure DoGetNotasFiscais(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
 var
   conexaoNotas, conexaoItens: TConexao;
   Notas, Itens: TFDMemTable;
   JSONNotas, JSONItens, JSONNota: TJSONArray;
-  NotaObj: TJSONObject;
+  NotaObj, Retorno: TJSONObject;
   DataInicio, DataFim: string;
 begin
-  conexaoNotas := TConexao.Create('nfce');
-  conexaoItens := TConexao.Create('nfce');
-  Notas := TFDMemTable.Create(nil);
-  Itens := TFDMemTable.Create(nil);
-  try
-    // Pega parâmetros
-    DataInicio := Req.Params['data_inicio'];
-    DataFim := Req.Params['data_fim'];
-
-    // Consulta notas
-    conexaoNotas.SQL.Add(
-      'SELECT nf.id, nf.fornecedor_id, nf.serie, nf.numero, nf.chave, nf.tipo, ' +
-      'nf.data_emissao, nf.data_entrada, nf.vNF, nf.vFrete, nf.vDesc, nf.vOutro, ' +
-      'CASE WHEN dfe.id IS NOT NULL THEN "sim" ELSE "nao" END AS de_dfe ' +
-      'FROM nota_fiscal nf ' +
-      'LEFT JOIN dfe_documento dfe ON dfe.chave COLLATE utf8mb4_general_ci = nf.chave COLLATE utf8mb4_general_ci ' +
-      'WHERE nf.data_emissao BETWEEN :data_inicio AND :data_fim ' +
-      'ORDER BY nf.data_emissao DESC');
-
-    conexaoNotas.Parametros('data_inicio', DataInicio);
-    conexaoNotas.Parametros('data_fim', DataFim);
-    Notas.LoadFromJSON(conexaoNotas.ConsultaSQL);
-
-    JSONNotas := TJSONArray.Create;
-
-    // Para cada nota, busca os itens
-    while not Notas.Eof do
-    begin
-      NotaObj := TJSONObject.Create;
-      NotaObj.AddPair('id', Notas.FieldByName('id').AsString);
-      NotaObj.AddPair('fornecedor_id', Notas.FieldByName('fornecedor_id').AsString);
-      NotaObj.AddPair('serie', Notas.FieldByName('serie').AsString);
-      NotaObj.AddPair('numero', Notas.FieldByName('numero').AsString);
-      NotaObj.AddPair('chave', Notas.FieldByName('chave').AsString);
-      NotaObj.AddPair('tipo', Notas.FieldByName('tipo').AsString);
-      NotaObj.AddPair('data_emissao', Notas.FieldByName('data_emissao').AsString);
-      NotaObj.AddPair('data_entrada', Notas.FieldByName('data_entrada').AsString);
-      NotaObj.AddPair('vNF', TJSONNumber.Create(Notas.FieldByName('vNF').AsFloat));
-      NotaObj.AddPair('vFrete', TJSONNumber.Create(Notas.FieldByName('vFrete').AsFloat));
-      NotaObj.AddPair('vDesc', TJSONNumber.Create(Notas.FieldByName('vDesc').AsFloat));
-      NotaObj.AddPair('vOutro', TJSONNumber.Create(Notas.FieldByName('vOutro').AsFloat));
-      NotaObj.AddPair('de_dfe', Notas.FieldByName('de_dfe').AsString);
-
-      // Busca itens dessa nota
-      conexaoItens.SQL.Clear;
-      conexaoItens.SQL.Add(
-        'SELECT id, nota_fiscal_id, cProd, xProd, NCM, CFOP, qCom, uCom, vUnCom, vProd, vDesc, vFrete, vOutro, vTotal, uTrib ' +
-        'FROM nota_fiscal_item WHERE nota_fiscal_id = :id');
-      conexaoItens.Parametros('id', Notas.FieldByName('id').AsString);
-      Itens.LoadFromJSON(conexaoItens.ConsultaSQL);
-
-      JSONItens := TJSONArray.Create;
-      while not Itens.Eof do
-      begin
-        JSONItens.AddElement(
-          TJSONObject.Create
-            .AddPair('id', Itens.FieldByName('id').AsString)
-            .AddPair('cProd', Itens.FieldByName('cProd').AsString)
-            .AddPair('xProd', Itens.FieldByName('xProd').AsString)
-            .AddPair('NCM', Itens.FieldByName('NCM').AsString)
-            .AddPair('CFOP', Itens.FieldByName('CFOP').AsString)
-            .AddPair('qCom', TJSONNumber.Create(Itens.FieldByName('qCom').AsFloat))
-            .AddPair('uCom', Itens.FieldByName('uCom').AsString)
-            .AddPair('vUnCom', TJSONNumber.Create(Itens.FieldByName('vUnCom').AsFloat))
-            .AddPair('vProd', TJSONNumber.Create(Itens.FieldByName('vProd').AsFloat))
-            .AddPair('vDesc', TJSONNumber.Create(Itens.FieldByName('vDesc').AsFloat))
-            .AddPair('vFrete', TJSONNumber.Create(Itens.FieldByName('vFrete').AsFloat))
-            .AddPair('vOutro', TJSONNumber.Create(Itens.FieldByName('vOutro').AsFloat))
-            .AddPair('vTotal', TJSONNumber.Create(Itens.FieldByName('vTotal').AsFloat))
-            .AddPair('uTrib', Itens.FieldByName('uTrib').AsString)
-        );
-        Itens.Next;
-      end;
-      NotaObj.AddPair('itens', JSONItens);
-
-      JSONNotas.AddElement(NotaObj);
-      Notas.Next;
-    end;
-
-    Res.Send<TJSONArray>(JSONNotas);
-
-  finally
-    Notas.Free;
-    Itens.Free;
-    conexaoNotas.Free;
-    conexaoItens.Free;
-  end;
+  Res.Send(BuscaDadosFornecedor(Req.Params['data_inicio'],
+    Req.Params['data_fim']));
+  // conexaoNotas := TConexao.Create('nfce');
+  // conexaoItens := TConexao.Create('nfce');
+  // Notas := TFDMemTable.Create(nil);
+  // Itens := TFDMemTable.Create(nil);
+  // try
+  // // Pega parâmetros
+  // DataInicio := Req.Params['data_inicio'];
+  // DataFim := Req.Params['data_fim'];
+  //
+  // // Consulta notas
+  // conexaoNotas.SQL.Add
+  // ('SELECT nf.id, nf.fornecedor_id, nf.serie, nf.numero, nf.chave, nf.tipo, '
+  // + 'nf.data_emissao, nf.data_entrada, nf.vNF, nf.vFrete, nf.vDesc, nf.vOutro, '
+  // + 'CASE WHEN dfe.id IS NOT NULL THEN "sim" ELSE "nao" END AS de_dfe ' +
+  // 'FROM nota_fiscal nf ' +
+  // 'LEFT JOIN dfe_documento dfe ON dfe.chave COLLATE utf8mb4_general_ci = nf.chave COLLATE utf8mb4_general_ci '
+  // + 'WHERE nf.data_emissao BETWEEN :data_inicio AND :data_fim ' +
+  // 'ORDER BY nf.data_emissao DESC');
+  //
+  // conexaoNotas.Parametros('data_inicio', DataInicio);
+  // conexaoNotas.Parametros('data_fim', DataFim);
+  // Notas.LoadFromJSON(conexaoNotas.ConsultaSQL);
+  //
+  // JSONNotas := TJSONArray.Create;
+  //
+  // // Para cada nota, busca os itens
+  // while not Notas.Eof do
+  // begin
+  // NotaObj := TJSONObject.Create;
+  // NotaObj.AddPair('id', Notas.FieldByName('id').AsString);
+  // NotaObj.AddPair('fornecedor_id', Notas.FieldByName('fornecedor_id')
+  // .AsString);
+  // NotaObj.AddPair('serie', Notas.FieldByName('serie').AsString);
+  // NotaObj.AddPair('numero', Notas.FieldByName('numero').AsString);
+  // NotaObj.AddPair('chave', Notas.FieldByName('chave').AsString);
+  // NotaObj.AddPair('tipo', Notas.FieldByName('tipo').AsString);
+  // NotaObj.AddPair('data_emissao', Notas.FieldByName('data_emissao').AsString);
+  // NotaObj.AddPair('data_entrada', Notas.FieldByName('data_entrada').AsString);
+  // NotaObj.AddPair('vNF', TJSONNumber.Create(Notas.FieldByName('vNF').AsFloat));
+  // NotaObj.AddPair('vFrete', TJSONNumber.Create(Notas.FieldByName('vFrete').AsFloat));
+  // NotaObj.AddPair('vDesc', TJSONNumber.Create(Notas.FieldByName('vDesc').AsFloat));
+  // NotaObj.AddPair('vOutro', TJSONNumber.Create(Notas.FieldByName('vOutro').AsFloat));
+  // NotaObj.AddPair('de_dfe', Notas.FieldByName('de_dfe').AsString);
+  //
+  // // Busca itens dessa nota
+  // conexaoItens.SQL.Clear;
+  // conexaoItens.SQL.Add
+  // ('SELECT id, nota_fiscal_id, cProd, xProd, NCM, CFOP, qCom, uCom, vUnCom, vProd, vDesc, vFrete, vOutro, vTotal, uTrib '
+  // + 'FROM nota_fiscal_item WHERE nota_fiscal_id = :id');
+  // conexaoItens.Parametros('id', Notas.FieldByName('id').AsString);
+  // Itens.LoadFromJSON(conexaoItens.ConsultaSQL);
+  //
+  // JSONItens := TJSONArray.Create;
+  // while not Itens.Eof do
+  // begin
+  // JSONItens.AddElement(TJSONObject.Create.AddPair('id',
+  // Itens.FieldByName('id').AsString).AddPair('cProd',
+  // Itens.FieldByName('cProd').AsString).AddPair('xProd',
+  // Itens.FieldByName('xProd').AsString).AddPair('NCM',
+  // Itens.FieldByName('NCM').AsString).AddPair('CFOP',
+  // Itens.FieldByName('CFOP').AsString).AddPair('qCom',
+  // TJSONNumber.Create(Itens.FieldByName('qCom').AsFloat)).AddPair('uCom',
+  // Itens.FieldByName('uCom').AsString).AddPair('vUnCom',
+  // TJSONNumber.Create(Itens.FieldByName('vUnCom').AsFloat))
+  // .AddPair('vProd', TJSONNumber.Create(Itens.FieldByName('vProd')
+  // .AsFloat)).AddPair('vDesc',
+  // TJSONNumber.Create(Itens.FieldByName('vDesc').AsFloat))
+  // .AddPair('vFrete', TJSONNumber.Create(Itens.FieldByName('vFrete')
+  // .AsFloat)).AddPair('vOutro',
+  // TJSONNumber.Create(Itens.FieldByName('vOutro').AsFloat))
+  // .AddPair('vTotal', TJSONNumber.Create(Itens.FieldByName('vTotal')
+  // .AsFloat)).AddPair('uTrib', Itens.FieldByName('uTrib').AsString));
+  // Itens.Next;
+  // end;
+  // NotaObj.AddPair('itens', JSONItens);
+  //
+  // JSONNotas.AddElement(NotaObj);
+  // Notas.Next;
+  // end;
+  //
+  // //BuscaDadosFornecedor
+  //
+  // Res.Send<TJSONArray>(JSONNotas);
+  //
+  // finally
+  // Notas.Free;
+  // Itens.Free;
+  // conexaoNotas.Free;
+  // conexaoItens.Free;
+  // end;
 end;
-
-
 
 procedure Registry;
 begin
@@ -689,6 +810,7 @@ begin
   THorse.Get('/dfe/ultimo/:cnpj', DoGetUltimoNSU);
   THorse.Get('/dfe/notas/:data_inicio/:data_fim', DoGetNotasDFe);
   THorse.Get('/notas-fiscais/:data_inicio/:data_fim', DoGetNotasFiscais);
+  THorse.Get('/dfe/verifica/:ambiente', DoVerificaConsulta);
 
 end;
 

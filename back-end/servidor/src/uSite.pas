@@ -79,20 +79,10 @@ begin
   if Base64Imagem <> '' then
   begin
     EnviaFotoProduto(codigo, Base64Imagem, frmServidor.UserID);
-    // conexao := TConexao.Create('uSite');
-    // Dados := conexao.CriaQRY;
-    // Dados.SQL.Text := ('select * from produto where codigo = :codigo');
-    // Dados.ParamByName('codigo').AsInteger := codigo;
-    // Dados.Open;
-    // if Dados.FieldByName('id_site').AsInteger > 0 then
-    // begin
-    // EnviaFotoProduto(Dados.FieldByName('id_site').AsInteger, Base64Imagem);
-    // end;
   end;
+
   prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
-  ShellExecute(0, 'open', PChar(prog),
-    PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,
-    SW_SHOWNORMAL);
+  ShellExecute(0, 'open', PChar(prog),PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,SW_SHOWNORMAL);
 
 end;
 

@@ -32,7 +32,7 @@ var
 implementation
 
 uses
-  conexao;
+  conexao, uAtualizador;
 
 {$R *.dfm}
 {
@@ -48,12 +48,14 @@ procedure TfrmCore.FormCreate(Sender: TObject);
 var
   tipo: String;
   conexao : Tconexao;
+  Banco : TAtualizacao;
 begin
   conexao := Tconexao.Create('main');
   conexao.SQL.Add('select * from dados_whatsapp');
   Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
   conexao.Free;
-
+  Banco := TAtualizacao.Create;
+  Banco.Iniciar;
 
   if ParamCount > 0 then
   begin

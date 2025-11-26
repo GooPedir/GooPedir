@@ -33,7 +33,7 @@ unit Frm_ACBrNFe;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, System.JSON,
   Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
   Spin, Buttons, ComCtrls, OleCtrls, SHDocVw, ACBrMail,
   ACBrPosPrinter, ACBrNFeDANFeESCPOS, ACBrNFeDANFEClass, ACBrDANFCeFortesFr,
@@ -245,6 +245,10 @@ type
     RESTResponseDataSetAdapter: TRESTResponseDataSetAdapter;
     RESTRequestDataSetAdapter: TRESTRequestDataSetAdapter;
     cEmissao: TCheckBox;
+    Button1: TButton;
+    ACBrNFe2: TACBrNFe;
+    timerBuscaDFE: TTimer;
+    MemoryConfiguracao: TFDMemTable;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -287,7 +291,6 @@ type
     procedure btnEnviarEventoEmailClick(Sender: TObject);
     procedure btnInutilizarClick(Sender: TObject);
     procedure btnInutilizarImprimirClick(Sender: TObject);
-    procedure btnDistrDFePorUltNSUClick(Sender: TObject);
     procedure btnManifDestConfirmacaoClick(Sender: TObject);
     procedure ACBrNFe1GerarLog(const ALogLine: string; var Tratado: Boolean);
     procedure btSerialClick(Sender: TObject);
@@ -300,6 +303,8 @@ type
     procedure tEmissaoTimer(Sender: TObject);
     procedure tMinimizaTimer(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure timerBuscaDFETimer(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -330,6 +335,12 @@ type
     procedure EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
     function GenerateUUID: string;
     function ExtrairNItemDoErro(const Erro: string): Integer;
+    function ExtrairTexto(Node: IXMLNode; const NOME: string): string;
+    function ExtrairFloat(Node: IXMLNode; const NOME: string): Double;
+
+    function NFEXMLParaJSON(XMLText: string): TJSONObject;
+    procedure EnviaRequest(URL, JSON: String);
+    function NFJSONParaJSONPadrao(JsonEntrada: string): TJSONObject;
   end;
 
 var
@@ -349,11 +360,11 @@ uses
   IniFiles, Printers,
   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.DateTime, ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, pcnNFe, pcnConversao, pcnConversaoNFe, pcnNFeRTXT,
+  pcnAuxiliar, pcnConversao, pcnConversaoNFe, pcnNFeRTXT,
   pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrNFeNotasFiscais, ACBrNFeConfiguracoes,
-  Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial, System.JSON;
+  Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
 
 const
   SELDIRHELP = 1000;
@@ -507,7 +518,7 @@ var
   MemoryPagamento: TFDMemTable;
   Memory: TFDMemTable;
   MemoryOutros: TFDMemTable;
-  MemoryConfiguracao: TFDMemTable;
+
   SeqProduto: Integer;
   ValorTotal: Real;
   TotalPagamento: Real;
@@ -549,16 +560,10 @@ begin
   MemoryPagamento := TFDMemTable.Create(nil);
   Memory := TFDMemTable.Create(nil);
   MemoryOutros := TFDMemTable.Create(nil);
-  MemoryConfiguracao := TFDMemTable.Create(nil);
 
   Requisicao := iRequisicao.Create(self);
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.BaseUrl := BaseUrl;
-
-  Requisicao.URL := '/v1/consulta/generica/dados_whatsapp/*/*/*';
-  Requisicao.MemTable2 := MemoryConfiguracao;
-  Requisicao.Metodo := mGet;
-  Requisicao.Execute;
 
   Requisicao.URL := 'nfce/pedido/pagamento/' + NumDFe;
   Requisicao.MemTable2 := MemoryPagamento;
@@ -1519,7 +1524,9 @@ begin
   end;
 
   // Definir o ambiente corretamente
-  ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
+  ACBrNFe1.Configuracoes.WebServices.Ambiente :=
+    TpcnTipoAmbiente(MemoryConfiguracao.FieldByName('ambiente').AsInteger);;
+  // ou taHomologacao
 
   // Limpa as notas carregadas anteriormente
   ACBrNFe1.NotasFiscais.Clear;
@@ -1998,160 +2005,6 @@ end;
 // LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
 // pgRespostas.ActivePage := Dados;
 // end;
-
-procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
-var
-  xTitulo, cUFAutor, AultNSU, UltimoNSUSalvo: string;
-  DataHoraUltConsulta: TDateTime;
-  PastaDFE, NomeArquivo: string;
-  i: Integer;
-  SL: TStringList;
-  JSONRoot, JSONInfo, JSONItem: TJSONObject;
-  JSONArray: TJSONArray;
-  XMLText: string;
-begin
-  ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao; // ou taHomologacao
-  ACBrNFe1.Configuracoes.WebServices.UF := 'SC';
-  ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
-
-  OpenDialog1.Title :=
-    'Selecione um Arquivo de Distribuição para simular uma consulta ou feche para consultar o WebService';
-  OpenDialog1.DefaultExt := '*-dist-dfe.XML';
-  OpenDialog1.Filter :=
-    'Arquivos Distribuição DFe (*-dist-dfe.XML)|*-dist-dfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
-  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
-
-  UltimoNSUSalvo := '';
-  DataHoraUltConsulta := 0;
-
-  PastaDFE := IncludeTrailingPathDelimiter
-    (ACBrNFe1.Configuracoes.Arquivos.PathSalvar) + 'DFE\';
-  if not DirectoryExists(PastaDFE) then
-    ForceDirectories(PastaDFE);
-
-  if OpenDialog1.Execute then
-  begin
-    ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.Leitor.CarregarArquivo
-      (OpenDialog1.FileName);
-    ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.LerXml;
-    AultNSU := ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt.ultNSU;
-  end
-  else
-  begin
-    xTitulo := 'Distribuição DF-e por último NSU';
-
-    cUFAutor := IntToStr(ACBrNFe1.Configuracoes.WebServices.UFCodigo);
-    if not(InputQuery(xTitulo, 'Código da UF do Autor', cUFAutor)) then
-      exit;
-
-    if not(InputQuery(xTitulo, 'CNPJ/CPF do interessado no DF-e', CNPJ)) then
-      exit;
-
-    if UltimoNSUSalvo <> '' then
-      AultNSU := UltimoNSUSalvo
-    else
-      AultNSU := '';
-
-    if not(InputQuery(xTitulo, 'Último NSU recebido pelo ator', AultNSU)) then
-      exit;
-
-    ACBrNFe1.DistribuicaoDFePorUltNSU(StrToInt(cUFAutor), CNPJ, AultNSU);
-  end;
-
-  with ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt do
-  begin
-    if (cStat = 138) then
-    begin
-      UltimoNSUSalvo := ultNSU;
-      DataHoraUltConsulta := now;
-
-      MemoDados.Lines.Add('Consulta realizada com sucesso em: ' +
-        DateTimeToStr(DataHoraUltConsulta));
-      MemoDados.Lines.Add('Último NSU salvo: ' + UltimoNSUSalvo);
-      MemoDados.Lines.Add('');
-
-      JSONRoot := TJSONObject.Create;
-      JSONArray := TJSONArray.Create;
-
-      try
-        // percorre os documentos
-        for i := 0 to docZip.Count - 1 do
-        begin
-          if Trim(docZip[i].XML) = '' then
-            Continue;
-
-          NomeArquivo := PastaDFE + 'NSU_' + docZip[i].NSU + '.xml';
-          SL := TStringList.Create;
-          try
-            SL.Text := docZip[i].XML;
-            SL.SaveToFile(NomeArquivo);
-
-            // gera item JSON
-            JSONItem := TJSONObject.Create;
-            JSONItem.AddPair('nsu', docZip[i].NSU);
-            JSONItem.AddPair('chave', docZip[i].resDFe.chDFe);
-            JSONItem.AddPair('cnpj_emitente', docZip[i].resDFe.CNPJCPF);
-            JSONItem.AddPair('emitente', docZip[i].resDFe.xNome);
-            JSONItem.AddPair('valor', TJSONNumber.Create(docZip[i].resDFe.vNF));
-            JSONItem.AddPair('data_emissao', DateToStr(docZip[i].resDFe.dhEmi));
-            JSONItem.AddPair('situacao', GetEnumName(TypeInfo(TSituacaoDFe),
-              Ord(docZip[i].resDFe.cSitDFe)));
-
-            // adiciona XML puro (opcional, se quiser mandar junto)
-            XMLText := docZip[i].XML;
-            JSONItem.AddPair('xml_base64', EncodeStringBase64(XMLText));
-
-            // adiciona ao array
-            JSONArray.AddElement(JSONItem);
-
-            MemoDados.Lines.Add('XML salvo e JSON criado: ' + NomeArquivo);
-          finally
-            SL.Free;
-          end;
-        end;
-
-        // cria o bloco de informações da consulta
-        JSONInfo := TJSONObject.Create;
-        JSONInfo.AddPair('data_consulta', DateToStr(DataHoraUltConsulta));
-        JSONInfo.AddPair('hora_consulta', TimeToStr(DataHoraUltConsulta));
-        JSONInfo.AddPair('ultimo_nsu', UltimoNSUSalvo);
-        JSONInfo.AddPair('qtd_documentos', TJSONNumber.Create(docZip.Count));
-
-        // junta tudo no JSON raiz
-        JSONRoot.AddPair('consulta', JSONInfo);
-        JSONRoot.AddPair('documentos', JSONArray);
-
-        // salva para debug
-        NomeArquivo := PastaDFE + 'resultado_' +
-          FormatDateTime('yyyymmdd_hhnnss', now) + '.json';
-        SL := TStringList.Create;
-        try
-          SL.Text := JSONRoot.Format(2);
-          SL.SaveToFile(NomeArquivo);
-          MemoDados.Lines.Add('JSON salvo em: ' + NomeArquivo);
-        finally
-          SL.Free;
-        end;
-
-        // 👉 aqui tu pode enviar JSONRoot.ToJSON para tua API via HTTP POST
-        // usando um TNetHTTPClient ou IdHTTP
-        // Exemplo:
-        // HTTPClient.Post('https://tuaapi.com/importar_notas', TStringStream.Create(JSONRoot.ToJSON, TEncoding.UTF8));
-
-      finally
-        JSONRoot.Free;
-      end;
-    end
-    else
-      MemoDados.Lines.Add('Nenhum documento novo. Status: ' + IntToStr(cStat) +
-        ' - ' + xMotivo);
-  end;
-
-  MemoResp.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetWS;
-  memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
-  LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
-  pgRespostas.ActivePage := Dados;
-end;
 
 procedure TfrmACBrNFe.btnEnviarEmailClick(Sender: TObject);
 var
@@ -3417,6 +3270,21 @@ begin
   end;
 end;
 
+procedure TfrmACBrNFe.Button1Click(Sender: TObject);
+begin
+  try
+    ACBrNFe2.NotasFiscais.Clear;
+    ACBrNFe2.NotasFiscais.LoadFromFile
+      ('C:\goopedir\NFCe\Logs\DFE\NSU_000000000001005.xml');
+    EnviaRequest('v2/notafiscal/fornecedor',
+      NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+    ACBrNFe2.NotasFiscais.Clear;
+  except
+
+  end;
+
+end;
+
 procedure TfrmACBrNFe.cbCryptLibChange(Sender: TObject);
 begin
   try
@@ -3480,11 +3348,20 @@ var
   O: TACBrPosPaginaCodigo;
   IniFile: TIniFile;
   URL: String;
+  Requisicao: iRequisicao;
 begin
 
   IniFile := TIniFile.Create('./goopedir.ini');
   BaseUrl := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
   IniFile.Free;
+
+  Requisicao := iRequisicao.Create(self);
+  Requisicao.TempoExpiracao := 30 * 1000;
+  Requisicao.BaseUrl := BaseUrl;
+  Requisicao.URL := '/v1/consulta/generica/dados_whatsapp/*/*/*';
+  Requisicao.MemTable2 := MemoryConfiguracao;
+  Requisicao.Metodo := mGet;
+  Requisicao.Execute;
 
   iEmissao.BaseUrl := BaseUrl;
   iCode.BaseUrl := BaseUrl;
@@ -4068,6 +3945,22 @@ begin
   iGlitchtip.Free;
 end;
 
+procedure TfrmACBrNFe.EnviaRequest(URL, JSON: String);
+var
+  req: iRequisicao;
+begin
+  req := iRequisicao.Create(nil);
+  req.BaseUrl := BaseUrl;
+  req.URL := URL;
+  req.Metodo := mPost;
+  try
+    req.BODY(JSON);
+    req.Execute;
+  except
+  end;
+  req.Free;
+end;
+
 procedure TfrmACBrNFe.EnviarNotaFiscal(CNPJ, Data, Hora, Chave, Caminho: String;
   Valor: Real);
 var
@@ -4179,6 +4072,12 @@ begin
     Result := Match.Groups[1].Value;
 end;
 
+function TfrmACBrNFe.ExtrairFloat(Node: IXMLNode; const NOME: string): Double;
+begin
+  Result := StrToFloatDef(StringReplace(ExtrairTexto(Node, NOME), '.', ',',
+    [rfReplaceAll]), 0);
+end;
+
 function TfrmACBrNFe.ExtrairNItemDoErro(const Erro: string): Integer;
 var
   Match: TMatch;
@@ -4187,6 +4086,14 @@ begin
   Match := TRegEx.Match(Erro, '\[nItem:(\d+)\]');
   if Match.Success then
     Result := StrToIntDef(Match.Groups[1].Value, -1);
+end;
+
+function TfrmACBrNFe.ExtrairTexto(Node: IXMLNode; const NOME: string): string;
+begin
+  if Assigned(Node) and Assigned(Node.ChildNodes.FindNode(NOME)) then
+    Result := Node.ChildNodes[NOME].Text
+  else
+    Result := '';
 end;
 
 procedure TfrmACBrNFe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
@@ -4200,6 +4107,233 @@ begin
   if ACBrNFe1.NotasFiscais.Count > 0 then
     MemoResp.Lines.Add('Empresa: ' + ACBrNFe1.NotasFiscais.Items[0]
       .NFe.Emit.xNome);
+end;
+
+function TfrmACBrNFe.NFEXMLParaJSON(XMLText: string): TJSONObject;
+var
+  XML: TXMLDocument;
+  Root, NFe, InfNFe, Emit, Dest, Total, ICMSTot, Prot, DetNode,
+    ProdNode: IXMLNode;
+  i: Integer;
+  JRoot, JEmp, JNota, JProd, JArrayProd: TJSONObject;
+  JProdutos: TJSONArray;
+  DataEmissao, DataEntrada: string;
+  Chave: string;
+begin
+  JRoot := TJSONObject.Create;
+
+  XML := TXMLDocument.Create(nil);
+  XML.Options := [doNodeAutoIndent];
+  XML.Active := True;
+  XML.LoadFromXML(XMLText);
+
+  Root := XML.DocumentElement; // nfeProc
+  NFe := Root.ChildNodes['NFe']; // NFe
+  InfNFe := NFe.ChildNodes['infNFe']; // infNFe
+  Emit := InfNFe.ChildNodes['emit']; // emit
+  Dest := InfNFe.ChildNodes['dest']; // dest
+  Total := InfNFe.ChildNodes['total']; // total
+  ICMSTot := Total.ChildNodes['ICMSTot']; // icmTot
+  Prot := Root.ChildNodes['protNFe']; // protocolo
+
+  DataEmissao := copy(ExtrairTexto(InfNFe.ChildNodes['ide'], 'dhEmi'), 1, 10);
+  DataEntrada := copy(ExtrairTexto(InfNFe.ChildNodes['ide'],
+    'dhSaiEnt'), 1, 10);
+
+  Chave := InfNFe.Attributes['Id'];
+
+  if Chave.StartsWith('NFe') then
+    Chave := Chave.Substring(3);
+
+  // ───────────────────────────────────────────────────────────────────────
+  // BLOCO "EMPRESA" (.Emitente)
+  // ───────────────────────────────────────────────────────────────────────
+  JEmp := TJSONObject.Create;
+  JEmp.AddPair('cnpj', ExtrairTexto(Emit, 'CNPJ'));
+  JEmp.AddPair('nome', ExtrairTexto(Emit, 'xNome'));
+
+  // ───────────────────────────────────────────────────────────────────────
+  // BLOCO "NOTA"
+  // ───────────────────────────────────────────────────────────────────────
+  JNota := TJSONObject.Create;
+  JNota.AddPair('serie', ExtrairTexto(InfNFe.ChildNodes['ide'], 'serie'));
+  JNota.AddPair('numero', ExtrairTexto(InfNFe.ChildNodes['ide'], 'nNF'));
+  JNota.AddPair('chave', Chave);
+  JNota.AddPair('modelo', ExtrairTexto(InfNFe.ChildNodes['ide'], 'mod'));
+  JNota.AddPair('tipo', 'NF');
+  JNota.AddPair('data_emissao', DataEmissao);
+  JNota.AddPair('data_entrada', DataEntrada);
+
+  JNota.AddPair('vNF', TJSONNumber.Create(ExtrairFloat(ICMSTot, 'vNF')));
+  JNota.AddPair('vFrete', TJSONNumber.Create(ExtrairFloat(ICMSTot, 'vFrete')));
+  JNota.AddPair('vDesc', TJSONNumber.Create(ExtrairFloat(ICMSTot, 'vDesc')));
+  JNota.AddPair('vOutro', TJSONNumber.Create(ExtrairFloat(ICMSTot, 'vOutro')));
+
+  JNota.AddPair('xml_original', XMLText);
+  JNota.AddPair('status_importacao', 'pendente');
+
+  // ───────────────────────────────────────────────────────────────────────
+  // BLOCO "PRODUTOS"
+  // ───────────────────────────────────────────────────────────────────────
+  JProdutos := TJSONArray.Create;
+  for i := 0 to InfNFe.ChildNodes.Count - 1 do
+  begin
+    if (InfNFe.ChildNodes[i].NodeName = 'det') then
+    begin
+      DetNode := InfNFe.ChildNodes[i];
+      ProdNode := DetNode.ChildNodes['prod'];
+
+      JProd := TJSONObject.Create;
+      JProd.AddPair('cProd', ExtrairTexto(ProdNode, 'cProd'));
+      JProd.AddPair('xProd', ExtrairTexto(ProdNode, 'xProd'));
+      JProd.AddPair('NCM', ExtrairTexto(ProdNode, 'NCM'));
+      JProd.AddPair('CFOP', ExtrairTexto(ProdNode, 'CFOP'));
+      JProd.AddPair('qCom', TJSONNumber.Create(ExtrairFloat(ProdNode, 'qCom')));
+      JProd.AddPair('uCom', ExtrairTexto(ProdNode, 'uCom'));
+      JProd.AddPair('vUnCom', TJSONNumber.Create(ExtrairFloat(ProdNode,
+        'vUnCom')));
+      JProd.AddPair('vProd', TJSONNumber.Create(ExtrairFloat(ProdNode,
+        'vProd')));
+      JProd.AddPair('vDesc', TJSONNumber.Create(ExtrairFloat(ProdNode,
+        'vDesc')));
+      JProd.AddPair('vFrete', TJSONNumber.Create(ExtrairFloat(ProdNode,
+        'vFrete')));
+      JProd.AddPair('vOutro', TJSONNumber.Create(ExtrairFloat(ProdNode,
+        'vOutro')));
+      JProd.AddPair('vTotal', TJSONNumber.Create(ExtrairFloat(ProdNode, 'vProd')
+        + ExtrairFloat(ProdNode, 'vOutro') + ExtrairFloat(ProdNode, 'vFrete') -
+        ExtrairFloat(ProdNode, 'vDesc')));
+      JProd.AddPair('uTrib', ExtrairTexto(ProdNode, 'uTrib'));
+
+      JProdutos.AddElement(JProd);
+    end;
+  end;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // MONTA JSON FINAL
+  // ───────────────────────────────────────────────────────────────────────
+  JRoot.AddPair('empresa', JEmp);
+  JRoot.AddPair('nota', JNota);
+  JRoot.AddPair('produtos', JProdutos);
+
+  Result := JRoot;
+end;
+
+function TfrmACBrNFe.NFJSONParaJSONPadrao(JsonEntrada: string): TJSONObject;
+var
+  Root, NFe, InfNFe, Ide, Emit, Dest, Total, ICMSTot: TJSONObject;
+  DetArray, PagArray: TJSONArray;
+  DetItem, ProdItem: TJSONObject;
+  JResp, JEmp, JNota, JProd: TJSONObject;
+  JProdutos: TJSONArray;
+  i: Integer;
+  Chave, DataEmissao, DataEntrada: string;
+begin
+  Root := TJSONObject(TJSONObject.ParseJSONValue(JsonEntrada));
+  NFe := Root.GetValue<TJSONObject>('NFe');
+  InfNFe := NFe.GetValue<TJSONObject>('infNFe');
+  Ide := InfNFe.GetValue<TJSONObject>('ide');
+  Emit := InfNFe.GetValue<TJSONObject>('emit');
+  Dest := InfNFe.GetValue<TJSONObject>('dest');
+  Total := InfNFe.GetValue<TJSONObject>('total');
+  ICMSTot := Total.GetValue<TJSONObject>('ICMSTot');
+
+  // Pega chave (remove prefixo NFe)
+  Chave := InfNFe.GetValue<string>('Id');
+  if Chave.StartsWith('NFe') then
+    Chave := Chave.Substring(3);
+
+  // Datas
+  DataEmissao := copy(Ide.GetValue<string>('dhEmi'), 1, 10);
+  DataEntrada := copy(Ide.GetValue<string>('dhSaiEnt'), 1, 10);
+
+  // -------------------------------------------------------------------
+  // EMPRESA
+  // -------------------------------------------------------------------
+  JEmp := TJSONObject.Create;
+  JEmp.AddPair('cnpj', Emit.GetValue<string>('CNPJ'));
+  JEmp.AddPair('nome', Emit.GetValue<string>('xNome'));
+
+  // -------------------------------------------------------------------
+  // NOTA
+  // -------------------------------------------------------------------
+  JNota := TJSONObject.Create;
+  JNota.AddPair('serie', TJSONString.Create(Ide.GetValue<string>('serie')));
+  JNota.AddPair('numero', TJSONString.Create(Ide.GetValue<string>('nNF')));
+  JNota.AddPair('chave', TJSONString.Create(Chave));
+  JNota.AddPair('modelo', TJSONString.Create(Ide.GetValue<string>('mod')));
+  JNota.AddPair('tipo', 'NF');
+  JNota.AddPair('data_emissao', DataEmissao);
+  JNota.AddPair('data_entrada', DataEntrada);
+
+  JNota.AddPair('vNF', TJSONNumber.Create(ICMSTot.GetValue<Double>('vNF')));
+  JNota.AddPair('vFrete',
+    TJSONNumber.Create(ICMSTot.GetValue<Double>('vFrete')));
+  JNota.AddPair('vDesc', TJSONNumber.Create(ICMSTot.GetValue<Double>('vDesc')));
+  JNota.AddPair('vOutro',
+    TJSONNumber.Create(ICMSTot.GetValue<Double>('vOutro')));
+
+  JNota.AddPair('xml_original', ''); // não existe aqui
+  JNota.AddPair('status_importacao', 'pendente');
+
+  // -------------------------------------------------------------------
+  // PRODUTOS
+  // -------------------------------------------------------------------
+  DetArray := InfNFe.GetValue<TJSONArray>('det');
+  JProdutos := TJSONArray.Create;
+
+  for i := 0 to DetArray.Count - 1 do
+  begin
+    DetItem := DetArray.Items[i] as TJSONObject;
+    ProdItem := DetItem.GetValue<TJSONObject>('prod');
+
+    JProd := TJSONObject.Create;
+
+    JProd.AddPair('cProd',
+      TJSONString.Create(ProdItem.GetValue<string>('cProd')));
+    JProd.AddPair('xProd',
+      TJSONString.Create(ProdItem.GetValue<string>('xProd')));
+    JProd.AddPair('NCM', TJSONString.Create(ProdItem.GetValue<string>('NCM')));
+    JProd.AddPair('CFOP',
+      TJSONString.Create(ProdItem.GetValue<string>('CFOP')));
+
+    JProd.AddPair('qCom',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('qCom')));
+    JProd.AddPair('uCom',
+      TJSONString.Create(ProdItem.GetValue<string>('uCom')));
+    JProd.AddPair('vUnCom',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vUnCom')));
+    JProd.AddPair('vProd',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vProd')));
+
+    JProd.AddPair('vDesc',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vDesc')));
+    JProd.AddPair('vFrete',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vFrete')));
+    JProd.AddPair('vOutro',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vOutro')));
+
+    // cálculo do total do item
+    JProd.AddPair('vTotal',
+      TJSONNumber.Create(ProdItem.GetValue<Double>('vProd') +
+      ProdItem.GetValue<Double>('vOutro') + ProdItem.GetValue<Double>('vFrete')
+      - ProdItem.GetValue<Double>('vDesc')));
+
+    JProd.AddPair('uTrib',
+      TJSONString.Create(ProdItem.GetValue<string>('uTrib')));
+
+    JProdutos.AddElement(JProd);
+  end;
+
+  // -------------------------------------------------------------------
+  // JSON FINAL
+  // -------------------------------------------------------------------
+  JResp := TJSONObject.Create;
+  JResp.AddPair('empresa', JEmp);
+  JResp.AddPair('nota', JNota);
+  JResp.AddPair('produtos', JProdutos);
+
+  Result := JResp;
 end;
 
 procedure TfrmACBrNFe.PathClick(Sender: TObject);
@@ -4429,42 +4563,7 @@ var
 begin
   if not cEmissao.Checked then
     exit;
-  {
-    try
-    notasContabilidade.Close;
-    iContabilidade.URL := 'nfce/notas/sinc';
-    iContabilidade.Metodo := mGet;
 
-    iContabilidade.MemTable2 := notasContabilidade;
-    iContabilidade.Execute;
-
-    if notasContabilidade.RecordCount > 0 then
-    begin
-    while not notasContabilidade.Eof do
-    begin
-    Arquivo := CaminhoNFCe + notasContabilidade.FieldByName('nfce_chave')
-    .AsString + '-nfe.xml';
-    MemoResp.Lines.Add(Arquivo);
-    if FileExists(Arquivo) then
-    begin
-    EnviarNotaFiscal(CNPJ, notasContabilidade.FieldByName('nfce_data')
-    .AsString, notasContabilidade.FieldByName('nfce_hora').AsString,
-    notasContabilidade.FieldByName('nfce_chave').AsString, Arquivo,
-    notasContabilidade.FieldByName('valor_total_pedido').AsFloat);
-    end;
-
-    notasContabilidade.Next;
-    end;
-    end;
-    except
-    on E: Exception do
-    begin
-    MemoResp.Lines.Add('Erro ao enviar as notas da contabilidade: ' +
-    E.Message);
-    end;
-
-    end;
-  }
   try
     dadosEmissao.Close;
     iEmissao.MemTable2 := dadosEmissao;
@@ -4812,9 +4911,180 @@ begin
     end;
 
   end;
-  // tEmissao.Enabled := False;
-  // TrayIcon1.Visible := False;
-  // Application.Terminate;
+   tEmissao.Enabled := False;
+   TrayIcon1.Visible := False;
+   Application.Terminate;
+end;
+
+procedure TfrmACBrNFe.timerBuscaDFETimer(Sender: TObject);
+var
+  req: iRequisicao;
+  Data: TFDMemTable;
+  Executa: Boolean;
+  UltimoNSUSalvo: String;
+  PastaDFE, NomeArquivo: string;
+  DataHoraUltConsulta: TDateTime;
+
+  i: Integer;
+  SL: TStringList;
+  JSONRoot, JSONInfo, JSONItem: TJSONObject;
+  JSONArray: TJSONArray;
+  XMLText: string;
+
+begin
+  UltimoNSUSalvo := '0';
+  timerBuscaDFE.Enabled := False;
+  req := iRequisicao.Create(nil);
+  Data := TFDMemTable.Create(nil);
+  req.BaseUrl := BaseUrl;
+  req.URL := '/dfe/verifica/' + MemoryConfiguracao.FieldByName
+    ('ambiente').AsString;
+  try
+    Executa := True;
+    req.MemTable2 := Data;
+    req.Execute;
+    if Data.RecordCount > 0 then
+    begin
+
+      if Data.FieldByName('status').AsInteger = 0 then
+      begin
+        Executa := False;
+      end;
+      UltimoNSUSalvo := Data.FieldByName('ultimo_nsu').AsString;
+
+    end;
+  except
+
+  end;
+  Data.Free;
+  req.Free;
+
+  if not Executa then
+    exit;
+  ACBrNFe1.Configuracoes.WebServices.Ambiente := taProducao;
+  ACBrNFe1.Configuracoes.WebServices.UF := MemoryConfiguracao.FieldByName
+    ('estado').AsString;
+  ACBrNFe1.Configuracoes.Geral.ModeloDF := moNFe;
+  PastaDFE := IncludeTrailingPathDelimiter
+    (ACBrNFe1.Configuracoes.Arquivos.PathSalvar) + 'DFE\';
+  if not DirectoryExists(PastaDFE) then
+    ForceDirectories(PastaDFE);
+
+  ACBrNFe1.DistribuicaoDFePorUltNSU
+    (UFtoCUF(MemoryConfiguracao.FieldByName('estado').AsString), CNPJ,
+    UltimoNSUSalvo);
+
+  with ACBrNFe1.WebServices.DistribuicaoDFe.retDistDFeInt do
+  begin
+    if (cStat = 138) then
+    begin
+      UltimoNSUSalvo := ultNSU;
+
+      MemoDados.Lines.Add('Último NSU salvo: ' + UltimoNSUSalvo);
+      MemoDados.Lines.Add('');
+
+      JSONRoot := TJSONObject.Create;
+      JSONArray := TJSONArray.Create;
+
+      try
+        // percorre os documentos
+        for i := 0 to docZip.Count - 1 do
+        begin
+          if Trim(docZip[i].XML) = '' then
+            Continue;
+
+          NomeArquivo := PastaDFE + 'NSU_' + docZip[i].NSU + '.xml';
+          SL := TStringList.Create;
+          try
+            SL.Text := docZip[i].XML;
+            SL.SaveToFile(NomeArquivo);
+            try
+              ACBrNFe2.NotasFiscais.Clear;
+              ACBrNFe2.NotasFiscais.LoadFromFile(NomeArquivo);
+              EnviaRequest('v2/notafiscal/fornecedor',
+                NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+              ACBrNFe2.NotasFiscais.Clear;
+            except
+
+            end;
+
+            try
+              ACBrNFe1.DistribuicaoDFePorChaveNFe
+                (StrToInt(MemoryConfiguracao.FieldByName('estado').AsString),
+                CNPJ, docZip[i].resDFe.chDFe);
+            except
+
+            end;
+
+            try
+              if (docZip[i].resDFe.vNF) > 0 then
+              begin
+                JSONItem := TJSONObject.Create;
+                JSONItem.AddPair('nsu', docZip[i].NSU);
+                JSONItem.AddPair('chave', docZip[i].resDFe.chDFe);
+                JSONItem.AddPair('cnpj_emitente', docZip[i].resDFe.CNPJCPF);
+                JSONItem.AddPair('emitente', docZip[i].resDFe.xNome);
+                JSONItem.AddPair('valor',
+                  TJSONNumber.Create(docZip[i].resDFe.vNF));
+                JSONItem.AddPair('data_emissao', FormatDateTime('yyyy-mm-dd',
+                  docZip[i].resDFe.dhEmi));
+                JSONItem.AddPair('situacao', GetEnumName(TypeInfo(TSituacaoDFe),
+                  Ord(docZip[i].resDFe.cSitDFe)));
+
+                // adiciona XML puro (opcional, se quiser mandar junto)
+                XMLText := docZip[i].XML;
+                JSONItem.AddPair('xml_base64', '');
+
+                // adiciona ao array
+                JSONArray.AddElement(JSONItem);
+              end;
+            except
+
+            end;
+
+            MemoDados.Lines.Add('XML salvo e JSON criado: ' + NomeArquivo);
+          finally
+            SL.Free;
+          end;
+        end;
+
+        // cria o bloco de informações da consulta
+        JSONInfo := TJSONObject.Create;
+        JSONInfo.AddPair('ultimo_nsu', UltimoNSUSalvo);
+        JSONInfo.AddPair('qtd_documentos', TJSONNumber.Create(docZip.Count));
+
+        // junta tudo no JSON raiz
+        JSONRoot.AddPair('consulta', JSONInfo);
+        JSONRoot.AddPair('documentos', JSONArray);
+
+        // salva para debug
+        NomeArquivo := PastaDFE + 'resultado_' +
+          FormatDateTime('yyyymmdd_hhnnss', now) + '.json';
+        SL := TStringList.Create;
+        try
+          SL.Text := JSONRoot.Format(2);
+          SL.SaveToFile(NomeArquivo);
+          MemoDados.Lines.Add('JSON salvo em: ' + NomeArquivo);
+        finally
+          SL.Free;
+        end;
+
+        EnviaRequest('dfe/sincronizar/' + CNPJ, JSONRoot.ToString());
+
+      finally
+        JSONRoot.Free;
+      end;
+    end
+    else
+      MemoDados.Lines.Add('Nenhum documento novo. Status: ' + IntToStr(cStat) +
+        ' - ' + xMotivo);
+  end;
+
+  MemoResp.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetWS;
+  memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
+  LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
+  pgRespostas.ActivePage := Dados;
+
 end;
 
 procedure TfrmACBrNFe.tMinimizaTimer(Sender: TObject);

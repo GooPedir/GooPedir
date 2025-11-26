@@ -895,7 +895,6 @@ var
   Req: iRequisicao;
 begin
   Req := iRequisicao.Create(nil);
-  // Req.BaseURL := 'https://ws.goopedir.com/v2/pedido.php?codigo=' + ID;
   Req.BaseURL := API_BASE_URL;
   Req.URL := 'api/pedido/legacy/' + ID;
   try
@@ -1045,7 +1044,7 @@ begin
     Conexao.Parametros('codigo', Produto.Codigo);
     Conexao.ExecuteSQL;
 
-    Req.URL := 'v1/baixa/estoque/produto/' + Produto.CodigoProduto.ToString +
+    Req.URL := 'v1/baixa/estoque/produto/' + Produto.Codigo.ToString + '/'+Produto.CodigoProduto.ToString +
       '/' + Produto.Quantidade.ToString;
     Req.Metodo := mPost;
     try

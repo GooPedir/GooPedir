@@ -603,14 +603,6 @@ begin
         conexao.Parametros('valor', 0);
         conexao.ExecuteSQL;
 
-
-        {
-        Codigo := conexao.GerarID('impressao_pedido_produto', 'id');
-        conexao.SQL.Add('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:id_pedido,1,0,-5)');
-        conexao.Parametros('id', Codigo);
-        conexao.Parametros('id_pedido', CodigoItem);
-        conexao.ExecuteSQL;                                         }
-
         // dataSetOrderSubItems.Filter := 'iditem = '+dataSetOrderItems.FieldByName('iditem').AsString;
         // dataSetOrderSubItems.Filtered := true;
         dataSetOrderSubItems.First;

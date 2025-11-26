@@ -98,7 +98,7 @@ implementation
 
 {$R *.dfm}
 
-uses uModuloImpressao, System.DateUtils;
+uses uModuloImpressao, System.DateUtils, uModulo;
 
 procedure TfrmMain.AbrirExe(Nome: String);
 begin
@@ -175,6 +175,7 @@ var
   Descricao: String;
   Resultado: boolean;
   Count: Integer;
+  a: TdmImpressaoV2;
 begin
 
   IniFile := TIniFile.Create('./goopedir.ini');
@@ -195,8 +196,6 @@ begin
 
   // //showmessage(ParamCount.ToString);
   Count := ParamCount;
-  Count := 5;
-  Param := 3;
 
   if Count > 0 then
   begin

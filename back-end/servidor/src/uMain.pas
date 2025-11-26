@@ -174,7 +174,8 @@ type
     // function GetMySQLDumpPath: string;
     function FileSizeByName(const FileName: string): Int64;
     procedure Fechar1Click(Sender: TObject);
-    procedure IFoodMerchantStatus(Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
+    procedure IFoodMerchantStatus
+      (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
     procedure IFoodOrderCancellationFailed(OrderHead: IADRIFoodModelOrderHead;
       var bAcknowledgment: Boolean);
     procedure IFoodOrderCancellationRequested
@@ -229,7 +230,8 @@ type
       var bAcknowledgment: Boolean);
     procedure IFoodOrderAssignDriver(OrderHead: IADRIFoodModelOrderHead;
       var bAcknowledgment: Boolean);
-    procedure IFoodOrderArrivedAtOrigin(OrderHead: IADRIFoodModelOrderHead;var bAcknowledgment: Boolean);
+    procedure IFoodOrderArrivedAtOrigin(OrderHead: IADRIFoodModelOrderHead;
+      var bAcknowledgment: Boolean);
     procedure tAtualizaProcessosTimer(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FecharServioSite1Click(Sender: TObject);
@@ -242,8 +244,10 @@ type
     procedure IFoodLogRequest(ARequestId, AContent: string);
     procedure IFoodMerchantStatusError(AError: Exception);
     procedure IFoodPollingStart(StartPolling: TDateTime);
-    procedure IFoodLogResponse(ARequestId, AContent: string;AStatusCode: Integer);
-    procedure IFoodPollingEnd(EndPooling: TDateTime;OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
+    procedure IFoodLogResponse(ARequestId, AContent: string;
+      AStatusCode: Integer);
+    procedure IFoodPollingEnd(EndPooling: TDateTime;
+      OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
     procedure IFoodPollingError(Error: Exception);
     procedure VerificarOuCriarBanco;
     procedure ExecutarSQLScript(const SQLText: string);
@@ -312,7 +316,6 @@ type
     function TaxaiFood: Real;
     function StatusPedidoiFood: Integer;
     procedure AtualizaDadosiFood;
-
 
     function UserID: Integer;
     procedure buscarAtualizacao(user: Integer);
@@ -404,8 +407,6 @@ type
 
     procedure AtivaInativaSite(user: Integer);
     procedure ResetUser;
-
-
 
     function GetToken(Numero: Integer): String;
     procedure SaveToken(Numero: Integer; RefreshToken: string);
@@ -595,23 +596,22 @@ begin
 
   IniciaIfood;
   // FazerBackupMySQL(conexao);
-  // TSincronizaProdutosThread.Create;
-  // // EnvioCaixa;
-  // try
-  // RegisterAllTasks;
-  //
-  // // Executar uma task em paralelo
-  // TTaskManager.Run('sabores');
-  // TTaskManager.Run('clientes');
-  // // TTaskManager.Run('vendas');
-  //
-  // // Evita que o programa termine antes das tasks concluírem
-  // Readln;
-  // except
-  //
-  // end;
-  //
-  // // Se tiver outros módulos que dependem do banco, colocar aqui também
+  TSincronizaProdutosThread.Create;
+  // EnvioCaixa;
+  try
+    RegisterAllTasks;
+
+    // Executar uma task em paralelo
+    TTaskManager.Run('sabores');
+    TTaskManager.Run('clientes');
+//    TTaskManager.Run('vendas');
+
+    // Evita que o programa termine antes das tasks concluírem
+    Readln;
+  except
+
+  end;
+
 end;
 
 procedure TfrmServidor.AtivaInativaProdutos;
@@ -994,84 +994,84 @@ begin
 
 end;
 //
-//procedure TfrmServidor.AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
-//var
-//  conexao: Tconexao;
-//  SQL: String;
-//  statuscod: String;
-//  Status: String;
-//  IFood: String;
-//  Codigo, CodigoIntermo: Integer;
-//  imprimir: Integer;
-//begin
+// procedure TfrmServidor.AtualizaStatus(OrderHead: IADRIFoodModelOrderHead);
+// var
+// conexao: Tconexao;
+// SQL: String;
+// statuscod: String;
+// Status: String;
+// IFood: String;
+// Codigo, CodigoIntermo: Integer;
+// imprimir: Integer;
+// begin
 //
-//  statuscod := OrderHead.code;
-//  Status := OrderHead.fullCode;
-//  IFood := OrderHead.orderId;
+// statuscod := OrderHead.code;
+// Status := OrderHead.fullCode;
+// IFood := OrderHead.orderId;
 //
-//  if OrderHead.code = 'CAN' then
-//  begin
-//    SQL := 'update pedido set status = 0, desc_desconto_ifood = motivo_cancelamento, status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
-//  end
-//  else
-//  begin
-//    if OrderHead.code = 'CAR' then
-//    begin
-//      SQL := 'update pedido set desc_desconto_ifood = "CANCELADO PELO GESTO", motivo_cancelamento = "CANCELADO PELO GESTO", status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
-//    end;
+// if OrderHead.code = 'CAN' then
+// begin
+// SQL := 'update pedido set status = 0, desc_desconto_ifood = motivo_cancelamento, status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
+// end
+// else
+// begin
+// if OrderHead.code = 'CAR' then
+// begin
+// SQL := 'update pedido set desc_desconto_ifood = "CANCELADO PELO GESTO", motivo_cancelamento = "CANCELADO PELO GESTO", status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
+// end;
 //
-//    SQL := 'update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
-//  end;
-//  conexao := Tconexao.Create('main');
-//  conexao.SQL.Add(SQL);
-//  conexao.Parametros('id_ifood', IFood);
-//  conexao.Parametros('status_ifood', statuscod);
-//  conexao.Parametros('status_ifood_descricao', Status);
-//  conexao.ExecuteSQL;
+// SQL := 'update pedido set status_ifood = :status_ifood, status_ifood_descricao = :status_ifood_descricao where id_ifood = :id_ifood';
+// end;
+// conexao := Tconexao.Create('main');
+// conexao.SQL.Add(SQL);
+// conexao.Parametros('id_ifood', IFood);
+// conexao.Parametros('status_ifood', statuscod);
+// conexao.Parametros('status_ifood_descricao', Status);
+// conexao.ExecuteSQL;
 //
-//  if OrderHead.code = 'CFM' then
-//  begin
-//    conexao.SQL.Add
-//      ('SELECT codigo, 0 as zero FROM pedido where id_ifood = :codigo');
-//    conexao.Parametros('codigo', IFood);
-//    CodigoIntermo := conexao.FieldByName('codigo');
+// if OrderHead.code = 'CFM' then
+// begin
+// conexao.SQL.Add
+// ('SELECT codigo, 0 as zero FROM pedido where id_ifood = :codigo');
+// conexao.Parametros('codigo', IFood);
+// CodigoIntermo := conexao.FieldByName('codigo');
 //
-//    if CodigoIntermo > 0 then
-//    begin
+// if CodigoIntermo > 0 then
+// begin
 //
-//      conexao.SQL.Add
-//        ('select * from impressao_pedido where id_pedido = :pedido');
-//      conexao.Parametros('pedido', CodigoIntermo);
-//      try
-//        imprimir := conexao.FieldByName('id');
-//      except
-//        imprimir := 0;
-//      end;
-//      // Imprimir
+// conexao.SQL.Add
+// ('select * from impressao_pedido where id_pedido = :pedido');
+// conexao.Parametros('pedido', CodigoIntermo);
+// try
+// imprimir := conexao.FieldByName('id');
+// except
+// imprimir := 0;
+// end;
+// // Imprimir
 //
-//      if imprimir = 0 then
-//      begin
-//        Codigo := conexao.GerarID('impressao_pedido', 'id');
-//        conexao.SQL.Add
-//          ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
-//        conexao.Parametros('id', Codigo);
-//        conexao.Parametros('pedido', CodigoIntermo);
-//        conexao.ExecuteSQL;
-//      end;
+// if imprimir = 0 then
+// begin
+// Codigo := conexao.GerarID('impressao_pedido', 'id');
+// conexao.SQL.Add
+// ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
+// conexao.Parametros('id', Codigo);
+// conexao.Parametros('pedido', CodigoIntermo);
+// conexao.ExecuteSQL;
+// end;
 //
-//      conexao.SQL.Add('UPDATE impressao_pedido_produto');
-//      conexao.SQL.Add('SET status = 0');
-//      conexao.SQL.Add('WHERE data_impressao IS NULL');
-//      conexao.SQL.Add
-//        ('AND id_pedido IN (SELECT codigo FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :pedido)');
-//      conexao.Parametros('pedido', CodigoIntermo);
-//      conexao.ExecuteSQL;
-//    end;
-//  end;
+// conexao.SQL.Add('UPDATE impressao_pedido_produto');
+// conexao.SQL.Add('SET status = 0');
+// conexao.SQL.Add('WHERE data_impressao IS NULL');
+// conexao.SQL.Add
+// ('AND id_pedido IN (SELECT codigo FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :pedido)');
+// conexao.Parametros('pedido', CodigoIntermo);
+// conexao.ExecuteSQL;
+// end;
+// end;
 //
-//  conexao.Free;
+// conexao.Free;
 //
-//end;
+// end;
 
 procedure TfrmServidor.BuscaDadosiFood;
 var
@@ -1379,7 +1379,6 @@ begin
   memo := TMemo.Create(self);
   memo.Parent := self;
   Requisicao := iRequisicao.Create(self);
-  // Requisicao.BaseURL := 'https://ws.goopedir.com/modulos/index.php?user=' +UserID.ToString;
   Requisicao.BaseURL := API_BASE_URL;
   Requisicao.URL := 'api/modulos?user=' + UserID.ToString;
   try
@@ -1420,121 +1419,121 @@ begin
 
 end;
 //
-//function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
-//var
-//  NewIfood: TADRIFood;
-//  Processamento: TProcessamentoiFood;
-//begin
+// function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
+// var
+// NewIfood: TADRIFood;
+// Processamento: TProcessamentoiFood;
+// begin
 //
-//  NewIfood := TADRIFood.Create(self);
-//  NewIfood.Name := 'IFOOD' + Name;
-//  NewIfood.Tag := StrToInt(Name);
+// NewIfood := TADRIFood.Create(self);
+// NewIfood.Name := 'IFOOD' + Name;
+// NewIfood.Tag := StrToInt(Name);
 //
-//  NewIfood.SoftwareHouse.Id := '09071157997';
-//  NewIfood.OnLogRequest := IFoodLogRequest;
-//  NewIfood.OnLogResponse := IFoodLogResponse;
-//  NewIfood.OnMerchantStatus := IFoodMerchantStatus;
-//  NewIfood.OnMerchantStatusError := IFoodMerchantStatusError;
-//  NewIfood.OnOrderArrivedAtOrigin := IFoodOrderArrivedAtOrigin;
-//  NewIfood.OnOrderAssignDriver := IFoodOrderAssignDriver;
-//  NewIfood.OnOrderBoxAssigned := IFoodOrderBoxAssigned;
-//  NewIfood.OnOrderCancellationFailed := IFoodOrderCancellationFailed;
-//  NewIfood.OnOrderCancellationRequested := IFoodOrderCancellationRequested;
-//  NewIfood.OnOrderCancelled := IFoodOrderCancelled;
-//  NewIfood.OnOrderChangePreparationTime := IFoodOrderChangePreparationTime;
-//  NewIfood.OnOrderCollected := IFoodOrderCollected;
-//  NewIfood.OnOrderConcluded := IFoodOrderConcluded;
-//  NewIfood.OnOrderConfirmed := IFoodOrderConfirmed;
-//  NewIfood.OnOrderConsumerCancellationRequested :=
-//    IFoodOrderConsumerCancellationRequested;
-//  NewIfood.OnOrderConsumerCancellationAccepted :=
-//    IFoodOrderConsumerCancellationAccepted;
-//  NewIfood.OnOrderConsumerCancellationDenied :=
-//    IFoodOrderConsumerCancellationDenied;
-//  NewIfood.OnOrderDelayNotification := IFoodOrderDelayNotification;
-//  NewIfood.OnOrderDelivered := IFoodOrderDelivered;
-//  NewIfood.OnOrderDispatched := IFoodOrderDispatched;
-//  NewIfood.OnOrderGoingToOrigin := IFoodOrderGoingToOrigin;
-//  NewIfood.OnOrderIntegrated := IFoodOrderIntegrated;
-//  NewIfood.OnOrderPickupAreaAssigned := IFoodOrderPickupAreaAssigned;
+// NewIfood.SoftwareHouse.Id := '09071157997';
+// NewIfood.OnLogRequest := IFoodLogRequest;
+// NewIfood.OnLogResponse := IFoodLogResponse;
+// NewIfood.OnMerchantStatus := IFoodMerchantStatus;
+// NewIfood.OnMerchantStatusError := IFoodMerchantStatusError;
+// NewIfood.OnOrderArrivedAtOrigin := IFoodOrderArrivedAtOrigin;
+// NewIfood.OnOrderAssignDriver := IFoodOrderAssignDriver;
+// NewIfood.OnOrderBoxAssigned := IFoodOrderBoxAssigned;
+// NewIfood.OnOrderCancellationFailed := IFoodOrderCancellationFailed;
+// NewIfood.OnOrderCancellationRequested := IFoodOrderCancellationRequested;
+// NewIfood.OnOrderCancelled := IFoodOrderCancelled;
+// NewIfood.OnOrderChangePreparationTime := IFoodOrderChangePreparationTime;
+// NewIfood.OnOrderCollected := IFoodOrderCollected;
+// NewIfood.OnOrderConcluded := IFoodOrderConcluded;
+// NewIfood.OnOrderConfirmed := IFoodOrderConfirmed;
+// NewIfood.OnOrderConsumerCancellationRequested :=
+// IFoodOrderConsumerCancellationRequested;
+// NewIfood.OnOrderConsumerCancellationAccepted :=
+// IFoodOrderConsumerCancellationAccepted;
+// NewIfood.OnOrderConsumerCancellationDenied :=
+// IFoodOrderConsumerCancellationDenied;
+// NewIfood.OnOrderDelayNotification := IFoodOrderDelayNotification;
+// NewIfood.OnOrderDelivered := IFoodOrderDelivered;
+// NewIfood.OnOrderDispatched := IFoodOrderDispatched;
+// NewIfood.OnOrderGoingToOrigin := IFoodOrderGoingToOrigin;
+// NewIfood.OnOrderIntegrated := IFoodOrderIntegrated;
+// NewIfood.OnOrderPickupAreaAssigned := IFoodOrderPickupAreaAssigned;
 //
-//  NewIfood.OnOrderPreparationStarted := IFoodOrderPreparationStarted;
-//  NewIfood.OnOrderReadyToDeliver := IFoodOrderReadyToDeliver;
-//  NewIfood.OnOrderReadyToPickup := IFoodOrderReadyToPickup;
-//  NewIfood.OnOrderRecommendedPreparation := IFoodOrderRecommendedPreparation;
-//  NewIfood.OnOrderRequestDriver := IFoodOrderRequestDriver;
-//  NewIfood.OnOrderRequestDriverAvailability :=
-//    IFoodOrderRequestDriverAvailability;
-//  NewIfood.OnOrderRequestDriverFailed := IFoodOrderRequestDriverFailed;
-//  NewIfood.OnOrderRequestDriverSuccess := IFoodOrderRequestDriverSuccess;
-//  NewIfood.OnPollingEnd := IFoodPollingEnd;
-//  NewIfood.OnPollingError := IFoodPollingError;
-//  NewIfood.OnPollingStart := IFoodPollingStart;
-//  if StrToInt(Name) = 1 then
-//  begin
-//    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave1;
-//    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet1;
-//    NewIfood.OnOrderPlaced := IFoodOrderPlaced1;
+// NewIfood.OnOrderPreparationStarted := IFoodOrderPreparationStarted;
+// NewIfood.OnOrderReadyToDeliver := IFoodOrderReadyToDeliver;
+// NewIfood.OnOrderReadyToPickup := IFoodOrderReadyToPickup;
+// NewIfood.OnOrderRecommendedPreparation := IFoodOrderRecommendedPreparation;
+// NewIfood.OnOrderRequestDriver := IFoodOrderRequestDriver;
+// NewIfood.OnOrderRequestDriverAvailability :=
+// IFoodOrderRequestDriverAvailability;
+// NewIfood.OnOrderRequestDriverFailed := IFoodOrderRequestDriverFailed;
+// NewIfood.OnOrderRequestDriverSuccess := IFoodOrderRequestDriverSuccess;
+// NewIfood.OnPollingEnd := IFoodPollingEnd;
+// NewIfood.OnPollingError := IFoodPollingError;
+// NewIfood.OnPollingStart := IFoodPollingStart;
+// if StrToInt(Name) = 1 then
+// begin
+// NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave1;
+// NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet1;
+// NewIfood.OnOrderPlaced := IFoodOrderPlaced1;
 //
-//  end;
-//  if StrToInt(Name) = 2 then
-//  begin
-//    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave2;
-//    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet2;
-//    NewIfood.OnOrderPlaced := IFoodOrderPlaced2;
+// end;
+// if StrToInt(Name) = 2 then
+// begin
+// NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave2;
+// NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet2;
+// NewIfood.OnOrderPlaced := IFoodOrderPlaced2;
 //
-//  end;
+// end;
 //
-//  NewIfood.Credentials.ClientId := IFood.Credentials.ClientId;
-//  NewIfood.Credentials.ClientSecret := IFood.Credentials.ClientSecret;
-//  if (IFood.Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-//  begin
-//    NewIfood.Credentials.AuthorizationType := ctCentralized;
-//  end
-//  else
-//  begin
-//    NewIfood.Credentials.AuthorizationType := ctDistributed;
-//  end;
+// NewIfood.Credentials.ClientId := IFood.Credentials.ClientId;
+// NewIfood.Credentials.ClientSecret := IFood.Credentials.ClientSecret;
+// if (IFood.Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+// begin
+// NewIfood.Credentials.AuthorizationType := ctCentralized;
+// end
+// else
+// begin
+// NewIfood.Credentials.AuthorizationType := ctDistributed;
+// end;
 //
-//  if (MerchantID <> '') then
-//  begin
-//    try
-//      NewIfood.MerchantStatus.AutoStatus := True;
-//      NewIfood.Polling.AutoPolling := True;
-//      NewIfood.MerchantID(MerchantID);
+// if (MerchantID <> '') then
+// begin
+// try
+// NewIfood.MerchantStatus.AutoStatus := True;
+// NewIfood.Polling.AutoPolling := True;
+// NewIfood.MerchantID(MerchantID);
 //
-//      if StrToInt(Name) = 1 then
-//      begin
-//        ProcessamentoiFood1 := TProcessamentoiFood.Create;
-//        ProcessamentoiFood1.IFood := NewIfood;
-//        ProcessamentoiFood1.statusiFood := frmServidor.Configuracoes.FieldByName
-//          ('aceitar_pedidos_ifood').AsInteger;
-//        ProcessamentoiFood1.Start;
-//        NewIfood.MerchantStatus.DataSource := dsMerchants1;
+// if StrToInt(Name) = 1 then
+// begin
+// ProcessamentoiFood1 := TProcessamentoiFood.Create;
+// ProcessamentoiFood1.IFood := NewIfood;
+// ProcessamentoiFood1.statusiFood := frmServidor.Configuracoes.FieldByName
+// ('aceitar_pedidos_ifood').AsInteger;
+// ProcessamentoiFood1.Start;
+// NewIfood.MerchantStatus.DataSource := dsMerchants1;
 //
-//      end;
-//      if StrToInt(Name) = 2 then
-//      begin
-//        ProcessamentoiFood2 := TProcessamentoiFood.Create;
-//        ProcessamentoiFood2.IFood := NewIfood;
-//        ProcessamentoiFood2.statusiFood := frmServidor.Configuracoes.FieldByName
-//          ('aceitar_pedidos_ifood').AsInteger;
-//        ProcessamentoiFood2.Start;
-//        NewIfood.MerchantStatus.DataSource := dsMerchants2;
-//      end;
+// end;
+// if StrToInt(Name) = 2 then
+// begin
+// ProcessamentoiFood2 := TProcessamentoiFood.Create;
+// ProcessamentoiFood2.IFood := NewIfood;
+// ProcessamentoiFood2.statusiFood := frmServidor.Configuracoes.FieldByName
+// ('aceitar_pedidos_ifood').AsInteger;
+// ProcessamentoiFood2.Start;
+// NewIfood.MerchantStatus.DataSource := dsMerchants2;
+// end;
 //
-//    except
-//      on E: Exception do
-//      begin
-//        // //showmessage1(E.Message);
+// except
+// on E: Exception do
+// begin
+// // //showmessage1(E.Message);
 //
-//      end;
+// end;
 //
-//    end;
+// end;
 //
-//  end;
+// end;
 //
-//end;
+// end;
 
 procedure TfrmServidor.DadosApiWhatsapp;
 var
@@ -1757,22 +1756,22 @@ begin
 
 end;
 
-//procedure TfrmServidor.DescricaoIfood;
-//begin
+// procedure TfrmServidor.DescricaoIfood;
+// begin
 //
-//  if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
-//  begin
-//    pTipoIfood.Caption := 'Produção';
-//  end
-//  else
-//  begin
-//    pTipoIfood.Caption := 'Homologação';
-//  end;
+// if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
+// begin
+// pTipoIfood.Caption := 'Produção';
+// end
+// else
+// begin
+// pTipoIfood.Caption := 'Homologação';
+// end;
 //
-//  if (IFood.Credentials.ClientId = '156b1271-4e6b-49c7-98cd-92a49cd1dec7') then
-//    pTipoIfood.Caption := 'Homologação - Eneway';
+// if (IFood.Credentials.ClientId = '156b1271-4e6b-49c7-98cd-92a49cd1dec7') then
+// pTipoIfood.Caption := 'Homologação - Eneway';
 //
-//end;
+// end;
 
 function TfrmServidor.DoGetCaixaCincoCategoria(Codigo: Integer): TJsonArray;
 var
@@ -2133,8 +2132,9 @@ var
 begin
   try
     conexao := Tconexao.Create('ExtornoPedidoNaoFinalizado');
+    // conexao.SQL.Add('SELECT 0 as zero, codigo FROM pedido where status = -1 and id_ficha = 0 and data_pedido <= curdate() and hora_pedido < DATE_SUB(current_time(), INTERVAL 15 MINUTE) and valor_pedido > 0');
     conexao.SQL.Add
-      ('SELECT 0 as zero, codigo FROM pedido where status = -1 and id_ficha = 0 and data_pedido <= curdate() and hora_pedido < DATE_SUB(current_time(), INTERVAL 15 MINUTE) and valor_pedido > 0');
+      ('SELECT 0 as zero, codigo FROM pedido where status = -1 and (id_ficha = 0 or id_ficha is null) and data_pedido <= curdate() and hora_pedido < DATE_SUB(current_time(), INTERVAL 5 MINUTE)');
     Dados := TFDMemTable.Create(nil);
     Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -2582,16 +2582,16 @@ begin
   frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
   conexao.Free;
 
-//  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
-//  begin
-//    HabilitarProduo1Click(nil);
-//  end;
-//
-//  if (IniFile.ReadString('IFOOD', 'CLIENTID', '')
-//    = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-//    IFood.Credentials.AuthorizationType := ctCentralized
-//  else
-//    IFood.Credentials.AuthorizationType := ctDistributed;
+  // if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
+  // begin
+  // HabilitarProduo1Click(nil);
+  // end;
+  //
+  // if (IniFile.ReadString('IFOOD', 'CLIENTID', '')
+  // = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+  // IFood.Credentials.AuthorizationType := ctCentralized
+  // else
+  // IFood.Credentials.AuthorizationType := ctDistributed;
 
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
@@ -2610,7 +2610,6 @@ begin
   imprimir.Registry;
   LoadImpressora;
 
-
   // Middlewares
   THorse.Use(LogMiddleware);
   THorse.Use(ConfigurarCORS);
@@ -2622,15 +2621,13 @@ begin
   AtualizaCacheSite;
   IniFile.Free;
 
+  conexao := Tconexao.Create('main');
+  conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
+  conexao.ExecuteSQL;
 
-
-
-  // conexao := Tconexao.Create('main');
-  // conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
-  // conexao.ExecuteSQL;
-  //
-  // VersaoMysql := conexao.ValidaVersao;
-  // GerarLog := True;
+  VersaoMysql := conexao.ValidaVersao;
+  GerarLog := True;
+  AposConectarBanco;
   // Migrado Para o Core
   // try
   // conexao.SQL.Add('select * from dados_whatsapp');
@@ -3069,34 +3066,34 @@ procedure TfrmServidor.HabilitarHomologao1Click(Sender: TObject);
 var
   IniFile: TIniFile;
 begin
-//  IniFile := TIniFile.Create('./goopedir.ini');
-//  IniFile.WriteString('IFOOD', 'CLIENTID',
-//    'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e');
-//  IniFile.WriteString('IFOOD', 'CLIENTSECRET',
-//    'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
-//  IniFile.Free;
-//
-//  IFood.Credentials.ClientId := 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e';
-//  IFood.Credentials.ClientSecret :=
-//    'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc';
-//  DescricaoIfood;
+  // IniFile := TIniFile.Create('./goopedir.ini');
+  // IniFile.WriteString('IFOOD', 'CLIENTID',
+  // 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e');
+  // IniFile.WriteString('IFOOD', 'CLIENTSECRET',
+  // 'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
+  // IniFile.Free;
+  //
+  // IFood.Credentials.ClientId := 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e';
+  // IFood.Credentials.ClientSecret :=
+  // 'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc';
+  // DescricaoIfood;
 end;
 
 procedure TfrmServidor.HabilitarProduo1Click(Sender: TObject);
 var
   IniFile: TIniFile;
 begin
-//  IniFile := TIniFile.Create('./goopedir.ini');
-//  IniFile.WriteString('IFOOD', 'CLIENTID',
-//    'b683664a-f536-4cbf-a162-a2f98ac757e3');
-//  IniFile.WriteString('IFOOD', 'CLIENTSECRET',
-//    '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia');
-//  IniFile.Free;
-//
-//  IFood.Credentials.ClientId := 'b683664a-f536-4cbf-a162-a2f98ac757e3';
-//  IFood.Credentials.ClientSecret :=
-//    '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia';
-//  DescricaoIfood;
+  // IniFile := TIniFile.Create('./goopedir.ini');
+  // IniFile.WriteString('IFOOD', 'CLIENTID',
+  // 'b683664a-f536-4cbf-a162-a2f98ac757e3');
+  // IniFile.WriteString('IFOOD', 'CLIENTSECRET',
+  // '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia');
+  // IniFile.Free;
+  //
+  // IFood.Credentials.ClientId := 'b683664a-f536-4cbf-a162-a2f98ac757e3';
+  // IFood.Credentials.ClientSecret :=
+  // '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia';
+  // DescricaoIfood;
 end;
 
 function TfrmServidor.IDiFood: String;
@@ -3219,7 +3216,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderAssignDriver
@@ -3227,7 +3223,6 @@ procedure TfrmServidor.IFoodOrderAssignDriver
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3237,7 +3232,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderCancellationFailed
@@ -3245,7 +3239,6 @@ procedure TfrmServidor.IFoodOrderCancellationFailed
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3255,7 +3248,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
@@ -3263,7 +3255,6 @@ procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3273,7 +3264,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
@@ -3281,7 +3271,6 @@ procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3291,7 +3280,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
@@ -3299,7 +3287,6 @@ procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3309,7 +3296,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
@@ -3317,7 +3303,6 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3327,7 +3312,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderDelayNotification
@@ -3335,7 +3319,6 @@ procedure TfrmServidor.IFoodOrderDelayNotification
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3345,7 +3328,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
@@ -3353,7 +3335,6 @@ procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3363,7 +3344,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
@@ -3372,7 +3352,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderPickupAreaAssigned
@@ -3380,7 +3359,6 @@ procedure TfrmServidor.IFoodOrderPickupAreaAssigned
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3417,7 +3395,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderReadyToDeliver
@@ -3425,7 +3402,6 @@ procedure TfrmServidor.IFoodOrderReadyToDeliver
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3435,7 +3411,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderRecommendedPreparation
@@ -3443,7 +3418,6 @@ procedure TfrmServidor.IFoodOrderRecommendedPreparation
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3453,7 +3427,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriverAvailability
@@ -3461,7 +3434,6 @@ procedure TfrmServidor.IFoodOrderRequestDriverAvailability
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
@@ -3471,7 +3443,6 @@ begin
 
   bAcknowledgment := True;
 
-
 end;
 
 procedure TfrmServidor.IFoodOrderRequestDriverSuccess
@@ -3479,7 +3450,6 @@ procedure TfrmServidor.IFoodOrderRequestDriverSuccess
 begin
 
   bAcknowledgment := True;
-
 
 end;
 
