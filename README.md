@@ -10,9 +10,9 @@
 
 <div align="center">
 
-![Allan GitHub Stats](https://github-readme-stats.vercel.app/api?username=allancolombo&show_icons=true&theme=tokyonight)
+![Allan GitHub Stats](https://github-readme-stats.vercel.app/api?username=GooPedir&show_icons=true&theme=tokyonight)
 
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=allancolombo&layout=compact&theme=tokyonight)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=GooPedir&layout=compact&theme=tokyonight)
 
 </div>
 
