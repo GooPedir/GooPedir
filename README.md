@@ -59,8 +59,8 @@ Gosto de resolver problemas sérios com tecnologia sólida — e de preferência
 
 <div align="center">
 
-<img height="170" src="https://github-readme-stats.vercel.app/api?username=allancolombo&show_icons=true&theme=tokyonight&include_all_commits=true" />
-<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=allancolombo&layout=compact&theme=tokyonight" />
+<img height="170" src="https://github-readme-stats.vercel.app/api?username=GooPedir&show_icons=true&theme=tokyonight&include_all_commits=true" />
+<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=GooPedir&layout=compact&theme=tokyonight" />
 
 </div>
 
@@ -70,16 +70,12 @@ Gosto de resolver problemas sérios com tecnologia sólida — e de preferência
 
 <div align="center">
   
-<a href="https://www.linkedin.com/in/allancolombo" target="_blank">
+<a href="https://www.linkedin.com/in/allan-colombo" target="_blank">
   <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" />
 </a>
 
-<a href="mailto:allan.colombo.dev@gmail.com">
+<a href="mailto:allan@goopedir.com">
   <img height="40" src="https://cdn-icons-png.flaticon.com/512/732/732200.png" />
-</a>
-
-<a href="https://wa.me/554799658900">
-  <img height="40" src="https://cdn-icons-png.flaticon.com/512/733/733585.png" />
 </a>
 
 </div>
