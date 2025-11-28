@@ -1,39 +1,119 @@
 <h1 align="center">Allan Colombo 🚀</h1>
-
 <p align="center">
-  Desenvolvedor Full Stack | Delphi • Node • React • MySQL  
+  <b>Full Stack Developer • Delphi Expert • CEO @ GooPedir</b><br>
+  <b>Building restaurant/delivery systems since 2016</b>
 </p>
 
 ---
 
-### 📊 Estatísticas
-
 <div align="center">
-
-![Allan GitHub Stats](https://github-readme-stats.vercel.app/api?username=GooPedir&show_icons=true&theme=tokyonight)
-
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=GooPedir&layout=compact&theme=tokyonight)
+  
+  <img src="https://komarev.com/ghpvc/?username=allancolombo&color=blueviolet" />
 
 </div>
 
 ---
 
-### 🧰 Tecnologias que uso
+## 🧠 Sobre mim
+
+Desenvolvedor desde os 16 anos, apaixonado por criar sistemas que realmente fazem diferença no dia a dia das empresas.  
+Fundador do **GooPedir**, plataforma completa para restaurantes e deliveries, incluindo:
+
+- Sistema de Pedidos Online  
+- PDV  
+- Controle de Estoque & CMV  
+- Integrador iFood  
+- Fidelidade  
+- WhatsApp Bot & Campanhas  
+- Aplicativo de Motoboy  
+- Dashboard Analytics  
+- Integrações fiscais (NFC-e)  
+- Backend alto desempenho (Delphi + MySQL + Node.js)
+
+Gosto de resolver problemas sérios com tecnologia sólida — e de preferência com muita automação.
+
+---
+
+## 🚀 Tecnologias que domino
 
 <div align="center">
-<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg">
-<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg">
+
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/delphi/delphi-original.svg">
 <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg">
 <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg">
 <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg">
+<img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg">
 <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg">
+
 </div>
 
 ---
 
-### ✨ Sobre mim
+## 📊 Estatísticas
 
-- Criador do **GooPedir**, plataforma de gestão e delivery  
-- Programando desde 2016  
-- Focado em performance, automações e integrações  
-- Aprendendo todos os dias para deixar o GooPedir cada vez mais forte  
+<div align="center">
+
+<img height="170" src="https://github-readme-stats.vercel.app/api?username=allancolombo&show_icons=true&theme=tokyonight&include_all_commits=true" />
+<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=allancolombo&layout=compact&theme=tokyonight" />
+
+</div>
+
+---
+
+## 🌐 Onde me encontrar
+
+<div align="center">
+  
+<a href="https://www.linkedin.com/in/allancolombo" target="_blank">
+  <img height="40" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" />
+</a>
+
+<a href="mailto:allan.colombo.dev@gmail.com">
+  <img height="40" src="https://cdn-icons-png.flaticon.com/512/732/732200.png" />
+</a>
+
+<a href="https://wa.me/554799658900">
+  <img height="40" src="https://cdn-icons-png.flaticon.com/512/733/733585.png" />
+</a>
+
+</div>
+
+---
+
+## 🏗️ Projetos em Destaque
+
+🔹 **GooPedir – Plataforma completa para restaurantes/delivery**  
+Backend em Delphi + Node + MySQL  
+Site de Pedidos + PDV + Estoque + NFT + Dashboard + Integrador iFood + Fidelidade
+
+🔹 **Sistema de Atualizações Automáticas**  
+Download, backup, versionamento e deploy automático (Delphi + Python)
+
+🔹 **Integração WhatsApp Evolution API**  
+Geração de campanhas, bot, automações e integração com Perfex CRM
+
+🔹 **API de localização (própria)**  
+Integração com OwnTracks + Leaflet + Next.js
+
+---
+
+## 🔥 O que estou estudando agora
+
+- Arquitetura de microsserviços  
+- Otimizações avançadas de MySQL  
+- Observabilidade (logs, monitoramento, tracing)  
+- Deploy contínuo em ambientes multi-VPS com redundância
+
+---
+
+<div align="center">
+
+✨ *“Código bom é aquele que resolve problemas reais e escala sem drama.”* ✨
+
+</div>
