@@ -3183,10 +3183,7 @@ begin
     2:
       begin
         // Pedido Produto
-
-        Aux := conexao.GerarID('impressao_pedido_produto', 'id');
-        conexao.SQL.Add
-          ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date,current_time,:pedido,0,0,-6);');
+        conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date,current_time,:pedido,0,0,-6);');
         conexao.Parametros('pedido', Codigo);
         conexao.Parametros('id', Aux);
         conexao.ExecuteSQL;
@@ -3709,10 +3706,8 @@ begin
   conexao := Tconexao.Create('Util');
   CodigoAux := conexao.GerarID('impressao_pedido_produto', 'id');
 
-  conexao.SQL.Add
-    ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:pedido,0,0,-7)');
+  conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,0,0,-7)');
   conexao.Parametros('pedido', ID);
-  conexao.Parametros('id', CodigoAux);
   conexao.ExecuteSQL;
   conexao.Free;
 end;
@@ -6198,8 +6193,7 @@ begin
   conexao.SQL.Add('select * from usuario');
   Usuario := conexao.FieldByName('codigo');
   CodigoAux := conexao.GerarID('impressao_pedido_produto', 'id');
-  conexao.SQL.Add
-    ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:pedido,:status,0,:usuario)');
+  conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
   conexao.Parametros('pedido', Codigo);
   conexao.Parametros('id', CodigoAux);
   conexao.Parametros('status', Mesa);
@@ -9696,29 +9690,6 @@ begin
               conexaoT.ExecuteSQL;
             end;
 
-            // ---------- IMPRESSÃO ----------
-            conexaoT.SQL.Add
-              ('select codigo_pedido_dia as codigo from pedido where codigo = :codigo');
-            conexaoT.Parametros('codigo', it.Pedido);
-            ImprimirInsta := conexaoT.FieldByName('codigo') > 0;
-
-            CodigoAux := conexaoT.GerarID('impressao_pedido_produto', 'id');
-            conexaoT.SQL.Add
-              ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) '
-              + 'values (:id,current_date(),current_time(),:pedido,:status,0,:usuario)');
-
-            conexaoT.Parametros('id', CodigoAux);
-            conexaoT.Parametros('pedido', it.CodigoPedidoProduto);
-            conexaoT.Parametros('usuario', it.Usuario);
-
-            if ImprimirInsta then
-              conexaoT.Parametros('status', 0)
-            else
-              conexaoT.Parametros('status',
-                frmServidor.Configuracoes.FieldByName('impressao_agrupada')
-                .AsInteger);
-
-            conexaoT.ExecuteSQL;
 
             // ---------- ATUALIZA PEDIDO / MOVIMENTO ----------
             AtualizaValorPedido(it.Pedido);

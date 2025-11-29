@@ -1,4 +1,4 @@
-﻿unit uSQL;
+unit uSQL;
 
 interface
 
@@ -1978,7 +1978,7 @@ begin
         SQL := SQL + ' END;';
         ExecultaSQL(SQL);
       end;
-    132:
+    133:
       begin
         ExecultaSQL('ALTER TABLE `pedido` ENGINE = InnoDB');
         CriarPrimeiraParticaoPedidoAll;
@@ -2042,7 +2042,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '132';
+  Result := '133';
 end;
 
 end.

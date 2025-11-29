@@ -1039,11 +1039,6 @@ begin
       Conexao.ExecuteSQL;
     end;
 
-    Conexao.SQL.Add
-      ('insert into impressao_pedido_produto (id_pedido,status,data_solicitacao,hora_solicitacao,usuario) values (:codigo,1,curdate(),curtime(),-2)');
-    Conexao.Parametros('codigo', Produto.Codigo);
-    Conexao.ExecuteSQL;
-
     Req.URL := 'v1/baixa/estoque/produto/' + Produto.Codigo.ToString + '/'+Produto.CodigoProduto.ToString +
       '/' + Produto.Quantidade.ToString;
     Req.Metodo := mPost;

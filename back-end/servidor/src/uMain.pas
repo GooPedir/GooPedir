@@ -4345,11 +4345,8 @@ begin
 
         if CodigoAux = 0 then
         begin
-          CodigoAux := conexao.GerarID('impressao_pedido_produto', 'id');
-          conexao.SQL.Add
-            ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (:id,current_date(),current_time(),:pedido,:status,0,:usuario)');
+          conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
           conexao.Parametros('pedido', Dados.FieldByName('codigo').AsString);
-          conexao.Parametros('id', CodigoAux);
           conexao.Parametros('status', 0);
           conexao.Parametros('usuario', -3);
           conexao.ExecuteSQL;

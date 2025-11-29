@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  Winapi.ShellAPI, Winapi.TlHelp32,
+  Winapi.ShellAPI, Winapi.TlHelp32, System.Generics.Collections,
   System.Classes, Vcl.Graphics, System.DateUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, inifiles, FireDAC.Comp.Client,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
@@ -13,6 +13,17 @@ uses
   DataSet.Serialize, JSON, uRequisicao;
 
 type
+  TPedidoInfra = class
+  private
+    FConn: TConexao;
+    function GetColumns(const TableName: string): TList<string>;
+    function GenerateCompatibleSelect(const BaseTable,
+      OldTable: string): string;
+    procedure CopyTableData(const BaseTable, OldTable, TargetTable: string);
+  public
+    constructor Create(Conn: TConexao);
+    procedure VoltarPedidos;
+  end;
 
   TAbrirServicos = class(TThread)
   protected
@@ -30,7 +41,7 @@ type
     procedure AlteraExtrasIguais;
 
   var
-    conexao: Tconexao;
+    conexao: TConexao;
     Name: String;
     URL: String;
     URLBKP: String;
@@ -64,7 +75,8 @@ type
     procedure FazExclusaoClientes;
 
     procedure ClonaPedido;
-    procedure Pedido(Tabela: TFDQuery; conexao: Tconexao;
+    procedure VoltarPedidos;
+    procedure Pedido(Tabela: TFDQuery; conexao: TConexao;
       Data, NomeTabela, CampoID: String);
 
   public
@@ -88,13 +100,13 @@ end;
 
 procedure TfrmServicosGoopedir.AtivaInativaProdutos;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   prog: String;
 begin
 
   try
-    conexao := Tconexao.Create('main');
+    conexao := TConexao.Create('main');
     Dados := TFDMemTable.Create(nil);
     conexao.SQL.Add('select * from produto where dias = 1');
     Dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -144,12 +156,12 @@ end;
 
 procedure TfrmServicosGoopedir.AtualizaSaldoEstoque;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   Estoque: Real;
 begin
 
-  conexao := Tconexao.Create('EstoqueAtualiza');
+  conexao := TConexao.Create('EstoqueAtualiza');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('SELECT 0 as zero, codigo FROM produto where controle_estoque = 1');
@@ -188,133 +200,40 @@ end;
 
 procedure TfrmServicosGoopedir.ClonaPedido;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   Pedidos: TFDQuery;
   PedidoProdutos: TFDQuery;
   PedidoProdutosSAP: TFDQuery;
   Origem: String;
 begin
-  conexao := Tconexao.Create('ClonaPedido');
+  conexao := TConexao.Create('ClonaPedido');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('delete from pedido where status = -1 and (id_caixa is null or id_caixa = 0)');
   conexao.ExecuteSQL;
 
+  conexao.SQL.Add('SET GLOBAL event_scheduler = ON;');
+  conexao.ExecuteSQL;
+
   conexao.SQL.Add
-    ('SELECT DISTINCT DATE_FORMAT(data_pedido, "%Y_%m") AS data_formatada, 0 as zero');
-  conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add('WHERE data_pedido > "2000-01-01"');
-  conexao.SQL.Add
-    ('  AND DATE_FORMAT(data_pedido, "%Y_%m") != DATE_FORMAT(CURDATE(), "%Y_%m")');
-  conexao.SQL.Add('ORDER BY data_formatada;');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
+    ('CREATE EVENT evt_particoes_pedido_all ON SCHEDULE EVERY 1 DAY DO CALL criar_proxima_particao_pedido_all();');
+  conexao.ExecuteSQL;
 
-  if Dados.RecordCount > 0 then
-  begin
-    while not Dados.Eof do
-    begin
-      conexao.SQL.Add('CREATE TABLE pedido_' +
-        Dados.FieldByName('data_formatada').AsString + ' LIKE pedido;');
-      conexao.ExecuteSQL;
-
-      Pedidos := conexao.CriaQRY;
-      Pedidos.SQL.Add
-        ('SELECT * FROM pedido WHERE DATE_FORMAT(data_pedido, "%Y_%m") = "' +
-        Dados.FieldByName('data_formatada').AsString + '"');
-      Pedidos.Open;
-
-      if Pedidos.RecordCount > 0 then
-      begin
-
-        while not Pedidos.Eof do
-        begin
-
-          // conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-          // conexao.SQL.Add('VALUES (' + Pedidos.FieldByName('codigo').AsString +', ' + QuotedStr(Dados.FieldByName('data_formatada').AsString) + ')');
-          // conexao.ExecuteSQL;
-          conexao.SQL.Clear;
-          conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-          conexao.SQL.Add('VALUES (:codigo, :data_formatada)');
-          conexao.SQL.Add
-            ('ON DUPLICATE KEY UPDATE referencia = VALUES(referencia)');
-          conexao.Parametros('codigo', Pedidos.FieldByName('codigo').AsString);
-          conexao.Parametros('data_formatada',
-            Dados.FieldByName('data_formatada').AsString);
-          conexao.ExecuteSQL;
-
-          Pedido(Pedidos, conexao, Dados.FieldByName('data_formatada').AsString,
-            'pedido', 'codigo');
-          Pedidos.Next;
-        end;
-
-      end;
-
-      Pedidos.Free;
-      Dados.Next;
-    end;
-  end;
-
-  PedidoProdutos := conexao.CriaQRY;
-  PedidoProdutos.SQL.Add
-    ('select * from pedido_produtos where codigo_pedido > 0 and DATE_FORMAT(hora, "%Y_%m")  <> DATE_FORMAT(curdate(), "%Y_%m")');
-  PedidoProdutos.Open;
-
-  while not PedidoProdutos.Eof do
-  begin
-    conexao.SQL.Add('select * from index_pedido where id = :id');
-    conexao.Parametros('id', PedidoProdutos.FieldByName('codigo_pedido')
-      .AsInteger);
-    Origem := conexao.FieldByName('referencia');
-
-    if Origem <> '' then
-    begin
-      conexao.SQL.Add('CREATE TABLE pedido_produtos_' + Origem +
-        ' LIKE pedido_produtos;');
-      conexao.ExecuteSQL;
-      conexao.SQL.Add('CREATE TABLE pedido_produto_sap_' + Origem +
-        ' LIKE pedido_produto_sap;');
-      conexao.ExecuteSQL;
-
-      Pedido(PedidoProdutos, conexao, Origem, 'pedido_produtos', 'codigo');
-
-      PedidoProdutosSAP := conexao.CriaQRY;
-      PedidoProdutosSAP.SQL.Add
-        ('SELECT * FROM pedido_produto_sap where codigo_pedido_produto = :codigo');
-      PedidoProdutosSAP.ParamByName('codigo').AsInteger :=
-        PedidoProdutos.FieldByName('codigo').AsInteger;
-      PedidoProdutosSAP.Open;
-
-      if PedidoProdutosSAP.RecordCount > 0 then
-      begin
-        while not PedidoProdutosSAP.Eof do
-        begin
-
-          Pedido(PedidoProdutosSAP, conexao, Origem,
-            'pedido_produto_sap', 'id');
-          PedidoProdutosSAP.Next;
-        end;
-      end;
-
-      PedidoProdutosSAP.Free;
-    end;
-
-    PedidoProdutos.Next;
-  end;
-
-  PedidoProdutos.Free;
+  VoltarPedidos;
+  conexao.Free;
 
 end;
 
 procedure TfrmServicosGoopedir.FazExclusaoClientes;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   DadosCliente: TFDMemTable;
   Codigo: Integer;
 begin
 
-  conexao := Tconexao.Create('main');
+  conexao := TConexao.Create('main');
   Dados := TFDMemTable.Create(nil);
 
   conexao.SQL.Add
@@ -391,10 +310,11 @@ end;
 
 procedure TfrmServicosGoopedir.FormCreate(Sender: TObject);
 var
-  conexao: Tconexao;
+  conexao: TConexao;
 
 begin
-  conexao := Tconexao.Create('main');
+
+  conexao := TConexao.Create('main');
   // VersaoMysql := conexao.ValidaVersao;
   conexao.SQL.Add('select * from dados_whatsapp');
   Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
@@ -430,7 +350,7 @@ begin
   Result := NomesDiasSemana[DiaDaSemana];
 end;
 
-procedure TfrmServicosGoopedir.Pedido(Tabela: TFDQuery; conexao: Tconexao;
+procedure TfrmServicosGoopedir.Pedido(Tabela: TFDQuery; conexao: TConexao;
   Data, NomeTabela, CampoID: String);
 var
   I: Integer;
@@ -529,6 +449,13 @@ begin
 
 end;
 
+procedure TfrmServicosGoopedir.VoltarPedidos;
+var
+  infra: TPedidoInfra;
+begin
+  infra := TPedidoInfra.Create(TConexao.Create('VoltarPedidos'));
+  infra.VoltarPedidos;
+end;
 { TAbrirServicos }
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
@@ -542,14 +469,14 @@ end;
 
 procedure TAbrirServicos.AlteraExtrasIguais;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   QRY: TFDQuery;
   Obje: TJsonObject;
   Dados: TFDMemTable;
   prog: String;
 begin
   prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
-  conexao := Tconexao.Create('AlteraExtrasIguais');
+  conexao := TConexao.Create('AlteraExtrasIguais');
   QRY := conexao.CriaQRY;
   QRY.SQL.Add('select * from fila where origem = "AlteraExtrasIguais"');
   QRY.Open;
@@ -677,8 +604,8 @@ begin
       try
         uReq.Execute;
       except
-         FecharExe(SERVIDORB);
-         AbrirExe(SERVIDORB);
+        FecharExe(SERVIDORB);
+        AbrirExe(SERVIDORB);
       end;
 
     end;
@@ -835,6 +762,137 @@ begin
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
   CloseHandle(FSnapshotHandle);
+end;
+
+{ TPedidoInfra }
+
+procedure TPedidoInfra.CopyTableData(const BaseTable, OldTable,
+  TargetTable: string);
+var
+  Columns: string;
+  SQL: string;
+begin
+  Columns := GenerateCompatibleSelect(BaseTable, OldTable);
+
+  SQL := 'INSERT INTO ' + TargetTable + ' SELECT ' + Columns + ' FROM '
+    + OldTable;
+
+  FConn.ExecuteSQL(SQL);
+end;
+
+constructor TPedidoInfra.Create(Conn: TConexao);
+begin
+  FConn := Conn;
+end;
+
+function TPedidoInfra.GenerateCompatibleSelect(const BaseTable,
+  OldTable: string): string;
+var
+  ColBase, ColOld: TList<string>;
+  Col: string;
+  SQL: TStringList;
+begin
+  SQL := TStringList.Create;
+  try
+    ColBase := GetColumns(BaseTable);
+    ColOld := GetColumns(OldTable);
+
+    for Col in ColBase do
+    begin
+      if ColOld.Contains(Col) then
+        SQL.Add(Col)
+      else
+        SQL.Add('NULL AS ' + Col);
+    end;
+
+    Result := SQL.CommaText;
+  finally
+    SQL.Free;
+    ColBase.Free;
+    ColOld.Free;
+  end;
+end;
+
+function TPedidoInfra.GetColumns(const TableName: string): TList<string>;
+var
+  Dados: TJSONArray;
+  I: Integer;
+begin
+  Result := TList<string>.Create;
+
+  Dados := FConn.ConsultaSQL
+    ('SELECT COLUMN_NAME as test, 0 as zero FROM information_schema.columns ' +
+    'WHERE table_schema = "' + FConn.NomeBanco + '" AND table_name = "' +
+    TableName + '" ORDER BY ordinal_position');
+
+  for I := 0 to Dados.Count - 1 do
+    Result.Add(Dados.Items[I].GetValue<string>('test'));
+end;
+
+procedure TPedidoInfra.VoltarPedidos;
+var
+  Dados: TFDMemTable;
+  ref: string;
+  Codigo: Integer;
+begin
+  Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON
+    (FConn.ConsultaSQL
+    ('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+
+  if Dados.RecordCount = 0 then
+  begin
+    Dados.Free;
+    exit;
+  end;
+  Dados.First;
+  while not Dados.Eof do
+  begin
+    ref := Dados.FieldByName('referencia').AsString;
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido_all")', [ref])
+      );
+
+    FConn.SQL.Add('select 0, codigo from pedido_' + ref);
+    try
+      Codigo := FConn.FieldByName('codigo');
+    except
+
+    end;
+    if Codigo = 0 then
+    begin
+      FConn.SQL.Add('drop table pedido_' + ref);
+      FConn.ExecuteSQL;
+    end;
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido_produtos", "pedido_produtos_%s", "pedido_produtos_all")',
+      [ref]));
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido_produto_sap", "pedido_produto_sap_%s", "pedido_produto_sap_all")',
+      [ref]));
+
+    FConn.SQL.Add('select 0, id as codigo from pedido_produto_sap_' + ref);
+    try
+      Codigo := FConn.FieldByName('codigo');
+    except
+
+    end;
+    if Codigo = 0 then
+    begin
+      FConn.SQL.Add('drop table pedido_produto_sap_' + ref);
+      FConn.ExecuteSQL;
+      FConn.SQL.Add('delete from index_pedido where referencia = :ref');
+      FConn.Parametros('ref', ref);
+      FConn.ExecuteSQL;
+      FConn.SQL.Add('drop table pedido_produtos_' + ref);
+      FConn.ExecuteSQL;
+    end;
+
+    Dados.Next;
+  end;
 end;
 
 end.

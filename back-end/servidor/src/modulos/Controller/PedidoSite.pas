@@ -444,7 +444,7 @@ begin
 
       Codigo := conexao.GerarID('impressao_pedido', 'id');
       conexao.SQL.Add
-        ('insert into impressao_pedido_produto (id,data_solicitacao,hora_solicitacao,id_pedido,status) values (:id,curdate(),curtime(),:pedido,-1)');
+        ('insert into impressao_pedido_produto (id_Pedido_SitePAS,data_solicitacao,hora_solicitacao,id_pedido,status) values (:id,curdate(),curtime(),:pedido,-1)');
       conexao.Parametros('id', Codigo);
       conexao.Parametros('pedido', Dados.FieldByName('codigo').AsString);
       conexao.ExecuteSQL;

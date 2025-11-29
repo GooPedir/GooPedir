@@ -95,6 +95,7 @@ type
 
     function BuscarCache(Hash: String): TJSONArray;
     procedure SalvarCache(Hash: String; Result: TJSONArray);
+    procedure CriarParticoesHistoricasPedidoAll;
 
   end;
 
@@ -259,6 +260,65 @@ end;
 function TConexao.CriaQRY: TFDQuery;
 begin
   Result := DataModulo.CriaQRY;
+end;
+
+procedure TConexao.CriarParticoesHistoricasPedidoAll;
+var
+  Q: TFDQuery;
+  DataInicial, DataFinal: TDate;
+  AnoI, MesI, DiaI: Word;
+  AnoF, MesF, DiaF: Word;
+  DataLoop: TDate;
+  NomePart: string;
+  SQLParticoes: TStringlist;
+begin
+  SQLParticoes := TStringlist.Create;
+  try
+    Q := CriaQRY;
+
+    // pega menor e maior data_pedido
+    Q.SQL.Text :=
+      'SELECT MIN(data_pedido) AS di, MAX(data_pedido) AS df FROM pedido_all';
+    Q.Open;
+
+    DataInicial := Q.FieldByName('di').AsDateTime;
+    DataFinal := Q.FieldByName('df').AsDateTime;
+
+    // garante dia = 1
+    DecodeDate(DataInicial, AnoI, MesI, DiaI);
+    DataInicial := EncodeDate(AnoI, MesI, 1);
+
+    // garante dia = 1 do mês final
+    DecodeDate(DataFinal, AnoF, MesF, DiaF);
+    DataFinal := EncodeDate(AnoF, MesF, 1);
+
+    // monta início do comando
+    SQLParticoes.Add('ALTER TABLE pedido_all');
+    SQLParticoes.Add('PARTITION BY RANGE (TO_DAYS(data_pedido)) (');
+
+    DataLoop := DataInicial;
+
+    while DataLoop <= DataFinal do
+    begin
+      NomePart := FormatDateTime('"p"yyyymm', DataLoop);
+
+      SQLParticoes.Add('  PARTITION ' + NomePart +
+        ' VALUES LESS THAN (TO_DAYS("' + FormatDateTime('yyyy-mm-01',
+        IncMonth(DataLoop)) + '")),');
+
+      DataLoop := IncMonth(DataLoop);
+    end;
+
+    // remover vírgula da última partição
+    SQLParticoes[SQLParticoes.Count - 1] :=
+      TrimRight(SQLParticoes[SQLParticoes.Count - 1]).TrimRight([',']);
+
+    SQLParticoes.Add(');');
+
+    ExecuteSQL(SQLParticoes.Text);
+  finally
+    SQLParticoes.Free;
+  end;
 end;
 
 destructor TConexao.Destroy;

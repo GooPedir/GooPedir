@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  Winapi.ShellAPI, Winapi.TlHelp32,
+  Winapi.ShellAPI, Winapi.TlHelp32, System.Generics.Collections,
   System.Classes, Vcl.Graphics, System.DateUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, inifiles, FireDAC.Comp.Client,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
@@ -13,6 +13,17 @@ uses
   DataSet.Serialize, JSON, uRequisicao;
 
 type
+  TPedidoInfra = class
+  private
+    FConn: TConexao;
+    function GetColumns(const TableName: string): TList<string>;
+    function GenerateCompatibleSelect(const BaseTable,
+      OldTable: string): string;
+    procedure CopyTableData(const BaseTable, OldTable, TargetTable: string);
+  public
+    constructor Create(Conn: TConexao);
+    procedure VoltarPedidos;
+  end;
 
   TAbrirServicos = class(TThread)
   protected
@@ -22,6 +33,7 @@ type
     procedure FecharExe(ExeFileName: String);
     function ATUALIZADOR: String;
     function USANFCE: String;
+    function SERVIDORB: String;
     function SITE(Nome: string): String;
     function IMPRESSAO: String;
     function SERVIDOR: String;
@@ -29,9 +41,10 @@ type
     procedure AlteraExtrasIguais;
 
   var
-    conexao: Tconexao;
+    conexao: TConexao;
     Name: String;
     URL: String;
+    URLBKP: String;
     uReq: iRequisicao;
     ExeAtualizador: Boolean;
   public
@@ -62,7 +75,8 @@ type
     procedure FazExclusaoClientes;
 
     procedure ClonaPedido;
-    procedure Pedido(Tabela: TFDQuery; conexao: Tconexao;
+    procedure VoltarPedidos;
+    procedure Pedido(Tabela: TFDQuery; conexao: TConexao;
       Data, NomeTabela, CampoID: String);
 
   public
@@ -86,13 +100,13 @@ end;
 
 procedure TfrmServicosGoopedir.AtivaInativaProdutos;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   prog: String;
 begin
 
   try
-    conexao := Tconexao.Create('main');
+    conexao := TConexao.Create('main');
     Dados := TFDMemTable.Create(nil);
     conexao.SQL.Add('select * from produto where dias = 1');
     Dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -142,12 +156,12 @@ end;
 
 procedure TfrmServicosGoopedir.AtualizaSaldoEstoque;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   Estoque: Real;
 begin
 
-  conexao := Tconexao.Create('EstoqueAtualiza');
+  conexao := TConexao.Create('EstoqueAtualiza');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('SELECT 0 as zero, codigo FROM produto where controle_estoque = 1');
@@ -186,14 +200,14 @@ end;
 
 procedure TfrmServicosGoopedir.ClonaPedido;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   Pedidos: TFDQuery;
   PedidoProdutos: TFDQuery;
   PedidoProdutosSAP: TFDQuery;
   Origem: String;
 begin
-  conexao := Tconexao.Create('ClonaPedido');
+  conexao := TConexao.Create('ClonaPedido');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('delete from pedido where status = -1 and (id_caixa is null or id_caixa = 0)');
@@ -306,13 +320,13 @@ end;
 
 procedure TfrmServicosGoopedir.FazExclusaoClientes;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   Dados: TFDMemTable;
   DadosCliente: TFDMemTable;
   Codigo: Integer;
 begin
 
-  conexao := Tconexao.Create('main');
+  conexao := TConexao.Create('main');
   Dados := TFDMemTable.Create(nil);
 
   conexao.SQL.Add
@@ -389,10 +403,11 @@ end;
 
 procedure TfrmServicosGoopedir.FormCreate(Sender: TObject);
 var
-  conexao: Tconexao;
+  conexao: TConexao;
 
 begin
-  conexao := Tconexao.Create('main');
+  VoltarPedidos;
+  conexao := TConexao.Create('main');
   // VersaoMysql := conexao.ValidaVersao;
   conexao.SQL.Add('select * from dados_whatsapp');
   Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
@@ -428,7 +443,7 @@ begin
   Result := NomesDiasSemana[DiaDaSemana];
 end;
 
-procedure TfrmServicosGoopedir.Pedido(Tabela: TFDQuery; conexao: Tconexao;
+procedure TfrmServicosGoopedir.Pedido(Tabela: TFDQuery; conexao: TConexao;
   Data, NomeTabela, CampoID: String);
 var
   I: Integer;
@@ -527,6 +542,13 @@ begin
 
 end;
 
+procedure TfrmServicosGoopedir.VoltarPedidos;
+var
+  infra: TPedidoInfra;
+begin
+  infra := TPedidoInfra.Create(TConexao.Create('VoltarPedidos'));
+  infra.VoltarPedidos;
+end;
 { TAbrirServicos }
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
@@ -540,14 +562,14 @@ end;
 
 procedure TAbrirServicos.AlteraExtrasIguais;
 var
-  conexao: Tconexao;
+  conexao: TConexao;
   QRY: TFDQuery;
   Obje: TJsonObject;
   Dados: TFDMemTable;
   prog: String;
 begin
   prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
-  conexao := Tconexao.Create('AlteraExtrasIguais');
+  conexao := TConexao.Create('AlteraExtrasIguais');
   QRY := conexao.CriaQRY;
   QRY.SQL.Add('select * from fila where origem = "AlteraExtrasIguais"');
   QRY.Open;
@@ -636,6 +658,7 @@ begin
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'SiteGooPedir');
   URL := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
+  URLBKP := IniFile.ReadString('server', 'baseurlB', '');
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
@@ -665,6 +688,22 @@ begin
   begin
 
     inc(contador);
+    if URLBKP <> '' then
+    begin
+
+      uReq.BaseURL := URLBKP;
+      uReq.URL := '/v2/status';
+      uReq.Metodo := mGet;
+      try
+        uReq.Execute;
+      except
+        FecharExe(SERVIDORB);
+        AbrirExe(SERVIDORB);
+      end;
+
+    end;
+
+    uReq.BaseURL := URL;
     uReq.URL := '/v2/status';
     uReq.Metodo := mGet;
     try
@@ -773,6 +812,11 @@ begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ServidorGooPedir.exe';
 end;
 
+function TAbrirServicos.SERVIDORB: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\' + 'ServidorGooPedirB.exe';
+end;
+
 function TAbrirServicos.SITE(Nome: string): String;
 var
   NomeEXE: String;
@@ -811,6 +855,101 @@ begin
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
   CloseHandle(FSnapshotHandle);
+end;
+
+{ TPedidoInfra }
+
+procedure TPedidoInfra.CopyTableData(const BaseTable, OldTable,
+  TargetTable: string);
+var
+  Columns: string;
+  SQL: string;
+begin
+  Columns := GenerateCompatibleSelect(BaseTable, OldTable);
+
+  SQL := 'INSERT INTO ' + TargetTable + ' SELECT ' + Columns + ' FROM '
+    + OldTable;
+
+  FConn.ExecuteSQL(SQL);
+end;
+
+constructor TPedidoInfra.Create(Conn: TConexao);
+begin
+  FConn := Conn;
+end;
+
+function TPedidoInfra.GenerateCompatibleSelect(const BaseTable,
+  OldTable: string): string;
+var
+  ColBase, ColOld: TList<string>;
+  Col: string;
+  SQL: TStringList;
+begin
+  SQL := TStringList.Create;
+  try
+    ColBase := GetColumns(BaseTable);
+    ColOld := GetColumns(OldTable);
+
+    for Col in ColBase do
+    begin
+      if ColOld.Contains(Col) then
+        SQL.Add(Col)
+      else
+        SQL.Add('NULL AS ' + Col);
+    end;
+
+    Result := SQL.CommaText;
+  finally
+    SQL.Free;
+    ColBase.Free;
+    ColOld.Free;
+  end;
+end;
+
+function TPedidoInfra.GetColumns(const TableName: string): TList<string>;
+var
+  Dados: TJSONArray;
+  I: Integer;
+begin
+  Result := TList<string>.Create;
+
+  Dados := FConn.ConsultaSQL
+    ('SELECT COLUMN_NAME as test, 0 as zero FROM information_schema.columns ' +
+    'WHERE table_schema = "' + FConn.NomeBanco + '" AND table_name = "' +
+    TableName + '" ORDER BY ordinal_position');
+
+  for I := 0 to Dados.Count - 1 do
+    Result.Add(Dados.Items[I].GetValue<string>('test'));
+end;
+
+procedure TPedidoInfra.VoltarPedidos;
+var
+  dados: TFDMemTable;
+  ref: string;
+begin
+  dados := TFDMemTable.Create(nil);
+  dados.LoadFromJSON(FConn.ConsultaSQL('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+
+  dados.First;
+
+  while not dados.Eof do
+  begin
+    ref := dados.FieldByName('referencia').AsString;
+
+    FConn.ExecuteSQL(Format(
+      'CALL migrar_tabela("pedido", "pedido_%s", "pedido_all")', [ref]
+    ));
+
+    FConn.ExecuteSQL(Format(
+      'CALL migrar_tabela("pedido_produtos", "pedido_produto_%s", "pedido_produto_all")', [ref]
+    ));
+
+    FConn.ExecuteSQL(Format(
+      'CALL migrar_tabela("pedido_produto_sap", "pedido_produto_sap_%s", "pedido_produto_sap_all")', [ref]
+    ));
+
+    dados.Next;
+  end;
 end;
 
 end.
