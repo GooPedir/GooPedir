@@ -278,7 +278,7 @@ begin
 
     // pega menor e maior data_pedido
     Q.SQL.Text :=
-      'SELECT MIN(data_pedido) AS di, MAX(data_pedido) AS df FROM pedido_all';
+      'SELECT MIN(data_pedido) AS di, MAX(data_pedido) AS df FROM pedido';
     Q.Open;
 
     DataInicial := Q.FieldByName('di').AsDateTime;
@@ -293,7 +293,7 @@ begin
     DataFinal := EncodeDate(AnoF, MesF, 1);
 
     // monta início do comando
-    SQLParticoes.Add('ALTER TABLE pedido_all');
+    SQLParticoes.Add('ALTER TABLE pedido');
     SQLParticoes.Add('PARTITION BY RANGE (TO_DAYS(data_pedido)) (');
 
     DataLoop := DataInicial;

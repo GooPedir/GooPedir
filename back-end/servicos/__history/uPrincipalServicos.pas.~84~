@@ -213,108 +213,15 @@ begin
     ('delete from pedido where status = -1 and (id_caixa is null or id_caixa = 0)');
   conexao.ExecuteSQL;
 
+  conexao.SQL.Add('SET GLOBAL event_scheduler = ON;');
+  conexao.ExecuteSQL;
+
   conexao.SQL.Add
-    ('SELECT DISTINCT DATE_FORMAT(data_pedido, "%Y_%m") AS data_formatada, 0 as zero');
-  conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add('WHERE data_pedido > "2000-01-01"');
-  conexao.SQL.Add
-    ('  AND DATE_FORMAT(data_pedido, "%Y_%m") != DATE_FORMAT(CURDATE(), "%Y_%m")');
-  conexao.SQL.Add('ORDER BY data_formatada;');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
+    ('CREATE EVENT evt_particoes_pedido_all ON SCHEDULE EVERY 1 DAY DO CALL criar_proxima_particao_pedido_all();');
+  conexao.ExecuteSQL;
 
-  if Dados.RecordCount > 0 then
-  begin
-    while not Dados.Eof do
-    begin
-      conexao.SQL.Add('CREATE TABLE pedido_' +
-        Dados.FieldByName('data_formatada').AsString + ' LIKE pedido;');
-      conexao.ExecuteSQL;
-
-      Pedidos := conexao.CriaQRY;
-      Pedidos.SQL.Add
-        ('SELECT * FROM pedido WHERE DATE_FORMAT(data_pedido, "%Y_%m") = "' +
-        Dados.FieldByName('data_formatada').AsString + '"');
-      Pedidos.Open;
-
-      if Pedidos.RecordCount > 0 then
-      begin
-
-        while not Pedidos.Eof do
-        begin
-
-          // conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-          // conexao.SQL.Add('VALUES (' + Pedidos.FieldByName('codigo').AsString +', ' + QuotedStr(Dados.FieldByName('data_formatada').AsString) + ')');
-          // conexao.ExecuteSQL;
-          conexao.SQL.Clear;
-          conexao.SQL.Add('INSERT INTO index_pedido (id, referencia)');
-          conexao.SQL.Add('VALUES (:codigo, :data_formatada)');
-          conexao.SQL.Add
-            ('ON DUPLICATE KEY UPDATE referencia = VALUES(referencia)');
-          conexao.Parametros('codigo', Pedidos.FieldByName('codigo').AsString);
-          conexao.Parametros('data_formatada',
-            Dados.FieldByName('data_formatada').AsString);
-          conexao.ExecuteSQL;
-
-          Pedido(Pedidos, conexao, Dados.FieldByName('data_formatada').AsString,
-            'pedido', 'codigo');
-          Pedidos.Next;
-        end;
-
-      end;
-
-      Pedidos.Free;
-      Dados.Next;
-    end;
-  end;
-
-  PedidoProdutos := conexao.CriaQRY;
-  PedidoProdutos.SQL.Add
-    ('select * from pedido_produtos where codigo_pedido > 0 and DATE_FORMAT(hora, "%Y_%m")  <> DATE_FORMAT(curdate(), "%Y_%m")');
-  PedidoProdutos.Open;
-
-  while not PedidoProdutos.Eof do
-  begin
-    conexao.SQL.Add('select * from index_pedido where id = :id');
-    conexao.Parametros('id', PedidoProdutos.FieldByName('codigo_pedido')
-      .AsInteger);
-    Origem := conexao.FieldByName('referencia');
-
-    if Origem <> '' then
-    begin
-      conexao.SQL.Add('CREATE TABLE pedido_produtos_' + Origem +
-        ' LIKE pedido_produtos;');
-      conexao.ExecuteSQL;
-      conexao.SQL.Add('CREATE TABLE pedido_produto_sap_' + Origem +
-        ' LIKE pedido_produto_sap;');
-      conexao.ExecuteSQL;
-
-      Pedido(PedidoProdutos, conexao, Origem, 'pedido_produtos', 'codigo');
-
-      PedidoProdutosSAP := conexao.CriaQRY;
-      PedidoProdutosSAP.SQL.Add
-        ('SELECT * FROM pedido_produto_sap where codigo_pedido_produto = :codigo');
-      PedidoProdutosSAP.ParamByName('codigo').AsInteger :=
-        PedidoProdutos.FieldByName('codigo').AsInteger;
-      PedidoProdutosSAP.Open;
-
-      if PedidoProdutosSAP.RecordCount > 0 then
-      begin
-        while not PedidoProdutosSAP.Eof do
-        begin
-
-          Pedido(PedidoProdutosSAP, conexao, Origem,
-            'pedido_produto_sap', 'id');
-          PedidoProdutosSAP.Next;
-        end;
-      end;
-
-      PedidoProdutosSAP.Free;
-    end;
-
-    PedidoProdutos.Next;
-  end;
-
-  PedidoProdutos.Free;
+  VoltarPedidos;
+  conexao.Free;
 
 end;
 
@@ -406,7 +313,7 @@ var
   conexao: TConexao;
 
 begin
-  VoltarPedidos;
+  ClonaPedido;
   conexao := TConexao.Create('main');
   // VersaoMysql := conexao.ValidaVersao;
   conexao.SQL.Add('select * from dados_whatsapp');
@@ -924,31 +831,84 @@ end;
 
 procedure TPedidoInfra.VoltarPedidos;
 var
-  dados: TFDMemTable;
+  Dados: TFDMemTable;
   ref: string;
+  Codigo: Integer;
+  refCodigo : String;
 begin
-  dados := TFDMemTable.Create(nil);
-  dados.LoadFromJSON(FConn.ConsultaSQL('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+  Dados := TFDMemTable.Create(nil);
+  Dados.LoadFromJSON
+    (FConn.ConsultaSQL
+    ('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
 
-  dados.First;
-
-  while not dados.Eof do
+  if Dados.RecordCount = 0 then
   begin
-    ref := dados.FieldByName('referencia').AsString;
+    Dados.Free;
+    exit;
+  end;
+  Dados.First;
+  while not Dados.Eof do
+  begin
+    ref := Dados.FieldByName('referencia').AsString;
+    refCodigo := copy(ref,3,8);
 
-    FConn.ExecuteSQL(Format(
-      'CALL migrar_tabela("pedido", "pedido_%s", "pedido_all")', [ref]
-    ));
+    FConn.SQL.Add('ALTER TABLE `pedido_'+ref+'` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
+    FConn.ExecuteSQL;
 
-    FConn.ExecuteSQL(Format(
-      'CALL migrar_tabela("pedido_produtos", "pedido_produto_%s", "pedido_produto_all")', [ref]
-    ));
+    FConn.SQL.Add('update pedido_'+ref+'` set codigo = (codigo+'+refCodigo+')*-1');
+    FConn.ExecuteSQL;
 
-    FConn.ExecuteSQL(Format(
-      'CALL migrar_tabela("pedido_produto_sap", "pedido_produto_sap_%s", "pedido_produto_sap_all")', [ref]
-    ));
+    FConn.SQL.Add('update pedido_produtos_'+ref+'` set codigo = (codigo+'+refCodigo+')*-1, codigo_pedido = (codigo_pedido+'+refCodigo+')*-1');
+    FConn.ExecuteSQL;
 
-    dados.Next;
+    FConn.SQL.Add('update pedido_produto_sap_'+ref+'` set codigo_pedido_produto = (codigo_pedido_produto+'+refCodigo+')*-1, id = (id+'+refCodigo+')*-1');
+    FConn.ExecuteSQL;
+
+
+
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido_all")', [ref])
+      );
+
+    FConn.SQL.Add('select 0, codigo from pedido_' + ref);
+    try
+      Codigo := FConn.FieldByName('codigo');
+    except
+
+    end;
+    if Codigo = 0 then
+    begin
+      FConn.SQL.Add('drop table pedido_' + ref);
+      FConn.ExecuteSQL;
+    end;
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido_produtos", "pedido_produtos_%s", "pedido_produtos_all")',
+      [ref]));
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido_produto_sap", "pedido_produto_sap_%s", "pedido_produto_sap_all")',
+      [ref]));
+
+    FConn.SQL.Add('select 0, id as codigo from pedido_produto_sap_' + ref);
+    try
+      Codigo := FConn.FieldByName('codigo');
+    except
+
+    end;
+    if Codigo = 0 then
+    begin
+      FConn.SQL.Add('drop table pedido_produto_sap_' + ref);
+      FConn.ExecuteSQL;
+      FConn.SQL.Add('delete from index_pedido where referencia = :ref');
+      FConn.Parametros('ref', ref);
+      FConn.ExecuteSQL;
+      FConn.SQL.Add('drop table pedido_produtos_' + ref);
+      FConn.ExecuteSQL;
+    end;
+
+    Dados.Next;
   end;
 end;
 

@@ -58,6 +58,7 @@ implementation
 
 uses conexao, System.SysUtils;
 
+
 procedure TSQL.AtualizaBanco;
 var
   I: Integer;
@@ -446,6 +447,7 @@ begin
 
   if not VerificaSQL then
   begin
+
     if Assigned(SeTiverAtualizacao) then
       SeTiverAtualizacao;
     MemoLog.Lines.Add('Nova atualização disponível!');
@@ -1888,13 +1890,8 @@ begin
       end;
     130:
       begin
-        ExecultaSQL('CREATE TABLE pedido_all LIKE pedido;');
-
-        ExecultaSQL('CREATE TABLE pedido_produto_all LIKE pedido_produtos;');
-
-        ExecultaSQL
-          ('CREATE TABLE pedido_produto_sap_all LIKE pedido_produto_sap;');
-
+       
+       
         SQL := ' CREATE PROCEDURE migrar_tabela(';
         SQL := SQL + '     IN baseTable VARCHAR(100),';
         SQL := SQL + '     IN oldTable VARCHAR(100),';
@@ -1978,7 +1975,7 @@ begin
         SQL := SQL + ' END;';
         ExecultaSQL(SQL);
       end;
-    132:
+    133:
       begin
         ExecultaSQL('ALTER TABLE `pedido` ENGINE = InnoDB');
         CriarPrimeiraParticaoPedidoAll;
@@ -1995,7 +1992,7 @@ begin
         SQL := SQL + '     INTO ult_descricao';
         SQL := SQL + '     FROM INFORMATION_SCHEMA.PARTITIONS';
         SQL := SQL + '     WHERE TABLE_SCHEMA = DATABASE()';
-        SQL := SQL + '       AND TABLE_NAME = "pedido_all"';
+        SQL := SQL + '       AND TABLE_NAME = "pedido"';
         SQL := SQL + '       AND PARTITION_NAME IS NOT NULL';
         SQL := SQL + '     ORDER BY PARTITION_DESCRIPTION + 0 DESC';
         SQL := SQL + '     LIMIT 1;';
@@ -2014,7 +2011,7 @@ begin
           '     SET nome_part = CONCAT("p", DATE_FORMAT(prox_data, "%Y%m"));';
         SQL := SQL + ' ';
         SQL := SQL + '     SET sql_cmd = CONCAT(';
-        SQL := SQL + '         "ALTER TABLE pedido_all ADD PARTITION ( ",';
+        SQL := SQL + '         "ALTER TABLE pedido ADD PARTITION ( ",';
         SQL := SQL + '         "PARTITION ", nome_part,';
         SQL := SQL +
           '         " VALUES LESS THAN (TO_DAYS(""", limite, """))",';
@@ -2042,7 +2039,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '132';
+  Result := '133';
 end;
 
 end.
