@@ -44,17 +44,12 @@ var
   Data: String;
 begin
   Atualizacao.LimpaClientesDuplicado;
-  conexao := TConexao.Create('TaskCliente');
-  conexao.SQL.Add('SELECT * FROM index_pedido order by id limit 1');
-  Data := StringReplace(conexao.FieldByName('referencia') + '-01', '_', '-',
-    [rfReplaceAll]);
 
   try
-    Atualizacao.ProcessaHistoricoCliente(ISO8601ToDate(Data));
+    Atualizacao.ProcessaHistoricoCliente(ISO8601ToDate('2020-01-01'));
   except
     Atualizacao.ProcessaHistoricoCliente(date);
   end;
-  conexao.Free;
 end;
 
 procedure RelatorioVenda;

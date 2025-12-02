@@ -854,27 +854,19 @@ begin
     refCodigo := copy(ref, 3, 8);
     refCodigo := StringReplace(refCodigo, '_', '', []);
 
-    FConn.SQL.Add('ALTER TABLE `pedido_' + ref +
-      '` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
+    FConn.SQL.Add('ALTER TABLE `pedido_' + ref +'` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_' + ref + ' set codigo = (codigo+' + refCodigo
-      + ')*-1');
+    FConn.SQL.Add('update pedido_' + ref + ' set codigo = (codigo+' + refCodigo+ ')*-1');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_produtos_' + ref + ' set codigo = (codigo+' +
-      refCodigo + ')*-1, codigo_pedido = (codigo_pedido+' + refCodigo + ')*-1');
+    FConn.SQL.Add('update pedido_produtos_' + ref + ' set codigo = (codigo+' +refCodigo + ')*-1, codigo_pedido = (codigo_pedido+' + refCodigo + ')*-1');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_produto_sap_' + ref +
-      ' set codigo_pedido_produto = (codigo_pedido_produto+' + refCodigo +
-      ')*-1, id = (id+' + refCodigo + ')*-1');
+    FConn.SQL.Add('update pedido_produto_sap_' + ref +' set codigo_pedido_produto = (codigo_pedido_produto+' + refCodigo +')*-1, id = (id+' + refCodigo + ')*-1');
     FConn.ExecuteSQL;
 
-    FConn.ExecuteSQL
-      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref])
-      );
-
+    FConn.ExecuteSQL(Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref]));
     FConn.SQL.Add('select 0, codigo from pedido_' + ref);
     try
       Codigo := FConn.FieldByName('codigo');

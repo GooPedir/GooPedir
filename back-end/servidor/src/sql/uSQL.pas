@@ -334,7 +334,7 @@ begin
       conexao.SQL.Add
         ('    SUM(CASE WHEN status <> 0 THEN valor_total_pedido ELSE 0 END) AS valor_finalizado,');
       conexao.SQL.Add('	MAX(data_pedido) as ultimo');
-      conexao.SQL.Add('FROM ' + tabela);
+      conexao.SQL.Add('FROM pedido');
       conexao.SQL.Add('GROUP BY codigo_cliente');
       conexao.SQL.Add('ORDER BY total_pedidos DESC');
       dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -1975,7 +1975,7 @@ begin
         SQL := SQL + ' END;';
         ExecultaSQL(SQL);
       end;
-    133:
+    131:
       begin
         ExecultaSQL('ALTER TABLE `pedido` ENGINE = InnoDB');
         CriarPrimeiraParticaoPedidoAll;
@@ -2039,7 +2039,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '133';
+  Result := '131';
 end;
 
 end.

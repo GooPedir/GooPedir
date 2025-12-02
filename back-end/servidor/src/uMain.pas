@@ -603,8 +603,8 @@ begin
 
     // Executar uma task em paralelo
     TTaskManager.Run('sabores');
-    TTaskManager.Run('clientes');
-//    TTaskManager.Run('vendas');
+    // TTaskManager.Run('clientes');
+    // TTaskManager.Run('vendas');
 
     // Evita que o programa termine antes das tasks concluírem
     Readln;
@@ -2582,16 +2582,10 @@ begin
   frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
   conexao.Free;
 
-  // if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
-  // begin
-  // HabilitarProduo1Click(nil);
-  // end;
-  //
-  // if (IniFile.ReadString('IFOOD', 'CLIENTID', '')
-  // = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-  // IFood.Credentials.AuthorizationType := ctCentralized
-  // else
-  // IFood.Credentials.AuthorizationType := ctDistributed;
+  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
+  begin
+    HabilitarProduo1Click(nil);
+  end;
 
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
@@ -4345,7 +4339,8 @@ begin
 
         if CodigoAux = 0 then
         begin
-          conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
+          conexao.SQL.Add
+            ('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
           conexao.Parametros('pedido', Dados.FieldByName('codigo').AsString);
           conexao.Parametros('status', 0);
           conexao.Parametros('usuario', -3);

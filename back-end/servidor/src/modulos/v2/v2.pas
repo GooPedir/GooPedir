@@ -18,7 +18,7 @@ function ConverterData(const dataOriginal: string): string;
 function GetCupomSite: String;
 function RemoverTodasTransferencias(Texto: string): string;
 
-function RetornoObjetoProduto(Dados: TFDMemTable; conexao: TConexao)
+function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao)
   : TJSONObject;
 function CacheFilePath(const PedidoID: Integer): string;
 function TryLoadCacheJSON(const FileName: string; out Obj: TJSONObject)
@@ -406,44 +406,48 @@ var
   FiltroIni, FiltroFim: TDate;
 
   Arr: TJsonArray;
+  Qry : TFDQuery;
 begin
   conexao := TConexao.Create('RelatorioVendaV2');
-  Dados := TFDMemTable.Create(nil);
+  Qry := conexao.CriaQRY;
+
 
   try
     Resultado := TJsonArray.Create;
 
-    conexao.SQL.Clear;
-    conexao.SQL.Add('SELECT ' + ' p.codigo AS id,' + ' p.data_pedido,' +
+
+    Qry.SQL.Add('SELECT ' + ' p.codigo AS id,' + ' p.data_pedido,' +
       ' CONCAT(p.data_pedido,"T",p.hora_pedido) AS date,' +
       ' p.origem, p.id_ifood, p.id_ficha,' + ' p.latitude, p.longitude, p.url,'
-      + ' p.desc_desconto_ifood, p.desc_ficha,' +
+      + ' upper(p.desc_desconto_ifood) as desc_desconto_ifood, p.desc_ficha,' +
       ' p.tipo_pagamento, p.id_caixa,' +
       ' p.valor_desconto, p.valor_taxa_entrega, p.valor_total_pedido,' +
       ' c.codigo AS id_cliente, c.nome AS nome_cliente, c.pedidos AS pedido_cliente,'
       + ' ce.bairro, ce.cidade,' + ' u.nome AS atendente ' + 'FROM pedido p ' +
       'LEFT JOIN cliente c ON c.codigo = p.codigo_cliente ' +
       'LEFT JOIN cliente_endereco ce ON ce.codigo = p.codigo_cliente_endereco '
-      + 'LEFT JOIN usuario u ON u.codigo = p.usuario ' +
-      'WHERE p.codigo_pedido_dia > 0 AND p.status > 0 ' +
+      + 'LEFT JOIN usuario u ON u.codigo = p.usuario ' + 'WHERE p.status > 0 ' +
       '  AND p.data_pedido BETWEEN :di AND :df');
 
     // parâmetros
-    conexao.Parametros('di', DataIni);
-    conexao.Parametros('df', DataFim);
+    Qry.ParamByName('di').AsString := DataIni;
+    Qry.ParamByName('df').AsString := DataFim;
+        Qry.Open;
 
-    Arr := conexao.ConsultaSQL;
-    Dados.LoadFromJSON(Arr); // monta retorno
-    Dados.First;
-    while not Dados.Eof do
+
+    if Qry.RecordCount > 0 then
     begin
-      Resultado.AddElement(RetornoObjetoProduto(Dados, conexao));
-      Dados.Next;
+      Qry.First;
+      while not Qry.Eof do
+      begin
+        Resultado.AddElement(RetornoObjetoProduto(Qry, conexao));
+        Qry.Next;
+      end;
     end;
-
-  finally
-    Dados.Free;
+    Qry.Free;
     conexao.Free;
+  finally
+
   end;
   Result := Resultado;
 end;
@@ -840,10 +844,10 @@ end;
 // Objeto.AddPair('items', Itens);
 // end;
 
-function RetornoObjetoProduto(Dados: TFDMemTable; conexao: TConexao)
+function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao)
   : TJSONObject;
 var
-  DadosPagamento, DadosItens, DadosExtra: TFDMemTable;
+  DadosPagamento,  DadosExtra: TFDMemTable;
 
   Objeto, ObjetoCliente, ObjetoEndereco, ObjetoPagamentos, ObjetoIten,
     ObjetoAdicional, ObjetoSabor: TJSONObject;
@@ -855,6 +859,8 @@ var
   PedidoID: Integer;
   CachePath: string;
   FromCache: TJSONObject;
+  Total : Real;
+  DadosItens : TFDQuery;
 begin
   // ===== Tentativa de usar cache =====
   PedidoID := Dados.FieldByName('id').AsInteger;
@@ -873,20 +879,20 @@ begin
   Pagamentos := TJsonArray.Create;
   Itens := TJsonArray.Create;
   DadosPagamento := TFDMemTable.Create(nil);
-  DadosItens := TFDMemTable.Create(nil);
+  DadosItens := conexao.CriaQRY;
 
   try
     Objeto.AddPair('id', Dados.FieldByName('id').AsInteger);
     Objeto.AddPair('date', Dados.FieldByName('date').AsString);
-
+    Total := 0;
     Canal := 'Retirada';
     Cupom := '';
     Atendente := '';
-
+    Cupom := Dados.FieldByName('desc_desconto_ifood').AsString;
     if Dados.FieldByName('id_ifood').AsString <> '' then
     begin
       Canal := 'iFood';
-      Cupom := Dados.FieldByName('desc_desconto_ifood').AsString;
+
       // (ajuste do Copy: pega parte antes de '-')
       if Pos('-', Cupom) > 0 then
         Cupom := Copy(Cupom, 1, Pos('-', Cupom) - 1);
@@ -976,18 +982,16 @@ begin
       Pagamentos.AddElement(ObjetoPagamentos);
     end;
 
-    // ===== Itens =====
-    conexao.SQL.Add
+    DadosItens.Close;
+    DadosItens.SQL.Add
       ('SELECT pp.codigo as id, pp.codigo_pedido, p.nome_produto as product, ' +
       'tp.descricao as category, pp.quantidade as qty, pp.valor_total as price, '
-      + 'tp.pizza ' + 'FROM pedido_produtos as pp ' +
+      + 'tp.pizza FROM pedido_produtos as pp ' +
       'join produto as p on p.codigo = pp.codigo_produto ' +
       'join tipo_produto as tp on tp.codigo = p.codigo_grupo ' +
-      'where pp.codigo_pedido = :codigo');
-    conexao.Parametros('codigo', PedidoID);
-
-    DadosItens.LoadFromJSON(conexao.ConsultaSQL);
-
+      'where pp.codigo_pedido = :codigo and (pp.usuario_deletado = 0 or pp.usuario_deletado is null)');
+    DadosItens.ParamByName('codigo').AsInteger :=  PedidoID;
+    DadosItens.Open;
     if DadosItens.RecordCount > 0 then
     begin
       DadosItens.First;
@@ -999,13 +1003,12 @@ begin
         ObjetoIten := TJSONObject.Create;
         ObjetoIten.AddPair('product', DadosItens.FieldByName('product')
           .AsString);
-        ObjetoIten.AddPair('category', DadosItens.FieldByName('category')
-          .AsString);
+        ObjetoIten.AddPair('category', DadosItens.FieldByName('category').AsString);
         ObjetoIten.AddPair('qty',
           TJSONNumber.Create(DadosItens.FieldByName('qty').AsFloat));
         ObjetoIten.AddPair('price',
           TJSONNumber.Create(DadosItens.FieldByName('price').AsFloat));
-
+        Total := Total + DadosItens.FieldByName('price').AsFloat;
         // Extras / Sabores
         DadosExtra := TFDMemTable.Create(nil);
         try
@@ -1079,6 +1082,8 @@ begin
     Objeto.AddPair('channel', Canal);
     Objeto.AddPair('payment', Pagamentos);
     Objeto.AddPair('attendant', Atendente);
+    Objeto.AddPair('tot',       TJSONNumber.Create(Dados.FieldByName('valor_total_pedido').AsFloat));
+
     if Canal <> 'Mesa' then
       Objeto.AddPair('customer', ObjetoCliente)
     else
@@ -1087,6 +1092,7 @@ begin
     Objeto.AddPair('discount',
       TJSONNumber.Create(Dados.FieldByName('valor_desconto').AsFloat));
     Objeto.AddPair('items', Itens);
+
 
     // Salva no cache (temp) e retorna
     SaveCacheJSON(CachePath, Objeto);
@@ -2800,11 +2806,9 @@ begin
   // function CriaSubQuery(SQL, Campo, DataInicial, DataFinal
   // CriaSubQueryCampos
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select count(distinct data_pedido) as quantidade from pedido where data_pedido between "'
+    ('select 0 as zero,count(distinct data_pedido) as quantidade from pedido where data_pedido between "'
     + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] +
-    '" and codigo_pedido_dia > 0 and status > 0', 'quantidade',
-    Req.Params['dataini'], Req.Params['datafim']));
+    '" and codigo_pedido_dia > 0 and status > 0');
   try
 
     QUANTIDADE := conexao.FieldByName('quantidade');
@@ -2815,10 +2819,8 @@ begin
   // conexao.SQL.Add('select 0 as zero, count(*) as pedido from pedido where status > 0 and origem not in (2,4) and (id_pedido_site is null or id_pedido_site = 0 or id_pedido_site = 1) and id_ficha is null and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   // conexao.SQL.Add('select 0 as zero, count(*) as pedido from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     PDV_QTD := conexao.FieldByName('quantidade');
   except
@@ -2828,10 +2830,8 @@ begin
   // conexao.SQL.Add('select 0 as zero, sum(valor_total_pedido) as pedido from pedido where status > 0 and origem not in (2,4) and (id_pedido_site is null or id_pedido_site = 0 or id_pedido_site = 1) and id_ficha is null and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   // conexao.SQL.Add('select 0 as zero, sum(valor_total_pedido) as pedido from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem not in (2,4) and (id_ficha is null or id_ficha = 0) and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     PDV_TOT := conexao.FieldByName('quantidade');
   except
@@ -2840,10 +2840,8 @@ begin
 
   // conexao.SQL.Add('select 0 as zero, count(*) as pedido from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     MESA_QTD := conexao.FieldByName('quantidade');
   except
@@ -2852,10 +2850,8 @@ begin
 
   // conexao.SQL.Add('select 0 as zero, sum(valor_total_pedido) as pedido from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem <> 2 and id_ficha > 0 and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     MESA_TOT := conexao.FieldByName('quantidade');
   except
@@ -2864,10 +2860,8 @@ begin
 
   // conexao.SQL.Add('select 0 as zero, count(*) as pedido from pedido where status > 0 and origem in (2) and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem in (2) and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, count(*) as quantidade from pedido where status > 0 and origem in (2) and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     SITE_QTD := conexao.FieldByName('quantidade');
   except
@@ -2876,10 +2870,8 @@ begin
 
   // conexao.SQL.Add('select 0 as zero, sum(valor_total_pedido) as pedido from pedido where status > 0 and origem in (2) and (id_ficha is null or id_ficha = 0) and (id_pedido_site > 1) and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem in (2) and (id_ficha is null or id_ficha = 0) and (id_pedido_site > 1) and data_pedido between "'
-    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    (('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and origem in (2) and (id_ficha is null or id_ficha = 0) and (id_pedido_site > 1) and data_pedido between "'
+    + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     SITE_TOT := conexao.FieldByName('quantidade');
   except
@@ -2901,30 +2893,26 @@ begin
 
   // conexao.SQL.Add('select 0 as zero, sum(valor_total_pedido) as pedido from pedido where status > 0 and id_ifood <> ' + QuotedStr('') + ' and id_ficha is null and data_pedido between "'+Req.Params['dataini']+'" and "'+Req.Params['datafim']+'"');
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and id_ifood <> '
+    (('select 0 as zero, sum(valor_total_pedido) as quantidade from pedido where status > 0 and id_ifood <> '
     + QuotedStr('') + ' and id_ficha is null and data_pedido between "' +
-    Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"',
-    'quantidade', Req.Params['dataini'], Req.Params['datafim']));
+    Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"'));
   try
     IFOOD_TOT := conexao.FieldByName('quantidade');
   except
     IFOOD_TOT := 0;
   end;
 
-  conexao.SQL.Add
-    ('select sum(p.valor_total_pedido) as total, 0 as zero from caixa as c');
-  conexao.SQL.Add('join pedido as p on p.id_caixa = c.id');
-  conexao.SQL.Add('where c.data_abertura between "' + Req.Params['dataini'] +
-    '" and "' + Req.Params['datafim'] + '" and p.nfce_emite = 2');
+  // conexao.SQL.Add
+  // ('select sum(p.valor_total_pedido) as total, 0 as zero from caixa as c');
+  // conexao.SQL.Add('join pedido as p on p.id_caixa = c.id');
+  // conexao.SQL.Add('where c.data_abertura between "' + Req.Params['dataini'] +
+  // '" and "' + Req.Params['datafim'] + '" and p.nfce_emite = 2');
 
   conexao.SQL.Add
-    (CriaSubQuery
-    ('select sum(p.valor_total_pedido) as quantidade, 0 as zero from caixa as c '
+    (('select sum(p.valor_total_pedido) as quantidade, 0 as zero from caixa as c '
     + ' join pedido as p on p.id_caixa = c.id' +
     ' where c.data_abertura between "' + Req.Params['dataini'] + '" and "' +
-    Req.Params['datafim'] + '" and p.nfce_emite = 2', 'quantidade',
-    Req.Params['dataini'], Req.Params['datafim']));
+    Req.Params['datafim'] + '" and p.nfce_emite = 2'));
   try
     NFCE := conexao.FieldByName('quantidade');
   except
@@ -2934,17 +2922,14 @@ begin
   MEDIA := (PDV_TOT + MESA_TOT + SITE_TOT + IFOOD_TOT);
   MEDIA := MEDIA / QUANTIDADE;
 
-  conexao.SQL.Add(CriaSubQueryCampos
+  conexao.SQL.Add
     ('SELECT CASE WHEN MINUTE(hora_pedido) < 30 THEN DATE_FORMAT(hora_pedido, '
     + QuotedStr('%H:00') + ')' + ' ELSE DATE_FORMAT(hora_pedido, ' +
     QuotedStr('%H:30') + ') END AS intervalo_hora, ' +
     ' COUNT(*) as quantidade, SUM(valor_total_pedido) AS total_pedido ' +
     ' from pedido as p' + ' where p.data_pedido between "' + Req.Params
     ['dataini'] + '" and "' + Req.Params['datafim'] +
-    '" and p.status > 0 and p.id_ficha is null GROUP BY intervalo_hora',
-    ' intervalo_hora, SUM(quantidade) AS quantidade, ROUND(SUM(total_pedido) / SUM(quantidade), 2) AS ticket_medio ',
-    Req.Params['dataini'], Req.Params['datafim']));
-  conexao.SQL.Add('GROUP BY intervalo_hora ORDER BY intervalo_hora;');
+    '" and p.status > 0 and p.id_ficha is null GROUP BY intervalo_hora');
 
   JSONObject.AddPair('total_qtd', PDV_QTD + MESA_QTD + SITE_QTD + IFOOD_QTD);
   JSONObject.AddPair('total_total', PDV_TOT + MESA_TOT + SITE_TOT + IFOOD_TOT);
@@ -2977,94 +2962,74 @@ begin
 
   if DaysBetweenDates(Req.Params['dataini'], Req.Params['datafim']) > 31 then
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select ' + ' count(*) as qtd, ' +
+    conexao.SQL.Add(('select ' + ' count(*) as qtd, ' +
       'sum(valor_total_pedido) as total, ' + 'DATE_FORMAT(data_pedido, ' +
       QuotedStr('%Y/%m') + ') as data ' +
       'from pedido where status > 0 and data_pedido between "' + Req.Params
       ['dataini'] + '" and "' + Req.Params['datafim'] + '" ' +
-      'group by DATE_FORMAT(data_pedido, ' + QuotedStr('%Y/%m') + ') ',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      'group by DATE_FORMAT(data_pedido, ' + QuotedStr('%Y/%m') + ') '));
+
   end
   else
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select count(*) as qtd,' +
+    conexao.SQL.Add(('select count(*) as qtd,' +
       ' sum(valor_total_pedido) as total, ' + ' date_format(data_pedido, ' +
       QuotedStr('%d/%m') + ') as data' +
       ' from pedido where status > 0 and data_pedido between "' + Req.Params
       ['dataini'] + '" and "' + Req.Params['datafim'] + '"' +
-      ' group by data_pedido',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      ' group by data_pedido'));
+
   end;
 
   JSONObject.AddPair('dias', conexao.ConsultaSQL);
 
   if DaysBetweenDates(Req.Params['dataini'], Req.Params['datafim']) > 31 then
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select ' + ' count(*) as qtd, ' +
+    conexao.SQL.Add('select ' + ' count(*) as qtd, ' +
       'sum(valor_total_pedido) as total, ' + 'DATE_FORMAT(data_pedido, ' +
       QuotedStr('%Y/%m') + ') as data ' +
       ' from pedido where status > 0 and data_pedido between "' + Req.Params
       ['dataini'] + '" and "' + Req.Params['datafim'] +
       '" and status_ifood is not null' + 'group by DATE_FORMAT(data_pedido, ' +
-      QuotedStr('%Y/%m') + ') ',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      QuotedStr('%Y/%m') + ') ');
+
   end
   else
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select count(*) as qtd,' +
+    conexao.SQL.Add('select count(*) as qtd,' +
       ' sum(valor_total_pedido) as total, ' + ' date_format(data_pedido, ' +
       QuotedStr('%d/%m') + ') as data' +
       ' from pedido where status > 0 and data_pedido between "' + Req.Params
       ['dataini'] + '" and "' + Req.Params['datafim'] +
-      '" and status_ifood is not null' + ' group by data_pedido',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      '" and status_ifood is not null' + ' group by data_pedido');
+
   end;
 
   JSONObject.AddPair('ifood', conexao.ConsultaSQL);
 
   if DaysBetweenDates(Req.Params['dataini'], Req.Params['datafim']) > 31 then
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select ' + ' count(*) as qtd, ' +
+    conexao.SQL.Add('select ' + ' count(*) as qtd, ' +
       'sum(valor_total_pedido) as total, ' + 'DATE_FORMAT(data_pedido, ' +
       QuotedStr('%Y/%m') + ') as data ' +
       ' from pedido where status > 0 and status_ifood is null and data_pedido between "'
       + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"' +
-      'group by DATE_FORMAT(data_pedido, ' + QuotedStr('%Y/%m') + ') ',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      'group by DATE_FORMAT(data_pedido, ' + QuotedStr('%Y/%m') + ') ');
+
   end
   else
   begin
-    conexao.SQL.Add(CriaSubQueryCampos('select count(*) as qtd,' +
+    conexao.SQL.Add('select count(*) as qtd,' +
       ' sum(valor_total_pedido) as total, ' + ' date_format(data_pedido, ' +
       QuotedStr('%d/%m') + ') as data' +
       ' from pedido where status > 0 and status_ifood is null and data_pedido between "'
       + Req.Params['dataini'] + '" and "' + Req.Params['datafim'] + '"' +
-      ' group by data_pedido',
-      'SUM(qtd) AS qtd, ROUND(SUM(total), 2) AS total, data',
-      Req.Params['dataini'], Req.Params['datafim']));
-    conexao.SQL.Add('group by data order by data');
+      ' group by data_pedido');
+
   end;
 
   JSONObject.AddPair('proprio', conexao.ConsultaSQL);
 
-  // conexao.SQL.Add('SELECT caixa.id as id, (select sum(valor) from caixa_movimento where tipo = 1 and id_caixa = caixa.id) as valor_fechamento, data_abertura, hora_abertura, data_fechamento, hora_fechamento,  usuario.nome,');
-  // conexao.SQL.Add('count(pedido.codigo) as quantidade');
-  // conexao.SQL.Add('FROM caixa ');
-  // conexao.SQL.Add('join usuario on usuario.codigo = caixa.id_usuario');
-  // conexao.SQL.Add('join pedido on pedido.id_caixa = caixa.id and pedido.status > 0');
-  // conexao.SQL.Add('where caixa.data_abertura between "' + Req.Params['dataini']+ '" and "' + Req.Params['datafim'] + '" and caixa.status = 2');
-  // conexao.SQL.Add('group by pedido.id_caixa');
-  // conexao.SQL.Add('order by caixa.data_abertura');
   with conexao do
   begin
     SQL.Clear;
@@ -3074,8 +3039,7 @@ begin
     SQL.Add('  COUNT(p.codigo) AS quantidade');
     SQL.Add('FROM caixa c');
     SQL.Add('JOIN usuario u ON u.codigo = c.id_usuario');
-    SQL.Add('JOIN ' + BuildPedidosUnion(Req.Params['dataini'],
-      Req.Params['datafim']) + ' p ON p.id_caixa = c.id');
+    SQL.Add('JOIN pedido p ON p.id_caixa = c.id');
     SQL.Add('WHERE c.data_abertura BETWEEN :dataini AND :datafim');
     SQL.Add('  AND c.status = 2');
     SQL.Add('GROUP BY c.id, c.data_abertura, c.hora_abertura, c.data_fechamento, c.hora_fechamento, u.nome');

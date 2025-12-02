@@ -6,7 +6,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   FireDAC.Comp.Client, Dataset.Serialize, JSON, token.autorizacao,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, DateUtils, PedidoSite,
-  System.Threading, uControllCaches,  System.Generics.Collections;
+  System.Threading, uControllCaches, System.Generics.Collections;
 
 function CriaSubQuery(SQL, Campo, DataInicial, DataFinal: String): String;
 function GerarArrayMesesAno(const DataInicial, DataFinal: TDateTime)
@@ -24,6 +24,8 @@ var
   MesAno: String;
   SQLLocal: String;
 begin
+  Result := SQL;
+  exit;
   formatSettings := TFormatSettings.Create;
   formatSettings.ShortDateFormat := 'yyyy-mm-dd'; // Define o formato esperado
   formatSettings.DateSeparator := '-'; // Define o separador
@@ -109,8 +111,10 @@ begin
     SQLLocal := SQL;
     SQLLocal := StringReplace(SQLLocal, 'from pedido ', 'from pedido_' + MesAno
       + ' ', [rfReplaceAll]);
-    SQLLocal := StringReplace(SQLLocal, 'join pedido_produtos ','join pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
-    SQLLocal := StringReplace(SQLLocal, 'from pedido_produtos ','from pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
+    SQLLocal := StringReplace(SQLLocal, 'join pedido_produtos ',
+      'join pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
+    SQLLocal := StringReplace(SQLLocal, 'from pedido_produtos ',
+      'from pedido_produtos_' + MesAno + ' ', [rfReplaceAll]);
     Result := Result + SQLLocal;
   end;
 
