@@ -148,7 +148,6 @@ type
     dataSetMerchants1: TFDMemTable;
     dsMerchants1: TDataSource;
     dsMerchants2: TDataSource;
-    Button1: TButton;
     Timer1: TTimer;
     mHoraAbertura: TMenuItem;
     mAtualizacao: TFDMemTable;
@@ -167,11 +166,12 @@ type
     memPaineis: TFDMemTable;
     memBanner: TFDMemTable;
     memTiposSite: TFDMemTable;
+    IFood: TADRIFood;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
-    // function FazerBackupMySQL(conexao: Tconexao): Boolean;
-    // function GetMySQLDumpPath: string;
+    function FazerBackupMySQL(conexao: Tconexao): Boolean;
+    function GetMySQLDumpPath: string;
     function FileSizeByName(const FileName: string): Int64;
     procedure Fechar1Click(Sender: TObject);
     procedure IFoodMerchantStatus
@@ -239,6 +239,7 @@ type
     procedure IFoodRefreshTokenSave(RefreshToken: string);
     procedure HabilitarProduo1Click(Sender: TObject);
     procedure HabilitarHomologao1Click(Sender: TObject);
+    procedure DescricaoIfood;
     procedure pIdiFoodClick(Sender: TObject);
     procedure ReiniciarServioImpresso1Click(Sender: TObject);
     procedure IFoodLogRequest(ARequestId, AContent: string);
@@ -408,6 +409,7 @@ type
     procedure AtivaInativaSite(user: Integer);
     procedure ResetUser;
 
+    function CreateiFoodConnection(Name, MerchantID: String): String;
     function GetToken(Numero: Integer): String;
     procedure SaveToken(Numero: Integer; RefreshToken: string);
 
@@ -579,7 +581,7 @@ begin
     end;
     // ⚡ Tudo que depende que o banco esteja pronto:
     frmServidor.Configuracoes.Close;
-    conexao := Tconexao.Create('main'); // Se precisar reabrir
+
 
     VersaoMysql := conexao.ValidaVersao;
 
@@ -593,9 +595,27 @@ begin
   }
 
   // Configurações adicionais de iFood
+  conexao := Tconexao.Create('main'); // Se precisar reabrir
+  IniFile := TIniFile.Create('./goopedir.ini');
+  if IniFile.ReadString('IFOOD', 'CLIENTID', '') = '' then
+  begin
+    HabilitarProduo1Click(nil);
+  end;
+
+  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
+  ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
+  IniFile.Free;
+
+  IFood.Credentials.ClientId := ClientId;
+  IFood.Credentials.ClientSecret := ClientSecret;
+
+  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+    IFood.Credentials.AuthorizationType := ctCentralized
+  else
+    IFood.Credentials.AuthorizationType := ctDistributed;
 
   IniciaIfood;
-  // FazerBackupMySQL(conexao);
+  FazerBackupMySQL(conexao);
   TSincronizaProdutosThread.Create;
   // EnvioCaixa;
   try
@@ -611,6 +631,7 @@ begin
   except
 
   end;
+  conexao.Free;
 
 end;
 
@@ -1400,10 +1421,8 @@ end;
 
 procedure TfrmServidor.ComandaStatus;
 begin
-
   DataHoraImpressaoServiceComanda := now;
   ImpressoraStatus;
-
 end;
 
 function TfrmServidor.ConverteValoriFood(Valor: String): Real;
@@ -1418,122 +1437,122 @@ begin
   ImpressoraStatus;
 
 end;
-//
-// function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
-// var
-// NewIfood: TADRIFood;
-// Processamento: TProcessamentoiFood;
-// begin
-//
-// NewIfood := TADRIFood.Create(self);
-// NewIfood.Name := 'IFOOD' + Name;
-// NewIfood.Tag := StrToInt(Name);
-//
-// NewIfood.SoftwareHouse.Id := '09071157997';
-// NewIfood.OnLogRequest := IFoodLogRequest;
-// NewIfood.OnLogResponse := IFoodLogResponse;
-// NewIfood.OnMerchantStatus := IFoodMerchantStatus;
-// NewIfood.OnMerchantStatusError := IFoodMerchantStatusError;
-// NewIfood.OnOrderArrivedAtOrigin := IFoodOrderArrivedAtOrigin;
-// NewIfood.OnOrderAssignDriver := IFoodOrderAssignDriver;
-// NewIfood.OnOrderBoxAssigned := IFoodOrderBoxAssigned;
-// NewIfood.OnOrderCancellationFailed := IFoodOrderCancellationFailed;
-// NewIfood.OnOrderCancellationRequested := IFoodOrderCancellationRequested;
-// NewIfood.OnOrderCancelled := IFoodOrderCancelled;
-// NewIfood.OnOrderChangePreparationTime := IFoodOrderChangePreparationTime;
-// NewIfood.OnOrderCollected := IFoodOrderCollected;
-// NewIfood.OnOrderConcluded := IFoodOrderConcluded;
-// NewIfood.OnOrderConfirmed := IFoodOrderConfirmed;
-// NewIfood.OnOrderConsumerCancellationRequested :=
-// IFoodOrderConsumerCancellationRequested;
-// NewIfood.OnOrderConsumerCancellationAccepted :=
-// IFoodOrderConsumerCancellationAccepted;
-// NewIfood.OnOrderConsumerCancellationDenied :=
-// IFoodOrderConsumerCancellationDenied;
-// NewIfood.OnOrderDelayNotification := IFoodOrderDelayNotification;
-// NewIfood.OnOrderDelivered := IFoodOrderDelivered;
-// NewIfood.OnOrderDispatched := IFoodOrderDispatched;
-// NewIfood.OnOrderGoingToOrigin := IFoodOrderGoingToOrigin;
-// NewIfood.OnOrderIntegrated := IFoodOrderIntegrated;
-// NewIfood.OnOrderPickupAreaAssigned := IFoodOrderPickupAreaAssigned;
-//
-// NewIfood.OnOrderPreparationStarted := IFoodOrderPreparationStarted;
-// NewIfood.OnOrderReadyToDeliver := IFoodOrderReadyToDeliver;
-// NewIfood.OnOrderReadyToPickup := IFoodOrderReadyToPickup;
-// NewIfood.OnOrderRecommendedPreparation := IFoodOrderRecommendedPreparation;
-// NewIfood.OnOrderRequestDriver := IFoodOrderRequestDriver;
-// NewIfood.OnOrderRequestDriverAvailability :=
-// IFoodOrderRequestDriverAvailability;
-// NewIfood.OnOrderRequestDriverFailed := IFoodOrderRequestDriverFailed;
-// NewIfood.OnOrderRequestDriverSuccess := IFoodOrderRequestDriverSuccess;
-// NewIfood.OnPollingEnd := IFoodPollingEnd;
-// NewIfood.OnPollingError := IFoodPollingError;
-// NewIfood.OnPollingStart := IFoodPollingStart;
-// if StrToInt(Name) = 1 then
-// begin
-// NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave1;
-// NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet1;
-// NewIfood.OnOrderPlaced := IFoodOrderPlaced1;
-//
-// end;
-// if StrToInt(Name) = 2 then
-// begin
-// NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave2;
-// NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet2;
-// NewIfood.OnOrderPlaced := IFoodOrderPlaced2;
-//
-// end;
-//
-// NewIfood.Credentials.ClientId := IFood.Credentials.ClientId;
-// NewIfood.Credentials.ClientSecret := IFood.Credentials.ClientSecret;
-// if (IFood.Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-// begin
-// NewIfood.Credentials.AuthorizationType := ctCentralized;
-// end
-// else
-// begin
-// NewIfood.Credentials.AuthorizationType := ctDistributed;
-// end;
-//
-// if (MerchantID <> '') then
-// begin
-// try
-// NewIfood.MerchantStatus.AutoStatus := True;
-// NewIfood.Polling.AutoPolling := True;
-// NewIfood.MerchantID(MerchantID);
-//
-// if StrToInt(Name) = 1 then
-// begin
-// ProcessamentoiFood1 := TProcessamentoiFood.Create;
-// ProcessamentoiFood1.IFood := NewIfood;
-// ProcessamentoiFood1.statusiFood := frmServidor.Configuracoes.FieldByName
-// ('aceitar_pedidos_ifood').AsInteger;
-// ProcessamentoiFood1.Start;
-// NewIfood.MerchantStatus.DataSource := dsMerchants1;
-//
-// end;
-// if StrToInt(Name) = 2 then
-// begin
-// ProcessamentoiFood2 := TProcessamentoiFood.Create;
-// ProcessamentoiFood2.IFood := NewIfood;
-// ProcessamentoiFood2.statusiFood := frmServidor.Configuracoes.FieldByName
-// ('aceitar_pedidos_ifood').AsInteger;
-// ProcessamentoiFood2.Start;
-// NewIfood.MerchantStatus.DataSource := dsMerchants2;
-// end;
-//
-// except
-// on E: Exception do
-// begin
-// // //showmessage1(E.Message);
-//
-// end;
-//
-// end;
-//
-// end;
-//
-// end;
+
+function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
+var
+  NewIfood: TADRIFood;
+  Processamento: TProcessamentoiFood;
+begin
+
+  NewIfood := TADRIFood.Create(self);
+  NewIfood.Name := 'IFOOD' + Name;
+  NewIfood.Tag := StrToInt(Name);
+
+  NewIfood.SoftwareHouse.Id := '09071157997';
+  NewIfood.OnLogRequest := IFoodLogRequest;
+  NewIfood.OnLogResponse := IFoodLogResponse;
+  NewIfood.OnMerchantStatus := IFoodMerchantStatus;
+  NewIfood.OnMerchantStatusError := IFoodMerchantStatusError;
+  NewIfood.OnOrderArrivedAtOrigin := IFoodOrderArrivedAtOrigin;
+  NewIfood.OnOrderAssignDriver := IFoodOrderAssignDriver;
+  NewIfood.OnOrderBoxAssigned := IFoodOrderBoxAssigned;
+  NewIfood.OnOrderCancellationFailed := IFoodOrderCancellationFailed;
+  NewIfood.OnOrderCancellationRequested := IFoodOrderCancellationRequested;
+  NewIfood.OnOrderCancelled := IFoodOrderCancelled;
+  NewIfood.OnOrderChangePreparationTime := IFoodOrderChangePreparationTime;
+  NewIfood.OnOrderCollected := IFoodOrderCollected;
+  NewIfood.OnOrderConcluded := IFoodOrderConcluded;
+  NewIfood.OnOrderConfirmed := IFoodOrderConfirmed;
+  NewIfood.OnOrderConsumerCancellationRequested :=
+    IFoodOrderConsumerCancellationRequested;
+  NewIfood.OnOrderConsumerCancellationAccepted :=
+    IFoodOrderConsumerCancellationAccepted;
+  NewIfood.OnOrderConsumerCancellationDenied :=
+    IFoodOrderConsumerCancellationDenied;
+  NewIfood.OnOrderDelayNotification := IFoodOrderDelayNotification;
+  NewIfood.OnOrderDelivered := IFoodOrderDelivered;
+  NewIfood.OnOrderDispatched := IFoodOrderDispatched;
+  NewIfood.OnOrderGoingToOrigin := IFoodOrderGoingToOrigin;
+  NewIfood.OnOrderIntegrated := IFoodOrderIntegrated;
+  NewIfood.OnOrderPickupAreaAssigned := IFoodOrderPickupAreaAssigned;
+
+  NewIfood.OnOrderPreparationStarted := IFoodOrderPreparationStarted;
+  NewIfood.OnOrderReadyToDeliver := IFoodOrderReadyToDeliver;
+  NewIfood.OnOrderReadyToPickup := IFoodOrderReadyToPickup;
+  NewIfood.OnOrderRecommendedPreparation := IFoodOrderRecommendedPreparation;
+  NewIfood.OnOrderRequestDriver := IFoodOrderRequestDriver;
+  NewIfood.OnOrderRequestDriverAvailability :=
+    IFoodOrderRequestDriverAvailability;
+  NewIfood.OnOrderRequestDriverFailed := IFoodOrderRequestDriverFailed;
+  NewIfood.OnOrderRequestDriverSuccess := IFoodOrderRequestDriverSuccess;
+  NewIfood.OnPollingEnd := IFoodPollingEnd;
+  NewIfood.OnPollingError := IFoodPollingError;
+  NewIfood.OnPollingStart := IFoodPollingStart;
+  if StrToInt(Name) = 1 then
+  begin
+    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave1;
+    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet1;
+    NewIfood.OnOrderPlaced := IFoodOrderPlaced1;
+
+  end;
+  if StrToInt(Name) = 2 then
+  begin
+    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave2;
+    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet2;
+    NewIfood.OnOrderPlaced := IFoodOrderPlaced2;
+
+  end;
+
+  NewIfood.Credentials.ClientId := IFood.Credentials.ClientId;
+  NewIfood.Credentials.ClientSecret := IFood.Credentials.ClientSecret;
+  if (IFood.Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
+  begin
+    NewIfood.Credentials.AuthorizationType := ctCentralized;
+  end
+  else
+  begin
+    NewIfood.Credentials.AuthorizationType := ctDistributed;
+  end;
+
+  if (MerchantID <> '') then
+  begin
+    try
+      NewIfood.MerchantStatus.AutoStatus := true;
+      NewIfood.Polling.AutoPolling := true;
+      NewIfood.MerchantID(MerchantID);
+
+      if StrToInt(Name) = 1 then
+      begin
+        ProcessamentoiFood1 := TProcessamentoiFood.Create;
+        ProcessamentoiFood1.IFood := NewIfood;
+        ProcessamentoiFood1.statusiFood := frmServidor.Configuracoes.FieldByName
+          ('aceitar_pedidos_ifood').AsInteger;
+        ProcessamentoiFood1.Start;
+        NewIfood.MerchantStatus.DataSource := dsMerchants1;
+
+      end;
+      if StrToInt(Name) = 2 then
+      begin
+        ProcessamentoiFood2 := TProcessamentoiFood.Create;
+        ProcessamentoiFood2.IFood := NewIfood;
+        ProcessamentoiFood2.statusiFood := frmServidor.Configuracoes.FieldByName
+          ('aceitar_pedidos_ifood').AsInteger;
+        ProcessamentoiFood2.Start;
+        NewIfood.MerchantStatus.DataSource := dsMerchants2;
+      end;
+
+    except
+      on E: Exception do
+      begin
+        // //showmessage1(E.Message);
+
+      end;
+
+    end;
+
+  end;
+
+end;
 
 procedure TfrmServidor.DadosApiWhatsapp;
 var
@@ -1577,7 +1596,7 @@ begin
             StatusMensagemWhatsapp := 2;
           end;
           user.Free;
-          StatusInstanciaCriada := True;
+          StatusInstanciaCriada := true;
         end;
       end;
     except
@@ -1644,7 +1663,7 @@ begin
     end
     else
     begin
-      JsonDadosBloqueio.AddPair('confianca', True);
+      JsonDadosBloqueio.AddPair('confianca', true);
     end;
 
   except
@@ -1741,7 +1760,7 @@ begin
       ImagemWhatsapp := JsonObject.GetValue<String>('profilePicUrl');
       NumeroWhatsapp := FormatPhoneNumber
         (JsonObject.GetValue<String>('ownerJid'));
-      StatusWhatsapp := True;
+      StatusWhatsapp := true;
     end;
 
   except
@@ -1756,22 +1775,19 @@ begin
 
 end;
 
-// procedure TfrmServidor.DescricaoIfood;
-// begin
-//
-// if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
-// begin
-// pTipoIfood.Caption := 'Produção';
-// end
-// else
-// begin
-// pTipoIfood.Caption := 'Homologação';
-// end;
-//
-// if (IFood.Credentials.ClientId = '156b1271-4e6b-49c7-98cd-92a49cd1dec7') then
-// pTipoIfood.Caption := 'Homologação - Eneway';
-//
-// end;
+procedure TfrmServidor.DescricaoIfood;
+begin
+
+  if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
+  begin
+    pTipoIfood.Caption := 'Produção';
+  end
+  else
+  begin
+    pTipoIfood.Caption := 'Homologação';
+  end;
+
+end;
 
 function TfrmServidor.DoGetCaixaCincoCategoria(Codigo: Integer): TJsonArray;
 var
@@ -2101,7 +2117,7 @@ begin
               Pendentes.Delete(i);
             end
             else
-              ExecucaoRestante := True; // Ainda tem pendente, mais uma rodada
+              ExecucaoRestante := true; // Ainda tem pendente, mais uma rodada
           end;
         end;
       end;
@@ -2178,84 +2194,84 @@ begin
 
 end;
 
-// function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
-// var
-// MySQLDumpPath, PastaBackup, CmdLine: string;
-// SI: TStartupInfo;
-// PI: TProcessInformation;
-// ExitCode: DWORD;
-// begin
-// Result := false;
-//
-// PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
-// 'backup\bd');
-// ForceDirectories(PastaBackup);
-// NomeArquivoBackup := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
-// FormatDateTime('yyyymmdd', now) // evita colisão/overwrite
-// ]);
-//
-// if FileExists(NomeArquivoBackup) then
-// begin
-// tBackupFTP.Enabled := True;
-// exit;
-// end;
-//
-// MySQLDumpPath := GetMySQLDumpPath;
-// // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
-// if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
-// begin
-// ShowMessage('mysqldump.exe não encontrado.');
-// exit;
-// end;
-//
-// // IMPORTANTE:
-// // - sem redirecionamento ">"
-// // - grava direto com --result-file
-// // - flags para bases grandes e InnoDB
-// // - GTID OFF evita barulho quando não precisa de replicação
-// // - hex-blob garante binários seguros
-// CmdLine := '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor + ' -P' +
-// (conexao.Porta) + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
-// // se a senha tiver caracteres especiais, considere usar --defaults-file (ver nota abaixo)
-// ' --databases ' + conexao.NomeBanco +
-// ' --single-transaction --quick --hex-blob' +
-// ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
-// ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
-// ' --result-file="' + NomeArquivoBackup + '"';
-//
-// ZeroMemory(@SI, SizeOf(SI));
-// SI.cb := SizeOf(SI);
-// SI.dwFlags := STARTF_USESHOWWINDOW;
-// SI.wShowWindow := SW_HIDE;
-//
-// ZeroMemory(@PI, SizeOf(PI));
-//
-// if not CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW,
-// nil, nil, SI, PI) then
-// exit;
-//
-// try
-// WaitForSingleObject(PI.hProcess, INFINITE);
-// if GetExitCodeProcess(PI.hProcess, ExitCode) then
-// begin
-// // mysqldump retorna 0 em sucesso
-// if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
-// (FileSizeByName(NomeArquivoBackup) > 0) then
-// begin
-// Result := True;
-// tBackupFTP.Enabled := True;
-// end
-// else
-// begin
-// // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
-// // ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
-// end;
-// end;
-// finally
-// CloseHandle(PI.hThread);
-// CloseHandle(PI.hProcess);
-// end;
-// end;
+function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
+var
+  MySQLDumpPath, PastaBackup, CmdLine: string;
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  ExitCode: DWORD;
+begin
+  Result := false;
+
+  PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
+    'backup\bd');
+  ForceDirectories(PastaBackup);
+  NomeArquivoBackup := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
+    FormatDateTime('yyyymmdd', now) // evita colisão/overwrite
+    ]);
+
+  if FileExists(NomeArquivoBackup) then
+  begin
+    tBackupFTP.Enabled := true;
+    exit;
+  end;
+
+  MySQLDumpPath := GetMySQLDumpPath;
+  // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
+  if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
+  begin
+    ShowMessage('mysqldump.exe não encontrado.');
+    exit;
+  end;
+
+  // IMPORTANTE:
+  // - sem redirecionamento ">"
+  // - grava direto com --result-file
+  // - flags para bases grandes e InnoDB
+  // - GTID OFF evita barulho quando não precisa de replicação
+  // - hex-blob garante binários seguros
+  CmdLine := '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor + ' -P' +
+    (conexao.Porta) + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
+  // se a senha tiver caracteres especiais, considere usar --defaults-file (ver nota abaixo)
+    ' --databases ' + conexao.NomeBanco +
+    ' --single-transaction --quick --hex-blob' +
+    ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
+    ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
+    ' --result-file="' + NomeArquivoBackup + '"';
+
+  ZeroMemory(@SI, SizeOf(SI));
+  SI.cb := SizeOf(SI);
+  SI.dwFlags := STARTF_USESHOWWINDOW;
+  SI.wShowWindow := SW_HIDE;
+
+  ZeroMemory(@PI, SizeOf(PI));
+
+  if not CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW,
+    nil, nil, SI, PI) then
+    exit;
+
+  try
+    WaitForSingleObject(PI.hProcess, INFINITE);
+    if GetExitCodeProcess(PI.hProcess, ExitCode) then
+    begin
+      // mysqldump retorna 0 em sucesso
+      if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
+        (FileSizeByName(NomeArquivoBackup) > 0) then
+      begin
+        Result := true;
+        tBackupFTP.Enabled := true;
+      end
+      else
+      begin
+        // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
+        // ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
+      end;
+    end;
+  finally
+    CloseHandle(PI.hThread);
+    CloseHandle(PI.hProcess);
+  end;
+end;
 
 procedure TfrmServidor.FazExclusaoClientes;
 var
@@ -2620,7 +2636,7 @@ begin
   conexao.ExecuteSQL;
 
   VersaoMysql := conexao.ValidaVersao;
-  GerarLog := True;
+  GerarLog := true;
   AposConectarBanco;
   // Migrado Para o Core
   // try
@@ -2666,7 +2682,7 @@ end;
 function TfrmServidor.FTP_DirectoryExists(FTP: TIdFTP;
   const Directory: string): Boolean;
 begin
-  Result := True;
+  Result := true;
   try
     FTP.List(nil, Directory, false);
   except
@@ -2840,7 +2856,7 @@ begin
           conexao.Parametros('img_header', '');
         conexao.ExecuteSQL;
         conexao.Free;
-        CarregaImagem := True;
+        CarregaImagem := true;
       end;
 
       Cache.Timestamp := now;
@@ -2977,30 +2993,30 @@ begin
 
 end;
 
-// function TfrmServidor.GetMySQLDumpPath: string;
-// const
-// // Possíveis locais do mysqldump.exe
-// PossiblePaths: array [0 .. 3] of string =
-// ('C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe',
-// 'C:\Program Files\MySQL\MySQL Server 5.7\bin\mysqldump.exe',
-// 'C:\Program Files (x86)\MySQL\MySQL Server 8.0\bin\mysqldump.exe',
-// 'C:\Program Files (x86)\MySQL\MySQL Server 5.7\bin\mysqldump.exe');
-// var
-// i: Integer;
-// begin
-// Result := '';
-// for i := Low(PossiblePaths) to High(PossiblePaths) do
-// begin
-// if FileExists(PossiblePaths[i]) then
-// begin
-// Result := PossiblePaths[i];
-// exit;
-// end;
-// end;
-//
-// // Como fallback, tenta buscar no PATH do sistema
-// Result := 'mysqldump.exe'; // O sistema tentará achar se estiver no PATH
-// end;
+function TfrmServidor.GetMySQLDumpPath: string;
+const
+  // Possíveis locais do mysqldump.exe
+  PossiblePaths: array [0 .. 3] of string =
+    ('C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe',
+    'C:\Program Files\MySQL\MySQL Server 5.7\bin\mysqldump.exe',
+    'C:\Program Files (x86)\MySQL\MySQL Server 8.0\bin\mysqldump.exe',
+    'C:\Program Files (x86)\MySQL\MySQL Server 5.7\bin\mysqldump.exe');
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := Low(PossiblePaths) to High(PossiblePaths) do
+  begin
+    if FileExists(PossiblePaths[i]) then
+    begin
+      Result := PossiblePaths[i];
+      exit;
+    end;
+  end;
+
+  // Como fallback, tenta buscar no PATH do sistema
+  Result := 'mysqldump.exe'; // O sistema tentará achar se estiver no PATH
+end;
 
 function TfrmServidor.GetTaxaEntrega: TJsonArray;
 var
@@ -3060,34 +3076,34 @@ procedure TfrmServidor.HabilitarHomologao1Click(Sender: TObject);
 var
   IniFile: TIniFile;
 begin
-  // IniFile := TIniFile.Create('./goopedir.ini');
-  // IniFile.WriteString('IFOOD', 'CLIENTID',
-  // 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e');
-  // IniFile.WriteString('IFOOD', 'CLIENTSECRET',
-  // 'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
-  // IniFile.Free;
-  //
-  // IFood.Credentials.ClientId := 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e';
-  // IFood.Credentials.ClientSecret :=
-  // 'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc';
-  // DescricaoIfood;
+  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile.WriteString('IFOOD', 'CLIENTID',
+    'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e');
+  IniFile.WriteString('IFOOD', 'CLIENTSECRET',
+    'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
+  IniFile.Free;
+
+  IFood.Credentials.ClientId := 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e';
+  IFood.Credentials.ClientSecret :=
+    'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc';
+  DescricaoIfood;
 end;
 
 procedure TfrmServidor.HabilitarProduo1Click(Sender: TObject);
 var
   IniFile: TIniFile;
 begin
-  // IniFile := TIniFile.Create('./goopedir.ini');
-  // IniFile.WriteString('IFOOD', 'CLIENTID',
-  // 'b683664a-f536-4cbf-a162-a2f98ac757e3');
-  // IniFile.WriteString('IFOOD', 'CLIENTSECRET',
-  // '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia');
-  // IniFile.Free;
-  //
-  // IFood.Credentials.ClientId := 'b683664a-f536-4cbf-a162-a2f98ac757e3';
-  // IFood.Credentials.ClientSecret :=
-  // '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia';
-  // DescricaoIfood;
+  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile.WriteString('IFOOD', 'CLIENTID',
+    'b683664a-f536-4cbf-a162-a2f98ac757e3');
+  IniFile.WriteString('IFOOD', 'CLIENTSECRET',
+    '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia');
+  IniFile.Free;
+
+  IFood.Credentials.ClientId := 'b683664a-f536-4cbf-a162-a2f98ac757e3';
+  IFood.Credentials.ClientSecret :=
+    '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia';
+  DescricaoIfood;
 end;
 
 function TfrmServidor.IDiFood: String;
@@ -3208,7 +3224,7 @@ procedure TfrmServidor.IFoodOrderArrivedAtOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3216,7 +3232,7 @@ procedure TfrmServidor.IFoodOrderAssignDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3224,7 +3240,7 @@ procedure TfrmServidor.IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3232,7 +3248,7 @@ procedure TfrmServidor.IFoodOrderCancellationFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3240,7 +3256,7 @@ procedure TfrmServidor.IFoodOrderCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3248,7 +3264,7 @@ procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3256,7 +3272,7 @@ procedure TfrmServidor.IFoodOrderChangePreparationTime
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3264,7 +3280,7 @@ procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3272,7 +3288,7 @@ procedure TfrmServidor.IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3280,7 +3296,7 @@ procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3288,7 +3304,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationAccepted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3296,7 +3312,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3304,7 +3320,7 @@ procedure TfrmServidor.IFoodOrderConsumerCancellationRequested
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3312,7 +3328,7 @@ procedure TfrmServidor.IFoodOrderDelayNotification
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3320,7 +3336,7 @@ procedure TfrmServidor.IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3328,7 +3344,7 @@ procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3336,7 +3352,7 @@ procedure TfrmServidor.IFoodOrderGoingToOrigin
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3344,7 +3360,7 @@ procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
   var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3352,7 +3368,7 @@ procedure TfrmServidor.IFoodOrderPickupAreaAssigned
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3360,7 +3376,7 @@ procedure TfrmServidor.IFoodOrderPlaced(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
   ProcessamentoiFood.orderId(Order, OrderHead);
 
 end;
@@ -3369,7 +3385,7 @@ procedure TfrmServidor.IFoodOrderPlaced1(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
   ProcessamentoiFood1.orderId(Order, OrderHead);
 
 end;
@@ -3378,7 +3394,7 @@ procedure TfrmServidor.IFoodOrderPlaced2(Order: IADRIFoodModelOrder;
   OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
   ProcessamentoiFood2.orderId(Order, OrderHead);
 
 end;
@@ -3387,7 +3403,7 @@ procedure TfrmServidor.IFoodOrderPreparationStarted
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3395,7 +3411,7 @@ procedure TfrmServidor.IFoodOrderReadyToDeliver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3403,7 +3419,7 @@ procedure TfrmServidor.IFoodOrderReadyToPickup
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3411,7 +3427,7 @@ procedure TfrmServidor.IFoodOrderRecommendedPreparation
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3419,7 +3435,7 @@ procedure TfrmServidor.IFoodOrderRequestDriver
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3427,7 +3443,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverAvailability
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3435,7 +3451,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverFailed
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3443,7 +3459,7 @@ procedure TfrmServidor.IFoodOrderRequestDriverSuccess
   (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 begin
 
-  bAcknowledgment := True;
+  bAcknowledgment := true;
 
 end;
 
@@ -3928,12 +3944,12 @@ begin
     begin
       if Dados.FieldByName('merchantid').AsString <> '' then
       begin
-
+        CreateiFoodConnection(Dados.FieldByName('id').AsString,
+          Dados.FieldByName('merchantid').AsString);
       end;
       Dados.Next;
     end;
   end;
-
   Dados.Free;
   conexao.Free;
 
@@ -4086,7 +4102,7 @@ begin
       BodyContent]);
 
     // Abre o arquivo e escreve
-    LogFile := TStreamWriter.Create(LogFilePath, True, TEncoding.UTF8);
+    LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
     try
       LogFile.WriteLine(LogLine);
     finally
@@ -4859,7 +4875,7 @@ var
 begin
   if StatusSincProdutos then
     exit;
-  StatusSincProdutos := True;
+  StatusSincProdutos := true;
   conexao := Tconexao.Create('main');
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
@@ -4903,9 +4919,9 @@ begin
       try
         try
           FTP.Host := 'ftp.goopedir.com';
-          FTP.Username := 'u567036950.banco';
-          FTP.Password := 'banco#Goopedir@2025';
-          FTP.Passive := True;
+          FTP.Username := 'u567036950.backup';
+          FTP.Password := 'backup@Goopedir2025';
+          FTP.Passive := true;
           FTP.ConnectTimeout := 15000;
           FTP.Connect;
 
@@ -5135,9 +5151,9 @@ begin
         if not DadosWhatsappBoolean then
         begin
           DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
-          DadosThread1.FreeOnTerminate := True;
+          DadosThread1.FreeOnTerminate := true;
           // Libera a memória automaticamente quando terminar
-          DadosWhatsappBoolean := True;
+          DadosWhatsappBoolean := true;
         end;
       end
       else
@@ -5157,7 +5173,7 @@ begin
         self.DataBloqueio := APIGoopedir.GetBloqueio;
       except
         self.DataBloqueio := IncDay(Data, 1);
-        SemDataBloqueio := True;
+        SemDataBloqueio := true;
       end;
 
     except
@@ -5193,7 +5209,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := True;
+    Result := true;
   end;
 end;
 
@@ -5214,7 +5230,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := True;
+    Result := true;
   end;
 end;
 
@@ -5235,7 +5251,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := True;
+    Result := true;
   end;
 end;
 
@@ -5256,7 +5272,7 @@ begin
   else
   begin
     // Se Data1 não for maior que Data2, retorna False
-    Result := True;
+    Result := true;
   end;
 end;
 
@@ -5276,7 +5292,7 @@ begin
     if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile)) = UpperCase(Nome)
       ) or (UpperCase(FProcessEntry32.szExeFile) = UpperCase(Nome))) then
     begin
-      Result := True;
+      Result := true;
     end;
     ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
@@ -5354,7 +5370,7 @@ var
   IniFile: TIniFile;
 begin
 
-  inherited Create(True);
+  inherited Create(true);
   conexao := Tconexao.Create('main');
   IniFile := TIniFile.Create('./goopedir.ini');
   Name := IniFile.ReadString('server', 'name', 'GooPedir');
@@ -5508,7 +5524,7 @@ end;
 constructor TSincronizaProdutosThread.Create;
 begin
   inherited Create(false); // inicia automaticamente
-  FreeOnTerminate := True;
+  FreeOnTerminate := true;
 end;
 
 procedure TSincronizaProdutosThread.Execute;
