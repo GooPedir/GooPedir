@@ -58,7 +58,6 @@ implementation
 
 uses conexao, System.SysUtils;
 
-
 procedure TSQL.AtualizaBanco;
 var
   I: Integer;
@@ -1808,8 +1807,7 @@ begin
         SQL := SQL + '     WHERE codigo = NEW.codigo_produto;';
         SQL := SQL + '     IF v_controle = 1 THEN';
         SQL := SQL + '         UPDATE produto';
-        SQL := SQL +
-          '         SET saldo_atual = IFNULL(saldo_atual, 0) + v_mov';
+        SQL := SQL + '         SET saldo_atual = IFNULL(saldo_atual, 0) + v_mov';
         SQL := SQL + '         WHERE codigo = NEW.codigo_produto;';
         SQL := SQL + '         SELECT saldo_atual INTO v_saldo';
         SQL := SQL + '         FROM produto';
@@ -1822,8 +1820,7 @@ begin
         SQL := SQL + '         UPDATE produto';
         SQL := SQL + '         SET ativo = v_status,';
         SQL := SQL + '             modificado_site = 0';
-        SQL := SQL +
-          '         WHERE codigo = NEW.codigo_produto and controle_estoque = 1; ';
+        SQL := SQL + '         WHERE codigo = NEW.codigo_produto and controle_estoque = 1; ';
         SQL := SQL + '     END IF;';
         SQL := SQL + '     UPDATE pro_adi_personalizado_sabores';
         SQL := SQL + '     SET ativo = v_status,';
@@ -1860,8 +1857,7 @@ begin
       end;
     129:
       begin
-        ExecultaSQL
-          ('ALTER TABLE impressao_pedido_produto MODIFY id INT NOT NULL AUTO_INCREMENT;');
+        ExecultaSQL('ALTER TABLE impressao_pedido_produto MODIFY id INT NOT NULL AUTO_INCREMENT;');
         SQL := ' CREATE TRIGGER trg_pedido_produtos_after_insert ';
         SQL := SQL + ' AFTER INSERT ON pedido_produtos';
         SQL := SQL + ' FOR EACH ROW';
@@ -1890,8 +1886,7 @@ begin
       end;
     130:
       begin
-       
-       
+
         SQL := ' CREATE PROCEDURE migrar_tabela(';
         SQL := SQL + '     IN baseTable VARCHAR(100),';
         SQL := SQL + '     IN oldTable VARCHAR(100),';
@@ -2025,6 +2020,10 @@ begin
         SQL := SQL + ' END';
         ExecultaSQL(SQL);
       end;
+      132: begin
+        ExecultaSQL('alter table pedido add codigoOld varchar(20)');
+
+      end;
 
     99999999:
       begin
@@ -2039,7 +2038,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '131';
+  Result := '132';
 end;
 
 end.

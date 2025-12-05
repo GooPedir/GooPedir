@@ -328,7 +328,6 @@ begin
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
-  VoltarPedidos;
   Atualizacao.VerificaAtualizacao;
 end;
 
@@ -836,11 +835,16 @@ var
   ref: string;
   Codigo: Integer;
   refCodigo: String;
+  SQL: String;
 begin
   Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON
-    (FConn.ConsultaSQL
-    ('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+  SQL := 'SELECT table_name as referencia, 0';
+  SQL := SQL + ' FROM information_schema.tables';
+  SQL := SQL + ' WHERE table_schema = "' + FConn.NomeBanco + '"';
+  SQL := SQL + ' AND table_name LIKE "pedido\_2%"';
+  SQL := SQL + ' ORDER BY table_name;';
+
+  Dados.LoadFromJSON(FConn.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
   begin
@@ -851,22 +855,32 @@ begin
   while not Dados.Eof do
   begin
     ref := Dados.FieldByName('referencia').AsString;
+    ref := StringReplace(ref, 'pedido_', '', []);
     refCodigo := copy(ref, 3, 8);
     refCodigo := StringReplace(refCodigo, '_', '', []);
 
-    FConn.SQL.Add('ALTER TABLE `pedido_' + ref +'` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
+    FConn.SQL.Add('alter table `pedido_' + ref + '` add codigoOld varchar(20)');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_' + ref + ' set codigo = (codigo+' + refCodigo+ ')*-1');
+    FConn.SQL.Add('ALTER TABLE `pedido_' + ref +
+      '` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_produtos_' + ref + ' set codigo = (codigo+' +refCodigo + ')*-1, codigo_pedido = (codigo_pedido+' + refCodigo + ')*-1');
+    FConn.SQL.Add('update pedido_' + ref +
+      ' set codigoOld = codigo, codigo = (codigo+' + refCodigo + ')*-1');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_produto_sap_' + ref +' set codigo_pedido_produto = (codigo_pedido_produto+' + refCodigo +')*-1, id = (id+' + refCodigo + ')*-1');
+    FConn.SQL.Add('update pedido_produtos_' + ref + ' set codigo = (codigo+' +
+      refCodigo + ')*-1, codigo_pedido = (codigo_pedido+' + refCodigo + ')*-1');
     FConn.ExecuteSQL;
 
-    FConn.ExecuteSQL(Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref]));
+    FConn.SQL.Add('update pedido_produto_sap_' + ref +
+      ' set codigo_pedido_produto = (codigo_pedido_produto+' + refCodigo +
+      ')*-1, id = (id+' + refCodigo + ')*-1');
+    FConn.ExecuteSQL;
+
+    FConn.ExecuteSQL
+      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref]));
     FConn.SQL.Add('select 0, codigo from pedido_' + ref);
     try
       Codigo := FConn.FieldByName('codigo');

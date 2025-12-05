@@ -1326,22 +1326,6 @@ begin
 
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
-  MesesAno := GerarArrayMesesAno(DataInicial, DataFinal);
-  for MesAno in MesesAno do
-  begin
-    SQL := UnionPedio('pedido_' + MesAno, Tipo);
-    conexao.SQL.Add(SQL);
-    conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
-    conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-    JsonArray := conexao.ConsultaSQL;
-    try
-      Dados.LoadFromJSON(JsonArray.ToString);
-    finally
-      JsonArray.Free; // sem isso, você vazava memória a cada chamada
-    end;
-
-  end;
-
   SQL := UnionPedio('pedido', Tipo);
   SQL := SQL + ' order by data, hora desc,codigo_dia';
   conexao.SQL.Add(SQL);
@@ -3183,7 +3167,8 @@ begin
     2:
       begin
         // Pedido Produto
-        conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date,current_time,:pedido,0,0,-6);');
+        conexao.SQL.Add
+          ('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date,current_time,:pedido,0,0,-6);');
         conexao.Parametros('pedido', Codigo);
         conexao.Parametros('id', Aux);
         conexao.ExecuteSQL;
@@ -3706,7 +3691,8 @@ begin
   conexao := Tconexao.Create('Util');
   CodigoAux := conexao.GerarID('impressao_pedido_produto', 'id');
 
-  conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,0,0,-7)');
+  conexao.SQL.Add
+    ('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,0,0,-7)');
   conexao.Parametros('pedido', ID);
   conexao.ExecuteSQL;
   conexao.Free;
@@ -6193,7 +6179,8 @@ begin
   conexao.SQL.Add('select * from usuario');
   Usuario := conexao.FieldByName('codigo');
   CodigoAux := conexao.GerarID('impressao_pedido_produto', 'id');
-  conexao.SQL.Add('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
+  conexao.SQL.Add
+    ('insert into impressao_pedido_produto (data_solicitacao,hora_solicitacao,id_pedido,status,vias,usuario) values (current_date(),current_time(),:pedido,:status,0,:usuario)');
   conexao.Parametros('pedido', Codigo);
   conexao.Parametros('id', CodigoAux);
   conexao.Parametros('status', Mesa);
@@ -9690,7 +9677,6 @@ begin
               conexaoT.ExecuteSQL;
             end;
 
-
             // ---------- ATUALIZA PEDIDO / MOVIMENTO ----------
             AtualizaValorPedido(it.Pedido);
             MovimentoProduto(it.CodigoPedidoProduto, 1);
@@ -9982,44 +9968,28 @@ begin
   SQL := SQL + ' codigo_pedido_dia as codigo_dia,';
   SQL := SQL + ' codigo_cliente,';
   SQL := SQL + ' CASE';
-  SQL := SQL +
-    '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
-    QuotedStr('BALCÃO') + ' AND p.nome <> ''''';
+  SQL := SQL + '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +QuotedStr('BALCÃO') + ' AND p.nome <> ''''';
   SQL := SQL + '  THEN p.nome';
-  SQL := SQL +
-    '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
+  SQL := SQL + '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
   SQL := SQL + ' END AS cliente,';
-  SQL := SQL +
-    ' (select celular from cliente where codigo = codigo_cliente) as celular,';
-  SQL := SQL +
-    ' (select cpf from cliente where codigo = codigo_cliente) as documento,';
+  SQL := SQL + ' (select celular from cliente where codigo = codigo_cliente) as celular,';
+  SQL := SQL + ' (select cpf from cliente where codigo = codigo_cliente) as documento,';
   SQL := SQL + ' codigo_cliente_endereco as cliente_endereco,';
   SQL := SQL + ' (SELECT ';
-  SQL := SQL + ' upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +
-    QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +
-    QuotedStr(' ] ') + ')) ';
-  SQL := SQL +
-    ' FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,';
-  SQL := SQL + ' DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +
-    ') as data,';
+  SQL := SQL + ' upper(concat(rua,' + QuotedStr(' - ') + ',numero,' + QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +QuotedStr(' ] ') + ')) ';
+  SQL := SQL + ' FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,';
+  SQL := SQL + ' DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +') as data,';
   SQL := SQL + ' (hora_pedido) as hora,';
-  SQL := SQL + ' cast(timediff(current_timestamp,concat(data_pedido,' +
-    QuotedStr(' ') + ',hora_pedido)) as char) as tempo,';
+  SQL := SQL + ' cast(timediff(current_timestamp,concat(data_pedido,' + QuotedStr(' ') + ',hora_pedido)) as char) as tempo,';
   SQL := SQL + ' p.status,';
-  SQL := SQL +
-    ' (select descricao from status_pedido where id = p.status) status_descricao,';
-  SQL := SQL + ' REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as valor,';
-  SQL := SQL + ' REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as taxa,';
-  SQL := SQL + ' REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as desconto,';
-  SQL := SQL + ' REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as total,';
+  SQL := SQL + ' (select descricao from status_pedido where id = p.status) status_descricao,';
+  SQL := SQL + ' REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as valor,';
+  SQL := SQL + ' REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as taxa,';
+  SQL := SQL + ' REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as desconto,';
+  SQL := SQL + ' REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as total,';
   SQL := SQL + ' tipo_pagamento as pagamento,';
   SQL := SQL + ' motivo_cancelamento,';
-  SQL := SQL +
-    ' pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,';
+  SQL := SQL + ' pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,';
   SQL := SQL + ' origem,';
   SQL := SQL + ' CASE';
   SQL := SQL + '     WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"';
@@ -10035,14 +10005,11 @@ begin
   SQL := SQL + '  p.estimada_ifood as estimada_ifood,';
   SQL := SQL + '  p.agendada_ifood as agendada_ifood,';
   SQL := SQL + '  p.order_ifood,';
-  SQL := SQL +
-    '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento limit 1) as pagamento';
+  SQL := SQL + '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento limit 1) as pagamento';
   SQL := SQL + ' from ' + Tabela + ' as p';
-  SQL := SQL + ' left join pedido_motoboy as pm on pm.codigo_pedido = p.codigo';
-  SQL := SQL + ' left join motoboy as m on m.codigo = pm.codigo_motoboy';
-  SQL := SQL +
-    ' where data_pedido between :inicial and :final and p.status > -1 and origem in ('
-    + Tipo + ')';
+  SQL := SQL + ' left join pedido_motoboy as pm on (pm.codigo_pedido = p.codigo or pm.codigo_pedido = p.codigoOld)';
+  SQL := SQL + ' left join motoboy as m on (m.codigo = pm.codigo_motoboy)';
+  SQL := SQL + ' where data_pedido between :inicial and :final and p.status > -1 and origem in ('+ Tipo + ')';
   Result := SQL;
 end;
 
