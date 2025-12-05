@@ -1350,6 +1350,7 @@ object frmACBrNFe: TfrmACBrNFe
           Height = 25
           Caption = 'Distribui'#231#227'o DF-e por '#250'ltimo NSU'
           TabOrder = 0
+          OnClick = btnDistrDFePorUltNSUClick
         end
         object btnDistrDFePorNSU: TButton
           Left = 192
@@ -1723,7 +1724,6 @@ object frmACBrNFe: TfrmACBrNFe
   end
   object tEmissao: TTimer
     Enabled = False
-    Interval = 10000
     OnTimer = tEmissaoTimer
     Left = 918
     Top = 70

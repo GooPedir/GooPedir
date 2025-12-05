@@ -305,6 +305,7 @@ type
     procedure TrayIcon1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure timerBuscaDFETimer(Sender: TObject);
+    procedure btnDistrDFePorUltNSUClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -352,6 +353,7 @@ var
 
   Ambiente: String;
   ProdutoComErroFiscal: String;
+  bClose: Boolean;
 
 implementation
 
@@ -1788,6 +1790,12 @@ begin
 
   LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
 end;
+
+procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
+begin
+
+end;
+
 //
 // procedure TfrmACBrNFe.btnDistrDFePorUltNSUClick(Sender: TObject);
 // var
@@ -3350,7 +3358,7 @@ var
   URL: String;
   Requisicao: iRequisicao;
 begin
-
+  bClose := True;
   IniFile := TIniFile.Create('./goopedir.ini');
   BaseUrl := IniFile.ReadString('server', 'baseurl', 'http://localhost:2121/');
   IniFile.Free;
@@ -4561,8 +4569,10 @@ var
   ReqNFCE: iRequisicao;
 
 begin
+  bClose := False;
   if not cEmissao.Checked then
     exit;
+  timerBuscaDFE.Enabled := True;
 
   try
     dadosEmissao.Close;
@@ -4911,9 +4921,12 @@ begin
     end;
 
   end;
-   tEmissao.Enabled := False;
-   TrayIcon1.Visible := False;
-   Application.Terminate;
+  if bClose then
+  begin
+    tEmissao.Enabled := False;
+    TrayIcon1.Visible := False;
+    Application.Terminate;
+  end;
 end;
 
 procedure TfrmACBrNFe.timerBuscaDFETimer(Sender: TObject);
@@ -4932,13 +4945,14 @@ var
   XMLText: string;
 
 begin
+
+  bClose := False;
   UltimoNSUSalvo := '0';
   timerBuscaDFE.Enabled := False;
   req := iRequisicao.Create(nil);
   Data := TFDMemTable.Create(nil);
   req.BaseUrl := BaseUrl;
-  req.URL := '/dfe/verifica/' + MemoryConfiguracao.FieldByName
-    ('ambiente').AsString;
+  req.URL := '/dfe/verifica/1';
   try
     Executa := True;
     req.MemTable2 := Data;
@@ -5030,11 +5044,9 @@ begin
                   docZip[i].resDFe.dhEmi));
                 JSONItem.AddPair('situacao', GetEnumName(TypeInfo(TSituacaoDFe),
                   Ord(docZip[i].resDFe.cSitDFe)));
-
                 // adiciona XML puro (opcional, se quiser mandar junto)
                 XMLText := docZip[i].XML;
                 JSONItem.AddPair('xml_base64', '');
-
                 // adiciona ao array
                 JSONArray.AddElement(JSONItem);
               end;
@@ -5084,6 +5096,7 @@ begin
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.DistribuicaoDFe.RetornoWS;
   LoadXML(ACBrNFe1.WebServices.DistribuicaoDFe.RetWS, WBResposta);
   pgRespostas.ActivePage := Dados;
+  bClose := True;
 
 end;
 
