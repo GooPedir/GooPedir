@@ -18,8 +18,7 @@ function ConverterData(const dataOriginal: string): string;
 function GetCupomSite: String;
 function RemoverTodasTransferencias(Texto: string): string;
 
-function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao)
-  : TJSONObject;
+function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao): TJSONObject;
 function CacheFilePath(const PedidoID: Integer): string;
 function TryLoadCacheJSON(const FileName: string; out Obj: TJSONObject)
   : Boolean;
@@ -406,15 +405,13 @@ var
   FiltroIni, FiltroFim: TDate;
 
   Arr: TJsonArray;
-  Qry : TFDQuery;
+  Qry: TFDQuery;
 begin
   conexao := TConexao.Create('RelatorioVendaV2');
   Qry := conexao.CriaQRY;
 
-
   try
     Resultado := TJsonArray.Create;
-
 
     Qry.SQL.Add('SELECT ' + ' p.codigo AS id,' + ' p.data_pedido,' +
       ' CONCAT(p.data_pedido,"T",p.hora_pedido) AS date,' +
@@ -432,8 +429,7 @@ begin
     // parâmetros
     Qry.ParamByName('di').AsString := DataIni;
     Qry.ParamByName('df').AsString := DataFim;
-        Qry.Open;
-
+    Qry.Open;
 
     if Qry.RecordCount > 0 then
     begin
@@ -844,10 +840,9 @@ end;
 // Objeto.AddPair('items', Itens);
 // end;
 
-function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao)
-  : TJSONObject;
+function RetornoObjetoProduto(Dados: TFDQuery; conexao: TConexao): TJSONObject;
 var
-  DadosPagamento,  DadosExtra: TFDMemTable;
+  DadosPagamento, DadosExtra: TFDMemTable;
 
   Objeto, ObjetoCliente, ObjetoEndereco, ObjetoPagamentos, ObjetoIten,
     ObjetoAdicional, ObjetoSabor: TJSONObject;
@@ -859,8 +854,8 @@ var
   PedidoID: Integer;
   CachePath: string;
   FromCache: TJSONObject;
-  Total : Real;
-  DadosItens : TFDQuery;
+  Total: Real;
+  DadosItens: TFDQuery;
 begin
   // ===== Tentativa de usar cache =====
   PedidoID := Dados.FieldByName('id').AsInteger;
@@ -990,7 +985,7 @@ begin
       'join produto as p on p.codigo = pp.codigo_produto ' +
       'join tipo_produto as tp on tp.codigo = p.codigo_grupo ' +
       'where pp.codigo_pedido = :codigo and (pp.usuario_deletado = 0 or pp.usuario_deletado is null)');
-    DadosItens.ParamByName('codigo').AsInteger :=  PedidoID;
+    DadosItens.ParamByName('codigo').AsInteger := PedidoID;
     DadosItens.Open;
     if DadosItens.RecordCount > 0 then
     begin
@@ -1003,7 +998,8 @@ begin
         ObjetoIten := TJSONObject.Create;
         ObjetoIten.AddPair('product', DadosItens.FieldByName('product')
           .AsString);
-        ObjetoIten.AddPair('category', DadosItens.FieldByName('category').AsString);
+        ObjetoIten.AddPair('category', DadosItens.FieldByName('category')
+          .AsString);
         ObjetoIten.AddPair('qty',
           TJSONNumber.Create(DadosItens.FieldByName('qty').AsFloat));
         ObjetoIten.AddPair('price',
@@ -1082,7 +1078,8 @@ begin
     Objeto.AddPair('channel', Canal);
     Objeto.AddPair('payment', Pagamentos);
     Objeto.AddPair('attendant', Atendente);
-    Objeto.AddPair('tot',       TJSONNumber.Create(Dados.FieldByName('valor_total_pedido').AsFloat));
+    Objeto.AddPair('tot',
+      TJSONNumber.Create(Dados.FieldByName('valor_total_pedido').AsFloat));
 
     if Canal <> 'Mesa' then
       Objeto.AddPair('customer', ObjetoCliente)
@@ -1092,7 +1089,6 @@ begin
     Objeto.AddPair('discount',
       TJSONNumber.Create(Dados.FieldByName('valor_desconto').AsFloat));
     Objeto.AddPair('items', Itens);
-
 
     // Salva no cache (temp) e retorna
     SaveCacheJSON(CachePath, Objeto);
@@ -1452,7 +1448,8 @@ begin
       begin
         CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', now) +
           'cat' + CodigoGrupo.ToString + '-' + JSONObject.Values['name'].Value +
-          frmServidor.UserID.ToString, JSONObject.Values['imagemFundo'].Value);
+          frmServidor.UserID.ToString, frmServidor.UserID.ToString,
+          JSONObject.Values['imagemFundo'].Value);
 
         if (CaminhoImagem <> '') then
         begin
@@ -1656,7 +1653,7 @@ begin
 
   Requisicao := iRequisicao.Create(nil);
   try
-    Requisicao.BaseURL := 'https://ws.goopedir.com/v1/qrcod/' +
+    Requisicao.BaseURL := 'https://old.goopedir.com/v1/qrcod/' +
       frmServidor.UserID.ToString + '/a';
     Requisicao.TempoExpiracao := 30 * 1000;
     Requisicao.Execute;
@@ -1828,7 +1825,8 @@ begin
       if Imagem <> '' then
       begin
         Imagem := EnviaImagem(FormatDateTime('ddmmyyyyhhnn', now) +
-          LJSONObject.GetValue('id').Value, Imagem);
+          LJSONObject.GetValue('id').Value,
+          frmServidor.UserID.ToString, Imagem);
       end;
     except
 
@@ -1846,10 +1844,8 @@ begin
       LJSONArray := LSizeValue as TJsonArray;
       for i := 0 to LJSONArray.Count - 1 do
       begin
-        conexao.SQL.Add('select * from tipo_sabor where upper(nome) = :nome');
-        conexao.Parametros('nome',
-
-          UpperCase(LJSONObject.GetValue('type').Value));
+        conexao.SQL.Add('select * from tipo_sabor where id = :id');
+        conexao.Parametros('id',UpperCase(LJSONObject.GetValue('type').Value));
         try
           CodigoTipoSabor := conexao.FieldByName('id');
         except
@@ -2057,6 +2053,7 @@ var
 
   Item: TJSONValue;
   ID: Integer;
+  CaminhoExtraFoto: String;
 
 begin
   conexao := TConexao.Create('v2');
@@ -2378,6 +2375,33 @@ begin
         conexao.SQL.Clear;
       end;
 
+      if (Assigned((JSONObject.Values['combo_products']))) then
+      begin
+        conexao.SQL.Add
+          ('UPDATE produto_combo_config SET status = "INATIVO" WHERE produto_combo_id = :produtoComboId AND status = "ATIVO";');
+        conexao.Parametros('produtoComboId', Codigo);
+        conexao.ExecuteSQL;
+
+        Cod := conexao.GerarID('produto_combo_config', 'id');
+        conexao.SQL.Add
+          ('INSERT INTO produto_combo_config (produto_combo_id, status) VALUES (:produtoComboId, "ATIVO");');
+        conexao.Parametros('produtoComboId', Codigo);
+        conexao.ExecuteSQL;
+        ExtraArray := JSONObject.Values['combo_products'] as TJsonArray;
+        for i := 0 to ExtraArray.Count - 1 do
+        begin
+          ExtraItem := ExtraArray.Items[i] as TJSONObject;
+          conexao.SQL.Add
+            ('INSERT INTO produto_combo_item (combo_config_id, produto_id, ratio, base_value) values (:id, :produto, :ratio, :value)');
+          conexao.Parametros('id', Cod);
+          conexao.Parametros('produto', ExtraItem.Values['id'].Value);
+          conexao.Parametros('ratio', ExtraItem.Values['ratio'].Value);
+          conexao.Parametros('value', ExtraItem.Values['base_value'].Value);
+          conexao.ExecuteSQL;
+        end;
+        ExtraArray.Free;
+      end;
+
       if StrToInt(JSONObject.Values['adicional'].ToString) = 1 then
       begin
 
@@ -2425,17 +2449,18 @@ begin
               CodigoAux := conexao.GerarID
                 ('pro_adi_personalizado_sabores', 'id');
               conexao.SQL.Add
-                ('insert into pro_adi_personalizado_sabores (id, id_pro_adi_personalizado,nome,descricao,valor,ativo,id_prod_estoque, id_ingredientes,alerta)');
+                ('insert into pro_adi_personalizado_sabores (id, id_pro_adi_personalizado,nome,descricao,valor,ativo,id_prod_estoque, id_ingredientes,alerta,url)');
               conexao.SQL.Add
-                ('values (:id, :id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,:stock, :id_ingredientes,:alerta)');
+                ('values (:id, :id_pro_adi_personalizado,:nome,:descricao,:valor,:ativo,:stock, :id_ingredientes,:alerta, :url)');
             end
             else
             begin
               CodigoAux := StrToInt(ExtraItensItem.Values['id'].Value);
               conexao.SQL.Add
-                ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes,alerta = :alerta, id_prod_estoque = :stock, id_pro_adi_personalizado = :id_pro_adi_personalizado, nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo');
+                ('update pro_adi_personalizado_sabores set url = :url, id_ingredientes = :id_ingredientes,alerta = :alerta, id_prod_estoque = :stock, id_pro_adi_personalizado = :id_pro_adi_personalizado, nome = :nome, descricao = :descricao, valor = :valor, ativo = :ativo');
               conexao.SQL.Add('where id = :id');
             end;
+
             try
               if ExtraItensItem.Values['value'].ToString.ToDouble > 0 then
               begin
@@ -2448,10 +2473,28 @@ begin
               begin
                 // showmessage(E.Message);
               end;
-
+            end;
+            // Eviar o base64
+            CaminhoExtraFoto := '';
+            if Assigned(ExtraItensItem.Values['url']) then
+            begin
+              if ExtraItensItem.Values['url'].Value <> '' then
+              begin
+                CaminhoExtraFoto := ExtraItensItem.Values['url'].Value
+              end;
+            end;
+            if Assigned(ExtraItensItem.Values['base64']) then
+            begin
+              if ExtraItensItem.Values['base64'].Value <> '' then
+              begin
+                CaminhoExtraFoto := EnviaImagem(CodigoAux.ToString,
+                  frmServidor.UserID.ToString,
+                  ExtraItensItem.Values['base64'].Value)
+              end;
             end;
 
             conexao.Parametros('id', CodigoAux);
+            conexao.Parametros('url', CaminhoExtraFoto);
             conexao.Parametros('id_pro_adi_personalizado', CodigoExtra);
             conexao.Parametros('nome', ExtraItensItem.Values['name'].Value);
             try
@@ -2660,7 +2703,7 @@ begin
           try
             Requisicao := iRequisicao.Create(nil);
             Requisicao.BaseURL :=
-              'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
+              'https://old.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
               Dados.FieldByName('id_pedido_site').AsString + '&status=' +
               'Saiu Para Entrega';
             Requisicao.Execute;
@@ -3085,7 +3128,7 @@ var
 begin
   try
     Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := 'https://ws.goopedir.com/v1/horario.php?codigo=' +
+    Requisicao.BaseURL := 'https://old.goopedir.com/v1/horario.php?codigo=' +
       frmServidor.UserID.ToString;
     Requisicao.Execute;
     Res.Send(Requisicao.Retorno);
@@ -3103,7 +3146,7 @@ begin
   try
     Requisicao := iRequisicao.Create(nil);
     Requisicao.BaseURL :=
-      'https://ws.goopedir.com/v1/empresa.php?status=false&user=' +
+      'https://old.goopedir.com/v1/empresa.php?status=false&user=' +
       frmServidor.UserID.ToString;
     Requisicao.Execute;
     Res.Send(Requisicao.Retorno);
@@ -3121,7 +3164,7 @@ begin
   try
     Requisicao := iRequisicao.Create(nil);
     Requisicao.BaseURL :=
-      'https://ws.goopedir.com/v1/empresa.php?status=true&user=' +
+      'https://old.goopedir.com/v1/empresa.php?status=true&user=' +
       frmServidor.UserID.ToString;
     Requisicao.Execute;
     Res.Send(Requisicao.Retorno);
@@ -3913,38 +3956,95 @@ procedure DoPostCupomDescontoSite(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
   Requisicao: iRequisicao;
-  body: String;
-
-  JsonObj: TJSONObject;
+  JsonIn: TJSONObject;
+  JsonOut: TJSONObject;
 begin
-  JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
-  Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
-  Requisicao.URL := 'insert/cupom_desconto/' +
-    frmServidor.UserID.ToString + '/a';
-  Requisicao.TempoExpiracao := 15 * 1000;
-  Requisicao.Metodo := mPost;
+  JsonIn := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
 
-  body := '{"id_cupom":"' + JsonObj.GetValue<string>('codigo') +
-    '", "user_id":"' + frmServidor.UserID.ToString + '", "ativacao":"' +
-    JsonObj.GetValue<string>('cupom') + '", "type_discount":"' +
-    JsonObj.GetValue<string>('tipo') + '", "porcentagem":"' +
-    JsonObj.GetValue<string>('percentual') + '", "fixed_value":"' +
-    JsonObj.GetValue<string>('valor') + '", "data_validade":"' +
-    JsonObj.GetValue<string>('data') + '", "total_vezes":"' +
-    JsonObj.GetValue<string>('quantidade') +
-    '", "mostrar_site":"1", "automatico":"0", "primeira":"' +
-    JsonObj.GetValue<string>('primeira') + '"}';
-  Requisicao.body(body);
-
-  try
-    Requisicao.Execute;
-  except
-
+  if not Assigned(JsonIn) then
+  begin
+    Res.Status(400).Send('JSON inválido');
+    exit;
   end;
 
-  Res.Send(GetCupomSite);
+  Requisicao := iRequisicao.Create(nil);
+  try
+    Requisicao.BaseURL := API_BASE_URL;
+    Requisicao.URL := 'api/cupom/empresa';
+    Requisicao.Metodo := mPost;
+    Requisicao.TempoExpiracao := 15 * 1000;
+
+    // 🔐 Mesmo padrão de autenticação
+    Requisicao.AddHeader('Authorization', frmServidor.APIGoopedir.GetToken);
+
+    // 🔹 Monta o JSON que a API espera
+    JsonOut := TJSONObject.Create;
+    try
+      JsonOut.AddPair('codigo', JsonIn.GetValue('codigo').Clone as TJSONValue);
+      JsonOut.AddPair('cupom', JsonIn.GetValue('cupom').Clone as TJSONValue);
+      JsonOut.AddPair('tipo', JsonIn.GetValue('tipo').Clone as TJSONValue);
+      JsonOut.AddPair('percentual', JsonIn.GetValue('percentual')
+        .Clone as TJSONValue);
+      JsonOut.AddPair('valor', JsonIn.GetValue('valor').Clone as TJSONValue);
+      JsonOut.AddPair('data', JsonIn.GetValue('data').Clone as TJSONValue);
+      JsonOut.AddPair('quantidade', JsonIn.GetValue('quantidade')
+        .Clone as TJSONValue);
+      JsonOut.AddPair('min', JsonIn.GetValue('min').Clone as TJSONValue);
+      JsonOut.AddPair('primeira', JsonIn.GetValue('primeira')
+        .Clone as TJSONValue);
+
+      // 🚀 Envia JSON direto
+      Requisicao.body(JsonOut);
+      Requisicao.Execute;
+
+      // 🔁 Retorna exatamente o retorno do POST
+      Res.Send(Requisicao.Retorno);
+    finally
+      JsonOut.Free;
+    end;
+
+  except
+    on E: Exception do
+      Res.Status(500).Send(E.Message);
+  end;
+
+  Requisicao.Free;
+  JsonIn.Free;
 end;
+// var
+// Requisicao: iRequisicao;
+// body: String;
+//
+// JsonObj: TJSONObject;
+// begin
+// JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
+// Requisicao := iRequisicao.Create(nil);
+// Requisicao.BaseURL := 'https://old.goopedir.com/v1/';
+// Requisicao.URL := 'insert/cupom_desconto/' +
+// frmServidor.UserID.ToString + '/a';
+// Requisicao.TempoExpiracao := 15 * 1000;
+// Requisicao.Metodo := mPost;
+//
+// body := '{"id_cupom":"' + JsonObj.GetValue<string>('codigo') +
+// '", "user_id":"' + frmServidor.UserID.ToString + '", "ativacao":"' +
+// JsonObj.GetValue<string>('cupom') + '", "type_discount":"' +
+// JsonObj.GetValue<string>('tipo') + '", "porcentagem":"' +
+// JsonObj.GetValue<string>('percentual') + '", "fixed_value":"' +
+// JsonObj.GetValue<string>('valor') + '", "data_validade":"' +
+// JsonObj.GetValue<string>('data') + '", "total_vezes":"' +
+// JsonObj.GetValue<string>('quantidade') +
+// '", "mostrar_site":"1", "automatico":"0", "primeira":"' +
+// JsonObj.GetValue<string>('primeira') + '"}';
+// Requisicao.body(body);
+//
+// try
+// Requisicao.Execute;
+// except
+//
+// end;
+//
+// Res.Send(GetCupomSite);
+// end;
 
 procedure DoGetSangriaCaixa(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
@@ -3988,7 +4088,7 @@ var
 begin
   Requisicao := iRequisicao.Create(nil);
   Dados := TFDMemTable.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
+  Requisicao.BaseURL := 'https://old.goopedir.com/v1/';
 
   if frmServidor.Configuracoes.FieldByName('msg_massa').AsInteger = 1 then
   begin
@@ -4328,6 +4428,7 @@ var
   JSONObject: TJSONObject;
   Dados: TFDMemTable;
   PodeInserir: Boolean;
+  conexao: TConexao;
 begin
   try
     JSONValue := TJSONObject.ParseJSONValue(Req.body);
@@ -4352,6 +4453,11 @@ begin
       Dados.Free;
       if PodeInserir then
       begin
+        conexao := TConexao.Create('DoPostErroNFCE');
+        conexao.SQL.Add
+          ('UPDATE pedido SET nfce_status = "ERRO", nfce_tentativas = nfce_tentativas + 1 WHERE codigo = :pedido');
+        conexao.Parametros('pedido', JSONObject.Values['pedido'].Value);
+        conexao.ExecuteSQL;
         frmServidor.memErrosNFCE.Last;
         frmServidor.memErrosNFCE.Insert;
         frmServidor.memErrosNFCE.FieldByName('data').AsDateTime := now;
@@ -4518,6 +4624,169 @@ begin
     (TEncoding.UTF8.GetBytes(frmServidor.CacheTiposJSON), 0) as TJsonArray);
 end;
 
+procedure DoGetClienteHistorico(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+  DataIni: String;
+  DataFim: String;
+  cliente: Integer;
+  Tipo: Integer;
+  Data: TFDMemTable;
+  DataProduto: TFDMemTable;
+  Obj: TJSONObject;
+  Dados: TJsonArray;
+
+  ArrayProdutos: TJsonArray;
+  ObjProduto: TJSONObject;
+begin
+  Dados := TJsonArray.Create;
+  Tipo := StrToIntDef(Req.Query['tipo'], 0);
+  cliente := StrToIntDef(Req.Query['cliente'], 0);
+  try
+    DataIni := Req.Query['ini'];
+  except
+    DataIni := FormatDateTime('yyyy-mm-01', now)
+  end;
+  try
+    DataFim := Req.Query['fim'];
+  except
+    DataIni := FormatDateTime('yyyy-mm-dd', now)
+  end;
+  Data := TFDMemTable.Create(nil);
+  conexao := TConexao.Create('DoGetClienteHistorico');
+  conexao.SQL.Add
+    ('SELECT codigo, concat(DATE_FORMAT(data_pedido, "%d/%m/%Y ") ,hora_pedido) as data, ');
+  conexao.SQL.Add(' CASE codigo_cliente_endereco');
+  conexao.SQL.Add('    WHEN 0 THEN "Vem Buscar"');
+  conexao.SQL.Add('    ELSE "Delivery"');
+  conexao.SQL.Add('  END AS origem,');
+  conexao.SQL.Add('  status_pedido.descricao,');
+  conexao.SQL.Add('valor_total_pedido as total,');
+  conexao.SQL.Add('valor_taxa_entrega as taxa,');
+  conexao.SQL.Add('valor_desconto as entrega');
+  conexao.SQL.Add('FROM pedido ');
+  conexao.SQL.Add('join status_pedido on status_pedido.id = pedido.status');
+  conexao.SQL.Add
+    (' where data_pedido between :ini and :fim and codigo_pedido_dia > 0 and codigo_cliente = :cliente');
+  if Tipo = 1 then
+  begin
+    conexao.SQL.Add('and codigo_cliente_endereco > 0');
+  end;
+  if Tipo = 2 then
+  begin
+    conexao.SQL.Add('and codigo_cliente_endereco = 0');
+  end;
+  conexao.Parametros('ini', DataIni);
+  conexao.Parametros('fim', DataFim);
+  conexao.Parametros('cliente', cliente);
+  Data.LoadFromJSON(conexao.ConsultaSQL());
+  if Data.RecordCount > 0 then
+  begin
+    while not Data.Eof do
+    begin
+      Obj := TJSONObject.Create;
+      Obj.AddPair('id', Data.FieldByName('codigo').AsInteger);
+      Obj.AddPair('data', Data.FieldByName('data').AsString);
+      Obj.AddPair('origem', Data.FieldByName('origem').AsString);
+      Obj.AddPair('status', Data.FieldByName('descricao').AsString);
+      Obj.AddPair('total', Data.FieldByName('total').AsFloat);
+      Obj.AddPair('taxa', Data.FieldByName('taxa').AsFloat);
+      Obj.AddPair('entrega', Data.FieldByName('entrega').AsFloat);
+
+      ArrayProdutos := TJsonArray.Create;
+      DataProduto := TFDMemTable.Create(nil);
+      conexao.SQL.Add
+        ('SELECT quantidade, valor_total as valor, produto.nome_produto as nome');
+      conexao.SQL.Add('FROM pedido_produtos ');
+      conexao.SQL.Add
+        ('join produto on produto.codigo = pedido_produtos.codigo_produto');
+      conexao.SQL.Add('where codigo_pedido = :codigo');
+      conexao.Parametros('codigo', Data.FieldByName('codigo').AsInteger);
+      DataProduto.LoadFromJSON(conexao.ConsultaSQL);
+
+      if DataProduto.RecordCount > 0 then
+      begin
+        while not DataProduto.Eof do
+        begin
+          ObjProduto := TJSONObject.Create;
+          ObjProduto.AddPair('nome', DataProduto.FieldByName('nome').AsString);
+          ObjProduto.AddPair('valor', DataProduto.FieldByName('valor').AsFloat);
+          ObjProduto.AddPair('quantidade',
+            DataProduto.FieldByName('quantidade').AsFloat);
+          ArrayProdutos.AddElement(ObjProduto);
+          DataProduto.Next;
+        end;
+      end;
+      Obj.AddPair('itens', ArrayProdutos);
+      DataProduto.Free;
+      Dados.AddElement(Obj);
+      Data.Next;
+    end;
+  end;
+end;
+
+procedure DoGetCardapioIA(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+  ID: String;
+  iRequest: iRequisicao;
+begin
+  conexao := TConexao.Create('DoGetCardapioIA');
+  conexao.SQL.Add('select * from config_temporaria limit 1');
+  try
+    ID := conexao.FieldByName('job_id');
+  except
+    ID := '';
+  end;
+  conexao.Free;
+  if (ID = '') then
+  begin
+    Res.Send('{}');
+    exit;
+  end;
+  iRequest := iRequisicao.Create(nil);
+  iRequest.BaseURL := API_BASE_URL;
+  iRequest.URL := 'api/cardapio/ia/status/' + ID;
+  iRequest.TempoExpiracao := 60 * 1000;
+  try
+    iRequest.Execute;
+    Res.Send(iRequest.Retorno);
+  except
+    Res.Send('{}');
+  end;
+  iRequest.Free;
+end;
+
+procedure DoPostCardapioIA(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  iRequest: iRequisicao;
+  Retorno: TJSONObject;
+  conexao: TConexao;
+begin
+  iRequest := iRequisicao.Create(nil);
+  iRequest.BaseURL := API_BASE_URL;
+  iRequest.URL := 'api/cardapio/ia/upload';
+  iRequest.TempoExpiracao := 60 * 1000;
+  iRequest.Metodo := mPost;
+  iRequest.body(Req.body);
+  try
+    iRequest.Execute;
+    Retorno := TJSONObject.ParseJSONValue(iRequest.Retorno) as TJSONObject;
+    Retorno.GetValue<String>('jobId');
+    conexao := TConexao.Create('DoPostCardapioIA');
+    conexao.SQL.Add('update config_temporaria set job_id = :job');
+    conexao.Parametros('job', Retorno.GetValue<String>('jobId'));
+    conexao.ExecuteSQL;
+    conexao.Free;
+  except
+
+  end;
+  iRequest.Free;
+  Res.Send(Retorno);
+end;
+
 procedure DoDeleteProduto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
@@ -4647,7 +4916,7 @@ begin
       (JSONObject.Values['base64'].Value <> 'remove') then
     begin
       CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', now) +
-        'empresa-' + frmServidor.UserID.ToString,
+        'empresa-' + frmServidor.UserID.ToString, frmServidor.UserID.ToString,
         JSONObject.Values['base64'].Value);
     end;
 
@@ -5358,8 +5627,7 @@ begin
 
   if frmServidor.memBanner.RecordCount = 0 then
   begin
-    conexao.SQL.Add
-      ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
+    conexao.SQL.Add('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
     frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
   end;
 
@@ -5397,8 +5665,9 @@ var
 begin
   frmServidor.LogoutWhatsapp := True;
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/whatsapp/deletar.php?instance='
-    + frmServidor.UserID.ToString;
+  Requisicao.BaseURL :=
+    'https://old.goopedir.com/whatsapp/deletar.php?instance=' +
+    frmServidor.UserID.ToString;
   Requisicao.TempoExpiracao := 15 * 1000;
 
   try
@@ -5752,7 +6021,7 @@ var
   Requisicao: iRequisicao;
 begin
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
+  Requisicao.BaseURL := 'https://old.goopedir.com/v1/';
   Requisicao.URL := 'reimportar.php?codigo=' + Req.Params['codigo'];
   Requisicao.TempoExpiracao := 15 * 1000;
   try
@@ -5832,7 +6101,7 @@ var
   conexao: TConexao;
   DadosPedido: TJSONObject;
   IdPedidoSite: Integer;
-  Cliente: TJSONObject;
+  cliente: TJSONObject;
   Pagamento: TJSONObject;
   Endereco: TJSONObject;
   Valores: TJSONObject;
@@ -5847,7 +6116,7 @@ begin
   try
     IdPedidoSite := DadosPedido.GetValue('id').ToString.ToInteger;
 
-    Cliente := TJSONObject.ParseJSONValue(DadosPedido.GetValue('cliente')
+    cliente := TJSONObject.ParseJSONValue(DadosPedido.GetValue('cliente')
       .ToString) as TJSONObject;
     Pagamento := TJSONObject.ParseJSONValue(DadosPedido.GetValue('pagamento')
       .ToString) as TJSONObject;
@@ -5860,14 +6129,14 @@ begin
     Produtos := TJSONObject.ParseJSONValue(DadosPedido.GetValue('produtos')
       .ToString) as TJsonArray;
 
-    Cliente := ClientePedido(Cliente);
+    cliente := ClientePedido(cliente);
     Pagamento := PagamentoPedido(Pagamento);
-    Endereco := ClienteEnderecoPedido(Endereco, Cliente.GetValue('codigo')
+    Endereco := ClienteEnderecoPedido(Endereco, cliente.GetValue('codigo')
       .ToString.ToInteger);
-    Retorno := GerarPedidoSite(IdPedidoSite, Cliente, Endereco, Pagamento,
+    Retorno := GerarPedidoSite(IdPedidoSite, cliente, Endereco, Pagamento,
       Valores, Outros, Produtos);
 
-    FreeAndNil(Cliente);
+    FreeAndNil(cliente);
     FreeAndNil(Pagamento);
     FreeAndNil(Endereco);
     FreeAndNil(Valores);
@@ -6260,7 +6529,7 @@ var
   Requisicao: iRequisicao;
 begin
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/fidelidadepdv.php';
+  Requisicao.BaseURL := 'https://old.goopedir.com/v1/fidelidadepdv.php';
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.body(Req.body);
   Requisicao.Metodo := mPost;
@@ -6318,7 +6587,7 @@ var
 begin
   Requisicao := iRequisicao.Create(nil);
   Dados := TFDMemTable.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
+  Requisicao.BaseURL := 'https://old.goopedir.com/v1/';
   Requisicao.URL := 'historico/' + Req.Params['codigo'] + '/a';
   Requisicao.MemTable2 := Dados;
   Requisicao.TempoExpiracao := 30 * 1000;
@@ -6942,7 +7211,7 @@ begin
       try
         Requisicao := iRequisicao.Create(nil);
         Requisicao.BaseURL :=
-          'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
+          'https://old.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
           CodigoSite.ToString + '&status=Cancelado';
         Requisicao.Execute;
       except
@@ -6963,7 +7232,7 @@ var
 begin
   conexao := TConexao.Create('v2');
   conexao.SQL.Add
-    ('select codigo as value, nome_produto as label from produto where controle_estoque = 1 and deletado = 0');
+    ('select codigo as value, nome_produto as label, foto_ifood as url from produto where controle_estoque = 1 and deletado = 0');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -7621,7 +7890,6 @@ begin
   // Cupom
 
   THorse.Get('/v2/cupom/desconto/site', DoGetCupomDescontoSite);
-
   THorse.Post('/v2/cupom/desconto/site', DoPostCupomDescontoSite);
 
   // Relatorio Caixa
@@ -7788,6 +8056,13 @@ begin
     DoPostDadosNotaFiscalFornecedorItemFator);
   THorse.Post('v2/notafiscal/fornecedor/validar',
     DoPostValidarNotaFiscalDespesa);
+
+  // Processamento
+  THorse.Post('v2/cardapio/ia/processar', DoPostCardapioIA);
+  THorse.Get('v2/cardapio/ia/processar', DoGetCardapioIA);
+
+  // Cliente
+  THorse.Get('v2/cliente/historico', DoGetClienteHistorico);
 
 end;
 
@@ -7974,8 +8249,9 @@ var
   Requisicao: iRequisicao;
 begin
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
-  Requisicao.URL := 'cupoes/' + frmServidor.UserID.ToString + '/a';
+  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.URL := 'api/cupom/lista/' + frmServidor.UserID.ToString;
+  Requisicao.AddHeader('Authorization', frmServidor.APIGoopedir.GetToken);
   Requisicao.TempoExpiracao := 15 * 1000;
   try
     Requisicao.Execute;

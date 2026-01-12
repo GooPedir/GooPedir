@@ -323,8 +323,8 @@ const
   // URL_SITE = 'api.papaleguasfood.com.br/';
   // URL_V2 = 'v2.papaleguasfood.com.br/';
 
-  URL_SITE = 'https://ws.goopedir.com/v1/';
-  URL_V2 = 'https://ws.goopedir.com/v2/';
+  URL_SITE = 'https://old.goopedir.com/v1/';
+  URL_V2 = 'https://old.goopedir.com/v2/';
 
 
   LOCALHOST = 'http://localhost:2121/';

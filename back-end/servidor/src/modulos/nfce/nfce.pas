@@ -75,9 +75,11 @@ begin
         .AsString);
 
       DadosNotasItem := TFDMemTable.Create(nil);
-//      conexao.SQL.Add('select * from nota_fiscal_item where nota_fiscal_id = :nota');
-      conexao.SQL.Add('select nfi.*, fi.codigo_vinculo, fi.fator, fi.tabela_vinculo from nota_fiscal_item nfi');
-      conexao.SQL.Add('join fornecedor_item fi on fi.id = nfi.fornecedor_item_id');
+      // conexao.SQL.Add('select * from nota_fiscal_item where nota_fiscal_id = :nota');
+      conexao.SQL.Add
+        ('select nfi.*, fi.codigo_vinculo, fi.fator, fi.tabela_vinculo from nota_fiscal_item nfi');
+      conexao.SQL.Add
+        ('join fornecedor_item fi on fi.id = nfi.fornecedor_item_id');
       conexao.SQL.Add('where nfi.nota_fiscal_id = :nota');
 
       conexao.Parametros('nota', DadosNotas.FieldByName('id').AsString);
@@ -93,8 +95,10 @@ begin
         Item.AddPair('valor', DadosNotasItem.FieldByName('vTotal').AsString);
         Item.AddPair('UN', DadosNotasItem.FieldByName('uTrib').AsString);
         Item.AddPair('fator', DadosNotasItem.FieldByName('fator').AsString);
-        Item.AddPair('vinculo', DadosNotasItem.FieldByName('codigo_vinculo').AsString);
-        if DadosNotasItem.FieldByName('tabela_vinculo').AsString = 'ingrediente' then
+        Item.AddPair('vinculo', DadosNotasItem.FieldByName('codigo_vinculo')
+          .AsString);
+        if DadosNotasItem.FieldByName('tabela_vinculo').AsString = 'ingrediente'
+        then
           Item.AddPair('tipo', 2)
         else
           Item.AddPair('tipo', 1);
@@ -241,7 +245,6 @@ begin
   conexao.SQL.Add
     ('SELECT * FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '
     + QuotedStr('2024-09-01') + ' and codigo_pedido_dia > 0');
-
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -349,6 +352,19 @@ begin
 
 
   // alter table pedido_nfce add path varchar(255);
+
+  conexao.SQL.Add
+    ('UPDATE pedido SET nfce_status = "EMITIDA", nfce_emite = 0 WHERE codigo = :codigo;');
+  conexao.Parametros('codigo', Req.Params['codigo']);
+  conexao.ExecuteSQL;
+
+  if (Req.Params['chave'] = 'CONTINGÊNCIA') then
+  begin
+    conexao.SQL.Add
+      ('UPDATE pedido SET nfce_status = "CONTINGENCIA", nfce_emite = 0 WHERE codigo = :codigo;');
+    conexao.Parametros('codigo', Req.Params['codigo']);
+    conexao.ExecuteSQL;
+  end;
 
   conexao.SQL.Add
     ('update pedido set nfce_hora = current_time, nfce_data = current_date, nfce_chave = :nfce_chave, nfce_protocolo = :nfce_protocolo, nfce_ambiente = :nfce_ambiente, nfce_numero = :nfce_numero, nfce_emite = 2 where codigo = :codigo');
@@ -784,6 +800,42 @@ begin
   // end;
 end;
 
+procedure DoGetNFCeFila(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+  Limit: Integer;
+begin
+  try
+    Limit := StrToIntDef(Req.Query['limit'], 10);
+  except
+    Limit := 10;
+  end;
+  if Limit <= 0 then
+    Limit := 10;
+  if Limit > 50 then
+    Limit := 50;
+
+  conexao := TConexao.Create('nfce');
+  try
+    // 1) trava o lote
+    conexao.SQL.Text := 'UPDATE pedido SET ' + ' nfce_status = "PROCESSANDO", '
+      + ' nfce_lock = NOW() ' + 'WHERE nfce_emite = 1 ' +
+      '  AND (nfce_status = "" OR nfce_status = "PENDENTE") AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")'
+      + 'ORDER BY codigo ' + 'LIMIT ' + IntToStr(Limit);
+    conexao.ExecuteSQL;
+
+    // 2) retorna o que foi travado agora
+    conexao.SQL.Text := 'SELECT * FROM pedido ' +
+      'WHERE nfce_status = "PROCESSANDO" ';
+//      +'  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE';
+    Res.Send<TJSONArray>(conexao.ConsultaSQL);
+
+  finally
+    conexao.Free;
+  end;
+
+end;
+
 procedure Registry;
 begin
   THorse.Get('/nfce/pedido/outras/:codigo', DoGetPedidoOutros);
@@ -811,6 +863,8 @@ begin
   THorse.Get('/dfe/notas/:data_inicio/:data_fim', DoGetNotasDFe);
   THorse.Get('/notas-fiscais/:data_inicio/:data_fim', DoGetNotasFiscais);
   THorse.Get('/dfe/verifica/:ambiente', DoVerificaConsulta);
+
+  THorse.Get('/nfce/fila', DoGetNFCeFila);
 
 end;
 

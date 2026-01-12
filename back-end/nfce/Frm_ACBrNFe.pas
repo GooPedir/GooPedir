@@ -249,6 +249,7 @@ type
     ACBrNFe2: TACBrNFe;
     timerBuscaDFE: TTimer;
     MemoryConfiguracao: TFDMemTable;
+    tEmissaoV2: TTimer;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -306,6 +307,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure timerBuscaDFETimer(Sender: TObject);
     procedure btnDistrDFePorUltNSUClick(Sender: TObject);
+    procedure tEmissaoV2Timer(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -342,6 +344,10 @@ type
     function NFEXMLParaJSON(XMLText: string): TJSONObject;
     procedure EnviaRequest(URL, JSON: String);
     function NFJSONParaJSONPadrao(JsonEntrada: string): TJSONObject;
+
+    // Versão Melhorada
+    procedure GetDadosReq(Mem: TFDMemTable; URL: String);
+    procedure PostDadosReq(URL, BODY: String);
   end;
 
 var
@@ -3524,7 +3530,7 @@ begin
     ('id_token_scs').AsString;
   ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName
     ('token_scs').AsString;
-  tEmissao.Enabled := True;
+
 end;
 
 function TfrmACBrNFe.GetComputerName: string;
@@ -3537,6 +3543,23 @@ begin
     Result := Buffer
   else
     Result := 'Nome do computador não encontrado';
+end;
+
+procedure TfrmACBrNFe.GetDadosReq(Mem: TFDMemTable; URL: String);
+var
+  req: iRequisicao;
+begin
+  req := iRequisicao.Create(nil);
+
+  req.BaseUrl := BaseUrl;
+  req.URL := URL;
+  req.MemTable2 := Mem;
+  try
+    req.Execute;
+  except
+
+  end;
+  req.Free;
 end;
 
 procedure TfrmACBrNFe.GravarConfiguracao;
@@ -3937,7 +3960,7 @@ begin
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
 
-  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.URL := 'https://old.goopedir.com/glitchtip/index.php';
   iGlitchtip.BODY(JsonObjec);
 
   try
@@ -4358,6 +4381,24 @@ begin
     TEdit(Sender).Text := Dir;
 end;
 
+procedure TfrmACBrNFe.PostDadosReq(URL, BODY: String);
+var
+  req: iRequisicao;
+begin
+  req := iRequisicao.Create(nil);
+
+  req.BaseUrl := BaseUrl;
+  req.URL := URL;
+  req.Metodo := mPost;
+  req.BODY(BODY);
+  try
+    req.Execute;
+  except
+
+  end;
+  req.Free;
+end;
+
 procedure TfrmACBrNFe.PrepararImpressao;
 begin
   ACBrPosPrinter1.Desativar;
@@ -4570,227 +4611,224 @@ var
 
 begin
   bClose := False;
+  tEmissao.Enabled := False;
   if not cEmissao.Checked then
     exit;
-  timerBuscaDFE.Enabled := True;
+  // timerBuscaDFE.Enabled := True;
+  //
+  // try
+  // dadosEmissao.Close;
+  // iEmissao.MemTable2 := dadosEmissao;
+  // iEmissao.Execute;
+  //
+  // if dadosEmissao.RecordCount > 0 then
+  // begin
+  //
+  // while not dadosEmissao.Eof do
+  // begin
+  // if dadosEmissao.FieldByName('nfce_numero').IsNull then
+  // begin
+  // dadosEmissao.Edit;
+  // dadosEmissao.FieldByName('nfce_numero').AsInteger := 0;
+  // end;
+  //
+  // try
+  // AlimentarComponente(dadosEmissao.FieldByName('codigo').AsString);
+  // ErroEmissao := False;
+  // except
+  // on E: Exception do
+  // begin
+  // ErroEmissao := True;
+  // Erro := E.Message + ' - ' + ProdutoComErroFiscal;
+  //
+  // MemoResp.Lines.Add(Erro);
+  //
+  // iReq := iRequisicao.Create(nil);
+  // iReq.BaseUrl := BaseUrl;
+  // iReq.TempoExpiracao := 60 * 1000;
+  // iReq.URL := '/v2/erro/nfce';
+  // iReq.Metodo := mPost;
+  // iReq.BODY('{"pedido":"' + dadosEmissao.FieldByName('codigo')
+  // .AsString + '","erro":"' + E.Message + '"}');
+  //
+  // iReq.Execute;
+  // iReq.Free;
+  // end;
+  // end;
+  // if not ErroEmissao then
+  // begin
+  // case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+  // taProducao:
+  // begin
+  // Ambiente := '1';
+  // end
+  // else
+  // Ambiente := '2';
+  // end;
+  //
+  // // if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia)
+  // // then
+  // // begin
+  // // if dadosEmissao.FieldByName('nfce_numero').AsInteger = 0 then
+  // // begin
+  // // // ACBrNFe1.NotasFiscais.Imprimir;
+  // // end;
+  // //
+  // // // Fazer rota para armazenar as notas em contigencia
+  // //
+  // // Chave := 'CONTINGÊNCIA';
+  // // Protocolo := '0';
+  // //
+  // // iReq := iRequisicao.Create(nil);
+  // // iReq.BaseUrl := BaseUrl;
+  // // iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
+  // // .AsString + '/' +
+  // // IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' + Chave
+  // // + '/' + Protocolo + '/' + Ambiente;
+  // // iReq.Metodo := mPost;
+  // //
+  // // iReq.Execute;
+  // // iReq.Free;
+  // //
+  // // end
+  // // else
+  // // begin
+  // // try
+  // // ACBrNFe1.Enviar('1', False, False);
+  // // except
+  // // on E: Exception do
+  // // begin
+  // // MemoResp.Lines.Add(E.Message + ' ' + dadosEmissao.FieldByName
+  // // ('codigo').AsString);
+  // // Erro := E.Message;
+  // // if ExtrairNItemDoErro(Erro) > -1 then
+  // // begin
+  // // Erro := Erro + ' - ' + ACBrNFe1.NotasFiscais.Items[0]
+  // // .NFe.Det.Items[ExtrairNItemDoErro(Erro) - 1].Prod.xProd
+  // // end;
+  // // MemoResp.Lines.Add(Erro);
+  // // iReq := iRequisicao.Create(nil);
+  // // iReq.BaseUrl := BaseUrl;
+  // // iReq.TempoExpiracao := 60 * 1000;
+  // // iReq.URL := '/v2/erro/nfce';
+  // // iReq.Metodo := mPost;
+  // // iReq.BODY('{"pedido":"' + dadosEmissao.FieldByName('codigo')
+  // // .AsString + '","erro":"' + E.Message + '"}');
+  // //
+  // // iReq.Execute;
+  // // iReq.Free;
+  // //
+  // // end;
+  // // end;
+  // // //
+  // // if (pos('Duplicidade de NF-e', Erro) > 0) then
+  // // begin
+  // // Chave := ExtrairChaveNFe(Erro);
+  // // ACBrNFe1.NotasFiscais.Items[0].GravarXML();
+  // // ACBrNFe1.NotasFiscais.Clear;
+  // // ACBrNFe1.WebServices.Consulta.NFeChave := Chave;
+  // // ACBrNFe1.WebServices.Consulta.Executar;
+  // //
+  // // MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
+  // // memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
+  // // LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
+  // //
+  // // Protocolo := ACBrNFe1.WebServices.Consulta.Protocolo;
+  // //
+  // // Ambiente := '1';
+  // //
+  // // Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+  // // if FileExists(Arquivo) then
+  // // begin
+  // // EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+  // // end;
+  // //
+  // // iReq := iRequisicao.Create(nil);
+  // // iReq.BaseUrl := BaseUrl;
+  // // iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
+  // // .AsString + '/' + IntToStr(0) + '/' + Chave + '/' + Protocolo +
+  // // '/' + Ambiente;
+  // // iReq.Metodo := mPost;
+  // //
+  // // iReq.Execute;
+  // // iReq.Free;
+  // //
+  // // end
+  // // else if (Erro = 'Rejeicao: Falha no schema XML') or (Erro = '') then
+  // // begin
+  // //
+  // // //
+  // //
+  // // case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+  // // taProducao:
+  // // begin
+  // // Ambiente := '1';
+  // // end
+  // // else
+  // // Ambiente := '2';
+  // // end;
+  // //
+  // // Chave := ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.chNFe;
+  // // Protocolo := (ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.nProt);
+  // //
+  // // ACBrNFe1.NotasFiscais.Items[0].GravarXML();
+  // //
+  // // iReq := iRequisicao.Create(nil);
+  // // iReq.BaseUrl := BaseUrl;
+  // // iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
+  // // .AsString + '/' +
+  // // IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' +
+  // // Chave + '/' + Protocolo + '/' + Ambiente;
+  // // iReq.Metodo := mPost;
+  // // iReq.BODY('{"path":"' + StringReplace(CaminhoNFCe, '\', '\\',
+  // // [rfReplaceAll]) + '"}');
+  // //
+  // // iReq.Execute;
+  // // iReq.Free;
+  // // Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+  // // EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+  // //
+  // // // Enviar NFC-e
+  // //
+  // // end
+  // // else
+  // // begin
+  // //
+  // // EnviaGlitchtip
+  // // ('https://2321bb196f424d6aa9e80d51cc77273b@nginx-glitchtip.l1p88w.easypanel.host/6',
+  // // CNPJ, dadosEmissao.FieldByName('codigo').AsString, Erro);
+  // // end;
+  // // end;
+  //
+  // if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis <> teContingencia)
+  // then
+  // begin
+  // ACBrNFe1.NotasFiscais.Imprimir;
+  // end;
+  // end;
+  //
+  //
+  // // ACBrNFe1.NotasFiscais.Assinar;
+  //
+  // ReqNFCE := iRequisicao.Create(nil);
+  // ReqNFCE.BaseUrl := iCode.BaseUrl;
+  // ReqNFCE.URL := '/impressao/pedido/nfce/' + dadosEmissao.FieldByName
+  // ('codigo').AsString;
+  // ReqNFCE.Metodo := mPost;
+  // try
+  // ReqNFCE.Execute;
+  // except
+  //
+  // end;
+  //
+  // ReqNFCE.Free;
+  //
+  // dadosEmissao.Next;
+  // end;
+  // end;
 
+  // CaminhoNFCe
   try
-    dadosEmissao.Close;
-    iEmissao.MemTable2 := dadosEmissao;
-    iEmissao.Execute;
-
-    if dadosEmissao.RecordCount > 0 then
-    begin
-
-      while not dadosEmissao.Eof do
-      begin
-        if dadosEmissao.FieldByName('nfce_numero').IsNull then
-        begin
-          dadosEmissao.Edit;
-          dadosEmissao.FieldByName('nfce_numero').AsInteger := 0;
-        end;
-
-        try
-          AlimentarComponente(dadosEmissao.FieldByName('codigo').AsString);
-          ErroEmissao := False;
-        except
-          on E: Exception do
-          begin
-            ErroEmissao := True;
-            Erro := E.Message + ' - ' + ProdutoComErroFiscal;
-
-            MemoResp.Lines.Add(Erro);
-
-            iReq := iRequisicao.Create(nil);
-            iReq.BaseUrl := BaseUrl;
-            iReq.TempoExpiracao := 60 * 1000;
-            iReq.URL := '/v2/erro/nfce';
-            iReq.Metodo := mPost;
-            iReq.BODY('{"pedido":"' + dadosEmissao.FieldByName('codigo')
-              .AsString + '","erro":"' + E.Message + '"}');
-
-            iReq.Execute;
-            iReq.Free;
-          end;
-
-        end;
-        if not ErroEmissao then
-        begin
-          case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
-            taProducao:
-              begin
-                Ambiente := '1';
-              end
-          else
-            Ambiente := '2';
-          end;
-
-          if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia)
-          then
-          begin
-            if dadosEmissao.FieldByName('nfce_numero').AsInteger = 0 then
-            begin
-              // ACBrNFe1.NotasFiscais.Imprimir;
-            end;
-
-            // Fazer rota para armazenar as notas em contigencia
-
-            Chave := 'CONTINGÊNCIA';
-            Protocolo := '0';
-
-            iReq := iRequisicao.Create(nil);
-            iReq.BaseUrl := BaseUrl;
-            iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
-              .AsString + '/' +
-              IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' + Chave
-              + '/' + Protocolo + '/' + Ambiente;
-            iReq.Metodo := mPost;
-
-            iReq.Execute;
-            iReq.Free;
-
-          end
-          else
-          begin
-            try
-              ACBrNFe1.Enviar('1', False, False);
-            except
-              on E: Exception do
-              begin
-                MemoResp.Lines.Add(E.Message + ' ' + dadosEmissao.FieldByName
-                  ('codigo').AsString);
-                Erro := E.Message;
-                if ExtrairNItemDoErro(Erro) > -1 then
-                begin
-                  Erro := Erro + ' - ' + ACBrNFe1.NotasFiscais.Items[0]
-                    .NFe.Det.Items[ExtrairNItemDoErro(Erro) - 1].Prod.xProd
-                end;
-                MemoResp.Lines.Add(Erro);
-                iReq := iRequisicao.Create(nil);
-                iReq.BaseUrl := BaseUrl;
-                iReq.TempoExpiracao := 60 * 1000;
-                iReq.URL := '/v2/erro/nfce';
-                iReq.Metodo := mPost;
-                iReq.BODY('{"pedido":"' + dadosEmissao.FieldByName('codigo')
-                  .AsString + '","erro":"' + E.Message + '"}');
-
-                iReq.Execute;
-                iReq.Free;
-
-              end;
-            end;
-            //
-            if (pos('Duplicidade de NF-e', Erro) > 0) then
-            begin
-              Chave := ExtrairChaveNFe(Erro);
-              ACBrNFe1.NotasFiscais.Items[0].GravarXML();
-              ACBrNFe1.NotasFiscais.Clear;
-              ACBrNFe1.WebServices.Consulta.NFeChave := Chave;
-              ACBrNFe1.WebServices.Consulta.Executar;
-
-              MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
-              memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
-              LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
-
-              Protocolo := ACBrNFe1.WebServices.Consulta.Protocolo;
-
-              Ambiente := '1';
-
-              Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
-              if FileExists(Arquivo) then
-              begin
-                EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
-              end;
-
-              iReq := iRequisicao.Create(nil);
-              iReq.BaseUrl := BaseUrl;
-              iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
-                .AsString + '/' + IntToStr(0) + '/' + Chave + '/' + Protocolo +
-                '/' + Ambiente;
-              iReq.Metodo := mPost;
-
-              iReq.Execute;
-              iReq.Free;
-
-            end
-            else if (Erro = 'Rejeicao: Falha no schema XML') or (Erro = '') then
-            begin
-
-              //
-
-              case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
-                taProducao:
-                  begin
-                    Ambiente := '1';
-                  end
-              else
-                Ambiente := '2';
-              end;
-
-              Chave := ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.chNFe;
-              Protocolo := (ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.nProt);
-
-              ACBrNFe1.NotasFiscais.Items[0].GravarXML();
-
-              iReq := iRequisicao.Create(nil);
-              iReq.BaseUrl := BaseUrl;
-              iReq.URL := 'nfce/emissao/' + dadosEmissao.FieldByName('codigo')
-                .AsString + '/' +
-                IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' +
-                Chave + '/' + Protocolo + '/' + Ambiente;
-              iReq.Metodo := mPost;
-              iReq.BODY('{"path":"' + StringReplace(CaminhoNFCe, '\', '\\',
-                [rfReplaceAll]) + '"}');
-
-              iReq.Execute;
-              iReq.Free;
-              Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
-              EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
-
-              // Enviar NFC-e
-
-            end
-            else
-            begin
-
-              EnviaGlitchtip
-                ('https://2321bb196f424d6aa9e80d51cc77273b@nginx-glitchtip.l1p88w.easypanel.host/6',
-                CNPJ, dadosEmissao.FieldByName('codigo').AsString, Erro);
-            end;
-          end;
-        end;
-
-        if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis <> teContingencia)
-        then
-        begin
-          ACBrNFe1.NotasFiscais.Imprimir;
-        end;
-
-
-        // ACBrNFe1.NotasFiscais.Assinar;
-
-        ReqNFCE := iRequisicao.Create(nil);
-        ReqNFCE.BaseUrl := iCode.BaseUrl;
-        ReqNFCE.URL := '/impressao/pedido/nfce/' + dadosEmissao.FieldByName
-          ('codigo').AsString;
-        ReqNFCE.Metodo := mPost;
-        try
-          ReqNFCE.Execute;
-        except
-
-        end;
-
-        ReqNFCE.Free;
-
-        dadosEmissao.Next;
-      end;
-    end;
-
-    // Pegar os codes, e fazer os processos
-
-    //
-
-    // CaminhoNFCe
     dadosCode.Close;
     iCode.MemTable2 := dadosCode;
     iCode.Execute;
@@ -4921,12 +4959,177 @@ begin
     end;
 
   end;
-  if bClose then
-  begin
+
+
     tEmissao.Enabled := False;
     TrayIcon1.Visible := False;
     Application.Terminate;
+
+end;
+
+procedure TfrmACBrNFe.tEmissaoV2Timer(Sender: TObject);
+var
+  mLote: TFDMemTable;
+  ErroEmissao: Boolean;
+  Erro: String;
+  Chave: String;
+  Protocolo: String;
+  URL: String;
+  Arquivo: String;
+begin
+  tEmissaoV2.Enabled := False;
+  mLote := TFDMemTable.Create(nil);
+  GetDadosReq(mLote, 'nfce/fila?limite=50');
+
+  if mLote.RecordCount > 0 then
+  begin
+
+    while not mLote.Eof do
+    begin
+      try
+        AlimentarComponente(mLote.FieldByName('codigo').AsString);
+        ErroEmissao := False;
+      except
+        on E: Exception do
+        begin
+          ErroEmissao := True;
+          Erro := E.Message + ' - ' + ProdutoComErroFiscal;
+          MemoResp.Lines.Add(Erro);
+          PostDadosReq('v2/erro/nfce',
+            '{"pedido":"' + mLote.FieldByName('codigo').AsString + '","erro":"'
+            + E.Message + '"}');
+        end;
+      end;
+
+      if not ErroEmissao then
+      begin
+        case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+          taProducao:
+            begin
+              Ambiente := '1';
+            end
+        else
+          Ambiente := '2';
+        end;
+
+        if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia) then
+        begin
+          if mLote.FieldByName('nfce_numero').AsInteger = 0 then
+          begin
+            // ACBrNFe1.NotasFiscais.Imprimir;
+          end;
+
+          // Fazer rota para armazenar as notas em contigencia
+
+          Chave := 'CONTINGÊNCIA';
+          Protocolo := '0';
+
+          URL := 'nfce/emissao/' + mLote.FieldByName('codigo').AsString + '/' +
+            IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' + Chave +
+            '/' + Protocolo + '/' + Ambiente;
+          // URL := '';
+          PostDadosReq(URL, '');
+
+        end
+        else
+        begin
+          try
+            ACBrNFe1.Enviar('1', False, False);
+          except
+            on E: Exception do
+            begin
+              MemoResp.Lines.Add(E.Message + ' ' + mLote.FieldByName('codigo')
+                .AsString);
+              Erro := E.Message;
+              if ExtrairNItemDoErro(Erro) > -1 then
+              begin
+                Erro := Erro + ' - ' + ACBrNFe1.NotasFiscais.Items[0]
+                  .NFe.Det.Items[ExtrairNItemDoErro(Erro) - 1].Prod.xProd
+              end;
+              MemoResp.Lines.Add(Erro);
+
+              URL := 'v2/erro/nfce';
+              PostDadosReq(URL, '{"pedido":"' + mLote.FieldByName('codigo')
+                .AsString + '","erro":"' + E.Message + '"}');
+            end;
+          end;
+
+          if (pos('Duplicidade de NF-e', Erro) > 0) then
+          begin
+            Chave := ExtrairChaveNFe(Erro);
+            ACBrNFe1.NotasFiscais.Items[0].GravarXML();
+            ACBrNFe1.NotasFiscais.Clear;
+            ACBrNFe1.WebServices.Consulta.NFeChave := Chave;
+            ACBrNFe1.WebServices.Consulta.Executar;
+
+            MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
+            memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
+            LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
+
+            Protocolo := ACBrNFe1.WebServices.Consulta.Protocolo;
+
+            Ambiente := '1';
+
+            Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+            if FileExists(Arquivo) then
+            begin
+              EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+            end;
+
+            URL := 'nfce/emissao/' + mLote.FieldByName('codigo').AsString + '/'
+              + IntToStr(0) + '/' + Chave + '/' + Protocolo + '/' + Ambiente;
+            PostDadosReq(URL, '');
+
+          end
+          else if (Erro = 'Rejeicao: Falha no schema XML') or (Erro = '') then
+          begin
+
+            case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+              taProducao:
+                begin
+                  Ambiente := '1';
+                end
+            else
+              Ambiente := '2';
+            end;
+
+            Chave := ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.chNFe;
+            Protocolo := (ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.nProt);
+
+            ACBrNFe1.NotasFiscais.Items[0].GravarXML();
+            URL := 'nfce/emissao/' + mLote.FieldByName('codigo').AsString + '/'
+              + IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cNF) + '/' +
+              Chave + '/' + Protocolo + '/' + Ambiente;
+            PostDadosReq(URL, '{"path":"' + StringReplace(CaminhoNFCe, '\',
+              '\\', [rfReplaceAll]) + '"}');
+            Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+            EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+
+            // Enviar NFC-e
+
+          end
+          else
+          begin
+            // Ta sem log momentaneamente
+            // EnviaGlitchtip('https://2321bb196f424d6aa9e80d51cc77273b@nginx-glitchtip.l1p88w.easypanel.host/6',CNPJ, dadosEmissao.FieldByName('codigo').AsString, Erro);
+          end;
+        end;
+        if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis <> teContingencia)
+        then
+        begin
+          ACBrNFe1.NotasFiscais.Imprimir;
+        end;
+
+        URL := '/impressao/pedido/nfce/' + mLote.FieldByName('codigo').AsString;
+        PostDadosReq(URL, '');
+      end;
+
+      mLote.Next;
+    end;
+
   end;
+  mLote.Free;
+  tEmissao.Enabled := True;
 end;
 
 procedure TfrmACBrNFe.timerBuscaDFETimer(Sender: TObject);
@@ -5224,4 +5427,4 @@ begin
   TZipFile.ZipDirectoryContents(DestinationZip, SourceFolder);
 end;
 
-end.
+end.end.

@@ -5,12 +5,12 @@ interface
 uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
   uRequisicao, System.DateUtils, System.JSON, JOSE.Core.JWT, JOSE.Core.Builder,
   System.NetEncoding, System.Hash, DataSet.Serialize,
-  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope, uGlobais;
+  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope, uGlobais, dialogs;
 
 function SiteCategoria(codigo, user: Integer): Integer;
 function SiteSabores(codigoGrupo, user: Integer): String;
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
-function EnviaImagem(codigo, Base64: String): String;
+function EnviaImagem(codigo,user, Base64: String): String;
 
 function GerarTokenJWT(userId: Integer): string;
 function PostCategoriaTipoProdutoExpress(userId, codigo: Integer): Integer;
@@ -271,9 +271,10 @@ begin
       begin
         if Sabores[I].GetValue<Integer>('idSite') > 0 then
         begin
-          Conexao.SQL.Add('update sabores_completo set modificado_site = 1, id_site = :site where id = :id');
-          Conexao.Parametros('site',Sabores[I].GetValue<Integer>('idSite'));
-          Conexao.Parametros('id',Sabores[I].GetValue<Integer>('id'));
+          Conexao.SQL.Add
+            ('update sabores_completo set modificado_site = 1, id_site = :site where id = :id');
+          Conexao.Parametros('site', Sabores[I].GetValue<Integer>('idSite'));
+          Conexao.Parametros('id', Sabores[I].GetValue<Integer>('id'));
           Conexao.ExecuteSQL;
         end;
 
@@ -282,10 +283,10 @@ begin
     end;
 
   except
-  on E : Exception do
-  begin
-//    Result := E.Message;
-  end;
+    on E: Exception do
+    begin
+      Result := E.Message;
+    end;
 
   end;
   Query.Free;
@@ -341,7 +342,8 @@ begin
   CodigoImagem := codigo.ToString;
   if user > 0 then
     CodigoImagem := user.ToString + '-' + codigo.ToString;
-  URL := EnviaImagem(CodigoImagem, Base64);
+
+  URL := EnviaImagem(CodigoImagem, user.ToString, Base64);
   Conexao := TConexao.Create('uSite');
   Conexao.SQL.Add
     ('update produto set caminho_imagem = :img, foto_ifood = :img where codigo = :codigo');
@@ -352,22 +354,27 @@ begin
 
 end;
 
-function EnviaImagem(codigo, Base64: string): string;
+function EnviaImagem(codigo,user, Base64: string): string;
 var
   Requisicao: iRequisicao;
   JsonRetorno: TJSONObject;
 begin
   Requisicao := iRequisicao.Create(nil);
   try
-    Requisicao.BaseURL := API_FOTO;
+    JsonRetorno := TJSONObject.Create;
+    JsonRetorno.AddPair('base64Image',Base64);
+    JsonRetorno.AddPair('user',user);
+    JsonRetorno.AddPair('type','produtos');
+    Requisicao.BaseURL := API_BASE_URL;
+    Requisicao.URL := 'api/upload';
     Requisicao.AddHEader('nome', codigo);
     Requisicao.AddHEader('Content-Type', 'application/json');
     Requisicao.Metodo := mPost;
-    Requisicao.BODY(Base64);
+    Requisicao.BODY(JsonRetorno);
     Requisicao.TempoExpiracao := 15 * 1000;
 
     Requisicao.Execute;
-
+    JsonRetorno.Free;
     // Extrai a URL do JSON retornado
     JsonRetorno := TJSONObject.ParseJSONValue(Requisicao.Retorno)
       as TJSONObject;
@@ -389,6 +396,7 @@ begin
   except
     on E: Exception do
     begin
+      ShowMessage(E.Message);
       // Você pode querer registrar o erro em algum log aqui
       Result := ''; // Retorna vazio em caso de erro
     end;

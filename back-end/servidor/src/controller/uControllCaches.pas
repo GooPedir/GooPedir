@@ -4,7 +4,7 @@ interface
 
 uses
   JOSE.Types.JSON, uCacheControl, IOUtils, uControlerProduto,
-  FireDAC.Comp.Client, Dataset.Serialize;
+  FireDAC.Comp.Client, Dataset.Serialize, System.Variants;
 
 function GetProdutoAdiciona(chave: String): TJsonArray;
 function GetProdutoSabores(chave: String): TJsonArray;
@@ -21,6 +21,9 @@ procedure BuscaCacheGeral;
 procedure GetAllProduto(Codigo: Integer);
 procedure AtualizaParametro;
 function GetProdutoVenda(Body, Codigo: String): TJSONObject;
+function BuscarProdutoPorChave(Tipo: string; chave: Integer): TJSONValue;
+function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
+function JSONIntOrNull(JSON: TJSONObject; const Key: string): Variant;
 
 implementation
 
@@ -55,8 +58,10 @@ begin
       DadosSabores := TFDMemTable.Create(nil);
 
       conexao.SQL.Add('select * from produto');
-      conexao.SQL.Add('join tipo_produto on tipo_produto.codigo = produto.codigo_grupo and tipo_produto.pizza = 1');
-      conexao.SQL.Add('where produto.codigo_grupo = :grupo and deletado <> 1 order by produto.position');
+      conexao.SQL.Add
+        ('join tipo_produto on tipo_produto.codigo = produto.codigo_grupo and tipo_produto.pizza = 1');
+      conexao.SQL.Add
+        ('where produto.codigo_grupo = :grupo and deletado <> 1 order by produto.position');
       conexao.Parametros('grupo', chave);
       DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -77,19 +82,19 @@ begin
 
       if CodigoProdutos <> '' then
       begin
-//        conexao.SQL.Add('SELECT distinct sabores_completo.nome, ativo, descricao,url, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('+ CodigoProdutos + ') order by id_tipo_sabor');
-        conexao.sql.add('SELECT ');
-        conexao.sql.add('  (s.nome) AS nome,');
-        conexao.sql.add('  MAX(s.ativo) AS ativo,');
-        conexao.sql.add('  MAX(s.descricao) AS descricao,');
-        conexao.sql.add('  MAX(s.url) AS url,');
-        conexao.sql.add('  UPPER(MAX(ts.nome)) AS tipo_sabor,');
-        conexao.sql.add('  MAX(s.id_tipo_sabor) AS id_tipo_sabor');
-        conexao.sql.add('FROM sabores_completo s');
-        conexao.sql.add('LEFT JOIN tipo_sabor ts ON ts.id = s.id_tipo_sabor');
-        conexao.sql.add('WHERE s.id_produto IN ('+CodigoProdutos+')');
-        conexao.sql.add('GROUP BY (s.nome)');
-        conexao.sql.add('ORDER BY tipo_sabor;');
+        // conexao.SQL.Add('SELECT distinct sabores_completo.nome, ativo, descricao,url, (SELECT upper(nome) FROM tipo_sabor where id = id_tipo_sabor) as id_tipo_sabor FROM sabores_completo where id_produto in ('+ CodigoProdutos + ') order by id_tipo_sabor');
+        conexao.SQL.Add('SELECT ');
+        conexao.SQL.Add('  (s.nome) AS nome,');
+        conexao.SQL.Add('  MAX(s.ativo) AS ativo,');
+        conexao.SQL.Add('  MAX(s.descricao) AS descricao,');
+        conexao.SQL.Add('  MAX(s.url) AS url,');
+        conexao.SQL.Add('  UPPER(MAX(ts.nome)) AS tipo_sabor,');
+        conexao.SQL.Add('  MAX(s.id_tipo_sabor) AS id_tipo_sabor');
+        conexao.SQL.Add('FROM sabores_completo s');
+        conexao.SQL.Add('LEFT JOIN tipo_sabor ts ON ts.id = s.id_tipo_sabor');
+        conexao.SQL.Add('WHERE s.id_produto IN (' + CodigoProdutos + ')');
+        conexao.SQL.Add('GROUP BY (s.nome)');
+        conexao.SQL.Add('ORDER BY tipo_sabor;');
         Dados.LoadFromJSON(conexao.ConsultaSQL);
 
         DadosProduto.First;
@@ -149,20 +154,18 @@ begin
       DadosProduto.Free;
       DadosSabores.Free;
     except
-    on e : exception do
-    begin
-      ArrayJson := TJsonArray.Create;
-      Result := ArrayJson;
-      ShowMessage(e.Message);
-    end;
+      on e: exception do
+      begin
+        ArrayJson := TJsonArray.Create;
+        Result := ArrayJson;
+        ShowMessage(e.Message);
+      end;
     end;
     conexao.Free;
     GravaCache('GetFlavor', chave, Result.ToString);
   end;
 
-
 end;
-
 
 function GetProdutoVenda(Body, Codigo: String): TJSONObject;
 var
@@ -315,8 +318,10 @@ begin
   if Result.Count = 0 then
   begin
     conexao := TConexao.Create('Util');
-    conexao.SQL.Add('SELECT pp.quantidade_sabores, sc.nome, sc.vl_venda, sc.id, (SELECT tipo_preco_pizza FROM dados_whatsapp limit 1) as tipo_preco, (select nome from tipo_sabor where id = id_tipo_sabor) as tipo FROM produto_pizza as pp');
-    conexao.SQL.Add('join sabores_completo as sc on sc.id_produto = pp.codigo_produto');
+    conexao.SQL.Add
+      ('SELECT pp.quantidade_sabores, sc.nome, sc.vl_venda, sc.id, (SELECT tipo_preco_pizza FROM dados_whatsapp limit 1) as tipo_preco, (select nome from tipo_sabor where id = id_tipo_sabor) as tipo FROM produto_pizza as pp');
+    conexao.SQL.Add
+      ('join sabores_completo as sc on sc.id_produto = pp.codigo_produto');
     conexao.SQL.Add('where sc.id_produto = :codigo');
     conexao.SQL.Add('order by sc.id_tipo_sabor, sc.nome');
     conexao.Parametros('codigo', chave);
@@ -337,7 +342,8 @@ begin
   if Result.Count = 0 then
   begin
     conexao := TConexao.Create('Util');
-    conexao.SQL.Add('SELECT  tp.*, (select count(*) from produto where codigo_grupo = tp.codigo and deletado = 0) as quant FROM tipo_produto as tp');
+    conexao.SQL.Add
+      ('SELECT  tp.*, (select count(*) from produto where codigo_grupo = tp.codigo and deletado = 0) as quant FROM tipo_produto as tp');
     conexao.SQL.Add('ORDER BY tp.ordem;');
     Result := conexao.ConsultaSQL;
     GravaCache('GetCategoria', chave, Result.ToString);
@@ -470,7 +476,7 @@ begin
       K: Integer;
       Produto: TJSONObject;
       CodigoProduto: TJSONValue;
-    begin      
+    begin
       try
         LimpaCacheGeral;
         Categorias := GetCategoria('all');
@@ -507,7 +513,7 @@ begin
           end;
         end;
       except
-        on E: Exception do
+        on e: exception do
         begin
 
         end;
@@ -555,12 +561,10 @@ begin
   begin
     conexao := TConexao.Create('Util');
     try
-      conexao.SQL.Add(
-        'SELECT sci.*, ing.descricao, ing.unidade, ing.custo ' +
+      conexao.SQL.Add('SELECT sci.*, ing.descricao, ing.unidade, ing.custo ' +
         'FROM sabores_completo_ingrediente sci ' +
         'JOIN ingredientes ing ON ing.id = sci.id_ingrediente ' +
-        'WHERE sci.id_sabor_completo = :id_sabor_completo'
-      );
+        'WHERE sci.id_sabor_completo = :id_sabor_completo');
       conexao.Parametros('id_sabor_completo', chave);
       Result := conexao.ConsultaSQL;
       GravaCache('GetFichaSabor', chave, Result.ToString);
@@ -570,5 +574,141 @@ begin
   end;
 end;
 
+function BuscarProdutoPorChave(Tipo: string; chave: Integer): TJSONValue;
+var
+  SQL: string;
+begin
+  if Tipo = 'CATEGORIA' then
+  begin
+    SQL := 'select produto.* from produto ';
+    SQL := SQL +
+      ' join tipo_produto on tipo_produto.codigo = produto.codigo_grupo ';
+    SQL := SQL + ' where produto.deletado <> 1 and codigo_grupo = ' +
+      chave.ToString;
+    SQL := SQL + ' order by codigo_grupo, position';
+  end
+  else
+  begin
+    SQL := 'select * from produto ';
+    SQL := SQL + ' where produto.deletado <> 1 and codigo = ' + chave.ToString;
+    SQL := SQL + ' order by codigo_grupo, position';
+  end;
+
+  Result := ObjetoProduto(SQL); // 🔥 já retorna JSON
+end;
+
+// function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
+// var
+// Arr: TJsonArray;
+// Obj: TJSONObject;
+// begin
+// Arr := TJsonArray.Create;
+//
+// Itens.First;
+// while not Itens.Eof do
+// begin
+// if VarSameValue(Itens.FieldByName('pai_id').Value, 0) then
+// begin
+// Obj := TJSONObject.Create;
+// Obj.AddPair('id', Itens.FieldByName('id').AsInteger);
+// Obj.AddPair('nome', Itens.FieldByName('nome').AsString);
+//
+// // Produto direto
+// if not Itens.FieldByName('produto_id').IsNull then
+// begin
+// Obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO',
+// Itens.FieldByName('produto_id').AsInteger));
+// end
+// // Categoria
+// else if not Itens.FieldByName('categoria_id').IsNull then
+// begin
+// Obj.AddPair('produtos', BuscarProdutoPorChave('CATEGORIA',
+// Itens.FieldByName('categoria_id').AsInteger));
+// end
+// // Agrupador
+// else
+// begin
+// Obj.AddPair('children', MontarArvoreMenu(Itens, Itens.FieldByName('id')
+// .AsInteger));
+// end;
+//
+// Arr.AddElement(Obj);
+// end;
+//
+// Itens.Next;
+// end;
+//
+// Result := Arr;
+// end;
+
+function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
+var
+  Arr: TJsonArray;
+  Obj: TJSONObject;
+  EhRaiz: Boolean;
+begin
+  Arr := TJsonArray.Create;
+  EhRaiz := VarIsNull(PaiId);
+
+  Itens.First;
+  while not Itens.Eof do
+  begin
+    // raiz
+    if EhRaiz and (Itens.FieldByName('pai_id').AsFloat=0) then
+    begin
+      Obj := TJSONObject.Create;
+    end
+    // filhos
+    else if (not EhRaiz) and (not (Itens.FieldByName('pai_id').AsFloat=0)) and
+      (Itens.FieldByName('pai_id').AsInteger = PaiId) then
+    begin
+      Obj := TJSONObject.Create;
+    end
+    else
+    begin
+      Itens.Next;
+      Continue;
+    end;
+
+    // dados comuns
+    Obj.AddPair('id', Itens.FieldByName('id').AsInteger);
+    Obj.AddPair('nome', Itens.FieldByName('nome').AsString);
+
+    // conteúdo
+    if Itens.FieldByName('produto_id').AsFloat >0 then
+    begin
+      Obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO',
+        Itens.FieldByName('produto_id').AsInteger));
+    end
+    else if Itens.FieldByName('categoria_id').AsFloat>0 then
+    begin
+      Obj.AddPair('produtos', BuscarProdutoPorChave('CATEGORIA',
+        Itens.FieldByName('categoria_id').AsInteger));
+    end;
+
+    // filhos (sempre!)
+    Obj.AddPair('children', MontarArvoreMenu(Itens, Itens.FieldByName('id').AsInteger));
+
+    Arr.AddElement(Obj);
+    Itens.Next;
+  end;
+
+  Result := Arr;
+end;
+
+function JSONIntOrNull(JSON: TJSONObject; const Key: string): Variant;
+var
+  V: TJSONValue;
+begin
+  Result := Null;
+
+  if not JSON.TryGetValue(Key, V) then
+    Exit;
+
+  if V is TJSONNull then
+    Exit;
+
+  Result := V.AsType<Integer>;
+end;
 
 end.

@@ -2,8 +2,8 @@ object frmPedidoSite: TfrmPedidoSite
   Left = 0
   Top = 0
   Caption = 'frmPedidoSite'
-  ClientHeight = 601
-  ClientWidth = 876
+  ClientHeight = 600
+  ClientWidth = 872
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

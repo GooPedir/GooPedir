@@ -11,6 +11,8 @@ procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
   Descricao, Observacao: String);
 function IsIngredienteSem(const Texto: string): Boolean;
 
+
+
 implementation
 
 function IsIngredienteSem(const Texto: string): Boolean;
@@ -44,6 +46,7 @@ var
   Conexao: TConexao;
   Dados: TFDMemTable;
   MarcarPendenciaExtra: Boolean;
+
 begin
   Conexao := TConexao.Create('ValidaPendenciaProduto');
   Conexao.SQL.Add('delete from produto_pendencia where id_produto = :id');
@@ -53,7 +56,7 @@ begin
   Conexao.SQL.Add
     ('select p.codigo as produtoID, p.nome_produto as produto, p.descricao as produtoDescricao, p.foto_ifood as produtoUrl, p.alerta as produtoAlerta, p.valor_venda as produtoValor, p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,p.csosn,');
   Conexao.SQL.Add
-    ('pap.id as extraId, pap.descricao as extra, pap.qtd_minima as extraMin, pap.qtd_maxima as extraMax, ');
+    ('(select count(*) from produto_combo_config where produto_combo_id = p.codigo and status = "ATIVO") as combo, pap.id as extraId, pap.descricao as extra, pap.qtd_minima as extraMin, pap.qtd_maxima as extraMax, ');
   Conexao.SQL.Add
     ('paps.id as itenExtraId, paps.nome as extraIten, paps.alerta as itemExtraAlerta, paps.valor as itemExtraValor, paps.id_prod_estoque as extraItemProdutoBaixa,');
   Conexao.SQL.Add
@@ -98,7 +101,8 @@ begin
       AdicionaPendencia(Conexao, Codigo, 'Produto sem foto',
         'Um produto com foto chama muito mais atenção!');
     end;
-    if Dados.FieldByName('nfc').AsString = '1' then
+    if (Dados.FieldByName('nfc').AsString = '1') and
+      (Dados.FieldByName('produto').AsInteger = 0) then
     begin
       if Dados.FieldByName('un').AsString = '' then
       begin
@@ -269,6 +273,10 @@ var
   Estoque: Real;
   Observacao: TJsonArray;
   ObjetoObs: TJsonObject;
+
+  ObjCombo: TJsonObject;
+  Combos: TJsonArray;
+  DadosCombo: TFDMemTable;
 begin
 
   Conexao := TConexao.Create('main');
@@ -482,6 +490,12 @@ begin
                 DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
               JSonObjetoAdicionalItens.AddPair('alerta',
                 DadosAdicionaisItens.FieldByName('alerta').AsInteger);
+              try
+                JSonObjetoAdicionalItens.AddPair('url',
+                  DadosAdicionaisItens.FieldByName('url').AsString);
+              except
+                JSonObjetoAdicionalItens.AddPair('url', '');
+              end;
 
               JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
 
@@ -510,6 +524,35 @@ begin
           JsonObjeto.AddPair('additional', JSonArrayAdicional);
         end;
 
+        // ObjCombo: TJsonObject;
+
+        DadosCombo := TFDMemTable.Create(nil);
+        Combos := TJsonArray.Create;
+        Conexao.SQL.Add
+          ('select pci.produto_id as id, p.nome_produto as nome, p.foto_ifood as url, pci.ratio, pci.base_value as base_value from produto_combo_config as pc');
+        Conexao.SQL.Add
+          ('join produto_combo_item as pci on pci.combo_config_id = pc.id');
+        Conexao.SQL.Add('join produto as p on p.codigo = pci.produto_id');
+        Conexao.SQL.Add('where pc.produto_combo_id = :id and status = "ATIVO"');
+        Conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
+        DadosCombo.LoadFromJSON(Conexao.ConsultaSQL);
+        if DadosCombo.RecordCount > 0 then
+        begin
+          while not DadosCombo.Eof do
+          begin
+            ObjCombo := TJsonObject.Create;
+            ObjCombo.AddPair('id', DadosCombo.FieldByName('id').AsInteger);
+            ObjCombo.AddPair('name', DadosCombo.FieldByName('nome').AsString);
+            ObjCombo.AddPair('url', DadosCombo.FieldByName('url').AsString);
+            ObjCombo.AddPair('ratio', DadosCombo.FieldByName('ratio').AsFloat);
+            ObjCombo.AddPair('base_value',
+              DadosCombo.FieldByName('base_value').AsFloat);
+            Combos.Add(ObjCombo);
+            DadosCombo.Next;
+          end;
+        end;
+        JsonObjeto.AddPair('combo_products', Combos);
+        DadosCombo.Free;
         { conexao.SQL.Add('select  ');
           conexao.SQL.Add('sabores_completo.id as sabor_id,  ');
           conexao.SQL.Add('sabores_completo.nome as sabor_nome,');

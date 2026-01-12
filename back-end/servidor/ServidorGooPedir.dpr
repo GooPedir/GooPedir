@@ -119,7 +119,9 @@ uses
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
-  uGenericaFuncion in 'src\util\uGenericaFuncion.pas';
+  uGenericaFuncion in 'src\util\uGenericaFuncion.pas',
+  uTablet in 'src\tablet\uTablet.pas',
+  uImageLocal in 'src\modulo\uImageLocal.pas';
 
 {$R *.res}
 

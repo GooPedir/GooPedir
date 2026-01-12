@@ -5,8 +5,9 @@ interface
 uses Winapi.Windows, uDM, FireDAC.Comp.Client, DataSet.Serialize,
   System.Classes,
   uRequisicao,
+  Data.DB,
   JOSE.Types.JSON, Winapi.TlHelp32, Winapi.ShellAPI, Vcl.Controls, Vcl.Forms,
-  Vcl.ExtCtrls, System.Hash, System.IOUtils;
+  Vcl.ExtCtrls, System.Hash, System.IOUtils,System.Variants;
 
 type
 
@@ -348,6 +349,7 @@ var
   Chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
+exit;
   iGlitchtip := iRequisicao.Create(nil);
 
   // Extrai a chave e a URL da DSN
@@ -397,7 +399,7 @@ begin
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
 
-  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.URL := 'https://old.goopedir.com/glitchtip/index.php';
   iGlitchtip.BODY(JsonObjec);
 
   try
@@ -990,7 +992,7 @@ begin
       QryUpdate.SQL.Add(SqlUpdate);
 
     end;
-    SQL := StringReplace(UpperCase(SQL), 'CREATE TABLE',
+    SQL := StringReplace((SQL), 'CREATE TABLE',
       'CREATE TABLE IF NOT EXISTS', []);
 
     QRY := DataModulo.CriaQRY;
@@ -1000,7 +1002,15 @@ begin
     QRY.SQL.Add(SQL);
     for I := 0 to length(FParametros) - 1 do
     begin
+    if (FValores[I]) = null then
+    begin
+    QRY.ParamByName(FParametros[I]).DataType := ftInteger;
+       QRY.ParamByName(FParametros[I]).Clear();
+    end else begin
       QRY.ParamByName(FParametros[I]).Value := FValores[I];
+    end;
+
+
       try
         if Update then
         begin
@@ -1263,7 +1273,7 @@ begin
       // Cria e configura a requisi��o
       Requisicao := iRequisicao.Create(nil);
       try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
+        Requisicao.BaseURL := 'https://old.goopedir.com/logger.php';
         Requisicao.BODY(JSON);
         Requisicao.Metodo := mPost;
         Requisicao.Execute;

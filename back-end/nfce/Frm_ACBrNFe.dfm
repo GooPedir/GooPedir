@@ -1725,8 +1725,8 @@ object frmACBrNFe: TfrmACBrNFe
   object tEmissao: TTimer
     Enabled = False
     OnTimer = tEmissaoTimer
-    Left = 918
-    Top = 70
+    Left = 910
+    Top = 110
   end
   object iEmissao: iRequisicao
     BaseURL = 'http://127.0.0.1:2121/'
@@ -1870,5 +1870,10 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AutoCommitUpdates = True
     Left = 600
     Top = 312
+  end
+  object tEmissaoV2: TTimer
+    OnTimer = tEmissaoV2Timer
+    Left = 1078
+    Top = 57
   end
 end

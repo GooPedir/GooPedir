@@ -273,16 +273,29 @@ begin
   // conexao.ExecuteSQL;
   // end;
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('SELECT TIMESTAMPDIFF(SECOND, hora, NOW()) as tempo, ');
-  conexao.SQL.Add
-    ('m.id_mesa, m.descricao, mt.descricao as descricao1, m.nr_mesa, m.selecionada, m.tot_mesa, m.sts_mesa FROM mesa as m');
-  conexao.SQL.Add('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
-  conexao.SQL.Add('where m.ativo = 1 and mt.ativo = 1');
+  conexao.SQL.Add('SELECT ' +
+    '  TIMESTAMPDIFF(SECOND, hora, NOW()) AS tempo, ' +
+
+    // 👇 FLAG DE CHAMADO ABERTO
+    '  CASE ' + '    WHEN EXISTS ( ' + '      SELECT 1 FROM alerta_sistema a ' +
+    '      WHERE a.tipo = ''CHAMAR_GARCOM'' ' +
+    '        AND a.status = ''ABERTO'' ' +
+    '        AND a.referencia_id = m.id_mesa ' + '    ) THEN 1 ELSE 0 ' +
+    '  END AS tem_chamado, ' +
+
+    '  m.id_mesa, m.descricao, mt.descricao AS descricao1, ' +
+    '  m.nr_mesa, m.selecionada, m.tot_mesa, m.sts_mesa ');
+  conexao.SQL.Add('FROM mesa AS m ' +
+    'JOIN mesa_tipo AS mt ON mt.id_mesa_tipo = m.fk_tipo_mesa ' +
+    'WHERE m.ativo = 1 AND mt.ativo = 1');
+
   if Mesa > 0 then
   begin
-    conexao.SQL.Add('and nr_mesa = ' + Mesa.ToString);
+    conexao.SQL.Add('AND m.nr_mesa = ' + Mesa.ToString);
   end;
-  conexao.SQL.Add('order by mt.id_mesa_tipo, m.nr_mesa');
+
+  conexao.SQL.Add('ORDER BY mt.id_mesa_tipo, m.nr_mesa');
+
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 
@@ -414,15 +427,26 @@ procedure DoGetMesa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: Tconexao;
   Mesa: Integer;
+  Pedido: Integer;
 
 begin
   try
     Mesa := Req.Params['mesa'].ToInteger;
   except
     Mesa := 0;
+    Res.Send('[]');
+    exit;
   end;
 
   conexao := Tconexao.Create('Util');
+  conexao.SQL.Add('select 0, selecionada from mesa where id_mesa = ' +
+    Mesa.ToString);
+  try
+    Pedido := conexao.FieldByName('selecionada')
+  except
+    Pedido := 0;
+  end;
+
   conexao.SQL.Add
     ('SELECT mt.descricao as descricao_mesa, m.nr_mesa, m.tot_mesa, m.selecionada as pedido, TIMESTAMPDIFF(SECOND, m.hora, NOW()) as tempo FROM mesa as m');
   conexao.SQL.Add('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
@@ -885,7 +909,7 @@ begin
           Requisicao := iRequisicao.Create(nil);
           try
             Requisicao.BaseURL :=
-              'https://ws.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
+              'https://old.goopedir.com/v1/atualiza_status_pedido.php?codigo=' +
               CodigoSite.ToString + '&status=Finalizado';
             Requisicao.Execute;
           finally
@@ -4454,7 +4478,7 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
-    if Dados.FieldByName('produto').AsInteger = 0 then
+    if Dados.FieldByName('produto').AsString = '0' then
     begin
       Dados.Free;
       exit;
@@ -4462,6 +4486,16 @@ begin
 
     conexao := Tconexao.Create('Util');
     Dados.Edit;
+    Dados.FieldByName('produto').AsString :=
+      StringReplace(Dados.FieldByName('produto').AsString, '.', ',', []);
+    Dados.FieldByName('acrecimo').AsString :=
+      StringReplace(Dados.FieldByName('acrecimo').AsString, '.', ',', []);
+    Dados.FieldByName('entrega').AsString :=
+      StringReplace(Dados.FieldByName('entrega').AsString, '.', ',', []);
+    Dados.FieldByName('desconto').AsString :=
+      StringReplace(Dados.FieldByName('desconto').AsString, '.', ',', []);
+    Dados.FieldByName('troco').AsString :=
+      StringReplace(Dados.FieldByName('troco').AsString, '.', ',', []);
     if Dados.FieldByName('cliente').AsInteger = 0 then
     begin
       conexao.SQL.Add('select * from cliente where celular = :celular');
@@ -5412,37 +5446,35 @@ var
   conexao: Tconexao;
 begin
   conexao := Tconexao.Create('Util');
-  // conexao.SQL.Add
-  // ('select p.codigo, pap.id as extra_id, upper(CONCAT(p.nome_produto,' +
-  // QuotedStr(' -> ') +
-  // ',pap.descricao)) as juncao, upper(p.nome_produto) as produto, upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.nome)) as itens from produto as p');
-  // conexao.SQL.Add
-  // ('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
-  // conexao.SQL.Add
-  // ('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id');
-  // conexao.SQL.Add('where paps.valor > 0');
-  // conexao.SQL.Add('group by pap.id_produto');
-  // conexao.SQL.Add('order by p.codigo');
   conexao.SQL.Add('SET SESSION group_concat_max_len = 1000000;');
   conexao.ExecuteSQL;
+  // conexao.SQL.Add('WITH CTE AS (');
+  // conexao.SQL.Add('select max(pap.qtd_minima) as min, max(pap.qtd_maxima) as max,  p.codigo, pap.id as extra_id, upper(CONCAT(pap.descricao)) as juncao, upper(p.nome_produto) as produto,');
+  // conexao.SQL.Add('upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.descricao SEPARATOR "||")) as descricao, GROUP_CONCAT(id_prod_estoque SEPARATOR "||") as stock,');
+  // conexao.SQL.Add('upper(GROUP_CONCAT(paps.nome SEPARATOR "||")) as itens, GROUP_CONCAT(paps.valor SEPARATOR "||") as valores from produto as p');
+  // conexao.SQL.Add('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
+  // conexao.SQL.Add('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id');
+  // conexao.SQL.Add('group by pap.id');
+  // conexao.SQL.Add('order by p.codigo)');
+  // conexao.SQL.Add('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens,CTE.valores,CTE.min,CTE.max, CTE.descricao, CTE.stock');
+  // conexao.SQL.Add('from CTE');
   conexao.SQL.Add('WITH CTE AS (');
   conexao.SQL.Add
     ('select max(pap.qtd_minima) as min, max(pap.qtd_maxima) as max,  p.codigo, pap.id as extra_id, upper(CONCAT(pap.descricao)) as juncao, upper(p.nome_produto) as produto,');
   conexao.SQL.Add
     ('upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.descricao SEPARATOR "||")) as descricao, GROUP_CONCAT(id_prod_estoque SEPARATOR "||") as stock,');
+  conexao.SQL.Add('upper(GROUP_CONCAT(paps.nome SEPARATOR "||")) as itens,');
   conexao.SQL.Add
-    ('upper(GROUP_CONCAT(paps.nome SEPARATOR "||")) as itens, GROUP_CONCAT(paps.valor SEPARATOR "||") as valores from produto as p');
+    ('upper(GROUP_CONCAT(paps.url SEPARATOR "||")) as url,  GROUP_CONCAT(paps.valor SEPARATOR "||") as valores from produto as p');
   conexao.SQL.Add
     ('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
   conexao.SQL.Add
-    ('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id');
-  // conexao.SQL.Add('where paps.valor > 0');
+    ('join pro_adi_personalizado_sabores as paps on paps.id_pro_adi_personalizado = pap.id and paps.deletado = 0');
   conexao.SQL.Add('group by pap.id');
   conexao.SQL.Add('order by p.codigo)');
   conexao.SQL.Add
-    ('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.extra,CTE.codigo,CTE.itens,CTE.valores,CTE.min,CTE.max, CTE.descricao, CTE.stock');
+    ('select CTE.codigo,CTE.extra_id,CTE.juncao,CTE.produto,CTE.url,CTE.extra,CTE.codigo,CTE.itens,CTE.valores,CTE.min,CTE.max, CTE.descricao, CTE.stock');
   conexao.SQL.Add('from CTE');
-  // conexao.SQL.Add('GROUP BY CTE.ITENS');
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -9369,7 +9401,7 @@ begin
   try
     Requisicao := iRequisicao.Create(nil);
 
-    Requisicao.BaseURL := 'https://ws.goopedir.com/v1/';
+    Requisicao.BaseURL := 'https://old.goopedir.com/v1/';
     Requisicao.URL := 'insert/cupom_desconto/' +
       frmServidor.UserID.ToString + '/a';
     Requisicao.Metodo := mPost;

@@ -201,7 +201,7 @@ var
 
 begin
 
-  URL := 'https://ws.goopedir.com/v2/pedidos.php';
+  URL := 'https://old.goopedir.com/v2/pedidos.php';
   try
     // Response := FHTTP.Get(URL);
     iReq.URL := URL;
@@ -268,7 +268,7 @@ begin
   FormatSettings.DateSeparator := '-'; // Separador de data
   FormatSettings.TimeSeparator := ':'; // Separador de hora
 
-  URL := 'https://ws.goopedir.com/v2/pedido.php?codigo=' + IntToStr(PedidoID);
+  URL := 'https://old.goopedir.com/v2/pedido.php?codigo=' + IntToStr(PedidoID);
   try
     iReq.URL := URL;
     iReq.Metodo := mGet;

@@ -1807,7 +1807,8 @@ begin
         SQL := SQL + '     WHERE codigo = NEW.codigo_produto;';
         SQL := SQL + '     IF v_controle = 1 THEN';
         SQL := SQL + '         UPDATE produto';
-        SQL := SQL + '         SET saldo_atual = IFNULL(saldo_atual, 0) + v_mov';
+        SQL := SQL +
+          '         SET saldo_atual = IFNULL(saldo_atual, 0) + v_mov';
         SQL := SQL + '         WHERE codigo = NEW.codigo_produto;';
         SQL := SQL + '         SELECT saldo_atual INTO v_saldo';
         SQL := SQL + '         FROM produto';
@@ -1820,7 +1821,8 @@ begin
         SQL := SQL + '         UPDATE produto';
         SQL := SQL + '         SET ativo = v_status,';
         SQL := SQL + '             modificado_site = 0';
-        SQL := SQL + '         WHERE codigo = NEW.codigo_produto and controle_estoque = 1; ';
+        SQL := SQL +
+          '         WHERE codigo = NEW.codigo_produto and controle_estoque = 1; ';
         SQL := SQL + '     END IF;';
         SQL := SQL + '     UPDATE pro_adi_personalizado_sabores';
         SQL := SQL + '     SET ativo = v_status,';
@@ -1857,7 +1859,8 @@ begin
       end;
     129:
       begin
-        ExecultaSQL('ALTER TABLE impressao_pedido_produto MODIFY id INT NOT NULL AUTO_INCREMENT;');
+        ExecultaSQL
+          ('ALTER TABLE impressao_pedido_produto MODIFY id INT NOT NULL AUTO_INCREMENT;');
         SQL := ' CREATE TRIGGER trg_pedido_produtos_after_insert ';
         SQL := SQL + ' AFTER INSERT ON pedido_produtos';
         SQL := SQL + ' FOR EACH ROW';
@@ -2020,8 +2023,139 @@ begin
         SQL := SQL + ' END';
         ExecultaSQL(SQL);
       end;
-      132: begin
+    132:
+      begin
         ExecultaSQL('alter table pedido add codigoOld varchar(20)');
+      end;
+    133:
+      begin
+        ExecultaSQL('alter table dados_whatsapp add USAR_BALANCA integer');
+        ExecultaSQL('alter table dados_whatsapp add MENU_TV integer');
+      end;
+    134:
+      begin
+        SQL := 'create table config_temporaria( ';
+        SQL := SQL + 'id varchar(1), job_id varchar(255))';
+        ExecultaSQL(SQL);
+        ExecultaSQL('insert into config_temporaria (id) values ("1")');
+        ExecultaSQL
+          ('alter table pro_adi_personalizado_sabores add url varchar(255)');
+        ExecultaSQL('alter table pedido add nfce_status varchar(20)');
+        ExecultaSQL('alter table pedido add nfce_tentativas int default 0');
+        ExecultaSQL('alter table pedido add nfce_lock DATETIME NULL');
+      end;
+    135:
+      begin
+        SQL := ' CREATE TABLE produto_combo_config (';
+        SQL := SQL + '     id BIGINT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '     produto_combo_id BIGINT NOT NULL, ';
+        SQL := SQL +
+          '     data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     status ENUM("ATIVO","INATIVO") NOT NULL DEFAULT "ATIVO",';
+        SQL := SQL + '     hash_calculo CHAR(64) NULL, ';
+        SQL := SQL + '     INDEX idx_combo_status (produto_combo_id, status)';
+        SQL := SQL + ' );';
+
+        ExecultaSQL(SQL);
+
+        SQL := 'CREATE TABLE produto_combo_item (';
+        SQL := SQL + '     id BIGINT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '     combo_config_id BIGINT NOT NULL,';
+        SQL := SQL + '     produto_id BIGINT NOT NULL,';
+        SQL := SQL + '     ratio DECIMAL(10,8) NOT NULL,';
+        SQL := SQL + '     base_value DECIMAL(10,2) NOT NULL,';
+        SQL := SQL + '     FOREIGN KEY (combo_config_id)';
+        SQL := SQL + '         REFERENCES produto_combo_config(id)';
+        SQL := SQL + '         ON DELETE CASCADE,';
+        SQL := SQL +
+          '     INDEX idx_combo_item (combo_config_id, produto_id));';
+
+        ExecultaSQL(SQL);
+
+        ExecultaSQL('alter table banner add titulo varchar(200);');
+        ExecultaSQL('alter table banner add subtitulo varchar(200);');
+        ExecultaSQL('alter table banner add produto integer;');
+
+        SQL := 'CREATE TABLE alerta_sistema (';
+        SQL := SQL + '    id            INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '    tipo          ENUM(';
+        SQL := SQL + '                     "CHAMAR_GARCOM",';
+        SQL := SQL + '                     "ERRO_SENHA_TABLET",';
+        SQL := SQL + '                     "ALERTA_SEGURANCA",';
+        SQL := SQL + '                     "OUTRO"';
+        SQL := SQL + '                   ) NOT NULL,';
+
+        SQL := SQL + '    origem        ENUM(';
+        SQL := SQL + '                     "MESA",';
+        SQL := SQL + '                     "TABLET",';
+        SQL := SQL + '                     "SISTEMA",';
+        SQL := SQL + '                     "USUARIO"';
+        SQL := SQL + '                   ) NOT NULL,';
+
+        SQL := SQL + '    referencia_id INT NULL, ';
+
+        // -- ex: mesa_id, tablet_id, usuario_id
+        SQL := SQL + '    status        ENUM(';
+        SQL := SQL + '                     "ABERTO",';
+        SQL := SQL + '                     "VISUALIZADO",';
+        SQL := SQL + '                     "RESOLVIDO"';
+        SQL := SQL + '                   ) DEFAULT "ABERTO",';
+
+        SQL := SQL + '    tentativas    INT DEFAULT 0,';
+        SQL := SQL + '    payload       JSON NULL,';
+        // -- dados extras (ex: motivo, mensagem, ip, etc)
+        SQL := SQL +
+          '    data_evento   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '    data_resolvido DATETIME NULL);';
+
+        ExecultaSQL(SQL);
+
+        ExecultaSQL('alter table mesa add usuario integer');
+
+        SQL := ' CREATE TABLE menu (';
+        SQL := SQL + '     id INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '     nome VARCHAR(100) NOT NULL,';
+        SQL := SQL +
+          '     tipo ENUM("tablet","delivery","totem","qr","tv") NOT NULL,';
+        SQL := SQL + '     ativo TINYINT(1) NOT NULL DEFAULT 1,';
+        SQL := SQL +
+          '     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
+        SQL := SQL + '                  ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL + '     UNIQUE KEY uk_menu_tipo (tipo)';
+        SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        ExecultaSQL(SQL);
+        SQL := ' CREATE TABLE menu_item (';
+        SQL := SQL + '     id INT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + '     menu_id INT NOT NULL,';
+        SQL := SQL + '     nome VARCHAR(150) NOT NULL,';
+        SQL := SQL + '     pai_id INT NULL,';
+        SQL := SQL + '     ordem INT NOT NULL DEFAULT 0,';
+        SQL := SQL + '     produto_id INT NULL,';
+        SQL := SQL + '     categoria_id INT NULL,';
+        SQL := SQL + '     ativo TINYINT(1) NOT NULL DEFAULT 1,';
+        SQL := SQL +
+          '     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
+        SQL := SQL + '                  ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL + '     CONSTRAINT fk_menu_item_menu';
+        SQL := SQL + '         FOREIGN KEY (menu_id)';
+        SQL := SQL + '         REFERENCES menu(id)';
+        SQL := SQL + '         ON DELETE CASCADE,';
+        SQL := SQL + '     CONSTRAINT fk_menu_item_pai';
+        SQL := SQL + '         FOREIGN KEY (pai_id)';
+        SQL := SQL + '         REFERENCES menu_item(id)';
+        SQL := SQL + '         ON DELETE CASCADE,';
+        SQL := SQL + '     KEY idx_menu (menu_id),';
+        SQL := SQL + '     KEY idx_pai (pai_id),';
+        SQL := SQL + '     KEY idx_produto (produto_id),';
+        SQL := SQL + '     KEY idx_categoria (categoria_id)';
+        SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        ExecultaSQL(SQL);
+        ExecultaSQL('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
 
       end;
 
@@ -2038,7 +2172,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '132';
+  Result := '135'
 end;
 
 end.

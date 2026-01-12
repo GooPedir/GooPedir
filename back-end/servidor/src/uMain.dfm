@@ -1,9 +1,9 @@
 object frmServidor: TfrmServidor
   Left = 0
   Top = 0
-  Caption = 'frmServidor'
-  ClientHeight = 836
-  ClientWidth = 1204
+  Caption = '-'
+  ClientHeight = 833
+  ClientWidth = 1192
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

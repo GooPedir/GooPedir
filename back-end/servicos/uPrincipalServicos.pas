@@ -514,7 +514,7 @@ begin
           begin
             conexao.SQL.Add
               ('update pro_adi_personalizado_sabores set valor = :valor where id =:id');
-            conexao.Parametros('adicional', Obje.GetValue<String>('nome'));
+            conexao.Parametros('valor', Obje.GetValue<String>('valor'));
             conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
             conexao.ExecuteSQL;
 

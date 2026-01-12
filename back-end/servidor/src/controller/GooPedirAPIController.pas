@@ -78,8 +78,8 @@ begin
     FRequisicao.AddHeader('client-id', FClientID);
     FRequisicao.AddHeader('client-security', FClientSecret);
     FRequisicao.Execute;
-    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)
-      as TJSONObject;
+    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)as TJSONObject;
+    ShowMessage(FRequisicao.Retorno);
 
     try
       if JsonObject.GetValue<String>('error') <> '' then

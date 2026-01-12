@@ -33,6 +33,7 @@ uses
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
+  uTablet,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
   Tasks, TaskManager;
 
@@ -615,7 +616,7 @@ begin
     IFood.Credentials.AuthorizationType := ctDistributed;
 
   IniciaIfood;
-  FazerBackupMySQL(conexao);
+  // FazerBackupMySQL(conexao);
   TSincronizaProdutosThread.Create;
   // EnvioCaixa;
   try
@@ -904,7 +905,8 @@ begin
     IniFile.WriteString('ATIVA', 'JSON', JsonObject.ToString);
 
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := 'api.goopedir.com.br/api/empresa/atualiza/cardapio';
+    Req.BaseURL := API_BASE_URL;
+    Req.URL := 'api/empresa/atualiza/cardapio';
     Req.BODY(JsonObject);
 
     Req.Metodo := mPost;
@@ -940,7 +942,7 @@ begin
   except
     on E: Exception do
     begin
-      // ShowMessage(e.Message);
+
     end;
   end;
 
@@ -1374,9 +1376,8 @@ var
   iReq: iRequisicao;
 begin
   iReq := iRequisicao.Create(nil);
-  iReq.BaseURL :=
-    'https://api.goopedir.com.br/api/atualizacoes/busca/atualizacao/' +
-    user.ToString;
+  iReq.BaseURL := API_BASE_URL;
+  iReq.URL := 'api/atualizacoes/busca/atualizacao/' + user.ToString;
   try
     iReq.Execute;
 
@@ -1386,7 +1387,6 @@ begin
       AbrirExe(ATUALIZADOR);
     end;
 
-    // ShowMessage(iReq.Retorno);
   except
 
   end;
@@ -1401,6 +1401,7 @@ begin
   memo.Parent := self;
   Requisicao := iRequisicao.Create(self);
   Requisicao.BaseURL := API_BASE_URL;
+
   Requisicao.URL := 'api/modulos?user=' + UserID.ToString;
   try
     Requisicao.Execute;
@@ -1565,47 +1566,85 @@ begin
   if UserID > 0 then
   begin
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := 'https://ws.goopedir.com/whatsapp/status.php?instance=' +
-      UserID.ToString;
-    Req.TempoExpiracao := 15 * 1000;
+    Req.BaseURL := API_BASE_URL;
+    Req.URL := 'api/whatsapp/instancia?user_id=' + UserID.ToString;
     try
       Req.Execute;
-      ErrorValue := false;
       JsonObject := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
       if Assigned(JsonObject) then
       begin
-        try
-          ErrorValue := JsonObject.GetValue<Boolean>('error');
-        except
-
-        end;
-        if not ErrorValue then
+        if JsonObject.GetValue<String>('status') = 'connecting' then
         begin
-          user := JsonObject.GetValue<TJsonObject>('instance');
-
-          if user.GetValue<String>('state') = 'open' then
-          begin
-            // Pegar dados
-            DadosWhatsapp;
-            StatusMensagemWhatsapp := 1;
-          end
-          else
-          begin
-            // Buscar QRCod
-            DadosQrCod;
-            StatusMensagemWhatsapp := 2;
-          end;
-          user.Free;
-          StatusInstanciaCriada := true;
+          Base64Whatsapp := StringReplace(JsonObject.GetValue<String>('qrcod'),
+            'data:image/png;base64,', '', [rfReplaceAll]);
+          NomeWhatsapp := '';
+          ImagemWhatsapp := '';
+          NumeroWhatsapp := '';
+          StatusWhatsapp := false;
         end;
+
+        if JsonObject.GetValue<String>('status') = 'connected' then
+        begin
+          NomeWhatsapp := JsonObject.GetValue<String>('nome');
+          ImagemWhatsapp := JsonObject.GetValue<String>('foto');
+          // NumeroWhatsapp := FormatPhoneNumber(JsonObject.GetValue<String>('ownerJid'));
+          NumeroWhatsapp := '';
+          StatusWhatsapp := true;
+        end;
+
+        if JsonObject.GetValue<String>('status') = 'connecting' then
+        begin
+
+        end;
+
       end;
+
     except
-      on E: Exception do
-      begin
-        StatusErroWhatsapp := E.Message;
-        StatusMensagemWhatsapp := 3;
-      end;
+
     end;
+
+    // Req := iRequisicao.Create(nil);
+    // Req.BaseURL := 'https://old.goopedir.com/whatsapp/status.php?instance=' +
+    // UserID.ToString;
+    // Req.TempoExpiracao := 15 * 1000;
+    // try
+    // Req.Execute;
+    // ErrorValue := false;
+    // JsonObject := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
+    // if Assigned(JsonObject) then
+    // begin
+    // try
+    // ErrorValue := JsonObject.GetValue<Boolean>('error');
+    // except
+    //
+    // end;
+    // if not ErrorValue then
+    // begin
+    // user := JsonObject.GetValue<TJsonObject>('instance');
+    //
+    // if user.GetValue<String>('state') = 'open' then
+    // begin
+    // // Pegar dados
+    // DadosWhatsapp;
+    // StatusMensagemWhatsapp := 1;
+    // end
+    // else
+    // begin
+    // // Buscar QRCod
+    // DadosQrCod;
+    // StatusMensagemWhatsapp := 2;
+    // end;
+    // user.Free;
+    // StatusInstanciaCriada := true;
+    // end;
+    // end;
+    // except
+    // on E: Exception do
+    // begin
+    // StatusErroWhatsapp := E.Message;
+    // StatusMensagemWhatsapp := 3;
+    // end;
+    // end;
     Req.Free;
   end;
 
@@ -1620,8 +1659,7 @@ begin
   try
     // frmServidor.setUser;
     Requisicao := iRequisicao.Create(nil);
-    Requisicao.URL := 'https://ws.goopedir.com/v1/faturasn/' +
-      frmServidor.UserID.ToString + '/a';
+    Requisicao.URL := 'https://old.goopedir.com/v1/faturasn/' +frmServidor.UserID.ToString + '/a';
     Requisicao.TempoExpiracao := 60 * 1000;
     Requisicao.Execute;
 
@@ -1710,7 +1748,7 @@ var
 begin
 
   Req := iRequisicao.Create(nil);
-  Req.BaseURL := 'https://ws.goopedir.com/whatsapp/qrcod.php?instance=' +
+  Req.BaseURL := 'https://old.goopedir.com/whatsapp/qrcod.php?instance=' +
     UserID.ToString;
   Req.TempoExpiracao := 20 * 1000;
   try
@@ -1747,7 +1785,7 @@ var
 begin
 
   Req := iRequisicao.Create(nil);
-  Req.BaseURL := 'https://ws.goopedir.com/whatsapp/instancia.php?instanceName='
+  Req.BaseURL := 'https://old.goopedir.com/whatsapp/instancia.php?instanceName='
     + UserID.ToString;
   Req.TempoExpiracao := 15 * 1000;
   try
@@ -2001,7 +2039,7 @@ begin
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
 
-  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.URL := 'https://old.goopedir.com/glitchtip/index.php';
   iGlitchtip.BODY(JsonObjec);
 
   try
@@ -2562,6 +2600,42 @@ var
   memo: TMemo;
   Nome: String;
 begin
+
+  conexao := Tconexao.Create('main');
+  // Migrado Para o Core
+  try
+    conexao.SQL.Add('select * from dados_whatsapp');
+    frmServidor.Configuracoes.Close;
+    try
+      frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+    except
+
+    end;
+
+    if frmServidor.Configuracoes.RecordCount = 0 then
+    begin
+      // Banco não existe, criar
+      VerificarOuCriarBanco;
+
+      // Depois que criar o banco, precisa recarregar tudo
+      AposConectarBanco;
+    end
+    else
+    begin
+      // Se banco já existe, também configura
+      AposConectarBanco;
+    end;
+
+  except
+    on E: Exception do
+    begin
+
+      ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
+      Application.Terminate;
+      exit;
+    end;
+  end;
+
   Test := Random(500);
   Nome := ExtractFileName(Application.ExeName);
   memo := TMemo.Create(nil);
@@ -2593,7 +2667,6 @@ begin
   Caption := FormatDateTime('hh:nn', now);
   mHoraAbertura.Caption := Caption;
 
-  conexao := Tconexao.Create('main');
   conexao.SQL.Add('select * from dados_whatsapp');
   frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
   conexao.Free;
@@ -2602,9 +2675,10 @@ begin
   begin
     HabilitarProduo1Click(nil);
   end;
-
+     ShowMessage(frmServidor.Configuracoes.FieldByName('client_id').AsString);
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
+  ShowMessage('INI'+API_BASE_URL);
     APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
       frmServidor.Configuracoes.FieldByName('client_id').AsString,
       frmServidor.Configuracoes.FieldByName('client_security').AsString,
@@ -2619,6 +2693,7 @@ begin
   NFCE.Registry;
   imprimir.Registry;
   LoadImpressora;
+  uTablet.Registry;
 
   // Middlewares
   THorse.Use(LogMiddleware);
@@ -2637,37 +2712,7 @@ begin
 
   VersaoMysql := conexao.ValidaVersao;
   GerarLog := true;
-  AposConectarBanco;
-  // Migrado Para o Core
-  // try
-  // conexao.SQL.Add('select * from dados_whatsapp');
-  // frmServidor.Configuracoes.Close;
-  // frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  //
-  // if frmServidor.Configuracoes.RecordCount = 0 then
-  // begin
-  // // Banco não existe, criar
-  // VerificarOuCriarBanco;
-  //
-  // // Depois que criar o banco, precisa recarregar tudo
   // AposConectarBanco;
-  // end
-  // else
-  // begin
-  // // Se banco já existe, também configura
-  // AposConectarBanco;
-  // end;
-  //
-  // except
-  // on E: Exception do
-  // begin
-  //
-  // ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
-  // Application.Terminate;
-  // exit;
-  // end;
-  // end;
-
   // Agora pode iniciar Horse
   try
     THorse.Listen(Port);
@@ -2793,8 +2838,9 @@ begin
 
   try
     Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := 'https://ws.goopedir.com/v1/horario.php?codigo=' +
+    Requisicao.BaseURL := 'https://old.goopedir.com/v1/horario.php?codigo=' +
       frmServidor.UserID.ToString;
+    Requisicao.TempoExpiracao := 1000;
     Requisicao.Execute;
     Cache.Data := Requisicao.Retorno;
     Cache.Data := StringReplace(Cache.Data, '[', '', [rfReplaceAll]);
@@ -3147,7 +3193,7 @@ begin
       // Cria e configura a requisição
       Requisicao := iRequisicao.Create(nil);
       try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
+        Requisicao.BaseURL := 'https://old.goopedir.com/logger.php';
         Requisicao.BODY(JSON);
         Requisicao.Metodo := mPost;
         Requisicao.Execute;
@@ -3200,7 +3246,7 @@ begin
       // Cria e configura a requisição
       Requisicao := iRequisicao.Create(nil);
       try
-        Requisicao.BaseURL := 'https://ws.goopedir.com/logger.php';
+        Requisicao.BaseURL := 'https://old.goopedir.com/logger.php';
         a := JSON.ToString;
         Requisicao.BODY(JSON);
         Requisicao.Metodo := mPost;
@@ -4250,6 +4296,12 @@ begin
           DadosAdicionaisItens.FieldByName('id_ingredientes').AsInteger);
         JSonObjetoAdicionalItens.AddPair('itensAlerta',
           DadosAdicionaisItens.FieldByName('alerta').AsInteger);
+        try
+          JSonObjetoAdicionalItens.AddPair('url',
+            DadosAdicionaisItens.FieldByName('url').AsString);
+        except
+          JSonObjetoAdicionalItens.AddPair('url', '');
+        end;
 
         JSonArrayAdicionalItens.AddElement(JSonObjetoAdicionalItens);
 
@@ -4652,8 +4704,8 @@ begin
   begin
     try
 
-      if not BackupExe then
-        IniciaIfood;
+      // if not BackupExe then
+      // IniciaIfood;
 
       // IFood.MerchantID(IDiFood);
       // // BuscaDadosiFood;
@@ -5113,6 +5165,8 @@ var
   ArquivoExcluir: String;
   StatusWhatsapp: Boolean;
 begin
+  if not Assigned(APIGoopedir) then
+    exit;
 
   if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
   begin

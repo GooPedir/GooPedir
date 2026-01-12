@@ -107,7 +107,7 @@ begin
   JsonObjec.AddPair('autorizacao', Chave);
   JsonObjec.AddPair('body', JSONBody);
 
-  iGlitchtip.URL := 'https://ws.goopedir.com/glitchtip/index.php';
+  iGlitchtip.URL := 'https://old.goopedir.com/glitchtip/index.php';
   iGlitchtip.BODY(JsonObjec);
 
   try
