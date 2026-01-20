@@ -1,8 +1,8 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  ClientHeight = 571
-  ClientWidth = 750
+  ClientHeight = 606
+  ClientWidth = 889
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object frmMain: TfrmMain
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 750
-    Height = 482
+    Width = 889
+    Height = 517
     Align = alClient
     DataSource = dsImpressao
     Font.Charset = ANSI_CHARSET
@@ -73,19 +73,20 @@ object frmMain: TfrmMain
         Expanded = False
         FieldName = 'URL'
         Title.Caption = 'Url'
+        Width = 64
         Visible = True
       end>
   end
   object Memo1: TMemo
     Left = 0
-    Top = 482
-    Width = 750
+    Top = 517
+    Width = 889
     Height = 89
     Align = alBottom
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitTop = 481
-    ExplicitWidth = 746
+    ExplicitTop = 516
+    ExplicitWidth = 885
   end
   object ImageList1: TImageList
     Left = 152

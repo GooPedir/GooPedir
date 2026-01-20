@@ -67,12 +67,17 @@ begin
   try
     getPedidos;
   except
+  on e : Exception do begin
+
+  end;
 
   end;
   try
     EnviarPedidos;
   except
+  on e : Exception do begin
 
+  end;
   end;
   Application.Terminate;
 end;

@@ -6,7 +6,7 @@ uses
   System.Classes, System.SysUtils, System.Generics.Collections, System.SyncObjs,
   ADRIFood.Model.Interfaces, ADRIFood.Model.Types,
   ADRIFood.Component.Events, ADRIFood.Component,  DataSet.Serialize,
-  Vcl.StdCtrls, uGenericaFuncion;
+  Vcl.StdCtrls, uGenericaFuncion, uCodigoPedidoDia;
 
 type
    TProcessamentoiFood = class(TThread)
@@ -216,7 +216,7 @@ begin
     if DadosPedido.RecordCount = 0 then
     begin
       CodigoIntermo := conexao.GerarID('pedido', 'codigo');
-//      CodigoPedidoDia := frmServidor.GerarCodigoPedidoDia;
+      CodigoPedidoDia := ProximoCodigoPedidoDia;
       DadosCli.Close;
 
       if dataSetOrders.FieldByName('customerDocumentNumber').AsString = '' then
@@ -687,7 +687,7 @@ begin
           begin
             // Aceitar o Pedido
             IFood.Order.Confirmation(OrderId);
-            {
+
             Codigo := conexao.GerarID('impressao_pedido', 'id');
             conexao.SQL.Add('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
             conexao.Parametros('id', Codigo);
@@ -703,7 +703,7 @@ begin
             conexao.SQL.Add('WHERE data_impressao IS NULL');
             conexao.SQL.Add('AND id_pedido IN (SELECT codigo FROM pedido_produtos WHERE pedido_produtos.codigo_pedido = :pedido);');
             conexao.Parametros('pedido', CodigoIntermo);
-            conexao.ExecuteSQL;     }
+            conexao.ExecuteSQL;
             // Imprimir
           end;
         2:
@@ -794,7 +794,7 @@ begin
     on E: Exception do
     begin
       // Exibir mensagem de erro ou tratar de acordo com a necessidade
-      // //showmessage1('Erro ao salvar o arquivo: ' + E.Message);
+      // ////ShowMessage1('Erro ao salvar o arquivo: ' + E.Message);
 
     end;
   end;
@@ -846,8 +846,8 @@ begin
         // Processar o pedido aqui
         // Exemplo de processamento:
         // Exibir os detalhes do pedido em uma MessageBox
-        // ////showmessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
-        // ////showmessage1('Cliente: ' + OrderPair.Value.CustomerName);
+        // //////ShowMessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
+        // //////ShowMessage1('Cliente: ' + OrderPair.Value.CustomerName);
         Processamento(OrderPair.Key, OrderPair.Value);
       end;
     finally

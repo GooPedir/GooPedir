@@ -221,6 +221,10 @@ begin
       Requisicao.Metodo := mPost;
       Requisicao.Execute;
     except
+    on E : Exception do
+    begin
+      //ShowMessage(e.Message);
+    end;
 
     end;
     Requisicao.Free;
@@ -3692,7 +3696,7 @@ begin
     + Req.Body + ')) as previsao,');
   conexao.SQL.Add
     ('(select count(*) from pedido where origem in (1,2) and status  > 0 and data_pedido = current_date()) as atual');
-  // ////showmessage1(conexao.SQL.text);
+  // //////ShowMessage1(conexao.SQL.text);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -5465,7 +5469,7 @@ begin
     ('upper(pap.descricao) as extra, upper(GROUP_CONCAT(paps.descricao SEPARATOR "||")) as descricao, GROUP_CONCAT(id_prod_estoque SEPARATOR "||") as stock,');
   conexao.SQL.Add('upper(GROUP_CONCAT(paps.nome SEPARATOR "||")) as itens,');
   conexao.SQL.Add
-    ('upper(GROUP_CONCAT(paps.url SEPARATOR "||")) as url,  GROUP_CONCAT(paps.valor SEPARATOR "||") as valores from produto as p');
+    ('(GROUP_CONCAT(paps.url SEPARATOR "||")) as url,  GROUP_CONCAT(paps.valor SEPARATOR "||") as valores from produto as p');
   conexao.SQL.Add
     ('join pro_adi_personalizado as pap on pap.id_produto = p.codigo');
   conexao.SQL.Add
@@ -8166,7 +8170,7 @@ end;
   except
   on E: Exception do
   begin
-  ////showmessage1(E.Message);
+  //////ShowMessage1(E.Message);
   Result.Free;
   // raise;
   end;
@@ -9914,7 +9918,7 @@ begin
       except
         on E: Exception do
         begin
-          // //showmessage1(e.Message)
+          // ////ShowMessage1(e.Message)
         end;
       end;
 

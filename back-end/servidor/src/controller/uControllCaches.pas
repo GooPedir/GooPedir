@@ -158,7 +158,7 @@ begin
       begin
         ArrayJson := TJsonArray.Create;
         Result := ArrayJson;
-        ShowMessage(e.Message);
+       
       end;
     end;
     conexao.Free;
@@ -535,7 +535,7 @@ begin
   LimpaCache('DoGetProdutoSabores', Codigo.ToString);
   LimpaCache('GetFichaProduto', Codigo.ToString);
   LimpaCache('GetProdutoCategoria', CodigoGrupo.ToString);
-  // //showmessage1(CodigoGrupo.ToString);
+  // ////ShowMessage1(CodigoGrupo.ToString);
 
   GetProdutoCategoria(CodigoGrupo.ToString);
   GetProdutoAdiciona(Codigo.ToString);

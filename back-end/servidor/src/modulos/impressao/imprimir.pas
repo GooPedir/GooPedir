@@ -1332,9 +1332,9 @@ procedure DoPostImpressoras(Req: THorseRequest; Res: THorseResponse;
 begin
   frmServidor.memImpressora.Close;
   try
-    // ////showmessage1(req.Body);
+    // //////ShowMessage1(req.Body);
     frmServidor.memImpressora.LoadFromJSON(Req.Body);
-    // ////showmessage1(frmServidor.memImpressora.RecordCount.ToString);
+    // //////ShowMessage1(frmServidor.memImpressora.RecordCount.ToString);
   except
 
   end;

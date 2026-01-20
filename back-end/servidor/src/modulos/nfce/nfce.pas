@@ -542,11 +542,11 @@ begin
     // Verifica a resposta
     if RESTResponse.StatusCode = 200 then
     begin
-      // ////showmessage1('Resposta do servidor: ' + RESTResponse.Content);
+      // //////ShowMessage1('Resposta do servidor: ' + RESTResponse.Content);
     end
     else
     begin
-      // ////showmessage1('Erro na requisição. Código: ' + RESTResponse.StatusCode.ToString);
+      // //////ShowMessage1('Erro na requisição. Código: ' + RESTResponse.StatusCode.ToString);
     end;
   finally
     RESTRequest.Free;

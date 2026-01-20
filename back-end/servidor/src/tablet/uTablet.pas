@@ -91,7 +91,7 @@ begin
   THorse.Put('/tablet/menu-item/:id', DoPutMenuItem);
   THorse.Put('/tablet/menu-reorder', DoPutMenuReorder);
   THorse.Delete('/tablet/menu-item/:id', DoDeleteMenuItem);
-  THorse.Get('/tablet/menu-escalonado', DoGetMenuTabletEscalonado);
+  THorse.Get('/cardapio/tablet', DoGetMenuTabletEscalonado);
 
 end;
 
@@ -116,6 +116,7 @@ begin
   if mem.RecordCount > 0 then
   begin
     obj.AddPair('nome', mem.FieldByName('nome').AsString);
+
     obj.AddPair('logo', mem.FieldByName('logo').AsString);
     obj.AddPair('comanda', mem.FieldByName('comanda').AsInteger);
     conexao.SQL.Add
@@ -125,6 +126,10 @@ begin
     conexao.SQL.Add
       ('where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
     obj.AddPair('banner', conexao.ConsultaSQL);
+
+    obj.AddPair('corFundo', '#000000');
+    obj.AddPair('corFonte', '#ffffff');
+    obj.AddPair('corPrincipal', '#a8001c');
 
   end;
 
@@ -455,7 +460,7 @@ begin
   except
     on e: exception do
     begin
-      showmessage(e.Message);
+      //ShowMessage(e.Message);
     end;
   end;
   conexao.Free;
@@ -618,12 +623,12 @@ begin
     Indice := CriarIndiceMenu(Itens);
     try
       // 4️⃣ Monta árvore escalonada
-      Retorno.AddPair('menu', MontarArvoreMenuIndexada(Indice, Null));
+      Retorno.AddPair('menu', MontarArvoreMenuIndexada(Indice, 0));
     except
       on e: exception do
       begin
         Indice.Free;
-        showmessage(e.Message)
+        //ShowMessage(e.Message)
       end;
 
     end;
@@ -653,7 +658,7 @@ begin
     end;
 
     if Itens.FieldByName('pai_id').Value = 0 then
-      Chave := -1
+      Chave := 0
     else
       Chave := Itens.FieldByName('pai_id').AsInteger;
 
@@ -698,9 +703,9 @@ begin
     obj.AddPair('id', Item.Id);
     obj.AddPair('nome', Item.Nome);
 
-    if not VarIsNull(Item.ProdutoId) then
+    if Item.ProdutoId > 0 then
       obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO', Item.ProdutoId))
-    else if not VarIsNull(Item.CategoriaId) then
+    else if Item.CategoriaId > 0 then
       obj.AddPair('produtos', BuscarProdutoPorChave('CATEGORIA',
         Item.CategoriaId));
 

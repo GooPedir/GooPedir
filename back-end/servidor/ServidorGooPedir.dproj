@@ -235,6 +235,7 @@
         <DCCReference Include="src\util\uGenericaFuncion.pas"/>
         <DCCReference Include="src\tablet\uTablet.pas"/>
         <DCCReference Include="src\modulo\uImageLocal.pas"/>
+        <DCCReference Include="src\controller\uCodigoPedidoDia.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

@@ -121,7 +121,8 @@ uses
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas',
   uTablet in 'src\tablet\uTablet.pas',
-  uImageLocal in 'src\modulo\uImageLocal.pas';
+  uImageLocal in 'src\modulo\uImageLocal.pas',
+  uCodigoPedidoDia in 'src\controller\uCodigoPedidoDia.pas';
 
 {$R *.res}
 

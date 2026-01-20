@@ -27,7 +27,7 @@ type
     // Campo para armazenar a função de fechamento
     FStatusHorario: TFunctionHorarioAbertura;
     function ConfigureRESTClient: iRequisicao;
-    procedure BuscarToken;
+
     procedure EnviaPostParam(JSON: TJSONObject);
     function ApenasLetrasENumeros(const S: string): string;
   public
@@ -43,6 +43,8 @@ type
     procedure EnviaParametroUnico(Campo, Valor, Tipo: String);
     procedure EnviaFuncionamento;
     function GetCupom: String;
+    procedure BuscarToken;
+    procedure EnviaDetalhesAtualizacao(banco, caminho, arquivo : String);
   end;
 
 implementation
@@ -79,7 +81,7 @@ begin
     FRequisicao.AddHeader('client-security', FClientSecret);
     FRequisicao.Execute;
     JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)as TJSONObject;
-    ShowMessage(FRequisicao.Retorno);
+
 
     try
       if JsonObject.GetValue<String>('error') <> '' then
@@ -131,13 +133,24 @@ begin
   FHorarioFechamentoFunc := HorarioFechamentoFunc;
   FStatusHorario := StatusHorario;
   BuscarToken;
-  FDataBloqueio := IncDay(date, 1);
 end;
 
 destructor TGooPedirAPIController.Destroy;
 begin
   // Qualquer limpeza adicional necessária
   inherited;
+end;
+
+procedure TGooPedirAPIController.EnviaDetalhesAtualizacao(banco, caminho,
+  arquivo: String);
+var
+objeto : TJSONObject;
+begin
+objeto := TJSONObject.Create;
+objeto.AddPair('banco',banco);
+objeto.AddPair('caminho',caminho);
+objeto.AddPair('arquivo',arquivo);
+objeto.AddPair('user', TJSONNumber.Create(FUserID));
 end;
 
 procedure TGooPedirAPIController.EnviaFuncionamento;
@@ -216,7 +229,6 @@ begin
             JsonCampo.AddPair('type', 'string');
             JsonCampos.AddElement(JsonCampo);
           end;
-
         end;
 
         JSonBody.AddPair('campos', JsonCampos);
@@ -271,7 +283,7 @@ begin
     FRequisicao.Execute;
   except
     on e: exception do
-      ShowMessage('Erro ao enviar os parâmetros: ' + e.Message);
+      //ShowMessage('Erro ao enviar os parâmetros: ' + e.Message);
   end;
   FRequisicao.Free;
 end;

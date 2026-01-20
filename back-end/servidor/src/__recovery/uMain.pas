@@ -1,4 +1,4 @@
-﻿unit uMain;
+unit uMain;
 
 interface
 
@@ -1551,7 +1551,8 @@ begin
           ('aceitar_pedidos_ifood').AsInteger;
         ProcessamentoiFood1.Start;
         NewIfood.MerchantStatus.DataSource := dsMerchants1;
-
+        NewIfood.MerchantStatus.Interval := 30;
+        NewIfood.MerchantStatus.AutoStatus := true;
       end;
       if StrToInt(Name) = 2 then
       begin
@@ -1561,6 +1562,8 @@ begin
           ('aceitar_pedidos_ifood').AsInteger;
         ProcessamentoiFood2.Start;
         NewIfood.MerchantStatus.DataSource := dsMerchants2;
+        NewIfood.MerchantStatus.Interval := 30;
+        NewIfood.MerchantStatus.AutoStatus := true;
 
       end;
 

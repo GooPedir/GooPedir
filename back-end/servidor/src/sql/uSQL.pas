@@ -1325,8 +1325,7 @@ begin
       end;
     94:
       begin
-        ExecultaSQL
-          ('insert into usuario (codigo,nome) values (-1,"Qrcod Mesa")');
+        ExecultaSQL('insert into usuario (codigo,nome) values (-1,"Qrcod Mesa")');
         ExecultaSQL('insert into usuario (codigo,nome) values (-2,"Site")');
       end;
     95:
@@ -2155,8 +2154,14 @@ begin
         SQL := SQL + '     KEY idx_categoria (categoria_id)';
         SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
         ExecultaSQL(SQL);
-        ExecultaSQL('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
+        ExecultaSQL
+          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
 
+      end;
+    136:
+      begin
+        ExecultaSQL('alter table tipo_produto add destaque integer default 0');
+        ExecultaSQL('insert into usuario (codigo,nome) values (-3,"Tablet")');
       end;
 
     99999999:

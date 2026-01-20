@@ -694,6 +694,7 @@ begin
 
     Req.Execute;
 
+
     // Parse do JSON retornado (agora é OBJETO na raiz)
     LRootVal := TJSONObject.ParseJSONValue(Req.Retorno);
     try

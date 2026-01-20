@@ -85,7 +85,7 @@ begin
   // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
   if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
   begin
-    ShowMessage('mysqldump.exe não encontrado.');
+    //ShowMessage('mysqldump.exe não encontrado.');
     exit;
   end;
 
@@ -129,7 +129,7 @@ begin
       else
       begin
         // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
-        // ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
+        // //ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
       end;
     end;
   finally

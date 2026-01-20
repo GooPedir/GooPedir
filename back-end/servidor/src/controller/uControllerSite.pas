@@ -396,7 +396,7 @@ begin
   except
     on E: Exception do
     begin
-      ShowMessage(E.Message);
+      //ShowMessage(E.Message);
       // Você pode querer registrar o erro em algum log aqui
       Result := ''; // Retorna vazio em caso de erro
     end;

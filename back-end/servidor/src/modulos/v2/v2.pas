@@ -1465,7 +1465,7 @@ begin
     except
       on E: Exception do
       begin
-        // showmessage('2-' + E.Message);
+        // //ShowMessage('2-' + E.Message);
       end;
 
     end;
@@ -1598,7 +1598,7 @@ begin
         except
           on E: Exception do
           begin
-            // showmessage(E.Message);
+            // //ShowMessage(E.Message);
           end;
 
         end;
@@ -1815,10 +1815,10 @@ begin
   begin
     LJSONObject := LJSONValue as TJSONObject;
 
-    // ////showmessage1('ID: ' + LJSONObject.GetValue('id').Value);
-    // ////showmessage1('Name: ' + LJSONObject.GetValue('name').Value);
-    // ////showmessage1('Description: ' + LJSONObject.GetValue('description').Value);
-    // ////showmessage1('Base64: ' + LJSONObject.GetValue('base64').Value);
+    // //////ShowMessage1('ID: ' + LJSONObject.GetValue('id').Value);
+    // //////ShowMessage1('Name: ' + LJSONObject.GetValue('name').Value);
+    // //////ShowMessage1('Description: ' + LJSONObject.GetValue('description').Value);
+    // //////ShowMessage1('Base64: ' + LJSONObject.GetValue('base64').Value);
     // flavorOld
     try
       Imagem := LJSONObject.GetValue('base64').Value;
@@ -1845,7 +1845,7 @@ begin
       for i := 0 to LJSONArray.Count - 1 do
       begin
         conexao.SQL.Add('select * from tipo_sabor where id = :id');
-        conexao.Parametros('id',UpperCase(LJSONObject.GetValue('type').Value));
+        conexao.Parametros('id', UpperCase(LJSONObject.GetValue('type').Value));
         try
           CodigoTipoSabor := conexao.FieldByName('id');
         except
@@ -2471,7 +2471,7 @@ begin
             except
               on E: Exception do
               begin
-                // showmessage(E.Message);
+                // //ShowMessage(E.Message);
               end;
             end;
             // Eviar o base64
@@ -2592,7 +2592,7 @@ begin
     on E: Exception do
     begin
       frmServidor.AddLog(E.Message);
-      // //showmessage1(E.Message)
+      // ////ShowMessage1(E.Message)
     end;
   end;
 
@@ -4249,7 +4249,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage1(E.Message)
+      // ////ShowMessage1(E.Message)
 
     end;
 
@@ -4622,6 +4622,93 @@ begin
 
   Res.Send<TJsonArray>(TJSONObject.ParseJSONValue
     (TEncoding.UTF8.GetBytes(frmServidor.CacheTiposJSON), 0) as TJsonArray);
+end;
+
+procedure DoPutBancos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  JSON: TJSONValue;
+  Database: string;
+  CaminhoConfig: string;
+  Linhas: TStringList;
+  i: Integer;
+  StartupInfo: TStartupInfo;
+  ProcessInfo: TProcessInformation;
+begin
+  JSON := TJSONObject.ParseJSONValue(Req.body);
+  if not Assigned(JSON) then
+  begin
+    Res.Status(400).Send('Body inválido');
+    exit;
+  end;
+
+  if not JSON.TryGetValue<string>('banco', Database) then
+  begin
+    Res.Status(400).Send('Campo "banco" não informado');
+    exit;
+  end;
+
+  CaminhoConfig := TPath.Combine(ExtractFilePath(ParamStr(0)),
+    'configuracao\confi.dados');
+
+  if not FileExists(CaminhoConfig) then
+  begin
+    Res.Status(500).Send('Arquivo confi.dados não encontrado');
+    exit;
+  end;
+
+  Linhas := TStringList.Create;
+  try
+    Linhas.LoadFromFile(CaminhoConfig);
+
+    for i := 0 to Linhas.Count - 1 do
+    begin
+      if Linhas[i].StartsWith('Database=') then
+      begin
+        Linhas[i] := 'Database=' + Database;
+        Break;
+      end;
+    end;
+
+    Linhas.SaveToFile(CaminhoConfig);
+  finally
+    Linhas.Free;
+  end;
+  frmServidor.setUser;
+
+  // Responde antes de derrubar o servidor
+  Res.Status(200).Send('Banco atualizado. Reiniciando serviços...');
+
+end;
+
+procedure DoGetBancos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: TConexao;
+  Dados: TFDMemTable;
+begin
+  Dados := TFDMemTable.Create(nil);
+  conexao := TConexao.Create('DoGetBancos');
+  conexao.SQL.Add('SELECT 0 as atual, schema_name as banco');
+  conexao.SQL.Add('FROM information_schema.schemata');
+  conexao.SQL.Add
+    ('WHERE schema_name NOT REGEXP "^(mysql|sys|information_schema|performance_schema)" ORDER BY schema_name');
+  Dados.LoadFromJSON(conexao.ConsultaSQL);
+  if Dados.RecordCount > 0 then
+  begin
+    while not Dados.Eof do
+    begin
+      if Dados.FieldByName('banco').AsString = conexao.NomeBanco then
+      begin
+        Dados.Edit;
+        Dados.FieldByName('atual').AsInteger := 1;
+        Dados.Post;
+      end;
+      Dados.Next;
+    end;
+  end;
+  Res.Send<TJsonArray>(Dados.ToJSONArray());
+  Dados.Free;
+  conexao.Free;
+
 end;
 
 procedure DoGetClienteHistorico(Req: THorseRequest; Res: THorseResponse;
@@ -5257,7 +5344,7 @@ var
 begin
   try
     JSONObject := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
-    // ////showmessage1(JSONObject.GetValue<string>('url'));
+    // //////ShowMessage1(JSONObject.GetValue<string>('url'));
     frmServidor.RequisicaoToPedindo.BaseURL :=
       JSONObject.GetValue<string>('url');
 
@@ -5509,8 +5596,14 @@ var
   Reader: TStreamReader;
   JSONStr: string;
 
+  ObjetoiFood: TJSONObject;
+  ArrayiFood: TJsonArray;
+  DadosiFood: TFDMemTable;
+
 begin
   conexao := TConexao.Create('V2Status');
+  DadosiFood := TFDMemTable.Create(nil);
+
   try
     JSONModulos := TJSONObject.ParseJSONValue(frmServidor.GetModulo)
       as TJSONObject;
@@ -5577,7 +5670,47 @@ begin
   end;
   JSONObject.AddPair('site',
     TJSONObject.ParseJSONValue(frmServidor.GetCachedData) as TJSONObject);
-  JSONObject.AddPair('ifood', frmServidor.dataSetMerchantStatus.ToJSONArray());
+
+  ArrayiFood := TJsonArray.Create;
+
+  if frmServidor.dataSetMerchants1.RecordCount > 0 then
+  begin
+    conexao.SQL.Add('select * from ifood_connect');
+    DadosiFood.LoadFromJSON(conexao.ConsultaSQL);
+
+  end;
+
+  if DadosiFood.RecordCount > 0 then
+  begin
+    ObjetoiFood := TJSONObject.Create;
+    ObjetoiFood.AddPair('statusLoja', frmServidor.dataSetMerchants1.FieldByName
+      ('messagetitle').AsString);
+    ObjetoiFood.AddPair('detalheLoja', frmServidor.dataSetMerchants1.FieldByName
+      ('messagesubtitle').AsString);
+    ObjetoiFood.AddPair('status', frmServidor.dataSetMerchants1.FieldByName
+      ('available').AsString);
+    ObjetoiFood.AddPair('loja', DadosiFood.FieldByName('name').AsString);
+    ArrayiFood.AddElement(ObjetoiFood);
+  end;
+
+  if frmServidor.dataSetMerchants2.RecordCount > 0 then
+  begin
+    DadosiFood.Next;
+    ObjetoiFood := TJSONObject.Create;
+    ObjetoiFood.AddPair('statusLoja', frmServidor.dataSetMerchants2.FieldByName
+      ('messagetitle').AsString);
+    ObjetoiFood.AddPair('detalheLoja', frmServidor.dataSetMerchants2.FieldByName
+      ('messagesubtitle').AsString);
+    ObjetoiFood.AddPair('status', frmServidor.dataSetMerchants2.FieldByName
+      ('available').AsString);
+    ObjetoiFood.AddPair('loja', DadosiFood.FieldByName('name').AsString);
+    ArrayiFood.AddElement(ObjetoiFood);
+  end;
+
+  // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants1.ToJSONArray());
+  // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants2.ToJSONArray());
+
+  JSONObject.AddPair('ifood', ArrayiFood);
   JSONObject.AddPair('user', frmServidor.UserID.ToString);
 
   JSONNFCe := TJSONObject.Create;
@@ -5621,13 +5754,14 @@ begin
 
   if frmServidor.memPaineis.RecordCount = 0 then
   begin
-    conexao.SQL.Add('SELECT * FROM painel');
+    conexao.SQL.Add('SELECT * FROM painel where tipo <> 3');
     frmServidor.memPaineis.LoadFromJSON(conexao.ConsultaSQL);
   end;
 
   if frmServidor.memBanner.RecordCount = 0 then
   begin
-    conexao.SQL.Add('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
+    conexao.SQL.Add
+      ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
     frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
   end;
 
@@ -8063,6 +8197,10 @@ begin
 
   // Cliente
   THorse.Get('v2/cliente/historico', DoGetClienteHistorico);
+
+  // Seleciona Banco
+  THorse.Get('v2/bancos', DoGetBancos);
+  THorse.put('v2/bancos', DoPutBancos);
 
 end;
 
