@@ -83,6 +83,15 @@ Sistema ativo diariamente, operando em produção contínua.
 
 ---
 
+### 🚀 Atualmente focado em
+
+- Arquitetura de microsserviços
+- Otimização avançada de MySQL
+- Observabilidade (logs, métricas e monitoramento)
+- Ambientes multi-VPS com redundância
+
+---
+
 ### 🧠 Meu diferencial
 
 - Sistemas orientados a negócio real, não projetos acadêmicos
