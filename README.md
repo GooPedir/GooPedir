@@ -70,6 +70,29 @@ Gosto de resolver problemas sérios com tecnologia sólida — e de preferência
 
 ---
 
+### 📊 Em produção (números reais)
+
++283.293 pedidos processados na plataforma  
++R$ 18.290.334,14 transacionados em ambiente real  
+
+**Distribuição**
+- 🌐 Site de Pedidos: 154.980 pedidos (R$ 9.488.945,91)
+- 🧾 PDV: 128.313 pedidos (R$ 8.801.388,23)
+
+Sistema ativo diariamente, operando em produção contínua.
+
+---
+
+### 🧠 Meu diferencial
+
+- Sistemas orientados a negócio real, não projetos acadêmicos
+- Forte domínio de operação de restaurantes e deliveries
+- Backend robusto para alta concorrência e picos de acesso
+- Integração entre legado sólido (Delphi) e stack moderna (Node/React)
+- Automação de deploy, atualização e recuperação de falhas
+
+---
+
 ## 🏗️ Projetos em Destaque
 
 🔹 **GooPedir – Plataforma completa para restaurantes/delivery**  
