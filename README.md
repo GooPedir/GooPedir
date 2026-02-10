@@ -53,18 +53,6 @@ Gosto de resolver problemas sérios com tecnologia sólida — e de preferência
 
 </div>
 
----
-
-## 📊 Estatísticas
-
-<div align="center">
-
-<img height="170" src="https://github-readme-stats.vercel.app/api?username=GooPedir&show_icons=true&theme=tokyonight&include_all_commits=true" />
-<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=GooPedir&layout=compact&theme=tokyonight" />
-
-</div>
-
----
 
 ## 🌐 Onde me encontrar
 
