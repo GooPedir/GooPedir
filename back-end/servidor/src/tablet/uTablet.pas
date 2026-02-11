@@ -69,6 +69,8 @@ function CriarIndiceMenu(Itens: TFDMemTable): TMenuIndex;
 function MontarArvoreMenuIndexada(Indice: TMenuIndex; PaiId: Integer)
   : TJSONArray;
 
+procedure DoGetConsumo(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
 implementation
 
 procedure Registry;
@@ -92,6 +94,8 @@ begin
   THorse.Put('/tablet/menu-reorder', DoPutMenuReorder);
   THorse.Delete('/tablet/menu-item/:id', DoDeleteMenuItem);
   THorse.Get('/cardapio/tablet', DoGetMenuTabletEscalonado);
+
+  THorse.Get('/busca/consumo/:id', DoGetConsumo);
 
 end;
 
@@ -416,8 +420,8 @@ begin
 
     // Itens
     conexao.SQL.Clear;
-    conexao.SQL.Add('SELECT id, nome, pai_id AS paiId, ordem, ' +
-      'produto_id AS produtoId, categoria_id AS categoriaId, ativo ' +
+    conexao.SQL.Add('SELECT id, nome, pai_id AS paiId, ordem, background_link,'
+      + 'produto_id AS produtoId, categoria_id AS categoriaId, ativo ' +
       'FROM menu_item WHERE menu_id = :menu AND ativo = 1 ' +
       'ORDER BY pai_id, ordem');
     conexao.Parametros('menu', Menu.FieldByName('id').AsInteger);
@@ -443,11 +447,13 @@ begin
   JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   try
     conexao.SQL.Add('INSERT INTO menu_item ' +
-      '(menu_id, nome, pai_id, ordem, produto_id, categoria_id, ativo) ' +
-      'VALUES (:menu, :nome, :pai, :ordem, :produto, :categoria, :ativo)');
+      '(menu_id, nome, pai_id, ordem, produto_id, categoria_id, ativo,background_link) '
+      + 'VALUES (:menu, :nome, :pai, :ordem, :produto, :categoria, :ativo,:background_link)');
 
     conexao.Parametros('menu', JSON.GetValue<Integer>('menuId', 0));
     conexao.Parametros('nome', JSON.GetValue<string>('nome'));
+    conexao.Parametros('background_link',
+      JSON.GetValue<string>('background_link'));
     conexao.Parametros('pai', JSONIntOrNull(JSON, 'paiId'));
     conexao.Parametros('ordem', JSON.GetValue<Integer>('ordem', 0));
     conexao.Parametros('produto', JSONIntOrNull(JSON, 'produtoId'));
@@ -460,7 +466,7 @@ begin
   except
     on e: exception do
     begin
-      //ShowMessage(e.Message);
+      /// /showmessage(e.Message);
     end;
   end;
   conexao.Free;
@@ -475,11 +481,13 @@ begin
   JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   try
     conexao.SQL.Add('UPDATE menu_item SET ' +
-      'nome = :nome, pai_id = :pai, ordem = :ordem, ativo = :ativo ' +
-      'WHERE id = :id');
+      'nome = :nome, pai_id = :pai, background_link = :background_link, ordem = :ordem, ativo = :ativo '
+      + 'WHERE id = :id');
 
     conexao.Parametros('id', Req.Params['id']);
     conexao.Parametros('nome', JSON.GetValue<string>('nome'));
+    conexao.Parametros('background_link',
+      JSON.GetValue<string>('background_link'));
     conexao.Parametros('pai', JSON.GetValue<Integer>('paiId', 0));
     conexao.Parametros('ordem', JSON.GetValue<Integer>('ordem', 0));
     conexao.Parametros('ativo', JSON.GetValue<Boolean>('ativo'));
@@ -547,6 +555,7 @@ begin
 
     conexao.SQL.Clear;
     conexao.SQL.Add('DELETE FROM menu_item WHERE id = :id');
+    conexao.Parametros('id', Req.Params['id']);
     conexao.ExecuteSQL;
 
     Res.Send(TJSONObject.Create.AddPair('sucesso', TJSONBool.Create(True)));
@@ -554,6 +563,74 @@ begin
     mem.Free;
     conexao.Free;
   end;
+end;
+
+procedure DoGetConsumo(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Produtos: TJSONArray;
+  Produto: TJSONObject;
+  conexao: TConexao;
+  Pedido: Integer;
+  dados: TFDMemTable;
+begin
+  conexao := TConexao.Create('DoGetConsumo');
+  Produtos := TJSONArray.Create;
+
+  conexao.SQL.Add('select  * from mesa where id_mesa = :id');
+  conexao.Parametros('id', Req.Params['id']);
+  Pedido := conexao.FieldByName('selecionada');
+  Pedido := 258;
+  if Pedido > 0 then
+  begin
+    dados := TFDMemTable.Create(nil);
+    conexao.SQL.Add('SELECT max(pp.codigo) as id,');
+    conexao.SQL.Add('max(p.codigo) as productId,');
+    conexao.SQL.Add('p.nome_produto as productName,');
+    conexao.SQL.Add('p.valor_venda as productValue,');
+    conexao.SQL.Add
+      ('GROUP_CONCAT(ppp.descricao ORDER BY CASE WHEN ppp.nomeclatura = "Ingredientes" THEN 0 ELSE 1 END, ppp.nomeclatura SEPARATOR ", ") AS adicionais,');
+    conexao.SQL.Add('max(pppO.descricao) as obs,');
+    conexao.SQL.Add('pp.quantidade as qtd,');
+    conexao.SQL.Add('pp.valor_total as valor');
+    conexao.SQL.Add('FROM pedido_produtos as pp');
+    conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+    conexao.SQL.Add
+      ('left join pedido_produto_sap as ppp on ppp.codigo_pedido_produto = pp.codigo and ppp.nomeclatura not like "%OBSER%" ');
+    conexao.SQL.Add
+      ('left join pedido_produto_sap as pppO on ppp.codigo_pedido_produto = pp.codigo and ppp.nomeclatura like "%OBSER%" ');
+    conexao.SQL.Add('where pp.codigo_pedido = :pedido');
+    conexao.SQL.Add
+      ('group by p.nome_produto,p.valor_venda, ppp.codigo_pedido_produto,pp.quantidade,pp.valor_total');
+
+    conexao.Parametros('pedido', Pedido);
+    dados.LoadFromJSON(conexao.ConsultaSQL);
+    if dados.RecordCount > 0 then
+    begin
+      while not dados.Eof do
+      begin
+        Produto := TJSONObject.Create;
+        Produto.AddPair('id', dados.FieldByName('id').AsInteger);
+        Produto.AddPair('productId', dados.FieldByName('productId').AsInteger);
+        Produto.AddPair('productName',
+          UpperCase(dados.FieldByName('productName').AsString));
+        Produto.AddPair('productValue',
+          dados.FieldByName('productValue').AsFloat);
+        Produto.AddPair('obs', UpperCase(dados.FieldByName('obs').AsString));
+        Produto.AddPair('adittion', UpperCase(dados.FieldByName('adicionais')
+          .AsString));
+        Produto.AddPair('qtd', dados.FieldByName('qtd').AsFloat);
+        Produto.AddPair('value', dados.FieldByName('valor').AsFloat);
+        Produtos.Add(Produto);
+        dados.Next;
+      end;
+    end;
+
+    dados.Free;
+    conexao.Free;
+
+  end;
+
+  Res.Send<TJSONArray>(Produtos);
 end;
 
 // procedure DoGetMenuTabletEscalonado(Req: THorseRequest; Res: THorseResponse;
@@ -628,7 +705,7 @@ begin
       on e: exception do
       begin
         Indice.Free;
-        //ShowMessage(e.Message)
+        /// /showmessage(e.Message)
       end;
 
     end;

@@ -38,6 +38,7 @@ type
     function IMPRESSAO: String;
     function SERVIDOR: String;
     function PSSITE: String;
+    function NGINX: String;
     procedure AlteraExtrasIguais;
 
   var
@@ -538,7 +539,7 @@ begin
       except
         on E: Exception do
         begin
-          // //showmessage(E.Message)
+          // ////showmessage(E.Message)
         end;
       end;
 
@@ -665,6 +666,9 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
+    if (not VerificaExe(NGINX)) then
+      AbrirExe(NGINX);
+
     if ComandaValue then
     begin
       if (not VerificaExe(PSSITE)) then
@@ -707,6 +711,11 @@ end;
 function TAbrirServicos.IMPRESSAO: String;
 begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ImpressaoGooPedir.exe';
+end;
+
+function TAbrirServicos.NGINX: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\nginx\nginx.exe';
 end;
 
 function TAbrirServicos.PSSITE: String;

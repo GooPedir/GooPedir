@@ -1325,7 +1325,8 @@ begin
       end;
     94:
       begin
-        ExecultaSQL('insert into usuario (codigo,nome) values (-1,"Qrcod Mesa")');
+        ExecultaSQL
+          ('insert into usuario (codigo,nome) values (-1,"Qrcod Mesa")');
         ExecultaSQL('insert into usuario (codigo,nome) values (-2,"Site")');
       end;
     95:
@@ -2162,6 +2163,229 @@ begin
       begin
         ExecultaSQL('alter table tipo_produto add destaque integer default 0');
         ExecultaSQL('insert into usuario (codigo,nome) values (-3,"Tablet")');
+        ExecultaSQL('alter table cliente add data_cadastro date;');
+        SQL := 'create trigger trg_cliente_data ' + 'before insert on cliente '
+          + 'for each row ' + 'set new.data_cadastro = curdate(); ';
+        ExecultaSQL(SQL);
+        ExecultaSQL
+          ('ALTER TABLE caixa_movimento ADD COLUMN data_hora DATETIME GENERATED ALWAYS AS (TIMESTAMP(data, hora)) STORED;');
+        ExecultaSQL
+          ('CREATE INDEX idx_caixa_datahora ON caixa_movimento (data_hora);');
+        ExecultaSQL
+          ('ALTER TABLE pedido ADD COLUMN data_hora DATETIME GENERATED ALWAYS AS (TIMESTAMP(data_pedido, hora_pedido)) STORED;');
+        ExecultaSQL('CREATE INDEX idx_pedido_datahora ON pedido (data_hora);');
+        ExecultaSQL
+          ('ALTER TABLE cliente ADD COLUMN data_cadastro DATE NULL DEFAULT current_date()');
+
+        SQL := 'CREATE PROCEDURE atualizar_data_cadastro_cliente()';
+        SQL := SQL + 'BEGIN';
+        SQL := SQL + '    UPDATE cliente c';
+        SQL := SQL + '    INNER JOIN (';
+        SQL := SQL + '        SELECT ';
+        SQL := SQL + '            p.codigo_cliente,';
+        SQL := SQL + '            MIN(p.data_pedido) AS data_primeiro_pedido';
+        SQL := SQL + '        FROM pedido p';
+        SQL := SQL + '        GROUP BY p.codigo_cliente';
+        SQL := SQL + '    ) x ON x.codigo_cliente = c.codigo';
+        SQL := SQL + '    SET c.data_cadastro = x.data_primeiro_pedido';
+        SQL := SQL + '    WHERE c.data_cadastro IS NULL;';
+        SQL := SQL + 'END';
+        ExecultaSQL(SQL);
+
+      end;
+    137:
+      begin
+        ExecultaSQL
+          ('alter table dados_whatsapp add tempo_preparo_delivery integer default 80');
+        ExecultaSQL
+          ('alter table dados_whatsapp add tempo_preparo_vembuscar integer default  65');
+        ExecultaSQL
+          ('alter table dados_whatsapp add tempo_preparo_mesa integer default  65');
+        ExecultaSQL
+          ('alter table dados_whatsapp add usar_tempo_preparo integer default  0');
+        SQL := ' ALTER TABLE pedido_produtos ';
+        SQL := SQL + ' ADD COLUMN preparo_tempo INT NULL DEFAULT 0 AFTER uuid,';
+        SQL := SQL +
+          ' ADD COLUMN preparo_hora TIMESTAMP NULL AFTER preparo_tempo';
+        ExecultaSQL(SQL);
+        ExecultaSQL
+          ('ALTER TABLE pedido ADD COLUMN preparo_hora TIMESTAMP NULL AFTER nfce_lock');
+        ExecultaSQL
+          ('ALTER TABLE pedido ADD recalcula_preparo TINYINT DEFAULT 1;');
+
+        SQL := ' CREATE PROCEDURE sp_calcula_tempo_preparo_pedido_produto (';
+        SQL := SQL + '     IN p_codigo_pedido_produto INT';
+        SQL := SQL + ' )';
+        SQL := SQL + ' BEGIN';
+        SQL := SQL + '     DECLARE v_codigo_produto INT;';
+        SQL := SQL + '     DECLARE v_codigo_pedido INT;';
+        SQL := SQL + '     DECLARE v_codigo_cliente_endereco INT;';
+        SQL := SQL + '     DECLARE v_id_ficha INT;';
+        SQL := SQL + '     DECLARE v_percentual_tempo DECIMAL(10,2);';
+        SQL := SQL + '     DECLARE v_tempo_estimado INT;';
+        SQL := SQL + '     DECLARE v_tempo_final INT;';
+        SQL := SQL + '    SELECT ';
+        SQL := SQL + '        pp.codigo_produto,';
+        SQL := SQL + '        p.codigo,';
+        SQL := SQL + '        p.codigo_cliente_endereco,';
+        SQL := SQL + '        p.id_ficha';
+        SQL := SQL + '    INTO ';
+        SQL := SQL + '        v_codigo_produto,';
+        SQL := SQL + '        v_codigo_pedido,';
+        SQL := SQL + '        v_codigo_cliente_endereco,';
+        SQL := SQL + '        v_id_ficha';
+        SQL := SQL + '    FROM pedido_produtos pp';
+        SQL := SQL + '    JOIN pedido p ON p.codigo = pp.codigo_pedido';
+        SQL := SQL + '    WHERE pp.codigo = p_codigo_pedido_produto';
+        SQL := SQL + '    LIMIT 1;';
+        SQL := SQL + '    IF v_codigo_produto IS NULL THEN';
+        SQL := SQL + '        SIGNAL SQLSTATE "45000"';
+        SQL := SQL + '        SET MESSAGE_TEXT = "Pedido_produtos não encontrado";';
+        SQL := SQL + '    END IF;';
+        SQL := SQL + '    IF v_id_ficha > 0 THEN';
+        SQL := SQL + '        SELECT tempo_preparo_mesa';
+        SQL := SQL + '        INTO v_percentual_tempo';
+        SQL := SQL + '        FROM dados_whatsapp';
+        SQL := SQL + '        LIMIT 1;';
+        SQL := SQL + '    ELSE';
+        SQL := SQL + '        IF v_codigo_cliente_endereco > 0 THEN';
+        SQL := SQL + '            SELECT tempo_preparo_delivery';
+        SQL := SQL + '            INTO v_percentual_tempo';
+        SQL := SQL + '            FROM dados_whatsapp';
+        SQL := SQL + '            LIMIT 1;';
+        SQL := SQL + '        ELSE';
+        SQL := SQL + '            SELECT tempo_preparo_vembuscar';
+        SQL := SQL + '            INTO v_percentual_tempo';
+        SQL := SQL + '            FROM dados_whatsapp';
+        SQL := SQL + '            LIMIT 1;';
+        SQL := SQL + '        END IF;';
+        SQL := SQL + '    END IF;';
+        SQL := SQL + '    SELECT tp.tempo_estimado';
+        SQL := SQL + '    INTO v_tempo_estimado';
+        SQL := SQL + '    FROM produto pr';
+        SQL := SQL + '    JOIN tipo_produto tp ON tp.codigo = pr.codigo_grupo';
+        SQL := SQL + '    WHERE pr.codigo = v_codigo_produto';
+        SQL := SQL + '    LIMIT 1;';
+        SQL := SQL + '    IF v_tempo_estimado IS NULL THEN';
+        SQL := SQL + '        SIGNAL SQLSTATE "45000"';
+        SQL := SQL +
+          '        SET MESSAGE_TEXT = "Tempo estimado do produto não encontrado";';
+        SQL := SQL + '    END IF;';
+        SQL := SQL +
+          '    SET v_tempo_final = CEIL(v_tempo_estimado * v_percentual_tempo / 100);';
+        SQL := SQL + '    UPDATE pedido_produtos';
+        SQL := SQL + '    SET';
+        SQL := SQL + '        preparo_tempo = v_tempo_final,';
+        SQL := SQL +
+          '        preparo_hora  = hora + INTERVAL v_tempo_final MINUTE';
+        SQL := SQL + '    WHERE codigo = p_codigo_pedido_produto;';
+        SQL := SQL + 'END$$';
+        ExecultaSQL(SQL);
+
+        SQL := ' CREATE PROCEDURE sp_atualiza_preparo_pedido (';
+        SQL := SQL + '     IN p_codigo_pedido INT';
+        SQL := SQL + ' )';
+        SQL := SQL + ' BEGIN';
+        SQL := SQL + '     DECLARE done INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_codigo_pp INT;';
+        SQL := SQL + '     DECLARE v_data_hora_pedido DATETIME;';
+        SQL := SQL + '     DECLARE v_percentual DECIMAL(10,2) DEFAULT 100;';
+        SQL := SQL + '     DECLARE v_tempo_medio_fila INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_tempo_medio_produtos INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_tempo_base INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_tempo_estimado INT DEFAULT 0;';
+        SQL := SQL + '     DECLARE v_codigo_cliente_endereco INT;';
+        SQL := SQL + '     DECLARE v_id_ficha INT;';
+        SQL := SQL + '     DECLARE cur_pp CURSOR FOR';
+        SQL := SQL + '         SELECT codigo';
+        SQL := SQL + '         FROM pedido_produtos';
+        SQL := SQL + '         WHERE codigo_pedido = p_codigo_pedido;';
+        SQL := SQL + '     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;';
+        SQL := SQL + '     SELECT';
+        SQL := SQL + '         TIMESTAMP(data_pedido, hora_pedido),';
+        SQL := SQL + '         codigo_cliente_endereco,';
+        SQL := SQL + '         id_ficha';
+        SQL := SQL + '     INTO';
+        SQL := SQL + '         v_data_hora_pedido,';
+        SQL := SQL + '         v_codigo_cliente_endereco,';
+        SQL := SQL + '         v_id_ficha';
+        SQL := SQL + '     FROM pedido';
+        SQL := SQL + '     WHERE codigo = p_codigo_pedido;';
+        SQL := SQL + '     IF v_id_ficha > 0 THEN';
+        SQL := SQL + '         SELECT tempo_preparo_mesa';
+        SQL := SQL + '         INTO v_percentual';
+        SQL := SQL + '         FROM dados_whatsapp';
+        SQL := SQL + '         LIMIT 1;';
+        SQL := SQL + '     ELSEIF v_codigo_cliente_endereco > 0 THEN';
+        SQL := SQL + '         SELECT tempo_preparo_delivery';
+        SQL := SQL + '         INTO v_percentual';
+        SQL := SQL + '         FROM dados_whatsapp';
+        SQL := SQL + '         LIMIT 1;';
+        SQL := SQL + '     ELSE';
+        SQL := SQL + '         SELECT tempo_preparo_vembuscar';
+        SQL := SQL + '         INTO v_percentual';
+        SQL := SQL + '         FROM dados_whatsapp';
+        SQL := SQL + '         LIMIT 1;';
+        SQL := SQL + '     END IF;';
+        SQL := SQL + '     OPEN cur_pp;';
+        SQL := SQL + '     pp_loop: LOOP';
+        SQL := SQL + '         FETCH cur_pp INTO v_codigo_pp;';
+        SQL := SQL + '         IF done = 1 THEN';
+        SQL := SQL + '             LEAVE pp_loop;';
+        SQL := SQL + '         END IF;';
+        SQL := SQL + '         CALL sp_calcula_tempo_preparo_pedido_produto(v_codigo_pp);';
+        SQL := SQL + '     END LOOP;';
+        SQL := SQL + '     CLOSE cur_pp;';
+        SQL := SQL + '     SELECT';
+        SQL := SQL + '         IFNULL(';
+        SQL := SQL + '             AVG(';
+        SQL := SQL + '                 TIMESTAMPDIFF(';
+        SQL := SQL + '                     MINUTE,';
+        SQL := SQL + '                     v_data_hora_pedido,';
+        SQL := SQL + '                     preparo_hora';
+        SQL := SQL + '                 )';
+        SQL := SQL + '             ), 0';
+        SQL := SQL + '         )';
+        SQL := SQL + '     INTO v_tempo_medio_fila';
+        SQL := SQL + '     FROM pedido';
+        SQL := SQL + '     WHERE status = 2';
+        SQL := SQL + '       AND codigo <> p_codigo_pedido';
+        SQL := SQL + '       AND TIMESTAMP(data_pedido, hora_pedido) < v_data_hora_pedido';
+        SQL := SQL + '       AND preparo_hora > v_data_hora_pedido;';
+        SQL := SQL + '     SELECT';
+        SQL := SQL + '         IFNULL(AVG(preparo_tempo), 0)';
+        SQL := SQL + '     INTO v_tempo_medio_produtos';
+        SQL := SQL + '     FROM pedido_produtos';
+        SQL := SQL + '     WHERE codigo_pedido = p_codigo_pedido;';
+        SQL := SQL + '     SET v_tempo_base =';
+        SQL := SQL + '         v_tempo_medio_fila + v_tempo_medio_produtos;';
+        SQL := SQL + '     SET v_tempo_estimado =';
+        SQL := SQL + '         CEIL(v_tempo_base * v_percentual / 100);';
+        SQL := SQL + '     UPDATE pedido';
+        SQL := SQL + '     SET';
+        SQL := SQL + ' 	recalcula_preparo = 0,';
+        SQL := SQL + '         tempo_estimado = v_tempo_estimado,';
+        SQL := SQL + '         preparo_hora  = v_data_hora_pedido';
+        SQL := SQL + '                          + INTERVAL v_tempo_estimado MINUTE';
+        SQL := SQL + '     WHERE codigo = p_codigo_pedido;';
+        SQL := SQL + ' END$$';
+        ExecultaSQL(SQL);
+
+        SQL := ' CREATE TRIGGER trg_pedido_after_update';
+        SQL := SQL + ' AFTER UPDATE ON pedido';
+        SQL := SQL + ' FOR EACH ROW';
+        SQL := SQL + ' BEGIN';
+        SQL := SQL + '     IF NEW.recalcula_preparo = 1 THEN';
+        SQL := SQL + '         CALL sp_atualiza_preparo_pedido(NEW.codigo);';
+        SQL := SQL + '     END IF;';
+        SQL := SQL + ' END$$';
+        ExecultaSQL(SQL);
+      end;
+      138: begin
+        ExecultaSQL('alter table tipo_produto add destaque integer default 0');
+      end;
+      139: begin
+        ExecultaSQL('alter table menu_item add background_link varchar(255)');
       end;
 
     99999999:
@@ -2177,7 +2401,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '135'
+  Result := '138'
 end;
 
 end.

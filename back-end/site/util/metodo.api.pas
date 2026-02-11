@@ -39,7 +39,7 @@ begin
       qry.Free;
       Result := 0;
     end;
-    // //showmessage(E.message);
+    // ////showmessage(E.message);
 
   end;
 end;
@@ -63,7 +63,7 @@ begin
       qry.Free;
       Result := '';
     end;
-    // //showmessage(E.message);
+    // ////showmessage(E.message);
 
   end;
 end;
@@ -83,7 +83,7 @@ begin
 
   except
     on E: Exception do
-      // //showmessage(E.message);
+      // ////showmessage(E.message);
 
   end;
 end;
@@ -197,7 +197,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(E.message);
+      // ////showmessage(E.message);
       AssignFile(arq, '\log.txt');
       Rewrite(arq);
       Writeln(arq, 'Erro ' + DateToStr(now));

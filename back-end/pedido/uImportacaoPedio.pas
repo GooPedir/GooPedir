@@ -680,6 +680,7 @@ var
   CodigoPedidoiFood: String;
   CodigoPedidoMotoboy: Integer;
   FRequestStatus: iRequisicao;
+
 begin
 
   User := UserID;
@@ -689,7 +690,7 @@ begin
   Req := iRequisicao.Create(nil);
   try
     Req.BaseURL := API_BASE_URL;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString+'&ambiente='+Ambiente;
     Req.Token(GetToken);
 
     Req.Execute;
@@ -904,7 +905,7 @@ begin
   except
   on e : exception do
   begin
-    ShowMessage(e.Message);
+    //showmessage(e.Message);
   end;
   end;
   Req.Free;

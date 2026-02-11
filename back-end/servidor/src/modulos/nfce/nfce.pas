@@ -154,19 +154,13 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create('nfce');
-  conexao.SQL.Add
-    ('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
-  conexao.SQL.Add
-    ('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
-  conexao.SQL.Add
-    ('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
-  conexao.SQL.Add
-    ('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
+  conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
+  conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
+  conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
+  conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
   conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add
-    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-  conexao.SQL.Add
-    ('join produto on produto.codigo = pedido_produtos.codigo_produto');
+  conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
   conexao.SQL.Add('where pedido.codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -542,11 +536,11 @@ begin
     // Verifica a resposta
     if RESTResponse.StatusCode = 200 then
     begin
-      // //////ShowMessage1('Resposta do servidor: ' + RESTResponse.Content);
+      // ////////showmessage1('Resposta do servidor: ' + RESTResponse.Content);
     end
     else
     begin
-      // //////ShowMessage1('Erro na requisição. Código: ' + RESTResponse.StatusCode.ToString);
+      // ////////showmessage1('Erro na requisição. Código: ' + RESTResponse.StatusCode.ToString);
     end;
   finally
     RESTRequest.Free;

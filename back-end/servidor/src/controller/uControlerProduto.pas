@@ -411,9 +411,9 @@ begin
         JsonObjeto.AddPair('people', DadosProduto.FieldByName('pessoas')
           .AsString);
         JsonObjeto.AddPair('value_discont',
-          DadosProduto.FieldByName('valor_desconto').AsString);
+          DadosProduto.FieldByName('valor_desconto').AsFloat);
         JsonObjeto.AddPair('value_percent',
-          DadosProduto.FieldByName('percentual_desconto').AsString);
+          DadosProduto.FieldByName('percentual_desconto').AsFloat);
         if DadosProduto.FieldByName('saldo_atual').AsString = '' then
           JsonObjeto.AddPair('quanty', 0)
         else

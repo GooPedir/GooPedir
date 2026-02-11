@@ -10,6 +10,7 @@ uses
 procedure ImportaProduto(Item: TJSONObject);
 procedure Produto(Produto: TJSONObject; Conexao: TConexao);
 procedure AtualizaStatusImportacao(Tabela, Codigo: String);
+function Ambiente: String;
 
 implementation
 
@@ -561,6 +562,27 @@ begin
     ArrSabores := Produto.Values['sabores'] as TJSONArray;
     UpsertSabores(CodigoProduto, ArrSabores);
   end;
+end;
+
+function Ambiente: String;
+var
+  Conexao: TConexao;
+begin
+  Conexao := TConexao.Create('Ambiente');
+  Conexao.SQL.Add('SELECT 0 as zero, ambiente FROM dados_whatsapp');
+  Result := 'PROD';
+
+  try
+    Result := Conexao.FieldByName('ambiente');
+    if (Result = '1') then
+      Result := 'DESENV'
+    else
+      Result := 'PROD'
+  except
+    Result := 'PROD'
+  end;
+
+  Conexao.Free;
 end;
 
 end.

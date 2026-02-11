@@ -1149,7 +1149,7 @@ begin
 
     ACBrNFe1.Consultar;
 
-    // showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
+    // //showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
 
     MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
@@ -1161,7 +1161,7 @@ begin
         [rfIgnoreCase]);
 
     ACBrNFe1.NotasFiscais.Items[0].GravarXML(NomeArq);
-    // showmessage('Arquivo gravado em: ' + NomeArq);
+    // //showmessage('Arquivo gravado em: ' + NomeArq);
     memoLog.Lines.Add('Arquivo gravado em: ' + NomeArq);
   end;
 end;
@@ -1351,8 +1351,8 @@ begin
     MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
     LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
-    // showmessage(IntToStr(ACBrNFe1.WebServices.EnvEvento.cStat));
-    // showmessage(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0]
+    // //showmessage(IntToStr(ACBrNFe1.WebServices.EnvEvento.cStat));
+    // //showmessage(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0]
     // .RetInfEvento.nProt);
   end;
 end;
@@ -1527,7 +1527,7 @@ begin
   // Certifique-se de que a chave informada tem 44 caracteres
   if length(vChave) <> 44 then
   begin
-    // showmessage('A chave de acesso deve ter 44 dígitos.');
+    // //showmessage('A chave de acesso deve ter 44 dígitos.');
     exit;
   end;
 
@@ -1554,16 +1554,16 @@ begin
       // Salva o XML consultado
       ACBrNFe1.NotasFiscais.Items[0].GravarXML(CaminhoArquivo);
 
-      // showmessage('XML salvo em: ' + CaminhoArquivo);
+      // //showmessage('XML salvo em: ' + CaminhoArquivo);
     end
     else
     begin
-      // showmessage('A consulta foi realizada, mas não retornou um XML.');
+      // //showmessage('A consulta foi realizada, mas não retornou um XML.');
     end;
   end
   else
   begin
-    // showmessage('Erro ao consultar a NFC-e: ' +
+    // //showmessage('Erro ao consultar a NFC-e: ' +
     // ACBrNFe1.WebServices.Consulta.Msg);
   end;
 
@@ -1590,7 +1590,7 @@ begin
     ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.Consultar;
 
-    // showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
+    // //showmessage(ACBrNFe1.WebServices.Consulta.Protocolo);
     MemoResp.Lines.Text := ACBrNFe1.WebServices.Consulta.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.Consulta.RetornoWS;
     LoadXML(ACBrNFe1.WebServices.Consulta.RetornoWS, WBResposta);
@@ -2177,7 +2177,7 @@ begin
 
 
 
-  // //showmessage('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items[0].NomeArq);
+  // ////showmessage('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items[0].NomeArq);
   // MemoDados.Lines.Add('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais.Items
   // [0].NomeArq);
 
@@ -2219,7 +2219,7 @@ begin
       try
         ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
       except
-        // showmessage('Arquivo NFe Inválido');
+        // //showmessage('Arquivo NFe Inválido');
         exit;
       end;
     end;
@@ -3106,7 +3106,7 @@ begin
       'dhRegEvento: ' + DateTimeToStr(dhRegEvento) + #13 + 'nProt: ' + nProt;
   end;
 
-  // showmessage(lMsg);
+  // //showmessage(lMsg);
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
@@ -3194,7 +3194,7 @@ begin
       MemoResp.Lines.Add('CNPJ: ' + ACBrNFe1.SSL.CertCNPJ);
       MemoResp.Lines.Add('Num.Série: ' + ACBrNFe1.SSL.CertNumeroSerie);
 
-      // showmessage('ASSINATURA VÁLIDA');
+      // //showmessage('ASSINATURA VÁLIDA');
     end;
   end;
 end;
@@ -3223,10 +3223,10 @@ begin
     if not Ok then
     begin
       MemoDados.Lines.Add('Erro: ' + Msg);
-      // showmessage('Erros encontrados' + sLineBreak + 'Tempo: ' + Tempo);
+      // //showmessage('Erros encontrados' + sLineBreak + 'Tempo: ' + Tempo);
     end
     else
-      // showmessage('Tudo OK' + sLineBreak + 'Tempo: ' + Tempo);
+      // //showmessage('Tudo OK' + sLineBreak + 'Tempo: ' + Tempo);
   end;
 end;
 
@@ -3255,7 +3255,7 @@ begin
         MemoDados.Lines.Add('Alertas: ' + ACBrNFe1.NotasFiscais.Items
           [0].Alertas);
 
-      // showmessage('Nota Fiscal Eletrônica Valida');
+      // //showmessage('Nota Fiscal Eletrônica Valida');
     except
       on E: Exception do
       begin

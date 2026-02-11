@@ -131,7 +131,7 @@ begin
     if Erros.Count > 0 then
     begin
       Erros.SaveToFile(ExtractFilePath(ParamStr(0)) + 'log_erros_sql.txt');
-      //ShowMessage
+      ////showmessage
         ('Alguns comandos SQL não puderam ser executados. Veja o arquivo log_erros_sql.txt');
     end;
 
@@ -178,7 +178,7 @@ begin
   except
     on E: Exception do
     begin
-      //ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
+      ////showmessage('Erro ao conectar/criar banco: ' + E.Message);
       exit;
     end;
   end;
@@ -233,7 +233,7 @@ begin
         conexao.Free;
         ExecutarSQLScript(SQLScript);
 
-        //ShowMessage('Banco de dados criado com sucesso.');
+        ////showmessage('Banco de dados criado com sucesso.');
       end
       else
       begin

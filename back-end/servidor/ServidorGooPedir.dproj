@@ -236,6 +236,14 @@
         <DCCReference Include="src\tablet\uTablet.pas"/>
         <DCCReference Include="src\modulo\uImageLocal.pas"/>
         <DCCReference Include="src\controller\uCodigoPedidoDia.pas"/>
+        <DCCReference Include="src\other\Horse.SocketIO.Functions.pas"/>
+        <DCCReference Include="src\other\Horse.SocketIO.pas"/>
+        <DCCReference Include="src\other\Horse.SocketIO.ServerSocket.pas"/>
+        <DCCReference Include="src\other\GenericSocket.Client.pas"/>
+        <DCCReference Include="src\other\GenericSocket.Interfaces.pas"/>
+        <DCCReference Include="src\other\GenericSocket.Message.pas"/>
+        <DCCReference Include="src\other\GenericSocket.pas"/>
+        <DCCReference Include="src\other\GenericSocket.Server.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

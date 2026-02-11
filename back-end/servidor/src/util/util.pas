@@ -74,6 +74,7 @@ function UnionPedio(Tabela, Tipo: String): String;
 
 function GetDadosProdutoPedido(Pedido: Integer): TJSONArray;
 procedure LogTempoExecucaoPedido(const Texto: string);
+function GetClientIP(Req: THorseRequest): string;
 
 
 
@@ -100,6 +101,20 @@ uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
 function CodigoRadon(Codigo: Integer): Integer;
 begin
   Result := Random(Codigo) + Codigo;
+end;
+
+function GetClientIP(Req: THorseRequest): string;
+begin
+  Result := Req.Headers['CF-Connecting-IP']; // Cloudflare
+
+  if Result = '' then
+    Result := Req.Headers['X-Forwarded-For']; // Proxy reverso
+
+  if Result = '' then
+    Result := Req.Headers['X-Real-IP'];
+
+  if Result = '' then
+    Result := Req.RawWebRequest.RemoteAddr; // fallback direto
 end;
 
 procedure LogTempoExecucaoPedido(const Texto: string);
@@ -221,10 +236,10 @@ begin
       Requisicao.Metodo := mPost;
       Requisicao.Execute;
     except
-    on E : Exception do
-    begin
-      //ShowMessage(e.Message);
-    end;
+      on E: Exception do
+      begin
+        // //showmessage(e.Message);
+      end;
 
     end;
     Requisicao.Free;
@@ -255,6 +270,9 @@ begin
     (', valor_total_pedido = (((select sum(pp.valor_total) from pedido_produtos as pp where pp.codigo_pedido = :codigo) + valor_taxa_entrega) - valor_desconto) where codigo = :codigo');
   conexao.Parametros('codigo', Codigo);
   conexao.ExecuteSQL;
+
+  conexao.ExecuteSQL('call sp_atualiza_preparo_pedido(' +
+    Codigo.ToString + ')');
   conexao.Free;
 
 end;
@@ -285,8 +303,7 @@ begin
     '      WHERE a.tipo = ''CHAMAR_GARCOM'' ' +
     '        AND a.status = ''ABERTO'' ' +
     '        AND a.referencia_id = m.id_mesa ' + '    ) THEN 1 ELSE 0 ' +
-    '  END AS tem_chamado, ' +
-
+    '  END AS tem_chamado, ' + 'm.fk_tipo_mesa as tipo_mesa,' +
     '  m.id_mesa, m.descricao, mt.descricao AS descricao1, ' +
     '  m.nr_mesa, m.selecionada, m.tot_mesa, m.sts_mesa ');
   conexao.SQL.Add('FROM mesa AS m ' +
@@ -1410,7 +1427,7 @@ begin
   end;
 
   try
-    Valor := Req.Params['valor'].ToDouble;
+    Valor := strtofloat(StringReplace(Req.Params['valor'], '.', ',', []));
   except
     Res.Send('valor não informado').Status(500);
     exit;
@@ -3696,7 +3713,7 @@ begin
     + Req.Body + ')) as previsao,');
   conexao.SQL.Add
     ('(select count(*) from pedido where origem in (1,2) and status  > 0 and data_pedido = current_date()) as atual');
-  // //////ShowMessage1(conexao.SQL.text);
+  // ////////showmessage1(conexao.SQL.text);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -4705,11 +4722,14 @@ begin
       .AsInteger);
     conexao.Parametros('troco', Troco);
     conexao.Parametros('nome', ClienteNome);
-
     conexao.ExecuteSQL;
 
-    conexao.Free;
+    conexao.ExecuteSQL('call sp_atualiza_preparo_pedido(' +
+      Dados.FieldByName('codigo').AsString + ')');
   end;
+
+  Dados.Free;
+  conexao.Free;
 
 end;
 
@@ -8170,7 +8190,7 @@ end;
   except
   on E: Exception do
   begin
-  //////ShowMessage1(E.Message);
+  ////////showmessage1(E.Message);
   Result.Free;
   // raise;
   end;
@@ -9506,12 +9526,14 @@ var
   CampoHora: String;
   UUID: String;
   ID: TGUID;
+  IP: string;
 
   // Lista corrigida: cada item do loop será gravado aqui
   ListaItens: TList<TItemProcesso>;
   Item: TItemProcesso;
 
 begin
+  IP := GetClientIP(Req);
   try
     ImprimirInsta := false;
     conexao := Tconexao.Create('Util');
@@ -9569,10 +9591,10 @@ begin
         else
         begin
           conexao.SQL.Add
-            ('select codigo, valor_venda from produto where codigo = :codigo');
+            ('SELECT codigo, CASE WHEN valor_desconto > 0 THEN valor_desconto ELSE valor_venda END AS valor_final FROM produto WHERE codigo = :codigo');
           conexao.Parametros('codigo', Produto);
           try
-            ValorProduto := conexao.FieldByName('valor_venda');
+            ValorProduto := conexao.FieldByName('valor_final');
           except
           end;
         end;
@@ -9705,8 +9727,10 @@ begin
             if it.Mesa > 0 then
             begin
               conexaoT.SQL.Add
-                ('update mesa set sts_mesa = 1, tot_mesa = tot_mesa + :tot, hora = '
-                + it.CampoHora + ' where id_mesa = :id');
+                ('update mesa set sts_mesa = 1, tot_mesa = COALESCE(tot_mesa, 0) + :tot');
+              if (it.CampoHora <> '') then
+                conexaoT.SQL.Add(',hora = ' + it.CampoHora);
+              conexaoT.SQL.Add('where id_mesa = :id');
               conexaoT.Parametros('tot', (it.ValorProduto + it.ValorAdicional) *
                 it.Quantidade);
               conexaoT.Parametros('id', it.Mesa);
@@ -9721,6 +9745,21 @@ begin
           conexaoT.Free;
         end;
       end).start;
+
+    // LOG DA OPERAÇÃO (ANTES DE PROCESSAR)
+    conexao := Tconexao.Create('Util');
+    conexao.SQL.Clear;
+    conexao.SQL.Add
+      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) ' +
+      'values (:ip, :usuario, :operacao, :endpoint, :body)');
+
+    conexao.Parametros('ip', IP);
+    conexao.Parametros('usuario', Usuario); // default
+    conexao.Parametros('operacao', 'AdicionaProduto');
+    conexao.Parametros('endpoint', '/v2/grava/varios/produtos');
+    conexao.Parametros('body', Body);
+
+    conexao.ExecuteSQL;
 
     conexao.Free;
 
@@ -9918,7 +9957,7 @@ begin
       except
         on E: Exception do
         begin
-          // ////ShowMessage1(e.Message)
+          // //////showmessage1(e.Message)
         end;
       end;
 
@@ -9945,6 +9984,29 @@ begin
   QRY.Open;
   DescricaoMesa := QRY.FieldByName('descricao').AsString;
   QRY.Close;
+
+  if Mesa > 0 then
+  begin
+    QRY.SQL.Text :=
+      'select codigo from pedido where id_ficha = :mesa and codigo_pedido_dia = 0 and status = -1 and origem = 3 and id_caixa is null and data_pedido >= (CURDATE() - INTERVAL 1 DAY)';
+    QRY.ParamByName('mesa').AsInteger := Mesa;
+    QRY.Open;
+    if QRY.RecordCount > 0 then
+    begin
+      Result := QRY.FieldByName('codigo').AsInteger;
+      if Result > 0 then
+      begin
+        QRY.SQL.Text :=
+          'update mesa set selecionada = :pedido where id_mesa = :mesa';
+        QRY.ParamByName('pedido').AsInteger := Result;
+        QRY.ParamByName('mesa').AsInteger := Mesa;
+        QRY.ExecSQL;
+
+        QRY.Free;
+        exit;
+      end;
+    end;
+  end;
 
   // Inserção do pedido
   QRY.SQL.Text :=

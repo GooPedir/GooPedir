@@ -283,7 +283,7 @@ begin
     FRequisicao.Execute;
   except
     on e: exception do
-      //ShowMessage('Erro ao enviar os parâmetros: ' + e.Message);
+      ////showmessage('Erro ao enviar os parâmetros: ' + e.Message);
   end;
   FRequisicao.Free;
 end;

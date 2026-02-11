@@ -1,6 +1,7 @@
 program ServidorGooPedir;
 
-  {$I FastMM4Options.inc}
+{$I FastMM4Options.inc}
+
 uses
   Vcl.Forms,
   uMain in 'src\uMain.pas' {frmServidor},
@@ -117,12 +118,21 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
+
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas',
   uTablet in 'src\tablet\uTablet.pas',
   uImageLocal in 'src\modulo\uImageLocal.pas',
-  uCodigoPedidoDia in 'src\controller\uCodigoPedidoDia.pas';
+  uCodigoPedidoDia in 'src\controller\uCodigoPedidoDia.pas',
+  Horse.SocketIO.Functions in 'src\other\Horse.SocketIO.Functions.pas',
+  Horse.SocketIO in 'src\other\Horse.SocketIO.pas',
+  Horse.SocketIO.ServerSocket in 'src\other\Horse.SocketIO.ServerSocket.pas',
+  GenericSocket.Client in 'src\other\GenericSocket.Client.pas',
+  GenericSocket.Interfaces in 'src\other\GenericSocket.Interfaces.pas',
+  GenericSocket.Message in 'src\other\GenericSocket.Message.pas',
+  GenericSocket in 'src\other\GenericSocket.pas',
+  GenericSocket.Server in 'src\other\GenericSocket.Server.pas';
 
 {$R *.res}
 
@@ -130,4 +140,5 @@ begin
   Application.Initialize;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
+
 end.

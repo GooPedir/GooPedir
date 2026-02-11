@@ -1189,7 +1189,7 @@ begin
     // if Relatorio.PrinterSetup.MarginLeft > 1 then
     // Relatorio.PrinterSetup.MarginLeft := 0.2;
 
-    // //showmessage(
+    // ////showmessage(
     // 'Top '+Relatorio.PrinterSetup.MarginTop.ToString+#13+
     // 'Bottom '+Relatorio.PrinterSetup.MarginBottom.ToString+#13+
     // 'Left '+Relatorio.PrinterSetup.MarginLeft.ToString+#13+
@@ -1306,12 +1306,12 @@ begin
   try
     Req.Execute;
     Result := Req.Retorno;
-    // //showmessage(Result)
+    // ////showmessage(Result)
   except
     on E: Exception do
     begin
       Result := '[]';
-      // //showmessage(e.Message)
+      // ////showmessage(e.Message)
     end;
   end;
 
@@ -1476,7 +1476,7 @@ begin
         except
           on E: Exception do
           begin
-            // showmessage(E.Message);
+            // //showmessage(E.Message);
           end;
 
         end;
@@ -2341,7 +2341,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(e.Message)
+      // ////showmessage(e.Message)
     end;
 
   end;
@@ -2559,7 +2559,7 @@ begin
         (Consulta('/v1/consulta/generica/impressoras/*/*/*'));
     end;
 
-    // //showmessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
+    // ////showmessage('Tempo :'+frmMain.ValidarTempo.ToString()+' Status: '+ValidaStatus.ToString());
 
     frmMain.GravaLog('Validar Tempo: ' + frmMain.ValidarTempo.toString() +
       ', Validar Status: ' + ValidaStatus.toString());

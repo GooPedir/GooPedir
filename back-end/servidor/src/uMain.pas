@@ -16,6 +16,7 @@ uses
   FireDAC.Phys, FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.VCLUI.Wait,
   FireDAC.DApt, IniFiles, ACBrBase, ACBrDFe, ACBrNFe,
   uImportacaoProduto, DateUtils, uProcessamentoiFood, Vcl.Controls, uRequisicao,
+  Horse.SocketIO,
   uSite,
   GooPedirAPIController,
   REST.Client,
@@ -25,7 +26,7 @@ uses
   Data.Bind.Components,
   System.SyncObjs,
   Horse.XMLDoc, Xml.XMLDoc, uCodigoPedidoDia,
-
+  Horse.SocketIO.ServerSocket,
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
   cors,
   uControllerSite,
@@ -33,7 +34,7 @@ uses
   IdHTTP,
   IdSSLOpenSSL,
   Winapi.WinInet,
-
+  GenericSocket,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
   Tasks, TaskManager;
 
@@ -168,6 +169,8 @@ type
     memBanner: TFDMemTable;
     memTiposSite: TFDMemTable;
     IFood: TADRIFood;
+    memTipoMesa: TFDMemTable;
+    Button1: TButton;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -259,6 +262,8 @@ type
     procedure tBackupFTPTimer(Sender: TObject);
 
     procedure ReProcessaImpressaoPedidoProduto(conexao: Tconexao);
+    procedure Button1Click(Sender: TObject);
+    function SocketProdutos(Message: String): String;
 
   private
     FHorSite: TDateTime;
@@ -449,8 +454,8 @@ type
 
   var
     BalancaManager: TBalancaManager;
+    ServerSocket: iSocketServer;
 
-  var
     FechouWhatsapp: Boolean;
     FechouSite: Boolean;
 
@@ -486,6 +491,8 @@ type
     BackupExe: Boolean;
 
     Test: Integer;
+    ClientSocket: iGenericSocket;
+    JsonTipoMesa: TJsonArray;
 
   end;
 
@@ -645,7 +652,7 @@ begin
 
     // Executar uma task em paralelo
     TTaskManager.Run('sabores');
-    // TTaskManager.Run('clientes');
+    TTaskManager.Run('clientes');
     // TTaskManager.Run('vendas');
 
     // Evita que o programa termine antes das tasks concluírem
@@ -939,7 +946,7 @@ begin
   except
     on E: Exception do
     begin
-      // ShowMessage(E.Message);
+      // //showmessage(E.Message);
     end;
   end;
   IniFile.WriteDate('ATIVA', 'ATIVA', Date);
@@ -1381,7 +1388,7 @@ begin
   // dataSetProductsItemsOptions.Next;
   // end;
   //
-  // // //////ShowMessage1(memCategoriaExtra.ToJSONArray().ToString);
+  // // ////////showmessage1(memCategoriaExtra.ToJSONArray().ToString);
   //
   // dataSetCategoy.Next;
   // end;
@@ -1439,6 +1446,12 @@ begin
   memo.Free;
   Requisicao.Free;
 
+end;
+
+procedure TfrmServidor.Button1Click(Sender: TObject);
+begin
+  ClientSocket.SocketClient.RegisterCallback('/produtos', SocketProdutos)
+    .Connect('localhost', 8050, '@brst');
 end;
 
 procedure TfrmServidor.ComandaStatus;
@@ -1551,7 +1564,8 @@ begin
           ('aceitar_pedidos_ifood').AsInteger;
         ProcessamentoiFood1.Start;
         NewIfood.MerchantStatus.DataSource := dsMerchants1;
-
+        NewIfood.MerchantStatus.Interval := 30;
+        NewIfood.MerchantStatus.AutoStatus := true;
       end;
       if StrToInt(Name) = 2 then
       begin
@@ -1561,13 +1575,15 @@ begin
           ('aceitar_pedidos_ifood').AsInteger;
         ProcessamentoiFood2.Start;
         NewIfood.MerchantStatus.DataSource := dsMerchants2;
+        NewIfood.MerchantStatus.Interval := 30;
+        NewIfood.MerchantStatus.AutoStatus := true;
 
       end;
 
     except
       on E: Exception do
       begin
-        // ////ShowMessage1(E.Message);
+        // //////showmessage1(E.Message);
 
       end;
 
@@ -1827,7 +1843,7 @@ begin
   except
     on E: Exception do
     begin
-      // //////ShowMessage1(e.Message);
+      // ////////showmessage1(e.Message);
 
     end;
 
@@ -2189,7 +2205,7 @@ begin
     if Erros.Count > 0 then
     begin
       Erros.SaveToFile(ExtractFilePath(ParamStr(0)) + 'log_erros_sql.txt');
-      // ShowMessage
+      // //showmessage
       // ('Alguns comandos SQL não puderam ser executados. Veja o arquivo log_erros_sql.txt');
     end;
 
@@ -2281,7 +2297,7 @@ begin
   // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
   if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
   begin
-    // ShowMessage('mysqldump.exe não encontrado.');
+    // //showmessage('mysqldump.exe não encontrado.');
     exit;
   end;
 
@@ -2325,7 +2341,7 @@ begin
       else
       begin
         // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
-        // //ShowMessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
+        // ////showmessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
       end;
     end;
   finally
@@ -2622,8 +2638,9 @@ var
   Qry: TFDQuery;
   memo: TMemo;
   Nome: String;
-begin
 
+begin
+  ClientSocket := TGenericSocket.New;
   conexao := Tconexao.Create('main');
   // Migrado Para o Core
   try
@@ -2653,7 +2670,7 @@ begin
     on E: Exception do
     begin
 
-      // ShowMessage('Erro ao conectar/criar banco: ' + E.Message);
+      // //showmessage('Erro ao conectar/criar banco: ' + E.Message);
       Application.Terminate;
       exit;
     end;
@@ -2725,6 +2742,7 @@ begin
   THorse.Use(Jhonson);
   THorse.Use(OctetStream);
   THorse.Use(MiddlewareCORS);
+  THorse.Use(SocketIO);
 
   AtualizaCacheSite;
   IniFile.Free;
@@ -2733,8 +2751,12 @@ begin
   conexao.SQL.Add('SET GLOBAL max_connections = 1000;');
   conexao.ExecuteSQL;
 
+  conexao.SQL.Add('select * from mesa_tipo where ativo = 1');
+  memTipoMesa.LoadFromJSON(conexao.ConsultaSQL());
+
   VersaoMysql := conexao.ValidaVersao;
   GerarLog := true;
+
   // AposConectarBanco;
   // Agora pode iniciar Horse
   try
@@ -2776,32 +2798,32 @@ var
   conexao: Tconexao;
   horaInicio: string;
 begin
-//  if CodigoPedido > 0 then
-//  begin
-//    Inc(CodigoPedido);
-//    Result := CodigoPedido;
-//    exit;
-//  end;
-//
-//  // Define o horário de corte baseado na hora atual
-//  if HourOf(now) >= 15 then
-//    horaInicio := '14:59:59' // para incluir pedidos a partir das 15h
-//  else
-//    horaInicio := '04:59:59'; // para incluir pedidos a partir das 5h
-//
-//  conexao := Tconexao.Create('main');
-//  try
-//    conexao.SQL.Add
-//      ('select 0 as zero, COALESCE(max(codigo_pedido_dia),0) as codigo from pedido where data_pedido = curdate() and hora_pedido > :hora');
-//    conexao.Parametros('hora', horaInicio);
-//    CodigoPedido := conexao.FieldByName('codigo');
-//  finally
-//    conexao.Free;
-//  end;
-//
-//  CodigoPedido := CodigoPedido + 1;
-//  Result := CodigoPedido;
-Result := ProximoCodigoPedidoDia;
+  // if CodigoPedido > 0 then
+  // begin
+  // Inc(CodigoPedido);
+  // Result := CodigoPedido;
+  // exit;
+  // end;
+  //
+  // // Define o horário de corte baseado na hora atual
+  // if HourOf(now) >= 15 then
+  // horaInicio := '14:59:59' // para incluir pedidos a partir das 15h
+  // else
+  // horaInicio := '04:59:59'; // para incluir pedidos a partir das 5h
+  //
+  // conexao := Tconexao.Create('main');
+  // try
+  // conexao.SQL.Add
+  // ('select 0 as zero, COALESCE(max(codigo_pedido_dia),0) as codigo from pedido where data_pedido = curdate() and hora_pedido > :hora');
+  // conexao.Parametros('hora', horaInicio);
+  // CodigoPedido := conexao.FieldByName('codigo');
+  // finally
+  // conexao.Free;
+  // end;
+  //
+  // CodigoPedido := CodigoPedido + 1;
+  // Result := CodigoPedido;
+  Result := ProximoCodigoPedidoDia;
 end;
 
 
@@ -4038,7 +4060,8 @@ begin
 
   conexao := Tconexao.Create('main');
   try
-    conexao.SQL.Add('select COALESCE(max(codigo_pedido_dia),0) as codigo ' +
+    conexao.SQL.Add
+      ('select 0 as zero, COALESCE(max(codigo_pedido_dia),0) as codigo ' +
       'from pedido where data_pedido = curdate() and hora_pedido > :hora');
     conexao.Parametros('hora', horaInicio);
     Codigo := conexao.FieldByName('codigo');
@@ -4260,7 +4283,7 @@ end;
 
 procedure TfrmServidor.mModal(Valor: String);
 begin
-  // //////ShowMessage1(Valor);
+  // ////////showmessage1(Valor);
 end;
 
 function TfrmServidor.NumeroWpp: String;
@@ -4729,7 +4752,7 @@ begin
   except
     on E: Exception do
     begin
-      // //////ShowMessage1(e.Message)
+      // ////////showmessage1(e.Message)
     end;
   end;
 
@@ -5106,6 +5129,12 @@ begin
     Result := ExtractFileDir(Application.ExeName) + '\' + NomeEXE;
 end;
 
+function TfrmServidor.SocketProdutos(Message: String): String;
+begin
+  memLog.Lines.Add('Recebi ' + Message + ' e Respondi.');
+  Result := 'Respondido!';
+end;
+
 function TfrmServidor.StatusPedidoiFood: Integer;
 begin
   try
@@ -5449,7 +5478,7 @@ begin
         conexao.Free;
         ExecutarSQLScript(SQLScript);
 
-        // ShowMessage('Banco de dados criado com sucesso.');
+        // //showmessage('Banco de dados criado com sucesso.');
       end
       else
       begin

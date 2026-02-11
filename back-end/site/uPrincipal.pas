@@ -2042,7 +2042,7 @@ var
 begin
   if not ValidaAdm then
   begin
-    // showmessage('Exclusão Foi Cancelada, Senha Incorreta!');
+    // //showmessage('Exclusão Foi Cancelada, Senha Incorreta!');
     exit;
   end;
   TThread.CreateAnonymousThread(
@@ -2086,7 +2086,7 @@ begin
       Insert.ExecutaSQL(SQL);
       SQL := 'update pro_adi_personalizado              set id_site = 0';
       Insert.ExecutaSQL(SQL);
-      // showmessage('Dados Excluido com sucesso!');
+      // //showmessage('Dados Excluido com sucesso!');
     end).Start;
 
 end;
@@ -2142,11 +2142,11 @@ begin
     requisicao.MemoryTable := Memory;
     requisicao.Get;
     // requisicao.Retorno
-    // //showmessage(UTF8Encode(requisicao.Retorno));
+    // ////showmessage(UTF8Encode(requisicao.Retorno));
     X := TSuperArray.Create(requisicao.Retorno);
 
 
-    // //showmessage(Memory.RecordCount.ToString);
+    // ////showmessage(Memory.RecordCount.ToString);
 
     // SQL de consulta de tipo de produto
     // SELECT * FROM tipo_produto where (id_site = 818 or upper(descricao) = 'LANCHES')
@@ -2229,7 +2229,7 @@ begin
         if cSincroniza.Checked then
           SITE.InserirUpdate('ws_itens', BuscaPedidoThread.UserID.ToString,
             ['id', 'alterado'], [produto.ToString, '1']);
-        // //showmessage('7');
+        // ////showmessage('7');
 
         if Assigned(DadosProdutos) then
           DadosProdutos.Free;
@@ -2407,7 +2407,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(E.Message);
+      // ////showmessage(E.Message);
     end;
 
   end;
@@ -3093,7 +3093,7 @@ begin
     on E: Exception do
     begin
       Result := -1;
-      // //showmessage(E.Message);
+      // ////showmessage(E.Message);
     end;
 
   end;
@@ -3339,7 +3339,7 @@ begin
                 except
                   on E: Exception do
                   begin
-                    // //showmessage(E.Message);
+                    // ////showmessage(E.Message);
                   end;
                 end;
               end;
@@ -3476,7 +3476,7 @@ begin
                 except
                   on E: Exception do
                   begin
-                    // //showmessage(E.Message);
+                    // ////showmessage(E.Message);
                   end;
                 end;
               end;
@@ -3506,7 +3506,7 @@ begin
     except
       on E: Exception do
       begin
-        // //showmessage(E.Message);
+        // ////showmessage(E.Message);
       end;
 
     end;
@@ -3735,7 +3735,7 @@ begin
         QuotedStr(frmPrincipal.GetTempoVemBuscar);
 
       SQL := SQL + ' where user_id = ' + FUserID.ToString;
-      // //showmessage(sql);
+      // ////showmessage(sql);
       BuscaPedidoThread.ExecutaSQLSite(SQL);
     end
     else
@@ -4319,7 +4319,7 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(E.Message);
+      // ////showmessage(E.Message);
     end;
 
   end;

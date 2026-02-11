@@ -36,7 +36,7 @@ begin
   except
     on e: Exception do
     begin
-      if DisplayError then //////ShowMessage1('Error: ' + e.Message);
+      if DisplayError then ////////showmessage1('Error: ' + e.Message);
       exit(false);
     end;
   end;
@@ -53,7 +53,7 @@ begin
   else
   begin
     if DisplayError then
-      //////ShowMessage1('Error: Opening "' + URL + '" not supported.');
+      ////////showmessage1('Error: Opening "' + URL + '" not supported.');
     exit(false);
   end;
 end;

@@ -338,7 +338,7 @@ begin
       codigo := InsertSite.InserirUpdate('ws_cat', Usuario.ToString,
         ['id', 'user_id', 'dias_semana', 'nome_cat', 'desc_cat', 'icon_cat'],
         [Dados.FieldByName('id_site').AsString, Usuario.ToString,
-        'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado',
+        'Domingo,Segunda,Terï¿½a,Quarta,Quinta,Sexta,Sabado',
         Dados.FieldByName('descricao').AsString, '', '']);
 
       if codigo > 0 then
@@ -464,7 +464,7 @@ begin
       'nome_item', 'descricao_item', 'preco_item', 'disponivel',
       'valor_delivery'], [Dados.FieldByName('id_site').AsString,
       Usuario.ToString, 'false', '0',
-      'Domingo,Segunda,Terça,Quarta,Quinta,Sexta,Sabado', '0', '0',
+      'Domingo,Segunda,Terï¿½a,Quarta,Quinta,Sexta,Sabado', '0', '0',
       Dados.FieldByName('codigo_interno').AsString,
       Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
       .AsString, Dados.FieldByName('descricao').AsString,
@@ -715,9 +715,9 @@ function TfrmPrincipal.GetIdRequisicao: Integer;
 begin
   inc(FIdRequisicao);
   Result := FIdRequisicao;
-  lRequisicoes.Caption := 'Requisições: ' + IntToStr(Result) + ' - ' + SerialHD;
+  lRequisicoes.Caption := 'Requisiï¿½ï¿½es: ' + IntToStr(Result) + ' - ' + SerialHD;
   if Homologacao then
-    lRequisicoes.Caption := lRequisicoes.Caption + ' - [HOMOLOGAÇÃO]';
+    lRequisicoes.Caption := lRequisicoes.Caption + ' - [HOMOLOGAï¿½ï¿½O]';
 end;
 
 function TfrmPrincipal.GetTempoEspera: Integer;
@@ -764,7 +764,7 @@ begin
   end
   else
   begin
-    Status := 'Sem Conexão!';
+    Status := 'Sem Conexï¿½o!';
     TrayIcon.Icons := imagemDesconectado;
 
     if Assigned(BuscaPedidoThread) then
@@ -897,7 +897,7 @@ begin
       end
       else
       begin
-        MemoryDados.FieldByName('categoria').AsString := 'OBSERVAÇÃO';
+        MemoryDados.FieldByName('categoria').AsString := 'OBSERVAï¿½ï¿½O';
         MemoryDados.FieldByName('adicional').AsString :=
           MemoryPedidoItem.FieldByName('obs').AsString;
         MemoryDados.FieldByName('valoradicional').AsFloat := 0;
@@ -1069,7 +1069,10 @@ begin
   end;
 
   Result := MemoryDados.ToJSONArray().ToJSON;
-
+  // Libera memtables locais para evitar vazamento
+  if Assigned(memoryItemAdicionaisSabors) then memoryItemAdicionaisSabors.Free;
+  MemoryPedidoItem.Free;
+  MemoryDados.Free;
 end;
 
 function TBuscaPedidos.Cliente(Nome, Telefone: String): Integer;
@@ -1120,7 +1123,7 @@ begin
     on E: Exception do
     begin
       Result := -1;
-      // //showmessage(E.Message);
+      // ////showmessage(E.Message);
     end;
 
   end;
@@ -1132,7 +1135,7 @@ function TBuscaPedidos.ClienteEndereco(CodigoCliente: Integer;
 var
   Insert: TInsertUpdate;
 begin
-  if Complemento = '*Não informado*' then
+  if Complemento = '*Nï¿½o informado*' then
     Complemento := '';
   Insert := TInsertUpdate.Create;
   Insert.ExecutaSQL
@@ -1242,8 +1245,13 @@ end;
 
 destructor TBuscaPedidos.Destroy;
 begin
-
-  inherited;
+  try
+    if Assigned(FRequest) then FRequest.Free;
+    if Assigned(MemoryTablePedidos) then MemoryTablePedidos.Free;
+    if Assigned(MemoryDadosItem) then MemoryDadosItem.Free;
+  finally
+    inherited;
+  end;
 end;
 
 function TBuscaPedidos.ExecutaSQLSite(SQL: String): Boolean;
@@ -1267,7 +1275,7 @@ begin
   begin
     if UserID = -1 then
     begin
-      frmPrincipal.lStatus.Caption := 'Crédencias API - Incorretas';
+      frmPrincipal.lStatus.Caption := 'Crï¿½dencias API - Incorretas';
       BuscarPedido := False;
     end
     else
@@ -1297,7 +1305,7 @@ begin
               except
                 on E: Exception do
                 begin
-                  // //showmessage(E.Message);
+                  // ////showmessage(E.Message);
                 end;
               end;
             end;
@@ -1795,7 +1803,7 @@ begin
     on E: Exception do
     begin
 
-      // //showmessage(FRequest.BASEURL+FRequest.URLI+#13+E.Message);
+      // ////showmessage(FRequest.BASEURL+FRequest.URLI+#13+E.Message);
     end;
 
   end;
@@ -1865,36 +1873,39 @@ var
 begin
 
   requisicao := TRequest.Create;
-  requisicao.BASEURL := URL_SITE;
-
-  requisicao.URLI := 'insert/' + Tabela + '/' + User + '/a';
-
-  Montado := '';
-
-  for I := 0 to length(ArrayCampos) - 1 do
-  begin
-    if I = 0 then
-    begin
-      Montado := '"' + ArrayCampos[I] + '":"' + ArrayValores[I] + '"';
-    end
-    else
-    begin
-      Montado := Montado + ',"' + ArrayCampos[I] + '":"' + ArrayValores
-        [I] + '"';
-    end;
-  end;
-  Montado := '{' + Montado + '}';
-
-  requisicao.Body(Montado);
-  requisicao.Post;
-
   try
-    Result := StrToInt(requisicao.Retorno);
-  except
-    Result := 0;
+    requisicao.BASEURL := URL_SITE;
 
+    requisicao.URLI := 'insert/' + Tabela + '/' + User + '/a';
+
+    Montado := '';
+
+    for I := 0 to length(ArrayCampos) - 1 do
+    begin
+      if I = 0 then
+      begin
+        Montado := '"' + ArrayCampos[I] + '":"' + ArrayValores[I] + '"';
+      end
+      else
+      begin
+        Montado := Montado + ',"' + ArrayCampos[I] + '":"' + ArrayValores
+          [I] + '"';
+      end;
+    end;
+    Montado := '{' + Montado + '}';
+
+    requisicao.Body(Montado);
+    requisicao.Post;
+
+    try
+      Result := StrToInt(requisicao.Retorno);
+    except
+      Result := 0;
+
+    end;
+  finally
+    requisicao.Free;
   end;
-  requisicao.Free;
 end;
 
 end.

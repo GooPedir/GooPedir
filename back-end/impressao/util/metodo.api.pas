@@ -22,20 +22,20 @@ function TInsertUpdate.ConsultaSQL(SQL: String): String;
 var
   qry: TFDquery;
 begin
+  qry := dmModulo.CriaQry('API');
   try
-    qry := dmModulo.CriaQry('API');
     qry.SQL.Clear;
     qry.SQL.Add(SQL);
     qry.Open;
-
     Result := qry.ToJSONArray().ToJSON;
-    qry.Free;
-
   except
     on E: Exception do
-      //showmessage(E.message);
+    begin
+      /// /showmessage(E.message);
+    end;
 
   end;
+  qry.Free;
 end;
 
 procedure TInsertUpdate.ExecutaSQL(SQL: String);
@@ -43,15 +43,17 @@ var
   qry: TFDquery;
 begin
   qry := dmModulo.CriaQry('API');
-  qry.SQL.Clear;
-  qry.SQL.Add(SQL);
   try
-    qry.ExecSQL;
-  except
+    qry.SQL.Clear;
+    qry.SQL.Add(SQL);
+    try
+      qry.ExecSQL;
+    except
 
+    end;
+  finally
+    qry.Free;
   end;
-
-  qry.Free;
 end;
 
 function TInsertUpdate.InserirUpdate(Tabela: String;
@@ -70,81 +72,84 @@ begin
 
   // DMSitePapaleguas := TDMSitePapaleguas.Create(nil);
   qry := dmModulo.CriaQry('API');
-
-  qry.Close;
-  qry.SQL.Clear;
-
   try
-    qry.SQL.Add('select * from ' + Tabela + ' where ' + ArrayCampos[0] + ' = :'
-      + ArrayCampos[0]);
-    qry.ParamByName(ArrayCampos[0]).Value := ArrayValores[0];
-    qry.Open;
-    Inserir := qry.RecordCount = 0;
+    qry.Close;
+    qry.SQL.Clear;
 
-  except
-    Inserir := True;
-  end;
-  if trim(ArrayValores[0]) = '' then
-  begin
-    Inserir := True;
-  end;
-  if trim(ArrayValores[0]) = '0' then
-  begin
-    Inserir := True;
-  end;
-  if Inserir then
-  begin
-    // insert into () values ();
+    try
+      qry.SQL.Add('select * from ' + Tabela + ' where ' + ArrayCampos[0] +
+        ' = :' + ArrayCampos[0]);
+      qry.ParamByName(ArrayCampos[0]).Value := ArrayValores[0];
+      qry.Open;
+      Inserir := qry.RecordCount = 0;
+
+    except
+      Inserir := True;
+    end;
+    if trim(ArrayValores[0]) = '' then
+    begin
+      Inserir := True;
+    end;
+    if trim(ArrayValores[0]) = '0' then
+    begin
+      Inserir := True;
+    end;
+    if Inserir then
+    begin
+      // insert into () values ();
+      for I := 0 to length(ArrayCampos) - 1 do
+      begin
+        if I = 0 then
+        begin
+          Campos := ArrayCampos[I];
+          Parametros := ':' + ArrayCampos[I];
+        end
+        else
+        begin
+          Campos := Campos + ',' + ArrayCampos[I];
+          Parametros := Parametros + ',:' + ArrayCampos[I];
+        end;
+      end;
+
+      ArrayValores[0] := IntToStr(dmModulo.GerarCodigo(Tabela, ArrayCampos[0]));
+
+      SQL := 'insert into ' + Tabela + ' (' + Campos + ') values (' +
+        Parametros + ')';
+
+    end
+    else
+    begin
+      for I := 1 to length(ArrayCampos) - 1 do
+      begin
+        if I = 1 then
+        begin
+          Campos := ArrayCampos[I] + ' = ' + ':' + ArrayCampos[I];
+        end
+        else
+        begin
+          Campos := Campos + ', ' + ArrayCampos[I] + ' = ' + ':' +
+            ArrayCampos[I];
+        end;
+      end;
+
+      Parametros := ' where ' + ArrayCampos[0] + ' = :' + ArrayCampos[0];
+      // update tabela set
+      SQL := 'update ' + Tabela + ' set ' + Campos + Parametros;
+    end;
+    qry.Close;
+    qry.SQL.Clear;
+    qry.SQL.Add(SQL);
     for I := 0 to length(ArrayCampos) - 1 do
     begin
-      if I = 0 then
-      begin
-        Campos := ArrayCampos[I];
-        Parametros := ':' + ArrayCampos[I];
-      end
-      else
-      begin
-        Campos := Campos + ',' + ArrayCampos[I];
-        Parametros := Parametros + ',:' + ArrayCampos[I];
-      end;
+      qry.ParamByName(ArrayCampos[I]).Value := StringReplace(ArrayValores[I],
+        ',', '.', [rfReplaceAll]);
     end;
+    qry.ExecSQL;
 
-    ArrayValores[0] := IntToStr(dmModulo.GerarCodigo(Tabela, ArrayCampos[0]));
-
-    SQL := 'insert into ' + Tabela + ' (' + Campos + ') values (' +
-      Parametros + ')';
-
-  end
-  else
-  begin
-    for I := 1 to length(ArrayCampos) - 1 do
-    begin
-      if I = 1 then
-      begin
-        Campos := ArrayCampos[I] + ' = ' + ':' + ArrayCampos[I];
-      end
-      else
-      begin
-        Campos := Campos + ', ' + ArrayCampos[I] + ' = ' + ':' + ArrayCampos[I];
-      end;
-    end;
-
-    Parametros := ' where ' + ArrayCampos[0] + ' = :' + ArrayCampos[0];
-    // update tabela set
-    SQL := 'update ' + Tabela + ' set ' + Campos + Parametros;
+    Result := StrToInt(ArrayValores[0]);
+  finally
+    qry.Free;
   end;
-  qry.Close;
-  qry.SQL.Clear;
-  qry.SQL.Add(SQL);
-  for I := 0 to length(ArrayCampos) - 1 do
-  begin
-    qry.ParamByName(ArrayCampos[I]).Value := StringReplace(ArrayValores[I],',','.',[rfReplaceAll]);
-  end;
-  qry.ExecSQL;
-
-  Result := StrToInt(ArrayValores[0]);
-
-  qry.Free;
 
   // DMSitePapaleguas.Free;
 end;

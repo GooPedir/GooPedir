@@ -90,7 +90,7 @@ begin
 
   except
     on E: Exception do
-      ShowMessage(E.Message);
+      //showmessage(E.Message);
   end;
 end;
 

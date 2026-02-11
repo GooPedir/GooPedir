@@ -180,7 +180,7 @@ begin
   Result := -1; // valor padrão em caso de erro
   Requisicao := iRequisicao.Create(nil);
   Requisicao.BaseURL := API_BASE_URL;
-  Requisicao.TempoExpiracao := 30 * 1000;
+  Requisicao.TempoExpiracao := 5 * 1000;
   Requisicao.URL := 'api/interno/categoria/tipo/produto';
   Requisicao.Metodo := mPost;
 
@@ -396,7 +396,7 @@ begin
   except
     on E: Exception do
     begin
-      //ShowMessage(E.Message);
+      //showmessage(E.Message);
       // Você pode querer registrar o erro em algum log aqui
       Result := ''; // Retorna vazio em caso de erro
     end;

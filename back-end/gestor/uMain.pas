@@ -104,7 +104,7 @@ begin
   end
   else
   begin
-    //showmessage('Erro ao abrir o executável.');
+    ////showmessage('Erro ao abrir o executável.');
   end;
 end;
 
@@ -267,7 +267,7 @@ begin
             PercorreInstancia;
           end;
           // Se você quiser exibir mensagens ou fazer outras atualizações de UI, garanta que esteja dentro deste bloco sincronizado
-          // //showmessage('Executando a cada 3 segundos');
+          // ////showmessage('Executando a cada 3 segundos');
         end);
     end);
 
@@ -313,8 +313,8 @@ begin
       HoraServidor := SiteObject.GetValue<string>('hora_servidor');
       Difference := SiteObject.GetValue<string>('difference');
       Verificacao := SiteObject.GetValue<string>('verificacao');
-      // //showmessage('Hora Servidor: ' + HoraServidor);
-      // //showmessage('Difference: ' + Difference);
+      // ////showmessage('Hora Servidor: ' + HoraServidor);
+      // ////showmessage('Difference: ' + Difference);
 
       if StrToInt(Verificacao) = 0 then
       begin
@@ -374,7 +374,7 @@ begin
         memLog.Lines.Add('');
         memLog.Lines.Add('URL: ' + Requisicao.BaseURL);
         memLog.Lines.Add(E.Message);
-//        //showmessage(E.Message);
+//        ////showmessage(E.Message);
       end;
     end;
     if (memInstancia.FieldByName('status_error').AsInteger = 3) and

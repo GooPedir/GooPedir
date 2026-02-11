@@ -27,12 +27,12 @@ begin
   try
     Req.Execute;
     Result := Req.Retorno;
-    // //showmessage(Result)
+    // ////showmessage(Result)
   except
     on E: Exception do
     begin
       Result := '[]';
-      // //showmessage(e.Message)
+      // ////showmessage(e.Message)
       frmPrincipal.Memo1.lines.add(E.Message);
     end;
   end;

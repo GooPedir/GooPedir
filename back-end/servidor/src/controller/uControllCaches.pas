@@ -535,7 +535,7 @@ begin
   LimpaCache('DoGetProdutoSabores', Codigo.ToString);
   LimpaCache('GetFichaProduto', Codigo.ToString);
   LimpaCache('GetProdutoCategoria', CodigoGrupo.ToString);
-  // ////ShowMessage1(CodigoGrupo.ToString);
+  // //////showmessage1(CodigoGrupo.ToString);
 
   GetProdutoCategoria(CodigoGrupo.ToString);
   GetProdutoAdiciona(Codigo.ToString);

@@ -934,6 +934,7 @@ procedure DoPostImpressaoPedidoProduto(Req: THorseRequest; Res: THorseResponse;
 var
   conexao: TConexao;
   Dados: TFDMemTable;
+  Codigo: String;
 begin
   conexao := TConexao.Create('imprimir');
   Dados := TFDMemTable.Create(nil);
@@ -946,12 +947,18 @@ begin
 
     while not Dados.Eof do
     begin
-    conexao.SQL.Add('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido = :codigo');
-    conexao.Parametros('codigo',Dados.FieldByName('codigo').AsInteger);
-    conexao.ExecuteSQL;
+      if Codigo = '' then
+        Codigo := Dados.FieldByName('codigo').AsString
+      else
+        Codigo := Codigo + ',' + Dados.FieldByName('codigo').AsString;
       Dados.Next;
     end;
   end;
+
+  conexao.SQL.Add
+    ('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido in ('
+    + Codigo + ')');
+  conexao.ExecuteSQL;
 
   Dados.Free;
 
@@ -1332,9 +1339,9 @@ procedure DoPostImpressoras(Req: THorseRequest; Res: THorseResponse;
 begin
   frmServidor.memImpressora.Close;
   try
-    // //////ShowMessage1(req.Body);
+    // ////////showmessage1(req.Body);
     frmServidor.memImpressora.LoadFromJSON(Req.Body);
-    // //////ShowMessage1(frmServidor.memImpressora.RecordCount.ToString);
+    // ////////showmessage1(frmServidor.memImpressora.RecordCount.ToString);
   except
 
   end;

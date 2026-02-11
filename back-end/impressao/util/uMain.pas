@@ -194,7 +194,7 @@ begin
   Prioridade := priNull;
   TrayIcon1.Hint := TimeToStr(Now);
 
-  // //showmessage(ParamCount.ToString);
+  // ////showmessage(ParamCount.ToString);
   Count := ParamCount;
 
   if Count > 0 then
@@ -459,7 +459,7 @@ begin
   except
     on E: exception do
     begin
-      // //showmessage(E.Message);
+      // ////showmessage(E.Message);
     end;
   end;
 
@@ -525,7 +525,7 @@ var
   LogFile: TextFile;
 begin
   // frmMain.Memo1.Lines.Add(mensagem);
-
+  exit;
   if not AtivarLog then
     exit;
   // Obtém o diretório do executável

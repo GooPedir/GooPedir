@@ -33,7 +33,13 @@ type
     mLogEnvio: TMemo;
     DADOS: TFDMemTable;
     ACBrBAL1: TACBrBAL;
-    Button1: TButton;
+    GroupBox1: TGroupBox;
+    lStatusApi: TLabel;
+    GroupBox2: TGroupBox;
+    lStatusBalanca: TLabel;
+    TrayIcon1: TTrayIcon;
+    tMinimize: TTimer;
+    tReconect: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure edtUrlExit(Sender: TObject);
     procedure edtPortaComExit(Sender: TObject);
@@ -44,6 +50,8 @@ type
     procedure btnSalvarClick(Sender: TObject);
     procedure tEnviaPesoTimer(Sender: TObject);
     procedure ACBrBAL1LePeso(Peso: Double; Resposta: AnsiString);
+    procedure tMinimizeTimer(Sender: TObject);
+    procedure tReconectTimer(Sender: TObject);
   private
     FProtocolo: String;
     FID: Integer;
@@ -54,6 +62,8 @@ type
     FDescricao: String;
     FModelo: String;
     FUltimoPeso: Real;
+    FstatusAPI: Boolean;
+    FstatusBalanca: Boolean;
     procedure SetBaseUrl(const Value: String);
     procedure SetID(const Value: Integer);
     procedure SetPorta(const Value: String);
@@ -68,6 +78,8 @@ type
       porta, tara: string): string;
     procedure SetModelo(const Value: String);
     procedure SetUltimoPeso(const Value: Real);
+    procedure SetstatusAPI(const Value: Boolean);
+    procedure SetstatusBalanca(const Value: Boolean);
     { Private declarations }
   public
     { Public declarations }
@@ -80,6 +92,8 @@ type
     property descricao: String read FDescricao write SetDescricao;
     property modelo: String read FModelo write SetModelo;
     property UltimoPeso: Real read FUltimoPeso write SetUltimoPeso;
+    property statusAPI: Boolean read FstatusAPI write SetstatusAPI;
+    property statusBalanca: Boolean read FstatusBalanca write SetstatusBalanca;
 
     procedure CarregaParam;
     procedure IniciarSimulacaoBalança;
@@ -92,6 +106,7 @@ var
   frmMainBalanca: TfrmMainBalanca;
   TimerBalança: TTimer;
   PesoAtualSimulado: Double;
+  Ini: TIniFile;
 
 implementation
 
@@ -123,11 +138,11 @@ begin
 
   try
     iAtualiza.Execute;
-    ShowMessage('Balança alterada com sucesso!');
+    // showmessage('Balança alterada com sucesso!');
   except
     on e: Exception do
     begin
-      ShowMessage('erro: ' + e.Message);
+      // showmessage('erro: ' + e.Message);
     end;
 
   end;
@@ -140,7 +155,7 @@ begin
   request.MemTable2 := DADOS;
   try
     request.Execute;
-
+    statusAPI := True;
     if DADOS.RecordCount > 0 then
     begin
       descricao := DADOS.FieldByName('descricao').AsString;
@@ -148,6 +163,9 @@ begin
       porta := DADOS.FieldByName('porta').AsString;
       tara := DADOS.FieldByName('tara').AsFloat;
       protocolo := DADOS.FieldByName('protocolo').AsString;
+      // Salvar no ini
+
+      // ReadString('balanca', 'baseurl', '');
       IniciarSimulacaoBalança;
     end
     else
@@ -155,12 +173,13 @@ begin
       mLogEnvio.Lines.Add('Erro: Nenhuma balança localizada com o ID ' +
         ID.ToString);
     end;
-
+    Ini.WriteString('balanca', 'baseurl', BaseUrl);
     tEnviaPeso.Enabled := True;
   except
     on e: Exception do
     begin
       mLogEnvio.Lines.Add('Erro: ' + e.Message);
+      statusAPI := False;
     end;
 
   end;
@@ -168,7 +187,7 @@ end;
 
 procedure TfrmMainBalanca.CarregaParam;
 var
-  Ini: TIniFile;
+
   Arquivo: string;
 begin
   Arquivo := ExtractFilePath(ParamStr(0)) + 'balanca.ini';
@@ -185,7 +204,7 @@ begin
     protocolo := Ini.ReadString('balanca', 'protocolo', '');
     ID := Ini.ReadInteger('balanca', 'id', 0);
   finally
-    Ini.Free;
+
   end;
 end;
 
@@ -201,10 +220,13 @@ begin
     ACBrBAL1.Device.Baud := 4800;
     ACBrBAL1.Ativar;
     mLogEnvio.Lines.Add('Conexão OK!');
-
+    statusBalanca := True;
   except
     on e: Exception do
+    begin
       mLogEnvio.Lines.Add('Erro ao conectar: ' + e.Message);
+      statusBalanca := False;
+    end;
   end;
 end;
 
@@ -245,14 +267,13 @@ begin
     tara := ConverterValorParaDouble((Sender as TEdit).Text);
   except
     (Sender as TEdit).SetFocus;
-    ShowMessage('Informe um valor valído!')
+    // showmessage('Informe um valor valído!')
   end;
 end;
 
 procedure TfrmMainBalanca.edtUrlExit(Sender: TObject);
 begin
   BaseUrl := (Sender as TEdit).Text;
-
 end;
 
 function TfrmMainBalanca.FormatarValorParaBR(valor: Double): string;
@@ -262,6 +283,8 @@ end;
 
 procedure TfrmMainBalanca.FormCreate(Sender: TObject);
 begin
+  statusAPI := False;
+  statusBalanca := False;
   CarregaParam;
   ConfigurarBAL;
 end;
@@ -342,6 +365,7 @@ begin
   edtUrl.Text := Value;
   request.BaseUrl := Value;
   iAtualiza.BaseUrl := Value;
+  BuscaDadosAPI;
 end;
 
 procedure TfrmMainBalanca.SetDescricao(const Value: String);
@@ -377,6 +401,40 @@ procedure TfrmMainBalanca.SetProtocolo(const Value: String);
 begin
   FProtocolo := Value;
   edtProtocolo.Text := Value;
+end;
+
+procedure TfrmMainBalanca.SetstatusAPI(const Value: Boolean);
+begin
+  FstatusAPI := Value;
+  if Value then
+  begin
+    lStatusApi.Caption := 'Conectado';
+    lStatusApi.Font.Color := clGreen;
+  end
+  else
+  begin
+    lStatusApi.Caption := 'Sem Conexão';
+    lStatusApi.Font.Color := clRed;
+  end;
+  if statusAPI and statusBalanca then
+    tMinimize.Enabled := True;
+end;
+
+procedure TfrmMainBalanca.SetstatusBalanca(const Value: Boolean);
+begin
+  FstatusBalanca := Value;
+  if Value then
+  begin
+    lStatusBalanca.Caption := 'Conectado';
+    lStatusBalanca.Font.Color := clGreen;
+  end
+  else
+  begin
+    lStatusBalanca.Caption := 'Sem Conexão';
+    lStatusBalanca.Font.Color := clRed;
+  end;
+  if statusAPI and statusBalanca then
+    tMinimize.Enabled := True;
 end;
 
 procedure TfrmMainBalanca.SetTara(const Value: Real);
@@ -420,6 +478,28 @@ begin
     end;
   end;
 
+end;
+
+procedure TfrmMainBalanca.tMinimizeTimer(Sender: TObject);
+begin
+  Self.WindowState := wsMinimized;
+  tMinimize.Enabled := False;
+end;
+
+procedure TfrmMainBalanca.tReconectTimer(Sender: TObject);
+begin
+  if not statusAPI then
+  begin
+    lStatusApi.Caption := 'Reconectando';
+    lStatusApi.Font.Color := clPurple;
+    BuscaDadosAPI;
+  end;
+  if not statusBalanca then
+  begin
+    lStatusBalanca.Caption := 'Reconectando';
+    lStatusBalanca.Font.Color := clPurple;
+    ConfigurarBAL;
+  end;
 end;
 
 end.

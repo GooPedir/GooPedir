@@ -1,7 +1,7 @@
 object frmServidor: TfrmServidor
   Left = 0
   Top = 0
-  Caption = '-'
+  Caption = 'Goopedir'
   ClientHeight = 833
   ClientWidth = 1192
   Color = clBtnFace
@@ -38,6 +38,15 @@ object frmServidor: TfrmServidor
     Lines.Strings = (
       'memLog')
     TabOrder = 2
+  end
+  object Button1: TButton
+    Left = 552
+    Top = 200
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 3
+    OnClick = Button1Click
   end
   object TrayIcon1: TTrayIcon
     Animate = True
@@ -860,5 +869,16 @@ object frmServidor: TfrmServidor
     OnRefreshTokenGet = IFoodRefreshTokenGet
     Left = 664
     Top = 120
+  end
+  object memTipoMesa: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 344
+    Top = 528
   end
 end

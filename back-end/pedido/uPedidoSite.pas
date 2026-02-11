@@ -52,7 +52,7 @@ begin
   TempoDecorrido := TempoFinal - TempoInicial;
 
   // Exibe o tempo decorrido em uma mensagem
-  // showmessage
+  // //showmessage
   (Format('A função getPedidos demorou %d milissegundos para executar.',
     [TempoDecorrido]));
 end;

@@ -1194,7 +1194,7 @@ Var
 begin
   MYSQL := SoNumero(VersaoMYSQL);
   // MYSQL := SoNumero('5.7.37-log');
-  // //////ShowMessage1(MYSQL);
+  // ////////showmessage1(MYSQL);
 
   VersaoNumber := StrToInt(StringReplace(MYSQL, '.', '', [rfReplaceAll]));
 

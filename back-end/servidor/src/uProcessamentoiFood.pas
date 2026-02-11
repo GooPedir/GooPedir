@@ -698,6 +698,8 @@ begin
             conexao.Parametros('id_ifood', OrderId);
             conexao.ExecuteSQL;
 
+            conexao.ExecuteSQL('call sp_atualiza_preparo_pedido ('+CodigoIntermo.ToString+')');
+
             conexao.SQL.Add('UPDATE impressao_pedido_produto');
             conexao.SQL.Add('SET status = 0');
             conexao.SQL.Add('WHERE data_impressao IS NULL');
@@ -794,7 +796,7 @@ begin
     on E: Exception do
     begin
       // Exibir mensagem de erro ou tratar de acordo com a necessidade
-      // ////ShowMessage1('Erro ao salvar o arquivo: ' + E.Message);
+      // //////showmessage1('Erro ao salvar o arquivo: ' + E.Message);
 
     end;
   end;
@@ -846,8 +848,8 @@ begin
         // Processar o pedido aqui
         // Exemplo de processamento:
         // Exibir os detalhes do pedido em uma MessageBox
-        // //////ShowMessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
-        // //////ShowMessage1('Cliente: ' + OrderPair.Value.CustomerName);
+        // ////////showmessage1('Detalhes do pedido: ' + OrderPair.Key.OrderDetails);
+        // ////////showmessage1('Cliente: ' + OrderPair.Value.CustomerName);
         Processamento(OrderPair.Key, OrderPair.Value);
       end;
     finally
