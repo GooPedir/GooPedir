@@ -988,6 +988,7 @@ var
   conexao: Tconexao;
   Usuario: String;
   Senha: String;
+   IP: string;
 begin
   try
     Usuario := Req.Params['usuario'];
@@ -1002,8 +1003,22 @@ begin
     Res.Send('').Status(500);
     exit;
   end;
-
+ IP := GetClientIP(Req);
   conexao := Tconexao.Create('Util');
+
+      conexao.SQL.Clear;
+    conexao.SQL.Add
+      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) ' +
+      'values (:ip, :usuario, :operacao, :endpoint, :body)');
+
+    conexao.Parametros('ip', IP);
+    conexao.Parametros('usuario', 0); // default
+    conexao.Parametros('operacao', 'DoGetUsuario');
+    conexao.Parametros('endpoint', '/v1/login');
+    conexao.Parametros('body', Usuario+'-'+Senha);
+    conexao.ExecuteSQL;
+
+
   conexao.SQL.Add
     ('SELECT * FROM usuario where nome = :usuario and senha = md5(:senha);');
   conexao.Parametros('usuario', Usuario);
@@ -9666,6 +9681,10 @@ begin
           conexao.Parametros('impresso', '0');
           conexao.Parametros('html', Html);
           conexao.Parametros('uuid', UUID);
+          conexao.ExecuteSQL;
+
+          conexao.SQL.Add('update impressao_pedido_produto set status = 1 where id_pedido = :pedido');
+          conexao.Parametros('pedido',CodigoPedidoProduto);
           conexao.ExecuteSQL;
 
           // ------------------------------------------

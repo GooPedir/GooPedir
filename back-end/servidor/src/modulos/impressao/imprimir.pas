@@ -92,7 +92,7 @@ begin
           else
           begin
             //
-            if Dados.FieldByName('tempo').AsInteger > 2 then
+            if Dados.FieldByName('tempo').AsInteger > 5 then
             begin
               Dados.Next;
             end

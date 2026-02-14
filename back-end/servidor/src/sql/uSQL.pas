@@ -1859,6 +1859,7 @@ begin
       end;
     129:
       begin
+        ExecultaSQL('drop trigger trg_pedido_produtos_after_insert');
         ExecultaSQL
           ('ALTER TABLE impressao_pedido_produto MODIFY id INT NOT NULL AUTO_INCREMENT;');
         SQL := ' CREATE TRIGGER trg_pedido_produtos_after_insert ';
@@ -1880,7 +1881,7 @@ begin
         SQL := SQL + '         NULL,';
         SQL := SQL + '         NULL,';
         SQL := SQL + '         NEW.codigo,';
-        SQL := SQL + '         0,';
+        SQL := SQL + '         1,';
         SQL := SQL + '         1,';
         SQL := SQL + '         NEW.usuario';
         SQL := SQL + '     );';
@@ -2240,7 +2241,8 @@ begin
         SQL := SQL + '    LIMIT 1;';
         SQL := SQL + '    IF v_codigo_produto IS NULL THEN';
         SQL := SQL + '        SIGNAL SQLSTATE "45000"';
-        SQL := SQL + '        SET MESSAGE_TEXT = "Pedido_produtos não encontrado";';
+        SQL := SQL +
+          '        SET MESSAGE_TEXT = "Pedido_produtos não encontrado";';
         SQL := SQL + '    END IF;';
         SQL := SQL + '    IF v_id_ficha > 0 THEN';
         SQL := SQL + '        SELECT tempo_preparo_mesa';
@@ -2279,7 +2281,7 @@ begin
         SQL := SQL +
           '        preparo_hora  = hora + INTERVAL v_tempo_final MINUTE';
         SQL := SQL + '    WHERE codigo = p_codigo_pedido_produto;';
-        SQL := SQL + 'END$$';
+        SQL := SQL + ' END';
         ExecultaSQL(SQL);
 
         SQL := ' CREATE PROCEDURE sp_atualiza_preparo_pedido (';
@@ -2300,7 +2302,8 @@ begin
         SQL := SQL + '         SELECT codigo';
         SQL := SQL + '         FROM pedido_produtos';
         SQL := SQL + '         WHERE codigo_pedido = p_codigo_pedido;';
-        SQL := SQL + '     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;';
+        SQL := SQL +
+          '     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;';
         SQL := SQL + '     SELECT';
         SQL := SQL + '         TIMESTAMP(data_pedido, hora_pedido),';
         SQL := SQL + '         codigo_cliente_endereco,';
@@ -2333,7 +2336,8 @@ begin
         SQL := SQL + '         IF done = 1 THEN';
         SQL := SQL + '             LEAVE pp_loop;';
         SQL := SQL + '         END IF;';
-        SQL := SQL + '         CALL sp_calcula_tempo_preparo_pedido_produto(v_codigo_pp);';
+        SQL := SQL +
+          '         CALL sp_calcula_tempo_preparo_pedido_produto(v_codigo_pp);';
         SQL := SQL + '     END LOOP;';
         SQL := SQL + '     CLOSE cur_pp;';
         SQL := SQL + '     SELECT';
@@ -2350,7 +2354,8 @@ begin
         SQL := SQL + '     FROM pedido';
         SQL := SQL + '     WHERE status = 2';
         SQL := SQL + '       AND codigo <> p_codigo_pedido';
-        SQL := SQL + '       AND TIMESTAMP(data_pedido, hora_pedido) < v_data_hora_pedido';
+        SQL := SQL +
+          '       AND TIMESTAMP(data_pedido, hora_pedido) < v_data_hora_pedido';
         SQL := SQL + '       AND preparo_hora > v_data_hora_pedido;';
         SQL := SQL + '     SELECT';
         SQL := SQL + '         IFNULL(AVG(preparo_tempo), 0)';
@@ -2366,9 +2371,10 @@ begin
         SQL := SQL + ' 	recalcula_preparo = 0,';
         SQL := SQL + '         tempo_estimado = v_tempo_estimado,';
         SQL := SQL + '         preparo_hora  = v_data_hora_pedido';
-        SQL := SQL + '                          + INTERVAL v_tempo_estimado MINUTE';
+        SQL := SQL +
+          '                          + INTERVAL v_tempo_estimado MINUTE';
         SQL := SQL + '     WHERE codigo = p_codigo_pedido;';
-        SQL := SQL + ' END$$';
+        SQL := SQL + ' END';
         ExecultaSQL(SQL);
 
         SQL := ' CREATE TRIGGER trg_pedido_after_update';
@@ -2378,16 +2384,64 @@ begin
         SQL := SQL + '     IF NEW.recalcula_preparo = 1 THEN';
         SQL := SQL + '         CALL sp_atualiza_preparo_pedido(NEW.codigo);';
         SQL := SQL + '     END IF;';
-        SQL := SQL + ' END$$';
         ExecultaSQL(SQL);
       end;
-      138: begin
+    138:
+      begin
         ExecultaSQL('alter table tipo_produto add destaque integer default 0');
       end;
-      139: begin
+    139:
+      begin
         ExecultaSQL('alter table menu_item add background_link varchar(255)');
       end;
+    140:
+      begin
+        SQL := ' CREATE TABLE log_operacao (';
+        SQL := SQL + '     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,';
+        SQL := SQL +
+          '     data_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '     ip VARCHAR(45) NOT NULL,';
+        SQL := SQL + '     usuario VARCHAR(100) NULL,';
+        SQL := SQL + '     operacao VARCHAR(100) NOT NULL,';
+        SQL := SQL + '     endpoint VARCHAR(255) NOT NULL,';
+        SQL := SQL + '     body LONGTEXT NULL,';
+        SQL := SQL + '     PRIMARY KEY (id),';
+        SQL := SQL + '     INDEX idx_data_hora (data_hora),';
+        SQL := SQL + '     INDEX idx_usuario (usuario),';
+        SQL := SQL + '     INDEX idx_operacao (operacao)';
+        SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;';
+        ExecultaSQL(SQL);
+      end;
+    141:
+      begin
+        ExecultaSQL('drop trigger trg_pedido_produtos_after_insert');
 
+        SQL := ' CREATE TRIGGER trg_pedido_produtos_after_insert ';
+        SQL := SQL + ' AFTER INSERT ON pedido_produtos';
+        SQL := SQL + ' FOR EACH ROW';
+        SQL := SQL + ' BEGIN';
+        SQL := SQL + '     INSERT INTO impressao_pedido_produto (';
+        SQL := SQL + '         data_solicitacao,';
+        SQL := SQL + '         hora_solicitacao,';
+        SQL := SQL + '         data_impressao,';
+        SQL := SQL + '         hora_impressao,';
+        SQL := SQL + '         id_pedido,';
+        SQL := SQL + '         status,';
+        SQL := SQL + '         vias,';
+        SQL := SQL + '         usuario';
+        SQL := SQL + '     ) VALUES (';
+        SQL := SQL + '         CURDATE(),';
+        SQL := SQL + '         CURTIME(),';
+        SQL := SQL + '         NULL,';
+        SQL := SQL + '         NULL,';
+        SQL := SQL + '         NEW.codigo,';
+        SQL := SQL + '         1,';
+        SQL := SQL + '         1,';
+        SQL := SQL + '         NEW.usuario';
+        SQL := SQL + '     );';
+        SQL := SQL + ' END ';
+        ExecultaSQL(SQL);
+      end;
     99999999:
       begin
         {
@@ -2401,7 +2455,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '138'
+  Result := '141'
 end;
 
 end.
