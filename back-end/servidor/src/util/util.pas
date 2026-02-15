@@ -95,8 +95,7 @@ implementation
 
 uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
-  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite,
-  ADRIFood.Component;
+  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite;
 
 function CodigoRadon(Codigo: Integer): Integer;
 begin
@@ -7160,24 +7159,6 @@ var
   conexao: Tconexao;
 begin
 
-  try
-    autenticador := Req.Params['autenticador'];
-    conexao := Tconexao.Create('DoPostUrlAutenticacao');
-    conexao.SQL.Add
-      ('update ifood_connect set autenticacao = :autenticacao where id = :id');
-    conexao.Parametros('autenticacao', autenticador);
-    conexao.Parametros('id', Req.Params['id']);
-    conexao.ExecuteSQL;
-    conexao.Free;
-    frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger())
-      .AuthorizationCode(autenticador);
-  except
-    on E: Exception do
-    begin
-      // frmServidor.ifood.AuthorizationCode(Req.Params['id']);
-      Res.Send(E.Message);
-    end;
-  end;
 
 end;
 
@@ -7189,80 +7170,13 @@ var
   MerchantID: String;
   JsonObj: TJSONObject;
 begin
-  JsonObj := TJSONObject.Create;
-  conexao := Tconexao.Create('DoGetAutenticacaoiFood');
 
-  if not Assigned(frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger()))
-  then
-  begin
-    conexao.SQL.Add('select * from ifood_connect where id = :id');
-    conexao.Parametros('id', Req.Params['id']);
-    try
-      MerchantID := conexao.FieldByName('merchantid');
-    except
-      MerchantID := '';
-    end;
-
-    if MerchantID = '' then
-    begin
-      JsonObj.AddPair('status', 'error');
-      JsonObj.AddPair('msg', 'MerchantID não configurado!');
-      Res.Status(200).Send(JsonObj);
-
-    end
-    else
-    begin
-
-    end;
-
-  end
-  else
-  begin
-    conexao.SQL.Add('select * from ifood_connect where id = :id');
-    conexao.Parametros('id', Req.Params['id']);
-    try
-      MerchantID := conexao.FieldByName('merchantid');
-    except
-      MerchantID := '';
-    end;
-  end;
-  try
-    if MerchantID <> '' then
-    begin
-      URL := frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger())
-        .GetURLVerification(false);
-
-      conexao.SQL.Add('update ifood_connect set link = :link where id = :id');
-      conexao.Parametros('link', URL);
-      conexao.Parametros('id', Req.Params['id']);
-      conexao.ExecuteSQL;
-
-      // URL := frmServidor.ifood.GetURLVerification(True);
-      JsonObj.AddPair('status', 'sucesso');
-      JsonObj.AddPair('msg', URL);
-      Res.Status(200).Send(JsonObj);
-    end;
-  except
-    JsonObj.AddPair('status', 'error');
-    JsonObj.AddPair('msg',
-      'Não foi possivel localizar a integração com o iFood, verificar com o suporte técnico!');
-    Res.Status(200).Send(JsonObj);
-  end;
-  conexao.Free;
 end;
 
 procedure DoGetStatusiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 begin
-  try
-    Req.Params['id'].ToInteger();
-    frmServidor.GetADRIFoodByTag(Req.Params['id'].ToInteger())
-      .Merchant.List(frmServidor.dataSetMerchants1);
-    Res.Send<TJSONArray>(frmServidor.GetADRIFoodByTag(Req.Params['id']
-      .ToInteger()).MerchantStatus.DataSource.Dataset.ToJSONArray());
-  except
-    Res.Send<TJSONArray>(frmServidor.dataSetMerchantStatus.ToJSONArray());
-  end;
+
 
 end;
 
@@ -7272,119 +7186,29 @@ var
   conexao: Tconexao;
   Codigo: Integer;
   Pedido: Integer;
-  ifood: TADRIFood;
+
 begin
 
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
-  ifood.Order.Confirmation(Req.Params['id']);
-
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add
-    ('update pedido set status_ifood = "CFM" where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-  conexao.ExecuteSQL;
-
-  conexao.SQL.Add('select * from pedido where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-
-  Pedido := conexao.FieldByName('codigo');
-
-  Codigo := conexao.GerarID('impressao_pedido', 'id');
-  conexao.SQL.Add
-    ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
-  conexao.Parametros('id', Codigo);
-  conexao.Parametros('pedido', Pedido);
-  conexao.ExecuteSQL;
-  conexao.Free;
 end;
 
 procedure DoPostPrepararPedidoiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
-var
-  conexao: Tconexao;
-  ifood: TADRIFood;
+
 begin
 
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
-  ifood.Order.StartPreparation(Req.Params['id']);
-  conexao := Tconexao.Create('Util');
-
-  conexao.SQL.Add
-    ('update pedido set status_ifood = "PRS" where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-  conexao.ExecuteSQL;
-  conexao.Free;
 end;
 
 procedure DoPostDespacharPedidoiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
-var
-  conexao: Tconexao;
-  ifood: TADRIFood;
 begin
 
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
-  ifood.Order.DispatchOrder(Req.Params['id']);
-
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add
-    ('update pedido set status_ifood = "DSP" where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-  conexao.ExecuteSQL;
-
-  try
-    // if frmServidor.Configuracoes.FieldByName('nfce_ifood').AsInteger > 0 then
-    // begin
-    // conexao.SQL.Add
-    // ('update pedido set nfce_emite = 1 where id_ifood = :id_ifood');
-    // conexao.Parametros('id_ifood', Req.Params['id']);
-    // conexao.ExecuteSQL;
-    //
-    // end;
-
-  except
-
-  end;
-
-  conexao.Free;
-  //
 end;
 
 procedure DoPostRetirarPedidoiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
-var
-  conexao: Tconexao;
-  ifood: TADRIFood;
+
 begin
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
-  ifood.Order.ReadyToPickup(Req.Params['id']);
 
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add
-    ('update pedido set status_ifood = "CON" where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-  conexao.ExecuteSQL;
-
-  try
-    // if frmServidor.Configuracoes.FieldByName('nfce_ifood').AsInteger > 0 then
-    // begin
-    // conexao.SQL.Add
-    // ('update pedido set nfce_emite = 1 where id_ifood = :id_ifood');
-    // conexao.Parametros('id_ifood', Req.Params['id']);
-    // conexao.ExecuteSQL;
-    //
-    // end;
-
-  except
-
-  end;
-
-  conexao.Free;
-  // nfce_ifood
 end;
 
 procedure DoGetProdutoiFood(Req: THorseRequest; Res: THorseResponse;
@@ -7403,20 +7227,9 @@ Next: TProc);
 var
   Text: String;
   conexao: Tconexao;
-  ifood: TADRIFood;
+
 begin
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
 
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add
-    ('update pedido set motivo_cancelamento = :motivo_cancelamento where id_ifood = :id_ifood');
-  conexao.Parametros('id_ifood', Req.Params['id']);
-  conexao.Parametros('motivo_cancelamento', Req.Params['motivo']);
-  conexao.ExecuteSQL;
-  conexao.Free;
-
-  ifood.Order.CancellationRequested(Req.Params['id'], Req.Params['cancel']);
 
 end;
 
@@ -7424,14 +7237,9 @@ procedure DoPostListarMotivoPedidoiFood(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
   Dados: TFDMemTable;
-  ifood: TADRIFood;
+
 begin
-  ifood := frmServidor.GetADRIFoodByTag
-    (frmServidor.GetInstancia(Req.Params['id']));
-  Dados := TFDMemTable.Create(nil);
-  ifood.Order.CancelReasons(Req.Params['id'], Dados);
-  Res.Send<TJSONArray>(Dados.ToJSONArray);
-  Dados.Free;
+
 end;
 
 procedure DoGetCodigoPedido(Req: THorseRequest; Res: THorseResponse;

@@ -6834,6 +6834,20 @@ begin
 
 end;
 
+
+procedure DoDeleteUserAgent(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('v2');
+  conexao.SQL.Add('delete agent where id = :id');
+  conexao.Parametros('id', Req.Params['codigo']);
+  conexao.ExecuteSQL;
+
+  conexao.Free;
+end;
+
 procedure DoPostUserAgentStatus(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -8301,6 +8315,8 @@ begin
 
   THorse.Post('/v2/nfce/dados/cpfcnpj', DoPostNfceDaddos);
 
+
+  THorse.Delete('/v2/user/agent/:codigo', DoDeleteUserAgent);
   THorse.Post('/v2/user/agent/:codigo', DoPostUserAgent);
   THorse.Get('/v2/user/agent/:codigo', DoGetUserAgent);
 

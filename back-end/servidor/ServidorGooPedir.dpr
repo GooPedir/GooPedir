@@ -92,7 +92,6 @@ uses
   nfce in 'src\modulos\nfce\nfce.pas',
   uImportacaoProduto in 'src\uImportacaoProduto.pas',
   imprimir in 'src\modulos\impressao\imprimir.pas',
-  uProcessamentoiFood in 'src\uProcessamentoiFood.pas',
   PedidoSite in 'src\modulos\Controller\PedidoSite.pas',
   uToPedindo in 'src\importacao\uToPedindo.pas',
   GooPedirAPIController in 'src\controller\GooPedirAPIController.pas',
@@ -118,7 +117,6 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
-
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas',

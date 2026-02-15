@@ -10,12 +10,11 @@ uses
   Winapi.TlHelp32, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, conexao, Vcl.Menus,
-  FMX.Printer, ADRIFood.Model.Interfaces, ADRIFood.Model.Types,
-  ADRIFood.Component.Events, ADRIFood.Component, FireDAC.Stan.StorageBin, JSON,
+  FMX.Printer, FireDAC.Stan.StorageBin, JSON,
   FireDAC.UI.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.VCLUI.Wait,
   FireDAC.DApt, IniFiles, ACBrBase, ACBrDFe, ACBrNFe,
-  uImportacaoProduto, DateUtils, uProcessamentoiFood, Vcl.Controls, uRequisicao,
+  uImportacaoProduto, DateUtils, Vcl.Controls, uRequisicao,
   Horse.SocketIO,
   uSite,
   GooPedirAPIController,
@@ -168,7 +167,6 @@ type
     memPaineis: TFDMemTable;
     memBanner: TFDMemTable;
     memTiposSite: TFDMemTable;
-    IFood: TADRIFood;
     memTipoMesa: TFDMemTable;
     Button1: TButton;
     procedure tMinimizaTimer(Sender: TObject);
@@ -178,64 +176,8 @@ type
     function GetMySQLDumpPath: string;
     function FileSizeByName(const FileName: string): Int64;
     procedure Fechar1Click(Sender: TObject);
-    procedure IFoodMerchantStatus
-      (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
-    procedure IFoodOrderCancellationFailed(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderCancellationRequested
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderChangePreparationTime
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderConsumerCancellationAccepted
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderConsumerCancellationDenied
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderConsumerCancellationRequested
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderDelayNotification(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderGoingToOrigin(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderPickupAreaAssigned(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderPlaced(Order: IADRIFoodModelOrder;
-      OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderPreparationStarted(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderReadyToDeliver(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderReadyToPickup(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderRecommendedPreparation
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderRequestDriver(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderRequestDriverAvailability
-      (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderRequestDriverFailed(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderRequestDriverSuccess(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderAssignDriver(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
-    procedure IFoodOrderArrivedAtOrigin(OrderHead: IADRIFoodModelOrderHead;
-      var bAcknowledgment: Boolean);
+
+
     procedure tAtualizaProcessosTimer(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FecharServioSite1Click(Sender: TObject);
@@ -243,7 +185,6 @@ type
     procedure IFoodRefreshTokenSave(RefreshToken: string);
     procedure HabilitarProduo1Click(Sender: TObject);
     procedure HabilitarHomologao1Click(Sender: TObject);
-    procedure DescricaoIfood;
     procedure pIdiFoodClick(Sender: TObject);
     procedure ReiniciarServioImpresso1Click(Sender: TObject);
     procedure IFoodLogRequest(ARequestId, AContent: string);
@@ -251,8 +192,7 @@ type
     procedure IFoodPollingStart(StartPolling: TDateTime);
     procedure IFoodLogResponse(ARequestId, AContent: string;
       AStatusCode: Integer);
-    procedure IFoodPollingEnd(EndPooling: TDateTime;
-      OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
+
     procedure IFoodPollingError(Error: Exception);
     procedure VerificarOuCriarBanco;
     procedure ExecutarSQLScript(const SQLText: string);
@@ -426,15 +366,9 @@ type
     procedure IFoodRefreshTokenSave1(RefreshToken: string);
     procedure IFoodRefreshTokenSave2(RefreshToken: string);
 
-    procedure IFoodOrderPlaced1(Order: IADRIFoodModelOrder;
-      OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-    procedure IFoodOrderPlaced2(Order: IADRIFoodModelOrder;
-      OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
 
-    procedure IniciaIfood;
-    function GetADRIFoodByTag(TagValue: Integer): TADRIFood;
     function GetInstancia(Pedido: String): Integer;
-
+    procedure IniciaIfood;
     procedure LogMiddleware(Req: THorseRequest; Res: THorseResponse;
       Next: TProc);
     function Metodo(Req: THorseRequest): String;
@@ -502,10 +436,6 @@ var
   Servicos: TAbrirServicos;
   statusiFood: Boolean;
   user: Integer;
-  ProcessamentoiFood: TProcessamentoiFood;
-
-  ProcessamentoiFood1: TProcessamentoiFood;
-  ProcessamentoiFood2: TProcessamentoiFood;
 
   Cache: TCacheItem;
   Port: Integer;
@@ -634,13 +564,7 @@ begin
   ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
   IniFile.Free;
 
-  IFood.Credentials.ClientId := ClientId;
-  IFood.Credentials.ClientSecret := ClientSecret;
 
-  if (ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-    IFood.Credentials.AuthorizationType := ctCentralized
-  else
-    IFood.Credentials.AuthorizationType := ctDistributed;
 
   InicializarCodigo;
   IniciaIfood;
@@ -1474,122 +1398,9 @@ begin
 end;
 
 function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
-var
-  NewIfood: TADRIFood;
-  Processamento: TProcessamentoiFood;
+
 begin
 
-  NewIfood := TADRIFood.Create(self);
-  NewIfood.Name := 'IFOOD' + Name;
-  NewIfood.Tag := StrToInt(Name);
-
-  NewIfood.SoftwareHouse.Id := '09071157997';
-  NewIfood.OnLogRequest := IFoodLogRequest;
-  NewIfood.OnLogResponse := IFoodLogResponse;
-  NewIfood.OnMerchantStatus := IFoodMerchantStatus;
-  NewIfood.OnMerchantStatusError := IFoodMerchantStatusError;
-  NewIfood.OnOrderArrivedAtOrigin := IFoodOrderArrivedAtOrigin;
-  NewIfood.OnOrderAssignDriver := IFoodOrderAssignDriver;
-  NewIfood.OnOrderBoxAssigned := IFoodOrderBoxAssigned;
-  NewIfood.OnOrderCancellationFailed := IFoodOrderCancellationFailed;
-  NewIfood.OnOrderCancellationRequested := IFoodOrderCancellationRequested;
-  NewIfood.OnOrderCancelled := IFoodOrderCancelled;
-  NewIfood.OnOrderChangePreparationTime := IFoodOrderChangePreparationTime;
-  NewIfood.OnOrderCollected := IFoodOrderCollected;
-  NewIfood.OnOrderConcluded := IFoodOrderConcluded;
-  NewIfood.OnOrderConfirmed := IFoodOrderConfirmed;
-  NewIfood.OnOrderConsumerCancellationRequested :=
-    IFoodOrderConsumerCancellationRequested;
-  NewIfood.OnOrderConsumerCancellationAccepted :=
-    IFoodOrderConsumerCancellationAccepted;
-  NewIfood.OnOrderConsumerCancellationDenied :=
-    IFoodOrderConsumerCancellationDenied;
-  NewIfood.OnOrderDelayNotification := IFoodOrderDelayNotification;
-  NewIfood.OnOrderDelivered := IFoodOrderDelivered;
-  NewIfood.OnOrderDispatched := IFoodOrderDispatched;
-  NewIfood.OnOrderGoingToOrigin := IFoodOrderGoingToOrigin;
-  NewIfood.OnOrderIntegrated := IFoodOrderIntegrated;
-  NewIfood.OnOrderPickupAreaAssigned := IFoodOrderPickupAreaAssigned;
-
-  NewIfood.OnOrderPreparationStarted := IFoodOrderPreparationStarted;
-  NewIfood.OnOrderReadyToDeliver := IFoodOrderReadyToDeliver;
-  NewIfood.OnOrderReadyToPickup := IFoodOrderReadyToPickup;
-  NewIfood.OnOrderRecommendedPreparation := IFoodOrderRecommendedPreparation;
-  NewIfood.OnOrderRequestDriver := IFoodOrderRequestDriver;
-  NewIfood.OnOrderRequestDriverAvailability :=
-    IFoodOrderRequestDriverAvailability;
-  NewIfood.OnOrderRequestDriverFailed := IFoodOrderRequestDriverFailed;
-  NewIfood.OnOrderRequestDriverSuccess := IFoodOrderRequestDriverSuccess;
-  NewIfood.OnPollingEnd := IFoodPollingEnd;
-  NewIfood.OnPollingError := IFoodPollingError;
-  NewIfood.OnPollingStart := IFoodPollingStart;
-  if StrToInt(Name) = 1 then
-  begin
-    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave1;
-    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet1;
-    NewIfood.OnOrderPlaced := IFoodOrderPlaced1;
-
-  end;
-  if StrToInt(Name) = 2 then
-  begin
-    NewIfood.OnRefreshTokenSave := IFoodRefreshTokenSave2;
-    NewIfood.OnRefreshTokenGet := IFoodRefreshTokenGet2;
-    NewIfood.OnOrderPlaced := IFoodOrderPlaced2;
-
-  end;
-
-  NewIfood.Credentials.ClientId := IFood.Credentials.ClientId;
-  NewIfood.Credentials.ClientSecret := IFood.Credentials.ClientSecret;
-  if (IFood.Credentials.ClientId = '1a5799db-d82c-4a5d-a003-36247fe18176') then
-  begin
-    NewIfood.Credentials.AuthorizationType := ctCentralized;
-  end
-  else
-  begin
-    NewIfood.Credentials.AuthorizationType := ctDistributed;
-  end;
-
-  if (MerchantID <> '') then
-  begin
-    try
-      NewIfood.MerchantStatus.AutoStatus := true;
-      NewIfood.Polling.AutoPolling := true;
-      NewIfood.MerchantID(MerchantID);
-
-      if StrToInt(Name) = 1 then
-      begin
-        ProcessamentoiFood1 := TProcessamentoiFood.Create;
-        ProcessamentoiFood1.IFood := NewIfood;
-        ProcessamentoiFood1.statusiFood := frmServidor.Configuracoes.FieldByName
-          ('aceitar_pedidos_ifood').AsInteger;
-        ProcessamentoiFood1.Start;
-        NewIfood.MerchantStatus.DataSource := dsMerchants1;
-        NewIfood.MerchantStatus.Interval := 30;
-        NewIfood.MerchantStatus.AutoStatus := true;
-      end;
-      if StrToInt(Name) = 2 then
-      begin
-        ProcessamentoiFood2 := TProcessamentoiFood.Create;
-        ProcessamentoiFood2.IFood := NewIfood;
-        ProcessamentoiFood2.statusiFood := frmServidor.Configuracoes.FieldByName
-          ('aceitar_pedidos_ifood').AsInteger;
-        ProcessamentoiFood2.Start;
-        NewIfood.MerchantStatus.DataSource := dsMerchants2;
-        NewIfood.MerchantStatus.Interval := 30;
-        NewIfood.MerchantStatus.AutoStatus := true;
-
-      end;
-
-    except
-      on E: Exception do
-      begin
-        // //////showmessage1(E.Message);
-
-      end;
-
-    end;
-
-  end;
 
 end;
 
@@ -1849,20 +1660,6 @@ begin
 
   end;
   Req.Free;
-
-end;
-
-procedure TfrmServidor.DescricaoIfood;
-begin
-
-  if (IFood.Credentials.ClientId = 'b683664a-f536-4cbf-a162-a2f98ac757e3') then
-  begin
-    pTipoIfood.Caption := 'Produção';
-  end
-  else
-  begin
-    pTipoIfood.Caption := 'Homologação';
-  end;
 
 end;
 
@@ -2849,22 +2646,7 @@ end;
 //
 // end;
 
-function TfrmServidor.GetADRIFoodByTag(TagValue: Integer): TADRIFood;
-var
-  i: Integer;
-begin
-  Result := nil; // Inicializa o resultado como nil
-  for i := 0 to self.ComponentCount - 1 do
-  begin
-    if (self.Components[i] is TADRIFood) and
-      (TADRIFood(self.Components[i]).Tag = TagValue) then
-    begin
-      Result := TADRIFood(self.Components[i]);
-      exit;
-      // Break; // Encontrou o componente, então sai do loop
-    end;
-  end;
-end;
+
 
 function TfrmServidor.GetCachedData: string;
 var
@@ -3175,10 +2957,7 @@ begin
     'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
   IniFile.Free;
 
-  IFood.Credentials.ClientId := 'ae66e3db-e145-4f3f-a810-6ff9ac5d4c5e';
-  IFood.Credentials.ClientSecret :=
-    'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc';
-  DescricaoIfood;
+
 end;
 
 procedure TfrmServidor.HabilitarProduo1Click(Sender: TObject);
@@ -3192,10 +2971,6 @@ begin
     '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia');
   IniFile.Free;
 
-  IFood.Credentials.ClientId := 'b683664a-f536-4cbf-a162-a2f98ac757e3';
-  IFood.Credentials.ClientSecret :=
-    '1dg6shdja6v67rzy36djzw809zwqgfax3sidx6coemw9c9kzro5wxh2zvi5k65d3bt8cycn06ms43mfm7knayh7vxzxlbrl51ia';
-  DescricaoIfood;
 end;
 
 function TfrmServidor.IDiFood: String;
@@ -3264,12 +3039,7 @@ begin
   //
 end;
 
-procedure TfrmServidor.IFoodMerchantStatus
-  (Status: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelMerchantStatus>);
-begin
-  // statusiFood := dataSetMerchantStatus.FieldByName('available').AsBoolean;
 
-end;
 
 procedure TfrmServidor.IFoodMerchantStatusError(AError: Exception);
 var
@@ -3312,257 +3082,6 @@ begin
 
 end;
 
-procedure TfrmServidor.IFoodOrderArrivedAtOrigin
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderAssignDriver
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderBoxAssigned(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderCancellationFailed
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderCancellationRequested
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderCancelled(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderChangePreparationTime
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderCollected(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderConcluded(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderConfirmed(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderConsumerCancellationAccepted
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderConsumerCancellationDenied
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderConsumerCancellationRequested
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderDelayNotification
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderDelivered(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderDispatched(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderGoingToOrigin
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderIntegrated(OrderHead: IADRIFoodModelOrderHead;
-  var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderPickupAreaAssigned
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderPlaced(Order: IADRIFoodModelOrder;
-  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-  ProcessamentoiFood.orderId(Order, OrderHead);
-
-end;
-
-procedure TfrmServidor.IFoodOrderPlaced1(Order: IADRIFoodModelOrder;
-  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-  ProcessamentoiFood1.orderId(Order, OrderHead);
-
-end;
-
-procedure TfrmServidor.IFoodOrderPlaced2(Order: IADRIFoodModelOrder;
-  OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-  ProcessamentoiFood2.orderId(Order, OrderHead);
-
-end;
-
-procedure TfrmServidor.IFoodOrderPreparationStarted
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderReadyToDeliver
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderReadyToPickup
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderRecommendedPreparation
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderRequestDriver
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderRequestDriverAvailability
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderRequestDriverFailed
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodOrderRequestDriverSuccess
-  (OrderHead: IADRIFoodModelOrderHead; var bAcknowledgment: Boolean);
-begin
-
-  bAcknowledgment := true;
-
-end;
-
-procedure TfrmServidor.IFoodPollingEnd(EndPooling: TDateTime;
-  OrdersHead: TArray<ADRIFood.Model.Interfaces.IADRIFoodModelOrderHead>);
-var
-  Test: String;
-begin
-  Test := Test;
-end;
-
 procedure TfrmServidor.IFoodPollingError(Error: Exception);
 var
   Test: String;
@@ -3581,7 +3100,6 @@ function TfrmServidor.IFoodRefreshTokenGet: string;
 var
   IniFile: TIniFile;
   conexao: Tconexao;
-  ComponenteChamador: TADRIFood;
 begin
   // ComponenteChamador := Sender as TADRIFood;
 
