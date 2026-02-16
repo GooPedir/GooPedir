@@ -117,6 +117,7 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
+
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas',
@@ -130,7 +131,8 @@ uses
   GenericSocket.Interfaces in 'src\other\GenericSocket.Interfaces.pas',
   GenericSocket.Message in 'src\other\GenericSocket.Message.pas',
   GenericSocket in 'src\other\GenericSocket.pas',
-  GenericSocket.Server in 'src\other\GenericSocket.Server.pas';
+  GenericSocket.Server in 'src\other\GenericSocket.Server.pas',
+  uTriggerManager in 'src\modulo\uTriggerManager.pas';
 
 {$R *.res}
 

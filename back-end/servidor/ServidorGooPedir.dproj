@@ -244,6 +244,7 @@
         <DCCReference Include="src\other\GenericSocket.Message.pas"/>
         <DCCReference Include="src\other\GenericSocket.pas"/>
         <DCCReference Include="src\other\GenericSocket.Server.pas"/>
+        <DCCReference Include="src\modulo\uTriggerManager.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -272,6 +273,12 @@
             </Delphi.Personality>
             <Deployment Version="5">
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ServidorGooPedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Realease" Class="ProjectOutput"/>
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Realease" Class="ProjectOutput">
                     <Platform Name="Win32">
@@ -281,6 +288,12 @@
                 </DeployFile>
                 <DeployFile LocalName="C:\papaleguas\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="FastMM4Options.inc" Configuration="Debug" Class="ProjectFile"/>
+                <DeployFile LocalName="FastMM4Options.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="FastMM4Options.inc" Configuration="Realease" Class="ProjectFile"/>
                 <DeployFile LocalName="FastMM4Options.inc" Configuration="Realease" Class="ProjectFile">
                     <Platform Name="Win32">
