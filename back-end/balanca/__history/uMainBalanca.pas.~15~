@@ -37,6 +37,9 @@ type
     lStatusApi: TLabel;
     GroupBox2: TGroupBox;
     lStatusBalanca: TLabel;
+    TrayIcon1: TTrayIcon;
+    tMinimize: TTimer;
+    tReconect: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure edtUrlExit(Sender: TObject);
     procedure edtPortaComExit(Sender: TObject);
@@ -47,6 +50,8 @@ type
     procedure btnSalvarClick(Sender: TObject);
     procedure tEnviaPesoTimer(Sender: TObject);
     procedure ACBrBAL1LePeso(Peso: Double; Resposta: AnsiString);
+    procedure tMinimizeTimer(Sender: TObject);
+    procedure tReconectTimer(Sender: TObject);
   private
     FProtocolo: String;
     FID: Integer;
@@ -101,6 +106,7 @@ var
   frmMainBalanca: TfrmMainBalanca;
   TimerBalança: TTimer;
   PesoAtualSimulado: Double;
+  Ini: TIniFile;
 
 implementation
 
@@ -157,6 +163,9 @@ begin
       porta := DADOS.FieldByName('porta').AsString;
       tara := DADOS.FieldByName('tara').AsFloat;
       protocolo := DADOS.FieldByName('protocolo').AsString;
+      // Salvar no ini
+
+      // ReadString('balanca', 'baseurl', '');
       IniciarSimulacaoBalança;
     end
     else
@@ -164,7 +173,7 @@ begin
       mLogEnvio.Lines.Add('Erro: Nenhuma balança localizada com o ID ' +
         ID.ToString);
     end;
-
+    Ini.WriteString('balanca', 'baseurl', BaseUrl);
     tEnviaPeso.Enabled := True;
   except
     on e: Exception do
@@ -178,7 +187,7 @@ end;
 
 procedure TfrmMainBalanca.CarregaParam;
 var
-  Ini: TIniFile;
+
   Arquivo: string;
 begin
   Arquivo := ExtractFilePath(ParamStr(0)) + 'balanca.ini';
@@ -195,7 +204,7 @@ begin
     protocolo := Ini.ReadString('balanca', 'protocolo', '');
     ID := Ini.ReadInteger('balanca', 'id', 0);
   finally
-    Ini.Free;
+
   end;
 end;
 
@@ -211,10 +220,13 @@ begin
     ACBrBAL1.Device.Baud := 4800;
     ACBrBAL1.Ativar;
     mLogEnvio.Lines.Add('Conexão OK!');
-
+    statusBalanca := True;
   except
     on e: Exception do
+    begin
       mLogEnvio.Lines.Add('Erro ao conectar: ' + e.Message);
+      statusBalanca := False;
+    end;
   end;
 end;
 
@@ -262,7 +274,6 @@ end;
 procedure TfrmMainBalanca.edtUrlExit(Sender: TObject);
 begin
   BaseUrl := (Sender as TEdit).Text;
-
 end;
 
 function TfrmMainBalanca.FormatarValorParaBR(valor: Double): string;
@@ -273,6 +284,7 @@ end;
 procedure TfrmMainBalanca.FormCreate(Sender: TObject);
 begin
   statusAPI := False;
+  statusBalanca := False;
   CarregaParam;
   ConfigurarBAL;
 end;
@@ -353,6 +365,7 @@ begin
   edtUrl.Text := Value;
   request.BaseUrl := Value;
   iAtualiza.BaseUrl := Value;
+  BuscaDadosAPI;
 end;
 
 procedure TfrmMainBalanca.SetDescricao(const Value: String);
@@ -403,6 +416,8 @@ begin
     lStatusApi.Caption := 'Sem Conexão';
     lStatusApi.Font.Color := clRed;
   end;
+  if statusAPI and statusBalanca then
+    tMinimize.Enabled := True;
 end;
 
 procedure TfrmMainBalanca.SetstatusBalanca(const Value: Boolean);
@@ -418,6 +433,8 @@ begin
     lStatusBalanca.Caption := 'Sem Conexão';
     lStatusBalanca.Font.Color := clRed;
   end;
+  if statusAPI and statusBalanca then
+    tMinimize.Enabled := True;
 end;
 
 procedure TfrmMainBalanca.SetTara(const Value: Real);
@@ -461,6 +478,28 @@ begin
     end;
   end;
 
+end;
+
+procedure TfrmMainBalanca.tMinimizeTimer(Sender: TObject);
+begin
+  Self.WindowState := wsMinimized;
+  tMinimize.Enabled := False;
+end;
+
+procedure TfrmMainBalanca.tReconectTimer(Sender: TObject);
+begin
+  if not statusAPI then
+  begin
+    lStatusApi.Caption := 'Reconectando';
+    lStatusApi.Font.Color := clPurple;
+    BuscaDadosAPI;
+  end;
+  if not statusBalanca then
+  begin
+    lStatusBalanca.Caption := 'Reconectando';
+    lStatusBalanca.Font.Color := clPurple;
+    ConfigurarBAL;
+  end;
 end;
 
 end.

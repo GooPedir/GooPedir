@@ -116,8 +116,6 @@ implementation
 
 procedure TfrmMainBalanca.ACBrBAL1LePeso(Peso: Double; Resposta: AnsiString);
 begin
-  if Peso < 0 then
-    exit;
   edtPeso.Text := Peso.ToString;
   PesoApi := Peso;
 end;
@@ -171,7 +169,6 @@ begin
 
       // ReadString('balanca', 'baseurl', '');
       IniciarSimulacaoBalança;
-      ConfigurarBAL;
     end
     else
     begin
@@ -215,12 +212,11 @@ end;
 
 procedure TfrmMainBalanca.ConfiguraPrixFit3;
 begin
-  ACBrBAL1.modelo := balToledo;
-  ACBrBAL1.Device.Baud := 9600;
-  ACBrBAL1.Ativar;
-  ACBrBAL1.Desativar;
-  ACBrBAL1.Device.Baud := 4800;
-  ACBrBAL1.Ativar;
+    ACBrBAL1.Device.Baud := 9600;
+    ACBrBAL1.Ativar;
+    ACBrBAL1.Desativar;
+    ACBrBAL1.Device.Baud := 4800;
+    ACBrBAL1.Ativar;
 end;
 
 procedure TfrmMainBalanca.ConfigurarBAL;
@@ -228,12 +224,7 @@ begin
   ACBrBAL1.Desativar;
   try
     ACBrBAL1.porta := edtPortaCom.Text;
-    if (modelo = 'prix-3-fit') then
-      ConfiguraPrixFit3;
-
-    if (modelo = 'urano-us-31-2-pop-5') then
-      ConfiguraUranoPop;
-
+    ConfiguraPrixFit3;
     ACBrBAL1.MonitorarBalanca := True;
     mLogEnvio.Lines.Add('Conexão OK!');
     statusBalanca := True;
@@ -248,9 +239,8 @@ end;
 
 procedure TfrmMainBalanca.ConfiguraUranoPop;
 begin
-  ACBrBAL1.modelo := balUranoPOP;
-  ACBrBAL1.Device.Baud := 9600;
-  ACBrBAL1.Ativar;
+    ACBrBAL1.Device.Baud := 9600;
+    ACBrBAL1.Ativar;
 end;
 
 function TfrmMainBalanca.ConverterValorParaDouble(valorStr: string): Double;
@@ -309,6 +299,7 @@ begin
   statusAPI := False;
   statusBalanca := False;
   CarregaParam;
+  ConfigurarBAL;
 end;
 
 procedure TfrmMainBalanca.IniciarSimulacaoBalança;
@@ -475,9 +466,6 @@ var
   JsonObject: TJSONObject;
 begin
 
-  if modelo = 'urano-us-31-2-pop-5' then
-    ACBrBAL1.LePeso(100);
-
   if PesoApi = UltimoPeso then
     exit;
 
@@ -523,6 +511,7 @@ begin
   begin
     lStatusBalanca.Caption := 'Reconectando';
     lStatusBalanca.Font.Color := clPurple;
+    ConfigurarBAL;
   end;
 end;
 

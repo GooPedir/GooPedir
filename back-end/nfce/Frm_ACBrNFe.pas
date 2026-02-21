@@ -3287,12 +3287,12 @@ end;
 procedure TfrmACBrNFe.Button1Click(Sender: TObject);
 begin
   try
-    ACBrNFe2.NotasFiscais.Clear;
-    ACBrNFe2.NotasFiscais.LoadFromFile
-      ('C:\goopedir\NFCe\Logs\DFE\NSU_000000000001005.xml');
-    EnviaRequest('v2/notafiscal/fornecedor',
-      NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
-    ACBrNFe2.NotasFiscais.Clear;
+//    ACBrNFe2.NotasFiscais.Clear;
+//    ACBrNFe2.NotasFiscais.LoadFromFile
+//      ('C:\goopedir\NFCe\Logs\DFE\NSU_000000000001005.xml');
+//    EnviaRequest('v2/notafiscal/fornecedor',
+//      NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+//    ACBrNFe2.NotasFiscais.Clear;
   except
 
   end;
@@ -3524,12 +3524,9 @@ begin
     .AsString + '\NFCe\' + FormatDateTime('yyyymm', now) + '\';
   CNPJ := MemoryConfiguracao.FieldByName('cnpj').AsString;
 
-  ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=
-    MemoryConfiguracao.FieldByName('certificado').AsString;
-  ACBrNFe1.Configuracoes.Geral.IdCSC := MemoryConfiguracao.FieldByName
-    ('id_token_scs').AsString;
-  ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName
-    ('token_scs').AsString;
+  ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=MemoryConfiguracao.FieldByName('certificado').AsString;
+  ACBrNFe1.Configuracoes.Geral.IdCSC := MemoryConfiguracao.FieldByName('id_token_scs').AsString;
+  ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName('token_scs').AsString;
 
 end;
 
@@ -5216,11 +5213,11 @@ begin
             SL.Text := docZip[i].XML;
             SL.SaveToFile(NomeArquivo);
             try
-              ACBrNFe2.NotasFiscais.Clear;
-              ACBrNFe2.NotasFiscais.LoadFromFile(NomeArquivo);
-              EnviaRequest('v2/notafiscal/fornecedor',
-                NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
-              ACBrNFe2.NotasFiscais.Clear;
+//              ACBrNFe2.NotasFiscais.Clear;
+//              ACBrNFe2.NotasFiscais.LoadFromFile(NomeArquivo);
+//              EnviaRequest('v2/notafiscal/fornecedor',
+//                NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+//              ACBrNFe2.NotasFiscais.Clear;
             except
 
             end;

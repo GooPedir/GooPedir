@@ -21,7 +21,6 @@ object frmACBrNFe: TfrmACBrNFe
     Height = 618
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 617
     object PageControl1: TPageControl
       Left = 1
       Top = 0
@@ -1061,8 +1060,6 @@ object frmACBrNFe: TfrmACBrNFe
     Height = 618
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 905
-    ExplicitHeight = 617
     object pgcBotoes: TPageControl
       Left = 1
       Top = 1
@@ -1071,7 +1068,6 @@ object frmACBrNFe: TfrmACBrNFe
       ActivePage = tsDistribuicao
       Align = alTop
       TabOrder = 0
-      ExplicitWidth = 903
       object tsEnvios: TTabSheet
         Caption = 'Envios'
         ImageIndex = 2
@@ -1416,8 +1412,6 @@ object frmACBrNFe: TfrmACBrNFe
       ActivePage = TabSheet5
       Align = alClient
       TabOrder = 1
-      ExplicitWidth = 903
-      ExplicitHeight = 418
       object TabSheet5: TTabSheet
         Caption = 'Respostas'
         object MemoResp: TMemo
@@ -1428,8 +1422,6 @@ object frmACBrNFe: TfrmACBrNFe
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
-          ExplicitWidth = 895
-          ExplicitHeight = 390
         end
       end
       object TabSheet6: TTabSheet

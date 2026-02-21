@@ -4,8 +4,8 @@ object frmMainBalanca: TfrmMainBalanca
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Integra'#231#227'o Balan'#231'as'
-  ClientHeight = 184
-  ClientWidth = 456
+  ClientHeight = 180
+  ClientWidth = 453
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -38,16 +38,17 @@ object frmMainBalanca: TfrmMainBalanca
     Caption = 'Porta COM'
   end
   object Label4: TLabel
-    Left = 367
-    Top = 8
+    Left = 295
+    Top = 239
     Width = 52
     Height = 15
     Caption = 'Protocolo'
+    Visible = False
   end
   object Label5: TLabel
-    Left = 279
-    Top = 56
-    Width = 21
+    Left = 367
+    Top = 8
+    Width = 22
     Height = 15
     Caption = 'Tara'
   end
@@ -69,7 +70,7 @@ object frmMainBalanca: TfrmMainBalanca
   object edtDescricao: TEdit
     Left = 8
     Top = 72
-    Width = 265
+    Width = 353
     Height = 23
     TabOrder = 5
     OnExit = edtDescricaoExit
@@ -83,16 +84,17 @@ object frmMainBalanca: TfrmMainBalanca
     OnExit = edtPortaComExit
   end
   object edtProtocolo: TEdit
-    Left = 367
-    Top = 24
+    Left = 295
+    Top = 255
     Width = 82
     Height = 23
     TabOrder = 2
+    Visible = False
     OnExit = edtProtocoloExit
   end
   object edtTara: TEdit
-    Left = 279
-    Top = 72
+    Left = 367
+    Top = 24
     Width = 82
     Height = 23
     TabOrder = 3
@@ -203,8 +205,8 @@ object frmMainBalanca: TfrmMainBalanca
   object tEnviaPeso: TTimer
     Enabled = False
     OnTimer = tEnviaPesoTimer
-    Left = 264
-    Top = 192
+    Left = 440
+    Top = 224
   end
   object DADOS: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -214,8 +216,8 @@ object frmMainBalanca: TfrmMainBalanca
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 352
-    Top = 216
+    Left = 600
+    Top = 224
   end
   object ACBrBAL1: TACBrBAL
     Modelo = balToledo
@@ -223,8 +225,8 @@ object frmMainBalanca: TfrmMainBalanca
     MonitorarBalanca = True
     Device.Baud = 4800
     OnLePeso = ACBrBAL1LePeso
-    Left = 168
-    Top = 200
+    Left = 568
+    Top = 128
   end
   object TrayIcon1: TTrayIcon
     Animate = True
@@ -232,18 +234,18 @@ object frmMainBalanca: TfrmMainBalanca
     BalloonHint = 'Balan'#231'a'
     BalloonTitle = 'Balan'#231'a'
     Visible = True
-    Left = 288
-    Top = 160
+    Left = 384
+    Top = 264
   end
   object tMinimize: TTimer
     OnTimer = tMinimizeTimer
-    Left = 208
-    Top = 125
+    Left = 248
+    Top = 237
   end
   object tReconect: TTimer
     Interval = 5000
     OnTimer = tReconectTimer
-    Left = 192
-    Top = 64
+    Left = 176
+    Top = 224
   end
 end

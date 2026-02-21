@@ -761,8 +761,8 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 608
-    Top = 456
+    Left = 856
+    Top = 408
     object memErrosNFCEdata: TDateTimeField
       FieldName = 'data'
     end

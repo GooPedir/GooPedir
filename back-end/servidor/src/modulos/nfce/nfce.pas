@@ -814,7 +814,7 @@ begin
     // 1) trava o lote
     conexao.SQL.Text := 'UPDATE pedido SET ' + ' nfce_status = "PROCESSANDO", '
       + ' nfce_lock = NOW() ' + 'WHERE nfce_emite = 1 ' +
-      '  AND (nfce_status = "" OR nfce_status = "PENDENTE") AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")'
+      '  AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE") AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")'
       + 'ORDER BY codigo ' + 'LIMIT ' + IntToStr(Limit);
     conexao.ExecuteSQL;
 
