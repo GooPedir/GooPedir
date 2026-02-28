@@ -947,6 +947,10 @@ begin
       ('insert into impressao_pedido_nfce (id_pedido) values (:codigo)');
     conexao.Parametros('codigo', CodigoPedido);
     conexao.ExecuteSQL;
+
+    conexao.SQL.Add('update pedido set pedido_impresso = 1 where codigo = :codigo');
+    conexao.Parametros('codigo', CodigoPedido);
+    conexao.ExecuteSQL;
   end;
 
   // DadosPagamento.Free;
@@ -9354,7 +9358,7 @@ var
   // Lista corrigida: cada item do loop será gravado aqui
   ListaItens: TList<TItemProcesso>;
   Item: TItemProcesso;
-
+  balancaId : Integer;
 begin
   IP := GetClientIP(Req);
   try
@@ -9383,6 +9387,12 @@ begin
         Produto := JsonObj.GetValue<Integer>('produto');
         qtd := JsonObj.GetValue<Real>('qtd');
         Adicionais := JsonObj.GetValue<string>('adicionais');
+        try
+        balancaId := JsonObj.GetValue<Integer>('balanca');
+          frmServidor.BalancaManager.AtualizarPeso(balancaId.ToString,0);
+        except
+        balancaId := 0;
+        end;
 
         try
           UUID := JsonObj.GetValue<string>('uuid');

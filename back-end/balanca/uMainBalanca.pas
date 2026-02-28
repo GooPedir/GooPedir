@@ -228,6 +228,7 @@ begin
   ACBrBAL1.Desativar;
   try
     ACBrBAL1.porta := edtPortaCom.Text;
+    ACBrBAL1.MonitorarBalanca := True;
     if (modelo = 'prix-3-fit') then
       ConfiguraPrixFit3;
 
@@ -475,8 +476,22 @@ var
   JsonObject: TJSONObject;
 begin
 
-  if modelo = 'urano-us-31-2-pop-5' then
-    ACBrBAL1.LePeso(100);
+  if (modelo = 'urano-us-31-2-pop-5') AND (ACBrBAL1.Ativo) then
+  begin
+    try
+      ACBrBAL1.LePeso(100);
+    except
+      ACBrBAL1.Desativar;
+    end;
+
+  end;
+  if (not ACBrBAL1.Ativo) then
+  begin
+    tEnviaPeso.Enabled := False;
+    BuscaDadosAPI;
+
+    exit;
+  end;
 
   if PesoApi = UltimoPeso then
     exit;

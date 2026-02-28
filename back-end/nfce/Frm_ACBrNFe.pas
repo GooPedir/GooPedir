@@ -3287,12 +3287,12 @@ end;
 procedure TfrmACBrNFe.Button1Click(Sender: TObject);
 begin
   try
-//    ACBrNFe2.NotasFiscais.Clear;
-//    ACBrNFe2.NotasFiscais.LoadFromFile
-//      ('C:\goopedir\NFCe\Logs\DFE\NSU_000000000001005.xml');
-//    EnviaRequest('v2/notafiscal/fornecedor',
-//      NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
-//    ACBrNFe2.NotasFiscais.Clear;
+    // ACBrNFe2.NotasFiscais.Clear;
+    // ACBrNFe2.NotasFiscais.LoadFromFile
+    // ('C:\goopedir\NFCe\Logs\DFE\NSU_000000000001005.xml');
+    // EnviaRequest('v2/notafiscal/fornecedor',
+    // NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+    // ACBrNFe2.NotasFiscais.Clear;
   except
 
   end;
@@ -3370,12 +3370,16 @@ begin
   IniFile.Free;
 
   Requisicao := iRequisicao.Create(self);
-  Requisicao.TempoExpiracao := 30 * 1000;
+  Requisicao.TempoExpiracao := 5 * 1000;
   Requisicao.BaseUrl := BaseUrl;
   Requisicao.URL := '/v1/consulta/generica/dados_whatsapp/*/*/*';
   Requisicao.MemTable2 := MemoryConfiguracao;
   Requisicao.Metodo := mGet;
-  Requisicao.Execute;
+  try
+    Requisicao.Execute;
+  except
+
+  end;
 
   iEmissao.BaseUrl := BaseUrl;
   iCode.BaseUrl := BaseUrl;
@@ -3524,9 +3528,12 @@ begin
     .AsString + '\NFCe\' + FormatDateTime('yyyymm', now) + '\';
   CNPJ := MemoryConfiguracao.FieldByName('cnpj').AsString;
 
-  ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=MemoryConfiguracao.FieldByName('certificado').AsString;
-  ACBrNFe1.Configuracoes.Geral.IdCSC := MemoryConfiguracao.FieldByName('id_token_scs').AsString;
-  ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName('token_scs').AsString;
+  ACBrNFe1.Configuracoes.Certificados.NumeroSerie :=
+    MemoryConfiguracao.FieldByName('certificado').AsString;
+  ACBrNFe1.Configuracoes.Geral.IdCSC := MemoryConfiguracao.FieldByName
+    ('id_token_scs').AsString;
+  ACBrNFe1.Configuracoes.Geral.CSC := MemoryConfiguracao.FieldByName
+    ('token_scs').AsString;
 
 end;
 
@@ -4957,10 +4964,9 @@ begin
 
   end;
 
-
-    tEmissao.Enabled := False;
-    TrayIcon1.Visible := False;
-    Application.Terminate;
+  tEmissao.Enabled := False;
+  TrayIcon1.Visible := False;
+  Application.Terminate;
 
 end;
 
@@ -5213,11 +5219,11 @@ begin
             SL.Text := docZip[i].XML;
             SL.SaveToFile(NomeArquivo);
             try
-//              ACBrNFe2.NotasFiscais.Clear;
-//              ACBrNFe2.NotasFiscais.LoadFromFile(NomeArquivo);
-//              EnviaRequest('v2/notafiscal/fornecedor',
-//                NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
-//              ACBrNFe2.NotasFiscais.Clear;
+              // ACBrNFe2.NotasFiscais.Clear;
+              // ACBrNFe2.NotasFiscais.LoadFromFile(NomeArquivo);
+              // EnviaRequest('v2/notafiscal/fornecedor',
+              // NFJSONParaJSONPadrao(ACBrNFe2.NotasFiscais.GerarJSON).ToString);
+              // ACBrNFe2.NotasFiscais.Clear;
             except
 
             end;

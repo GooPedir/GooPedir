@@ -1526,7 +1526,6 @@ object frmACBrNFe: TfrmACBrNFe
     Top = 247
   end
   object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
-    MostraStatus = False
     Sistema = 'GooPedir'
     Usuario = 'ACBr'
     MargemInferior = 0.700000000000000000
@@ -1546,9 +1545,12 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
+    ImprimeTotalLiquido = True
     ExibeTotalTributosItem = True
+    ImprimeNomeFantasia = True
     ImprimeDescPorPercentual = True
     ExibeCampoFatura = False
+    FormularioContinuo = True
     Left = 475
     Top = 247
   end
@@ -1559,7 +1561,7 @@ object frmACBrNFe: TfrmACBrNFe
     UsaSeparadorPathPDF = True
     Sistema = 'GooPedir - www.goopedir.com'
     Usuario = 'Allan'
-    Site = 'www.goopedir.com'
+    Site = 'www.goopedir.com1'
     MargemInferior = 0.800000000000000000
     MargemSuperior = 0.800000000000000000
     MargemEsquerda = 0.300000000000000000
@@ -1616,14 +1618,14 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     ACBrNFe = ACBrNFe1
-    TipoDANFE = tiSimplificado
+    TipoDANFE = tiNFCe
     FormularioContinuo = True
     PosPrinter = ACBrPosPrinter1
     Left = 633
     Top = 335
   end
   object ACBrPosPrinter1: TACBrPosPrinter
-    Modelo = ppEscPosEpson
+    Modelo = ppEscPosStar
     Porta = 'Defalt'
     EspacoEntreLinhas = 30
     ConfigBarras.MostrarCodigo = False

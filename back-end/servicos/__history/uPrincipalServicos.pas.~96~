@@ -38,6 +38,7 @@ type
     function IMPRESSAO: String;
     function SERVIDOR: String;
     function PSSITE: String;
+    function NGINX: String;
     procedure AlteraExtrasIguais;
 
   var
@@ -328,7 +329,6 @@ begin
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
-  VoltarPedidos;
   Atualizacao.VerificaAtualizacao;
 end;
 
@@ -515,7 +515,7 @@ begin
           begin
             conexao.SQL.Add
               ('update pro_adi_personalizado_sabores set valor = :valor where id =:id');
-            conexao.Parametros('adicional', Obje.GetValue<String>('nome'));
+            conexao.Parametros('valor', Obje.GetValue<String>('valor'));
             conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
             conexao.ExecuteSQL;
 
@@ -539,7 +539,7 @@ begin
       except
         on E: Exception do
         begin
-          // //showmessage(E.Message)
+          // ////showmessage(E.Message)
         end;
       end;
 
@@ -570,6 +570,7 @@ begin
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
+  AlteraExtrasIguais;
 
 end;
 
@@ -600,7 +601,7 @@ begin
     begin
 
       uReq.BaseURL := URLBKP;
-      uReq.URL := '/v2/status';
+      uReq.URL := '/v2/heart';
       uReq.Metodo := mGet;
       try
         uReq.Execute;
@@ -612,7 +613,7 @@ begin
     end;
 
     uReq.BaseURL := URL;
-    uReq.URL := '/v2/status';
+    uReq.URL := '/v2/heart';
     uReq.Metodo := mGet;
     try
       uReq.Execute;
@@ -666,13 +667,16 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
+    if (not VerificaExe(NGINX)) then
+      AbrirExe(NGINX);
+
     if ComandaValue then
     begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
     end;
 
-    AlteraExtrasIguais;
+
     Sleep(15 * 1000);
   end;
 
@@ -708,6 +712,11 @@ end;
 function TAbrirServicos.IMPRESSAO: String;
 begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ImpressaoGooPedir.exe';
+end;
+
+function TAbrirServicos.NGINX: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\nginx\nginx.exe';
 end;
 
 function TAbrirServicos.PSSITE: String;
@@ -836,11 +845,16 @@ var
   ref: string;
   Codigo: Integer;
   refCodigo: String;
+  SQL: String;
 begin
   Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON
-    (FConn.ConsultaSQL
-    ('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+  SQL := 'SELECT table_name as referencia, 0';
+  SQL := SQL + ' FROM information_schema.tables';
+  SQL := SQL + ' WHERE table_schema = "' + FConn.NomeBanco + '"';
+  SQL := SQL + ' AND table_name LIKE "pedido\_2%"';
+  SQL := SQL + ' ORDER BY table_name;';
+
+  Dados.LoadFromJSON(FConn.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
   begin
@@ -851,15 +865,19 @@ begin
   while not Dados.Eof do
   begin
     ref := Dados.FieldByName('referencia').AsString;
+    ref := StringReplace(ref, 'pedido_', '', []);
     refCodigo := copy(ref, 3, 8);
     refCodigo := StringReplace(refCodigo, '_', '', []);
+
+    FConn.SQL.Add('alter table `pedido_' + ref + '` add codigoOld varchar(20)');
+    FConn.ExecuteSQL;
 
     FConn.SQL.Add('ALTER TABLE `pedido_' + ref +
       '` CHANGE COLUMN `codigo` `codigo` BIGINT(255) NOT NULL;');
     FConn.ExecuteSQL;
 
-    FConn.SQL.Add('update pedido_' + ref + ' set codigo = (codigo+' + refCodigo
-      + ')*-1');
+    FConn.SQL.Add('update pedido_' + ref +
+      ' set codigoOld = codigo, codigo = (codigo+' + refCodigo + ')*-1');
     FConn.ExecuteSQL;
 
     FConn.SQL.Add('update pedido_produtos_' + ref + ' set codigo = (codigo+' +
@@ -872,9 +890,7 @@ begin
     FConn.ExecuteSQL;
 
     FConn.ExecuteSQL
-      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref])
-      );
-
+      (Format('CALL migrar_tabela("pedido", "pedido_%s", "pedido")', [ref]));
     FConn.SQL.Add('select 0, codigo from pedido_' + ref);
     try
       Codigo := FConn.FieldByName('codigo');

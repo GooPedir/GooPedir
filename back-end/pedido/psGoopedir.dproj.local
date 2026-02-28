@@ -17,9 +17,9 @@
     <Transaction>2025/03/13 11:22:48.000.923,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Builder.pas</Transaction>
     <Transaction>2025/03/13 11:22:48.000.870,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Base.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.683,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.RSA.pas</Transaction>
-    <Transaction>2025/03/13 11:22:49.000.261,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWK.pas</Transaction>
-    <Transaction>2025/03/13 11:22:49.000.539,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.OpenSSL.Headers.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.015,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Encryption.pas</Transaction>
+    <Transaction>2025/03/13 11:22:49.000.539,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.OpenSSL.Headers.pas</Transaction>
+    <Transaction>2025/03/13 11:22:49.000.261,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWK.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.313,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWS.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.407,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.Parts.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.496,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Hashing.HMAC.pas</Transaction>
@@ -32,10 +32,10 @@
     <Transaction>2025/03/13 11:22:49.000.206,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWE.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.587,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Signing.Base.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.056,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.Factory.pas</Transaction>
-    <Transaction>2025/03/13 11:22:49.000.865,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Utils.pas</Transaction>
+    <Transaction>2025/03/13 11:22:49.000.096,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.778,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Bytes.pas</Transaction>
     <Transaction>2025/03/13 11:22:49.000.825,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.JSON.pas</Transaction>
-    <Transaction>2025/03/13 11:22:49.000.096,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Core.JWA.pas</Transaction>
+    <Transaction>2025/03/13 11:22:49.000.865,=C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\JOSE.Types.Utils.pas</Transaction>
     <Transaction>2025/03/13 12:24:59.000.074,C:\Projetos\GooPedir\GooPedir\back-end\servidor\src\other\RESTRequest4D.pas=</Transaction>
     <Transaction>2025/08/28 21:02:17.000.969,=C:\Projetos\GooPedir\GooPedir\back-end\pedido\Unit1.pas</Transaction>
     <Transaction>2025/08/28 21:02:29.000.791,C:\Projetos\GooPedir\GooPedir\back-end\pedido\Unit1.pas=C:\Projetos\GooPedir\GooPedir\back-end\pedido\uExportacaoPedido.pas</Transaction>

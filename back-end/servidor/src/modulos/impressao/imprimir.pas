@@ -76,36 +76,43 @@ begin
     begin
       if CodigoAnterior <> Dados.FieldByName('id_pedido').AsInteger then
       begin
-        if Dados.FieldByName('codigo_cliente_endereco').AsInteger > 0 then
+        if Pedidos.FieldByName('id_caixa').AsInteger = 0 then
         begin
+          if Dados.FieldByName('codigo_cliente_endereco').AsInteger > 0 then
+          begin
 
-          if Dados.FieldByName('pedido_site').AsString = '' then
-          begin
-            Dados.Edit;
-            Dados.FieldByName('pedido_site').AsFloat := 0;
-          end;
+            if Dados.FieldByName('pedido_site').AsString = '' then
+            begin
+              Dados.Edit;
+              Dados.FieldByName('pedido_site').AsFloat := 0;
+            end;
 
-          if Dados.FieldByName('pedido_site').AsInteger > 0 then
-          begin
-            Dados.Next;
-          end
-          else
-          begin
-            //
-            if Dados.FieldByName('tempo').AsInteger > 5 then
+            if Dados.FieldByName('pedido_site').AsInteger > 0 then
             begin
               Dados.Next;
             end
             else
             begin
-              Dados.Delete;
+              //
+              if Dados.FieldByName('tempo').AsInteger > 5 then
+              begin
+                Dados.Next;
+              end
+              else
+              begin
+                Dados.Delete;
+              end;
             end;
-          end;
 
+          end
+          else
+          begin
+            Dados.Next;
+          end;
         end
         else
         begin
-          Dados.Next;
+          Dados.Delete;
         end;
         CodigoAnterior := Dados.FieldByName('id_pedido').AsInteger;
       end
@@ -143,24 +150,32 @@ begin
       begin
         while not Pedidos.Eof do
         begin
-          conexao.SQL.Add
-            ('select * from impressao_pedido_produto where id_pedido = :pedido');
-          conexao.Parametros('pedido', Pedidos.FieldByName('codigo').AsInteger);
-          Codigo := conexao.FieldByName('id');
-          if Codigo = 0 then
+          if Pedidos.FieldByName('id_caixa').AsInteger > 0 then
           begin
-            conexao.SQL.Add
-              ('insert into impressao_pedido_produto (id_pedido,status,vias,usuario,data_solicitacao,hora_solicitacao) values (:pedido,0,0,-2,curdate(),curtime())');
-            conexao.Parametros('pedido', Pedidos.FieldByName('codigo')
-              .AsInteger);
-            conexao.ExecuteSQL;
+
           end
           else
           begin
             conexao.SQL.Add
-              ('update impressao_pedido_produto set status = 0 where id = ' +
-              Codigo.toString);
-            conexao.ExecuteSQL;
+              ('select * from impressao_pedido_produto where id_pedido = :pedido');
+            conexao.Parametros('pedido', Pedidos.FieldByName('codigo')
+              .AsInteger);
+            Codigo := conexao.FieldByName('id');
+            if Codigo = 0 then
+            begin
+              conexao.SQL.Add
+                ('insert into impressao_pedido_produto (id_pedido,status,vias,usuario,data_solicitacao,hora_solicitacao) values (:pedido,0,0,-2,curdate(),curtime())');
+              conexao.Parametros('pedido', Pedidos.FieldByName('codigo')
+                .AsInteger);
+              conexao.ExecuteSQL;
+            end
+            else
+            begin
+              conexao.SQL.Add
+                ('update impressao_pedido_produto set status = 0 where id = ' +
+                Codigo.toString);
+              conexao.ExecuteSQL;
+            end;
           end;
           Pedidos.Next;
         end;
@@ -861,6 +876,9 @@ begin
   conexao.Parametros('id', Req.Params['codigo']);
   conexao.ExecuteSQL;
 
+  conexao.SQL.Add('update pedido set pedido_impresso = 1 where codigo = :id');
+  conexao.Parametros('id', Req.Params['codigo']);
+  conexao.ExecuteSQL;
   conexao.Free;
   frmServidor.ImpressoraStatus;
 end;

@@ -35,6 +35,7 @@ uses
   IdSSLOpenSSL,
   Winapi.WinInet,
   GenericSocket,
+  uAgent,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
   Tasks, TaskManager;
 
@@ -177,7 +178,6 @@ type
     function GetMySQLDumpPath: string;
     function FileSizeByName(const FileName: string): Int64;
     procedure Fechar1Click(Sender: TObject);
-
 
     procedure tAtualizaProcessosTimer(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -367,7 +367,6 @@ type
     procedure IFoodRefreshTokenSave1(RefreshToken: string);
     procedure IFoodRefreshTokenSave2(RefreshToken: string);
 
-
     function GetInstancia(Pedido: String): Integer;
     procedure IniciaIfood;
     procedure LogMiddleware(Req: THorseRequest; Res: THorseResponse;
@@ -428,6 +427,7 @@ type
     Test: Integer;
     ClientSocket: iGenericSocket;
     JsonTipoMesa: TJsonArray;
+    Agent: TAgentManager;
 
   end;
 
@@ -530,6 +530,7 @@ var
   Qry: TFDQuery;
   nomeBKP: String;
   comando: String;
+  QryAgent: TFDQuery;
 begin
   {
     Está no core
@@ -565,8 +566,6 @@ begin
   ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
   IniFile.Free;
 
-
-
   InicializarCodigo;
   IniciaIfood;
   FazerBackupMySQL(conexao);
@@ -585,6 +584,21 @@ begin
   except
 
   end;
+  Agent := TAgentManager.Create;
+  QryAgent := conexao.CriaQRY;
+  QryAgent.SQL.Add('SELECT * FROM agent');
+  QryAgent.Open;
+  if QryAgent.RecordCount > 0 then
+  begin
+    while not QryAgent.Eof do
+    begin
+      Agent.Instance.AddOrUpdate(QryAgent.FieldByName('id').AsString);
+      Agent.Instance.SetStatus(QryAgent.FieldByName('id').AsString,
+        QryAgent.FieldByName('status').AsInteger);
+      QryAgent.Next;
+    end;
+  end;
+  QryAgent.Free;
   conexao.Free;
 
 end;
@@ -1401,7 +1415,6 @@ end;
 function TfrmServidor.CreateiFoodConnection(Name, MerchantID: String): String;
 
 begin
-
 
 end;
 
@@ -2439,6 +2452,7 @@ var
   Infra: TInfraBanco;
 
 begin
+
   ClientSocket := TGenericSocket.New;
   conexao := Tconexao.Create('main');
   // Migrado Para o Core
@@ -2654,8 +2668,6 @@ end;
 // Result := CodigoPedido;
 //
 // end;
-
-
 
 function TfrmServidor.GetCachedData: string;
 var
@@ -2966,7 +2978,6 @@ begin
     'skywowzclkem9fcpvodbeof8rzghwerjiegvv1gnjxc5zmpgdnii4rld9sjriutxd6o1e9ds4yuh2181qlfspj5f1zv64ljk5uc');
   IniFile.Free;
 
-
 end;
 
 procedure TfrmServidor.HabilitarProduo1Click(Sender: TObject);
@@ -3047,8 +3058,6 @@ procedure TfrmServidor.IFoodLogResponse(ARequestId, AContent: string;
 begin
   //
 end;
-
-
 
 procedure TfrmServidor.IFoodMerchantStatusError(AError: Exception);
 var

@@ -32,7 +32,7 @@ implementation
 
 uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
-  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, util, uSite;
+  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, util, uSite, uAgent;
 
 function ParseISODate(const S: string): TDate;
 var
@@ -2014,6 +2014,11 @@ begin
 
 end;
 
+procedure DoGetHeart(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Res.Send('OK');
+end;
+
 procedure DoGetNFCeGeradas(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -2833,10 +2838,12 @@ begin
   else
   begin
     try
-      if frmServidor.Configuracoes.FieldByName(JsonObj.GetValue<string>('campo')).AsString = '' then
+      if frmServidor.Configuracoes.FieldByName(JsonObj.GetValue<string>('campo')
+        ).AsString = '' then
       except
-         conexao.SQL.Add('alter table dados_whatsapp add '+JsonObj.GetValue<string>('campo')+' integer');
-         conexao.ExecuteSQL;
+        conexao.SQL.Add('alter table dados_whatsapp add ' +
+          JsonObj.GetValue<string>('campo') + ' integer');
+        conexao.ExecuteSQL;
       end;
 
       conexao.SQL.Add('update dados_whatsapp set ' + JsonObj.GetValue<string>
@@ -4933,6 +4940,8 @@ begin
     // Responde antes de derrubar o servidor
     Res.Status(200).Send('Banco atualizado. Reiniciando serviços...');
 
+    frmServidor.Fechar1Click(nil);
+
   end;
 
   procedure DoGetBancos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -5788,7 +5797,8 @@ begin
       else
       begin
         conexao := TConexao.Create('DoPostLicensa');
-        conexao.SQL.Add('select 0 as zero, count(*) as qtd from usuario');
+        conexao.SQL.Add
+          ('select 0 as zero, count(*) as qtd from usuario where codigo > 0');
         QUANTIDADE := conexao.FieldByName('qtd');
         Retorno.AddPair('erro', '');
         Retorno.AddPair('user', APIGoopedir.UserID);
@@ -6878,6 +6888,8 @@ begin
     conexao.Parametros('id', Req.Params['codigo']);
     conexao.ExecuteSQL;
 
+    frmServidor.Agent.Remove(Req.Params['codigo']);
+
     conexao.Free;
   end;
 
@@ -6894,6 +6906,9 @@ begin
     conexao.Parametros('status', JSONObject.GetValue('status').Value);
     conexao.Parametros('id', JSONObject.GetValue('id').Value);
     conexao.ExecuteSQL;
+
+    frmServidor.Agent.Instance.SetStatus(JSONObject.GetValue('id').Value,
+      JSONObject.GetValue('status').Value.ToInteger);
 
     conexao.Free;
     JSONObject.Free;
@@ -6962,18 +6977,17 @@ begin
   procedure DoGetUserAgent(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
   var
-    conexao: TConexao;
+    Agent: TAgentSession;
   begin
-    conexao := TConexao.Create('v2');
+    Agent := frmServidor.Agent.Instance.Get(Req.Params['codigo']);
+    if not Assigned(Agent) then
+    begin
+      Res.Status(404).Send('Token inválido ou expirado');
+      exit;
+    end;
 
-    conexao.SQL.Add('update agent set datahora where codigo = :codigo');
-    conexao.Parametros('codigo', Req.Params['codigo']);
-    conexao.ExecuteSQL;
-
-    conexao.SQL.Add('select * from agent where id = :codigo');
-    conexao.Parametros('codigo', Req.Params['codigo']);
-    Res.Send<TJsonArray>(conexao.ConsultaSQL);
-    conexao.Free;
+    Res.Send<TJSONObject>(TJSONObject.Create.AddPair('id', Agent.Codigo)
+      .AddPair('status', TJSONNumber.Create(Agent.Status)));
 
   end;
 
@@ -6981,7 +6995,15 @@ begin
   Next: TProc);
   var
     conexao: TConexao;
+
+    Agent: TAgentSession;
   begin
+    Agent := frmServidor.Agent.Instance.Get(Req.Params['codigo']);
+    if Assigned(Agent) then
+    begin
+      Res.Status(200).Send('ja cadastrado');
+      exit;
+    end;
     conexao := TConexao.Create('v2');
 
     conexao.SQL.Add
@@ -6993,6 +7015,8 @@ begin
     conexao.SQL.Add('update agent set datahora where codigo = :codigo');
     conexao.Parametros('codigo', Req.Params['codigo']);
     conexao.ExecuteSQL;
+
+    frmServidor.Agent.AddOrUpdate(Req.Params['codigo']);
 
     conexao.Free;
 
@@ -7404,34 +7428,10 @@ begin
     SQL: String;
   begin
     conexao := TConexao.Create('v2');
-    Dados := TFDMemTable.Create(nil);
-
     conexao.SQL.Add
-      ('select distinct index_pedido.referencia as referencia, 0 as zero from caixa_movimento join index_pedido on index_pedido.id = caixa_movimento.id_pedido where id_caixa = :id and id_pedido > 0 and tipo = 1');
-    conexao.Parametros('id', IntToStr(Req.Params['id'].ToInteger));
-    Dados.LoadFromJSON(conexao.ConsultaSQL);
-    conexao.SQL.Add
-      ('select codigo, codigo_pedido_dia, id_ficha, data_pedido, hora_pedido, nfce_chave as chave,motivo_cancelamento as motivo, concat((select nome from cliente where codigo = codigo_cliente),'',desc_ficha) as cliente, valor_total_pedido from pedido');
-    conexao.SQL.Add('where id_caixa = :id');
-
-    if Dados.RecordCount > 0 then
-    begin
-
-      while not Dados.Eof do
-      begin
-        conexao.SQL.Add
-          ('union all select codigo, codigo_pedido_dia, id_ficha, data_pedido, hora_pedido, nfce_chave as chave,motivo_cancelamento as motivo, (select nome from cliente where codigo = codigo_cliente) as cliente, valor_total_pedido from pedido_'
-          + Dados.FieldByName('referencia').AsString);
-        conexao.SQL.Add('where id_caixa = :id');
-
-        Dados.Next;
-      end;
-
-    end;
-    Dados.Free;
-
+      ('select codigo, codigo_pedido_dia, id_ficha, data_pedido, hora_pedido, nfce_chave as chave,motivo_cancelamento as motivo, concat((select nome from cliente where codigo = codigo_cliente),"",desc_ficha) as cliente, valor_total_pedido from pedido');
+    conexao.SQL.Add('where id_caixa = ' + Req.Params['codigo']);
     conexao.SQL.Add('order by codigo_pedido_dia, id_ficha desc');
-    conexao.Parametros('id', IntToStr(Req.Params['id'].ToInteger));
 
     Res.Send<TJsonArray>(conexao.ConsultaSQL);
     conexao.Free;
@@ -8224,6 +8224,8 @@ begin
 
   procedure Registry;
   begin
+
+    THorse.Get('/v2/heart', DoGetHeart);
     THorse.Get('/v2/nfce/geradas', DoGetNFCeGeradas);
     THorse.Get('/v2/produto/deletado', DoGetProdutoDeletado);
     THorse.Get('/v2/pedido/cancelado', DoGetPedidoCancelado);
@@ -8324,7 +8326,7 @@ begin
     // Relatorio Caixa
     THorse.Get('/v2/forma/pagamento/caixa/:id', DoGetFormaPagamentoCaixa);
     THorse.Get('/v2/sangria/caixa/:id', DoGetSangriaCaixa);
-    THorse.Get('/v2/movimentacoes/caixa/:id', DoGetMovimentacaoCaixa);
+    THorse.Get('/v2/movimentacoes/caixa/:codigo', DoGetMovimentacaoCaixa);
 
     // Relartorio Produtos (Cardapio)
     THorse.Post('/v2/relatorio/produtos/periodo',

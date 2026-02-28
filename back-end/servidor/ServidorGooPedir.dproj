@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Realease</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -245,6 +245,7 @@
         <DCCReference Include="src\other\GenericSocket.pas"/>
         <DCCReference Include="src\other\GenericSocket.Server.pas"/>
         <DCCReference Include="src\modulo\uTriggerManager.pas"/>
+        <DCCReference Include="src\controller\uAgent.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

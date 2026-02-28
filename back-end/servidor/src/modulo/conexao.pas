@@ -167,6 +167,7 @@ begin
 
   // Writeln(SQL);
 
+  if Assigned(QRY) then
   QRY.Free;
 
   Zerar;

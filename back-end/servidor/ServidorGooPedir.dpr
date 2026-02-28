@@ -132,7 +132,8 @@ uses
   GenericSocket.Message in 'src\other\GenericSocket.Message.pas',
   GenericSocket in 'src\other\GenericSocket.pas',
   GenericSocket.Server in 'src\other\GenericSocket.Server.pas',
-  uTriggerManager in 'src\modulo\uTriggerManager.pas';
+  uTriggerManager in 'src\modulo\uTriggerManager.pas',
+  uAgent in 'src\controller\uAgent.pas';
 
 {$R *.res}
 

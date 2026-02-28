@@ -570,6 +570,7 @@ begin
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
+  AlteraExtrasIguais;
 
 end;
 
@@ -600,7 +601,7 @@ begin
     begin
 
       uReq.BaseURL := URLBKP;
-      uReq.URL := '/v2/status';
+      uReq.URL := '/v2/heart';
       uReq.Metodo := mGet;
       try
         uReq.Execute;
@@ -612,7 +613,7 @@ begin
     end;
 
     uReq.BaseURL := URL;
-    uReq.URL := '/v2/status';
+    uReq.URL := '/v2/heart';
     uReq.Metodo := mGet;
     try
       uReq.Execute;
@@ -675,8 +676,8 @@ begin
         AbrirExe(PSSITE);
     end;
 
-    AlteraExtrasIguais;
-    Sleep(15 * 1000);
+
+    Sleep(1 * 1000);
   end;
 
 end;
