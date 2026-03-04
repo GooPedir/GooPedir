@@ -7,7 +7,7 @@ uses Winapi.Windows, uDM, FireDAC.Comp.Client, DataSet.Serialize,
   uRequisicao,
   Data.DB,
   JOSE.Types.JSON, Winapi.TlHelp32, Winapi.ShellAPI, Vcl.Controls, Vcl.Forms,
-  Vcl.ExtCtrls, System.Hash, System.IOUtils,System.Variants;
+  Vcl.ExtCtrls, System.Hash, System.IOUtils, System.Variants;
 
 type
 
@@ -147,14 +147,14 @@ begin
 
     if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
     begin
-      // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
-      // 253) + '", datahora = current_timestamp where id = ' +
-      // CodigoConexao.ToString;
-      // try
-      // QRY.ExecSQL;
-      // except
-      //
-      // end;
+       QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+       253) + '", datahora = current_timestamp where id = ' +
+       CodigoConexao.ToString;
+       try
+       QRY.ExecSQL;
+       except
+
+       end;
     end;
   except
     on E: Exception do
@@ -168,7 +168,7 @@ begin
   // Writeln(SQL);
 
   if Assigned(QRY) then
-  QRY.Free;
+    QRY.Free;
 
   Zerar;
 end;
@@ -249,11 +249,12 @@ begin
 
   end;
   //
-  // ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-  // CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
-  FTimer.Interval := 10 * 1000; // 60000 ms = 1 minuto
+  FTimer.Interval := 10 * 1000;
+  // 60000 ms = 1 minuto
   FTimer.OnTimer := OnTimer;
   FTimer.Enabled := true;
 
@@ -350,7 +351,7 @@ var
   Chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
-exit;
+  exit;
   iGlitchtip := iRequisicao.Create(nil);
 
   // Extrai a chave e a URL da DSN
@@ -512,7 +513,8 @@ begin
     // Converte o GUID para string no formato padr�o
     Result := GUIDToString(GUID)
   else
-    Result := ''; // Retorna uma string vazia em caso de erro
+    Result := '';
+  // Retorna uma string vazia em caso de erro
 end;
 
 function TConexao.GenID(Campo: String): Integer;
@@ -809,8 +811,8 @@ begin
   Result := THashMD5.GetHashString(ASQL);
 end;
 
-function TConexao.Insert(Tabela, CampoID: String; ID: Variant;
-  DadoBody: String): boolean;
+function TConexao.Insert(Tabela, CampoID: String; ID: Variant; DadoBody: String)
+  : boolean;
 var
   Dados: TFDMemTable;
   DadosQry: TFDMemTable;
@@ -947,12 +949,12 @@ begin
   Result := Erro;
   if pos('TOKEN UNKNOWN', Erro) > 0 then
   begin
-    Result := 'Tabela N�o Localizada';
+    Result := 'Tabela Não Localizada';
   end;
 
   if pos('TABLE SQL ALREADY EXISTS', Erro) > 0 then
   begin
-    Result := 'Tabela j� Existente';
+    Result := 'Tabela já Existente';
   end;
 end;
 
@@ -963,12 +965,18 @@ end;
 
 procedure TConexao.OnTimer(Sender: TObject);
 begin
-  FTimer.Enabled := False;
-  try
-    if (Now - FLastActivityTime) * 24 * 60 > 1 then
-      FreeAndNil(FTimer);
-  finally
-    // nunca chame Self.Free dentro do pr�prio objeto temporizado
+  if (Now - FLastActivityTime) * 24 * 60 > 1 then
+  begin
+    FTimer.Enabled := False;
+
+    try
+      if Assigned(DataModulo) then
+      begin
+        if DataModulo.Banco.Connected then
+          DataModulo.Banco.Connected := False;
+      end;
+    except
+    end;
   end;
 end;
 
@@ -1003,14 +1011,15 @@ begin
     QRY.SQL.Add(SQL);
     for I := 0 to length(FParametros) - 1 do
     begin
-    if (FValores[I]) = null then
-    begin
-    QRY.ParamByName(FParametros[I]).DataType := ftInteger;
-       QRY.ParamByName(FParametros[I]).Clear();
-    end else begin
-      QRY.ParamByName(FParametros[I]).Value := FValores[I];
-    end;
-
+      if (FValores[I]) = null then
+      begin
+        QRY.ParamByName(FParametros[I]).DataType := ftInteger;
+        QRY.ParamByName(FParametros[I]).Clear();
+      end
+      else
+      begin
+        QRY.ParamByName(FParametros[I]).Value := FValores[I];
+      end;
 
       try
         if Update then
@@ -1056,14 +1065,14 @@ begin
 
   if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   begin
-    // QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
-    // 253) + '", datahora = current_timestamp where id = ' +
-    // CodigoConexao.ToString;
-    // try
-    // QRY.ExecSQL;
-    // except
-    //
-    // end;
+    QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
+      253) + '", datahora = current_timestamp where id = ' +
+      CodigoConexao.ToString;
+    try
+      QRY.ExecSQL;
+    except
+
+    end;
   end;
 
   QRY.Free;
@@ -1180,7 +1189,8 @@ end;
 
 procedure TConexao.UpdateLastActivityTime;
 begin
-  FLastActivityTime := Now; // Atualiza a �ltima hora de atividade
+  FLastActivityTime := Now;
+  // Atualiza a �ltima hora de atividade
 end;
 
 function TConexao.Usuario: String;

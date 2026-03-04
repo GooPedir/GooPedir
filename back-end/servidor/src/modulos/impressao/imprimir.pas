@@ -538,7 +538,7 @@ begin
   if FileExists(Dados.FieldByName('caminho').AsString) then
   begin
     // Lê o conteúdo do arquivo XML
-
+    Conteudo := TStringList.Create;
     try
       Conteudo.LoadFromFile(Dados.FieldByName('caminho').AsString,
         TEncoding.UTF8);

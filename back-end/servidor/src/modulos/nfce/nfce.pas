@@ -154,13 +154,19 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create('nfce');
-  conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
-  conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
-  conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
-  conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
+  conexao.SQL.Add
+    ('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
+  conexao.SQL.Add
+    ('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
+  conexao.SQL.Add
+    ('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
+  conexao.SQL.Add
+    ('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
   conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-  conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
+  conexao.SQL.Add
+    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add
+    ('join produto on produto.codigo = pedido_produtos.codigo_produto');
   conexao.SQL.Add('where pedido.codigo = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -184,46 +190,34 @@ begin
   conexao.Free;
 
 end;
-//
 
 procedure DoGetNumeroNota(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
-  Dados: TFDMemTable;
+  Codigo: Integer;
 begin
   conexao := TConexao.Create('nfce');
-  Dados := TFDMemTable.Create(nil);
-  conexao.SQL.Add
-    ('select numero,0 as zero from nfce_numeracao where lote = (select max(lote) from nfce_numeracao)');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-  if Dados.RecordCount > 0 then
-  begin
-    Res.Send(IntToStr(Dados.FieldByName('numero').AsInteger + 1));
-    conexao.SQL.Add
-      ('UPDATE nfce_numeracao SET numero = numero + 1 WHERE lote = (SELECT lote FROM (SELECT MAX(lote) AS lote FROM nfce_numeracao) AS Temp);')
-  end
-  else
-  begin
-    conexao.SQL.Add('insert into nfce_numeracao (numero,lote) values (1,1)');
-
-    Res.Send(IntToStr(1));
-  end;
+  Codigo := conexao.GerarID('dados_whatsapp', 'nfce_numeracao');
+  conexao.SQL.Add('update dados_whatsapp set nfce_numeracao = :numero');
+  conexao.Parametros('numero', Codigo);
   conexao.ExecuteSQL;
-
-  Dados.Free;
+  Res.Send(Codigo.ToString);
   conexao.Free;
-
 end;
 
 procedure DoGetNumeroLote(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  conexao: TConexao;
+Var
+  Serie: String;
 begin
-  conexao := TConexao.Create('nfce');
-  conexao.SQL.Add('select max(lote) as lote, 0 as zero from nfce_numeracao');
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+
+  try
+    Serie := frmServidor.Configuracoes.FieldByName('nfce_serie').AsString;
+  except
+    Serie := '1';
+  end;
+
+  Res.Send(Serie);
+
 end;
 
 procedure DOGetNFCeEmissao(Req: THorseRequest; Res: THorseResponse;
@@ -238,7 +232,8 @@ begin
   conexao.ExecuteSQL;
   conexao.SQL.Add
     ('SELECT * FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '
-    + QuotedStr('2024-09-01') + ' and codigo_pedido_dia > 0 and data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")');
+    + QuotedStr('2024-09-01') +
+    ' and codigo_pedido_dia > 0 and data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")');
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -812,8 +807,8 @@ begin
   conexao := TConexao.Create('nfce');
   try
     // 1) trava o lote
-    conexao.SQL.Text := 'UPDATE pedido SET  nfce_status = "PROCESSANDO", '
-      + ' nfce_lock = NOW() WHERE nfce_emite = 1 ' +
+    conexao.SQL.Text := 'UPDATE pedido SET  nfce_status = "PROCESSANDO", ' +
+      ' nfce_lock = NOW() WHERE nfce_emite = 1 ' +
       '  AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE") AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")'
       + 'ORDER BY codigo ' + 'LIMIT ' + IntToStr(Limit);
     conexao.ExecuteSQL;
@@ -821,7 +816,7 @@ begin
     // 2) retorna o que foi travado agora
     conexao.SQL.Text := 'SELECT * FROM pedido ' +
       'WHERE nfce_status = "PROCESSANDO" ';
-//      +'  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE';
+    // +'  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE';
     Res.Send<TJSONArray>(conexao.ConsultaSQL);
 
   finally

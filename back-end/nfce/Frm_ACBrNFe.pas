@@ -678,16 +678,14 @@ begin
   // IdCSC := edtIdToken.Text;
   // CSC := edtToken.Text;
 
+   Requisicao.URL := 'nfce/numero';
+   try
+   Requisicao.Execute;
 
+     NumeroNota := Requisicao.Retorno.ToInteger;
+   except
 
-
-  // Requisicao.URL := 'nfce/numero';
-  // Requisicao.Execute;
-  // try
-  // NumeroNota := Requisicao.Retorno.ToInteger;
-  // except
-  //
-  // end;
+   end;
 
   Requisicao.URL := 'nfce/lote';
   Requisicao.Execute;
@@ -707,9 +705,9 @@ begin
     Ide.indPag := ipVista;
     Ide.modelo := 65;
     Ide.Serie := Serie;
-    Ide.nNF := StrToInt(NumDFe);
+    //Ide.nNF := StrToInt(NumDFe);
     Ide.cNF := GerarCodigoDFe(Ide.nNF);
-    // Ide.cNF := NumeroNota;
+    Ide.cNF := NumeroNota;
     Ide.dEmi := now;
     Ide.dSaiEnt := now;
     Ide.hSaiEnt := now;

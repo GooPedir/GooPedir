@@ -2852,13 +2852,10 @@ begin
       conexao.ExecuteSQL;
     end;
 
+    conexao.SQL.Add('delete from geradores');
+    conexao.ExecuteSQL;
+
     conexao.Free;
-
-
-
-
-    // Fazer aki o envio pro site
-
   end;
 
   procedure DoGetDashboardVendaV2(Req: THorseRequest; Res: THorseResponse;
@@ -4940,7 +4937,7 @@ begin
     // Responde antes de derrubar o servidor
     Res.Status(200).Send('Banco atualizado. Reiniciando serviços...');
 
-    frmServidor.Fechar1Click(nil);
+    frmServidor.timerClose.Enabled := True;
 
   end;
 

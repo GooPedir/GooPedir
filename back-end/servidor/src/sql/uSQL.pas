@@ -25,6 +25,7 @@ type
     function MaiorValorDaLista(const Lista: string): Integer;
     function ValoresSemMaior(const Lista: string): string;
     procedure CriarPrimeiraParticaoPedidoAll;
+    procedure iniciaSerieNFCE;
     function FromDays(Days: Integer): TDate;
 
   var
@@ -113,7 +114,7 @@ begin
             AposConcluirAtualizacao;
 
           end;
-
+          iniciaSerieNFCE;
           StatusAtualizacao := 1;
         end);
     end).Start;
@@ -186,6 +187,46 @@ begin
   StatusAtualizacao := 1;
 
   conexao.Free;
+end;
+
+procedure TSQL.iniciaSerieNFCE;
+var
+  conexao: TConexao;
+  Serie: string;
+  Numero: Integer;
+  qry: TFDQuery;
+begin
+  conexao := TConexao.Create('iniciaSerieNFCE');
+  qry := conexao.CriaQRY;
+
+  Serie := '1';
+  Numero := 1;
+
+  qry.SQL.Add('');
+  qry.SQL.Add('SELECT');
+  qry.SQL.Add('MAX(pedido.nfce_numero) AS numero,');
+  qry.SQL.Add('SUBSTRING(MAX(pedido.nfce_chave), 23, 3) AS serie');
+  qry.SQL.Add('FROM pedido');
+  qry.Open;
+
+  if qry.RecordCount > 0 then
+  begin
+    try
+      Serie := qry.FieldByName('serie').AsString;
+      Numero := qry.FieldByName('numero').AsInteger;
+    except
+
+    end;
+  end;
+
+  conexao.SQL.Add
+    ('update dados_whatsapp set nfce_serie = :serie, nfce_numeracao = :numero where nfce_serie = 0');
+  conexao.Parametros('serie', Serie);
+  conexao.Parametros('numero', Numero);
+  conexao.ExecuteSQL;
+  qry.Free;
+  conexao.Free;
+
 end;
 
 procedure TSQL.LimpaClientesDuplicado;
@@ -451,6 +492,7 @@ begin
       SeTiverAtualizacao;
     MemoLog.Lines.Add('Nova atualização disponível!');
     // AtualizaBanco;
+    iniciaSerieNFCE;
   end
   else
   begin
@@ -460,6 +502,7 @@ begin
     StatusAtualizacao := 1;
 
     MemoLog.Lines.Clear;
+    iniciaSerieNFCE;
 
   end;
 end;
@@ -1733,7 +1776,6 @@ begin
     127:
       begin
 
-
       end;
     128:
       begin
@@ -1795,13 +1837,12 @@ begin
     130:
       begin
 
-       
       end;
     131:
       begin
         ExecultaSQL('ALTER TABLE `pedido` ENGINE = InnoDB');
         CriarPrimeiraParticaoPedidoAll;
-        
+
       end;
     132:
       begin
@@ -1955,8 +1996,6 @@ begin
         ExecultaSQL
           ('ALTER TABLE cliente ADD COLUMN data_cadastro DATE NULL DEFAULT current_date()');
 
-
-
       end;
     137:
       begin
@@ -1977,7 +2016,6 @@ begin
           ('ALTER TABLE pedido ADD COLUMN preparo_hora TIMESTAMP NULL AFTER nfce_lock');
         ExecultaSQL
           ('ALTER TABLE pedido ADD recalcula_preparo TINYINT DEFAULT 1;');
-
 
       end;
     138:
@@ -2006,8 +2044,12 @@ begin
         SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;';
         ExecultaSQL(SQL);
       end;
-    141:
+    142:
       begin
+        ExecultaSQL
+          ('alter table dados_whatsapp add nfce_serie integer default 0;');
+        ExecultaSQL
+          ('alter table dados_whatsapp add nfce_numeracao integer default 0;');
 
       end;
     99999999:
@@ -2023,7 +2065,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '141'
+  Result := '142'
 end;
 
 end.

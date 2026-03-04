@@ -171,6 +171,7 @@ type
     memTiposSite: TFDMemTable;
     memTipoMesa: TFDMemTable;
     Button1: TButton;
+    timerClose: TTimer;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -205,6 +206,8 @@ type
     procedure ReProcessaImpressaoPedidoProduto(conexao: Tconexao);
     procedure Button1Click(Sender: TObject);
     function SocketProdutos(Message: String): String;
+    procedure fecharServico;
+    procedure timerCloseTimer(Sender: TObject);
 
   private
     FHorSite: TDateTime;
@@ -2243,12 +2246,8 @@ procedure TfrmServidor.Fechar1Click(Sender: TObject);
 begin
   FecharExe(ExtractFileDir(Application.ExeName) + '\ServicosGoopedir.exe');
   FecharExe('ServicosGoopedir.exe');
-  FecharExe(frmServidor.IMPRESSAO);
-  FecharExe(frmServidor.WHATSAPP);
-  FecharExe(frmServidor.SITE(NomeExeSite));
-  FecharExe(frmServidor.USANFCE);
-  FecharExe(Application.ExeName);
-  FecharExe('GooPedir.exe');
+  fecharServico;
+
 end;
 
 procedure TfrmServidor.FecharExe(ExeFileName: String);
@@ -2276,6 +2275,16 @@ begin
   end;
   CloseHandle(FSnapshotHandle);
 
+end;
+
+procedure TfrmServidor.fecharServico;
+begin
+FecharExe(frmServidor.IMPRESSAO);
+  FecharExe(frmServidor.WHATSAPP);
+  FecharExe(frmServidor.SITE(NomeExeSite));
+  FecharExe(frmServidor.USANFCE);
+  FecharExe(Application.ExeName);
+  FecharExe('GooPedir.exe');
 end;
 
 procedure TfrmServidor.FecharServioSite1Click(Sender: TObject);
@@ -4741,6 +4750,12 @@ begin
   ShellExecute(0, 'open', 'cmd.exe', PChar('/c ' + comando), nil, SW_HIDE);
   FecharExe(Application.ExeName);
 
+end;
+
+procedure TfrmServidor.timerCloseTimer(Sender: TObject);
+begin
+timerClose.Enabled := False;
+fecharServico;
 end;
 
 procedure TfrmServidor.tMinimizaTimer(Sender: TObject);

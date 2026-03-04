@@ -2,8 +2,8 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'Goopedir'
-  ClientHeight = 833
-  ClientWidth = 1192
+  ClientHeight = 552
+  ClientWidth = 935
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -789,8 +789,8 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 41
-    Top = 520
+    Left = 25
+    Top = 496
   end
   object memBanner: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -800,8 +800,8 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 129
-    Top = 520
+    Left = 105
+    Top = 496
   end
   object memTiposSite: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -822,7 +822,14 @@ object frmServidor: TfrmServidor
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 344
-    Top = 528
+    Left = 192
+    Top = 496
+  end
+  object timerClose: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = timerCloseTimer
+    Left = 576
+    Top = 344
   end
 end
