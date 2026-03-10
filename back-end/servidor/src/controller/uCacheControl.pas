@@ -9,6 +9,7 @@ procedure GravaCache(Origem, Chave, Dados: String);
 function BuscaCache(Origem, Chave: String): TJSONArray;
 function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 procedure LimpaCache(Origem, Chave: String);
+procedure ClearAll;
 
 implementation
 
@@ -22,6 +23,7 @@ var
   CaminhoArquivo: string;
   StringStream: TStringStream;
 begin
+
   try
     CaminhoExecutavel := ExtractFilePath(ParamStr(0));
     PastaCache := CaminhoExecutavel + 'cache';
@@ -100,8 +102,8 @@ var
   StringStream: TStringStream;
   Conteudo: string;
 begin
+
   Result := TJSONArray.Create;
-  Exit;
 
   NomeArquivo := Origem + Chave + '.txt';
 
@@ -146,8 +148,6 @@ var
 begin
   NomeArquivo := Origem + Chave + '.txt';
 
-
-
   // Obtém o caminho do executável
   CaminhoExecutavel := ExtractFilePath(ParamStr(0));
 
@@ -159,6 +159,25 @@ begin
     DeleteFile(PastaCache + NomeArquivo);
   end;
 
+end;
+
+procedure ClearAll;
+var
+  CaminhoExecutavel: String;
+  PastaCache: String;
+begin
+
+  // Obtém o caminho do executável
+  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
+
+  // Define o caminho da pasta cache
+  PastaCache := CaminhoExecutavel + 'cache\';
+
+  try
+    TDirectory.Delete(PastaCache, True);
+  except
+
+  end;
 end;
 
 end.

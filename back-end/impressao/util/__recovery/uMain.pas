@@ -194,17 +194,17 @@ begin
   Prioridade := priNull;
   TrayIcon1.Hint := TimeToStr(Now);
 
-  dmImpressaoV2.ImprimirCaixa(3,1);
+
 
   // ////showmessage(ParamCount.ToString);
   Count := ParamCount;
 
   if Count > 0 then
   begin
-    // Pega o primeiro parâmetro (índice 1)
+    // Pega o primeiro parÃ¢metro (Ã­ndice 1)
     Param := ParamStr(1);
-    // Exibe o parâmetro no Label
-    // Label1.Caption := 'Parâmetro passado: ' + Param;
+    // Exibe o parÃ¢metro no Label
+    // Label1.Caption := 'ParÃ¢metro passado: ' + Param;
 
     if Param = '1' then
     begin
@@ -231,7 +231,7 @@ begin
   end
   else
   begin
-    // Label1.Caption := 'Nenhum parâmetro passado.';
+    // Label1.Caption := 'Nenhum parÃ¢metro passado.';
     Impressoras;
     Descricao := 'Geral';
     if Tipo = '0' then
@@ -283,7 +283,7 @@ begin
 
         if (Retorno = '[]') then
         begin
-          frmMain.Caption := ' Impressão GooPedir - Ofline (' + Descricao + ')';
+          frmMain.Caption := ' ImpressÃ£o GooPedir - Ofline (' + Descricao + ')';
           if (Assigned(ThreadComanda)) then
           begin
 
@@ -317,7 +317,7 @@ begin
         end
         else
         begin
-          frmMain.Caption := ' Impressão GooPedir - Online (' + Descricao + ')';
+          frmMain.Caption := ' ImpressÃ£o GooPedir - Online (' + Descricao + ')';
 
           if Comanda then
           begin
@@ -530,10 +530,10 @@ begin
   exit;
   if not AtivarLog then
     exit;
-  // Obtém o diretório do executável
+  // ObtÃ©m o diretÃ³rio do executÃ¡vel
   LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
 
-  // Cria a pasta de log se não existir
+  // Cria a pasta de log se nÃ£o existir
   if not DirectoryExists(LogPath) then
     ForceDirectories(LogPath);
 
@@ -567,7 +567,7 @@ begin
   if MutexHandle <> 0 then
   begin
     CloseHandle(MutexHandle);
-    MutexHandle := 0; // Reseta a variável para evitar uso indevido
+    MutexHandle := 0; // Reseta a variÃ¡vel para evitar uso indevido
   end;
   Application.Terminate;
 end;
@@ -579,7 +579,7 @@ begin
     if MutexHandle <> 0 then
     begin
       CloseHandle(MutexHandle);
-      MutexHandle := 0; // Reseta a variável para evitar uso indevido
+      MutexHandle := 0; // Reseta a variÃ¡vel para evitar uso indevido
     end;
     Application.Terminate;
     AbrirExe(IMPRESSAO);
@@ -590,7 +590,7 @@ begin
     if MutexHandle <> 0 then
     begin
       CloseHandle(MutexHandle);
-      MutexHandle := 0; // Reseta a variável para evitar uso indevido
+      MutexHandle := 0; // Reseta a variÃ¡vel para evitar uso indevido
     end;
 
     Application.Terminate;

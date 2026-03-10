@@ -13,6 +13,7 @@ function GetAllCategoria(chave: String): TJsonArray;
 function GetFichaProduto(chave: String): TJsonArray;
 function GetFichaSabor(chave: String): TJsonArray;
 function GetProdutoCategoria(chave: String): TJsonArray;
+function GetProdutoPesquisa(chave: String): TJsonArray;
 function GetParametros: TJsonArray;
 function GetFlavor(chave: String): TJsonArray;
 
@@ -158,7 +159,7 @@ begin
       begin
         ArrayJson := TJsonArray.Create;
         Result := ArrayJson;
-       
+
       end;
     end;
     conexao.Free;
@@ -421,6 +422,27 @@ begin
   end;
 end;
 
+function GetProdutoPesquisa(chave: String): TJsonArray;
+var
+  conexao: TConexao;
+  SQL: String;
+begin
+  Result := BuscaCache('GetProdutoPesquisa', chave);
+  if (length(chave) < 3) then
+  begin
+    Result := TJSONArray.Create;
+    exit;
+  end;
+  if Result.Count = 0 then
+  begin
+    SQL := ' SELECT * FROM produto WHERE ativo = 1 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
+    + UpperCase(chave) + '%" ORDER BY position LIMIT 10';
+    Result := ObjetoProduto(SQL);
+    GravaCache('GetProdutoCategoria', chave, Result.ToString);
+  end;
+
+end;
+
 procedure LimpaCacheGeral;
 var
   CaminhoExecutavel: String;
@@ -654,12 +676,12 @@ begin
   while not Itens.Eof do
   begin
     // raiz
-    if EhRaiz and (Itens.FieldByName('pai_id').AsFloat=0) then
+    if EhRaiz and (Itens.FieldByName('pai_id').AsFloat = 0) then
     begin
       Obj := TJSONObject.Create;
     end
     // filhos
-    else if (not EhRaiz) and (not (Itens.FieldByName('pai_id').AsFloat=0)) and
+    else if (not EhRaiz) and (not(Itens.FieldByName('pai_id').AsFloat = 0)) and
       (Itens.FieldByName('pai_id').AsInteger = PaiId) then
     begin
       Obj := TJSONObject.Create;
@@ -675,19 +697,20 @@ begin
     Obj.AddPair('nome', Itens.FieldByName('nome').AsString);
 
     // conteúdo
-    if Itens.FieldByName('produto_id').AsFloat >0 then
+    if Itens.FieldByName('produto_id').AsFloat > 0 then
     begin
       Obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO',
         Itens.FieldByName('produto_id').AsInteger));
     end
-    else if Itens.FieldByName('categoria_id').AsFloat>0 then
+    else if Itens.FieldByName('categoria_id').AsFloat > 0 then
     begin
       Obj.AddPair('produtos', BuscarProdutoPorChave('CATEGORIA',
         Itens.FieldByName('categoria_id').AsInteger));
     end;
 
     // filhos (sempre!)
-    Obj.AddPair('children', MontarArvoreMenu(Itens, Itens.FieldByName('id').AsInteger));
+    Obj.AddPair('children', MontarArvoreMenu(Itens, Itens.FieldByName('id')
+      .AsInteger));
 
     Arr.AddElement(Obj);
     Itens.Next;

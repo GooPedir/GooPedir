@@ -3,6 +3,7 @@ program ServidorGooPedir;
 {$I FastMM4Options.inc}
 
 uses
+  FastMM4,
   Vcl.Forms,
   uMain in 'src\uMain.pas' {frmServidor},
   token in 'src\token\token.pas',
@@ -117,7 +118,6 @@ uses
   TaskManager in 'src\controller\TaskManager.pas',
   uRelatorios in 'src\controller\uRelatorios.pas',
   Horse.Upload in 'src\other\horse-upload-master\src\Horse.Upload.pas',
-
   uControlerProdutoNotaFiscal in 'src\controller\uControlerProdutoNotaFiscal.pas' {$R *.res},
   System.SysUtils,
   uGenericaFuncion in 'src\util\uGenericaFuncion.pas',
@@ -133,11 +133,15 @@ uses
   GenericSocket in 'src\other\GenericSocket.pas',
   GenericSocket.Server in 'src\other\GenericSocket.Server.pas',
   uTriggerManager in 'src\modulo\uTriggerManager.pas',
-  uAgent in 'src\controller\uAgent.pas';
+  uAgent in 'src\controller\uAgent.pas',
+  FastMM4DataCollector in 'FastMM4DataCollector.pas',
+  FastMM4LockFreeStack in 'FastMM4LockFreeStack.pas',
+  FastMM4Messages in 'FastMM4Messages.pas';
 
 {$R *.res}
 
 begin
+   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;

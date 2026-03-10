@@ -1249,9 +1249,9 @@ end;
 procedure TdmImpressaoV2.ConfiguraReportComanda(Origem: Integer; logo: Boolean);
 begin
   exit;
-  // ConfiguraÁ„o responsavel por imprimir a conferencia e configura o tamanho da impress„o
+  // Configura√ß√£o responsavel por imprimir a conferencia e configura o tamanho da impress√£o
   Origem := 2;
-  // ConfiguraÁ„o 80mm
+  // Configura√ß√£o 80mm
   ppRichText21.Visible := Origem <> 3;
   pLabelTroco1.Visible := Origem <> 3;
   pLabelTroco2.Visible := Origem <> 3;
@@ -1396,11 +1396,11 @@ end;
 
 function TdmImpressaoV2.FormatarNumero(Numeros: string): string;
 begin
-  // Garante que o n˙mero tenha pelo menos 9 dÌgitos
+  // Garante que o n√∫mero tenha pelo menos 9 d√≠gitos
   while Length(Numeros) < 9 do
     Numeros := '0' + Numeros;
 
-  // FormataÁ„o do n˙mero
+  // Formata√ß√£o do n√∫mero
   Result := Copy(Numeros, 1, 3) + '.' + Copy(Numeros, 4, 3) + '.' +
     Copy(Numeros, 7, 3);
 end;
@@ -1507,7 +1507,7 @@ end;
 // if Impressoras.RecordCount = 0 then
 // begin
 // AddImpressao('NFCE', nil, 0, 2, 'ERRO',
-// 'Impressora padr„o n„o cadastrada!', '');
+// 'Impressora padr√£o n√£o cadastrada!', '');
 // Impressoras.Free;
 // exit;
 // end;
@@ -1575,7 +1575,7 @@ begin
   if Impressoras.RecordCount = 0 then
   begin
     AddImpressao('NFCE', nil, 0, 2, 'ERRO',
-      'Impressora padr„o n„o cadastrada!', '');
+      'Impressora padr√£o n√£o cadastrada!', '');
     Impressoras.Free;
     exit;
   end;
@@ -1643,7 +1643,7 @@ begin
     if Impressoras.RecordCount = 0 then
     begin
       AddImpressao('PIX', nil, Codigo, 2, 'ERRO',
-        'Impressora padr„o n„o cadastrada!', '');
+        'Impressora padr√£o n√£o cadastrada!', '');
       Impressoras.Free;
       exit;
     end;
@@ -1695,7 +1695,7 @@ begin
     if Impressoras.RecordCount = 0 then
     begin
       AddImpressao('RECIBO', nil, Codigo, 2, 'ERRO',
-        'Impressora padr„o n„o cadastrada!', '');
+        'Impressora padr√£o n√£o cadastrada!', '');
       Impressoras.Free;
       exit;
     end;
@@ -1766,7 +1766,7 @@ begin
     if Impressoras.RecordCount = 0 then
     begin
       AddImpressao('SANGRIA', nil, Codigo, 2, 'ERRO',
-        'Impressora padr„o n„o cadastrada!', '');
+        'Impressora padr√£o n√£o cadastrada!', '');
       Impressoras.Free;
       exit;
     end;
@@ -1831,7 +1831,7 @@ begin
     if Impressora.RecordCount > 0 then
     begin
       AddImpressao('TESTE IMPRESSAO', nil, Codigo, 2, 'ERRO',
-        'Impressora n„o cadastrada!', '');
+        'Impressora n√£o cadastrada!', '');
       ConfiguraReport(ppTesteImpressao);
 
       ppTesteImpressao.PreviewFormSettings.PageDisplay := pdContinuous;
@@ -1897,7 +1897,7 @@ begin
     if Impressoras.RecordCount = 0 then
     begin
       AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
-        'Impressora padr„o n„o cadastrada!', '');
+        'Impressora padr√£o n√£o cadastrada!', '');
       Impressoras.Free;
       exit;
     end;
@@ -1970,7 +1970,7 @@ begin
 
             if RESUMO.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa n„o Existe!',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa n√£o Existe!',
                 Impressoras.FieldByName('driver').AsString);
               dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
               Impressoras.Free;
@@ -2000,7 +2000,7 @@ begin
 
             if COMPLETO.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N„o Existe!',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N√£o Existe!',
                 Impressoras.FieldByName('driver').AsString);
               dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
 
@@ -2037,7 +2037,7 @@ begin
 
             if PRODUTO.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N„o Existe!',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N√£o Existe!',
                 Impressoras.FieldByName('driver').AsString);
               dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
             end
@@ -2074,7 +2074,7 @@ begin
             // if PRODUTO.RecordCount = 0 then
             // begin
             // AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO',
-            // 'Caixa N„o Existe!', Impressoras.FieldByName('driver')
+            // 'Caixa N√£o Existe!', Impressoras.FieldByName('driver')
             // .AsString);
             // dmImpressaoV2.Post('/impressao/caixa/' +
             // Codigo.toString + '/2');
@@ -2120,7 +2120,7 @@ begin
             dsMotoboy.DataSet := MOTOBOY;
             if MOTOBOY.RecordCount = 0 then
             begin
-              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N„o Existe!',
+              AddImpressao('CAIXA', nil, Codigo, 2, 'ERRO', 'Caixa N√£o Existe!',
                 Impressoras.FieldByName('driver').AsString);
               dmImpressaoV2.Post('/impressao/caixa/' + Codigo.ToString + '/2');
               Impressoras.Free;
@@ -2233,7 +2233,7 @@ begin
   // frmMain.Memo1.Lines.Add('Itens localizados: ' +DadosPedido.RecordCount.toString);
   ConsultaEnd := now;
 
-  // Calcula a duraÁ„o da consulta
+  // Calcula a dura√ß√£o da consulta
   ConsultaDuration := (ConsultaEnd - ConsultaStart) * 24 * 60 * 60;
   // Convertendo para segundos
   // frmMain.Memo1.Lines.Add('Tempo para executar a consulta: ' +ConsultaDuration.toString + ' segundos');
@@ -2335,7 +2335,7 @@ begin
         ImpressoraImprimir := 'default';
 
         AddImpressao('COMANDA', Relatorio, CodigoPedido, 2, 'ERRO',
-          'IMPRESSORA N√O LOCALIZADA', ImpressoraImprimir);
+          'IMPRESSORA N√ÉO LOCALIZADA', ImpressoraImprimir);
       end;
 
       Relatorio.PrinterSetup.PrinterName := ImpressoraImprimir;
@@ -2370,7 +2370,7 @@ begin
   end;
 
   EndTime := now;
-  // frmMain.Memo1.Lines.Add('Conclui a impress„o');
+  // frmMain.Memo1.Lines.Add('Conclui a impress√£o');
   ImpressaoDuration := (EndTime - StartTime) * 24 * 60 * 60;
   // Convertendo para segundos
   // frmMain.Memo1.Lines.Add('Tempo para imprimir: ' + ImpressaoDuration.toString +' segundos');
@@ -2422,7 +2422,7 @@ begin
   end;
 
   mPedidos.Free;
-  frmMain.GravaLog('Impress„o Concluida');
+  frmMain.GravaLog('Impress√£o Concluida');
 end;
 
 procedure TdmImpressaoV2.ImprimirCozinhaLocal(Relatorio, RelatorioCozinha
@@ -2440,18 +2440,18 @@ begin
   begin
     while not mPedidos.Eof do
     begin
-      // frmMain.Memo1.Lines.Add('Iniciando Impress„o Cozinha');
+      // frmMain.Memo1.Lines.Add('Iniciando Impress√£o Cozinha');
       frmMain.GravaLog('Grupo: ' + mPedidos.FieldByName('grupo').AsString);
       dmImpressaoV2.ImprimirComandaCozinha(RelatorioCozinha,
         mPedidos.FieldByName('grupo').AsString, mPedidos.FieldByName('usuario')
         .AsString);
-      // frmMain.Memo1.Lines.Add('Concluido Impress„o Cozinha');
+      // frmMain.Memo1.Lines.Add('Concluido Impress√£o Cozinha');
       mPedidos.Next;
     end;
   end
   else
   begin
-    // Fazer o update para n„o reaparecer
+    // Fazer o update para n√£o reaparecer
   end;
 
   mPedidos.Free;
@@ -2753,11 +2753,11 @@ end;
 
 function TImpressaoPedidos.FormatarCEP(CEP: string): string;
 begin
-  // Remove caracteres n„o numÈricos do CEP
+  // Remove caracteres n√£o num√©ricos do CEP
   CEP := StringReplace(CEP, '.', '', [rfReplaceAll]);
   CEP := StringReplace(CEP, '-', '', [rfReplaceAll]);
 
-  // Verifica se o CEP tem pelo menos 8 dÌgitos
+  // Verifica se o CEP tem pelo menos 8 d√≠gitos
   if Length(CEP) < 8 then
     Result := CEP
   else
@@ -2766,22 +2766,22 @@ end;
 
 function TImpressaoPedidos.FormatarCNPJ(CNPJ: string): string;
 begin
-  // Remove caracteres n„o numÈricos do CNPJ
+  // Remove caracteres n√£o num√©ricos do CNPJ
   CNPJ := StringReplace(CNPJ, '.', '', [rfReplaceAll]);
   CNPJ := StringReplace(CNPJ, '-', '', [rfReplaceAll]);
   CNPJ := StringReplace(CNPJ, '/', '', [rfReplaceAll]);
 
-  // Insere pontos, barras e traÁos na posiÁ„o correta
+  // Insere pontos, barras e tra√ßos na posi√ß√£o correta
   Result := FormatMaskText('99.999.999/9999-99;0;', CNPJ);
 end;
 
 function TImpressaoPedidos.FormatarNumero(Numeros: string): string;
 begin
-  // Garante que o n˙mero tenha pelo menos 9 dÌgitos
+  // Garante que o n√∫mero tenha pelo menos 9 d√≠gitos
   while Length(Numeros) < 9 do
     Numeros := '0' + Numeros;
 
-  // FormataÁ„o do n˙mero
+  // Formata√ß√£o do n√∫mero
   Result := Copy(Numeros, 1, 3) + '.' + Copy(Numeros, 4, 3) + '.' +
     Copy(Numeros, 7, 3);
 end;

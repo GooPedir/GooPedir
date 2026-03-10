@@ -246,6 +246,9 @@
         <DCCReference Include="src\other\GenericSocket.Server.pas"/>
         <DCCReference Include="src\modulo\uTriggerManager.pas"/>
         <DCCReference Include="src\controller\uAgent.pas"/>
+        <DCCReference Include="FastMM4DataCollector.pas"/>
+        <DCCReference Include="FastMM4LockFreeStack.pas"/>
+        <DCCReference Include="FastMM4Messages.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

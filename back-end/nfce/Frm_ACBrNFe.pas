@@ -678,15 +678,15 @@ begin
   // IdCSC := edtIdToken.Text;
   // CSC := edtToken.Text;
 
-   Requisicao.URL := 'nfce/numero';
-   try
-   Requisicao.Execute;
+  Requisicao.URL := 'nfce/numero';
+  try
+    Requisicao.Execute;
 
-     NumeroNota := Requisicao.Retorno.ToInteger;
-   except
+    NumeroNota := Requisicao.Retorno.ToInteger;
+  except
 
-   end;
-
+  end;
+  NumDFe := NumeroNota.ToString;
   Requisicao.URL := 'nfce/lote';
   Requisicao.Execute;
   try
@@ -705,9 +705,8 @@ begin
     Ide.indPag := ipVista;
     Ide.modelo := 65;
     Ide.Serie := Serie;
-    //Ide.nNF := StrToInt(NumDFe);
+    Ide.nNF := StrToInt(NumDFe);
     Ide.cNF := GerarCodigoDFe(Ide.nNF);
-    Ide.cNF := NumeroNota;
     Ide.dEmi := now;
     Ide.dSaiEnt := now;
     Ide.hSaiEnt := now;
@@ -5069,12 +5068,22 @@ begin
 
             Protocolo := ACBrNFe1.WebServices.Consulta.Protocolo;
 
-            Ambiente := '1';
+            case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+              taProducao:
+                begin
+                  Ambiente := '1';
+                end
+            else
+              Ambiente := '2';
+            end;
 
-            Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
-            if FileExists(Arquivo) then
+            If (Ambiente = '1') then
             begin
-              EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+              Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+              if FileExists(Arquivo) then
+              begin
+                EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+              end;
             end;
 
             URL := 'nfce/emissao/' + mLote.FieldByName('codigo').AsString + '/'
@@ -5084,6 +5093,15 @@ begin
           end
           else if (Erro = 'Rejeicao: Falha no schema XML') or (Erro = '') then
           begin
+
+            case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+              taProducao:
+                begin
+                  Ambiente := '1';
+                end
+            else
+              Ambiente := '2';
+            end;
 
             case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
               taProducao:
@@ -5104,7 +5122,10 @@ begin
             PostDadosReq(URL, '{"path":"' + StringReplace(CaminhoNFCe, '\',
               '\\', [rfReplaceAll]) + '"}');
             Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
+            If (Ambiente = '1') then
+            begin
             EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+            end;
 
             // Enviar NFC-e
 

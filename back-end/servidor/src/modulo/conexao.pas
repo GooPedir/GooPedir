@@ -249,8 +249,8 @@ begin
 
   end;
   //
-  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+//  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+//    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000;
@@ -1063,17 +1063,17 @@ begin
     end;
   end;
 
-  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
-  begin
-    QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
-      253) + '", datahora = current_timestamp where id = ' +
-      CodigoConexao.ToString;
-    try
-      QRY.ExecSQL;
-    except
-
-    end;
-  end;
+//  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+  // begin
+  // QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
+  // 253) + '", datahora = current_timestamp where id = ' +
+  // CodigoConexao.ToString;
+  // try
+  // QRY.ExecSQL;
+  // except
+  //
+  // end;
+  // end;
 
   QRY.Free;
   Zerar;

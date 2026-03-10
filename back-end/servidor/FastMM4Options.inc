@@ -3,3 +3,4 @@
 {$define EnableMemoryLeakDetailReporting}
 {$define EnableStackTracking}
 {$define LogErrorsToFile}
+{$define LogMemoryLeakDetailToFile}
