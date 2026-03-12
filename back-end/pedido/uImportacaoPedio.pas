@@ -691,6 +691,7 @@ begin
   try
     Req.BaseURL := API_BASE_URL;
     Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString+'&ambiente='+Ambiente;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
     Req.Token(GetToken);
 
     Req.Execute;

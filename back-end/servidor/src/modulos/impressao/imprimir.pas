@@ -65,8 +65,8 @@ begin
   conexao.SQL.Add('join pedido as p on p.codigo = ip.id_pedido');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
 
-  conexao.SQL.Add
-    ('where ip.status = 0 and ip.id_pedido > 0 and pedido_impresso = 0');
+//  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0 and pedido_impresso = 0');
+conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
   CodigoAnterior := 0;
   if Dados.RecordCount > 0 then

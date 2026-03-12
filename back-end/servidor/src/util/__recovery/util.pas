@@ -1,4 +1,4 @@
-﻿unit util;
+unit util;
 
 interface
 
@@ -623,6 +623,7 @@ var
   CodigoAux: Integer;
   Emitir: Integer;
   Requisicao: iRequisicao;
+  Qry : TFDQuery;
 
 begin
   try
@@ -854,6 +855,18 @@ begin
     begin
       if frmServidor.Configuracoes.FieldByName('nfce').AsInteger > 0 then
       begin
+        //Validar Forma de Pagamento
+        Qry := conexao.CriaQRY;
+        Qry.SQL.Add('SELECT id FROM caixa_movimento cm');
+        Qry.SQL.Add('join tipo_pagamento tp on tp.codigo = cm.id_tipo_pagamento');
+        Qry.SQL.Add('where cm.id_pedido = :pedido and tp.movimentacao = 2');
+        Qry.ParamByName('pedido').AsInteger := CodigoPedido;
+        Qry.Open;
+
+        if Qry.RecordCount =  then
+        
+
+
         conexao.SQL.Clear;
         conexao.SQL.Add
           ('update pedido set nfce_emite = 1 where codigo = :pedido');

@@ -713,8 +713,7 @@ begin
     Ide.tpNF := tnSaida;
     Ide.tpEmis := TpcnTipoEmissao
       (MemoryConfiguracao.FieldByName('forma_emissao').AsInteger);
-    Ambiente := TpcnTipoAmbiente(MemoryConfiguracao.FieldByName('ambiente')
-      .AsInteger);
+    Ambiente := TpcnTipoAmbiente(MemoryConfiguracao.FieldByName('ambiente').AsInteger);
 
     if (not Internet) and (Ide.tpEmis = teNormal) then
     begin
@@ -4008,6 +4007,8 @@ begin
   ACBrNFe1.NotasFiscais.LoadFromFile(Caminho, False);
 
   // Adiciona os parâmetros ao corpo da requisição
+  RESTRequest.Params.AddItem('ambiente', MemoryConfiguracao.FieldByName('ambiente').AsString,
+    TRESTRequestParameterKind.pkGETorPOST);
   RESTRequest.Params.AddItem('cnpj', CNPJ,
     TRESTRequestParameterKind.pkGETorPOST);
   RESTRequest.Params.AddItem('data', FormatDateTime('yyyy-mm-dd',

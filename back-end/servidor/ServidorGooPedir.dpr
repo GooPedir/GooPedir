@@ -3,7 +3,7 @@ program ServidorGooPedir;
 {$I FastMM4Options.inc}
 
 uses
-  FastMM4,
+//  FastMM4,
   Vcl.Forms,
   uMain in 'src\uMain.pas' {frmServidor},
   token in 'src\token\token.pas',
@@ -141,7 +141,7 @@ uses
 {$R *.res}
 
 begin
-   ReportMemoryLeaksOnShutdown := True;
+//   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;

@@ -3,7 +3,7 @@
 interface
 
 uses
-uCacheControl,  System.Zip, System.IOUtils,
+  uCacheControl, System.Zip, System.IOUtils,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, uSQL,
@@ -431,6 +431,7 @@ type
     ClientSocket: iGenericSocket;
     JsonTipoMesa: TJsonArray;
     Agent: TAgentManager;
+    CertificadoAtual: TJsonObject;
 
   end;
 
@@ -542,7 +543,7 @@ begin
     except
 
     end;
-    // ⚡ Tudo que depende que o banco esteja pronto:
+    // Tudo que depende que o banco esteja pronto:
     frmServidor.Configuracoes.Close;
 
 
@@ -569,39 +570,55 @@ begin
   ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
   IniFile.Free;
 
-  InicializarCodigo;
-  IniciaIfood;
-  FazerBackupMySQL(conexao);
-  TSincronizaProdutosThread.Create;
+  if InicializacaoHabilitada('InicializarCodigo') then
+    InicializarCodigo;
+
+  if InicializacaoHabilitada('IniciaIfood') then
+    IniciaIfood;
+
+  if InicializacaoHabilitada('FazerBackupMySQL') then
+    FazerBackupMySQL(conexao);
+
+  if InicializacaoHabilitada('TSincronizaProdutosThread') then
+    TSincronizaProdutosThread.Create;
   // EnvioCaixa;
-  try
-    RegisterAllTasks;
-
-    // Executar uma task em paralelo
-    TTaskManager.Run('sabores');
-    TTaskManager.Run('clientes');
-    // TTaskManager.Run('vendas');
-
-    // Evita que o programa termine antes das tasks concluírem
-    Readln;
-  except
-
-  end;
-  Agent := TAgentManager.Create;
-  QryAgent := conexao.CriaQRY;
-  QryAgent.SQL.Add('SELECT * FROM agent');
-  QryAgent.Open;
-  if QryAgent.RecordCount > 0 then
+  if InicializacaoHabilitada('RegisterAllTasks') then
   begin
-    while not QryAgent.Eof do
-    begin
-      Agent.Instance.AddOrUpdate(QryAgent.FieldByName('id').AsString);
-      Agent.Instance.SetStatus(QryAgent.FieldByName('id').AsString,
-        QryAgent.FieldByName('status').AsInteger);
-      QryAgent.Next;
+    try
+      RegisterAllTasks;
+
+//      if InicializacaoHabilitada('TaskSabores') then
+//        TTaskManager.Run('sabores');
+//
+//      if InicializacaoHabilitada('TaskClientes') then
+//        TTaskManager.Run('clientes');
+//
+//      if InicializacaoHabilitada('TaskVendas') then
+//        TTaskManager.Run('vendas');
+
+      Readln;
+    except
+
     end;
   end;
-  QryAgent.Free;
+  if InicializacaoHabilitada('AgentManager') then
+  begin
+    Agent := TAgentManager.Create;
+    QryAgent := conexao.CriaQRY;
+    QryAgent.SQL.Add('SELECT * FROM agent');
+    QryAgent.Open;
+    if QryAgent.RecordCount > 0 then
+    begin
+      while not QryAgent.Eof do
+      begin
+        Agent.Instance.AddOrUpdate(QryAgent.FieldByName('id').AsString);
+        Agent.Instance.SetStatus(QryAgent.FieldByName('id').AsString,
+          QryAgent.FieldByName('status').AsInteger);
+        QryAgent.Next;
+      end;
+    end;
+    QryAgent.Free;
+  end;
   conexao.Free;
 
 end;
@@ -883,7 +900,8 @@ begin
     Req.Execute;
     Req.Free;
 
-    AtualizaCacheSite;
+    if InicializacaoHabilitada('AtualizaCacheSite') then
+      AtualizaCacheSite;
     conexao.Free;
   except
     on E: Exception do
@@ -2184,7 +2202,8 @@ begin
 
   if FileExists(NomeArquivoBackup) then
   begin
-    tBackupFTP.Enabled := true;
+    if InicializacaoHabilitada('BackupFTPTimer') then
+      tBackupFTP.Enabled := true;
     exit;
   end;
 
@@ -2220,7 +2239,8 @@ begin
         (FileSizeByName(NomeArquivoBackup) > 0) then
       begin
         Result := true;
-        tBackupFTP.Enabled := true;
+        if InicializacaoHabilitada('BackupFTPTimer') then
+          tBackupFTP.Enabled := true;
       end;
     end;
   finally
@@ -2526,6 +2546,7 @@ var
   Infra: TInfraBanco;
 
 begin
+  CertificadoAtual := TJsonObject.Create;
   ClearAll;
   ClientSocket := TGenericSocket.New;
   conexao := Tconexao.Create('main');
@@ -2582,7 +2603,7 @@ begin
   CodigoPedido := 0;
   StatusMensagemWhatsapp := 0;
   IniFile := TIniFile.Create('./goopedir.ini');
-  Port := IniFile.ReadInteger('server', 'port', 2121);
+  Port := LerIniInteger('server', 'port', 2121);
   HorarioRestart := IniFile.ReadString('server', 'restart', '03:00');
   IniFile.WriteInteger('server', 'port', Port);
   IniFile.WriteString('server', 'baseurl', 'http://localhost:' +
@@ -2623,7 +2644,8 @@ begin
   util.Registry;
   NFCE.Registry;
   imprimir.Registry;
-  LoadImpressora;
+  if InicializacaoHabilitada('LoadImpressora') then
+    LoadImpressora;
   uTablet.Registry;
 
   // Middlewares
@@ -2635,7 +2657,8 @@ begin
   THorse.Use(MiddlewareCORS);
   THorse.Use(SocketIO);
 
-  AtualizaCacheSite;
+  if InicializacaoHabilitada('AtualizaCacheSite') then
+    AtualizaCacheSite;
   IniFile.Free;
 
   conexao := Tconexao.Create('main');
@@ -2658,13 +2681,13 @@ begin
   end;
 
   THorse.Get('/debug/stop',
-  procedure(Req: THorseRequest; Res: THorseResponse; Next: TProc)
-  begin
-    Res.Send('Encerrando servidor...');
-    self.Show();
-    self.WindowState := TWindowState.wsMaximized;
-    Application.Terminate;
-  end);
+    procedure(Req: THorseRequest; Res: THorseResponse; Next: TProc)
+    begin
+      Res.Send('Encerrando servidor...');
+      self.Show();
+      self.WindowState := TWindowState.wsMaximized;
+      Application.Terminate;
+    end);
 
   Infra := TInfraBanco.Create;
   try
@@ -2677,7 +2700,7 @@ begin
 end;
 
 function TfrmServidor.FTP_DirectoryExists(FTP: TIdFTP;
-  const Directory: string): Boolean;
+const Directory: string): Boolean;
 begin
   Result := true;
   try
@@ -3141,7 +3164,7 @@ begin
 end;
 
 procedure TfrmServidor.IFoodLogResponse(ARequestId, AContent: string;
-  AStatusCode: Integer);
+AStatusCode: Integer);
 begin
   //
 end;
@@ -3804,7 +3827,7 @@ end;
 // end;
 
 procedure TfrmServidor.LogMiddleware(Req: THorseRequest; Res: THorseResponse;
-  Next: TProc);
+Next: TProc);
 var
   LogDir, LogFilePath, LogLine, BodyContent, MetodoHTTP: string;
   LogFile: TStreamWriter;
@@ -3891,7 +3914,7 @@ begin
 end;
 
 procedure TfrmServidor.MiddlewareCORS(Req: THorseRequest; Res: THorseResponse;
-  Next: TProc);
+Next: TProc);
 begin
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Origin', '*');
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Methods',
@@ -4137,13 +4160,13 @@ begin
 
   // Cria um novo processo para reiniciar o executável
   if CreateProcess(PChar(Application.ExeName), // Caminho do executável
-    nil, // Parâmetros de linha de comando
-    nil, // Atributos de segurança do processo
-    nil, False, // Herança de handles
-    0, // Flags de criação
-    nil, // Ambiente
-    nil, // Diretório atual
-    StartupInfo, ProcessInfo) then
+  nil, // Parâmetros de linha de comando
+  nil, // Atributos de segurança do processo
+  nil, False, // Herança de handles
+  0, // Flags de criação
+  nil, // Ambiente
+  nil, // Diretório atual
+  StartupInfo, ProcessInfo) then
   begin
 
     CloseHandle(ProcessInfo.hProcess);
@@ -4366,6 +4389,18 @@ begin
           Objeto.AddPair('vencimento', FormatDateBr(DataVenc));
           Objeto.AddPair('certificadora', Certificadora);
           Objeto.AddPair('cnpj', CNPJ);
+          if Configuracoes.FieldByName('certificado').AsString = NumeroSerie
+          then
+          begin
+            if Assigned(CertificadoAtual) then
+              CertificadoAtual.Free;
+            CertificadoAtual := TJsonObject.Create;
+            CertificadoAtual.AddPair('numero', NumeroSerie);
+            CertificadoAtual.AddPair('vencimento', FormatDateBr(DataVenc));
+            CertificadoAtual.AddPair('certificadora', Certificadora);
+            CertificadoAtual.AddPair('cnpj', CNPJ);
+          end;
+
           Result.AddElement(Objeto);
         end;
 
@@ -4803,6 +4838,8 @@ begin
 
   if UserID < 1 then
     exit;
+  if not InicializacaoHabilitada('BackupFTPTimer') then
+    exit;
   tBackupFTP.Enabled := False;
   SincronizarBackupFTP(NomeArquivoBackup, UserID.ToString, APIGoopedir);
 end;
@@ -4908,7 +4945,8 @@ begin
       if StatusWhatsapp then
       begin
         DadosApiWhatsapp;
-        if not DadosWhatsappBoolean then
+        if InicializacaoHabilitada('DadosWhatsappThread') and
+          (not DadosWhatsappBoolean) then
         begin
           DadosThread1 := TDadosWhatsappAPI.Create(DadosApiWhatsapp, 15000 * 4);
           DadosThread1.FreeOnTerminate := true;
