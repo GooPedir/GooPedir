@@ -61,12 +61,13 @@ begin
 
   conexao := TConexao.Create('imprimir');
   // conexao.SQL.Add('SELECT ip.* FROM impressao_pedido as ip join pedido as p on p.codigo = ip.id_pedido where ip.status = 0 and ip.id_pedido > 0 ');
-  conexao.SQL.Add('SELECT distinct id as ides, ip.*, p.codigo_cliente_endereco,p.id_caixa, p.pedido_site, TIMESTAMPDIFF(MINUTE, p.hora_pedido, NOW()) AS tempo FROM impressao_pedido as ip');
+  conexao.SQL.Add
+    ('SELECT distinct id as ides, ip.*, p.codigo_cliente_endereco,p.id_caixa, p.pedido_site, TIMESTAMPDIFF(MINUTE, p.hora_pedido, NOW()) AS tempo FROM impressao_pedido as ip');
   conexao.SQL.Add('join pedido as p on p.codigo = ip.id_pedido');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
 
-//  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0 and pedido_impresso = 0');
-conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
+  // conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0 and pedido_impresso = 0');
+  conexao.SQL.Add('where ip.status = 0 and ip.id_pedido > 0');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
   CodigoAnterior := 0;
   if Dados.RecordCount > 0 then
@@ -961,10 +962,13 @@ begin
     end;
   end;
 
-  conexao.SQL.Add
-    ('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido in ('
-    + Codigo + ')');
-  conexao.ExecuteSQL;
+  if Codigo <> '' then
+  begin
+    conexao.SQL.Add
+      ('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido in ('
+      + Codigo + ')');
+    conexao.ExecuteSQL;
+  end;
 
   Dados.Free;
 

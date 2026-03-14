@@ -4,7 +4,7 @@ interface
 
 uses Math, Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   uCacheControl, FireDAC.Comp.Client, Dataset.Serialize, JSON,
-  token.autorizacao, Web.HTTPApp,                             System.Diagnostics,
+  token.autorizacao, Web.HTTPApp, System.Diagnostics,
   Data.FireDACJSONReflect, Soap.EncdDecd, FMX.Graphics, FMX.Printer,
   uRequisicao, System.RegularExpressions, DateUtils, PedidoSite,
   System.Threading, uControllCaches, System.Generics.Collections,
@@ -1938,7 +1938,6 @@ begin
   conexao.Free;
 end;
 
-
 procedure DoGetLogOperacao(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -1949,10 +1948,12 @@ begin
   DataInicial := Req.Headers['inicio'];
   DataFinal := Req.Headers['fim'];
 
-  conexao.sql.add('select l.*, u.nome from log_operacao as l');
-  conexao.sql.add('join usuario as u on u.codigo = l.usuario');
-  conexao.sql.add('where l.data_hora between "'+DataInicial+' 00:00:01" and "'+DataFinal+' 23:59:59" and l.endpoint <> "/v1/login"');
-  conexao.sql.add('order by data_hora');
+  conexao.SQL.Add('select l.*, u.nome from log_operacao as l');
+  conexao.SQL.Add('join usuario as u on u.codigo = l.usuario');
+  conexao.SQL.Add('where l.data_hora between "' + DataInicial +
+    ' 00:00:01" and "' + DataFinal +
+    ' 23:59:59" and l.endpoint <> "/v1/login"');
+  conexao.SQL.Add('order by data_hora');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
   conexao.Free;
 
@@ -1963,8 +1964,14 @@ procedure DoGetFechamentoFiado(Req: THorseRequest; Res: THorseResponse;
 var
   conexao: TConexao;
   DataInicial, DataFinal: string;
+  Data: TFDMemTable;
+  fiados: TJsonArray;
+  pedido: TJSONObject;
+
 begin
   conexao := TConexao.Create('DoGetPedidoCancelado');
+  Data := TFDMemTable.Create(nil);
+
   DataInicial := Req.Headers['inicio'];
   DataFinal := Req.Headers['fim'];
   conexao.SQL.Add
@@ -1974,7 +1981,23 @@ begin
   conexao.SQL.Add('where p.data_pedido between :ini and :fim');
   conexao.Parametros('ini', DataInicial);
   conexao.Parametros('fim', DataFinal);
-  Res.Send<TJsonArray>(conexao.ConsultaSQL);
+  Data.LoadFromJSON(conexao.ConsultaSQL);
+
+  fiados := TJsonArray.Create;
+  if Data.RecordCount > 0 then
+  begin
+    while not Data.Eof do
+    begin
+      pedido := Data.ToJSONObject();
+      pedido.AddPair('produtos',
+        GetDadosProdutoPedido(Data.FieldByName('pedido').AsInteger));
+      fiados.AddElement(pedido);
+      Data.Next;
+    end;
+  end;
+
+  Res.Send<TJsonArray>(fiados);
+  Data.Free;
   conexao.Free;
 
 end;
@@ -3470,7 +3493,7 @@ begin
   begin
     conexao := TConexao.Create('v2');
     conexao.SQL.Add
-      ('select cliente.codigo,nome,celular,cpf,data_nascimento,cliente.total_efetivados, cliente.percentual_efetivado, cliente.nota_cliente,');
+      ('select cliente.codigo,cliente.nome,cliente.celular,cliente.cpf,cliente.data_nascimento,cliente.total_efetivados, cliente.percentual_efetivado, cliente.nota_cliente,');
     conexao.SQL.Add
       ('cliente_endereco.rua, cliente_endereco.numero,cliente_endereco.bairro, cliente_endereco.complemento,  cliente_endereco.cidade, cliente_endereco.estado from cliente');
     conexao.SQL.Add
@@ -3482,6 +3505,134 @@ begin
     Res.Send<TJsonArray>(conexao.ConsultaSQL);
     conexao.Free;
 
+  end;
+
+  procedure DoPostEmitirNFCeFiado(Req: THorseRequest; Res: THorseResponse;
+    Next: TProc);
+  var
+    JsonObj: TJSONObject;
+    ArrPedidos: TJsonArray;
+    ArrProdutos: TJsonArray;
+    ArrPagamentos: TJsonArray;
+    PedidoObj, ProdutoObj, PagamentoObj: TJSONObject;
+    i, j: Integer;
+
+    CPF, Nome: string;
+    TotalDevido: Double;
+
+    CodigoNovoPedido: Integer;
+    conexao: TConexao;
+    Qry: TFDQuery;
+  begin
+    JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
+    try
+      // Dados principais
+      CPF := JsonObj.GetValue<string>('cpfcnpj');
+      Nome := JsonObj.GetValue<string>('nome');
+      TotalDevido := JsonObj.GetValue<Double>('totalDevido');
+
+      // Writeln('CPF: ' + CPF);
+      // Writeln('Nome: ' + Nome);
+      // Writeln('Total Devido: ' + FloatToStr(TotalDevido));
+
+      conexao := TConexao.Create('DoPostEmitirNFCeFiado');
+      Qry := conexao.CriaQRY;
+      CodigoNovoPedido := NovoPedido(conexao.GerarID('pedido',
+        'codigo'), 0, Qry);
+
+      conexao.SQL.Add
+        ('update pedido set cpf = :cpf, nome = :nome, status = -999, observacao_geral = "EMISSÃO NFC-E FIADO", pedido_impresso = 1, origem = -999, id_caixa = -999, nfce_emite = 1 where codigo = :codigo');
+      conexao.Parametros('cpf', CPF);
+      conexao.Parametros('nome', Nome);
+      conexao.Parametros('codigo', CodigoNovoPedido);
+      conexao.ExecuteSQL;
+
+      // ====================
+      // PEDIDOS
+      // ====================
+      ArrPedidos := JsonObj.GetValue<TJsonArray>('pedidos');
+
+      for i := 0 to ArrPedidos.Count - 1 do
+      begin
+        PedidoObj := ArrPedidos.Items[i] as TJSONObject;
+
+        // Writeln('Pedido: ' + PedidoObj.GetValue<string>('pedido'));
+        // Writeln('Valor: ' + PedidoObj.GetValue<string>('valor'));
+
+        conexao.SQL.Add('UPDATE pedido p');
+        conexao.SQL.Add('JOIN pedido p2 ON p2.codigo = ' +
+          PedidoObj.GetValue<string>('pedido'));
+        conexao.SQL.Add('SET');
+        conexao.SQL.Add('  p.pedido_nfce = :codigo,');
+        conexao.SQL.Add('  p.codigo_cliente = p2.codigo_cliente');
+        conexao.SQL.Add('WHERE p.codigo = :pedido;');
+        conexao.Parametros('codigo', CodigoNovoPedido);
+        conexao.Parametros('pedido', PedidoObj.GetValue<string>('pedido'));
+        conexao.ExecuteSQL;
+
+        conexao.SQL.Add
+          ('update caixa_receber set pago = valor, observacao = "EMITIDO NFC-E", status = 2 where id_pedido = :pedido');
+        conexao.Parametros('pedido', PedidoObj.GetValue<string>('pedido'));
+        conexao.ExecuteSQL;
+
+        // PRODUTOS DO PEDIDO
+        ArrProdutos := PedidoObj.GetValue<TJsonArray>('produtos');
+
+        for j := 0 to ArrProdutos.Count - 1 do
+        begin
+          ProdutoObj := ArrProdutos.Items[j] as TJSONObject;
+
+          // Writeln('  Produto: ' + ProdutoObj.GetValue<string>('nomeProduto'));
+          // Writeln('  Quantidade: ' + ProdutoObj.GetValue<string>('quantidade'));
+          // Writeln('  Total: ' + ProdutoObj.GetValue<string>('valorTotal'));
+        end;
+      end;
+
+      // ====================
+      // PAGAMENTOS
+      // ====================
+      ArrPagamentos := JsonObj.GetValue<TJsonArray>('pagamentos');
+
+      for i := 0 to ArrPagamentos.Count - 1 do
+      begin
+        PagamentoObj := ArrPagamentos.Items[i] as TJSONObject;
+        MovimentoCaixa(-999, CodigoNovoPedido,
+          PagamentoObj.GetValue<Integer>('pagamento'), -999,
+          PagamentoObj.GetValue<Double>('valor'), '', 0);
+        // Writeln('Pagamento tipo: ' + PagamentoObj.GetValue<string>('pagamento'));
+        // Writeln('Valor: ' + PagamentoObj.GetValue<string>('valor'));
+      end;
+
+    finally
+      JsonObj.Free;
+    end;
+  end;
+
+  procedure DoGetDadoCliente(Req: THorseRequest; Res: THorseResponse;
+    Next: TProc);
+  var
+    conexao: TConexao;
+    Objeto: TJSONObject;
+    Dados: TFDMemTable;
+  begin
+    conexao := TConexao.Create('DoGetDadoCliente');
+    Dados := TFDMemTable.Create(nil);
+    conexao.SQL.Add('select * from cliente where codigo = :codigo');
+    conexao.Parametros('codigo', Req.Params['codigo']);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+    Objeto := TJSONObject.Create;
+    if Dados.RecordCount > 0 then
+    begin
+      Objeto := Dados.ToJSONObject();
+      conexao.SQL.Add
+        ('SELECT * FROM triangulo_lanches.cliente_endereco where codigo_cliente = :codigo order by codigo desc limit 1');
+      conexao.Parametros('codigo', Req.Params['codigo']);
+      Objeto.AddPair('endereco', conexao.ConsultaSQL);
+
+    end;
+    Dados.Free;
+    conexao.Free;
+    Res.Send<TJSONObject>(Objeto);
   end;
 
   procedure DoPostCliente(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -3729,6 +3880,12 @@ begin
       ('LEFT JOIN caixa_receber cr ON c.codigo = cr.id_cliente WHERE ');
     if Busca <> '' then
     begin
+      if Length(Busca) < 3 then
+      begin
+        Res.Send('[]');
+        conexao.Free;
+        exit;
+      end;
       conexao.SQL.Add('    CONCAT(upper(c.nome), c.cpf, c.celular) LIKE ' +
         QuotedStr('%' + UpperCase(Busca) + '%'));
     end
@@ -3738,7 +3895,7 @@ begin
     end;
     conexao.SQL.Add('GROUP BY c.codigo,c.nome,c.celular,c.cpf');
     conexao.SQL.Add
-      ('ORDER BY SUM(CASE WHEN cr.status = 1 THEN cr.valor ELSE 0 END) DESC;');
+      ('ORDER BY SUM(CASE WHEN cr.status = 1 THEN cr.valor ELSE 0 END) DESC limit 15');
 
     // conexao.SQL.Add('SELECT ');
     // conexao.SQL.Add('    cliente.codigo, ');
@@ -3824,12 +3981,6 @@ begin
     DadosCaixa := TFDMemTable.Create(nil);
     DadosCliente := TFDMemTable.Create(nil);
     LJsonObj := TJSONObject.ParseJSONValue(JSON) as TJSONObject;
-    // conexao.SQL.Add
-    // ('select * from cliente where codigo = :codigo');
-    // conexao.Parametros('celular', LJsonObj.GetValue<string>('codigo'));
-    // conexao.Parametros('nome', LJsonObj.GetValue<string>('nome'));
-    // conexao.Parametros('cpf', LJsonObj.GetValue<string>('documento'));
-    // DadosCliente.LoadFromJSON(conexao.ConsultaSQL);
 
     try
       Codigo := LJsonObj.GetValue<Integer>('codigo');
@@ -3907,16 +4058,10 @@ begin
           conexao.ExecuteSQL;
 
           conexao.SQL.Add
-            ('update caixa_receber set status = 2 where pago >= valor  - 0.001 and id = :id');
+            ('update caixa_receber set status = 2 where pago >= valor - 0.001 and id = :id');
           conexao.Parametros('id', DadosCaixa.FieldByName('id').AsInteger);
           conexao.ExecuteSQL;
 
-          // conexao.SQL.Add
-          // ('update caixa_receber set status = 2, observacao =:obs where id = :id');
-          // conexao.Parametros('id', DadosCaixa.FieldByName('id').AsInteger);
-          // conexao.Parametros('obs', OBS);
-          // conexao.ExecuteSQL;
-          //
           MovimentoCaixa(Caixa, DadosCaixa.FieldByName('id_pedido').AsInteger,
             Pagamento, 1, ValorMaximo, OBS, 0);
         end;
@@ -6047,8 +6192,9 @@ begin
 
     if Assigned(frmServidor.CertificadoAtual) then
     begin
-    frmServidor.RetornaCertificado.Free;
-    JSONObject.AddPair('CertificadoAtual', TJSONObject.ParseJSONValue(frmServidor.CertificadoAtual.ToString));
+      frmServidor.RetornaCertificado.Free;
+      JSONObject.AddPair('CertificadoAtual',
+        TJSONObject.ParseJSONValue(frmServidor.CertificadoAtual.ToString));
     end;
 
     if frmServidor.memPaineis.RecordCount = 0 then
@@ -6080,216 +6226,216 @@ begin
 
   end;
 
-//procedure DoGetStatus(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-//var
-//  JSONObject: TJSONObject;
-//  JSonObjectWhatsapp: TJSONObject;
-//  JSONModulos: TJSONObject;
-//  JSONNFCe: TJSONObject;
-//
-//  conexao: TConexao;
-//
-//  Stopwatch: TStopwatch;
-//  PerfArray: TJSONArray;
-//  PerfItem: TJSONObject;
-//
-//
-//
-//  QUANTIDADE: Integer;
-//  Usuario: TJSONObject;
-//  Consulta: String;
-//  CodigoUsuario: String;
-//  NFC: String;
-//  Reader: TStreamReader;
-//  JSONStr: string;
-//
-//  ObjetoiFood: TJSONObject;
-//  ArrayiFood: TJsonArray;
-//  DadosiFood: TFDMemTable;
-//
-//    procedure Marca(const Nome: string);
-//  begin
-//    Stopwatch.Stop;
-//    PerfItem := TJSONObject.Create;
-//    PerfItem.AddPair('etapa', Nome);
-//    PerfItem.AddPair('ms', TJSONNumber.Create(Stopwatch.ElapsedMilliseconds));
-//    PerfArray.AddElement(PerfItem);
-//  end;
-//
-//begin
-//
-//  PerfArray := TJSONArray.Create;
-//  Stopwatch := TStopwatch.StartNew;
-//
-//  conexao := TConexao.Create('V2Status');
-//  DadosiFood := TFDMemTable.Create(nil);
-//
-//  try
-//
-//    try
-//      JSONModulos := TJSONObject.ParseJSONValue(frmServidor.GetModulo) as TJSONObject;
-//    except
-//    end;
-//
-//    Marca('modulos');
-//    Stopwatch := TStopwatch.StartNew;
-//
-//    try
-//      Usuario := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
-//
-//      conexao.SQL.Add(
-//      'select * from usuario where codigo = :codigo and nome = :nome and senha = :senha');
-//
-//      conexao.Parametros('codigo', Usuario.GetValue<String>('codigo'));
-//      conexao.Parametros('nome', Usuario.GetValue<String>('nome'));
-//      conexao.Parametros('senha', Usuario.GetValue<String>('senha'));
-//
-//      Consulta := conexao.FieldByName('codigo');
-//      CodigoUsuario := Usuario.GetValue<String>('codigo');
-//
-//      if Consulta <> CodigoUsuario then
-//      begin
-//        conexao.Free;
-//        Res.Status(1);
-//        exit;
-//      end;
-//
-//    except
-//      conexao.SQL.Clear;
-//    end;
-//
-//    Marca('validacao_usuario');
-//    Stopwatch := TStopwatch.StartNew;
-//
-//    JSONObject := TJSONObject.Create;
-//
-//    if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
-//      JSONObject.AddPair('licensa', False)
-//    else
-//      JSONObject.AddPair('licensa', True);
-//
-//    JSONObject.AddPair('modulos', JSONModulos);
-//
-//    JSonObjectWhatsapp := TJSONObject.Create;
-//    JSonObjectWhatsapp.AddPair('status', frmServidor.StatusWhatsapp);
-//    JSonObjectWhatsapp.AddPair('celular', frmServidor.NumeroWhatsapp);
-//    JSonObjectWhatsapp.AddPair('base64', frmServidor.Base64Whatsapp);
-//    JSonObjectWhatsapp.AddPair('logout', frmServidor.LogoutWhatsapp);
-//    JSonObjectWhatsapp.AddPair('name', frmServidor.NomeWhatsapp);
-//    JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
-//    JSonObjectWhatsapp.AddPair('msgErro', frmServidor.StatusErroWhatsapp);
-//    JSonObjectWhatsapp.AddPair('statusOperacao', frmServidor.StatusMensagemWhatsapp);
-//
-//    if frmServidor.StatusMensagemWhatsapp = 2 then
-//      frmServidor.StatusMensagemWhatsapp := 0;
-//
-//    JSONObject.AddPair('whatsapp', JSonObjectWhatsapp);
-//
-//    Marca('json_basico');
-//    Stopwatch := TStopwatch.StartNew;
-//
-//    ArrayiFood := TJsonArray.Create;
-//
-//    if frmServidor.dataSetMerchants1.RecordCount > 0 then
-//    begin
-//      conexao.SQL.Add('select * from ifood_connect');
-//      DadosiFood.LoadFromJSON(conexao.ConsultaSQL);
-//    end;
-//
-//    if DadosiFood.RecordCount > 0 then
-//    begin
-//      ObjetoiFood := TJSONObject.Create;
-//      ObjetoiFood.AddPair('statusLoja',
-//      frmServidor.dataSetMerchants1.FieldByName('messagetitle').AsString);
-//      ObjetoiFood.AddPair('detalheLoja',
-//      frmServidor.dataSetMerchants1.FieldByName('messagesubtitle').AsString);
-//      ObjetoiFood.AddPair('status',
-//      frmServidor.dataSetMerchants1.FieldByName('available').AsString);
-//      ObjetoiFood.AddPair('loja', DadosiFood.FieldByName('name').AsString);
-//      ArrayiFood.AddElement(ObjetoiFood);
-//    end;
-//
-//    Marca('ifood');
-//    Stopwatch := TStopwatch.StartNew;
-//    JSONObject.AddPair('taxaEntrega', frmServidor.GetTaxaEntrega);
-//    JSONObject.AddPair('ifood', ArrayiFood);
-//    JSONObject.AddPair('user', frmServidor.UserID.ToString);
-//
-//    JSONNFCe := TJSONObject.Create;
-//
-//    conexao.SQL.Add('SELECT 0 as zero, nfce FROM dados_whatsapp');
-//    NFC := conexao.FieldByName('nfce');
-//
-//    if NFC = '1' then
-//    begin
-//      JSONNFCe.AddPair('usa', True);
-//
-//      conexao.SQL.Add(
-//      'SELECT count(*) as quantidade, 0 as zero FROM pedido WHERE nfce_emite = 1 and id_caixa > 0 AND status > 0 AND data_pedido >= '
-//      + QuotedStr(FormatDateTime('yyyy-mm-01', now))
-//      + ' and codigo_pedido_dia > 0');
-//
-//      QUANTIDADE := conexao.FieldByName('quantidade');
-//
-//      JSONNFCe.AddPair('contigencia', QUANTIDADE);
-//      JSONNFCe.AddPair('erro', frmServidor.memErrosNFCE.ToJSONArray());
-//    end
-//    else
-//    begin
-//      JSONNFCe.AddPair('contigencia', 0);
-//      JSONNFCe.AddPair('usa', False);
-//      JSONNFCe.AddPair('erro', '[]');
-//    end;
-//
-//    JSONObject.AddPair('nfce', JSONNFCe);
-//
-//    Marca('nfce');
-//    Stopwatch := TStopwatch.StartNew;
-//
-//    try
-//      Reader := TStreamReader.Create('atualizacao.json', TEncoding.UTF8);
-//      try
-//        JSONStr := Reader.ReadToEnd;
-//      finally
-//        Reader.Free;
-//      end;
-//
-//      JSONObject.AddPair('atualizacao',
-//      TJSONObject.ParseJSONValue(JSONStr) as TJSONObject);
-//    except
-//    end;
-//
-//    Marca('arquivo_atualizacao');
-//    Stopwatch := TStopwatch.StartNew;
-//
-//    if frmServidor.memPaineis.RecordCount = 0 then
-//    begin
-//      conexao.SQL.Add('SELECT * FROM painel where tipo <> 3');
-//      frmServidor.memPaineis.LoadFromJSON(conexao.ConsultaSQL);
-//    end;
-//
-//    if frmServidor.memBanner.RecordCount = 0 then
-//    begin
-//      conexao.SQL.Add(
-//      'select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
-//      frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
-//    end;
-//
-//    JSONObject.AddPair('banner', frmServidor.memBanner.ToJSONArray());
-//    JSONObject.AddPair('painel', frmServidor.memPaineis.ToJSONArray());
-//
-//    Marca('banner_painel');
-//
-//    JSONObject.AddPair('performance', PerfArray);
-//
-//    conexao.Free;
-//
-//    Res.Send(JSONObject);
-//
-//  finally
-//  end;
-//
-//end;
+  // procedure DoGetStatus(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+  // var
+  // JSONObject: TJSONObject;
+  // JSonObjectWhatsapp: TJSONObject;
+  // JSONModulos: TJSONObject;
+  // JSONNFCe: TJSONObject;
+  //
+  // conexao: TConexao;
+  //
+  // Stopwatch: TStopwatch;
+  // PerfArray: TJSONArray;
+  // PerfItem: TJSONObject;
+  //
+  //
+  //
+  // QUANTIDADE: Integer;
+  // Usuario: TJSONObject;
+  // Consulta: String;
+  // CodigoUsuario: String;
+  // NFC: String;
+  // Reader: TStreamReader;
+  // JSONStr: string;
+  //
+  // ObjetoiFood: TJSONObject;
+  // ArrayiFood: TJsonArray;
+  // DadosiFood: TFDMemTable;
+  //
+  // procedure Marca(const Nome: string);
+  // begin
+  // Stopwatch.Stop;
+  // PerfItem := TJSONObject.Create;
+  // PerfItem.AddPair('etapa', Nome);
+  // PerfItem.AddPair('ms', TJSONNumber.Create(Stopwatch.ElapsedMilliseconds));
+  // PerfArray.AddElement(PerfItem);
+  // end;
+  //
+  // begin
+  //
+  // PerfArray := TJSONArray.Create;
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // conexao := TConexao.Create('V2Status');
+  // DadosiFood := TFDMemTable.Create(nil);
+  //
+  // try
+  //
+  // try
+  // JSONModulos := TJSONObject.ParseJSONValue(frmServidor.GetModulo) as TJSONObject;
+  // except
+  // end;
+  //
+  // Marca('modulos');
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // try
+  // Usuario := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
+  //
+  // conexao.SQL.Add(
+  // 'select * from usuario where codigo = :codigo and nome = :nome and senha = :senha');
+  //
+  // conexao.Parametros('codigo', Usuario.GetValue<String>('codigo'));
+  // conexao.Parametros('nome', Usuario.GetValue<String>('nome'));
+  // conexao.Parametros('senha', Usuario.GetValue<String>('senha'));
+  //
+  // Consulta := conexao.FieldByName('codigo');
+  // CodigoUsuario := Usuario.GetValue<String>('codigo');
+  //
+  // if Consulta <> CodigoUsuario then
+  // begin
+  // conexao.Free;
+  // Res.Status(1);
+  // exit;
+  // end;
+  //
+  // except
+  // conexao.SQL.Clear;
+  // end;
+  //
+  // Marca('validacao_usuario');
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // JSONObject := TJSONObject.Create;
+  //
+  // if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
+  // JSONObject.AddPair('licensa', False)
+  // else
+  // JSONObject.AddPair('licensa', True);
+  //
+  // JSONObject.AddPair('modulos', JSONModulos);
+  //
+  // JSonObjectWhatsapp := TJSONObject.Create;
+  // JSonObjectWhatsapp.AddPair('status', frmServidor.StatusWhatsapp);
+  // JSonObjectWhatsapp.AddPair('celular', frmServidor.NumeroWhatsapp);
+  // JSonObjectWhatsapp.AddPair('base64', frmServidor.Base64Whatsapp);
+  // JSonObjectWhatsapp.AddPair('logout', frmServidor.LogoutWhatsapp);
+  // JSonObjectWhatsapp.AddPair('name', frmServidor.NomeWhatsapp);
+  // JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
+  // JSonObjectWhatsapp.AddPair('msgErro', frmServidor.StatusErroWhatsapp);
+  // JSonObjectWhatsapp.AddPair('statusOperacao', frmServidor.StatusMensagemWhatsapp);
+  //
+  // if frmServidor.StatusMensagemWhatsapp = 2 then
+  // frmServidor.StatusMensagemWhatsapp := 0;
+  //
+  // JSONObject.AddPair('whatsapp', JSonObjectWhatsapp);
+  //
+  // Marca('json_basico');
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // ArrayiFood := TJsonArray.Create;
+  //
+  // if frmServidor.dataSetMerchants1.RecordCount > 0 then
+  // begin
+  // conexao.SQL.Add('select * from ifood_connect');
+  // DadosiFood.LoadFromJSON(conexao.ConsultaSQL);
+  // end;
+  //
+  // if DadosiFood.RecordCount > 0 then
+  // begin
+  // ObjetoiFood := TJSONObject.Create;
+  // ObjetoiFood.AddPair('statusLoja',
+  // frmServidor.dataSetMerchants1.FieldByName('messagetitle').AsString);
+  // ObjetoiFood.AddPair('detalheLoja',
+  // frmServidor.dataSetMerchants1.FieldByName('messagesubtitle').AsString);
+  // ObjetoiFood.AddPair('status',
+  // frmServidor.dataSetMerchants1.FieldByName('available').AsString);
+  // ObjetoiFood.AddPair('loja', DadosiFood.FieldByName('name').AsString);
+  // ArrayiFood.AddElement(ObjetoiFood);
+  // end;
+  //
+  // Marca('ifood');
+  // Stopwatch := TStopwatch.StartNew;
+  // JSONObject.AddPair('taxaEntrega', frmServidor.GetTaxaEntrega);
+  // JSONObject.AddPair('ifood', ArrayiFood);
+  // JSONObject.AddPair('user', frmServidor.UserID.ToString);
+  //
+  // JSONNFCe := TJSONObject.Create;
+  //
+  // conexao.SQL.Add('SELECT 0 as zero, nfce FROM dados_whatsapp');
+  // NFC := conexao.FieldByName('nfce');
+  //
+  // if NFC = '1' then
+  // begin
+  // JSONNFCe.AddPair('usa', True);
+  //
+  // conexao.SQL.Add(
+  // 'SELECT count(*) as quantidade, 0 as zero FROM pedido WHERE nfce_emite = 1 and id_caixa > 0 AND status > 0 AND data_pedido >= '
+  // + QuotedStr(FormatDateTime('yyyy-mm-01', now))
+  // + ' and codigo_pedido_dia > 0');
+  //
+  // QUANTIDADE := conexao.FieldByName('quantidade');
+  //
+  // JSONNFCe.AddPair('contigencia', QUANTIDADE);
+  // JSONNFCe.AddPair('erro', frmServidor.memErrosNFCE.ToJSONArray());
+  // end
+  // else
+  // begin
+  // JSONNFCe.AddPair('contigencia', 0);
+  // JSONNFCe.AddPair('usa', False);
+  // JSONNFCe.AddPair('erro', '[]');
+  // end;
+  //
+  // JSONObject.AddPair('nfce', JSONNFCe);
+  //
+  // Marca('nfce');
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // try
+  // Reader := TStreamReader.Create('atualizacao.json', TEncoding.UTF8);
+  // try
+  // JSONStr := Reader.ReadToEnd;
+  // finally
+  // Reader.Free;
+  // end;
+  //
+  // JSONObject.AddPair('atualizacao',
+  // TJSONObject.ParseJSONValue(JSONStr) as TJSONObject);
+  // except
+  // end;
+  //
+  // Marca('arquivo_atualizacao');
+  // Stopwatch := TStopwatch.StartNew;
+  //
+  // if frmServidor.memPaineis.RecordCount = 0 then
+  // begin
+  // conexao.SQL.Add('SELECT * FROM painel where tipo <> 3');
+  // frmServidor.memPaineis.LoadFromJSON(conexao.ConsultaSQL);
+  // end;
+  //
+  // if frmServidor.memBanner.RecordCount = 0 then
+  // begin
+  // conexao.SQL.Add(
+  // 'select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
+  // frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
+  // end;
+  //
+  // JSONObject.AddPair('banner', frmServidor.memBanner.ToJSONArray());
+  // JSONObject.AddPair('painel', frmServidor.memPaineis.ToJSONArray());
+  //
+  // Marca('banner_painel');
+  //
+  // JSONObject.AddPair('performance', PerfArray);
+  //
+  // conexao.Free;
+  //
+  // Res.Send(JSONObject);
+  //
+  // finally
+  // end;
+  //
+  // end;
 
   procedure DoGetWhatsapp(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   var
@@ -7678,7 +7824,8 @@ begin
         Dados.Edit;
         if Dados.FieldByName('id_ficha').AsString <> '' then
         begin
-          Dados.FieldByName('cliente').AsString := Dados.FieldByName('desc_ficha').AsString;
+          Dados.FieldByName('cliente').AsString :=
+            Dados.FieldByName('desc_ficha').AsString;
         end;
         if Dados.FieldByName('cliente').AsString = '' then
         begin
@@ -8007,7 +8154,7 @@ begin
     // Codigo: Integer;
     JsonObj: TJSONObject;
     Codigo: Integer;
-    nome, senha: string;
+    Nome, senha: string;
     percentual: Real;
     Finalizar, excluir, dashboard, entrada, desconto, aberturacaixa, Parametros,
       mesa, taxa, impressora, Cupom, produto, Pagamento, lancamento, motoboy,
@@ -8018,7 +8165,7 @@ begin
     try
       // Extrair os valores para variáveis
       Codigo := JsonObj.GetValue('codigo').AsType<Integer>;
-      nome := JsonObj.GetValue('nome').Value;
+      Nome := JsonObj.GetValue('nome').Value;
       senha := JsonObj.GetValue('senha').Value;
       Finalizar := JsonObj.GetValue('finalizar').AsType<Boolean>;
       excluir := JsonObj.GetValue('excluir').AsType<Boolean>;
@@ -8053,7 +8200,7 @@ begin
       conexao.SQL.Add
         ('insert into usuario (codigo,nome,senha,data_cadastro) values (:codigo,:nome,md5(:senha),current_date)');
       conexao.Parametros('codigo', Codigo);
-      conexao.Parametros('nome', nome);
+      conexao.Parametros('nome', Nome);
       conexao.Parametros('senha', senha);
       conexao.ExecuteSQL;
     end
@@ -8064,7 +8211,7 @@ begin
         conexao.SQL.Add
           ('update usuario set nome = :nome, senha = md5(:senha) where codigo = :codigo');
         conexao.Parametros('codigo', Codigo);
-        conexao.Parametros('nome', nome);
+        conexao.Parametros('nome', Nome);
         conexao.Parametros('senha', senha);
         conexao.ExecuteSQL;
       end;
@@ -8541,6 +8688,9 @@ begin
     THorse.Get('/v2/dados/certificados', DoGetCertificadoDigital);
     THorse.Get('/v2/dados/clientes', DoGetClientes);
     THorse.Post('/v2/dados/clientes', DoPostCliente);
+    THorse.Get('/v2/dados/cliente/:codigo', DoGetDadoCliente);
+
+    THorse.Post('/v2/emitir/nfce/fiado', DoPostEmitirNFCeFiado);
 
     THorse.Post('/v2/produtos/entrada/saida/:codigo',
       DoPostProdutoEntradaSaida);

@@ -246,10 +246,10 @@
     <File Path="src\uMain.pas"/>
     <File Path="src\uMain.dfm"/>
     <File Path="src\uSite.pas"/>
-    <File Path="FastMM4Options.inc"/>
     <File Path="uGlobais.pas"/>
     <File Path="FastMM4DataCollector.pas"/>
     <File Path="FastMM4LockFreeStack.pas"/>
     <File Path="FastMM4Messages.pas"/>
+    <File Path="FastMM4Options.inc"/>
   </ProjectSortOrder>
 </BorlandProject>

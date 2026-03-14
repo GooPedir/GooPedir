@@ -785,8 +785,7 @@ begin
       if (ValidarDocumento(MemoryOutros.FieldByName('cpf').AsString)) then
       begin
         Dest.xNome := MemoryOutros.FieldByName('nome').AsString;
-        Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf')
-          .AsString);
+        Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf').AsString);
         Dest.indIEDest := inNaoContribuinte;
       end;
 
@@ -4990,6 +4989,15 @@ begin
       try
         AlimentarComponente(mLote.FieldByName('codigo').AsString);
         ErroEmissao := False;
+
+        case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
+          taProducao:
+            begin
+              Ambiente := '1';
+            end
+        else
+          Ambiente := '2';
+        end;
       except
         on E: Exception do
         begin
@@ -5004,14 +5012,7 @@ begin
 
       if not ErroEmissao then
       begin
-        case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
-          taProducao:
-            begin
-              Ambiente := '1';
-            end
-        else
-          Ambiente := '2';
-        end;
+
 
         if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia) then
         begin

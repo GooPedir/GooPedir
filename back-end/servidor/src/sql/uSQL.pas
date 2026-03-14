@@ -2052,6 +2052,9 @@ begin
           ('alter table dados_whatsapp add nfce_numeracao integer default 0;');
 
       end;
+      143: begin
+        ExecultaSQL('alter table pedido add pedido_nfce integer default 0');
+      end;
     99999999:
       begin
         {
@@ -2065,7 +2068,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '142'
+  Result := '143'
 end;
 
 end.
