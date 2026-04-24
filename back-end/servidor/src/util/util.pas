@@ -216,7 +216,7 @@ begin
   begin
     try
       Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL := API_BASE_URL;
+      Requisicao.BaseURL := getUrlGoopedir;
       Requisicao.URL := 'api/pedido/legacy/status';
       Objeto := TJSONObject.Create;
       Objeto.AddPair('codigo', CodigoSite);
@@ -254,7 +254,7 @@ begin
   // ('update pedido set valor_pedido = :pedido, valor_total_pedido = ((:pedido + valor_taxa_entrega) - valor_desconto) where codigo = :codigo');
 
   conexao.SQL.Add
-    ('update pedido set valor_pedido = (select sum(pp.valor_total) from pedido_produtos as pp where pp.codigo_pedido = :codigo)');
+    ('update pedido set ultima_interacao = current_timestamp(), valor_pedido = (select sum(pp.valor_total) from pedido_produtos as pp where pp.codigo_pedido = :codigo)');
   conexao.SQL.Add
     (', valor_total_pedido = (((select sum(pp.valor_total) from pedido_produtos as pp where pp.codigo_pedido = :codigo) + valor_taxa_entrega) - valor_desconto) where codigo = :codigo');
   conexao.Parametros('codigo', Codigo);
@@ -4225,7 +4225,7 @@ end;
 // ID := conexao.GerarID('pedido', 'codigo');
 //
 // conexao.SQL.Add
-// ('insert into pedido (codigo,codigo_pedido_dia,status,origem,codigo_cliente,codigo_cliente_endereco,valor_pedido,valor_desconto,valor_total_pedido,valor_taxa_entrega,taxa_servico,data_pedido,hora_pedido,usuario,pedido_impresso)');
+// ('insert into ped1do (codigo,codigo_pedido_dia,status,origem,codigo_cliente,codigo_cliente_endereco,valor_pedido,valor_desconto,valor_total_pedido,valor_taxa_entrega,taxa_servico,data_pedido,hora_pedido,usuario,pedido_impresso)');
 // conexao.SQL.Add
 // ('values (:codigo,0,-1,4,0,0,0,0,0,0,0,current_date, current_time,:usuario,:pedido_impresso)');
 // conexao.Parametros('codigo', ID);
@@ -4536,7 +4536,7 @@ end;
 // end;
 //
 // conexao.SQL.Add
-// ('insert into pedido (codigo,codigo_pedido_dia,status,origem,codigo_cliente,codigo_cliente_endereco,valor_pedido,valor_desconto,valor_total_pedido,valor_taxa_entrega,taxa_servico,data_pedido,hora_pedido,usuario)');
+// ('insert into ped1ido (codigo,codigo_pedido_dia,status,origem,codigo_cliente,codigo_cliente_endereco,valor_pedido,valor_desconto,valor_total_pedido,valor_taxa_entrega,taxa_servico,data_pedido,hora_pedido,usuario)');
 // conexao.SQL.Add
 // ('values (:codigo,0,-1,4,0,0,0,0,0,0,0,current_date, current_time,:usuario)');
 // conexao.Parametros('codigo', ID);
@@ -4890,8 +4890,14 @@ begin
     try
       TotalProduto := conexao.FieldByName('total');
     except
-
+      TotalProduto := 0;
     end;
+
+    if TotalProduto = 0 then
+    begin
+       Res.Status(400).Send('{"mensagem":"Não há produtos selecionado"}')
+    end;
+
 
     conexao.SQL.Add
       ('update pedido set codigo_cliente = :cliente, codigo_cliente_endereco = :endereco, data_pedido = :data, origem = 5,');

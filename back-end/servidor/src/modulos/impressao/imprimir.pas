@@ -244,34 +244,25 @@ begin
   conexao.SQL.Add('  max(i.codigo) AS impressora_codigo,');
   conexao.SQL.Add('  max(i.descricao)   AS impressora_nome');
   conexao.SQL.Add('FROM impressao_pedido_produto AS ipp');
-  conexao.SQL.Add
-    ('JOIN pedido_produtos AS pp   ON pp.codigo         = ipp.id_pedido');
-  conexao.SQL.Add
-    ('JOIN pedido          AS ped  ON ped.codigo        = pp.codigo_pedido');
-  conexao.SQL.Add
-    ('JOIN produto         AS p    ON p.codigo          = pp.codigo_produto');
-  conexao.SQL.Add
-    ('JOIN tipo_produto    AS tp   ON tp.codigo         = p.codigo_grupo');
-  conexao.SQL.Add
-    ('LEFT JOIN usuario    AS u    ON u.codigo          = pp.usuario');
+  conexao.SQL.Add('JOIN pedido_produtos AS pp   ON pp.codigo         = ipp.id_pedido');
+  conexao.SQL.Add('JOIN pedido          AS ped  ON ped.codigo        = pp.codigo_pedido');
+  conexao.SQL.Add('JOIN produto         AS p    ON p.codigo          = pp.codigo_produto');
+  conexao.SQL.Add('JOIN tipo_produto    AS tp   ON tp.codigo         = p.codigo_grupo');
+  conexao.SQL.Add('LEFT JOIN usuario    AS u    ON u.codigo          = pp.usuario');
 
   /// * 🔽 AQUI ESTÁ A MÁGICA DO FALLBACK:
   // Usa a impressora do usuário (se > 0), senão a da categoria (tp.impressora) */
-  conexao.SQL.Add
-    ('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
+  conexao.SQL.Add('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
 
   if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
   then
   begin
-    conexao.SQL.Add
-      ('JOIN pedido ON pedido.codigo = pp.codigo_pedido AND pedido.id_ficha > 0');
+    conexao.SQL.Add('JOIN pedido ON pedido.codigo = pp.codigo_pedido AND pedido.id_ficha > 0');
   end;
 
   conexao.SQL.Add('WHERE (ped.codigo_pedido_dia = 0 AND ipp.status = 0)');
-  conexao.SQL.Add
-    ('   OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL OR ped.id_ficha = 0) AND ipp.status = 0)');
-  conexao.SQL.Add
-    ('   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 AND ipp.status = 0)');
+  conexao.SQL.Add('   OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL OR ped.id_ficha = 0) AND ipp.status = 0)');
+  conexao.SQL.Add('   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 AND ipp.status = 0)');
   conexao.SQL.Add('  AND pp.codigo_pedido = :codigo');
 
   try

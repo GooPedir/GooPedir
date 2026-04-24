@@ -100,7 +100,7 @@ begin
     Dados := Conexao.CriaQRY;
 
     Dados.SQL.Add('SELECT homologacao FROM dados_whatsapp');
-
+    Dados.Open;
     if Dados.FieldByName('homologacao').AsInteger = 1 then
     begin
       try
@@ -113,7 +113,7 @@ begin
       Conexao.Free;
       exit;
     end;
-
+    Dados.Close;
     Dados.SQL.Text := ('select * from produto where codigo = :codigo');
     Dados.ParamByName('codigo').AsInteger := Codigo;
     Dados.Open;
@@ -222,7 +222,7 @@ begin
   except
     on e: exception do
     begin
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
       GerarLog(e.Message, 'erro_produto.log');
 
     end;
@@ -293,7 +293,7 @@ var
 begin
   repeat
     Codigo := BuscaProduto; // chama sua função
-
+    Codigo := 1;
     if Codigo > 0 then
     begin
       // aqui você pode colocar o que precisa fazer com o produto

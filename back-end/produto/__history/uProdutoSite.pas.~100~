@@ -29,9 +29,6 @@ type
     procedure GerarLog(const Mensagem: string;
       const NomeArquivo: string = 'log.txt');
 
-  CONST
-    BASEURL = 'http://localhost:3000';
-
   var
     userId: Integer;
 
@@ -92,6 +89,8 @@ begin
 
   end;
 
+  // homologacao
+
   try
     GerarLog(Codigo.ToString, 'erro_produto.log');
 
@@ -99,6 +98,22 @@ begin
 
     Conexao := TConexao.Create('uSite');
     Dados := Conexao.CriaQRY;
+
+    Dados.SQL.Add('SELECT homologacao FROM dados_whatsapp');
+    Dados.Open;
+    if Dados.FieldByName('homologacao').AsInteger = 1 then
+    begin
+      try
+        iReq.Metodo := mPost;
+        iReq.Execute;
+      except
+
+      end;
+      Dados.Free;
+      Conexao.Free;
+      exit;
+    end;
+    Dados.Close;
     Dados.SQL.Text := ('select * from produto where codigo = :codigo');
     Dados.ParamByName('codigo').AsInteger := Codigo;
     Dados.Open;
@@ -200,13 +215,14 @@ begin
     end;
 
     GerarLog('0012', 'erro_produto.log');
-    SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId);
+    GerarLog(SiteSabores(Dados.FieldByName('codigo_grupo').AsInteger, userId),
+      'erro_produto.log');
     GerarLog('0013', 'erro_produto.log');
 
   except
     on e: exception do
     begin
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
       GerarLog(e.Message, 'erro_produto.log');
 
     end;
@@ -228,7 +244,6 @@ var
   IniFile: TIniFile;
   BASEURL: String;
 begin
-
   IniFile := TIniFile.Create('./goopedir.ini');
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;

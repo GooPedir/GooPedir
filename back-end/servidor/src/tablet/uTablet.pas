@@ -579,7 +579,7 @@ begin
   conexao.SQL.Add('select  * from mesa where id_mesa = :id');
   conexao.Parametros('id', Req.Params['id']);
   Pedido := conexao.FieldByName('selecionada');
-  Pedido := 258;
+
   if Pedido > 0 then
   begin
     dados := TFDMemTable.Create(nil);

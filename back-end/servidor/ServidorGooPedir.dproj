@@ -249,6 +249,7 @@
         <DCCReference Include="FastMM4DataCollector.pas"/>
         <DCCReference Include="FastMM4LockFreeStack.pas"/>
         <DCCReference Include="FastMM4Messages.pas"/>
+        <DCCReference Include="src\rota\rota.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

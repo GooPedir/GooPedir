@@ -27,7 +27,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaTaxaEntrega');
@@ -112,7 +112,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaFormaPagamento');
@@ -213,7 +213,7 @@ var
 begin
 
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.URL := 'api/interno/insert/geral';
   Requisicao.Metodo := mPost;
   Conexao := TConexao.Create('SincronizaTaxaEntrega');

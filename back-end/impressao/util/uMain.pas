@@ -194,7 +194,7 @@ begin
   Prioridade := priNull;
   TrayIcon1.Hint := TimeToStr(Now);
 
-  dmImpressaoV2.ImprimirCaixa(3,1);
+//  dmImpressaoV2.ImprimirCaixa(3,1);
 
   // ////showmessage(ParamCount.ToString);
   Count := ParamCount;
@@ -449,6 +449,12 @@ begin
       memImpressora.Post;
     end;
   end;
+
+  inc(id);
+  memImpressora.Insert;
+  memImpressora.FieldByName('ID').AsInteger := id;
+  memImpressora.FieldByName('DRIVER').AsString := 'NotFoundGooPedir';
+  memImpressora.Post;
 
   Req := iRequisicao.Create(nil);
   Req.BaseURL := frmMain.urlServer;

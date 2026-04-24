@@ -38,6 +38,7 @@ type
     function IMPRESSAO: String;
     function SERVIDOR: String;
     function PSSITE: String;
+    function NGINX: String;
     procedure AlteraExtrasIguais;
 
   var
@@ -329,6 +330,7 @@ begin
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
   Atualizacao.VerificaAtualizacao;
+
 end;
 
 procedure TfrmServicosGoopedir.IniciarAtualizacao;
@@ -343,10 +345,10 @@ const
 var
   DiaDaSemana: Integer;
 begin
-  // Obter o Ìndice do dia da semana (1 para domingo, 2 para segunda, etc.)
+  // Obter o √≠ndice do dia da semana (1 para domingo, 2 para segunda, etc.)
   DiaDaSemana := DayOfWeek(now);
 
-  // Mapear o Ìndice para o nome do dia da semana
+  // Mapear o √≠ndice para o nome do dia da semana
   Result := NomesDiasSemana[DiaDaSemana];
 end;
 
@@ -363,15 +365,15 @@ begin
   begin
     FieldValue := Tabela.FieldByName(Tabela.Fields[I].FieldName).Value;
 
-    // ValidaÁ„o do campo antes de adicionar ao par‚metro
+    // Valida√ß√£o do campo antes de adicionar ao par√¢metro
     if VarIsNull(FieldValue) or VarIsEmpty(FieldValue) then
     begin
-      // Se o campo for nulo ou vazio, atribui um valor padr„o ou ignora
+      // Se o campo for nulo ou vazio, atribui um valor padr√£o ou ignora
       Continue; // Ignora campos nulos ou vazios
     end;
 
     try
-      // Verifica o tipo do campo e adiciona ao par‚metro correspondente
+      // Verifica o tipo do campo e adiciona ao par√¢metro correspondente
       case Tabela.Fields[I].DataType of
         ftFloat, ftCurrency, ftBCD, ftFMTBcd:
           conexao.Parametros(Tabela.Fields[I].FieldName,
@@ -386,20 +388,20 @@ begin
           conexao.Parametros(Tabela.Fields[I].FieldName,
             Tabela.FieldByName(Tabela.Fields[I].FieldName).AsString);
       else
-        // Caso o tipo de campo n„o seja tratado, lanÁa uma exceÁ„o ou ignora
-        raise Exception.Create('Tipo de campo n„o suportado: ' + Tabela.Fields
+        // Caso o tipo de campo n√£o seja tratado, lan√ßa uma exce√ß√£o ou ignora
+        raise Exception.Create('Tipo de campo n√£o suportado: ' + Tabela.Fields
           [I].FieldName);
       end;
     except
       on E: Exception do
       begin
-        // Trata exceÁıes (opcional)
+        // Trata exce√ß√µes (opcional)
         raise Exception.Create('Erro ao processar campo ' + Tabela.Fields[I]
           .FieldName + ': ' + E.Message);
       end;
     end;
 
-    // Concatena os campos e par‚metros para o SQL
+    // Concatena os campos e par√¢metros para o SQL
     if I = 0 then
     begin
       Campo := Tabela.Fields[I].FieldName;
@@ -514,7 +516,7 @@ begin
           begin
             conexao.SQL.Add
               ('update pro_adi_personalizado_sabores set valor = :valor where id =:id');
-            conexao.Parametros('adicional', Obje.GetValue<String>('nome'));
+            conexao.Parametros('valor', Obje.GetValue<String>('valor'));
             conexao.Parametros('id', Dados.FieldByName('id').AsInteger);
             conexao.ExecuteSQL;
 
@@ -538,7 +540,7 @@ begin
       except
         on E: Exception do
         begin
-          // //showmessage(E.Message)
+          // ////showmessage(E.Message)
         end;
       end;
 
@@ -569,6 +571,7 @@ begin
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
+  AlteraExtrasIguais;
 
 end;
 
@@ -589,6 +592,7 @@ var
   UltimoRestartNFCe: TDateTime;
 begin
   inherited;
+  AbrirExe(NGINX);
   contador := 0;
   UltimoRestartNFCe := now;
   while not Terminated do
@@ -599,7 +603,7 @@ begin
     begin
 
       uReq.BaseURL := URLBKP;
-      uReq.URL := '/v2/status';
+      uReq.URL := '/v2/heart';
       uReq.Metodo := mGet;
       try
         uReq.Execute;
@@ -611,7 +615,7 @@ begin
     end;
 
     uReq.BaseURL := URL;
-    uReq.URL := '/v2/status';
+    uReq.URL := '/v2/heart';
     uReq.Metodo := mGet;
     try
       uReq.Execute;
@@ -625,7 +629,7 @@ begin
           // Acessa o objeto "impressora"
           ImpressoraObject := JSONObject.GetValue('impressora') as TJsonObject;
 
-          // ObtÈm o valor da chave "comanda"
+          // Obt√©m o valor da chave "comanda"
           ComandaValue := ImpressoraObject.GetValue<Boolean>('comanda');
 
           // Exibe o valor no console
@@ -665,14 +669,13 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if ComandaValue then
-    begin
-      if (not VerificaExe(PSSITE)) then
-        AbrirExe(PSSITE);
-    end;
+    // if ComandaValue then
+    // begin
+    if (not VerificaExe(PSSITE)) then
+      AbrirExe(PSSITE);
+    // end;
 
-    AlteraExtrasIguais;
-    Sleep(15 * 1000);
+    Sleep(1 * 1000);
   end;
 
 end;
@@ -707,6 +710,11 @@ end;
 function TAbrirServicos.IMPRESSAO: String;
 begin
   Result := ExtractFileDir(Application.ExeName) + '\' + 'ImpressaoGooPedir.exe';
+end;
+
+function TAbrirServicos.NGINX: String;
+begin
+  Result := ExtractFileDir(Application.ExeName) + '\nginx\nginx.exe';
 end;
 
 function TAbrirServicos.PSSITE: String;
@@ -835,12 +843,16 @@ var
   ref: string;
   Codigo: Integer;
   refCodigo: String;
+  SQL: String;
 begin
   Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON
-    (FConn.ConsultaSQL
-    ('SELECT DISTINCT referencia, 0 AS zero FROM index_pedido'));
+  SQL := 'SELECT table_name as referencia, 0';
+  SQL := SQL + ' FROM information_schema.tables';
+  SQL := SQL + ' WHERE table_schema = "' + FConn.NomeBanco + '"';
+  SQL := SQL + ' AND table_name LIKE "pedido\_2%"';
+  SQL := SQL + ' ORDER BY table_name;';
 
+  Dados.LoadFromJSON(FConn.ConsultaSQL(SQL));
 
   if Dados.RecordCount = 0 then
   begin
@@ -851,6 +863,7 @@ begin
   while not Dados.Eof do
   begin
     ref := Dados.FieldByName('referencia').AsString;
+    ref := StringReplace(ref, 'pedido_', '', []);
     refCodigo := copy(ref, 3, 8);
     refCodigo := StringReplace(refCodigo, '_', '', []);
 

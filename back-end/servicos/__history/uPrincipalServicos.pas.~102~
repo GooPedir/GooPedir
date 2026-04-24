@@ -669,11 +669,11 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-//    if ComandaValue then
-//    begin
+    if ComandaValue then
+    begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
-//    end;
+    end;
 
     Sleep(1 * 1000);
   end;

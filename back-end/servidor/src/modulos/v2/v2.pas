@@ -1461,6 +1461,7 @@ begin
       Query.ExecSQL;
       if (JSONObject.Values['imagemFundo'].Value <> '') then
       begin
+
         CaminhoImagem := EnviaImagem(FormatDateTime('ddmmyyyyhhssnn', now) +
           'cat' + CodigoGrupo.ToString + '-' + JSONObject.Values['name'].Value +
           frmServidor.UserID.ToString, frmServidor.UserID.ToString,
@@ -1974,8 +1975,7 @@ begin
 
   DataInicial := Req.Headers['inicio'];
   DataFinal := Req.Headers['fim'];
-  conexao.SQL.Add
-    ('SELECT cr.id_pedido as pedido, cr.id_caixa as caixa, p.data_pedido as data, cr.data as dtCaixa, cr.hora as horaCaixa, cr.valor, cr.pago, c.nome, c.cpf FROM caixa_receber as cr');
+  conexao.SQL.Add('SELECT cr.id_pedido as pedido, cr.id_caixa as caixa, p.data_pedido as data, cr.data as dtCaixa, cr.hora as horaCaixa, cr.valor, cr.pago, c.nome, c.cpf,  (select upper(nome) from cliente where codigo = p.codigo_cliente) as nomeCliente FROM caixa_receber as cr');
   conexao.SQL.Add('join cliente as c on c.codigo = cr.id_cliente');
   conexao.SQL.Add('join pedido as p on p.codigo = cr.id_pedido');
   conexao.SQL.Add('where p.data_pedido between :ini and :fim');
@@ -2864,16 +2864,26 @@ var
   Mensagem: String;
   Qry: TFDQuery;
   valor: String;
+  CampoMensagem : Boolean;
 
 begin
   JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
   conexao := TConexao.Create('v2');
 
+  CampoMensagem := False;
+  if (JsonObj.GetValue<string>('campo') = 'mensagem_inicio') then
+  CampoMensagem := True;
+    if (JsonObj.GetValue<string>('campo') = 'mensagem_fora_expediente') then
+  CampoMensagem := True;
+    if (JsonObj.GetValue<string>('campo') = 'mensagem_conclusao') then
+  CampoMensagem := True;
+
+
   valor := JsonObj.GetValue<string>('valor');
-  if JsonObj.GetValue<string>('campo') = 'mensagem_inicio' then
+  if CampoMensagem then
   begin
     Qry := conexao.CriaQRY;
-    Qry.SQL.Add('update dados_whatsapp set mensagem_inicio = :mensagem');;
+    Qry.SQL.Add('update dados_whatsapp set '+JsonObj.GetValue<string>('campo')+' = :mensagem');;
     Qry.ParamByName('mensagem').AsWideString :=
       JsonObj.GetValue<string>('valor');
     Qry.ExecSQL;
@@ -4187,7 +4197,7 @@ begin
 
     Requisicao := iRequisicao.Create(nil);
     try
-      Requisicao.BaseURL := API_BASE_URL;
+      Requisicao.BaseURL := getUrlGoopedir;
       Requisicao.URL := 'api/cupom/empresa';
       Requisicao.Metodo := mPost;
       Requisicao.TempoExpiracao := 15 * 1000;
@@ -4288,7 +4298,7 @@ begin
   begin
     Requisicao := iRequisicao.Create(nil);
     Dados := TFDMemTable.Create(nil);
-    Requisicao.BaseURL := API_BASE_URL;
+    Requisicao.BaseURL := getUrlGoopedir;
     Requisicao.URL := 'api/empresa/pix/pendentes/' +
       frmServidor.UserID.ToString;
     Requisicao.MemTable2 := Dados;
@@ -4831,7 +4841,7 @@ begin
     if frmServidor.CacheTiposJSON = '' then
     begin
       Request := iRequisicao.Create(nil);
-      Request.BaseURL := API_BASE_URL;
+      Request.BaseURL := getUrlGoopedir;
       Request.URL := 'api/interno/consulta/tipo/produto/geral';
       try
 
@@ -5169,8 +5179,7 @@ begin
     end;
     Data := TFDMemTable.Create(nil);
     conexao := TConexao.Create('DoGetClienteHistorico');
-    conexao.SQL.Add
-      ('SELECT codigo, concat(DATE_FORMAT(data_pedido, "%d/%m/%Y ") ,hora_pedido) as data, ');
+    conexao.SQL.Add('SELECT codigo, concat(DATE_FORMAT(data_pedido, "%d/%m/%Y ") ,hora_pedido) as data, ');
     conexao.SQL.Add(' CASE codigo_cliente_endereco');
     conexao.SQL.Add('    WHEN 0 THEN "Vem Buscar"');
     conexao.SQL.Add('    ELSE "Delivery"');
@@ -5181,8 +5190,7 @@ begin
     conexao.SQL.Add('valor_desconto as entrega');
     conexao.SQL.Add('FROM pedido ');
     conexao.SQL.Add('join status_pedido on status_pedido.id = pedido.status');
-    conexao.SQL.Add
-      (' where data_pedido between :ini and :fim and codigo_pedido_dia > 0 and codigo_cliente = :cliente');
+    conexao.SQL.Add(' where data_pedido between :ini and :fim and codigo_pedido_dia > 0 and codigo_cliente = :cliente');
     if Tipo = 1 then
     begin
       conexao.SQL.Add('and codigo_cliente_endereco > 0');
@@ -5214,7 +5222,7 @@ begin
           ('SELECT quantidade, valor_total as valor, produto.nome_produto as nome');
         conexao.SQL.Add('FROM pedido_produtos ');
         conexao.SQL.Add
-          ('join produto on produto.codigo = pedido_produtos.codigo_produto');
+          ('left join produto on produto.codigo = pedido_produtos.codigo_produto');
         conexao.SQL.Add('where codigo_pedido = :codigo');
         conexao.Parametros('codigo', Data.FieldByName('codigo').AsInteger);
         DataProduto.LoadFromJSON(conexao.ConsultaSQL);
@@ -5240,6 +5248,7 @@ begin
         Data.Next;
       end;
     end;
+    res.Send<TJsonArray>(Dados);
   end;
 
   procedure DoGetCardapioIA(Req: THorseRequest; Res: THorseResponse;
@@ -5263,7 +5272,7 @@ begin
       exit;
     end;
     iRequest := iRequisicao.Create(nil);
-    iRequest.BaseURL := API_BASE_URL;
+    iRequest.BaseURL := getUrlGoopedir;
     iRequest.URL := 'api/cardapio/ia/status/' + ID;
     iRequest.TempoExpiracao := 60 * 1000;
     try
@@ -5283,7 +5292,7 @@ begin
     conexao: TConexao;
   begin
     iRequest := iRequisicao.Create(nil);
-    iRequest.BaseURL := API_BASE_URL;
+    iRequest.BaseURL := getUrlGoopedir;
     iRequest.URL := 'api/cardapio/ia/upload';
     iRequest.TempoExpiracao := 60 * 1000;
     iRequest.Metodo := mPost;
@@ -5949,7 +5958,7 @@ begin
     try
       Usuario := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
       Retorno := TJSONObject.Create;
-      APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
+      APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
         Usuario.GetValue<String>('id'), Usuario.GetValue<String>('security'),
         nil, nil, nil, '');
 
@@ -5978,7 +5987,7 @@ begin
         frmServidor.Configuracoes.Close;
         frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
         frmServidor.APIGoopedir.Free;
-        frmServidor.APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
+        frmServidor.APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
           frmServidor.Configuracoes.FieldByName('client_id').AsString,
           frmServidor.Configuracoes.FieldByName('client_security').AsString,
           frmServidor.GetHorarioAbertura, frmServidor.GetHorarioFechamento,
@@ -6071,6 +6080,7 @@ begin
       conexao.SQL.Clear;
     end;
 
+
     JSONObject := TJSONObject.Create;
     if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
     begin
@@ -6081,6 +6091,8 @@ begin
       JSONObject.AddPair('licensa', True);
     end;
 
+
+    JSONObject.AddPair('urlLoja', frmServidor.APIGoopedir.GetUrlLoja);
     JSONObject.AddPair('atualizacao', frmServidor.mAtualizacao.ToJSONArray());
     JSONObject.AddPair('modulos', JSONModulos);
     JSonObjectWhatsapp := TJSONObject.Create;
@@ -6091,10 +6103,12 @@ begin
     JSonObjectWhatsapp.AddPair('name', frmServidor.NomeWhatsapp);
     JSonObjectWhatsapp.AddPair('url', frmServidor.ImagemWhatsapp);
     JSonObjectWhatsapp.AddPair('msgErro', frmServidor.StatusErroWhatsapp);
-    JSonObjectWhatsapp.AddPair('statusOperacao',
-      frmServidor.StatusMensagemWhatsapp);
+    JSonObjectWhatsapp.AddPair('statusOperacao', frmServidor.StatusMensagemWhatsapp);
     if frmServidor.StatusMensagemWhatsapp = 2 then
       frmServidor.StatusMensagemWhatsapp := 0;
+
+
+
 
     try
       JSONObject.AddPair('whatsapp', JSonObjectWhatsapp);
@@ -6147,6 +6161,13 @@ begin
 
     // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants1.ToJSONArray());
     // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants2.ToJSONArray());
+
+    if (Desenvolvimento()) then
+    begin
+      JSONObject.AddPair('ambiente', 'desenv');
+    end else begin
+      JSONObject.AddPair('ambiente', 'prod');
+    end;
 
     JSONObject.AddPair('ifood', ArrayiFood);
     JSONObject.AddPair('user', frmServidor.UserID.ToString);
@@ -8917,6 +8938,8 @@ begin
 
     // THorse.Get('/v2/dashboard/principal', DoGetDadosDashBoardPrincipal);
 
+    //Rotas
+
   end;
 
   function DaysBetweenDates(const Date1, Date2: string): Integer;
@@ -9102,7 +9125,7 @@ begin
     Requisicao: iRequisicao;
   begin
     Requisicao := iRequisicao.Create(nil);
-    Requisicao.BaseURL := API_BASE_URL;
+    Requisicao.BaseURL := getUrlGoopedir;
     Requisicao.URL := 'api/cupom/lista/' + frmServidor.UserID.ToString;
     Requisicao.AddHeader('Authorization', frmServidor.APIGoopedir.GetToken);
     Requisicao.TempoExpiracao := 15 * 1000;

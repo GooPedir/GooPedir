@@ -3,7 +3,6 @@ program ServidorGooPedir;
 {$I FastMM4Options.inc}
 
 uses
-//  FastMM4,
   Vcl.Forms,
   uMain in 'src\uMain.pas' {frmServidor},
   token in 'src\token\token.pas',
@@ -136,7 +135,8 @@ uses
   uAgent in 'src\controller\uAgent.pas',
   FastMM4DataCollector in 'FastMM4DataCollector.pas',
   FastMM4LockFreeStack in 'FastMM4LockFreeStack.pas',
-  FastMM4Messages in 'FastMM4Messages.pas';
+  FastMM4Messages in 'FastMM4Messages.pas',
+  rota in 'src\rota\rota.pas';
 
 {$R *.res}
 

@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, uControllerSite,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
-  uInserirUpdate, IniFiles, DataSet.Serialize,
+  uInserirUpdate, IniFiles, DataSet.Serialize,uGlobais,
   FireDAC.Comp.Client, uRequisicao, System.IOUtils, uControlerProduto;
 
 type
@@ -248,7 +248,6 @@ begin
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
   iReq.BASEURL := BASEURL;
-
   if ParamCount > 0 then
   begin
     try

@@ -136,7 +136,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -486,7 +486,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -1326,7 +1326,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1553,7 +1553,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -2420,7 +2420,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 71900
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2647,7 +2647,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 3275900
           PrinterSetup.mmPaperWidth = 71900
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -3061,7 +3061,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3954,7 +3954,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 254000506
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5156,7 +5156,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5562,7 +5562,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -5793,7 +5793,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 PrinterSetup.mmMarginTop = 0
                 PrinterSetup.mmPaperHeight = 4003900
                 PrinterSetup.mmPaperWidth = 80300
-                PrinterSetup.PaperSize = 256
+                PrinterSetup.PaperSize = 145
                 PrinterSetup.DevMode = {
                   4004000044006100720075006D00610020004400520000000000000000000000
                   0000000000000000000000000000000000000000000000000000000000000000
@@ -6024,7 +6024,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       PrinterSetup.mmMarginTop = 0
                       PrinterSetup.mmPaperHeight = 4003900
                       PrinterSetup.mmPaperWidth = 80300
-                      PrinterSetup.PaperSize = 256
+                      PrinterSetup.PaperSize = 145
                       PrinterSetup.DevMode = {
                         4004000044006100720075006D00610020004400520000000000000000000000
                         0000000000000000000000000000000000000000000000000000000000000000
@@ -6367,7 +6367,7 @@ object dmImpressaoV2: TdmImpressaoV2
                             PrinterSetup.mmMarginTop = 0
                             PrinterSetup.mmPaperHeight = 3276000
                             PrinterSetup.mmPaperWidth = 69088
-                            PrinterSetup.PaperSize = 256
+                            PrinterSetup.PaperSize = 145
                             PrinterSetup.DevMode = {
                               4004000044006100720075006D00610020004400520000000000000000000000
                               0000000000000000000000000000000000000000000000000000000000000000
@@ -6711,7 +6711,7 @@ object dmImpressaoV2: TdmImpressaoV2
                                   PrinterSetup.mmMarginTop = 0
                                   PrinterSetup.mmPaperHeight = 4003900
                                   PrinterSetup.mmPaperWidth = 80300
-                                  PrinterSetup.PaperSize = 256
+                                  PrinterSetup.PaperSize = 145
                                   PrinterSetup.DevMode = {
                                     4004000044006100720075006D00610020004400520000000000000000000000
                                     0000000000000000000000000000000000000000000000000000000000000000
@@ -7461,7 +7461,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -8828,7 +8828,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3276000
     PrinterSetup.mmPaperWidth = 69088
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -9272,7 +9272,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 3276000
           PrinterSetup.mmPaperWidth = 69088
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -9656,7 +9656,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10141,7 +10141,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -10949,7 +10949,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11732,7 +11732,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -12156,7 +12156,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -12429,7 +12429,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -12881,7 +12881,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -13275,7 +13275,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -13673,7 +13673,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 209900
           PrinterSetup.mmPaperWidth = 48000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -13900,7 +13900,7 @@ object dmImpressaoV2: TdmImpressaoV2
                 PrinterSetup.mmMarginTop = 0
                 PrinterSetup.mmPaperHeight = 209900
                 PrinterSetup.mmPaperWidth = 48000
-                PrinterSetup.PaperSize = 256
+                PrinterSetup.PaperSize = 145
                 PrinterSetup.DevMode = {
                   4004000044006100720075006D00610020004400520000000000000000000000
                   0000000000000000000000000000000000000000000000000000000000000000
@@ -14127,7 +14127,7 @@ object dmImpressaoV2: TdmImpressaoV2
                       PrinterSetup.mmMarginTop = 0
                       PrinterSetup.mmPaperHeight = 209900
                       PrinterSetup.mmPaperWidth = 48000
-                      PrinterSetup.PaperSize = 256
+                      PrinterSetup.PaperSize = 145
                       PrinterSetup.DevMode = {
                         4004000044006100720075006D00610020004400520000000000000000000000
                         0000000000000000000000000000000000000000000000000000000000000000
@@ -14818,7 +14818,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 48000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -15269,7 +15269,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 0
           PrinterSetup.mmPaperHeight = 3275900
           PrinterSetup.mmPaperWidth = 48000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -15737,7 +15737,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 209900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16011,7 +16011,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -16361,7 +16361,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -17088,7 +17088,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 0
     PrinterSetup.mmPaperHeight = 3275900
     PrinterSetup.mmPaperWidth = 71900
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -17706,7 +17706,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 80300
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -18056,7 +18056,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 80300
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -18780,12 +18780,6 @@ object dmImpressaoV2: TdmImpressaoV2
     Left = 1104
     Top = 176
   end
-  object ACBrValidador1: TACBrValidador
-    TipoDocto = docGTIN
-    IgnorarChar = './-'
-    Left = 1192
-    Top = 226
-  end
   object COMANDA56MM: TppReport
     AutoStop = False
     DataPipeline = ppDados
@@ -18801,7 +18795,7 @@ object dmImpressaoV2: TdmImpressaoV2
     PrinterSetup.mmMarginTop = 2540
     PrinterSetup.mmPaperHeight = 4003900
     PrinterSetup.mmPaperWidth = 52000
-    PrinterSetup.PaperSize = 256
+    PrinterSetup.PaperSize = 145
     PrinterSetup.DevMode = {
       4004000044006100720075006D00610020004400520000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -19152,7 +19146,7 @@ object dmImpressaoV2: TdmImpressaoV2
           PrinterSetup.mmMarginTop = 2540
           PrinterSetup.mmPaperHeight = 4003900
           PrinterSetup.mmPaperWidth = 52000
-          PrinterSetup.PaperSize = 256
+          PrinterSetup.PaperSize = 145
           PrinterSetup.DevMode = {
             4004000044006100720075006D00610020004400520000000000000000000000
             0000000000000000000000000000000000000000000000000000000000000000
@@ -19786,21 +19780,6 @@ object dmImpressaoV2: TdmImpressaoV2
     Left = 1350
     Top = 350
   end
-  object ACBrPosPrinter1: TACBrPosPrinter
-    Modelo = ppEscPosEpson
-    Porta = 'Defalt'
-    EspacoEntreLinhas = 30
-    ConfigBarras.MostrarCodigo = False
-    ConfigBarras.LarguraLinha = 0
-    ConfigBarras.Altura = 0
-    ConfigBarras.Margem = 0
-    ConfigQRCode.Tipo = 1
-    ConfigQRCode.LarguraModulo = 2
-    ConfigQRCode.ErrorLevel = 0
-    LinhasEntreCupons = 5
-    Left = 1425
-    Top = 295
-  end
   object ACBrNFeDANFeRL1: TACBrNFeDANFeRL
     MostraStatus = False
     Sistema = 'GooPedir'
@@ -19876,7 +19855,6 @@ object dmImpressaoV2: TdmImpressaoV2
     CasasDecimais.MaskAliquota = ',0.00'
     ACBrNFe = ACBrNFe1
     TipoDANFE = tiNFCe
-    PosPrinter = ACBrPosPrinter1
     Left = 1625
     Top = 327
   end

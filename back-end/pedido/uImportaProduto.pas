@@ -23,7 +23,7 @@ begin
   objeto.AddPair('tabela', Tabela);
   objeto.AddPair('id', Codigo);
   requisicao := iRequisicao.Create(nil);
-  requisicao.BaseURL := API_BASE_URL;
+  requisicao.BaseURL := getUrlGoopedir;
   requisicao.Token(GetToken);
 
   requisicao.Metodo := mPost;

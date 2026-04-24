@@ -32,7 +32,7 @@ var
 begin
   Result := -1;
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.TempoExpiracao := 30 * 1000;
 
   Requisicao.URL := 'api/interno/adicional/item';
@@ -79,7 +79,7 @@ begin
   Result := -1;
   Requisicao := iRequisicao.Create(nil);
 
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
 
   Requisicao.TempoExpiracao := 30 * 1000;
 
@@ -126,7 +126,7 @@ var
 begin
   Result := -1;
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.TempoExpiracao := 30 * 1000;
   Requisicao.URL := 'api/interno/produto'; // rota no Node
   Requisicao.Metodo := mPost;
@@ -179,7 +179,7 @@ var
 begin
   Result := -1; // valor padrão em caso de erro
   Requisicao := iRequisicao.Create(nil);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.TempoExpiracao := 5 * 1000;
   Requisicao.URL := 'api/interno/categoria/tipo/produto';
   Requisicao.Metodo := mPost;
@@ -258,7 +258,7 @@ begin
 
       Result := Query.ToJSONArray().ToString;
       Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL := API_BASE_URL;
+      Requisicao.BaseURL := getUrlGoopedir;
       Requisicao.URL := 'api/sabores';
       Requisicao.Metodo := mPost;
       Requisicao.BODY(Result);
@@ -365,7 +365,7 @@ begin
     JsonRetorno.AddPair('base64Image',Base64);
     JsonRetorno.AddPair('user',user);
     JsonRetorno.AddPair('type','produtos');
-    Requisicao.BaseURL := API_BASE_URL;
+    Requisicao.BaseURL := getUrlGoopedir;
     Requisicao.URL := 'api/upload';
     Requisicao.AddHEader('nome', codigo);
     Requisicao.AddHEader('Content-Type', 'application/json');

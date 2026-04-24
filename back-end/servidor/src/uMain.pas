@@ -37,7 +37,7 @@ uses
   GenericSocket,
   uAgent,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
-  Tasks, TaskManager;
+  Tasks, TaskManager, rota;
 
 type
   TTaskProc = reference to procedure;
@@ -433,6 +433,9 @@ type
     Agent: TAgentManager;
     CertificadoAtual: TJsonObject;
 
+    /// ////////////
+    semConexaoAPI: Boolean;
+
   end;
 
 var
@@ -587,14 +590,14 @@ begin
     try
       RegisterAllTasks;
 
-//      if InicializacaoHabilitada('TaskSabores') then
-//        TTaskManager.Run('sabores');
-//
-//      if InicializacaoHabilitada('TaskClientes') then
-//        TTaskManager.Run('clientes');
-//
-//      if InicializacaoHabilitada('TaskVendas') then
-//        TTaskManager.Run('vendas');
+      // if InicializacaoHabilitada('TaskSabores') then
+      // TTaskManager.Run('sabores');
+      //
+      // if InicializacaoHabilitada('TaskClientes') then
+      // TTaskManager.Run('clientes');
+      //
+      // if InicializacaoHabilitada('TaskVendas') then
+      // TTaskManager.Run('vendas');
 
       Readln;
     except
@@ -892,7 +895,7 @@ begin
     IniFile.WriteString('ATIVA', 'JSON', JsonObject.ToString);
 
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := API_BASE_URL;
+    Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/empresa/atualiza/cardapio';
     Req.BODY(JsonObject);
 
@@ -921,7 +924,7 @@ begin
   Requisicao := iRequisicao.Create(nil);
   token := GerarTokenJWT(UserID);
   Requisicao.AddHEader('token', token);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
   Requisicao.URL := '/api/empresa/atualizacao/produto/' + UserID.ToString;
   Requisicao.Metodo := mPost;
   try
@@ -1364,7 +1367,7 @@ var
   iReq: iRequisicao;
 begin
   iReq := iRequisicao.Create(nil);
-  iReq.BaseURL := API_BASE_URL;
+  iReq.BaseURL := getUrlGoopedir;
   iReq.URL := 'api/atualizacoes/busca/atualizacao/' + user.ToString;
   try
     iReq.Execute;
@@ -1388,7 +1391,7 @@ begin
   memo := TMemo.Create(self);
   memo.Parent := self;
   Requisicao := iRequisicao.Create(self);
-  Requisicao.BaseURL := API_BASE_URL;
+  Requisicao.BaseURL := getUrlGoopedir;
 
   Requisicao.URL := 'api/modulos?user=' + UserID.ToString;
   try
@@ -1450,7 +1453,7 @@ begin
   if UserID > 0 then
   begin
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := API_BASE_URL;
+    Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/whatsapp/instancia?user_id=' + UserID.ToString;
     try
       Req.Execute;
@@ -2059,7 +2062,7 @@ begin
     conexao := Tconexao.Create('ExtornoPedidoNaoFinalizado');
     // conexao.SQL.Add('SELECT 0 as zero, codigo FROM pedido where status = -1 and id_ficha = 0 and data_pedido <= curdate() and hora_pedido < DATE_SUB(current_time(), INTERVAL 15 MINUTE) and valor_pedido > 0');
     conexao.SQL.Add
-      ('SELECT 0 as zero, codigo FROM pedido where status = -1 and (id_ficha = 0 or id_ficha is null) and data_pedido <= curdate() and hora_pedido < DATE_SUB(current_time(), INTERVAL 5 MINUTE)');
+      ('SELECT 0 as zero, codigo FROM pedido where status = -1 and (id_ficha = 0 or id_ficha is null) and data_pedido <= curdate() and ultima_interacao < DATE_SUB(NOW(), INTERVAL 15 MINUTE)');
     Dados := TFDMemTable.Create(nil);
     Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -2068,8 +2071,12 @@ begin
       while not Dados.Eof do
       begin
         PRODUTOS := TFDMemTable.Create(nil);
+        // conexao.SQL.Add('select codigo, 0 as zero from pedido_produtos where codigo_pedido = :pedido'); OLD
         conexao.SQL.Add
-          ('select codigo, 0 as zero from pedido_produtos where codigo_pedido = :pedido');
+          ('select pp.codigo, p.controle_estoque from pedido_produtos pp');
+        conexao.SQL.Add
+          ('join produto p on p.codigo = pp.codigo_produto and p.controle_estoque = 1');
+        conexao.SQL.Add('where pp.codigo_pedido = :pedido');
         conexao.Parametros('pedido', Dados.FieldByName('codigo').AsInteger);
         PRODUTOS.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -2546,6 +2553,7 @@ var
   Infra: TInfraBanco;
 
 begin
+  semConexaoAPI := False;
   CertificadoAtual := TJsonObject.Create;
   ClearAll;
   ClientSocket := TGenericSocket.New;
@@ -2630,7 +2638,7 @@ begin
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
 
-    APIGoopedir := TGooPedirAPIController.Create(API_BASE_URL,
+    APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
       frmServidor.Configuracoes.FieldByName('client_id').AsString,
       frmServidor.Configuracoes.FieldByName('client_security').AsString,
       GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento,
@@ -2640,6 +2648,7 @@ begin
   conexao.Free;
   // Rotas
   v2.Registry;
+  rota.Registry;
   token.Registry;
   util.Registry;
   NFCE.Registry;
@@ -3761,6 +3770,7 @@ var
 begin
   memImpressora.Close;
   memImpressora.Open;
+
   Id := 1;
   memImpressora.Insert;
   memImpressora.FieldByName('ID').AsInteger := Id;
@@ -3782,6 +3792,12 @@ begin
       memImpressora.post;
     end;
   end;
+
+  Inc(Id);
+  memImpressora.Insert;
+  memImpressora.FieldByName('ID').AsInteger := Id;
+  memImpressora.FieldByName('DRIVER').AsString := 'Não Imprimir';
+  memImpressora.post;
 
 end;
 
@@ -4564,7 +4580,7 @@ begin
   try
     conexao := Tconexao.Create('SincronizaCaixa');
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := API_BASE_URL;
+    Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/interno/caixa/sinc';
     Req.Metodo := mPost;
 
@@ -4922,6 +4938,7 @@ begin
   if user = -1 then
   begin
     // Fazer opção para recuperar o cache e não sincronizar produtos
+
     Result := user;
     exit;
   end;

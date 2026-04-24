@@ -177,7 +177,7 @@ begin
   Conexao.Free;
 
   iReq := iRequisicao.Create(nil);
-  iReq.BaseURL := API_BASE_URL;
+  iReq.BaseURL := getUrlGoopedir;
   iReq.URL := 'api/pedido/legacy';
   JSON := TJSONObject.Create;
   JSON.AddPair('CodigoPedido', Pedido);
@@ -689,13 +689,11 @@ begin
 
   Req := iRequisicao.Create(nil);
   try
-    Req.BaseURL := API_BASE_URL;
+    Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString+'&ambiente='+Ambiente;
     Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
     Req.Token(GetToken);
-
     Req.Execute;
-
 
     // Parse do JSON retornado (agora é OBJETO na raiz)
     LRootVal := TJSONObject.ParseJSONValue(Req.Retorno);
@@ -898,7 +896,7 @@ var
   Req: iRequisicao;
 begin
   Req := iRequisicao.Create(nil);
-  Req.BaseURL := API_BASE_URL;
+  Req.BaseURL := getUrlGoopedir;
   Req.URL := 'api/pedido/legacy/' + ID;
   try
     Req.Execute;

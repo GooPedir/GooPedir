@@ -26,6 +26,8 @@ type
     FHorarioFechamentoFunc: TFunctionHorarioAbertura;
     // Campo para armazenar a função de fechamento
     FStatusHorario: TFunctionHorarioAbertura;
+    //
+    FUrlLoja : String;
     function ConfigureRESTClient: iRequisicao;
 
     procedure EnviaPostParam(JSON: TJSONObject);
@@ -39,12 +41,31 @@ type
     function Name: String;
     function UserID: Integer;
     function GetBloqueio: TDate;
+    function GetUrlLoja : String;
     procedure SincronizaParametros(Param: String);
     procedure EnviaParametroUnico(Campo, Valor, Tipo: String);
     procedure EnviaFuncionamento;
     function GetCupom: String;
     procedure BuscarToken;
-    procedure EnviaDetalhesAtualizacao(banco, caminho, arquivo : String);
+    procedure EnviaDetalhesAtualizacao(banco, caminho, arquivo: String);
+    function GetApi(base: String): String;
+    function PostApi(base, body: String): String;
+    function PostRotas(body: String): TJSONObject;
+    function PutApi(Url, body: String): String;
+    procedure SalvarConf(Nome, Valor: String);
+    function GetConf(Nome: String): String;
+    function Criptografar(const Texto, Chave: string): string;
+    function Descriptografar(const Texto, Chave: string): string;
+
+    // Módulo de Rotas
+    function GetRotas: TJSONObject;
+    function GetMotoboy: TJSONObject;
+    function PutInicia(Id: String): TJSONObject;
+    function PutFinalizar(Id: String): TJSONObject;
+
+    //
+    procedure LoadDefault;
+
   end;
 
 implementation
@@ -75,36 +96,38 @@ var
 begin
   FRequisicao := ConfigureRESTClient;
   try
-    FRequisicao.URL := 'api/goopedir/token';
+    FRequisicao.Url := 'api/goopedir/token';
     FRequisicao.Metodo := mPost;
     FRequisicao.AddHeader('client-id', FClientID);
     FRequisicao.AddHeader('client-security', FClientSecret);
     FRequisicao.Execute;
-    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno)as TJSONObject;
-
-
+    JsonObject := TJSONObject.ParseJSONValue(FRequisicao.Retorno) as TJSONObject;
     try
       if JsonObject.GetValue<String>('error') <> '' then
       begin
         FUserID := -1;
+        LoadDefault;
         FRequisicao.Free;
         exit;
       end;
     except
-
     end;
 
     FUserID := JsonObject.GetValue<Integer>('user');
+    SalvarConf('user', FUserID.ToString);
     FName := JsonObject.GetValue<String>('name');
+    SalvarConf('name', FName);
     FToken := JsonObject.GetValue<String>('token');
+    SalvarConf('token', FToken);
     FDataBloqueio := ISO8601ToDate(JsonObject.GetValue<String>('bloqueio'));
-    IniFile := TIniFile.Create('./goopedir.ini');
-    IniFile.WriteString('server', 'token', FToken);
-    IniFile.Free;
+    SalvarConf('vencimento', DateToStr(FDataBloqueio));
+    FUrlLoja := JsonObject.GetValue<String>('link');
+    SalvarConf('url', FUrlLoja);
   except
     on e: exception do
     begin
       FUserID := -1;
+      LoadDefault;
       FClientToken := False;
     end;
 
@@ -135,22 +158,63 @@ begin
   BuscarToken;
 end;
 
+function TGooPedirAPIController.Criptografar(const Texto,
+  Chave: string): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 1 to Length(Texto) do
+    Result := Result +
+      Char(Byte(Texto[i]) xor Byte(Chave[(i mod Length(Chave)) + 1]));
+end;
+
+function TGooPedirAPIController.Descriptografar(const Texto,
+  Chave: string): string;
+begin
+  Result := Criptografar(Texto, Chave); // XOR é reversível
+end;
+
 destructor TGooPedirAPIController.Destroy;
 begin
   // Qualquer limpeza adicional necessária
   inherited;
 end;
 
+function TGooPedirAPIController.GetMotoboy: TJSONObject;
+var
+  Retorno: String;
+begin
+  Retorno := GetApi('api/empresa/motoboys/rotas');
+
+  if Retorno <> '' then
+  begin
+    try
+      Result := TJSONObject.ParseJSONValue(Retorno) as TJSONObject;
+      exit;
+    except
+      on e: exception do
+      begin
+        ShowMessage(e.Message);
+      end;
+    end;
+
+  end;
+
+  Result := TJSONObject.Create;
+
+end;
+
 procedure TGooPedirAPIController.EnviaDetalhesAtualizacao(banco, caminho,
   arquivo: String);
 var
-objeto : TJSONObject;
+  objeto: TJSONObject;
 begin
-objeto := TJSONObject.Create;
-objeto.AddPair('banco',banco);
-objeto.AddPair('caminho',caminho);
-objeto.AddPair('arquivo',arquivo);
-objeto.AddPair('user', TJSONNumber.Create(FUserID));
+  objeto := TJSONObject.Create;
+  objeto.AddPair('banco', banco);
+  objeto.AddPair('caminho', caminho);
+  objeto.AddPair('arquivo', arquivo);
+  objeto.AddPair('user', TJSONNumber.Create(FUserID));
 end;
 
 procedure TGooPedirAPIController.EnviaFuncionamento;
@@ -276,16 +340,34 @@ begin
 
   FRequisicao := ConfigureRESTClient;
   FRequisicao.Metodo := mPost;
-  FRequisicao.URL := 'api/goopedir/parametros';
+  FRequisicao.Url := 'api/goopedir/parametros';
   try
-    FRequisicao.BODY(JSON);
+    FRequisicao.body(JSON);
 
     FRequisicao.Execute;
   except
     on e: exception do
-      ////showmessage('Erro ao enviar os parâmetros: ' + e.Message);
+      /// /showmessage('Erro ao enviar os parâmetros: ' + e.Message);
   end;
   FRequisicao.Free;
+end;
+
+function TGooPedirAPIController.GetApi(base: String): String;
+var
+  req: iRequisicao;
+begin
+  req := ConfigureRESTClient;
+  req.Url := base;
+  try
+    req.Execute;
+    Result := req.Retorno;
+  except
+    on e: exception do
+    begin
+//      ShowMessage(e.Message);
+    end;
+  end;
+  req.Free;
 end;
 
 function TGooPedirAPIController.GetBloqueio: TDate;
@@ -293,9 +375,48 @@ begin
   Result := FDataBloqueio;
 end;
 
+function TGooPedirAPIController.GetConf(Nome: String): String;
+var
+  IniFile: TIniFile;
+begin
+  IniFile := TIniFile.Create('./goopedir.ini');
+  if (Nome = 'token') then
+  begin
+    Result := IniFile.ReadString('server', Nome, '')
+  end
+  else
+  begin
+    Result := Descriptografar(IniFile.ReadString('server', Nome, ''), Nome);
+  end;
+
+  IniFile.Free;
+end;
+
 function TGooPedirAPIController.GetCupom: String;
 begin
   //
+end;
+
+function TGooPedirAPIController.GetRotas: TJSONObject;
+var
+  Retorno: String;
+begin
+  Retorno := GetApi('api/empresa/rotas/pendentes');
+
+  if Retorno <> '' then
+  begin
+    try
+      Result := TJSONObject.ParseJSONValue(Retorno) as TJSONObject;
+      exit;
+    except
+      on e: exception do
+      begin
+        ShowMessage(e.Message);
+      end;
+    end;
+
+  end;
+  Result := TJSONObject.Create;
 end;
 
 function TGooPedirAPIController.GetToken: string;
@@ -307,9 +428,161 @@ begin
   Result := FToken;
 end;
 
+function TGooPedirAPIController.GetUrlLoja: String;
+begin
+Result := FUrlLoja;
+end;
+
+procedure TGooPedirAPIController.LoadDefault;
+begin
+  try
+    FUserID := GetConf('user').ToInteger;
+  except
+
+  end;
+
+  FName := GetConf('name');
+
+  FToken := GetConf('token');
+
+  FUrlLoja := GetConf('url');
+
+  try
+    FDataBloqueio := StrToDate(GetConf('vencimento'))
+  except
+
+  end;
+
+end;
+
 function TGooPedirAPIController.Name: String;
 begin
   Result := FName;
+end;
+
+function TGooPedirAPIController.PostApi(base, body: String): String;
+var
+  req: iRequisicao;
+begin
+  req := ConfigureRESTClient;
+  req.Url := base;
+  try
+    req.Metodo := mPost;
+    req.body(body);
+    req.Execute;
+    Result := req.Retorno;
+  except
+    on e: exception do
+    begin
+
+    end;
+  end;
+  req.Free;
+end;
+
+function TGooPedirAPIController.PostRotas(body: String): TJSONObject;
+var
+  Retorno: String;
+begin
+  Retorno := PostApi('api/empresa/rotas/recriar', body);
+
+  if Retorno <> '' then
+  begin
+    try
+      Result := TJSONObject.ParseJSONValue(Retorno) as TJSONObject;
+      exit;
+    except
+      on e: exception do
+      begin
+      end;
+    end;
+
+  end;
+  Result := TJSONObject.Create;
+end;
+
+function TGooPedirAPIController.PutApi(Url, body: String): String;
+var
+  req: iRequisicao;
+begin
+  req := ConfigureRESTClient;
+  req.Url := Url;
+  try
+    req.Metodo := mPut;
+    if (body <> '') then
+      req.body(body);
+    req.Execute;
+    Result := req.Retorno;
+  except
+    on e: exception do
+    begin
+
+    end;
+  end;
+  req.Free;
+end;
+
+function TGooPedirAPIController.PutFinalizar(Id: String): TJSONObject;
+var
+  Retorno: String;
+begin
+  Retorno := PutApi('api/empresa/rotas/pedidos/finalizar/' + Id, '');
+
+  if Retorno <> '' then
+  begin
+    try
+      Result := TJSONObject.ParseJSONValue(Retorno) as TJSONObject;
+      exit;
+    except
+      on e: exception do
+      begin
+        ShowMessage(e.Message);
+      end;
+    end;
+
+  end;
+
+  Result := TJSONObject.Create;
+
+end;
+
+function TGooPedirAPIController.PutInicia(Id: String): TJSONObject;
+var
+  Retorno: String;
+begin
+  Retorno := PutApi('api/empresa/rotas/pedidos/iniciar/' + Id, '');
+
+  if Retorno <> '' then
+  begin
+    try
+      Result := TJSONObject.ParseJSONValue(Retorno) as TJSONObject;
+      exit;
+    except
+      on e: exception do
+      begin
+//        ShowMessage(e.Message);
+      end;
+    end;
+
+  end;
+
+  Result := TJSONObject.Create;
+
+end;
+
+procedure TGooPedirAPIController.SalvarConf(Nome, Valor: String);
+var
+  IniFile: TIniFile;
+begin
+  IniFile := TIniFile.Create('./goopedir.ini');
+  if (Nome='token') then
+  begin
+    IniFile.WriteString('server', Nome, Valor);
+  end else begin
+    IniFile.WriteString('server', Nome, Criptografar(Valor, Nome));
+  end;
+
+  IniFile.Free;
 end;
 
 procedure TGooPedirAPIController.SincronizaParametros(Param: String);
@@ -434,13 +707,20 @@ begin
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
+      JsonCampo := TJSONObject.Create;
+      JsonCampo.AddPair('campo', 'merchant');
+      JsonCampo.AddPair('valor', Dados.FieldByName('merchant').AsString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
       // JsonCampo := TJSONObject.Create;
       // JsonCampo.AddPair('campo', 'localizacao_gp');
       // JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
       // JsonCampo.AddPair('type', 'string');
       // JsonCampos.AddElement(JsonCampo);
 
-      Qry.SQL.Add('select mensagem_inicio, mensagem_conclusao, conclusao_envio_range from dados_whatsapp');
+      Qry.SQL.Add
+        ('select mensagem_inicio, mensagem_conclusao, conclusao_envio_range, mensagem_fora_expediente from dados_whatsapp');
       Qry.Open;
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem');
@@ -451,15 +731,23 @@ begin
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'mensagem_conclusao');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_conclusao').AsWideString);
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_conclusao')
+        .AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
 
       JsonCampo := TJSONObject.Create;
       JsonCampo.AddPair('campo', 'conclusao_envio_range');
-      JsonCampo.AddPair('valor', Qry.FieldByName('conclusao_envio_range').AsWideString);
+      JsonCampo.AddPair('valor', Qry.FieldByName('conclusao_envio_range')
+        .AsWideString);
       JsonCampo.AddPair('type', 'string');
       JsonCampos.AddElement(JsonCampo);
+
+      JsonCampo.AddPair('campo', 'mensagem_fora_horario');
+      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_fora_expediente').AsWideString);
+      JsonCampo.AddPair('type', 'string');
+      JsonCampos.AddElement(JsonCampo);
+
       Qry.Free;
       Conexao.Free;
       JsonCampo := TJSONObject.Create;

@@ -84,7 +84,7 @@ begin
   try
     JSON := BuildPedidoJSON(DadosPedido, DadosItens);
     Req := iRequisicao.Create(nil);
-    Req.BaseURL := API_BASE_URL;
+    Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/pedido';
     Req.BODY(JSON);
     Req.Metodo := mPost;

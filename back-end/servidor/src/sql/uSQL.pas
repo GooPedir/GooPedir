@@ -2055,6 +2055,13 @@ begin
       143: begin
         ExecultaSQL('alter table pedido add pedido_nfce integer default 0');
       end;
+      144: begin
+        ExecultaSQL('ALTER TABLE motoboy CHANGE COLUMN acesso_site VARCHAR(255)');
+        ExecultaSQL('alter table pedido add ultima_interacao timestamp default current_timestamp()');
+        ExecultaSQL('alter table dados_whatsapp add mensagem_fora_expediente longtext');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY mensagem_fora_expediente TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY mensagem_conclusao TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+      end;
     99999999:
       begin
         {
@@ -2068,7 +2075,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '143'
+  Result := '144'
 end;
 
 end.

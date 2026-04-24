@@ -968,9 +968,7 @@ type
     ACBrIntegrador1: TACBrIntegrador;
     ACBrMail1: TACBrMail;
     ACBrNFe1: TACBrNFe;
-    ACBrValidador1: TACBrValidador;
     ACBrNFeDANFeRL1: TACBrNFeDANFeRL;
-    ACBrPosPrinter1: TACBrPosPrinter;
     ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
     ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS;
     ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes;
@@ -1474,23 +1472,23 @@ end;
 
 procedure TdmImpressaoV2.ImprimeNFCe(URL, Driver, Arquivo: String);
 begin
-  ACBrNFe1.NotasFiscais.Clear;
-  if FileExists(Arquivo) then
-  begin
-    ACBrNFe1.NotasFiscais.LoadFromFile(Arquivo);
-  end
-  else
-  begin
-    iNFCE.BaseURL := URL;
-    ACBrPosPrinter1.Desativar;
-    iNFCE.Execute;
-
-    ACBrNFe1.NotasFiscais.LoadFromString(iNFCE.Retorno);
-  end;
-
-  ACBrPosPrinter1.Porta := 'RAW:' + Driver;
-  ACBrPosPrinter1.Ativar;
-  ACBrNFe1.NotasFiscais.Imprimir;
+//  ACBrNFe1.NotasFiscais.Clear;
+//  if FileExists(Arquivo) then
+//  begin
+//    ACBrNFe1.NotasFiscais.LoadFromFile(Arquivo);
+//  end
+//  else
+//  begin
+//    iNFCE.BaseURL := URL;
+//    ACBrPosPrinter1.Desativar;
+//    iNFCE.Execute;
+//
+//    ACBrNFe1.NotasFiscais.LoadFromString(iNFCE.Retorno);
+//  end;
+//
+//  ACBrPosPrinter1.Porta := 'RAW:' + Driver;
+//  ACBrPosPrinter1.Ativar;
+//  ACBrNFe1.NotasFiscais.Imprimir;
 
 end;
 
