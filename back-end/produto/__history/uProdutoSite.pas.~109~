@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, uControllerSite,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
-  uInserirUpdate, IniFiles, DataSet.Serialize,
+  uInserirUpdate, IniFiles, DataSet.Serialize, uGlobais,
   FireDAC.Comp.Client, uRequisicao, System.IOUtils, uControlerProduto;
 
 type
@@ -113,7 +113,7 @@ begin
       Conexao.Free;
       exit;
     end;
-
+    Dados.Close;
     Dados.SQL.Text := ('select * from produto where codigo = :codigo');
     Dados.ParamByName('codigo').AsInteger := Codigo;
     Dados.Open;
@@ -222,7 +222,7 @@ begin
   except
     on e: exception do
     begin
-      // ShowMessage(e.Message)
+      // //showmessage(e.Message)
       GerarLog(e.Message, 'erro_produto.log');
 
     end;
@@ -247,8 +247,13 @@ begin
   IniFile := TIniFile.Create('./goopedir.ini');
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
-  iReq.BASEURL := BASEURL;
+  if Desenvolvimento then
+  begin
+    userId := 1;
+    EnviaProduto(2);
+  end;
 
+  iReq.BASEURL := BASEURL;
   if ParamCount > 0 then
   begin
     try
@@ -270,7 +275,8 @@ var
   CaminhoLog: string;
   Linha: string;
 begin
-
+  if not Desenvolvimento then
+    exit;
   try
     // Caminho padrão: mesmo diretório do executável
     CaminhoLog := TPath.Combine(ExtractFilePath(ParamStr(0)), NomeArquivo);

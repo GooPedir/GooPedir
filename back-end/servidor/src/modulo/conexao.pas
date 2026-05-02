@@ -145,17 +145,17 @@ begin
         as TJSONArray);
     end;
 
-    if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
-    begin
-       QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
-       253) + '", datahora = current_timestamp where id = ' +
-       CodigoConexao.ToString;
-       try
-       QRY.ExecSQL;
-       except
-
-       end;
-    end;
+    // if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+    // begin
+    // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
+    // 253) + '", datahora = current_timestamp where id = ' +
+    // CodigoConexao.ToString;
+    // try
+    // QRY.ExecSQL;
+    // except
+    //
+    // end;
+    // end;
   except
     on E: Exception do
     begin
@@ -243,14 +243,14 @@ begin
 
   SQL := TStringlist.Create;
   Zerar;
-  try
-    CodigoConexao := GerarID('conexao', 'id');
-  except
-
-  end;
+  // try
+  // CodigoConexao := GerarID('conexao', 'id');
+  // except
   //
-//  ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
-//    CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
+  // end;
+  //
+  // ExecuteSQL('insert into conexao (id,datahora, mysql) values (' +
+  // CodigoConexao.ToString + ',current_timestamp,' + QuotedStr(FNome) + ')');
 
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 10 * 1000;
@@ -811,8 +811,8 @@ begin
   Result := THashMD5.GetHashString(ASQL);
 end;
 
-function TConexao.Insert(Tabela, CampoID: String; ID: Variant; DadoBody: String)
-  : boolean;
+function TConexao.Insert(Tabela, CampoID: String; ID: Variant;
+  DadoBody: String): boolean;
 var
   Dados: TFDMemTable;
   DadosQry: TFDMemTable;
@@ -992,11 +992,11 @@ begin
   UpdateLastActivityTime;
   QryUpdate := DataModulo.CriaQRY;
   try
-    Update := UpperCase(Copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
+    // Update := UpperCase(Copy(trim(UpperCase(SQL)), 0, 6)) = 'UPDATE';
     if Update then
     begin
-      SqlUpdate := Copy(SQL, 0, pos('SET', SQL) + 2) + ' modificado_site = 0 ' +
-        Copy(SQL, pos('WHERE', SQL), length(SQL));
+      SqlUpdate := Copy(SQL, 1, pos('SET', SQL) + length('SET')) +
+        ' modificado_site = 0 ' + Copy(SQL, pos('WHERE', SQL), length(SQL));
       QryUpdate := DataModulo.CriaQRY;
       QryUpdate.SQL.Add(SqlUpdate);
 
@@ -1063,7 +1063,7 @@ begin
     end;
   end;
 
-//  if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
+  // if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
   // begin
   // QRY.SQL.Text := 'update conexao set mysql = "' + Copy(FNome + '-' + SQL, 1,
   // 253) + '", datahora = current_timestamp where id = ' +

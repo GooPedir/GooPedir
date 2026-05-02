@@ -172,6 +172,8 @@ type
     memTipoMesa: TFDMemTable;
     Button1: TButton;
     timerClose: TTimer;
+    FDMemTable1: TFDMemTable;
+    FDMemTable2: TFDMemTable;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -588,7 +590,7 @@ begin
   if InicializacaoHabilitada('RegisterAllTasks') then
   begin
     try
-      RegisterAllTasks;
+      // RegisterAllTasks;
 
       // if InicializacaoHabilitada('TaskSabores') then
       // TTaskManager.Run('sabores');
@@ -599,14 +601,15 @@ begin
       // if InicializacaoHabilitada('TaskVendas') then
       // TTaskManager.Run('vendas');
 
-      Readln;
+      // Readln;
     except
 
     end;
   end;
+  Agent := TAgentManager.Create;
   if InicializacaoHabilitada('AgentManager') then
   begin
-    Agent := TAgentManager.Create;
+
     QryAgent := conexao.CriaQRY;
     QryAgent.SQL.Add('SELECT * FROM agent');
     QryAgent.Open;
@@ -1455,6 +1458,7 @@ begin
     Req := iRequisicao.Create(nil);
     Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/whatsapp/instancia?user_id=' + UserID.ToString;
+    Req.TempoExpiracao := (60 * 1000) * 3;
     try
       Req.Execute;
       JsonObject := TJsonObject.ParseJSONValue(Req.Retorno) as TJsonObject;
@@ -1487,6 +1491,10 @@ begin
       end;
 
     except
+      on E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
 
     end;
 
@@ -2666,8 +2674,8 @@ begin
   THorse.Use(MiddlewareCORS);
   THorse.Use(SocketIO);
 
-  if InicializacaoHabilitada('AtualizaCacheSite') then
-    AtualizaCacheSite;
+  // if InicializacaoHabilitada('AtualizaCacheSite') then
+  // AtualizaCacheSite;
   IniFile.Free;
 
   conexao := Tconexao.Create('main');

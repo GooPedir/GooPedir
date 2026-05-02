@@ -34,6 +34,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.JSON,
+  DataSet.Serialize,
   Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
   Spin, Buttons, ComCtrls, OleCtrls, SHDocVw, ACBrMail,
   ACBrPosPrinter, ACBrNFeDANFeESCPOS, ACBrNFeDANFEClass, ACBrDANFCeFortesFr,
@@ -713,7 +714,8 @@ begin
     Ide.tpNF := tnSaida;
     Ide.tpEmis := TpcnTipoEmissao
       (MemoryConfiguracao.FieldByName('forma_emissao').AsInteger);
-    Ambiente := TpcnTipoAmbiente(MemoryConfiguracao.FieldByName('ambiente').AsInteger);
+    Ambiente := TpcnTipoAmbiente(MemoryConfiguracao.FieldByName('ambiente')
+      .AsInteger);
 
     if (not Internet) and (Ide.tpEmis = teNormal) then
     begin
@@ -785,7 +787,8 @@ begin
       if (ValidarDocumento(MemoryOutros.FieldByName('cpf').AsString)) then
       begin
         Dest.xNome := MemoryOutros.FieldByName('nome').AsString;
-        Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf').AsString);
+        Dest.CNPJCPF := SomenteNumeros(MemoryOutros.FieldByName('cpf')
+          .AsString);
         Dest.indIEDest := inNaoContribuinte;
       end;
 
@@ -880,7 +883,9 @@ begin
             // --------------------------------------------------------------------------------------------
             if Emit.CRT = crtRegimeNormal then
             begin
-              ICMS.CST := StrToCSTICMS(ConverteOk, mID_ST_ICMS.ToString);
+              // ICMS.CST := StrToCSTICMS(ConverteOk, mID_ST_ICMS.ToString);
+              ICMS.CST := StrToCSTICMS(ConverteOk,
+                FormatFloat('00', mID_ST_ICMS));
               if not ConverteOk then
                 raise EDatabaseError.CreateFmt
                   ('Situação tributária "%s" desconhecida.',
@@ -897,8 +902,9 @@ begin
               else
                 ICMS.vBC := mVlrTotal;
 
-              ICMS.pICMS := Memory.FieldByName('csticms').AsFloat;
-              ICMS.vICMS := Memory.FieldByName('icms').AsFloat;
+              ICMS.pICMS := Memory.FieldByName('icms').AsFloat;
+              // ICMS.vICMS := Memory.FieldByName('icms').AsFloat;
+              ICMS.vICMS := RoundTo((ICMS.vBC * ICMS.pICMS) / 100, -2);
               ICMS.pRedBC := 0.00;
 
               if ICMS.vBC > 0 then
@@ -3367,7 +3373,7 @@ begin
   Requisicao := iRequisicao.Create(self);
   Requisicao.TempoExpiracao := 5 * 1000;
   Requisicao.BaseUrl := BaseUrl;
-  Requisicao.URL := '/v1/consulta/generica/dados_whatsapp/*/*/*';
+  Requisicao.URL := '/v2/parametros';
   Requisicao.MemTable2 := MemoryConfiguracao;
   Requisicao.Metodo := mGet;
   try
@@ -3480,7 +3486,7 @@ begin
   iReq.BaseUrl := BaseUrl;
   iReq.TempoExpiracao := 60 * 1000;
 
-  iReq.URL := 'v1/consulta/generica/dados_whatsapp/*/*/*';
+  iReq.URL := '/v2/parametros';
   iReq.MemTable2 := MemoryConfiguracao;
   iReq.Metodo := mGet;
   try
@@ -3553,9 +3559,14 @@ begin
   req.BaseUrl := BaseUrl;
   req.URL := URL;
   req.MemTable2 := Mem;
+  req.Metodo := mGet;
   try
     req.Execute;
   except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+    end;
 
   end;
   req.Free;
@@ -4006,7 +4017,8 @@ begin
   ACBrNFe1.NotasFiscais.LoadFromFile(Caminho, False);
 
   // Adiciona os parâmetros ao corpo da requisição
-  RESTRequest.Params.AddItem('ambiente', MemoryConfiguracao.FieldByName('ambiente').AsString,
+  RESTRequest.Params.AddItem('ambiente',
+    MemoryConfiguracao.FieldByName('ambiente').AsString,
     TRESTRequestParameterKind.pkGETorPOST);
   RESTRequest.Params.AddItem('cnpj', CNPJ,
     TRESTRequestParameterKind.pkGETorPOST);
@@ -4861,7 +4873,7 @@ begin
             Requisicao.TempoExpiracao := 30 * 1000;
             Requisicao.BaseUrl := BaseUrl;
 
-            Requisicao.URL := '/v1/consulta/generica/dados_whatsapp/*/*/*';
+            Requisicao.URL := '/v2/parametros';
             Requisicao.MemTable2 := MemoryConfiguracao;
             Requisicao.Metodo := mGet;
             Requisicao.Execute;
@@ -4977,17 +4989,19 @@ var
   URL: String;
   Arquivo: String;
 begin
+  FormatSettings.DecimalSeparator := '.';
   tEmissaoV2.Enabled := False;
   mLote := TFDMemTable.Create(nil);
   GetDadosReq(mLote, 'nfce/fila?limite=50');
 
   if mLote.RecordCount > 0 then
   begin
-
+    mLote.First;
     while not mLote.Eof do
     begin
       try
         AlimentarComponente(mLote.FieldByName('codigo').AsString);
+
         ErroEmissao := False;
 
         case ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpAmb of
@@ -5012,7 +5026,6 @@ begin
 
       if not ErroEmissao then
       begin
-
 
         if (ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia) then
         begin
@@ -5049,7 +5062,7 @@ begin
                   .NFe.Det.Items[ExtrairNItemDoErro(Erro) - 1].Prod.xProd
               end;
               MemoResp.Lines.Add(Erro);
-
+              // ShowMessage(Erro);
               URL := 'v2/erro/nfce';
               PostDadosReq(URL, '{"pedido":"' + mLote.FieldByName('codigo')
                 .AsString + '","erro":"' + E.Message + '"}');
@@ -5126,7 +5139,7 @@ begin
             Arquivo := CaminhoNFCe + Chave + '-nfe.xml';
             If (Ambiente = '1') then
             begin
-            EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
+              EnviarNotaFiscal(CNPJ, '', '', Chave, Arquivo, 0);
             end;
 
             // Enviar NFC-e

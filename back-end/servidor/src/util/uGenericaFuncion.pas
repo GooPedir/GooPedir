@@ -2,9 +2,11 @@ unit uGenericaFuncion;
 
 interface
 
-uses System.SysUtils;
+uses System.SysUtils, Conexao;
 
 function RemoveAcento(const pText: string): string;
+function GetParametro(nome: String): string;
+procedure PostParametro(nome: String; valor :Variant);
 
 implementation
 
@@ -27,6 +29,28 @@ begin;
     end;
 
   Result := aText;
+end;
+
+function GetParametro(nome: String): string;
+var
+  Conexao: Tconexao;
+begin
+  Conexao := Tconexao.Create('GetParametro');
+  Conexao.SQL.Add('select * from configuracoes where chave = :chave');
+  Conexao.Parametros('chave', nome);
+  try
+    Result := Conexao.FieldByName('valor');
+  except
+
+  end;
+
+  Conexao.Free;
+
+end;
+
+procedure PostParametro(nome: String; valor :Variant);
+begin
+
 end;
 
 end.

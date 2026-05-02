@@ -10,7 +10,7 @@ uses Conexao, FireDAC.Comp.Client, uInserirUpdate, System.SysUtils,
 function SiteCategoria(codigo, user: Integer): Integer;
 function SiteSabores(codigoGrupo, user: Integer): String;
 procedure SiteEnviaFotoProduto(codigo: Integer; Base64: String; user: Integer);
-function EnviaImagem(codigo,user, Base64: String): String;
+function EnviaImagem(codigo, user, Base64: String): String;
 
 function GerarTokenJWT(userId: Integer): string;
 function PostCategoriaTipoProdutoExpress(userId, codigo: Integer): Integer;
@@ -123,6 +123,7 @@ var
   JSONResp: TJSONObject;
   Dados: TFDMemTable;
   Categoria: Integer;
+   FS: TFormatSettings;
 begin
   Result := -1;
   Requisicao := iRequisicao.Create(nil);
@@ -133,6 +134,9 @@ begin
   Conexao := TConexao.Create('uSite');
   Conexao.SQL.Add('select * from produto where codigo = :codigo');
   Conexao.Parametros('codigo', codigo);
+  FS := TFormatSettings.Create;
+  FS.DecimalSeparator := '.';
+  FormatSettings := FS;
 
   Dados := TFDMemTable.Create(nil);
 
@@ -354,7 +358,7 @@ begin
 
 end;
 
-function EnviaImagem(codigo,user, Base64: string): string;
+function EnviaImagem(codigo, user, Base64: string): string;
 var
   Requisicao: iRequisicao;
   JsonRetorno: TJSONObject;
@@ -362,9 +366,9 @@ begin
   Requisicao := iRequisicao.Create(nil);
   try
     JsonRetorno := TJSONObject.Create;
-    JsonRetorno.AddPair('base64Image',Base64);
-    JsonRetorno.AddPair('user',user);
-    JsonRetorno.AddPair('type','produtos');
+    JsonRetorno.AddPair('base64Image', Base64);
+    JsonRetorno.AddPair('user', user);
+    JsonRetorno.AddPair('type', 'produtos');
     Requisicao.BaseURL := getUrlGoopedir;
     Requisicao.URL := 'api/upload';
     Requisicao.AddHEader('nome', codigo);
@@ -396,7 +400,7 @@ begin
   except
     on E: Exception do
     begin
-      //showmessage(E.Message);
+      // showmessage(E.Message);
       // Você pode querer registrar o erro em algum log aqui
       Result := ''; // Retorna vazio em caso de erro
     end;

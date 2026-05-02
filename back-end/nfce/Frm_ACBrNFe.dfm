@@ -21,6 +21,7 @@ object frmACBrNFe: TfrmACBrNFe
     Height = 618
     Align = alLeft
     TabOrder = 0
+    ExplicitHeight = 617
     object PageControl1: TPageControl
       Left = 1
       Top = 0
@@ -1060,6 +1061,8 @@ object frmACBrNFe: TfrmACBrNFe
     Height = 618
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 905
+    ExplicitHeight = 617
     object pgcBotoes: TPageControl
       Left = 1
       Top = 1
@@ -1068,6 +1071,7 @@ object frmACBrNFe: TfrmACBrNFe
       ActivePage = tsDistribuicao
       Align = alTop
       TabOrder = 0
+      ExplicitWidth = 903
       object tsEnvios: TTabSheet
         Caption = 'Envios'
         ImageIndex = 2
@@ -1412,6 +1416,8 @@ object frmACBrNFe: TfrmACBrNFe
       ActivePage = TabSheet5
       Align = alClient
       TabOrder = 1
+      ExplicitWidth = 903
+      ExplicitHeight = 418
       object TabSheet5: TTabSheet
         Caption = 'Respostas'
         object MemoResp: TMemo
@@ -1422,6 +1428,8 @@ object frmACBrNFe: TfrmACBrNFe
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
+          ExplicitWidth = 895
+          ExplicitHeight = 390
         end
       end
       object TabSheet6: TTabSheet
@@ -1742,8 +1750,8 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 814
-    Top = 350
+    Left = 774
+    Top = 374
   end
   object TrayIcon1: TTrayIcon
     BalloonHint = 'NFC-e'
@@ -1766,8 +1774,8 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 886
-    Top = 350
+    Left = 830
+    Top = 446
   end
   object iCode: iRequisicao
     BaseURL = 'http://127.0.0.1:2121/'
@@ -1801,8 +1809,8 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 958
-    Top = 358
+    Left = 926
+    Top = 398
   end
   object RESTClient: TRESTClient
     BaseURL = 'https://nfce.goopedir.com/gravar'
@@ -1862,8 +1870,8 @@ object frmACBrNFe: TfrmACBrNFe
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 600
-    Top = 312
+    Left = 520
+    Top = 496
   end
   object tEmissaoV2: TTimer
     OnTimer = tEmissaoV2Timer

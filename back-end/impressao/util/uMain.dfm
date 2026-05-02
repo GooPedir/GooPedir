@@ -85,6 +85,8 @@ object frmMain: TfrmMain
     Align = alBottom
     ScrollBars = ssVertical
     TabOrder = 1
+    ExplicitTop = 516
+    ExplicitWidth = 885
   end
   object ImageList1: TImageList
     Left = 152

@@ -122,6 +122,7 @@ var
   LogPath: string;
   Arquivo: TextFile;
 begin
+  exit;
   try
     LogPath := TPath.Combine(ExtractFilePath(ParamStr(0)),
       'log_tempo_pedido.txt');
@@ -146,31 +147,64 @@ var
   Origem: String;
   Dados: TFDMemTable;
 begin
-  conexao := Tconexao.Create('Util');
+if Desenvolvimento then
+begin
+  Result := BuscaCache('GetDadosProdutoPedido', Pedido.ToString);
 
-  conexao.SQL.Add
-    ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
-  conexao.SQL.Add('group_concat(' + QuotedStr(' ') + ',upper(pps.nomeclatura),'
-    + QuotedStr(' ') + ', upper(pps.descricao)) as obs, pp.selecionado,');
-  conexao.SQL.Add
-    ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
-  conexao.SQL.Add('max(ppsO.descricao) as observacao');
-  conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
-  conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-    ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
-    QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATENÇ%"');
-  conexao.SQL.Add
-    ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
-  conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
-  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-    ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
-  conexao.SQL.Add('where pp.codigo_pedido = :codigo');
-  conexao.SQL.Add('group by pp.codigo');
-  conexao.Parametros('codigo', Pedido);
-  Result := conexao.ConsultaSQL;
-
-  conexao.Free;
+  if Result.Count = 0 then
+  begin
+    conexao := Tconexao.Create('Util');
+    conexao.SQL.Add
+      ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
+    conexao.SQL.Add('group_concat(' + QuotedStr(' ') +
+      ',upper(pps.nomeclatura),' + QuotedStr(' ') +
+      ', upper(pps.descricao)) as obs, pp.selecionado,');
+    conexao.SQL.Add
+      ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
+    conexao.SQL.Add('max(ppsO.descricao) as observacao');
+    conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
+    conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+      ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
+      QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATENÇ%"');
+    conexao.SQL.Add
+      ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
+    conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+      ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+    conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+    conexao.SQL.Add('group by pp.codigo');
+    conexao.Parametros('codigo', Pedido);
+    Result := conexao.ConsultaSQL;
+    GravaCache('GetDadosProdutoPedido', Pedido.ToString, Result.ToString);
+    conexao.Free;
+    exit
+  end;
+end;
+ conexao := Tconexao.Create('Util');
+    conexao.SQL.Add
+      ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
+    conexao.SQL.Add('group_concat(' + QuotedStr(' ') +
+      ',upper(pps.nomeclatura),' + QuotedStr(' ') +
+      ', upper(pps.descricao)) as obs, pp.selecionado,');
+    conexao.SQL.Add
+      ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
+    conexao.SQL.Add('max(ppsO.descricao) as observacao');
+    conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
+    conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+      ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
+      QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATENÇ%"');
+    conexao.SQL.Add
+      ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
+    conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+      ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+    conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+    conexao.SQL.Add('group by pp.codigo');
+    conexao.Parametros('codigo', Pedido);
+    Result := conexao.ConsultaSQL;
+    conexao.Free;
 end;
 
 procedure AtualizaStatus(Pedido, Status: Integer);
@@ -867,7 +901,7 @@ begin
         QRY.SQL.Add('SELECT id FROM caixa_movimento cm');
         QRY.SQL.Add
           ('join tipo_pagamento tp on tp.codigo = cm.id_tipo_pagamento');
-        QRY.SQL.Add('where cm.id_pedido = :pedido and tp.movimentacao = 2');
+        QRY.SQL.Add('where cm.id_pedido = :pedido and tp.movimentacao = 1');
         QRY.ParamByName('pedido').AsInteger := CodigoPedido;
         QRY.Open;
 
@@ -4292,7 +4326,7 @@ begin
     VendaDireta := (Req.Params['completo'].ToInteger = 1);
   except
   end;
-
+  t1 := GetTickCount64;
   conexao := Tconexao.Create('Util');
 
   if Usuario > 0 then
@@ -4308,21 +4342,7 @@ begin
       end;
     end;
   end;
-
-  t1 := GetTickCount64;
-
   Dados := TFDMemTable.Create(nil);
-
-  conexao.SQL.Add('select * from index_pedido where id = :codigo');
-  conexao.Parametros('codigo', ID);
-
-  Origem := conexao.FieldByName('referencia');
-
-  if Origem = '0' then
-    Origem := '';
-
-  if Origem <> '' then
-    Origem := '_' + Origem;
 
   t2 := GetTickCount64;
 
@@ -4362,7 +4382,7 @@ begin
 
   t4 := GetTickCount64;
 
-  conexao.SQL.Add('SELECT * FROM pedido' + Origem + ' where codigo = :codigo');
+  conexao.SQL.Add('SELECT * FROM pedido where codigo = :codigo');
 
   conexao.Parametros('codigo', ID);
 
@@ -4389,46 +4409,32 @@ begin
     conexao.Parametros('codigo', ID);
     conexao.Parametros('usuario', Usuario);
     conexao.Parametros('pedido_impresso', 0);
-
     conexao.ExecuteSQL;
 
     conexao.SQL.Add
       ('SELECT * FROM pedido where status = -1 and origem = 4 and codigo = ' +
       ID.ToString + ' order by codigo desc');
-
     Dados.LoadFromJSON(conexao.ConsultaSQL);
-
     DadosObjeto := Dados.ToJSONObject;
   end;
 
   t6 := GetTickCount64;
 
   { JSON de debug }
-  LogTempo := TJSONObject.Create;
-
-  LogTempo.AddPair('tempo_total_ms', TJSONNumber.Create(t6 - t0));
-  LogTempo.AddPair('busca_id_codigo_ms', TJSONNumber.Create(t1 - t0));
-  LogTempo.AddPair('busca_index_pedido_ms', TJSONNumber.Create(t2 - t1));
-  LogTempo.AddPair('consulta_mesa_ms', TJSONNumber.Create(t3 - t2));
-  LogTempo.AddPair('update_pedido_ms', TJSONNumber.Create(t4 - t3));
-  LogTempo.AddPair('consulta_pedido_ms', TJSONNumber.Create(t5 - t4));
-  LogTempo.AddPair('final_get_produtos_ms', TJSONNumber.Create(t6 - t5));
-
-  DadosObjeto.AddPair('debug_tempo', LogTempo);
+  if Desenvolvimento then
+  begin
+    LogTempo := TJSONObject.Create;
+    LogTempo.AddPair('tempo_total_ms', TJSONNumber.Create(t6 - t0));
+    LogTempo.AddPair('busca_id_codigo_ms', TJSONNumber.Create(t1 - t0));
+    LogTempo.AddPair('busca_index_pedido_ms', TJSONNumber.Create(t2 - t1));
+    LogTempo.AddPair('consulta_mesa_ms', TJSONNumber.Create(t3 - t2));
+    LogTempo.AddPair('update_pedido_ms', TJSONNumber.Create(t4 - t3));
+    LogTempo.AddPair('consulta_pedido_ms', TJSONNumber.Create(t5 - t4));
+    LogTempo.AddPair('final_get_produtos_ms', TJSONNumber.Create(t6 - t5));
+    DadosObjeto.AddPair('debug_tempo', LogTempo);
+  end;
 
   Res.Send<TJSONObject>(DadosObjeto);
-
-  { Logs no servidor }
-  LogTempoExecucaoPedido('Tempo total: ' + IntToStr(t6 - t0) + ' ms');
-  LogTempoExecucaoPedido('  ▸ Busca ID/Codigo: ' + IntToStr(t1 - t0) + ' ms');
-  LogTempoExecucaoPedido('  ▸ Busca index_pedido: ' + IntToStr(t2 - t1)
-    + ' ms');
-  LogTempoExecucaoPedido('  ▸ Consulta mesa: ' + IntToStr(t3 - t2) + ' ms');
-  LogTempoExecucaoPedido('  ▸ Update pedido: ' + IntToStr(t4 - t3) + ' ms');
-  LogTempoExecucaoPedido('  ▸ Consulta pedido: ' + IntToStr(t5 - t4) + ' ms');
-  LogTempoExecucaoPedido('  ▸ Final + GetDadosProdutoPedido: ' +
-    IntToStr(t6 - t5) + ' ms');
-  LogTempoExecucaoPedido('-------------------------');
 
   Dados.Free;
   conexao.Free;
@@ -4895,9 +4901,8 @@ begin
 
     if TotalProduto = 0 then
     begin
-       Res.Status(400).Send('{"mensagem":"Não há produtos selecionado"}')
+      Res.Status(400).Send('{"mensagem":"Não há produtos selecionado"}')
     end;
-
 
     conexao.SQL.Add
       ('update pedido set codigo_cliente = :cliente, codigo_cliente_endereco = :endereco, data_pedido = :data, origem = 5,');
@@ -4996,6 +5001,12 @@ begin
   except
     OrderBy := '';
 
+  end;
+
+  if Tabela = 'dados_whatsapp' then
+  begin
+    Res.Send<TJSONArray>(GetParametros);
+    exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -8955,6 +8966,7 @@ begin
   Pedido := ID;
   Quantidade := Dados.FieldByName('quantidade').AsFloat;
   Dados.Free;
+  LimpaCache('GetDadosProdutoPedido', Pedido.ToString);
   TThread.CreateAnonymousThread(
     procedure
     begin
@@ -9552,6 +9564,7 @@ var
   balancaId: Integer;
 begin
   IP := GetClientIP(Req);
+  Pedido := 0;
   try
     ImprimirInsta := false;
     conexao := Tconexao.Create('Util');
@@ -9597,6 +9610,7 @@ begin
         end;
 
         Observacao := JsonObj.GetValue<string>('observacao');
+
         Pedido := JsonObj.GetValue<Integer>('pedido');
         ValorProduto := JsonObj.GetValue<Double>('valorProduto');
         ValorAdicional := JsonObj.GetValue<Double>('valorAdicional');
@@ -9630,6 +9644,8 @@ begin
         begin
           if Mesa > 0 then
           begin
+            if not Assigned(QRY) then
+              QRY := conexao.CriaQRY;
             QRY.Close;
             QRY.SQL.Clear;
             QRY.SQL.Add('select * from mesa where id_mesa = :id');
@@ -9766,6 +9782,8 @@ begin
               conexaoT.Parametros('id', it.Mesa);
               conexaoT.ExecuteSQL;
             end;
+            LimpaCache('GetDadosProdutoPedido', it.Pedido.ToString);
+            GetDadosProdutoPedido(it.Pedido);
 
             // ---------- ATUALIZA PEDIDO / MOVIMENTO ----------
             AtualizaValorPedido(it.Pedido);
@@ -9775,20 +9793,17 @@ begin
           conexaoT.Free;
         end;
       end).start;
-
+    QRY.Free;
     // LOG DA OPERAÇÃO (ANTES DE PROCESSAR)
     conexao := Tconexao.Create('Util');
     conexao.SQL.Clear;
     conexao.SQL.Add
-      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) ' +
-      'values (:ip, :usuario, :operacao, :endpoint, :body)');
-
+      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) values (:ip, :usuario, :operacao, :endpoint, :body)');
     conexao.Parametros('ip', IP);
     conexao.Parametros('usuario', Usuario); // default
     conexao.Parametros('operacao', 'AdicionaProduto');
     conexao.Parametros('endpoint', '/v2/grava/varios/produtos');
     conexao.Parametros('body', Body);
-
     conexao.ExecuteSQL;
 
     conexao.Free;
@@ -10041,7 +10056,6 @@ begin
         QRY.ParamByName('mesa').AsInteger := Mesa;
         QRY.ExecSQL;
 
-        QRY.Free;
         exit;
       end;
     end;
@@ -10092,7 +10106,6 @@ begin
     QRY.ExecSQL;
   end;
 
-  QRY.Free;
   Result := CodigoPedido;
 end;
 

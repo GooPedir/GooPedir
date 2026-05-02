@@ -135,8 +135,10 @@ begin
   SQL := ' select pedido.servico, pedido.valor_desconto as discont, pedido.cpf, pedido.nome, pedido.valor_taxa_entrega as entrega, impressoras.driver';
   SQL := SQL + ' FROM pedido';
   SQL := SQL + ' left join usuario on usuario.codigo = pedido.usuario';
-  SQL := SQL + ' left join impressoras on impressoras.codigo = usuario.impressora or impressoras.impressora_padrao = 1';
-  SQL := SQL + ' where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo order by pedido.codigo desc';
+  SQL := SQL +
+    ' left join impressoras on impressoras.codigo = usuario.impressora or impressoras.impressora_padrao = 1';
+  SQL := SQL +
+    ' where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo order by pedido.codigo desc';
   conexao.SQL.Add(SQL);
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL());
@@ -150,14 +152,21 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create('nfce');
-  conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
-  conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
-  conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
-  conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
+  conexao.SQL.Add
+    ('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
+  conexao.SQL.Add
+    ('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2)  as value,');
+  conexao.SQL.Add
+    ('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
+  conexao.SQL.Add
+    ('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
   conexao.SQL.Add('FROM pedido');
-  conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-  conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
-  conexao.SQL.Add('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
+  conexao.SQL.Add
+    ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+  conexao.SQL.Add
+    ('join produto on produto.codigo = pedido_produtos.codigo_produto');
+  conexao.SQL.Add
+    ('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -170,9 +179,12 @@ var
   conexao: TConexao;
 begin
   conexao := TConexao.Create('nfce');
-  conexao.SQL.Add('SELECT tipo_pagamento.descricao, TRUNCATE(caixa_movimento.valor, 2) as valor FROM caixa_movimento');
-  conexao.SQL.Add('join tipo_pagamento on tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento');
-  conexao.SQL.Add('where id_pedido = :codigo and (caixa_movimento.tipo = 1 or caixa_movimento.tipo = -999)');
+  conexao.SQL.Add
+    ('SELECT tipo_pagamento.descricao, TRUNCATE(caixa_movimento.valor, 2) as valor FROM caixa_movimento');
+  conexao.SQL.Add
+    ('join tipo_pagamento on tipo_pagamento.codigo = caixa_movimento.id_tipo_pagamento');
+  conexao.SQL.Add
+    ('where id_pedido = :codigo and (caixa_movimento.tipo = 1 or caixa_movimento.tipo = -999)');
   conexao.Parametros('codigo', Req.Params['codigo']);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -288,7 +300,8 @@ begin
 
   if (Req.Params['chave'] = 'CANCELADA') then
   begin
-    conexao.SQL.Add('select 0 as zero, nfce_chave from pedido where codigo = :codigo');
+    conexao.SQL.Add
+      ('select 0 as zero, nfce_chave from pedido where codigo = :codigo');
     conexao.Parametros('codigo', Req.Params['codigo']);
     Chave := conexao.FieldByName('nfce_chave');
     DeletarNFCe(frmServidor.Configuracoes.FieldByName('cnpj').AsString, Chave);
@@ -325,11 +338,10 @@ begin
 
   end;
 
-
-  conexao.SQL.Add('UPDATE pedido SET nfce_status = "EMITIDA", nfce_emite = 0 WHERE (codigo = :codigo or pedido_nfce = :codigo)');
+  conexao.SQL.Add
+    ('UPDATE pedido SET nfce_status = "EMITIDA", nfce_emite = 0 WHERE (codigo = :codigo or pedido_nfce = :codigo)');
   conexao.Parametros('codigo', Req.Params['codigo']);
   conexao.ExecuteSQL;
-
 
   if (Req.Params['chave'] = 'CONTINGÊNCIA') then
   begin
@@ -799,8 +811,10 @@ begin
 
     // 2) retorna o que foi travado agora
     conexao.SQL.Text := 'SELECT * FROM pedido ' +
-      'WHERE nfce_status = "PROCESSANDO" ';
-    // +'  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE';
+      'WHERE nfce_status = "PROCESSANDO" AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") ';
+//      '  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE ';
+conexao.SQL.Add('LIMIT ' + IntToStr(Limit));
+
     Res.Send<TJSONArray>(conexao.ConsultaSQL);
 
   finally

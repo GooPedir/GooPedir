@@ -2904,6 +2904,8 @@ object dmImpressaoV2: TdmImpressaoV2
               mmPrintPosition = 0
             end
           end
+          object raCodeModule1: TraCodeModule
+          end
           object ppDesignLayers3: TppDesignLayers
             object ppDesignLayer3: TppDesignLayer
               UserName = 'BandLayer20'
@@ -3022,6 +3024,8 @@ object dmImpressaoV2: TdmImpressaoV2
         BandType = 7
         LayerName = BandLayer21
       end
+    end
+    object raCodeModule2: TraCodeModule
     end
     object ppDesignLayers4: TppDesignLayers
       object ppDesignLayer4: TppDesignLayer
@@ -6915,6 +6919,8 @@ object dmImpressaoV2: TdmImpressaoV2
                                       LayerName = Foreground5
                                     end
                                   end
+                                  object raCodeModule5: TraCodeModule
+                                  end
                                   object ppDesignLayers26: TppDesignLayers
                                     object ppDesignLayer26: TppDesignLayer
                                       UserName = 'Foreground5'
@@ -6924,6 +6930,8 @@ object dmImpressaoV2: TdmImpressaoV2
                                   end
                                 end
                               end
+                            end
+                            object raCodeModule11: TraCodeModule
                             end
                             object ppDesignLayers42: TppDesignLayers
                               object ppDesignLayer42: TppDesignLayer
@@ -6935,6 +6943,8 @@ object dmImpressaoV2: TdmImpressaoV2
                           end
                         end
                       end
+                      object raCodeModule12: TraCodeModule
+                      end
                       object ppDesignLayers41: TppDesignLayers
                         object ppDesignLayer41: TppDesignLayer
                           UserName = 'Foreground11'
@@ -6945,6 +6955,8 @@ object dmImpressaoV2: TdmImpressaoV2
                     end
                   end
                 end
+                object raCodeModule6: TraCodeModule
+                end
                 object ppDesignLayers25: TppDesignLayers
                   object ppDesignLayer25: TppDesignLayer
                     UserName = 'Foreground4'
@@ -6954,6 +6966,8 @@ object dmImpressaoV2: TdmImpressaoV2
                 end
               end
             end
+          end
+          object raCodeModule3: TraCodeModule
           end
           object ppDesignLayers24: TppDesignLayers
             object ppDesignLayer24: TppDesignLayer
@@ -7365,6 +7379,8 @@ object dmImpressaoV2: TdmImpressaoV2
         mmStopPosition = 0
         mmMinHeight = 0
       end
+    end
+    object raCodeModule4: TraCodeModule
     end
     object ppDesignLayers9: TppDesignLayers
       object ppDesignLayer9: TppDesignLayer
@@ -14314,6 +14330,8 @@ object dmImpressaoV2: TdmImpressaoV2
                           LayerName = BandLayer31
                         end
                       end
+                      object raCodeModule7: TraCodeModule
+                      end
                       object ppDesignLayers28: TppDesignLayers
                         object ppDesignLayer28: TppDesignLayer
                           UserName = 'BandLayer31'
@@ -14324,6 +14342,8 @@ object dmImpressaoV2: TdmImpressaoV2
                     end
                   end
                 end
+                object raCodeModule8: TraCodeModule
+                end
                 object ppDesignLayers29: TppDesignLayers
                   object ppDesignLayer29: TppDesignLayer
                     UserName = 'BandLayer32'
@@ -14333,6 +14353,8 @@ object dmImpressaoV2: TdmImpressaoV2
                 end
               end
             end
+          end
+          object raCodeModule9: TraCodeModule
           end
           object ppDesignLayers30: TppDesignLayers
             object ppDesignLayer30: TppDesignLayer
@@ -14744,6 +14766,8 @@ object dmImpressaoV2: TdmImpressaoV2
         mmStopPosition = 0
         mmMinHeight = 0
       end
+    end
+    object raCodeModule10: TraCodeModule
     end
     object ppDesignLayers31: TppDesignLayers
       object ppDesignLayer31: TppDesignLayer

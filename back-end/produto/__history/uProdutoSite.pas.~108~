@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, uControllerSite,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
-  uInserirUpdate, IniFiles, DataSet.Serialize,
+  uInserirUpdate, IniFiles, DataSet.Serialize,uGlobais,
   FireDAC.Comp.Client, uRequisicao, System.IOUtils, uControlerProduto;
 
 type
@@ -247,8 +247,13 @@ begin
   IniFile := TIniFile.Create('./goopedir.ini');
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
-  iReq.BASEURL := BASEURL;
+  if Desenvolvimento then
+  begin
+    userId := 1;
+    EnviaProduto(2);
+  end;
 
+  iReq.BASEURL := BASEURL;
   if ParamCount > 0 then
   begin
     try
@@ -293,7 +298,7 @@ var
 begin
   repeat
     Codigo := BuscaProduto; // chama sua função
-    Codigo := 1;
+
     if Codigo > 0 then
     begin
       // aqui você pode colocar o que precisa fazer com o produto

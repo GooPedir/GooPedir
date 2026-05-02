@@ -25,6 +25,7 @@ function GetProdutoVenda(Body, Codigo: String): TJSONObject;
 function BuscarProdutoPorChave(Tipo: string; chave: Integer): TJSONValue;
 function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
 function JSONIntOrNull(JSON: TJSONObject; const Key: string): Variant;
+function SnakeToCamel(const Texto: string): string;
 
 implementation
 
@@ -270,14 +271,73 @@ end;
 function GetParametros: TJsonArray;
 var
   conexao: TConexao;
+  ArrayParametro: TJsonArray;
+  Objeto: TJSONObject;
+  Erro: Boolean;
+  Qry: TFDQuery;
 begin
+
+  // Result := BuscaCache('DoGetParametros', 'cache');
+  // if Result.Count = 0 then
+  // begin
+  // conexao := TConexao.Create('Util');
+  // conexao.SQL.Add('select * from dados_whatsapp');
+  // Result := conexao.ConsultaSQL;
+  // GravaCache('DoGetParametros', 'cache', Result.ToString);
+  // conexao.Free;
+  // end;
 
   Result := BuscaCache('DoGetParametros', 'cache');
   if Result.Count = 0 then
   begin
     conexao := TConexao.Create('Util');
-    conexao.SQL.Add('select * from dados_whatsapp');
-    Result := conexao.ConsultaSQL;
+    Qry := conexao.CriaQRY;
+    Qry.SQL.Add('select * from configuracoes');
+    Qry.Open;
+    Objeto := TJSONObject.Create;
+    ArrayParametro := TJsonArray.Create;
+    if Qry.RecordCount > 0 then
+    begin
+      while not Qry.Eof do
+      begin
+        try
+          Erro := False;
+            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
+            Qry.FieldByName('valor').AsInteger)
+        except
+          Erro := True;
+        end;
+        if Erro then
+        begin
+          try
+            Erro := False;
+            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
+              Qry.FieldByName('valor').AsFloat)
+          except
+            Erro := True;
+          end;
+        end;
+        if Erro then
+        begin
+          try
+            Erro := False;
+            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
+              Qry.FieldByName('valor').AsWideString)
+          except
+            on e: exception do
+            begin
+              ShowMessage(e.Message);
+              Erro := True;
+            end;
+          end;
+        end;
+
+        Qry.Next;
+      end;
+    end;
+    Qry.Free;
+    ArrayParametro.Add(Objeto);
+    Result := ArrayParametro;
     GravaCache('DoGetParametros', 'cache', Result.ToString);
     conexao.Free;
   end;
@@ -430,13 +490,13 @@ begin
   Result := BuscaCache('GetProdutoPesquisa', chave);
   if (length(chave) < 3) then
   begin
-    Result := TJSONArray.Create;
+    Result := TJsonArray.Create;
     exit;
   end;
   if Result.Count = 0 then
   begin
     SQL := ' SELECT * FROM produto WHERE ativo = 1 and deletado = 0 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
-    + UpperCase(chave) + '%" ORDER BY position LIMIT 10';
+      + UpperCase(chave) + '%" ORDER BY position LIMIT 10';
     Result := ObjetoProduto(SQL);
     GravaCache('GetProdutoCategoria', chave, Result.ToString);
   end;
@@ -726,12 +786,40 @@ begin
   Result := Null;
 
   if not JSON.TryGetValue(Key, V) then
-    Exit;
+    exit;
 
   if V is TJSONNull then
-    Exit;
+    exit;
 
   Result := V.AsType<Integer>;
+end;
+
+function SnakeToCamel(const Texto: string): string;
+var
+  i: Integer;
+  UpperNext: Boolean;
+begin
+  Result := '';
+  UpperNext := False;
+
+  for i := 1 to Length(Texto) do
+  begin
+    if Texto[i] = '_' then
+    begin
+      UpperNext := True;
+      Continue;
+    end;
+
+    if UpperNext then
+    begin
+      Result := Result + UpperCase(Texto[i]);
+      UpperNext := False;
+    end
+    else
+    begin
+      Result := Result + LowerCase(Texto[i]);
+    end;
+  end;
 end;
 
 end.

@@ -1,17 +1,16 @@
-unit uControlerProduto;
+ï»¿unit uControlerProduto;
 
 interface
 
-uses JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize,
+uses Windows, JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize,
   System.SysUtils;
 
 function ObjetoProduto(SQL: String): TJsonArray;
+function TempoDecorrido(Inicio: UInt64): String;
 procedure ValidaPendenciaProduto(Codigo: Integer);
 procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
   Descricao, Observacao: String);
 function IsIngredienteSem(const Texto: string): Boolean;
-
-
 
 implementation
 
@@ -20,14 +19,14 @@ var
   PrimeiraPalavra: string;
   Espaco: Integer;
 begin
-  Espaco := Pos(' ', Texto); // posição do primeiro espaço
+  Espaco := Pos(' ', Texto); // posiÃ§Ã£o do primeiro espaÃ§o
   if Espaco > 0 then
     PrimeiraPalavra := Copy(Texto, 1, Espaco - 1)
   else
-    PrimeiraPalavra := Texto; // se não tiver espaço, pega o texto inteiro
+    PrimeiraPalavra := Texto; // se nÃ£o tiver espaÃ§o, pega o texto inteiro
 
   Result := SameText(UpperCase(PrimeiraPalavra), 'SEM');
-  // compara ignorando maiúsculas/minúsculas
+  // compara ignorando maiÃºsculas/minÃºsculas
 end;
 
 procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
@@ -39,6 +38,11 @@ begin
   Conexao.Parametros('detalhe', Descricao);
   Conexao.Parametros('observacao', Observacao);
   Conexao.ExecuteSQL;
+end;
+
+function TempoDecorrido(Inicio: UInt64): String;
+begin
+  Result := IntToStr(GetTickCount64 - Inicio) + ' ms';
 end;
 
 procedure ValidaPendenciaProduto(Codigo: Integer);
@@ -75,15 +79,15 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
-    // Validação do Produto
+    // ValidaÃ§Ã£o do Produto
     if Dados.FieldByName('produto').AsString = '' then
     begin
       AdicionaPendencia(Conexao, Codigo, 'Produto sem nome', '');
     end;
     if Dados.FieldByName('produtoDescricao').AsString = '' then
     begin
-      AdicionaPendencia(Conexao, Codigo, 'Produto sem descrição',
-        'Um produto com descrição evita transtorno com clientes');
+      AdicionaPendencia(Conexao, Codigo, 'Produto sem descriÃ§Ã£o',
+        'Um produto com descriÃ§Ã£o evita transtorno com clientes');
     end;
     if Dados.FieldByName('produtoValor').AsFloat = 0 then
     begin
@@ -93,16 +97,15 @@ begin
     if Dados.FieldByName('produtoUrl').AsString = '' then
     begin
       AdicionaPendencia(Conexao, Codigo, 'Produto sem foto',
-        'Um produto com foto chama muito mais atenção');
+        'Um produto com foto chama muito mais atenÃ§Ã£o');
     end;
     if Dados.FieldByName('produtoUrl').AsString = 'https://fotos.goopedir.com//fotos/MA=='
     then
     begin
       AdicionaPendencia(Conexao, Codigo, 'Produto sem foto',
-        'Um produto com foto chama muito mais atenção!');
+        'Um produto com foto chama muito mais atenÃ§Ã£o!');
     end;
-    if (Dados.FieldByName('nfc').AsString = '1') and
-      (Dados.FieldByName('produto').AsInteger = 0) then
+    if (Dados.FieldByName('nfc').AsString = '1') then
     begin
       if Dados.FieldByName('un').AsString = '' then
       begin
@@ -156,7 +159,7 @@ begin
           'CSOSN deve ser informado');
       end;
     end;
-    // Validação dos Adicionais
+    // ValidaÃ§Ã£o dos Adicionais
     while not Dados.Eof do
     begin
       MarcarPendenciaExtra := false;
@@ -170,7 +173,7 @@ begin
         if Dados.FieldByName('extraMax').AsFloat = 0 then
         begin
           AdicionaPendencia(Conexao, Codigo, 'Extra',
-            'Não possue quantidade máxima para ser selecionada');
+            'NÃ£o possue quantidade mÃ¡xima para ser selecionada');
         end;
 
         if Dados.FieldByName('extra').AsString = 'Ingredientes' then
@@ -180,7 +183,7 @@ begin
           begin
             AdicionaPendencia(Conexao, Codigo,
               'Extra ' + Dados.FieldByName('extraIten').AsString + '',
-              'Não se encaixa na categoria de ' +
+              'NÃ£o se encaixa na categoria de ' +
               UpperCase(Dados.FieldByName('extra').AsString));
             MarcarPendenciaExtra := True;
           end;
@@ -190,7 +193,7 @@ begin
           begin
             AdicionaPendencia(Conexao, Codigo,
               'Extra ' + Dados.FieldByName('extraIten').AsString + '',
-              'Está com valor ZERADO');
+              'EstÃ¡ com valor ZERADO');
             MarcarPendenciaExtra := True;
           end;
         Dados.Edit;
@@ -215,13 +218,13 @@ begin
             begin
               AdicionaPendencia(Conexao, Codigo,
                 'O extra ' + Dados.FieldByName('extraIten').AsString,
-                'Ele está com o valor ZERADO');
+                'Ele estÃ¡ com o valor ZERADO');
             end
             else
             begin
               AdicionaPendencia(Conexao, Codigo,
                 'O extra ' + Dados.FieldByName('extraIten').AsString,
-                'Ele está com o valor diferente do produto');
+                'Ele estÃ¡ com o valor diferente do produto');
             end;
             MarcarPendenciaExtra := True;
           end;
@@ -553,117 +556,7 @@ begin
         end;
         JsonObjeto.AddPair('combo_products', Combos);
         DadosCombo.Free;
-        { conexao.SQL.Add('select  ');
-          conexao.SQL.Add('sabores_completo.id as sabor_id,  ');
-          conexao.SQL.Add('sabores_completo.nome as sabor_nome,');
-          conexao.SQL.Add('sabores_completo.descricao as sabor_descricao,');
-          conexao.SQL.Add('sabores_completo.vl_venda as sabor_venda,');
-          conexao.SQL.Add('sabores_completo.ativo as sabor_status,');
-          conexao.SQL.Add('produto_pizza.quantidade_sabores as qtd_sabor, ');
-          conexao.SQL.Add('tipo_sabor.id as tipo_id,');
-          conexao.SQL.Add('tipo_sabor.nome as tipo_nome, tipo_sabor.descricao as tipo_descricao, tipo_sabor.ativo as tipo_status, ');
-          conexao.SQL.Add('(select tipo_preco_pizza from dados_whatsapp limit 1) as tipo_valor from sabores_completo');
-          conexao.SQL.Add('join produto_pizza on produto_pizza.codigo_produto = sabores_completo.id_produto');
-          conexao.SQL.Add('join tipo_sabor on tipo_sabor.id  = sabores_completo.id_tipo_sabor');
-          conexao.SQL.Add('where sabores_completo.id_produto = :id');
-          conexao.SQL.Add('order by sabores_completo.id_produto, sabores_completo.id_tipo_sabor, sabores_completo.nome'); }
-        Conexao.SQL.Clear;
-        Conexao.SQL.Add('SELECT  ');
-        Conexao.SQL.Add('    sc.id AS sabor_id,  ');
-        Conexao.SQL.Add('    sc.nome AS sabor_nome, ');
-        Conexao.SQL.Add('    sc.descricao AS sabor_descricao, ');
-        Conexao.SQL.Add('    sc.vl_venda AS sabor_venda, ');
-        Conexao.SQL.Add('    sc.ativo AS sabor_status, ');
-        Conexao.SQL.Add('    pp.quantidade_sabores AS qtd_sabor, ');
-        Conexao.SQL.Add('    ts.id AS tipo_id, ');
-        Conexao.SQL.Add('    ts.nome AS tipo_nome, ');
-        Conexao.SQL.Add('    ts.descricao AS tipo_descricao, ');
-        Conexao.SQL.Add('    ts.ativo AS tipo_status, ');
-        Conexao.SQL.Add
-          ('    (SELECT tipo_preco_pizza FROM dados_whatsapp LIMIT 1) AS tipo_valor ');
-        Conexao.SQL.Add('FROM sabores_completo sc ');
-        Conexao.SQL.Add
-          ('JOIN produto_pizza pp ON pp.codigo_produto = sc.id_produto ');
-        Conexao.SQL.Add('JOIN tipo_sabor ts ON ts.id = sc.id_tipo_sabor ');
-        Conexao.SQL.Add('WHERE sc.id_produto = :id ');
-        Conexao.SQL.Add('ORDER BY sc.id_produto, sc.id_tipo_sabor, sc.nome');
-        Conexao.Parametros('id', DadosProduto.FieldByName('codigo').AsInteger);
 
-        DadosPizza.Close;
-        DadosPizza.LoadFromJSON(Conexao.ConsultaSQL);
-        JSonObjectoPizza := TJsonObject.Create;
-        if DadosPizza.RecordCount > 0 then
-        begin
-          Min := 9999999;
-          Max := 0;
-          JSonObjectoPizza.AddPair('amountOfFlavors',
-            DadosPizza.FieldByName('qtd_sabor').AsInteger);
-          JSonObjectoPizza.AddPair('typeOfValue',
-            DadosPizza.FieldByName('tipo_valor').AsInteger);
-          case DadosPizza.FieldByName('tipo_valor').AsInteger of
-            0:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Average values / Média');
-              end;
-            1:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Highest Value / Valor mais alto');
-              end;
-            2:
-              begin
-                JSonObjectoPizza.AddPair('typeOfValueDescription',
-                  'Sum Of Values / Soma dos Valores');
-              end
-          else
-            begin
-              JSonObjectoPizza.AddPair('typeOfValueDescription', 'None');
-            end;
-          end;
-
-          JSonArraySabores := TJsonArray.Create;
-          while not DadosPizza.Eof do
-          begin
-            if Min > DadosPizza.FieldByName('sabor_venda').AsFloat then
-              Min := DadosPizza.FieldByName('sabor_venda').AsFloat;
-
-            if DadosPizza.FieldByName('sabor_venda').AsFloat > Max then
-              Max := DadosPizza.FieldByName('sabor_venda').AsFloat;
-
-            JSonObjectoSabores := TJsonObject.Create;
-            JSonObjectoSabores.AddPair('typeId',
-              DadosPizza.FieldByName('tipo_id').AsInteger);
-            JSonObjectoSabores.AddPair('typeName',
-              DadosPizza.FieldByName('tipo_nome').AsString);
-            JSonObjectoSabores.AddPair('typeDescription',
-              DadosPizza.FieldByName('tipo_descricao').AsString);
-            JSonObjectoSabores.AddPair('typeStatus',
-              DadosPizza.FieldByName('tipo_status').AsString);
-            JSonObjectoSabores.AddPair('flavorId',
-              DadosPizza.FieldByName('sabor_id').AsInteger);
-            JSonObjectoSabores.AddPair('flavorName',
-              DadosPizza.FieldByName('sabor_nome').AsString);
-            JSonObjectoSabores.AddPair('flavorDescription',
-              DadosPizza.FieldByName('sabor_descricao').AsString);
-            JSonObjectoSabores.AddPair('flavorValue',
-              DadosPizza.FieldByName('sabor_venda').AsFloat);
-            JSonObjectoSabores.AddPair('flavorId',
-              DadosPizza.FieldByName('sabor_id').AsInteger);
-            JSonObjectoSabores.AddPair('flavorStatus',
-              DadosPizza.FieldByName('sabor_status').AsInteger);
-            JSonArraySabores.AddElement(JSonObjectoSabores);
-            DadosPizza.Next;
-          end;
-          JSonObjectoPizza.AddPair('min', Min);
-          JSonObjectoPizza.AddPair('max', Max);
-          JSonObjectoPizza.AddPair('flavor', JSonArraySabores);
-
-        end;
-
-        JsonObjeto.AddPair('min', Min);
-        JsonObjeto.AddPair('max', Max);
-        JsonObjeto.AddPair('pizza', JSonObjectoPizza);
         JSONArray.AddElement(JsonObjeto);
         DadosProduto.Next;
       end;

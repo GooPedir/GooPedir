@@ -40,6 +40,7 @@ type
     procedure AtualizarBanco;
     procedure LimpaClientesDuplicado;
     procedure ProcessaHistoricoCliente(DataBase: TDate);
+    procedure MigrarDadosWhatsappParaConfig;
 
   var
     SeTiverAtualizacao: TCallback;
@@ -331,6 +332,38 @@ begin
   end;
 
   Result := Maior;
+end;
+
+procedure TSQL.MigrarDadosWhatsappParaConfig;
+var
+  conexao : Tconexao;
+  QryOrigem, QryInsert: TFDQuery;
+  i: Integer;
+  chave, valor: string;
+begin
+conexao := TConexao.Create('MigrarDadosWhatsappParaConfig');
+  QryOrigem := conexao.CriaQRY;
+  QryInsert := conexao.CriaQRY;
+  // pega os dados da tabela antiga
+  QryOrigem.SQL.Text := 'SELECT * FROM dados_whatsapp LIMIT 1';
+  QryOrigem.Open;
+  if not QryOrigem.IsEmpty then
+  begin
+    for i := 0 to QryOrigem.FieldCount - 1 do
+    begin
+      chave := QryOrigem.Fields[i].FieldName;
+      valor := QryOrigem.Fields[i].AsString;
+      QryInsert.SQL.Text :=
+        'INSERT INTO configuracoes (chave, valor) ' +
+        'VALUES (:chave, :valor) ' +
+        'ON DUPLICATE KEY UPDATE valor = :valor';
+      QryInsert.ParamByName('chave').AsString := LowerCase(chave);
+      QryInsert.ParamByName('valor').AsString := valor;
+      QryInsert.ExecSQL;
+    end;
+  end;
+  QryInsert.Free;
+  QryOrigem.Free;
 end;
 
 procedure TSQL.ProcessaHistoricoCliente(DataBase: TDate);
@@ -796,8 +829,7 @@ begin
     29:
       begin
         ExecultaSQL('CREATE INDEX codigo ON produto(codigo);');
-        ExecultaSQL
-          ('CREATE INDEX codigo_pedido_produto ON pedido_produto_sap(codigo_pedido_produto);');
+        ExecultaSQL('CREATE INDEX codigo_pedido_produto ON pedido_produto_sap(codigo_pedido_produto);');
         ExecultaSQL('CREATE INDEX id_mesa ON mesa(id_mesa);');
         ExecultaSQL('CREATE INDEX id_mesa_tipo ON mesa_tipo(id_mesa_tipo);');
         ExecultaSQL('CREATE INDEX id ON sabores_completo(id);');
@@ -1436,20 +1468,14 @@ begin
       end;
     111:
       begin
-        ExecultaSQL
-          ('CREATE INDEX idx_pedido_usuario_status_caixa ON pedido (usuario, codigo_pedido_dia, status, id_caixa, codigo);');
-        ExecultaSQL
-          ('CREATE INDEX idx_cmp_produto ON caixa_movimento_produto (id_pedido_produto);');
-        ExecultaSQL
-          ('CREATE INDEX idx_sap_produto ON pedido_produto_sap (codigo_pedido_produto);');
-        ExecultaSQL
-          ('CREATE INDEX idx_pedido_produtos_codigo_pedido ON pedido_produtos (codigo_pedido);');
+        ExecultaSQL('CREATE INDEX idx_pedido_usuario_status_caixa ON pedido (usuario, codigo_pedido_dia, status, id_caixa, codigo);');
+        ExecultaSQL('CREATE INDEX idx_cmp_produto ON caixa_movimento_produto (id_pedido_produto);');
+        ExecultaSQL('CREATE INDEX idx_sap_produto ON pedido_produto_sap (codigo_pedido_produto);');
+        ExecultaSQL('CREATE INDEX idx_pedido_produtos_codigo_pedido ON pedido_produtos (codigo_pedido);');
         ExecultaSQL('CREATE INDEX idx_index_pedido_id ON index_pedido (id);');
-        ExecultaSQL
-          ('CREATE INDEX idx_produto_grupo_ativo ON produto (codigo_grupo, ativo);');
+        ExecultaSQL('CREATE INDEX idx_produto_grupo_ativo ON produto (codigo_grupo, ativo);');
         ExecultaSQL('CREATE INDEX idx_balanca_id ON balanca (id);');
-        ExecultaSQL
-          ('CREATE INDEX idx_produto_codigo_grupo ON produto (codigo_grupo);');
+        ExecultaSQL('CREATE INDEX idx_produto_codigo_grupo ON produto (codigo_grupo);');
 
       end;
     112:
@@ -2046,22 +2072,54 @@ begin
       end;
     142:
       begin
+
+      end;
+    143:
+      begin
+        ExecultaSQL('alter table pedido add pedido_nfce integer default 0');
+      end;
+    144:
+      begin
+        ExecultaSQL
+          ('ALTER TABLE motoboy CHANGE COLUMN acesso_site VARCHAR(255)');
+        ExecultaSQL
+          ('alter table pedido add ultima_interacao timestamp default current_timestamp()');
+        ExecultaSQL
+          ('alter table dados_whatsapp add mensagem_fora_expediente longtext');
+        ExecultaSQL
+          ('ALTER TABLE dados_whatsapp MODIFY mensagem_fora_expediente TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        ExecultaSQL
+          ('ALTER TABLE dados_whatsapp MODIFY mensagem_conclusao TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+      end;
+    145:
+      begin
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY rua TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY bairro TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY cidade TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY estado TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY wpp_equipamento TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY chave TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY url_webservice TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY client_id TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY client_security TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY senha_gerencia TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY token_mp TEXT;');
+        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY token_mp TEXT;');
         ExecultaSQL
           ('alter table dados_whatsapp add nfce_serie integer default 0;');
         ExecultaSQL
           ('alter table dados_whatsapp add nfce_numeracao integer default 0;');
+      end;
+    146:
+      begin
+        SQL := 'CREATE TABLE configuracoes (';
+        SQL := SQL + '  chave VARCHAR(100) PRIMARY KEY,';
+        SQL := SQL + '  valor TEXT';
+        SQL := SQL + ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;';
+        ExecultaSQL(SQL);
+        MigrarDadosWhatsappParaConfig;
+      end;
 
-      end;
-      143: begin
-        ExecultaSQL('alter table pedido add pedido_nfce integer default 0');
-      end;
-      144: begin
-        ExecultaSQL('ALTER TABLE motoboy CHANGE COLUMN acesso_site VARCHAR(255)');
-        ExecultaSQL('alter table pedido add ultima_interacao timestamp default current_timestamp()');
-        ExecultaSQL('alter table dados_whatsapp add mensagem_fora_expediente longtext');
-        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY mensagem_fora_expediente TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-        ExecultaSQL('ALTER TABLE dados_whatsapp MODIFY mensagem_conclusao TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-      end;
     99999999:
       begin
         {
@@ -2075,7 +2133,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '144'
+  Result := '146'
 end;
 
 end.

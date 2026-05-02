@@ -9,7 +9,7 @@ uses
   ppCtrls, ppBands, ppDB, ppClass, ppPrnabl, ppStrtch, ppRichTx, ppCache,
   ppDesignLayer, ppParameter, Data.DB, ppDBPipe, ppDBBDE, ppComm, ppRelatv,
   ppProd, ppReport, FireDAC.Comp.DataSet, FireDAC.Comp.Client, ppSubRpt,
-  ppModule,  uModulo, uRequisicao, ppBarCod, FireDAC.UI.Intf,
+  ppModule, raCodMod, uModulo, uRequisicao, ppBarCod, FireDAC.UI.Intf,
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.Phys.MySQL,
   FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait, DataSet.Serialize,
   System.MaskUtils, System.Generics.Collections, ACBrMail, ACBrDFeReport,
@@ -414,6 +414,7 @@ type
     ppGroupHeaderBand5: TppGroupHeaderBand;
     ppRichText22: TppRichText;
     ppGroupFooterBand5: TppGroupFooterBand;
+    raCodeModule1: TraCodeModule;
     ppDesignLayers3: TppDesignLayers;
     ppDesignLayer3: TppDesignLayer;
     ppFooterBand3: TppFooterBand;
@@ -421,6 +422,7 @@ type
     ppSystemVariable3: TppSystemVariable;
     ppSystemVariable15: TppSystemVariable;
     ppDBText16: TppDBText;
+    raCodeModule2: TraCodeModule;
     ppDesignLayers4: TppDesignLayers;
     ppDesignLayer4: TppDesignLayer;
     ppParameterList3: TppParameterList;
@@ -558,6 +560,7 @@ type
     ppDBText33: TppDBText;
     ppFooterBand22: TppFooterBand;
     ppSummaryBand24: TppSummaryBand;
+    raCodeModule3: TraCodeModule;
     ppDesignLayers24: TppDesignLayers;
     ppDesignLayer24: TppDesignLayer;
     ppSummaryBand8: TppSummaryBand;
@@ -583,6 +586,7 @@ type
     ppRichText94: TppRichText;
     ppLabel74: TppLabel;
     ppRichText97: TppRichText;
+    raCodeModule4: TraCodeModule;
     ppDesignLayers9: TppDesignLayers;
     ppDesignLayer9: TppDesignLayer;
     ppParameterList9: TppParameterList;
@@ -608,6 +612,7 @@ type
     ppResumoSangria: TppBDEPipeline;
     dsResumoSangria: TDataSource;
     ppRichText100: TppRichText;
+    raCodeModule6: TraCodeModule;
     ppRichText101: TppRichText;
     ppCategoria: TppBDEPipeline;
     dsCategoria: TDataSource;
@@ -690,10 +695,13 @@ type
     ppSummaryBand30: TppSummaryBand;
     ppLabel93: TppLabel;
     ppDBCalc34: TppDBCalc;
+    raCodeModule7: TraCodeModule;
     ppDesignLayers28: TppDesignLayers;
     ppDesignLayer28: TppDesignLayer;
+    raCodeModule8: TraCodeModule;
     ppDesignLayers29: TppDesignLayers;
     ppDesignLayer29: TppDesignLayer;
+    raCodeModule9: TraCodeModule;
     ppDesignLayers30: TppDesignLayers;
     ppDesignLayer30: TppDesignLayer;
     ppHeaderBand28: TppHeaderBand;
@@ -715,6 +723,7 @@ type
     ppLabel99: TppLabel;
     ppRichText114: TppRichText;
     ppRichText115: TppRichText;
+    raCodeModule10: TraCodeModule;
     ppDesignLayers31: TppDesignLayers;
     ppDesignLayer31: TppDesignLayer;
     ppParameterList22: TppParameterList;
@@ -1067,8 +1076,11 @@ type
     ppSummaryBand26: TppSummaryBand;
     ppLabel82: TppLabel;
     ppDBCalc27: TppDBCalc;
+    raCodeModule5: TraCodeModule;
     ppDesignLayers26: TppDesignLayers;
     ppDesignLayer26: TppDesignLayer;
+    raCodeModule11: TraCodeModule;
+    raCodeModule12: TraCodeModule;
     ppRichText150: TppRichText;
     procedure C(Sender: TObject);
     procedure IMPRESSAOAfterInsert(DataSet: TDataSet);

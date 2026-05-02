@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, uControllerSite,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, uControllCaches, Conexao,
-  uInserirUpdate, IniFiles, DataSet.Serialize,uGlobais,
+  uInserirUpdate, IniFiles, DataSet.Serialize, uGlobais,
   FireDAC.Comp.Client, uRequisicao, System.IOUtils, uControlerProduto;
 
 type
@@ -247,6 +247,7 @@ begin
   IniFile := TIniFile.Create('./goopedir.ini');
   BASEURL := IniFile.ReadString('server', 'baseurl', '');
   IniFile.Free;
+  FormatSettings.DecimalSeparator := '.';
   iReq.BASEURL := BASEURL;
   if ParamCount > 0 then
   begin
@@ -269,7 +270,8 @@ var
   CaminhoLog: string;
   Linha: string;
 begin
-
+  if not Desenvolvimento then
+    exit;
   try
     // Caminho padrão: mesmo diretório do executável
     CaminhoLog := TPath.Combine(ExtractFilePath(ParamStr(0)), NomeArquivo);

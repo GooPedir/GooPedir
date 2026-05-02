@@ -6,16 +6,14 @@ uses System.IniFiles, ComObj, ActiveX, Variants, SysUtils;
 
 const
   // Rotas principais da sua API
-  API_BASE_URL = 'https://api.goopedir.cloud/';
-  // API_BASE_URL = 'http://localhost:3001/';
   // getUrlGoopedir = 'http://localhost:3001/';
   API_FOTO = 'https://fotos.goopedir.com/';
   API_NFCE = 'https://nfce.goopedir.com/';
-  API_LOGIN = API_BASE_URL + 'auth/login';
-  API_PEDIDOS = API_BASE_URL + 'pedidos';
-  API_CLIENTES = API_BASE_URL + 'clientes';
-  API_PRODUTOS = API_BASE_URL + 'produtos';
-  API_CONFIGURACOES = API_BASE_URL + 'configuracoes';
+  // API_LOGIN = API_BASE_URL + 'auth/login';
+  // API_PEDIDOS = API_BASE_URL + 'pedidos';
+  // API_CLIENTES = API_BASE_URL + 'clientes';
+  // API_PRODUTOS = API_BASE_URL + 'produtos';
+  // API_CONFIGURACOES = API_BASE_URL + 'configuracoes';
 
 var
   // Variáveis globais que podem mudar em tempo de execução
@@ -35,6 +33,7 @@ procedure RegistrarConfiguracoesInicializacaoPadrao;
 function getUrlGoopedir: String;
 function GetMotherboardSerial: string;
 function Desenvolvimento: Boolean;
+function API_BASE_URL: string;
 
 implementation
 
@@ -152,12 +151,46 @@ function Desenvolvimento: Boolean;
 begin
   // PC Allan (240538505700048)
   Result := false;
+exit;
   if GetMotherboardSerial() = '240538505700048' then
   begin
     Result := True;
     exit;
   end;
 
+end;
+
+function API_BASE_URL: string;
+begin
+  if Desenvolvimento then
+    Result := 'http://localhost:3001/'
+  else
+    Result := 'https://api.goopedir.cloud/';
+end;
+
+function API_LOGIN: string;
+begin
+  Result := API_BASE_URL + 'auth/login';
+end;
+
+function API_PEDIDOS: string;
+begin
+  Result := API_BASE_URL + 'pedidos';
+end;
+
+function API_CLIENTES: string;
+begin
+  Result := API_BASE_URL + 'clientes';
+end;
+
+function API_PRODUTOS: string;
+begin
+  Result := API_BASE_URL + 'produtos';
+end;
+
+function API_CONFIGURACOES: string;
+begin
+  Result := API_BASE_URL + 'configuracoes';
 end;
 
 end.
