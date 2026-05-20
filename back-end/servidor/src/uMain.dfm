@@ -2,7 +2,7 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'Goopedir'
-  ClientHeight = 556
+  ClientHeight = 555
   ClientWidth = 935
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -831,27 +831,5 @@ object frmServidor: TfrmServidor
     OnTimer = timerCloseTimer
     Left = 576
     Top = 344
-  end
-  object FDMemTable1: TFDMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    Left = 512
-    Top = 464
-  end
-  object FDMemTable2: TFDMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    Left = 576
-    Top = 464
   end
 end

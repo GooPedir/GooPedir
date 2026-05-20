@@ -1,9 +1,9 @@
-object frmServicosGoopedir: TfrmServicosGoopedir
+object frmServidor: TfrmServidor
   Left = 0
   Top = 0
-  Caption = 'frmServicosGoopedir'
-  ClientHeight = 524
-  ClientWidth = 910
+  Caption = 'Goopedir'
+  ClientHeight = 555
+  ClientWidth = 931
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,36 +12,47 @@ object frmServicosGoopedir: TfrmServicosGoopedir
   Font.Style = []
   OnCreate = FormCreate
   TextHeight = 15
-  object Memo1: TMemo
-    Left = 0
+  object memoHistorico: TMemo
+    Left = 382
     Top = 8
-    Width = 129
+    Width = 185
     Height = 89
     Lines.Strings = (
-      'Memo1')
+      'memoHistorico')
     TabOrder = 0
   end
-  object Configuracoes: TFDMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    Left = 600
-    Top = 64
+  object memoImagem: TMemo
+    Left = 191
+    Top = 8
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      'memoImagem')
+    TabOrder = 1
   end
-  object tMinimiza: TTimer
-    Interval = 1
-    OnTimer = tMinimizaTimer
-    Left = 264
-    Top = 72
+  object memLog: TMemo
+    Left = 0
+    Top = 8
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      'memLog')
+    TabOrder = 2
+  end
+  object Button1: TButton
+    Left = 552
+    Top = 200
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 3
+    OnClick = Button1Click
   end
   object TrayIcon1: TTrayIcon
-    Hint = '1'
-    BalloonHint = 'Servidor1'
-    BalloonTitle = '1'
+    Animate = True
+    Hint = 'Servidor'
+    BalloonHint = 'Servidor'
+    BalloonTitle = 'Servidor'
     Icon.Data = {
       0000010001003030000001002000A82500001600000028000000300000006000
       0000010020000000000000240000000000000000000000000000000000000000
@@ -345,8 +356,481 @@ object frmServicosGoopedir: TfrmServicosGoopedir
       0000007F0000FF00000000FF0000FF80000001FF0000FFC1000083FF0000FFE3
       C003C7FF0000FFFFF00FFFFF0000FFFFF00FFFFF0000FFFFF00FFFFF0000FFFF
       FFFFFFFF0000FFFFFFFFFFFF0000FFFFFFFFFFFF0000FFFFFFFFFFFF0000}
-    Left = 440
-    Top = 56
+    PopupMenu = PopupMenu1
+    Visible = True
+    Left = 664
+    Top = 8
+  end
+  object tMinimiza: TTimer
+    Interval = 1
+    OnTimer = tMinimizaTimer
+    Left = 664
+    Top = 64
+  end
+  object Configuracoes: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 744
+    Top = 64
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 744
+    Top = 288
+    object mHoraAbertura: TMenuItem
+    end
+    object pIdiFood: TMenuItem
+      OnClick = pIdiFoodClick
+    end
+    object ReiniciarServioImpresso1: TMenuItem
+      Caption = 'Reiniciar Servi'#231'o Impress'#227'o'
+      OnClick = ReiniciarServioImpresso1Click
+    end
+    object FecharServioSite1: TMenuItem
+      Caption = 'Reiniciar Servi'#231'o Site'
+      OnClick = FecharServioSite1Click
+    end
+    object N1: TMenuItem
+      Caption = 'iFood'
+      object pTipoIfood: TMenuItem
+      end
+      object HabilitarProduo1: TMenuItem
+        Caption = 'Habilitar Produ'#231#227'o'
+        OnClick = HabilitarProduo1Click
+      end
+      object HabilitarHomologao1: TMenuItem
+        Caption = 'Habilitar Homologa'#231#227'o'
+        OnClick = HabilitarHomologao1Click
+      end
+    end
+    object XXX: TMenuItem
+    end
+    object Fechar1: TMenuItem
+      Caption = 'Fechar'
+      OnClick = Fechar1Click
+    end
+  end
+  object memImpressora: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 744
+    Top = 344
+    object memImpressoraID: TIntegerField
+      FieldName = 'ID'
+    end
+    object memImpressoraDRIVER: TStringField
+      FieldName = 'DRIVER'
+      Size = 255
+    end
+  end
+  object memEstoque: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 744
+    Top = 232
+    object memEstoqueID: TIntegerField
+      FieldName = 'ID'
+    end
+    object memEstoqueTIPO: TIntegerField
+      FieldName = 'TIPO'
+    end
+    object memEstoqueNOME: TStringField
+      FieldName = 'NOME'
+      Size = 255
+    end
+    object memEstoqueUN: TStringField
+      FieldName = 'UN'
+      Size = 255
+    end
+    object memEstoqueENTRADA: TFloatField
+      FieldName = 'ENTRADA'
+    end
+    object memEstoqueSEQUENCIAL: TIntegerField
+      FieldName = 'SEQUENCIAL'
+    end
+    object memEstoqueQTD: TCurrencyField
+      FieldName = 'QTD'
+    end
+    object memEstoqueMIN: TFloatField
+      FieldName = 'MIN'
+    end
+  end
+  object memTesteImpressao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 744
+    Top = 176
+    object memTesteImpressaoIMPRESSORA: TIntegerField
+      FieldName = 'IMPRESSORA'
+    end
+    object memTesteImpressaoID: TIntegerField
+      FieldName = 'ID'
+    end
+  end
+  object dataSetPolling: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 16
+    Top = 128
+  end
+  object dsPolling: TDataSource
+    DataSet = dataSetPolling
+    Left = 88
+    Top = 128
+  end
+  object dataSetMerchantStatus: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired]
+    UpdateOptions.CheckRequired = False
+    Left = 360
+    Top = 185
+  end
+  object dsMerchantStatus: TDataSource
+    DataSet = dataSetMerchantStatus
+    Left = 360
+    Top = 128
+  end
+  object FDConnection1: TFDConnection
+    Params.Strings = (
+      'Database=C:\PolyVarejo\DB\PolyVarejo.FDB'
+      'User_Name=SYSDBA'
+      'Password=masterkey'
+      'DriverID=FB')
+    Left = 744
+    Top = 8
+  end
+  object QueryFDB: TFDQuery
+    Connection = FDConnection1
+    Left = 744
+    Top = 120
+  end
+  object ACBrNFe1: TACBrNFe
+    Configuracoes.Geral.SSLLib = libWinCrypt
+    Configuracoes.Geral.SSLCryptLib = cryWinCrypt
+    Configuracoes.Geral.SSLHttpLib = httpWinHttp
+    Configuracoes.Geral.SSLXmlSignLib = xsLibXml2
+    Configuracoes.Geral.FormaEmissao = teContingencia
+    Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.Geral.VersaoDF = ve200
+    Configuracoes.Geral.AtualizarXMLCancelado = True
+    Configuracoes.Geral.VersaoQRCode = veqr000
+    Configuracoes.Arquivos.OrdenacaoPath = <>
+    Configuracoes.WebServices.UF = 'SP'
+    Configuracoes.WebServices.AguardarConsultaRet = 15000
+    Configuracoes.WebServices.AjustaAguardaConsultaRet = True
+    Configuracoes.WebServices.TimeOut = 20000
+    Configuracoes.WebServices.QuebradeLinha = '|'
+    Configuracoes.RespTec.IdCSRT = 0
+    Left = 746
+    Top = 397
+  end
+  object PRODUTOS: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 744
+    Top = 456
+    object PRODUTOScodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object PRODUTOSid: TIntegerField
+      FieldName = 'id'
+    end
+    object PRODUTOSgrupo: TIntegerField
+      FieldName = 'grupo'
+    end
+    object PRODUTOSdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 255
+    end
+    object PRODUTOSproduto: TStringField
+      FieldName = 'produto'
+      Size = 255
+    end
+    object PRODUTOSnome: TStringField
+      FieldName = 'nome'
+      Size = 255
+    end
+    object PRODUTOStotal: TFloatField
+      FieldName = 'total'
+    end
+    object PRODUTOSquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+    object PRODUTOStipo: TStringField
+      FieldName = 'tipo'
+      Size = 255
+    end
+    object PRODUTOSadicionais: TStringField
+      FieldName = 'adicionais'
+      Size = 255
+    end
+    object PRODUTOSunitario: TFloatField
+      FieldName = 'unitario'
+    end
+  end
+  object PIX: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 848
+    Top = 8
+    object PIXvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object PIXbase64: TBCDField
+      FieldName = 'base64'
+    end
+  end
+  object EventNFC: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 848
+    Top = 64
+    object EventNFCCODE: TIntegerField
+      FieldName = 'CODE'
+    end
+    object EventNFCCHAVE: TStringField
+      FieldName = 'CHAVE'
+      Size = 255
+    end
+    object EventNFCOBS: TStringField
+      FieldName = 'OBS'
+      Size = 255
+    end
+    object EventNFCid: TIntegerField
+      FieldName = 'id'
+    end
+  end
+  object memGrupo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 850
+    Top = 128
+    object memGrupovalue: TStringField
+      FieldName = 'value'
+      Size = 255
+    end
+    object memGrupodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 255
+    end
+  end
+  object RequisicaoToPedindo: iRequisicao
+    BaseURL = 'https://ws.goopedir.com/uploads/file_66b7cd839b8144.18905794.txt'
+    eTAG = False
+    Metodo = mGet
+    Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
+    Left = 848
+    Top = 264
+  end
+  object iRequisicao1: iRequisicao
+    eTAG = False
+    Metodo = mGet
+    Status = 0
+    MostrarAguarde = False
+    TempoExpiracao = 2000
+    Left = 848
+    Top = 200
+  end
+  object dataSetMerchants2: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 48
+    Top = 296
+  end
+  object dataSetMerchants1: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 48
+    Top = 232
+  end
+  object dsMerchants1: TDataSource
+    DataSet = dataSetMerchants1
+    Left = 48
+    Top = 360
+  end
+  object dsMerchants2: TDataSource
+    DataSet = dataSetMerchants2
+    Left = 48
+    Top = 424
+  end
+  object Timer1: TTimer
+    Interval = 600000000
+    OnTimer = Timer1Timer
+    Left = 840
+    Top = 328
+  end
+  object mAtualizacao: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 248
+    object mAtualizacaoid: TIntegerField
+      FieldName = 'id'
+    end
+    object mAtualizacaoarquivo: TStringField
+      FieldName = 'arquivo'
+      Size = 255
+    end
+    object mAtualizacaopercentual: TIntegerField
+      FieldName = 'percentual'
+    end
+    object mAtualizacaostatus: TStringField
+      FieldName = 'status'
+      Size = 255
+    end
+    object mAtualizacaotamanho: TStringField
+      FieldName = 'tamanho'
+    end
+    object mAtualizacaouuid: TStringField
+      FieldName = 'uuid'
+      Size = 255
+    end
+    object mAtualizacaodata: TDateTimeField
+      FieldName = 'data'
+    end
+  end
+  object memErrosNFCE: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 856
+    Top = 408
+    object memErrosNFCEdata: TDateTimeField
+      FieldName = 'data'
+    end
+    object memErrosNFCEpedido: TIntegerField
+      FieldName = 'pedido'
+    end
+    object memErrosNFCEerros: TStringField
+      FieldName = 'erros'
+      Size = 255
+    end
+  end
+  object tBackupFTP: TTimer
+    Enabled = False
+    Interval = 1
+    OnTimer = tBackupFTPTimer
+    Left = 360
+    Top = 312
+  end
+  object memPaineis: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 25
+    Top = 496
+  end
+  object memBanner: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 105
+    Top = 496
+  end
+  object memTiposSite: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 384
+  end
+  object memTipoMesa: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 192
+    Top = 496
+  end
+  object timerClose: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = timerCloseTimer
+    Left = 576
+    Top = 344
   end
   object FDMemTable1: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -356,10 +840,18 @@ object frmServicosGoopedir: TfrmServicosGoopedir
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
+    Left = 512
+    Top = 464
+  end
+  object FDMemTable2: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
     Left = 576
-    Top = 280
-    object FDMemTable1sdasd: TStringField
-      FieldName = 'sdasd'
-    end
+    Top = 464
   end
 end
