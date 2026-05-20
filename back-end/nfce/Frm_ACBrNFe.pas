@@ -251,6 +251,7 @@ type
     timerBuscaDFE: TTimer;
     MemoryConfiguracao: TFDMemTable;
     tEmissaoV2: TTimer;
+    ACBrNFeDANFeESCPOS2: TACBrNFeDANFeESCPOS;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);

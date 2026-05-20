@@ -27,7 +27,7 @@ begin
 
     // Verifica se o mutex já existe (ERROR_ALREADY_EXISTS)
     if (MutexHandle = 0) or (GetLastError = ERROR_ALREADY_EXISTS) then
-    begin
+    begin                                                lo
       // Se o mutex já existe, mostra uma mensagem e fecha o aplicativo
       // MessageBox(0, 'O aplicativo já está em execução.', 'Aviso', MB_ICONWARNING or MB_OK);
       Halt;

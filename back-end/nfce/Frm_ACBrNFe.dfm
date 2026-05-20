@@ -1529,7 +1529,7 @@ object frmACBrNFe: TfrmACBrNFe
     Configuracoes.WebServices.TimeOut = 20000
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
-    DANFE = ACBrNFeDANFeESCPOS1
+    DANFE = ACBrNFeDANFeESCPOS2
     Left = 354
     Top = 247
   end
@@ -1625,12 +1625,11 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
-    ACBrNFe = ACBrNFe1
     TipoDANFE = tiNFCe
     FormularioContinuo = True
     PosPrinter = ACBrPosPrinter1
-    Left = 633
-    Top = 335
+    Left = 649
+    Top = 327
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppEscPosStar
@@ -1852,15 +1851,15 @@ object frmACBrNFe: TfrmACBrNFe
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
-    Left = 702
-    Top = 129
+    Left = 734
+    Top = 233
   end
   object timerBuscaDFE: TTimer
     Enabled = False
     Interval = 1
     OnTimer = timerBuscaDFETimer
-    Left = 446
-    Top = 145
+    Left = 582
+    Top = 225
   end
   object MemoryConfiguracao: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -1877,5 +1876,36 @@ object frmACBrNFe: TfrmACBrNFe
     OnTimer = tEmissaoV2Timer
     Left = 1078
     Top = 57
+  end
+  object ACBrNFeDANFeESCPOS2: TACBrNFeDANFeESCPOS
+    Logo = 
+      'C:\Users\GooPedir\Documents\goopedir\design\PNG\goopedir-logotip' +
+      'o-redirecionada-site.png'
+    Sistema = 'GooPedir - www.goopedir.com'
+    Usuario = 'Allan'
+    Site = 'www.goopedir.com'
+    MargemInferior = 0.800000000000000000
+    MargemSuperior = 0.800000000000000000
+    MargemEsquerda = 0.600000000000000000
+    MargemDireita = 0.510000000000000000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 4
+    CasasDecimais.vUnCom = 4
+    CasasDecimais.MaskqCom = '###,###,###,##0.00'
+    CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    ACBrNFe = ACBrNFe1
+    TipoDANFE = tiNFCe
+    FormularioContinuo = True
+    PosPrinter = ACBrPosPrinter1
+    Left = 457
+    Top = 431
   end
 end
