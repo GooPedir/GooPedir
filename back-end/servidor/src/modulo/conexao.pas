@@ -1,4 +1,4 @@
-ï»¿unit conexao;
+unit conexao;
 
 interface
 
@@ -38,7 +38,7 @@ type
     procedure Setcache(const Value: boolean);
     function HashSQL(const ASQL: string): string;
     function GetCache(Hash: String): TJSONArray;
-    procedure SaveCache(Hash: String; Result: TJSONArray);
+    procedure SaveCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer = 5);
 
   var
 
@@ -96,7 +96,7 @@ type
     property cache: boolean read Fcache write Setcache;
 
     function BuscarCache(Hash: String): TJSONArray;
-    procedure SalvarCache(Hash: String; Result: TJSONArray);
+    procedure SalvarCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer = 5);
     procedure CriarParticoesHistoricasPedidoAll;
 
     function GetConfiguracao(Parametro: String): String;
@@ -107,6 +107,11 @@ implementation
 
 uses
   System.SysUtils, Vcl.Dialogs;
+
+const
+  CACHE_DATABASE = 'goopedir_cache';
+  CACHE_TABLE = 'cache';
+  CACHE_VALIDADE_PADRAO_MINUTOS = 5;
 
 { TConexao }
 
@@ -137,15 +142,13 @@ begin
         (TEncoding.UTF8.GetBytes(JsonArray.ToJSON), 0) as TJSONArray;
       // Dados.LoadFromJSON(JsonArray.ToString);
     finally
-      JsonArray.Free; // sem isso, vocÃª vazava memÃ³ria a cada chamada
+      JsonArray.Free; // sem isso, você vazava memória a cada chamada
     end;
     // Result := TFDMemTable.Create(nil);
 
     if cache then
     begin
-      SaveCache(HashSQL(SQL),
-        TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(Dados), 0)
-        as TJSONArray);
+      SaveCache(HashSQL(SQL), Result);
     end;
 
     // if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
@@ -187,22 +190,8 @@ begin
 end;
 
 function TConexao.BuscarCache(Hash: String): TJSONArray;
-var
-  TempDir: String;
-  FileJson: String;
-  Dados: TFDMemTable;
-  JSONText: string;
 begin
-  TempDir := TPath.GetTempPath + 'goopedir\cache\';
-  FileJson := TempDir + Hash + '.json';
-  ForceDirectories(TempDir);
-  if FileExists(FileJson) then
-  begin
-    JSONText := TFile.ReadAllText(FileJson);
-    Result := TJSONObject.ParseJSONValue(JSONText) as TJSONArray;
-    exit;
-  end;
-  Result := TJSONArray.Create;
+  Result := GetCache(Hash);
 end;
 
 function TConexao.Charset: String;
@@ -294,11 +283,11 @@ begin
     DecodeDate(DataInicial, AnoI, MesI, DiaI);
     DataInicial := EncodeDate(AnoI, MesI, 1);
 
-    // garante dia = 1 do mÃªs final
+    // garante dia = 1 do mês final
     DecodeDate(DataFinal, AnoF, MesF, DiaF);
     DataFinal := EncodeDate(AnoF, MesF, 1);
 
-    // monta inÃ­cio do comando
+    // monta início do comando
     SQLParticoes.Add('ALTER TABLE pedido');
     SQLParticoes.Add('PARTITION BY RANGE (TO_DAYS(data_pedido)) (');
 
@@ -315,7 +304,7 @@ begin
       DataLoop := IncMonth(DataLoop);
     end;
 
-    // remover vÃ­rgula da Ãºltima partiÃ§Ã£o
+    // remover vírgula da última partição
     SQLParticoes[SQLParticoes.Count - 1] :=
       TrimRight(SQLParticoes[SQLParticoes.Count - 1]).TrimRight([',']);
 
@@ -392,7 +381,7 @@ begin
   end
   else
   begin
-    Tags.AddPair('environment', 'produï¿½ï¿½o');
+    Tags.AddPair('environment', 'produ??o');
   end;
 
   Tags.AddPair('user', GetComputerName);
@@ -513,7 +502,7 @@ var
 begin
   // Gera um novo GUID
   if CreateGUID(GUID) = 0 then
-    // Converte o GUID para string no formato padrï¿½o
+    // Converte o GUID para string no formato padr?o
     Result := GUIDToString(GUID)
   else
     Result := '';
@@ -563,7 +552,7 @@ begin
     // Verifica se a tabela existe em `geradores`
     if QRY.RowsAffected = 0 then
     begin
-      // Pega o ï¿½ltimo cï¿½digo da tabela real
+      // Pega o ?ltimo c?digo da tabela real
       QRY.SQL.Text := 'SELECT MAX(' + Campo + ') AS max_id FROM ' + Tabela;
       QRY.Open;
       MaxID := QRY.FieldByName('max_id').AsInteger;
@@ -703,11 +692,11 @@ begin
 
   if not Desenvolvimento then
     exit;
-    // Ignora erros de chave duplicada, como jï¿½ fazia
+    // Ignora erros de chave duplicada, como j? fazia
   if pos('Duplicate entry', Erro) > 0 then
     exit;
 
-  // Caminho da pasta de log (na mesma pasta do executï¿½vel)
+  // Caminho da pasta de log (na mesma pasta do execut?vel)
   LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
   if not DirectoryExists(LogPath) then
     ForceDirectories(LogPath);
@@ -734,10 +723,10 @@ begin
       LogStream.Free;
     end;
   except
-    // Se nem salvar log conseguimos, sï¿½ desiste
+    // Se nem salvar log conseguimos, s? desiste
   end;
 
-  // Ainda envia pro Glitchtip, se vocï¿½ quiser manter
+  // Ainda envia pro Glitchtip, se voc? quiser manter
   EnviaGlitchtip
     ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
     DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
@@ -769,23 +758,64 @@ end;
 
 function TConexao.GetCache(Hash: String): TJSONArray;
 var
-  TempDir: String;
-  FileJson: String;
-  Dados: TFDMemTable;
-  JSONText: string;
+  Qry: TFDQuery;
+  JSONText: String;
+  ValorJSON: TJSONValue;
 begin
-  TempDir := TPath.GetTempPath + 'goopedir\cache\';
-  FileJson := TempDir + Hash + '.json';
-  ForceDirectories(TempDir);
-  if FileExists(FileJson) then
-  begin
-
-    JSONText := TFile.ReadAllText(FileJson);
-    Result := TJSONObject.ParseJSONValue(JSONText) as TJSONArray;
-    exit;
-    // Dados := TFDMemTable.Create(nil);
-  end;
   Result := TJSONArray.Create;
+  try
+    ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
+      ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
+      CACHE_TABLE + ' (' +
+      'origem VARCHAR(100) NOT NULL, ' +
+      'chave VARCHAR(255) NOT NULL, ' +
+      'dados LONGTEXT NOT NULL, ' +
+      'criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+      'expira_em DATETIME NULL, ' +
+      'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
+      + 'PRIMARY KEY (origem, chave), ' +
+      'INDEX idx_cache_expira (expira_em), ' +
+      'INDEX idx_cache_atualizado (atualizado_em)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+
+    Qry := CriaQRY;
+    try
+      Qry.SQL.Text := 'SELECT dados FROM ' + CACHE_DATABASE + '.' +
+        CACHE_TABLE + ' WHERE origem = :origem AND chave = :chave' +
+        ' AND (expira_em IS NULL OR expira_em > CURRENT_TIMESTAMP)';
+      Qry.ParamByName('origem').AsString := 'TConexao';
+      Qry.ParamByName('chave').AsString := Hash;
+      Qry.Open;
+      if not Qry.Eof then
+      begin
+        JSONText := Qry.FieldByName('dados').AsString;
+        ValorJSON := TJSONObject.ParseJSONValue(JSONText);
+        if ValorJSON is TJSONArray then
+        begin
+          Result.Free;
+          Result := TJSONArray(ValorJSON);
+        end
+        else
+          ValorJSON.Free;
+      end;
+      if Result.Count = 0 then
+      begin
+        Qry.Close;
+        Qry.SQL.Text := 'DELETE FROM ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+          ' WHERE origem = :origem AND chave = :chave' +
+          ' AND expira_em <= CURRENT_TIMESTAMP';
+        Qry.ParamByName('origem').AsString := 'TConexao';
+        Qry.ParamByName('chave').AsString := Hash;
+        Qry.ExecSQL;
+      end;
+    finally
+      Qry.Free;
+    end;
+  except
+    Result.Free;
+    Result := TJSONArray.Create;
+  end;
 end;
 
 function TConexao.GetComputerName: string;
@@ -921,7 +951,7 @@ begin
           ', 1) as ID, 0 as zero FROM RDB$DATABASE'));
         Codigo := DadosQry.FieldByName(DadosQry.Fields[0].FieldName).AsInteger;
       except
-        // Nï¿½o foi dessa vez
+        // N?o foi dessa vez
       end;
 
       if Codigo = 0 then
@@ -1007,12 +1037,12 @@ begin
   Result := Erro;
   if pos('TOKEN UNKNOWN', Erro) > 0 then
   begin
-    Result := 'Tabela NÃ£o Localizada';
+    Result := 'Tabela Não Localizada';
   end;
 
   if pos('TABLE SQL ALREADY EXISTS', Erro) > 0 then
   begin
-    Result := 'Tabela jÃ¡ Existente';
+    Result := 'Tabela já Existente';
   end;
 end;
 
@@ -1059,8 +1089,10 @@ begin
       QryUpdate.SQL.Add(SqlUpdate);
 
     end;
-    SQL := StringReplace((SQL), 'CREATE TABLE',
-      'CREATE TABLE IF NOT EXISTS', []);
+    if (Pos('CREATE TABLE', UpperCase(SQL)) > 0) and
+      (Pos('CREATE TABLE IF NOT EXISTS', UpperCase(SQL)) = 0) then
+      SQL := StringReplace(SQL, 'CREATE TABLE',
+        'CREATE TABLE IF NOT EXISTS', [rfIgnoreCase]);
 
     QRY := DataModulo.CriaQRY;
     Result := true;
@@ -1173,28 +1205,48 @@ begin
   Result := LowerCase(DataModulo.Banco.Params.Values['Port']);
 end;
 
-procedure TConexao.SalvarCache(Hash: String; Result: TJSONArray);
+function NormalizaValidadeCache(ValidadeMinutos: Integer): Integer;
 begin
-  SaveCache(Hash, Result);
+  Result := ValidadeMinutos;
+  if Result <= 0 then
+    Result := CACHE_VALIDADE_PADRAO_MINUTOS;
 end;
 
-procedure TConexao.SaveCache(Hash: String; Result: TJSONArray);
-var
-  TempDir: String;
-  FileJson: String;
-  JsonStr: TStringlist;
+procedure TConexao.SalvarCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer);
 begin
-  TempDir := TPath.Combine(TPath.GetTempPath, 'goopedir\cache');
-  FileJson := TPath.Combine(TempDir, Hash + '.json');
-  ForceDirectories(TempDir);
+  SaveCache(Hash, Result, ValidadeMinutos);
+end;
 
-  JsonStr := TStringlist.Create;
+procedure TConexao.SaveCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer);
+begin
   try
-    JsonStr.Text := Result.Format;
-    // ou Result.ToJSON se estiver usando System.JSON.Writers
-    JsonStr.SaveToFile(FileJson, TEncoding.UTF8);
-  finally
-    JsonStr.Free;
+    ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
+      ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
+      CACHE_TABLE + ' (' +
+      'origem VARCHAR(100) NOT NULL, ' +
+      'chave VARCHAR(255) NOT NULL, ' +
+      'dados LONGTEXT NOT NULL, ' +
+      'criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+      'expira_em DATETIME NULL, ' +
+      'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
+      + 'PRIMARY KEY (origem, chave), ' +
+      'INDEX idx_cache_expira (expira_em), ' +
+      'INDEX idx_cache_atualizado (atualizado_em)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+
+    SQL.Add('INSERT INTO ' + CACHE_DATABASE + '.' + CACHE_TABLE);
+    SQL.Add('(origem, chave, dados, expira_em)');
+    SQL.Add('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' +
+      NormalizaValidadeCache(ValidadeMinutos).ToString + ' MINUTE))');
+    SQL.Add('ON DUPLICATE KEY UPDATE dados = VALUES(dados),');
+    SQL.Add('expira_em = VALUES(expira_em),');
+    SQL.Add('atualizado_em = CURRENT_TIMESTAMP');
+    Parametros('origem', 'TConexao');
+    Parametros('chave', Hash);
+    Parametros('dados', Result.ToJSON);
+    ExecuteSQL;
+  except
   end;
 end;
 
@@ -1248,7 +1300,7 @@ end;
 procedure TConexao.UpdateLastActivityTime;
 begin
   FLastActivityTime := Now;
-  // Atualiza a ï¿½ltima hora de atividade
+  // Atualiza a ?ltima hora de atividade
 end;
 
 function TConexao.Usuario: String;
@@ -1273,8 +1325,8 @@ begin
   end
   else
   begin
-    // Result := 'A sua versï¿½o do mysql (' + VersaoMYSQL +
-    // ') estï¿½ desatualizada, para o funcionamento do sistema deve-se instalar a versï¿½o (8.0.27)';
+    // Result := 'A sua vers?o do mysql (' + VersaoMYSQL +
+    // ') est? desatualizada, para o funcionamento do sistema deve-se instalar a vers?o (8.0.27)';
     Result := '';
   end;
 
@@ -1327,7 +1379,7 @@ begin
   FComputerName := ComputerName;
   FErro := Erro;
   FBanco := Banco;
-  FreeOnTerminate := true; // Libera a memï¿½ria automaticamente ao tï¿½rmino
+  FreeOnTerminate := true; // Libera a mem?ria automaticamente ao t?rmino
   Start;
 end;
 
@@ -1344,7 +1396,7 @@ begin
       JSON.AddPair('error_message', FErro);
       JSON.AddPair('banco', FBanco);
 
-      // Cria e configura a requisiï¿½ï¿½o
+      // Cria e configura a requisi??o
       Requisicao := iRequisicao.Create(nil);
       try
         Requisicao.BaseURL := 'https://old.goopedir.com/logger.php';

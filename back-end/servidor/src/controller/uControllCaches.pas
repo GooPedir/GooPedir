@@ -1,4 +1,4 @@
-﻿unit uControllCaches;
+unit uControllCaches;
 
 interface
 
@@ -503,44 +503,8 @@ begin
 end;
 
 procedure LimpaCacheGeral;
-var
-  CaminhoExecutavel: String;
-  PastaCache: String;
-  Arquivo: TSearchRec;
 begin
-  // Obt�m o caminho do execut�vel
-  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-
-  // Define o caminho da pasta cache
-  PastaCache := CaminhoExecutavel + 'cache';
-
-  // Verifica se a pasta existe
-  if DirectoryExists(PastaCache) then
-  begin
-    // Deleta todos os arquivos dentro da pasta cache
-    if FindFirst(PastaCache + '\*.*', faAnyFile, Arquivo) = 0 then
-      try
-        repeat
-          // Verifica se o arquivo n�o � diret�rio "." ou ".."
-          if (Arquivo.Name <> '.') and (Arquivo.Name <> '..') then
-          begin
-            // Se for um arquivo, apaga
-            if (Arquivo.Attr and faDirectory) = 0 then
-            begin
-              DeleteFile(PastaCache + '\' + Arquivo.Name);
-            end
-            // Se for uma pasta, usa TDirectory para apag�-la recursivamente
-            else
-            begin
-              TDirectory.Delete(PastaCache + '\' + Arquivo.Name, True);
-            end;
-          end;
-        until FindNext(Arquivo) <> 0;
-      finally
-        FindClose(Arquivo);
-      end;
-  end;
-  //
+  ClearAll;
 end;
 
 procedure BuscaCacheGeral;
@@ -563,7 +527,7 @@ begin
         Categorias := GetCategoria('all');
         GetAllCategoria('all');
 
-        // Verifica se o array de categorias � v�lido
+        // Verifica se o array de categorias ? v?lido
         if Assigned(Categorias) then
         begin
           for I := 0 to Categorias.Count - 1 do
@@ -675,7 +639,7 @@ begin
     SQL := SQL + ' order by codigo_grupo, position';
   end;
 
-  Result := ObjetoProduto(SQL,Tipo); // 🔥 já retorna JSON
+  Result := ObjetoProduto(SQL,Tipo); // ?? j� retorna JSON
 end;
 
 // function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
@@ -755,7 +719,7 @@ begin
     Obj.AddPair('id', Itens.FieldByName('id').AsInteger);
     Obj.AddPair('nome', Itens.FieldByName('nome').AsString);
 
-    // conteúdo
+    // conte�do
     if Itens.FieldByName('produto_id').AsFloat > 0 then
     begin
       Obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO',

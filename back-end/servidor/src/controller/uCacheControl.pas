@@ -1,188 +1,4 @@
-//unit uCacheControl;
-//
-//interface
-//
-//uses
-//  SysUtils, IOUtils, System.JSON, Conexao;
-//
-//procedure GravaCache(Origem, Chave, Dados: String);
-//function BuscaCache(Origem, Chave: String): TJSONArray;
-//function BuscaCacheObject(Origem, Chave: String): TJsonObject;
-//procedure LimpaCache(Origem, Chave: String);
-//procedure ClearAll;
-//
-//implementation
-//
-//uses
-//  System.Classes, Vcl.Dialogs;
-//
-//procedure GravaCache(Origem, Chave, Dados: String);
-//var
-//  CaminhoExecutavel: string;
-//  PastaCache: string;
-//  CaminhoArquivo: string;
-//  StringStream: TStringStream;
-//begin
-//
-//  try
-//    CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-//    PastaCache := CaminhoExecutavel + 'cache';
-//
-//    // Cria a pasta cache, caso não exista
-//    if not DirectoryExists(PastaCache) then
-//      ForceDirectories(PastaCache);
-//
-//    // Define o caminho completo do arquivo
-//    CaminhoArquivo := TPath.Combine(PastaCache, Origem + Chave + '.txt');
-//
-//    // Grava o conteúdo no arquivo com encoding UTF-8
-//    StringStream := TStringStream.Create(Dados, TEncoding.UTF8);
-//    try
-//      StringStream.SaveToFile(CaminhoArquivo);
-//    finally
-//      StringStream.Free;
-//    end;
-//  except
-//
-//  end;
-//end;
-//
-//function BuscaCacheObject(Origem, Chave: String): TJsonObject;
-//var
-//  CaminhoExecutavel: string;
-//  PastaCache: string;
-//  CaminhoArquivo: string;
-//  NomeArquivo: string;
-//  StringStream: TStringStream;
-//  Conteudo: string;
-//  Conexao: Tconexao;
-//begin
-//  Conexao := Tconexao.Create('BuscaCacheObject');
-//  NomeArquivo := Origem + Chave + '.txt';
-//
-//  // Obtém o caminho do executável
-//  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-//
-//  // Define o caminho da pasta cache
-//  PastaCache := CaminhoExecutavel + 'cache';
-//
-//  // Define o caminho completo do arquivo
-//  CaminhoArquivo := TPath.Combine(PastaCache, NomeArquivo);
-//
-//  // Verifica se o arquivo existe
-//  if not FileExists(CaminhoArquivo) then
-//  begin
-//    Result := TJsonObject.Create;
-//    Exit;
-//  end;
-//
-//  // Lê o conteúdo do arquivo com encoding UTF-8
-//  StringStream := TStringStream.Create('', TEncoding.UTF8);
-//  try
-//    StringStream.LoadFromFile(CaminhoArquivo);
-//    Conteudo := StringStream.DataString;
-//
-//    // Tenta parsear o conteúdo como JSON
-//    try
-//      Result := TJsonObject.ParseJSONValue(Conteudo) as TJsonObject;
-//    except
-//      Result := TJsonObject.Create;
-//    end;
-//  finally
-//    StringStream.Free;
-//  end;
-//end;
-//
-//function BuscaCache(Origem, Chave: String): TJSONArray;
-//var
-//  CaminhoExecutavel: string;
-//  PastaCache: string;
-//  CaminhoArquivo: string;
-//  NomeArquivo: string;
-//  StringStream: TStringStream;
-//  Conteudo: string;
-//begin
-//
-//  Result := TJSONArray.Create;
-//
-//  NomeArquivo := Origem + Chave + '.txt';
-//
-//  // Obtém o caminho do executável
-//  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-//
-//  // Define o caminho da pasta cache
-//  PastaCache := CaminhoExecutavel + 'cache';
-//
-//  // Define o caminho completo do arquivo
-//  CaminhoArquivo := TPath.Combine(PastaCache, NomeArquivo);
-//
-//  // Verifica se o arquivo existe
-//  if not FileExists(CaminhoArquivo) then
-//  begin
-//    Result := TJSONArray.Create;
-//    Exit;
-//  end;
-//
-//  // Lê o conteúdo do arquivo com encoding UTF-8
-//  StringStream := TStringStream.Create('', TEncoding.UTF8);
-//  try
-//    StringStream.LoadFromFile(CaminhoArquivo);
-//    Conteudo := StringStream.DataString;
-//
-//    // Tenta parsear o conteúdo como JSON
-//    try
-//      Result := TJsonObject.ParseJSONValue(Conteudo) as TJSONArray;
-//    except
-//      Result := TJSONArray.Create;
-//    end;
-//  finally
-//    StringStream.Free;
-//  end;
-//end;
-//
-//procedure LimpaCache(Origem, Chave: String);
-//var
-//  NomeArquivo: String;
-//  CaminhoExecutavel: String;
-//  PastaCache: String;
-//begin
-//  NomeArquivo := Origem + Chave + '.txt';
-//
-//  // Obtém o caminho do executável
-//  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-//
-//  // Define o caminho da pasta cache
-//  PastaCache := CaminhoExecutavel + 'cache\';
-//
-//  if FileExists(PastaCache + NomeArquivo) then
-//  begin
-//    DeleteFile(PastaCache + NomeArquivo);
-//  end;
-//
-//end;
-//
-//procedure ClearAll;
-//var
-//  CaminhoExecutavel: String;
-//  PastaCache: String;
-//begin
-//
-//  // Obtém o caminho do executável
-//  CaminhoExecutavel := ExtractFilePath(ParamStr(0));
-//
-//  // Define o caminho da pasta cache
-//  PastaCache := CaminhoExecutavel + 'cache\';
-//
-//  try
-//    TDirectory.Delete(PastaCache, True);
-//  except
-//
-//  end;
-//end;
-//
-//end.
-
-unit uCacheControl;
+ï»¿unit uCacheControl;
 
 interface
 
@@ -190,7 +6,7 @@ uses
   System.SysUtils,
   System.JSON;
 
-procedure GravaCache(Origem, Chave, Dados: String);
+procedure GravaCache(Origem, Chave, Dados: String; ValidadeMinutos: Integer = 5);
 function BuscaCache(Origem, Chave: String): TJSONArray;
 function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 procedure LimpaCache(Origem, Chave: String);
@@ -199,150 +15,210 @@ procedure ClearAll;
 implementation
 
 uses
-  System.Classes,
-  System.IOUtils,
-  System.SyncObjs;
+  System.SyncObjs,
+  FireDAC.Comp.Client,
+  conexao;
+
+const
+  CACHE_DATABASE = 'goopedir_cache';
+  CACHE_TABLE = 'cache';
+  CACHE_VALIDADE_PADRAO_MINUTOS = 5;
 
 var
   CacheLock: TObject;
+  CacheInicializado: Boolean = False;
 
-function GetCacheFile(Origem, Chave: String): String;
+procedure GarantirBancoCache;
 var
-  PastaCache: string;
+  Con: Tconexao;
 begin
-  PastaCache := TPath.Combine(ExtractFilePath(ParamStr(0)), 'cache');
+  if CacheInicializado then
+    Exit;
 
-  if not DirectoryExists(PastaCache) then
-    ForceDirectories(PastaCache);
-
-  Result := TPath.Combine(PastaCache, Origem + Chave + '.txt');
-end;
-
-procedure GravaCache(Origem, Chave, Dados: String);
-var
-  CaminhoArquivo, TempFile: string;
-  StringStream: TStringStream;
-begin
   TMonitor.Enter(CacheLock);
   try
-    CaminhoArquivo := GetCacheFile(Origem, Chave);
-    TempFile := CaminhoArquivo + '.tmp';
+    if CacheInicializado then
+      Exit;
 
-    StringStream := TStringStream.Create(Dados, TEncoding.UTF8);
+    Con := Tconexao.Create('GarantirBancoCache');
     try
-      StringStream.SaveToFile(TempFile);
-
-      // substituição atômica
-      if FileExists(CaminhoArquivo) then
-        DeleteFile(CaminhoArquivo);
-
-      RenameFile(TempFile, CaminhoArquivo);
+      Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
+        ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+      Con.ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
+        CACHE_TABLE + ' (' +
+        'origem VARCHAR(100) NOT NULL, ' +
+        'chave VARCHAR(255) NOT NULL, ' +
+        'dados LONGTEXT NOT NULL, ' +
+        'criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+        'expira_em DATETIME NULL, ' +
+        'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
+        + 'PRIMARY KEY (origem, chave), ' +
+        'INDEX idx_cache_expira (expira_em), ' +
+        'INDEX idx_cache_atualizado (atualizado_em)' +
+        ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+      CacheInicializado := True;
     finally
-      StringStream.Free;
+      Con.Free;
     end;
-
-  except
-    // aqui você pode logar se quiser
+  finally
+    TMonitor.Exit(CacheLock);
   end;
-  TMonitor.Exit(CacheLock);
+end;
+
+function NormalizaValidade(ValidadeMinutos: Integer): Integer;
+begin
+  Result := ValidadeMinutos;
+  if Result <= 0 then
+    Result := CACHE_VALIDADE_PADRAO_MINUTOS;
+end;
+
+procedure GravaCache(Origem, Chave, Dados: String; ValidadeMinutos: Integer);
+var
+  Con: Tconexao;
+begin
+  try
+    GarantirBancoCache;
+      Con := Tconexao.Create('GravaCache');
+    try
+      Con.SQL.Add('INSERT INTO ' + CACHE_DATABASE + '.' + CACHE_TABLE);
+      Con.SQL.Add('(origem, chave, dados, expira_em)');
+      Con.SQL.Add('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' +
+        NormalizaValidade(ValidadeMinutos).ToString + ' MINUTE))');
+      Con.SQL.Add('ON DUPLICATE KEY UPDATE dados = VALUES(dados),');
+      Con.SQL.Add('expira_em = VALUES(expira_em),');
+      Con.SQL.Add('atualizado_em = CURRENT_TIMESTAMP');
+      Con.Parametros('origem', Origem);
+      Con.Parametros('chave', Chave);
+      Con.Parametros('dados', Dados);
+      Con.ExecuteSQL;
+    finally
+      Con.Free;
+    end;
+  except
+  end;
+end;
+
+function LerCacheTexto(Origem, Chave: String): String;
+var
+  Con: Tconexao;
+  Qry: TFDQuery;
+begin
+  Result := '';
+  try
+    GarantirBancoCache;
+    Con := Tconexao.Create('LerCacheTexto');
+    try
+      Qry := Con.CriaQRY;
+      try
+        Qry.SQL.Text := 'SELECT dados FROM ' + CACHE_DATABASE + '.' +
+          CACHE_TABLE + ' WHERE origem = :origem AND chave = :chave' +
+          ' AND (expira_em IS NULL OR expira_em > CURRENT_TIMESTAMP)';
+        Qry.ParamByName('origem').AsString := Origem;
+        Qry.ParamByName('chave').AsString := Chave;
+        Qry.Open;
+        if not Qry.Eof then
+          Result := Qry.FieldByName('dados').AsString;
+        if Result = '' then
+        begin
+          Qry.Close;
+          Qry.SQL.Text := 'DELETE FROM ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+            ' WHERE origem = :origem AND chave = :chave' +
+            ' AND expira_em <= CURRENT_TIMESTAMP';
+          Qry.ParamByName('origem').AsString := Origem;
+          Qry.ParamByName('chave').AsString := Chave;
+          Qry.ExecSQL;
+        end;
+      finally
+        Qry.Free;
+      end;
+    finally
+      Con.Free;
+    end;
+  except
+    Result := '';
+  end;
 end;
 
 function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 var
-  CaminhoArquivo: string;
-  StringStream: TStringStream;
-  Conteudo: string;
+  Conteudo: String;
+  ValorJSON: TJSONValue;
 begin
-  CaminhoArquivo := GetCacheFile(Origem, Chave);
-
-  if not FileExists(CaminhoArquivo) then
+  Conteudo := LerCacheTexto(Origem, Chave);
+  if Conteudo = '' then
     Exit(TJsonObject.Create);
 
-  TMonitor.Enter(CacheLock);
   try
-    StringStream := TStringStream.Create('', TEncoding.UTF8);
-    try
-      StringStream.LoadFromFile(CaminhoArquivo);
-      Conteudo := StringStream.DataString;
-
-      try
-        Result := TJsonObject.ParseJSONValue(Conteudo) as TJsonObject;
-        if Result = nil then
-          Result := TJsonObject.Create;
-      except
-        Result := TJsonObject.Create;
-      end;
-
-    finally
-      StringStream.Free;
+    ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    if ValorJSON is TJsonObject then
+      Result := TJsonObject(ValorJSON)
+    else
+    begin
+      ValorJSON.Free;
+      Result := TJsonObject.Create;
     end;
-  finally
-    TMonitor.Exit(CacheLock);
+  except
+    Result := TJsonObject.Create;
   end;
 end;
 
 function BuscaCache(Origem, Chave: String): TJSONArray;
 var
-  CaminhoArquivo: string;
-  StringStream: TStringStream;
-  Conteudo: string;
+  Conteudo: String;
+  ValorJSON: TJSONValue;
 begin
-  CaminhoArquivo := GetCacheFile(Origem, Chave);
-
-  if not FileExists(CaminhoArquivo) then
+  Conteudo := LerCacheTexto(Origem, Chave);
+  if Conteudo = '' then
     Exit(TJSONArray.Create);
 
-  TMonitor.Enter(CacheLock);
   try
-    StringStream := TStringStream.Create('', TEncoding.UTF8);
-    try
-      StringStream.LoadFromFile(CaminhoArquivo);
-      Conteudo := StringStream.DataString;
-
-      try
-        Result := TJSONObject.ParseJSONValue(Conteudo) as TJSONArray;
-        if Result = nil then
-          Result := TJSONArray.Create;
-      except
-        Result := TJSONArray.Create;
-      end;
-
-    finally
-      StringStream.Free;
+    ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    if ValorJSON is TJSONArray then
+      Result := TJSONArray(ValorJSON)
+    else
+    begin
+      ValorJSON.Free;
+      Result := TJSONArray.Create;
     end;
-  finally
-    TMonitor.Exit(CacheLock);
+  except
+    Result := TJSONArray.Create;
   end;
 end;
 
 procedure LimpaCache(Origem, Chave: String);
 var
-  CaminhoArquivo: String;
+  Con: Tconexao;
 begin
-  CaminhoArquivo := GetCacheFile(Origem, Chave);
-
-  TMonitor.Enter(CacheLock);
   try
-    if FileExists(CaminhoArquivo) then
-      DeleteFile(CaminhoArquivo);
-  finally
-    TMonitor.Exit(CacheLock);
+    GarantirBancoCache;
+    Con := Tconexao.Create('LimpaCache');
+    try
+      Con.SQL.Add('DELETE FROM ' + CACHE_DATABASE + '.' + CACHE_TABLE);
+      Con.SQL.Add('WHERE origem = :origem AND chave = :chave');
+      Con.Parametros('origem', Origem);
+      Con.Parametros('chave', Chave);
+      Con.ExecuteSQL;
+    finally
+      Con.Free;
+    end;
+  except
   end;
 end;
 
 procedure ClearAll;
 var
-  PastaCache: String;
+  Con: Tconexao;
 begin
-  PastaCache := TPath.Combine(ExtractFilePath(ParamStr(0)), 'cache');
-
-  TMonitor.Enter(CacheLock);
   try
-    if DirectoryExists(PastaCache) then
-      TDirectory.Delete(PastaCache, True);
+    GarantirBancoCache;
+    Con := Tconexao.Create('ClearAllCache');
+    try
+      Con.ExecuteSQL('TRUNCATE TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE);
+    finally
+      Con.Free;
+    end;
   except
   end;
-  TMonitor.Exit(CacheLock);
 end;
 
 initialization

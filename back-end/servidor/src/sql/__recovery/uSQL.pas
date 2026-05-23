@@ -12,7 +12,7 @@ type
 
   TSQL = class
   private
-    { O Controle de atualização do banco vai ser por enquanto com base na versão do executavel }
+    { O Controle de atualizaÃ§Ã£o do banco vai ser por enquanto com base na versÃ£o do executavel }
     Function VersaoExe: String;
     procedure AtualizaCodigoUltimaVersao;
     function ExecultaSQL(SQL: String): Boolean;
@@ -160,7 +160,7 @@ begin
   MemoLog.Lines.Add
     ('****************************************************************************');
   MemoLog.Lines.Add('');
-  MemoLog.Lines.Add('Inicio Atualização');
+  MemoLog.Lines.Add('Inicio AtualizaÃ§Ã£o');
   MemoLog.Lines.Add('Data/Hora: ' + FormatDateTime('dd/mm/yyyy hh:nn:ss', now));
   MemoLog.Lines.Add('');
   MemoLog.Lines.Add
@@ -382,13 +382,13 @@ begin
     DecodeDate(DataBase, AnoInicial, MesInicial, Dia);
     DecodeDate(DataAtual, AnoAtual, MesAtual, Dia);
 
-    // Loop do ano/mês inicial até o ano/mês anterior ao atual
+    // Loop do ano/mÃªs inicial atÃ© o ano/mÃªs anterior ao atual
     Ano := AnoInicial;
     Mes := MesInicial;
 
     while (Ano < AnoAtual) or ((Ano = AnoAtual) and (Mes < MesAtual)) do
     begin
-      // Monta início e fim do mês
+      // Monta inÃ­cio e fim do mÃªs
       DataInicioMes := EncodeDate(Ano, Mes, 1);
       tabela := 'pedido_' + Ano.ToString + '_' + FormatFloat('00', Mes);
       dados := TFDMemTable.Create(nil);
@@ -440,7 +440,7 @@ begin
 
       dados.Free;
 
-      // Próximo mês
+      // PrÃ³ximo mÃªs
       Inc(Mes);
       if Mes > 12 then
       begin
@@ -521,7 +521,7 @@ begin
 
     if Assigned(SeTiverAtualizacao) then
       SeTiverAtualizacao;
-    MemoLog.Lines.Add('Nova atualização disponível!');
+    MemoLog.Lines.Add('Nova atualizaÃ§Ã£o disponÃ­vel!');
     // AtualizaBanco;
     iniciaSerieNFCE;
   end
@@ -557,7 +557,7 @@ begin
 
   conexao.Free;
   MemoLog.Lines.Clear;
-  MemoLog.Lines.Add('Verificando Atualizações . . .');
+  MemoLog.Lines.Add('Verificando AtualizaÃ§Ãµes . . .');
 end;
 
 procedure TSQL.Banco(Versao: Integer);
@@ -588,7 +588,7 @@ begin
           ('CREATE TABLE status_pedido (id int NOT NULL, descricao varchar(255) DEFAULT NULL, PRIMARY KEY (id));');
 
         ExecultaSQL
-          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em Produção"),(3,"Pronto"),(4,"Disponível Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
+          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em ProduÃ§Ã£o"),(3,"Pronto"),(4,"DisponÃ­vel Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
       end;
     4:
       begin
@@ -597,7 +597,7 @@ begin
     5:
       begin
         ExecultaSQL('update tipo_sabor set ativo = 0 where nome not in (' +
-          QuotedStr('Promoção') + ',' + QuotedStr('Tradicional') + ',' +
+          QuotedStr('PromoÃ§Ã£o') + ',' + QuotedStr('Tradicional') + ',' +
           QuotedStr('Especial') + ',' + QuotedStr('Doce') + ')');
       end;
     6:
@@ -1146,7 +1146,7 @@ begin
       end;
     69:
       begin
-        // Só fiz 1x
+        // SÃ³ fiz 1x
         ExecultaSQL('alter table pedido add nfce_imprimir integer default 0');
       end;
     70:
@@ -1339,7 +1339,7 @@ begin
     93:
       begin
         ExecultaSQL
-          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
+          ('insert into status_pedido (id,descricao) values (9,"Aguardando ConfirmaÃ§Ã£o")');
       end;
     94:
       begin
@@ -1644,7 +1644,7 @@ begin
         SQL := SQL + ');';
         ExecultaSQL(SQL);
         // ============================================================
-        // TABELA: fornecedor_item (catálogo do fornecedor)
+        // TABELA: fornecedor_item (catÃ¡logo do fornecedor)
         // ============================================================
         SQL := ' CREATE TABLE fornecedor_item (';
         SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
@@ -2013,7 +2013,7 @@ begin
         SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
         ExecultaSQL(SQL);
         ExecultaSQL
-          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
+          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("CardÃ¡pio Tablet", "tablet", 1);');
 
       end;
     136:
@@ -2190,11 +2190,6 @@ begin
           'INDEX idx_cache_atualizado (atualizado_em)' +
           ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
       end;
-    151:
-      begin
-        ExecultaSQL('ALTER TABLE goopedir_cache.cache ADD COLUMN expira_em DATETIME NULL');
-        ExecultaSQL('CREATE INDEX idx_cache_expira ON goopedir_cache.cache (expira_em)');
-      end;
     99999999:
       begin
         {
@@ -2208,7 +2203,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '151'
+  Result := '150'
 end;
 
 end.
