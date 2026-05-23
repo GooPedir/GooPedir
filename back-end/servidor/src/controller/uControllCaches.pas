@@ -12,7 +12,7 @@ function GetCategoria(chave: String): TJsonArray;
 function GetAllCategoria(chave: String): TJsonArray;
 function GetFichaProduto(chave: String): TJsonArray;
 function GetFichaSabor(chave: String): TJsonArray;
-function GetProdutoCategoria(chave: String): TJsonArray;
+function GetProdutoCategoria(chave,hash: String): TJsonArray;
 function GetProdutoPesquisa(chave: String): TJsonArray;
 function GetParametros: TJsonArray;
 function GetFlavor(chave: String): TJsonArray;
@@ -321,8 +321,7 @@ begin
         begin
           try
             Erro := False;
-            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
-              Qry.FieldByName('valor').AsWideString)
+            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),Qry.FieldByName('valor').AsWideString)
           except
             on e: exception do
             begin
@@ -452,7 +451,7 @@ begin
   end;
 end;
 
-function GetProdutoCategoria(chave: String): TJsonArray;
+function GetProdutoCategoria(chave,hash: String): TJsonArray;
 var
   conexao: TConexao;
   SQL: String;
@@ -477,7 +476,7 @@ begin
       SQL := SQL + ' where produto.deletado <> 1 and codigo_grupo = ' + chave;
       SQL := SQL + ' order by codigo_grupo,position';
     end;
-    Result := ObjetoProduto(SQL);
+    Result := ObjetoProduto(SQL,hash);
     GravaCache('GetProdutoCategoria', chave, Result.ToString);
   end;
 end;
@@ -497,7 +496,7 @@ begin
   begin
     SQL := ' SELECT * FROM produto WHERE ativo = 1 and deletado = 0 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
       + UpperCase(chave) + '%" ORDER BY position LIMIT 10';
-    Result := ObjetoProduto(SQL);
+    Result := ObjetoProduto(SQL,chave);
     GravaCache('GetProdutoCategoria', chave, Result.ToString);
   end;
 
@@ -577,7 +576,7 @@ begin
             if Assigned(Codigo) then
             begin
               // Mostra o valor do campo 'codigo'
-              Produtos := GetProdutoCategoria(Codigo.Value);
+              Produtos := GetProdutoCategoria(Codigo.Value,'');
 
               if Assigned(Produtos) then
               begin
@@ -619,7 +618,7 @@ begin
   LimpaCache('GetProdutoCategoria', CodigoGrupo.ToString);
   // //////showmessage1(CodigoGrupo.ToString);
 
-  GetProdutoCategoria(CodigoGrupo.ToString);
+  GetProdutoCategoria(CodigoGrupo.ToString,'');
   GetProdutoAdiciona(Codigo.ToString);
   GetProdutoSabores(Codigo.ToString);
   GetFichaProduto(Codigo.ToString);
@@ -676,7 +675,7 @@ begin
     SQL := SQL + ' order by codigo_grupo, position';
   end;
 
-  Result := ObjetoProduto(SQL); // 🔥 já retorna JSON
+  Result := ObjetoProduto(SQL,Tipo); // 🔥 já retorna JSON
 end;
 
 // function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;

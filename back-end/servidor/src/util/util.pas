@@ -1,4 +1,4 @@
-Ôªøunit util;
+unit util;
 
 interface
 
@@ -8,7 +8,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
   System.Variants, conexao, uCacheControl, uControllCaches,
   System.Generics.Collections, System.DateUtils, uNewConsultas,
-  uControlerProduto, uGlobais;
+  uControlerProduto, uGlobais, uNFCe;
 
 type
   TValoresPizza = record
@@ -34,6 +34,7 @@ procedure AtualizaStatus(Pedido, Status: Integer);
 function GetBuildInfo: string;
 function TransformaData(Data: String): TDate;
 function TransformaHora(Hora: String): TTime;
+
 function TrocaVirgula(Resultado: String): String;
 function MovimentoCaixa(Caixa, Pedido, TipoPagamento, Tipo: Integer;
   Valor: Real; Descricao: String; Cliente: Integer): Integer;
@@ -44,6 +45,7 @@ function SQLFormatdaHoraMysql(Campo: String): String;
 function SQLFormatdaValorMysql(Campo: String): String;
 function ValidaQuantidadeSabores(Sabores, Codigo: String): Integer;
 procedure MovimentacaoProduto(Pedido, Codigo, Tipo: Integer; Quantidade: Real);
+procedure ValidarNotificacaoEstoqueBaixo;
 procedure MovimentacaoInsulmo(CodigoInsulmo, Tipo: Integer;
   Quantidade, CustoTotal, Custo: Real; EntradaEstoque: Boolean);
 function AtualizacaoCustoIngrediente(CodigoIngrediente: Integer): TJSONArray;
@@ -98,6 +100,26 @@ uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
   Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite;
 
+function ValorDecimalJSON(Dados: TFDMemTable; const Campo: String): Double;
+var
+  CampoDados: TField;
+  Texto: String;
+  FS: TFormatSettings;
+begin
+  Result := 0;
+  CampoDados := Dados.FindField(Campo);
+  if (CampoDados = nil) or CampoDados.IsNull then
+    Exit;
+  Texto := Trim(CampoDados.AsString);
+  if Texto = '' then
+    Exit;
+  FS := TFormatSettings.Create;
+  FS.DecimalSeparator := '.';
+  Texto := StringReplace(Texto, ',', '.', [rfReplaceAll]);
+  Result := StrToFloatDef(Texto, 0, FS);
+end;
+
+
 function CodigoRadon(Codigo: Integer): Integer;
 begin
   Result := Random(Codigo) + Codigo;
@@ -147,64 +169,63 @@ var
   Origem: String;
   Dados: TFDMemTable;
 begin
-if Desenvolvimento then
-begin
-  Result := BuscaCache('GetDadosProdutoPedido', Pedido.ToString);
-
-  if Result.Count = 0 then
+  if Desenvolvimento then
   begin
-    conexao := Tconexao.Create('Util');
-    conexao.SQL.Add
-      ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
-    conexao.SQL.Add('group_concat(' + QuotedStr(' ') +
-      ',upper(pps.nomeclatura),' + QuotedStr(' ') +
-      ', upper(pps.descricao)) as obs, pp.selecionado,');
-    conexao.SQL.Add
-      ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
-    conexao.SQL.Add('max(ppsO.descricao) as observacao');
-    conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
-    conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-      ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
-      QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN√á%"');
-    conexao.SQL.Add
-      ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
-    conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
-    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-      ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
-    conexao.SQL.Add('where pp.codigo_pedido = :codigo');
-    conexao.SQL.Add('group by pp.codigo');
-    conexao.Parametros('codigo', Pedido);
-    Result := conexao.ConsultaSQL;
-    GravaCache('GetDadosProdutoPedido', Pedido.ToString, Result.ToString);
-    conexao.Free;
-    exit
+    Result := BuscaCache('GetDadosProdutoPedido', Pedido.ToString);
+
+    if Result.Count = 0 then
+    begin
+      conexao := Tconexao.Create('Util');
+      conexao.SQL.Add
+        ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
+      conexao.SQL.Add('group_concat(' + QuotedStr(' ') +
+        ',upper(pps.nomeclatura),' + QuotedStr(' ') +
+        ', upper(pps.descricao)) as obs, pp.selecionado,');
+      conexao.SQL.Add
+        ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
+      conexao.SQL.Add('max(ppsO.descricao) as observacao');
+      conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
+      conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+      conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+        ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> '
+        + QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN«%"');
+      conexao.SQL.Add
+        ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
+      conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+      conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+        ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+      conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+      conexao.SQL.Add('group by pp.codigo');
+      conexao.Parametros('codigo', Pedido);
+      Result := conexao.ConsultaSQL;
+      GravaCache('GetDadosProdutoPedido', Pedido.ToString, Result.ToString);
+      conexao.Free;
+      exit
+    end;
   end;
-end;
- conexao := Tconexao.Create('Util');
-    conexao.SQL.Add
-      ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
-    conexao.SQL.Add('group_concat(' + QuotedStr(' ') +
-      ',upper(pps.nomeclatura),' + QuotedStr(' ') +
-      ', upper(pps.descricao)) as obs, pp.selecionado,');
-    conexao.SQL.Add
-      ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
-    conexao.SQL.Add('max(ppsO.descricao) as observacao');
-    conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
-    conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-      ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
-      QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN√á%"');
-    conexao.SQL.Add
-      ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
-    conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
-    conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-      ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
-    conexao.SQL.Add('where pp.codigo_pedido = :codigo');
-    conexao.SQL.Add('group by pp.codigo');
-    conexao.Parametros('codigo', Pedido);
-    Result := conexao.ConsultaSQL;
-    conexao.Free;
+  conexao := Tconexao.Create('Util');
+  conexao.SQL.Add
+    ('SELECT pp.codigo_pedido, pp.impresso as impressao, pp.hora, p.id_site as site, p.foto_ifood as ifood, pp.codigo,p.nome_produto,pp.quantidade,(pp.valor_total / pp.quantidade) as unitario,pp.valor_total,p.valor_embalagem_delivery as entrega, ');
+  conexao.SQL.Add('group_concat(' + QuotedStr(' ') + ',upper(pps.nomeclatura),'
+    + QuotedStr(' ') + ', upper(pps.descricao)) as obs, pp.selecionado,');
+  conexao.SQL.Add
+    ('sum(cmp.quantidade) as paga, sum(cmp.valor) as paga_tot, u.nome as usuario,');
+  conexao.SQL.Add('max(ppsO.descricao) as observacao');
+  conexao.SQL.Add('FROM pedido_produtos' + Origem + ' as pp');
+  conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+    ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
+    QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN«%"');
+  conexao.SQL.Add
+    ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
+  conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
+  conexao.SQL.Add('left join pedido_produto_sap' + Origem +
+    ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+  conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+  conexao.SQL.Add('group by pp.codigo');
+  conexao.Parametros('codigo', Pedido);
+  Result := conexao.ConsultaSQL;
+  conexao.Free;
 end;
 
 procedure AtualizaStatus(Pedido, Status: Integer);
@@ -250,14 +271,17 @@ begin
   begin
     try
       Requisicao := iRequisicao.Create(nil);
-      Requisicao.BaseURL := getUrlGoopedir;
-      Requisicao.URL := 'api/pedido/legacy/status';
-      Objeto := TJSONObject.Create;
-      Objeto.AddPair('codigo', CodigoSite);
-      Objeto.AddPair('status', StatusDescricao);
-      Requisicao.Body(Objeto);
-      Requisicao.Metodo := mPost;
-      Requisicao.Execute;
+      if not Desenvolvimento then
+      begin
+        Requisicao.BaseURL := getUrlGoopedir;
+        Requisicao.URL := 'api/pedido/legacy/status';
+        Objeto := TJSONObject.Create;
+        Objeto.AddPair('codigo', CodigoSite);
+        Objeto.AddPair('status', StatusDescricao);
+        Requisicao.Body(Objeto);
+        Requisicao.Metodo := mPost;
+        Requisicao.Execute;
+      end;
     except
       on E: Exception do
       begin
@@ -321,7 +345,7 @@ begin
   conexao.SQL.Add('SELECT ' +
     '  TIMESTAMPDIFF(SECOND, hora, NOW()) AS tempo, ' +
 
-    // üëá FLAG DE CHAMADO ABERTO
+    // ?? FLAG DE CHAMADO ABERTO
     '  CASE ' + '    WHEN EXISTS ( ' + '      SELECT 1 FROM alerta_sistema a ' +
     '      WHERE a.tipo = ''CHAMAR_GARCOM'' ' +
     '        AND a.status = ''ABERTO'' ' +
@@ -665,6 +689,7 @@ var
   Emitir: Integer;
   Requisicao: iRequisicao;
   QRY: TFDQuery;
+  percentualServico: Real;
 
 begin
   try
@@ -767,9 +792,7 @@ begin
 
     if DadosCliente.RecordCount = 0 then
     begin
-      // conexao.SQL.Add('select max(codigo)+1 as id, 0 as zero from cliente');
       CodigoCliente := conexao.GerarID('cliente', 'codigo');
-
       conexao.SQL.Add
         ('insert into cliente (codigo, nome, celular,ativo,bloqueado) values (:codigo,:nome,:celular,1,1)');
       conexao.Parametros('codigo', CodigoCliente);
@@ -783,21 +806,25 @@ begin
       CodigoCliente := DadosCliente.FieldByName('codigo').AsInteger;
     end;
     Total := (Total - Desconto) + Taxa + Acrecimo;
+    percentualServico := 0;
+    if (Acrecimo > 0) and (Mesa > 0) then
+    begin
+      try
+        percentualServico :=
+          strtofloat(conexao.GetParametro('taxa_servico_pedido'));
+      except
 
-    // conexao.SQL.Add
-    // ('SELECT max(codigo_pedido_dia)+1 as max, 0 as zero FROM pedido where data_pedido = curdate()');
-    //
-    // try
-    // CodigoPedidoDia := conexao.FieldByName('max');
-    // except
-    // CodigoPedidoDia := 1;
-    // end;
+      end;
+    end;
+
     CodigoPedidoDia := 1;
 
     conexao.SQL.Add
       ('update pedido set hora_entregue = CURRENT_TIME(),codigo_pedido_dia = :pedidodia, status = 6, codigo_cliente = :cliente, valor_desconto = :desconto,');
     conexao.SQL.Add
-      ('valor_taxa_entrega = :taxa, servico = :servico, valor_total_pedido = :total,valor_pedido = :vlpedido, tipo_pagamento = :pag, id_ficha = :ficha, ficha_faturada = :fichafaturada, desc_ficha = :desc, pedido_site = desc_ficha');
+      ('valor_taxa_entrega = :taxa, servico_percentual = :taxa_servico, ');
+    conexao.SQL.Add
+      ('servico = :servico, valor_total_pedido = :total,valor_pedido = :vlpedido, tipo_pagamento = :pag, id_ficha = :ficha, ficha_faturada = :fichafaturada, desc_ficha = :desc, pedido_site = desc_ficha');
     conexao.SQL.Add('where codigo = :codigo');
     conexao.Parametros('cliente', CodigoCliente);
     conexao.Parametros('desconto', Desconto);
@@ -808,6 +835,7 @@ begin
     conexao.Parametros('ficha', DadosMesa.FieldByName('id_mesa').AsInteger);
     conexao.Parametros('pedidodia', CodigoPedidoDia);
     conexao.Parametros('servico', Acrecimo);
+    conexao.Parametros('taxa_servico', percentualServico);
 
     conexao.Parametros('fichafaturada', DadosMesa.FieldByName('id_mesa')
       .AsInteger);
@@ -874,24 +902,15 @@ begin
       MovimentoCaixa(Caixa, CodigoPedido,
         DadosPagamento.FieldByName('ID_TIPO_PAGAMENTO').AsInteger, 1, Total,
         Descricao, CodigoCliente);
+      frmServidor.EnviarConferencia(CodigoPedido,
+        Req.Headers['user'].ToInteger());
     end;
-
-    // CodigoAux := conexao.GerarID('pedido_tipo_pagamento', 'codigo');
-    // conexao.SQL.Clear;
-    // conexao.SQL.Add
-    // ('insert pedido_tipo_pagamento into (codigo,codigo_pedido,tipo_pagamento,troco_para,valor_pago)');
-    // conexao.SQL.Add('value (:codigo,:pedido,:pagamento,0,:pago)');
-    // conexao.Parametros('codigo', CodigoAux);
-    // conexao.Parametros('pedido', CodigoPedido);
-    // conexao.Parametros('pagamento',
-    // DadosPagamento.FieldByName('ID_TIPO_PAGAMENTO').AsInteger);
-    // conexao.Parametros('pago', Total);
-    // conexao.ExecuteSQL;
 
     DadosPagamento.Next;
   end;
 
   try
+    AtualizaStatus(CodigoPedido,6);
     if Emitir = 1 then
     begin
       if frmServidor.Configuracoes.FieldByName('nfce').AsInteger > 0 then
@@ -915,8 +934,8 @@ begin
         begin
           conexao.SQL.Add
             ('update pedido set nfce_emite = 1 where codigo = :pedido');
+             TransmitirNFCe(CodigoPedido);
         end;
-
         conexao.Parametros('pedido', CodigoPedido);
         conexao.ExecuteSQL;
       end;
@@ -1443,7 +1462,7 @@ begin
   try
     Dados.LoadFromJSON(JsonArray.ToString);
   finally
-    JsonArray.Free; // sem isso, voc√™ vazava mem√≥ria a cada chamada
+    JsonArray.Free; // sem isso, vocÍ vazava memÛria a cada chamada
   end;
   Res.Send<TJSONArray>(Dados.ToJSONArray());
   Dados.Free;
@@ -1459,7 +1478,7 @@ begin
   try
     Usuario := Req.Params['usuario'].ToInteger;
   except
-    Res.Send('Usu√°rio n√£o informado').Status(500);
+    Res.Send('Usu·rio n„o informado').Status(500);
     exit;
   end;
 
@@ -1485,14 +1504,14 @@ begin
   try
     Usuario := Req.Params['usuario'].ToInteger;
   except
-    Res.Send('Usu√°rio n√£o informado').Status(500);
+    Res.Send('Usu·rio n„o informado').Status(500);
     exit;
   end;
 
   try
     Valor := strtofloat(StringReplace(Req.Params['valor'], '.', ',', []));
   except
-    Res.Send('valor n√£o informado').Status(500);
+    Res.Send('valor n„o informado').Status(500);
     exit;
   end;
 
@@ -1512,7 +1531,11 @@ begin
     conexao.Parametros('usuario', Usuario);
     conexao.Parametros('valor', Valor);
     conexao.ExecuteSQL;
-
+    conexao.SQL.Add
+      ('update usuario set id_caixa = :id where codigo = :usuario');
+    conexao.Parametros('id', Codigo);
+    conexao.Parametros('usuario', Usuario);
+    conexao.ExecuteSQL;
   end;
   Dados.Free;
   conexao.Free;
@@ -1545,14 +1568,14 @@ begin
   try
     Pedido := Req.Params['pedido'].ToInteger;
   except
-    Res.Send('Pedido n√£o informado').Status(500);
+    Res.Send('Pedido n„o informado').Status(500);
     exit;
   end;
 
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
   Dados := TFDMemTable.Create(nil);
@@ -1573,7 +1596,7 @@ begin
       Descricao := '#' + FormatFloat('000000', Dados.FieldByName('codigo')
         .AsInteger) + ' - ';
       Descricao := Descricao + 'PAGAMENTO TOTAL ' +
-        Dados.FieldByName('descricao').AsString + ' AUTOM√ÅTICO';
+        Dados.FieldByName('descricao').AsString + ' AUTOM¡TICO';
       MovimentoCaixa(Caixa, Dados.FieldByName('codigo').AsInteger,
         Dados.FieldByName('tipo_pagamento').AsInteger, 1,
         Dados.FieldByName('valor_total_pedido').AsFloat, Descricao, 0);
@@ -1623,7 +1646,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
   Dados := TFDMemTable.Create(nil);
@@ -1676,7 +1699,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
   try
@@ -1686,7 +1709,7 @@ begin
     if Dados.RecordCount = 0 then
     begin
       Dados.Free;
-      Res.Send('Pagamento n√£o informado').Status(500);
+      Res.Send('Pagamento n„o informado').Status(500);
       exit;
     end;
 
@@ -1809,6 +1832,72 @@ begin
 
 end;
 
+procedure DoGetResumoCaixa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: Tconexao;
+  Usuario, Status: Integer;
+  DataIni, DataFim, StatusTexto: String;
+  function ValorQuery(const Nome: String): String;
+  begin
+    try
+      Result := Trim(Req.Query[Nome]);
+    except
+      Result := '';
+    end;
+  end;
+begin
+  DataIni := ValorQuery('data_ini');
+  if DataIni = '' then
+    DataIni := ValorQuery('dataini');
+  if DataIni = '' then
+    DataIni := ValorQuery('ini');
+  DataFim := ValorQuery('data_fim');
+  if DataFim = '' then
+    DataFim := ValorQuery('datafim');
+  if DataFim = '' then
+    DataFim := ValorQuery('fim');
+  if (DataIni = '') or (DataFim = '') then
+  begin
+    Res.Send('Data inicial e final nao informadas').Status(400);
+    Exit;
+  end;
+  Usuario := StrToIntDef(ValorQuery('usuario'), 0);
+  StatusTexto := ValorQuery('status');
+  Status := StrToIntDef(StatusTexto, -1);
+  if (StatusTexto <> '') and (Status < 0) then
+  begin
+    Res.Send('Status invalido').Status(400);
+    Exit;
+  end;
+
+  conexao := Tconexao.Create('DoGetResumoCaixa');
+  try
+    conexao.SQL.Add('SELECT c.id, c.data_abertura, c.hora_abertura,');
+    conexao.SQL.Add('c.data_fechamento, c.hora_fechamento,');
+    conexao.SQL.Add('c.valor_abertura, c.valor_fechamento,');
+    conexao.SQL.Add('u.nome, c.id_site, c.status');
+    conexao.SQL.Add('FROM caixa as c');
+    conexao.SQL.Add('JOIN usuario as u on u.codigo = c.id_usuario');
+    conexao.SQL.Add('WHERE c.data_abertura BETWEEN :data_ini AND :data_fim');
+    conexao.Parametros('data_ini', DataIni);
+    conexao.Parametros('data_fim', DataFim);
+    if Usuario > 0 then
+    begin
+      conexao.SQL.Add('AND c.id_usuario = :usuario');
+      conexao.Parametros('usuario', Usuario);
+    end;
+    if StatusTexto <> '' then
+    begin
+      conexao.SQL.Add('AND c.status = :status');
+      conexao.Parametros('status', Status);
+    end;
+    conexao.SQL.Add('ORDER BY c.data_abertura DESC, c.hora_abertura DESC, c.id DESC');
+    Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
+
 procedure DoGetPagamentoCaixa(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -1820,7 +1909,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
 
@@ -1848,7 +1937,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
 
@@ -1875,7 +1964,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
 
@@ -1905,7 +1994,7 @@ begin
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    Res.Send('Caixa n√£o informado').Status(500);
+    Res.Send('Caixa n„o informado').Status(500);
     exit;
   end;
 
@@ -1935,6 +2024,7 @@ var
   Valor: Real;
   Descricao: String;
   JSON: TJSONObject;
+  Codigo: Integer;
 begin
   JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   Caixa := JSON.GetValue('caixa').Value.ToInteger;
@@ -1943,7 +2033,9 @@ begin
 
   Descricao := UpperCase(JSON.GetValue('descricao').Value);
 
-  MovimentoCaixa(Caixa, 0, 0, 2, Valor, 'SANGRIA - ' + UpperCase(Descricao), 0);
+  Codigo := MovimentoCaixa(Caixa, 0, 0, 2, Valor,
+    'SANGRIA - ' + UpperCase(Descricao), 0);
+  frmServidor.ImprimirSangriaGo(Codigo);
 
 end;
 
@@ -2193,21 +2285,21 @@ begin
   try
     Descricao := Req.Params['categoria'];
   except
-    Res.Send('Descricao n√£o informado').Status(500);
+    Res.Send('Descricao n„o informado').Status(500);
     exit;
   end;
 
   try
     Min := Req.Params['min'].ToInteger;
   except
-    Res.Send('Min n√£o informado').Status(500);
+    Res.Send('Min n„o informado').Status(500);
     exit;
   end;
 
   try
     Max := Req.Params['max'].ToInteger;
   except
-    Res.Send('Max n√£o informado').Status(500);
+    Res.Send('Max n„o informado').Status(500);
     exit;
   end;
 
@@ -2477,14 +2569,14 @@ begin
   try
     Produto := Req.Params['produto'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
   try
     Extra := Req.Params['extra'].ToInteger;
   except
-    Res.Send('Extra n√£o informado').Status(500);
+    Res.Send('Extra n„o informado').Status(500);
     exit;
   end;
 
@@ -2544,7 +2636,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -2610,7 +2702,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
@@ -2631,7 +2723,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -2663,7 +2755,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
@@ -2837,10 +2929,10 @@ begin
     Dados.FieldByName('id').AsInteger := 0;
     Dados.FieldByName('tipo_id').AsInteger := 3;
     Dados.FieldByName('ordem').AsInteger := Sequencial;
-    Dados.FieldByName('tipo').AsString := 'Pre√ßo';
+    Dados.FieldByName('tipo').AsString := 'PreÁo';
     Dados.FieldByName('extra').AsString := DIASEMANA;
     Dados.FieldByName('descricao').AsString :=
-      COPY(DadosConsulta.FieldByName('hora_inicial').AsString, 0, 8) + ' at√© ' +
+      COPY(DadosConsulta.FieldByName('hora_inicial').AsString, 0, 8) + ' atÈ ' +
       COPY(DadosConsulta.FieldByName('hora_final').AsString, 0, 8);
     Dados.FieldByName('valor').AsFloat := DadosConsulta.FieldByName
       ('valor').AsFloat;
@@ -2874,14 +2966,14 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
   try
     Arquivo := Req.Params['arquivo'];
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
@@ -2921,7 +3013,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
   frmServidor.memoImagem.Lines.Clear;
@@ -2963,7 +3055,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
 
@@ -2997,27 +3089,27 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Produto n√£o informado').Status(500);
+    Res.Send('Produto n„o informado').Status(500);
     exit;
   end;
   try
     Descricao := Req.Params['categoria'];
   except
-    Res.Send('Descricao n√£o informado').Status(500);
+    Res.Send('Descricao n„o informado').Status(500);
     exit;
   end;
 
   try
     Min := Req.Params['min'].ToInteger;
   except
-    Res.Send('Min n√£o informado').Status(500);
+    Res.Send('Min n„o informado').Status(500);
     exit;
   end;
 
   try
     Max := Req.Params['max'].ToInteger;
   except
-    Res.Send('Max n√£o informado').Status(500);
+    Res.Send('Max n„o informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -3215,14 +3307,14 @@ begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    Res.Send('C√≥digo N√£o Informado').Status(500);
+    Res.Send('CÛdigo N„o Informado').Status(500);
     exit;
   end;
 
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
-    Res.Send('Tipo N√£o Informado').Status(500);
+    Res.Send('Tipo N„o Informado').Status(500);
     exit;
   end;
   try
@@ -3251,7 +3343,7 @@ begin
   else
   begin
     conexao.SQL.Add
-      ('update pedido set servico_percentual = 0, servico = 0, valor_total_pedido = (select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) where codigo = :cod and id_ficha > 0');
+      ('update pedido set valor_total_pedido = (select sum(valor_total) from pedido_produtos where pedido_produtos.codigo_pedido = :cod) where codigo = :cod and id_ficha > 0');
   end;
   conexao.Parametros('cod', Codigo);
   conexao.ExecuteSQL;
@@ -3261,13 +3353,24 @@ begin
       begin
         // Pedido
 
+        if conexao.GetParametro('nova_impressao') = '1' then
+        begin
+          try
+            frmServidor.EnviarConferencia(Codigo,
+              Req.Headers['user'].ToInteger());
+          except
+            frmServidor.EnviarConferencia(Codigo, -2);
+          end;
+          conexao.Free;
+          exit;
+        end;
+
         Aux := conexao.GerarID('impressao_pedido', 'id');
         conexao.SQL.Add
           ('insert into impressao_pedido (id,data_solicitacao,hora_solicitacao,id_pedido,status,vias) values (:id,current_date(),current_time(),:pedido,0,0)');
         conexao.Parametros('pedido', Codigo);
         conexao.Parametros('id', Aux);
         conexao.ExecuteSQL;
-        // Pegar os produtos que n√£o foram impresso e colocar aqui
 
       end;
     2:
@@ -3283,13 +3386,14 @@ begin
     3:
       begin
         // Caixa Completo
-        Aux := conexao.GerarID('impressao_caixa', 'id');
-        conexao.SQL.Add
-          ('insert into impressao_caixa (id,data_solicitacao,hora_solicitacao,id_caixa,status,tipo) values (:id,current_date,current_time,:caixa,0,:tipo)');
-        conexao.Parametros('caixa', Codigo);
-        conexao.Parametros('id', Aux);
-        conexao.Parametros('tipo', Tipo);
-        conexao.ExecuteSQL;
+        frmServidor.ImprimirCaixa(Codigo);
+        // Aux := conexao.GerarID('impressao_caixa', 'id');
+        // conexao.SQL.Add
+        // ('insert into impressao_caixa (id,data_solicitacao,hora_solicitacao,id_caixa,status,tipo) values (:id,current_date,current_time,:caixa,0,:tipo)');
+        // conexao.Parametros('caixa', Codigo);
+        // conexao.Parametros('id', Aux);
+        // conexao.Parametros('tipo', Tipo);
+        // conexao.ExecuteSQL;
       end;
     4:
       begin
@@ -3357,14 +3461,14 @@ begin
   try
     Pedido := Req.Params['pedido'].ToInteger;
   except
-    Res.Send('Pedido N√£o Informado').Status(500);
+    Res.Send('Pedido N„o Informado').Status(500);
     exit;
   end;
 
   try
     Motoboy := Req.Params['motoboy'].ToInteger;
   except
-    Res.Send('Motoboy N√£o Informado').Status(500);
+    Res.Send('Motoboy N„o Informado').Status(500);
     exit;
   end;
 
@@ -3403,14 +3507,14 @@ begin
   try
     Pedido := Req.Params['pedido'].ToInteger;
   except
-    Res.Send('Pedido N√£o Informado').Status(500);
+    Res.Send('Pedido N„o Informado').Status(500);
     exit;
   end;
 
   try
     Status := Req.Params['status'].ToInteger;
   except
-    Res.Send('Status N√£o Informado').Status(500);
+    Res.Send('Status N„o Informado').Status(500);
     exit;
   end;
   AtualizaStatus(Pedido, Status);
@@ -3433,7 +3537,7 @@ begin
 
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select *, ');
-  conexao.SQL.Add('upper((select concat(ce.rua,' + QuotedStr(' N¬∫') +
+  conexao.SQL.Add('upper((select concat(ce.rua,' + QuotedStr(' N∫') +
     ',ce.numero,' + QuotedStr(' / ') + ',ce.bairro, ' + QuotedStr(' ') +
     ', ce.cidade,' + QuotedStr('-') +
     ',ce.estado) from cliente_endereco as ce where ce.codigo_cliente = c.codigo order by codigo desc limit 1 )) as endereco from cliente as c');
@@ -3468,7 +3572,7 @@ begin
   try
     Tabela := Req.Params['tabela'];
   except
-    Res.Send('Tabela N√£o Informado').Status(500);
+    Res.Send('Tabela N„o Informado').Status(500);
     exit;
   end;
 
@@ -3571,14 +3675,14 @@ begin
   try
     Tabela := Req.Params['tabela'];
   except
-    Res.Send('Tabela N√£o Informado').Status(500);
+    Res.Send('Tabela N„o Informado').Status(500);
     exit;
   end;
 
   try
     CampoID := Req.Params['id'];
   except
-    Res.Send('Campo PK N√£o Informado').Status(500);
+    Res.Send('Campo PK N„o Informado').Status(500);
     exit;
   end;
 
@@ -3670,7 +3774,7 @@ begin
   try
     Celular := Req.Params['celular'];
   except
-    Res.Send('Celular N√£o Informado').Status(500);
+    Res.Send('Celular N„o Informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -3790,7 +3894,7 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Pedido N√£o Informado').Status(500);
+    Res.Send('Pedido N„o Informado').Status(500);
     exit;
   end;
 
@@ -3825,14 +3929,14 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    Res.Send('Pedido N√£o Informado').Status(500);
+    Res.Send('Pedido N„o Informado').Status(500);
     exit;
   end;
 
   try
     IDMesaAtual := Req.Params['mesa'].ToInteger;
   except
-    Res.Send('Pedido N√£o Informado').Status(500);
+    Res.Send('Pedido N„o Informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -3850,7 +3954,7 @@ begin
   conexao.Parametros('id', IDMesaAtual);
   DescricaoMesaDe := conexao.FieldByName('descricao');
 
-  DescricaoTransferencia := 'Transfer√™ncia de ' + DescricaoMesaDe + ' para ' +
+  DescricaoTransferencia := 'TransferÍncia de ' + DescricaoMesaDe + ' para ' +
     DescricaoMesaPara;
 
   Dados := TFDMemTable.Create(nil);
@@ -3877,7 +3981,7 @@ begin
         conexao.Parametros('id', CodigoAux);
         conexao.Parametros('codigo_pedido_produto', Dados.FieldByName('codigo')
           .AsString);
-        conexao.Parametros('nomeclatura', 'TRANSFER√äNCIA');
+        conexao.Parametros('nomeclatura', 'TRANSFER NCIA');
         conexao.Parametros('descricao', DescricaoTransferencia);
         conexao.Parametros('valor', 0);
         conexao.Parametros('tipo_valor', 0);
@@ -3980,6 +4084,11 @@ begin
     Dados.Next;
   end;
 
+  if frmServidor.urlServicoImpressaoGo <> '' then
+  begin
+
+  end;
+
   Dados.Free;
   conexao.Free;
 end;
@@ -4010,7 +4119,7 @@ begin
   try
     Senha := Req.Params['senha'];
   except
-    Res.Send('Senha N√£o Informado').Status(500);
+    Res.Send('Senha N„o Informado').Status(500);
     exit;
   end;
 
@@ -4035,7 +4144,7 @@ begin
   try
     Senha := Req.Params['senha'];
   except
-    Res.Send('Senha N√£o Informado').Status(500);
+    Res.Send('Senha N„o Informado').Status(500);
     exit;
   end;
 
@@ -4066,7 +4175,7 @@ begin
   try
     ID := Req.Params['mesa'].ToInteger;
   except
-    Res.Send('Mesa N√£o Informado').Status(500);
+    Res.Send('Mesa N„o Informado').Status(500);
     exit;
   end;
 
@@ -4090,7 +4199,7 @@ begin
   try
     ID := Req.Params['mesa'].ToInteger;
   except
-    Res.Send('Mesa N√£o Informado').Status(500);
+    Res.Send('Mesa N„o Informado').Status(500);
     exit;
   end;
 
@@ -4121,7 +4230,7 @@ begin
     // Writeln('Arquivo enviado: ' + arq);
   end
   else
-    Res.Send('Arquivo n√£o encontrado: ' + arq).Status(404);
+    Res.Send('Arquivo n„o encontrado: ' + arq).Status(404);
 end;
 
 procedure DoPostTest(Req: THorseRequest; Res: THorseResponse;
@@ -4281,13 +4390,13 @@ end;
 //
 // // Log dos tempos
 // LogTempoExecucaoPedido('Tempo total: ' + IntToStr(t6 - t0) + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Busca ID/Codigo: ' + IntToStr(t1 - t0) + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Busca index_pedido: ' + IntToStr(t2 - t1)
+// LogTempoExecucaoPedido('  ? Busca ID/Codigo: ' + IntToStr(t1 - t0) + ' ms');
+// LogTempoExecucaoPedido('  ? Busca index_pedido: ' + IntToStr(t2 - t1)
 // + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Consulta mesa: ' + IntToStr(t3 - t2) + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Update pedido: ' + IntToStr(t4 - t3) + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Consulta pedido: ' + IntToStr(t5 - t4) + ' ms');
-// LogTempoExecucaoPedido('  ‚ñ∏ Final + GetDadosProdutoPedido: ' +
+// LogTempoExecucaoPedido('  ? Consulta mesa: ' + IntToStr(t3 - t2) + ' ms');
+// LogTempoExecucaoPedido('  ? Update pedido: ' + IntToStr(t4 - t3) + ' ms');
+// LogTempoExecucaoPedido('  ? Consulta pedido: ' + IntToStr(t5 - t4) + ' ms');
+// LogTempoExecucaoPedido('  ? Final + GetDadosProdutoPedido: ' +
 // IntToStr(t6 - t5) + ' ms');
 // LogTempoExecucaoPedido('-------------------------');
 //
@@ -4562,17 +4671,17 @@ end;
 
 function FormatarTelefone(Numero: String): String;
 begin
-  // Remove qualquer caractere n√£o num√©rico
+  // Remove qualquer caractere n„o numÈrico
   Numero := StringReplace(Numero, '(', '', [rfReplaceAll]);
   Numero := StringReplace(Numero, ')', '', [rfReplaceAll]);
   Numero := StringReplace(Numero, '-', '', [rfReplaceAll]);
   Numero := StringReplace(Numero, ' ', '', [rfReplaceAll]);
-  // Verifica se o n√∫mero possui 11 d√≠gitos
+  // Verifica se o n˙mero possui 11 dÌgitos
   if length(Numero) = 11 then
     Result := Format('(%s) %s-%s', [COPY(Numero, 1, 2), COPY(Numero, 3, 5),
       COPY(Numero, 8, 4)])
   else
-    Result := Numero; // Retorna o n√∫mero original se n√£o tiver 11 d√≠gitos
+    Result := Numero; // Retorna o n˙mero original se n„o tiver 11 dÌgitos
 end;
 
 procedure DoGetConsultaClienteCelular(Req: THorseRequest; Res: THorseResponse;
@@ -4586,7 +4695,7 @@ begin
   try
     Celular := Req.Params['celular'];
   except
-    Res.Send('celular N√£o Informado').Status(500);
+    Res.Send('celular N„o Informado').Status(500);
     exit;
   end;
 
@@ -4615,7 +4724,7 @@ begin
   try
     ID := Req.Params['codigo'].ToInteger;
   except
-    Res.Send('C√≥digo N√£o Informado').Status(500);
+    Res.Send('CÛdigo N„o Informado').Status(500);
     exit;
   end;
 
@@ -4636,7 +4745,7 @@ begin
   try
     ID := Req.Params['codigo'].ToInteger;
   except
-    Res.Send('C√≥digo N√£o Informado').Status(500);
+    Res.Send('CÛdigo N„o Informado').Status(500);
     exit;
   end;
 
@@ -4676,34 +4785,26 @@ var
   Entrega: Integer;
   DadosEntrega: TFDMemTable;
   TotalProduto: Real;
+  ValorEntrega, ValorAcrescimo, ValorDesconto: Double;
   ClienteNome: String;
   Usuario: Integer;
+  imprimir: Boolean;
 
   DadosTipoPagamento: TFDMemTable;
+  Body : String;
 begin
+  Body :=Req.Body;
 
   try
     Tipo := (Req.Params['tipo'].ToInteger > 0);
   except
     Tipo := false;
   end;
-  {
 
-    memDadosPedido.FieldByName('codigo').AsInteger := CodigoPedido;
-    memDadosPedido.FieldByName('data').AsDateTime := edtData.Date;
-    memDadosPedido.FieldByName('hora').AsDateTime := edtHora.Time;
-    memDadosPedido.FieldByName('produto').AsFloat := ValorProduto;
-    memDadosPedido.FieldByName('acrecimo').AsFloat := ValorAcrescimo;
-    memDadosPedido.FieldByName('entrega').AsFloat := ValorEntrega;
-    memDadosPedido.FieldByName('desconto').AsFloat := ValorDesconto;
-    memDadosPedido.FieldByName('total').AsFloat := ValorTotal;
-    memDadosPedido.FieldByName('cliente').AsInteger := CodigoCliente;
-
-
-  }
   Entrega := 0;
   Dados := TFDMemTable.Create(nil);
-  Dados.LoadFromJSON(Req.Body);
+  Dados.LoadFromJSON(Body);
+  Dados.Edit;
 
   if Dados.RecordCount > 0 then
   begin
@@ -4714,17 +4815,9 @@ begin
     end;
 
     conexao := Tconexao.Create('Util');
-    Dados.Edit;
-    Dados.FieldByName('produto').AsString :=
-      StringReplace(Dados.FieldByName('produto').AsString, '.', ',', []);
-    Dados.FieldByName('acrecimo').AsString :=
-      StringReplace(Dados.FieldByName('acrecimo').AsString, '.', ',', []);
-    Dados.FieldByName('entrega').AsString :=
-      StringReplace(Dados.FieldByName('entrega').AsString, '.', ',', []);
-    Dados.FieldByName('desconto').AsString :=
-      StringReplace(Dados.FieldByName('desconto').AsString, '.', ',', []);
-    Dados.FieldByName('troco').AsString :=
-      StringReplace(Dados.FieldByName('troco').AsString, '.', ',', []);
+    ValorEntrega := ValorDecimalJSON(Dados, 'entrega');
+    ValorAcrescimo := ValorDecimalJSON(Dados, 'acrecimo');
+    ValorDesconto := ValorDecimalJSON(Dados, 'desconto');
     if Dados.FieldByName('cliente').AsInteger = 0 then
     begin
       conexao.SQL.Add('select * from cliente where celular = :celular');
@@ -4809,8 +4902,10 @@ begin
         CodigoPedido := GeraCodigoPorDiaPedido(Dados.FieldByName('codigo')
           .AsInteger);
         conexao.SQL.Add
-          ('update pedido set codigo_pedido_dia = :codigo_pedido_dia, status = 1, usuario = :usuario, data_pedido = curdate(), hora_pedido = curtime() where codigo = :codigo');
+          ('update pedido set tipo_pagamento = :tipo_pagamento, codigo_pedido_dia = :codigo_pedido_dia, status = 1, usuario = :usuario, data_pedido = curdate(), hora_pedido = curtime() where codigo = :codigo');
         conexao.Parametros('usuario', Usuario);
+        conexao.Parametros('tipo_pagamento', Dados.FieldByName('tipo_pagamento')
+          .AsInteger);
         conexao.Parametros('codigo_pedido_dia', CodigoPedido);
         conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
         conexao.ExecuteSQL;
@@ -4818,6 +4913,13 @@ begin
           ('update pedido_produtos set tempo_liberacao = 0 where codigo_pedido = :codigo');
         conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
         conexao.ExecuteSQL;
+        // v1/atualiza/dados/pedido/
+        if conexao.GetParametro('nova_impressao') = '1' then
+        begin
+          imprimir := true;
+
+        end;
+
       end;
       if Dados.FieldByName('endereco').AsInteger > 0 then
       begin
@@ -4883,7 +4985,7 @@ begin
     end;
 
     try
-      Troco := Dados.FieldByName('troco').AsFloat;
+      Troco := ValorDecimalJSON(Dados, 'troco');
     except
       Troco := 0;
     end;
@@ -4901,7 +5003,7 @@ begin
 
     if TotalProduto = 0 then
     begin
-      Res.Status(400).Send('{"mensagem":"N√£o h√° produtos selecionado"}')
+      Res.Status(400).Send('{"mensagem":"N„o h· produtos selecionado"}')
     end;
 
     conexao.SQL.Add
@@ -4924,12 +5026,11 @@ begin
     conexao.Parametros('hora', (Dados.FieldByName('hora').AsString));
     conexao.Parametros('status', Dados.FieldByName('status').AsInteger);
     conexao.Parametros('produto', TotalProduto);
-    conexao.Parametros('desconto', Dados.FieldByName('desconto').AsFloat);
-    conexao.Parametros('entrega', Dados.FieldByName('entrega').AsFloat);
-    conexao.Parametros('total', (TotalProduto + Dados.FieldByName('entrega')
-      .AsFloat + Dados.FieldByName('acrecimo').AsFloat) -
-      Dados.FieldByName('desconto').AsFloat);
-    conexao.Parametros('acrecimo', Dados.FieldByName('acrecimo').AsFloat);
+    conexao.Parametros('desconto', ValorDesconto);
+    conexao.Parametros('entrega', ValorEntrega);
+    conexao.Parametros('total', (TotalProduto + ValorEntrega + ValorAcrescimo) -
+      ValorDesconto);
+    conexao.Parametros('acrecimo', ValorAcrescimo);
     conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
     try
 
@@ -4945,7 +5046,7 @@ begin
       end
       else
       begin
-        Res.Status(400).Send('{"mensagem":"Tipo de pagamento n√£o cadastrado"}')
+        Res.Status(400).Send('{"mensagem":"Tipo de pagamento n„o cadastrado"}')
       end;
 
       DadosTipoPagamento.Free;
@@ -4954,6 +5055,13 @@ begin
     conexao.Parametros('troco', Troco);
     conexao.Parametros('nome', ClienteNome);
     conexao.ExecuteSQL;
+
+    if imprimir then
+    begin
+      frmServidor.EnviarConferencia(Dados.FieldByName('codigo').AsInteger,
+        Req.Headers['user'].ToInteger());
+      frmServidor.enviarImpressaoGo(Dados.FieldByName('codigo').AsInteger);
+    end;
 
     conexao.ExecuteSQL('call sp_atualiza_preparo_pedido(' +
       Dados.FieldByName('codigo').AsString + ')');
@@ -4979,7 +5087,7 @@ begin
   try
     Tabela := Req.Params['tabela'];
   except
-    Res.Send('Tabela N√£o Informado').Status(500);
+    Res.Send('Tabela N„o Informado').Status(500);
     exit;
   end;
   try
@@ -5249,7 +5357,7 @@ begin
         end;
       3:
         begin
-          // Tabela de Pre√ßo
+          // Tabela de PreÁo
         end;
     end;
 
@@ -5386,7 +5494,7 @@ end;
   try
   ID := Req.Params['id'].ToInteger;
   except
-  Res.Send('Pedido N√£o Informado').Status(500);
+  Res.Send('Pedido N„o Informado').Status(500);
   exit;
   end;
 
@@ -5409,14 +5517,14 @@ begin
   try
     Banco := LowerCase(Req.Params['banco']);
   except
-    Res.Send('Banco N√£o Informado').Status(500);
+    Res.Send('Banco N„o Informado').Status(500);
     exit;
   end;
 
   try
     Chave := Req.Params['chave'];
   except
-    Res.Send('Chave N√£o Informado').Status(500);
+    Res.Send('Chave N„o Informado').Status(500);
     exit;
   end;
 
@@ -5429,7 +5537,7 @@ begin
   conexao := Tconexao.Create('Util');
   if conexao.NomeBanco <> Banco then
   begin
-    Res.Send('Banco n√£o conectado! Banco atual: ' + conexao.NomeBanco)
+    Res.Send('Banco n„o conectado! Banco atual: ' + conexao.NomeBanco)
       .Status(500);
     conexao.Free;
     exit;
@@ -5567,7 +5675,7 @@ begin
   try
     Tipo := LowerCase(Req.Params['tipo']).ToInteger;
   except
-    Res.Send('Tipo N√£o Informado').Status(500);
+    Res.Send('Tipo N„o Informado').Status(500);
     exit;
   end;
   try
@@ -5755,13 +5863,13 @@ begin
   try
     Extra := Req.Params['extra'].ToInteger;
   except
-    Res.Send('Extra N√£o Informado').Status(500);
+    Res.Send('Extra N„o Informado').Status(500);
     exit;
   end;
   try
     Produto := Req.Params['produto'].ToInteger;
   except
-    Res.Send('Extra N√£o Informado').Status(500);
+    Res.Send('Extra N„o Informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -5833,7 +5941,7 @@ begin
   try
     ID := Req.Params['codigo'].ToInteger;
   except
-    Res.Send('ID N√£o Informado').Status(500);
+    Res.Send('ID N„o Informado').Status(500);
     exit;
   end;
   conexao := Tconexao.Create('Util');
@@ -5854,7 +5962,7 @@ var
   I: Integer;
 begin
   SetLength(Tipos, 4);
-  Tipos[0] := 'Promo√ß√£o';
+  Tipos[0] := 'PromoÁ„o';
   Tipos[1] := 'Tradicional';
   Tipos[2] := 'Especial';
   Tipos[3] := 'Doce';
@@ -5883,7 +5991,7 @@ begin
   end;
 
   conexao.SQL.Add('select * from tipo_sabor where nome in (' +
-    QuotedStr('Promo√ß√£o') + ',' + QuotedStr('Tradicional') + ',' +
+    QuotedStr('PromoÁ„o') + ',' + QuotedStr('Tradicional') + ',' +
     QuotedStr('Especial') + ',' + QuotedStr('Doce') + ') and ativo = 1');
 
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -6155,13 +6263,13 @@ var
   I: Integer;
   idSaborCompleto: Integer;
 begin
-  // Cria a conex√£o
+  // Cria a conex„o
   conexao := Tconexao.Create('Util');
   try
-    // L√™ o JSON da requisi√ß√£o
+    // LÍ o JSON da requisiÁ„o
     JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
     if not Assigned(JSON) then
-      raise Exception.Create('JSON inv√°lido.');
+      raise Exception.Create('JSON inv·lido.');
 
     conexao.SQL.Add
       ('select max(id) as id, 0 as zero from sabores_completo where nome = :nome and id_produto = :produto');
@@ -6369,7 +6477,7 @@ var
   conexao: Tconexao;
   CodigoAux: String;
   Dados: TFDMemTable;
-  Imprimir: Integer;
+  imprimir: Integer;
   CodigoMesa: Integer;
   NumeroMesa: Integer;
 begin
@@ -6381,7 +6489,7 @@ begin
 
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select * from dados_whatsapp');
-  Imprimir := conexao.FieldByName('impressaotipopro');
+  imprimir := conexao.FieldByName('impressaotipopro');
   Dados := TFDMemTable.Create(nil);
 
   conexao.SQL.Add('select * from mesa where mesa.selecionada = :codigo');
@@ -6400,7 +6508,7 @@ begin
   except
     CodigoMesa := 0;
   end;
-  if Imprimir = 1 then
+  if imprimir = 1 then
   begin
     if CodigoMesa = 0 then
     begin
@@ -6710,13 +6818,13 @@ begin
         if Fator = 0 then
           Fator := 1;
 
-        // Consultar Fator de Convers√£o antes de fazer a entrada
+        // Consultar Fator de Convers„o antes de fazer a entrada
 
         MovimentacaoInsulmo(Dados.FieldByName('ID').AsInteger, 1,
           Dados.FieldByName('QTD').AsFloat * Fator,
           Dados.FieldByName('CUSTOTOTAL').AsFloat, Dados.FieldByName('CUSTOUN')
           .AsFloat, true);
-        // Fazer Atualiza√ß√£o do custo dos ingredientes cujo s√£o sub-produtos;
+        // Fazer AtualizaÁ„o do custo dos ingredientes cujo s„o sub-produtos;
         Res.Send<TJSONArray>(AtualizacaoCustoIngrediente(Dados.FieldByName('ID')
           .AsInteger));
 
@@ -7335,7 +7443,7 @@ begin
   conexao.ExecuteSQL;
   if length(rua) > 0 then
   begin
-    // Cadastra Endere√ßo
+    // Cadastra EndereÁo
     conexao.SQL.Add
       ('select max(codigo) as codigo, 0 as zero from cliente_endereco where  cliente_endereco.codigo_cliente = :cliente');
     conexao.Parametros('cliente', Codigo);
@@ -7644,7 +7752,7 @@ begin
     conexao.ExecuteSQL;
   end;
 
-  EnviaProduto(Codigo.ToInteger, '');
+  EnviaProduto(Codigo.ToInteger, '', '');
 
   conexao.Free;
 
@@ -7659,8 +7767,12 @@ end;
 
 procedure DoGetProdutoCategoria(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
+var
+  hash: String;
 begin
-  Res.Send<TJSONArray>(GetProdutoCategoria(Req.Params['categoria']));
+  hash := frmServidor.ProdutosHash.Gerar(Req.Params['categoria']);
+  frmServidor.ProdutosHash.GerarHash(Req.Params['categoria'], hash);
+  Res.Send<TJSONArray>(GetProdutoCategoria(Req.Params['categoria'], hash));
 end;
 
 procedure DoGetProdutoBuscaP(Req: THorseRequest; Res: THorseResponse;
@@ -7756,6 +7868,7 @@ begin
   THorse.Get('/v1/caixa/pedidos/dados/:caixa', DoGetPedidosCaixa);
   THorse.Get('/v1/caixa/pedidos/historico/:caixa', DoGetHistoricoCaixa);
   THorse.Get('/v1/caixa/pedidos/pagamento/:caixa', DoGetPagamentoCaixa);
+  THorse.Get('/v1/caixa/resumo', DoGetResumoCaixa);
   THorse.Get('/v1/caixa/historico/', DoGetHistoricoCaixaTodos);
   THorse.Get('/v1/caixa/historico/ultimos/7/dias',
     DoGetHistoricoCaixaUltimos7Dias);
@@ -8001,7 +8114,7 @@ begin
 
   THorse.Post('v1/util/clona/sabor/pizza/:de/:para', DoPostClonaSabor);
 
-  // Integra√ß√£o iFood
+  // IntegraÁ„o iFood
   THorse.Get('v1/util/ifood/status', DoGetStatusiFood);
   THorse.Get('v1/util/ifood/status/:id', DoGetStatusiFood);
   THorse.Get('v1/util/ifood/autenticacao/:id', DoGetAutenticacaoiFood);
@@ -8118,7 +8231,6 @@ begin
     begin
       // Gerar A Receber
       GerarReceber(Caixa, Pedido, TipoPagamento, Valor, Cliente, Codigo);
-
     end;
 
   end;
@@ -8287,13 +8399,13 @@ begin
 
       if (DifHoras >= 2) then
       begin
-        // Passaram-se mais de 2 horas desde o √∫ltimo pedido do segundo turno
+        // Passaram-se mais de 2 horas desde o ˙ltimo pedido do segundo turno
 
         frmServidor.CodigoPedido := 0;
 
       end;
 
-      // Atualiza o √∫ltimo hor√°rio usado para gerar pedidos no turno da tarde
+      // Atualiza o ˙ltimo hor·rio usado para gerar pedidos no turno da tarde
       frmServidor.UltimoHorarioPedidoTurnoTarde := Now;
     end;
   finally
@@ -8398,7 +8510,7 @@ end;
 
 function RemoveAcento(const pText: string): string;
 const
-  ComAcento = '√†√¢√™√¥√ª√£√µ√°√©√≠√≥√∫√ß√º√±√Ω√Ä√Ç√ä√î√õ√É√ï√Å√â√ç√ì√ö√á√ú√ë√ù';
+  ComAcento = '‡‚ÍÙ˚„ı·ÈÌÛ˙Á¸Ò˝¿¬ ‘€√’¡…Õ”⁄«‹—›';
   SemAcento = 'aaeouaoaeioucunyAAEOUAOAEIOUCUNY';
 var
   x: Cardinal;
@@ -8828,7 +8940,7 @@ begin
     begin
       if Dados.FieldByName('controle_estoque').AsInteger = 1 then
       begin
-        EnviaProduto(Codigo, '');
+        EnviaProduto(Codigo, '', '');
         DadosEnviaSite := TFDMemTable.Create(nil);
         conexao.SQL.Add
           ('select 0, pap.id_produto as prod from pro_adi_personalizado_sabores paps');
@@ -8841,7 +8953,7 @@ begin
         begin
           while not DadosEnviaSite.Eof do
           begin
-            EnviaProduto(DadosEnviaSite.FieldByName('prod').AsInteger, '');
+            EnviaProduto(DadosEnviaSite.FieldByName('prod').AsInteger, '', '');
             DadosEnviaSite.Next;
           end;
         end;
@@ -8916,8 +9028,136 @@ begin
   //
   // conexao.Free;
   LimpaCacheGeral;
+  ValidarNotificacaoEstoqueBaixo;
 end;
-
+function EscapeXML(const Texto: string): string;
+begin
+  Result := StringReplace(Texto, '&', '&amp;', [rfReplaceAll]);
+  Result := StringReplace(Result, '<', '&lt;', [rfReplaceAll]);
+  Result := StringReplace(Result, '>', '&gt;', [rfReplaceAll]);
+  Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
+  Result := StringReplace(Result, '''', '&apos;', [rfReplaceAll]);
+end;
+function GarantirParametroEstoqueMinimo(Conexao: TConexao): Double;
+var
+  ValorParametro: string;
+  FS: TFormatSettings;
+begin
+  FS := TFormatSettings.Create;
+  FS.DecimalSeparator := '.';
+  ValorParametro := VarToStr(Conexao.GetParametro('estoque_min_recomendado'));
+  ValorParametro := StringReplace(ValorParametro, ',', '.', [rfReplaceAll]);
+  Result := StrToFloatDef(ValorParametro, 0, FS);
+  if Result <= 0 then
+  begin
+    Result := 30;
+    Conexao.SQL.Add
+      ('insert into configuracoes (chave, valor) values ("estoque_min_recomendado", "30") on duplicate key update valor = "30"');
+    Conexao.ExecuteSQL;
+  end;
+end;
+procedure GarantirTipoAlertaEstoque(Conexao: TConexao);
+begin
+  try
+    Conexao.SQL.Add
+      ('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
+    Conexao.ExecuteSQL;
+  except
+  end;
+end;
+function GerarXMLProdutosEstoqueBaixo(Dados: TFDMemTable;
+  EstoqueMinimoPadrao: Double): string;
+var
+  XML: TStringList;
+  FS: TFormatSettings;
+begin
+  FS := TFormatSettings.Create;
+  FS.DecimalSeparator := '.';
+  XML := TStringList.Create;
+  try
+    XML.Add('<?xml version="1.0" encoding="UTF-8"?>');
+    XML.Add('<produtos_estoque_baixo gerado_em="' +
+      FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', Now) + '" minimo_padrao="' +
+      FormatFloat('0.######', EstoqueMinimoPadrao, FS) + '">');
+    Dados.First;
+    while not Dados.Eof do
+    begin
+      XML.Add('  <produto>');
+      XML.Add('    <codigo>' + Dados.FieldByName('codigo').AsString +
+        '</codigo>');
+      XML.Add('    <nome>' + EscapeXML(Dados.FieldByName('nome_produto')
+        .AsString) + '</nome>');
+      XML.Add('    <saldo_atual>' + FormatFloat('0.######',
+        Dados.FieldByName('saldo_atual').AsFloat, FS) + '</saldo_atual>');
+      XML.Add('    <estoque_minimo>' + FormatFloat('0.######',
+        Dados.FieldByName('estoque_minimo_usado').AsFloat, FS) +
+        '</estoque_minimo>');
+      XML.Add('  </produto>');
+      Dados.Next;
+    end;
+    XML.Add('</produtos_estoque_baixo>');
+    Result := XML.Text;
+  finally
+    XML.Free;
+  end;
+end;
+procedure ValidarNotificacaoEstoqueBaixo;
+var
+  Conexao: TConexao;
+  Dados: TFDMemTable;
+  EstoqueMinimoPadrao: Double;
+  XML, Pasta, Arquivo, URL, Mensagem: string;
+begin
+  Conexao := TConexao.Create('ValidarNotificacaoEstoqueBaixo');
+  Dados := TFDMemTable.Create(nil);
+  try
+    GarantirTipoAlertaEstoque(Conexao);
+    EstoqueMinimoPadrao := GarantirParametroEstoqueMinimo(Conexao);
+    Conexao.SQL.Add('select codigo, nome_produto,');
+    Conexao.SQL.Add('coalesce(saldo_atual, 0) as saldo_atual,');
+    Conexao.SQL.Add('estoque_min,');
+    Conexao.SQL.Add('case when coalesce(estoque_min, 0) > 0 then estoque_min else :estoque_min_padrao end as estoque_minimo_usado');
+    Conexao.SQL.Add('from produto');
+    Conexao.SQL.Add('where controle_estoque = 1 and deletado = 0');
+    Conexao.SQL.Add('having saldo_atual <= estoque_minimo_usado');
+    Conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
+    Dados.LoadFromJSON(Conexao.ConsultaSQL);
+    if Dados.RecordCount = 0 then
+      Exit;
+    Conexao.SQL.Add('select id, 0 as zero from alerta_sistema');
+    Conexao.SQL.Add('where status = "ABERTO" and tipo = "ESTOQUE"');
+    Conexao.SQL.Add('and CAST(payload AS CHAR) LIKE "%ESTOQUE_BAIXO_PRODUTO%"');
+    Conexao.SQL.Add('limit 1');
+    if Conexao.FieldByName('id') <> '0' then
+      Exit;
+    XML := GerarXMLProdutosEstoqueBaixo(Dados, EstoqueMinimoPadrao);
+    Pasta := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) +
+      'cache' + PathDelim + 'alertas' + PathDelim;
+    ForceDirectories(Pasta);
+    Arquivo := 'estoque_baixo_' + FormatDateTime('yyyymmddhhnnss', Now) +
+      '.xml';
+    TFile.WriteAllText(Pasta + Arquivo, XML, TEncoding.UTF8);
+    URL := '/v2/produto/estoque/baixo/xml/' + Arquivo;
+    Mensagem := IntToStr(Dados.RecordCount) +
+      ' produtos com estoque baixo. Acesse o alerta para visualizar o XML.';
+    Conexao.SQL.Add('INSERT INTO alerta_sistema');
+    Conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
+    Conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", NULL,');
+    Conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "ESTOQUE_BAIXO_PRODUTO",');
+    Conexao.SQL.Add('"mensagem", :mensagem, "quantidade", :quantidade,');
+    Conexao.SQL.Add('"estoque_min_padrao", :estoque_min_padrao,');
+    Conexao.SQL.Add('"xml_arquivo", :xml_arquivo, "xml_url", :xml_url))');
+    Conexao.Parametros('mensagem', Mensagem);
+    Conexao.Parametros('quantidade', Dados.RecordCount);
+    Conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
+    Conexao.Parametros('xml_arquivo', Arquivo);
+    Conexao.Parametros('xml_url', URL);
+    Conexao.ExecuteSQL;
+  finally
+    Dados.Free;
+    Conexao.Free;
+  end;
+end;
 procedure ApagarProduto(ID: Integer; Motivo: String; CodigoUsuario: Integer);
 var
   conexao: Tconexao;
@@ -8972,7 +9212,19 @@ begin
     begin
 
       MovimentacaoProduto(CodigoRadon(Produto), Produto, 1, Quantidade);
-
+      conexao.SQL.Add('INSERT INTO alerta_sistema');
+      conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
+      conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", :referencia_id,');
+      conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "RETORNO_ESTOQUE_PEDIDO",');
+      conexao.SQL.Add('"mensagem", :mensagem, "pedido_produto", :pedido_produto,');
+      conexao.SQL.Add('"produto", :produto, "quantidade", :quantidade))');
+      conexao.Parametros('referencia_id', Produto);
+      conexao.Parametros('mensagem',
+        'Produto retornado ao estoque por pedido nao concluido/cancelado.');
+      conexao.Parametros('pedido_produto', Pedido);
+      conexao.Parametros('produto', Produto);
+      conexao.Parametros('quantidade', Quantidade);
+      conexao.ExecuteSQL;
       Dados := TFDMemTable.Create(nil);
       conexao.SQL.Add
         ('select produto_ingredientes.id_ingredientes, (produto_ingredientes.quantidade * pedido_produtos.quantidade) as quantidade, produto_ingredientes.id_produto as produto  from pedido');
@@ -9050,19 +9302,19 @@ var
   RegEx: TRegEx;
   Match: TMatch;
 begin
-  // Defina o padr√£o de express√£o regular para encontrar o n√∫mero na URL
+  // Defina o padr„o de express„o regular para encontrar o n˙mero na URL
   Pattern := '\/payments\/(\d+)\/';
 
-  // Inicialize a express√£o regular e busque a correspond√™ncia na URL
+  // Inicialize a express„o regular e busque a correspondÍncia na URL
   RegEx := TRegEx.Create(Pattern);
   Match := RegEx.Match(URL);
 
-  // Se houver uma correspond√™ncia, retorne o n√∫mero encontrado
+  // Se houver uma correspondÍncia, retorne o n˙mero encontrado
   if Match.Success then
     Result := Match.Groups[1].Value
   else
     Result := '';
-  // Ou voc√™ pode lan√ßar uma exce√ß√£o ou definir uma mensagem de erro
+  // Ou vocÍ pode lanÁar uma exceÁ„o ou definir uma mensagem de erro
 end;
 
 
@@ -9132,7 +9384,7 @@ end;
 // 'promo_valor', 'promo_percentual'],
 // [Dados.FieldByName('id_site').AsString,
 // frmServidor.UserID.ToString, 'false', '0',
-// 'Domingo,Segunda,Ter√ßa,Quarta,Quinta,Sexta,Sabado', '0', '0',
+// 'Domingo,Segunda,TerÁa,Quarta,Quinta,Sexta,Sabado', '0', '0',
 // Dados.FieldByName('codigo_interno').AsString,
 // Dados.FieldByName('categoria').AsString,
 // Dados.FieldByName('produto').AsString, Descricao,
@@ -9173,7 +9425,7 @@ end;
 // 'valor_delivery', 'estoque', 'img_ifood', 'pessoas', 'promo_valor',
 // 'promo_percentual'], [Dados.FieldByName('id_site').AsString,
 // frmServidor.UserID.ToString, 'false', '0',
-// 'Domingo,Segunda,Ter√ßa,Quarta,Quinta,Sexta,Sabado', '0', '0',
+// 'Domingo,Segunda,TerÁa,Quarta,Quinta,Sexta,Sabado', '0', '0',
 // Dados.FieldByName('codigo_interno').AsString,
 // Dados.FieldByName('categoria').AsString, Dados.FieldByName('produto')
 // .AsString, Descricao, Dados.FieldByName('venda').AsString,
@@ -9208,7 +9460,7 @@ end;
 // // // tabLog.Visible := True;
 // // frmPrincipal.AdicionaLog('Produto ' + Dados.FieldByName('codigo_interno')
 // // .AsString + ' - ' + Dados.FieldByName('produto').AsString +
-// // ', n√£o foi enviado!');
+// // ', n„o foi enviado!');
 // // SQL := 'update produto set modificado_site = 1 where codigo = ' +
 // // Dados.FieldByName('codigo').AsString;
 // // Insert.ExecutaSQL(SQL);
@@ -9248,7 +9500,7 @@ begin
         Descricao := '#' + FormatFloat('000000', Dados.FieldByName('codigo')
           .AsInteger) + ' - ';
         Descricao := Descricao + 'PAGAMENTO TOTAL ' +
-          Dados.FieldByName('descricao').AsString + ' AUTOM√ÅTICO';
+          Dados.FieldByName('descricao').AsString + ' AUTOM¡TICO';
         MovimentoCaixa(Caixa, Dados.FieldByName('codigo').AsInteger,
           Dados.FieldByName('tipo_pagamento').AsInteger, 1,
           Dados.FieldByName('valor_total_pedido').AsFloat, Descricao, 0);
@@ -9418,7 +9670,7 @@ begin
     2:
       Result := 'seg'; // Segunda-feira
     3:
-      Result := 'ter'; // Ter√ßa-feira
+      Result := 'ter'; // TerÁa-feira
     4:
       Result := 'qua'; // Quarta-feira
     5:
@@ -9426,7 +9678,7 @@ begin
     6:
       Result := 'sex'; // Sexta-feira
     7:
-      Result := 'sab'; // S√°bado
+      Result := 'sab'; // S·bado
   else
     Result := '';
   end;
@@ -9500,7 +9752,7 @@ begin
     for pasta in pastas do
     begin
       TDirectory.Delete(pasta, true);
-      // O segundo par√¢metro indica que deve excluir todos os arquivos e subpastas
+      // O segundo par‚metro indica que deve excluir todos os arquivos e subpastas
     end;
   except
 
@@ -9558,7 +9810,7 @@ var
   ID: TGUID;
   IP: string;
 
-  // Lista corrigida: cada item do loop ser√° gravado aqui
+  // Lista corrigida: cada item do loop ser· gravado aqui
   ListaItens: TList<TItemProcesso>;
   Item: TItemProcesso;
   balancaId: Integer;
@@ -9638,7 +9890,7 @@ begin
         end;
 
         // ------------------------------------------
-        // 2. GERAR PEDIDO SE NECESS√ÅRIO
+        // 2. GERAR PEDIDO SE NECESS¡RIO
         // ------------------------------------------
         if Pedido = 0 then
         begin
@@ -9677,7 +9929,7 @@ begin
         end;
 
         // ------------------------------------------
-        // 4. VERIFICAR SE PEDIDO-PRODUTO J√Å EXISTE
+        // 4. VERIFICAR SE PEDIDO-PRODUTO J¡ EXISTE
         // ------------------------------------------
         conexao.SQL.Add('select * from pedido_produtos where uuid = :uuid');
         conexao.Parametros('uuid', UUID);
@@ -9686,7 +9938,7 @@ begin
         if CodigoAux = 0 then
         begin
           // ------------------------------------------
-          // 5. INSER√á√ÉO DO PRODUTO
+          // 5. INSER«√O DO PRODUTO
           // ------------------------------------------
           conexao.SQL.Clear;
           conexao.SQL.Add
@@ -9715,7 +9967,7 @@ begin
           conexao.ExecuteSQL;
 
           // ------------------------------------------
-          // 6. INSERIR OBSERVA√á√ÉO (SAP)
+          // 6. INSERIR OBSERVA«√O (SAP)
           // ------------------------------------------
           if Observacao <> '' then
           begin
@@ -9725,7 +9977,7 @@ begin
               + 'value (:id,:codigo_pedido_produto,0,:nomeclatura,:descricao,0,0)');
             conexao.Parametros('id', CodigoAux);
             conexao.Parametros('codigo_pedido_produto', CodigoPedidoProduto);
-            conexao.Parametros('nomeclatura', 'OBSERVA√á√ÉO');
+            conexao.Parametros('nomeclatura', 'OBSERVA«√O');
             conexao.Parametros('descricao', Observacao);
             conexao.ExecuteSQL;
           end;
@@ -9751,7 +10003,7 @@ begin
     end;
 
     // =====================================================
-    // PROCESSAMENTO FINAL ‚Äî THREAD COM LISTA DE ITENS
+    // PROCESSAMENTO FINAL ó THREAD COM LISTA DE ITENS
     // =====================================================
     TThread.CreateAnonymousThread(
       procedure
@@ -9794,7 +10046,7 @@ begin
         end;
       end).start;
     QRY.Free;
-    // LOG DA OPERA√á√ÉO (ANTES DE PROCESSAR)
+    // LOG DA OPERA«√O (ANTES DE PROCESSAR)
     conexao := Tconexao.Create('Util');
     conexao.SQL.Clear;
     conexao.SQL.Add
@@ -9805,6 +10057,19 @@ begin
     conexao.Parametros('endpoint', '/v2/grava/varios/produtos');
     conexao.Parametros('body', Body);
     conexao.ExecuteSQL;
+
+    conexao.SQL.Add
+      ('select codigo_pedido_dia as cod, 0 as zero from pedido where codigo = :codigo');
+    conexao.Parametros('codigo', Pedido);
+    try
+      if conexao.FieldByName('cod') > 0 then
+      begin
+        frmServidor.enviarImpressaoGo(Pedido);
+      end;
+
+    except
+
+    end;
 
     conexao.Free;
 
@@ -9819,18 +10084,18 @@ var
   I: Integer;
   ToUpper: Boolean;
 begin
-  Result := LowerCase(Input); // Primeiro, colocamos tudo em min√∫sculas
+  Result := LowerCase(Input); // Primeiro, colocamos tudo em min˙sculas
   ToUpper := true;
   for I := 1 to length(Result) do
   begin
     if ToUpper and (Result[I] <> ' ') then
     begin
-      Result[I] := UpCase(Result[I]); // Converte para mai√∫scula
+      Result[I] := UpCase(Result[I]); // Converte para mai˙scula
       ToUpper := false;
     end
     else if Result[I] = ' ' then
     begin
-      ToUpper := true; // Ativa para mai√∫scula a pr√≥xima letra ap√≥s o espa√ßo
+      ToUpper := true; // Ativa para mai˙scula a prÛxima letra apÛs o espaÁo
     end;
   end;
 end;
@@ -10030,13 +10295,13 @@ var
   DescricaoMesa: String;
 begin
   QRY.SQL.Text := 'select concat(mt.descricao, ' + QuotedStr(' ') +
-    ', m.nr_mesa) as descricao, 0 as zero ' +
+    ', m.nr_mesa,' + QuotedStr(' ') + ',m.descricao) as descricao, 0 as zero ' +
     'from mesa as m join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa ' +
     'where m.id_mesa = :codigo';
 
   QRY.ParamByName('codigo').AsInteger := Mesa;
   QRY.Open;
-  DescricaoMesa := QRY.FieldByName('descricao').AsString;
+  DescricaoMesa := Trim(UpperCase(QRY.FieldByName('descricao').AsString));
   QRY.Close;
 
   if Mesa > 0 then
@@ -10050,6 +10315,23 @@ begin
       Result := QRY.FieldByName('codigo').AsInteger;
       if Result > 0 then
       begin
+        if (DescricaoMesa = '') then
+        begin
+          QRY.Close;
+          QRY.SQL.Text := '';
+          QRY.SQL.Add
+            ('select 0 as zero, concat(mt.descricao," ", m.nr_mesa) as descricao from mesa as m');
+          QRY.SQL.Add
+            ('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
+          QRY.SQL.Add('where m.id_mesa = :nr');
+          QRY.ParamByName('nr').AsInteger := Mesa;
+          QRY.Open;
+          if QRY.RecordCount > 0 then
+          begin
+            DescricaoMesa := QRY.FieldByName('descricao').AsString;
+          end;
+
+        end;
         QRY.SQL.Text :=
           'update mesa set selecionada = :pedido where id_mesa = :mesa';
         QRY.ParamByName('pedido').AsInteger := Result;
@@ -10059,9 +10341,25 @@ begin
         exit;
       end;
     end;
+    if (DescricaoMesa = '') then
+    begin
+      QRY.Close;
+      QRY.SQL.Text := '';
+      QRY.SQL.Add
+        ('select 0 as zero, concat(mt.descricao," ", m.nr_mesa) as descricao from mesa as m');
+      QRY.SQL.Add('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
+      QRY.SQL.Add('where m.id_mesa = :nr');
+      QRY.ParamByName('nr').AsInteger := Mesa;
+      QRY.Open;
+      if QRY.RecordCount > 0 then
+      begin
+        DescricaoMesa := QRY.FieldByName('descricao').AsString;
+      end;
+
+    end;
   end;
 
-  // Inser√ß√£o do pedido
+  // InserÁ„o do pedido
   QRY.SQL.Text :=
     'insert into pedido (codigo, codigo_pedido_dia, codigo_cliente, codigo_cliente_endereco, '
     + 'data_pedido, hora_pedido, status, valor_pedido, valor_desconto, valor_taxa_entrega, '
@@ -10120,7 +10418,7 @@ begin
   SQL := SQL + ' CASE';
   SQL := SQL +
     '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
-    QuotedStr('BALC√ÉO') + ' AND p.nome <> ''''';
+    QuotedStr('BALC√O') + ' AND p.nome <> ''''';
   SQL := SQL + '  THEN p.nome';
   SQL := SQL +
     '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';

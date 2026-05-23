@@ -151,7 +151,8 @@ function Desenvolvimento: Boolean;
 begin
   // PC Allan (240538505700048)
   Result := false;
-exit;
+  Exit;
+
   if GetMotherboardSerial() = '240538505700048' then
   begin
     Result := True;

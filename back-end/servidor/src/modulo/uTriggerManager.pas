@@ -59,7 +59,11 @@ begin
   Q := FConexao.CriaQRY;
   try
     Q.SQL.Text := SQL;
+    TRY
     Q.ExecSQL;
+    except
+
+    END;
   finally
     Q.Free;
   end;
@@ -154,15 +158,41 @@ begin
     'END;'
   );
 
-  RecriarTrigger(
-    'trg_pedido_after_update',
-    'CREATE TRIGGER trg_pedido_after_update ' +
-    'AFTER UPDATE ON pedido FOR EACH ROW BEGIN ' +
-    'IF NEW.recalcula_preparo = 1 THEN ' +
-    'CALL sp_atualiza_preparo_pedido(NEW.codigo); ' +
-    'END IF; END;'
-  );
+//  RecriarTrigger(
+//    'trg_pedido_after_update',
+//    'CREATE TRIGGER trg_pedido_after_update ' +
+//    'AFTER UPDATE ON pedido FOR EACH ROW BEGIN ' +
+//    'IF NEW.recalcula_preparo = 1 THEN ' +
+//    'CALL sp_atualiza_preparo_pedido(NEW.codigo); ' +
+//    'END IF; END;'
+//  );
 
+RecriarTrigger(
+  'trg_pedido_before_update',
+  'CREATE TRIGGER trg_pedido_before_update ' +
+  'BEFORE UPDATE ON pedido FOR EACH ROW BEGIN ' +
+
+  // regra do preparo (pode manter)
+  'IF NEW.recalcula_preparo = 1 THEN ' +
+  '  CALL sp_atualiza_preparo_pedido(NEW.codigo); ' +
+  'END IF; ' +
+
+  // regra da descrição
+  'IF (NEW.desc_ficha IS NULL OR NEW.desc_ficha = '''') ' +
+  'AND NEW.codigo_pedido_dia <> 0 THEN ' +
+
+  '  IF NEW.codigo_cliente_endereco = 0 THEN ' +
+  '    SET NEW.desc_ficha = CONCAT(''RETIRADA '', NEW.codigo_pedido_dia); ' +
+
+  '  ELSE ' +
+  '    SET NEW.desc_ficha = CONCAT(''DELIVERY '', NEW.codigo_pedido_dia); ' +
+
+  '  END IF; ' +
+
+  'END IF; ' +
+
+  'END;'
+);
   RecriarTrigger(
     'trg_produto_estoque_after_insert',
     'CREATE TRIGGER trg_produto_estoque_after_insert ' +
@@ -219,6 +249,67 @@ begin
     '/* aqui entra o corpo completo que você já possui */ ' +
     'END;'
   );
+  
+RecriarProcedure(
+  'proc_atualiza_cliente_estatistica',
+  'CREATE PROCEDURE proc_atualiza_cliente_estatistica() BEGIN ' +
+  'DECLARE v_codigo_cliente INT; ' +
+  'DECLARE v_fim INT DEFAULT 0; ' +
+  'DECLARE cur CURSOR FOR ' +
+  'SELECT DISTINCT codigo_cliente ' +
+  'FROM pedido ' +
+  'WHERE status IN (0,6) ' +
+  'AND cliente_count = 0 ' +
+  'AND codigo_cliente > 0 ' +
+  'LIMIT 10; ' +
+  'DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_fim = 1; ' +
+  'OPEN cur; ' +
+  'loop_clientes: LOOP ' +
+  'FETCH cur INTO v_codigo_cliente; ' +
+  'IF v_fim = 1 THEN ' +
+  'LEAVE loop_clientes; ' +
+  'END IF; ' +
+  'INSERT INTO cliente_estatistica ( ' +
+  'codigo_cliente, ' +
+  'pedidos, ' +
+  'cancelados, ' +
+  'finalizados, ' +
+  'total_pedidos, ' +
+  'total_cancelados, ' +
+  'total_finalizados, ' +
+  'ultimo_pedido ' +
+  ') ' +
+  'SELECT ' +
+  'p.codigo_cliente, ' +
+  'COUNT(*) AS pedidos, ' +
+  'SUM(CASE WHEN p.status = 0 THEN 1 ELSE 0 END) AS cancelados, ' +
+  'SUM(CASE WHEN p.status = 6 THEN 1 ELSE 0 END) AS finalizados, ' +
+  'SUM(p.valor_total_pedido) AS total_pedidos, ' +
+  'SUM(CASE WHEN p.status = 0 THEN p.valor_total_pedido ELSE 0 END) AS total_cancelados, ' +
+  'SUM(CASE WHEN p.status = 6 THEN p.valor_total_pedido ELSE 0 END) AS total_finalizados, ' +
+  'MAX(CONCAT(p.data_pedido, '' '', IFNULL(p.hora_pedido, ''00:00:00''))) AS ultimo_pedido ' +
+  'FROM pedido p ' +
+  'WHERE p.codigo_cliente = v_codigo_cliente ' +
+  'GROUP BY p.codigo_cliente ' +
+  'ON DUPLICATE KEY UPDATE ' +
+  'pedidos = VALUES(pedidos), ' +
+  'cancelados = VALUES(cancelados), ' +
+  'finalizados = VALUES(finalizados), ' +
+  'total_pedidos = VALUES(total_pedidos), ' +
+  'total_cancelados = VALUES(total_cancelados), ' +
+  'total_finalizados = VALUES(total_finalizados), ' +
+  'ultimo_pedido = VALUES(ultimo_pedido), ' +
+  'data_atualizacao = CURRENT_TIMESTAMP; ' +
+  'UPDATE pedido ' +
+  'SET cliente_count = 1 ' +
+  'WHERE codigo_cliente = v_codigo_cliente ' +
+  'AND cliente_count = 0; ' +
+  'END LOOP; ' +
+  'CLOSE cur; ' +
+  'END;'
+);  
+
+ExecutarSQL('CREATE EVENT ev_cliente_estatistica ON SCHEDULE EVERY 5 SECOND DO CALL proc_atualiza_cliente_estatistica();');
 
 end;
 

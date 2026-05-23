@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Classes, Data.Bind.Components, Data.Bind.ObjectScope,
   uRequisicao, System.JSON, DataSet.Serialize, Conexao, Inifiles,
-  DateUtils;
+  DateUtils, Data.DB;
 
 type
   // Define tipos para as funções que serão passadas
@@ -17,9 +17,11 @@ type
     FClientID: String;
     FClientSecret: String;
     FClientToken: Boolean;
+    TObjetoEmpresa : TJSONObject;
     FToken: string;
     FName: String;
     FUserID: Integer;
+    FSlug : String;
     FDataBloqueio: TDate;
     FHorarioAberturaFunc: TFunctionHorarioAbertura;
     // Campo para armazenar a função de abertura
@@ -56,6 +58,8 @@ type
     function GetConf(Nome: String): String;
     function Criptografar(const Texto, Chave: string): string;
     function Descriptografar(const Texto, Chave: string): string;
+    function GetDataEmpresa : String;
+
 
     // Módulo de Rotas
     function GetRotas: TJSONObject;
@@ -106,14 +110,15 @@ begin
       if JsonObject.GetValue<String>('error') <> '' then
       begin
         FUserID := -1;
+        FSlug := '';
         LoadDefault;
         FRequisicao.Free;
         exit;
       end;
     except
     end;
-
     FUserID := JsonObject.GetValue<Integer>('user');
+    FSlug := JsonObject.GetValue<String>('slug');
     SalvarConf('user', FUserID.ToString);
     FName := JsonObject.GetValue<String>('name');
     SalvarConf('name', FName);
@@ -123,14 +128,22 @@ begin
     SalvarConf('vencimento', DateToStr(FDataBloqueio));
     FUrlLoja := JsonObject.GetValue<String>('link');
     SalvarConf('url', FUrlLoja);
+    try
+      FRequisicao.Url := 'api/empresa/'+FSlug;
+      FRequisicao.Metodo := mGet;
+      FRequisicao.Execute;
+      TObjetoEmpresa := TJSONObject.ParseJSONValue(FRequisicao.Retorno) as TJSONObject;
+    except
+      TObjetoEmpresa := TJSONObject.Create;
+    end;
   except
     on e: exception do
     begin
       FUserID := -1;
       LoadDefault;
       FClientToken := False;
+      TObjetoEmpresa := TJSONObject.Create;
     end;
-
   end;
 
   FRequisicao.Free;
@@ -315,16 +328,13 @@ begin
   JSonBody := TJSONObject.Create;
   try
     JSonBody.AddPair('user', TJSONNumber.Create(FUserID));
-
     JsonCampo := TJSONObject.Create;
     JsonCampo.AddPair('campo', Campo);
     JsonCampo.AddPair('valor', Valor);
     JsonCampo.AddPair('type', Tipo);
     JsonCampos.AddElement(JsonCampo);
     JSonBody.AddPair('campos', JsonCampos);
-
     EnviaPostParam(JSonBody);
-
   finally
     // JsonCampos.Free;
     // JSonBody.Free;
@@ -347,7 +357,6 @@ begin
     FRequisicao.Execute;
   except
     on e: exception do
-      /// /showmessage('Erro ao enviar os parâmetros: ' + e.Message);
   end;
   FRequisicao.Free;
 end;
@@ -364,7 +373,6 @@ begin
   except
     on e: exception do
     begin
-//      ShowMessage(e.Message);
     end;
   end;
   req.Free;
@@ -397,6 +405,15 @@ begin
   //
 end;
 
+function TGooPedirAPIController.GetDataEmpresa: String;
+var
+  Retorno : String;
+begin
+  Retorno := GetApi('api/empresa/functionamento/'+UserID.ToString);
+  TObjetoEmpresa.AddPair('status',TJSONObject.ParseJSONValue(Retorno) as TJSONObject);
+  Result := TObjetoEmpresa.ToString();
+end;
+
 function TGooPedirAPIController.GetRotas: TJSONObject;
 var
   Retorno: String;
@@ -411,7 +428,7 @@ begin
     except
       on e: exception do
       begin
-        ShowMessage(e.Message);
+        //ShowMessage(e.Message);
       end;
     end;
 
@@ -585,232 +602,545 @@ begin
   IniFile.Free;
 end;
 
-procedure TGooPedirAPIController.SincronizaParametros(Param: String);
-var
-  Dados: TFDMemTable;
-  JSonBody: TJSONObject;
-  JsonCampos: TJSONArray;
-  JsonCampo: TJSONObject;
+//procedure TGooPedirAPIController.SincronizaParametros(Param: String);
+//var
+//  Dados: TFDMemTable;
+//  JSonBody: TJSONObject;
+//  JsonCampos: TJSONArray;
+//  JsonCampo: TJSONObject;
+//
+//begin
+//  if FUserID < 1 then
+//    exit;
+//
+//  TThread.CreateAnonymousThread(
+//    procedure
+//    var
+//      Conexao: TConexao;
+//      Qry: TFDQuery;
+//    begin
+//      Dados := TFDMemTable.Create(nil);
+//      Dados.LoadFromJSON(Param);
+//      JsonCampos := TJSONArray.Create;
+//      JSonBody := TJSONObject.Create;
+//      JSonBody.AddPair('user', FUserID);
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'mensagem');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('mensagem_inicio').AsWideString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'nome_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('nome').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'img_header');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('banner').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'img_logo');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('logo').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cnpj_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('cnpj').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'pixel');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('pixel').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'telefone_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('fone').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'end_rua_n_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('rua').AsString + ', nº ' +
+//        Dados.FieldByName('numero').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'end_bairro_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('bairro').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cidade_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('cidade').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'end_uf_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('estado').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cep_empresa');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('cep').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'minimo_delivery');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('valor_pedido_minimo')
+//        .AsString);
+//      JsonCampo.AddPair('type', 'float');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'confirm_delivery');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('delivery').AsString);
+//
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'confirm_balcao');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('retirada').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'access_token_mp');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('token_mp').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'merchant');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('merchant').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'mensagem');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('mensagem_inicio').AsWideString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'mensagem_conclusao');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('mensagem_conclusao').AsWideString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'conclusao_envio_range');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('conclusao_envio_range').AsWideString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo.AddPair('campo', 'mensagem_fora_horario');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('mensagem_fora_expediente').AsWideString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'fidelidade_status');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'fidelidade_pontos');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_pontos')
+//        .AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'fidelidade_desc');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_desc').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'fidelidade_min');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_min').AsString);
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cor_topo');
+//      JsonCampo.AddPair('valor',
+//        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cor_loading');
+//      JsonCampo.AddPair('valor',
+//        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'cor_titulo_produtos');
+//      JsonCampo.AddPair('valor',
+//        ApenasLetrasENumeros(Dados.FieldByName('cor_fonte').AsString));
+//      JsonCampo.AddPair('type', 'string');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'lgn');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('longitude').AsString);
+//      JsonCampo.AddPair('type', 'float');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JsonCampo := TJSONObject.Create;
+//      JsonCampo.AddPair('campo', 'lat');
+//      JsonCampo.AddPair('valor', Dados.FieldByName('latitude').AsString);
+//      JsonCampo.AddPair('type', 'float');
+//      JsonCampos.AddElement(JsonCampo);
+//
+//      JSonBody.AddPair('campos', JsonCampos);
+//
+//      EnviaPostParam(JSonBody);
+//
+//    end).Start;
+//end;
 
+procedure TGooPedirAPIController.SincronizaParametros(Param: String);
 begin
   if FUserID < 1 then
-    exit;
+    Exit;
 
   TThread.CreateAnonymousThread(
     procedure
+
+      function GetJsonValue(
+        Json: TJSONObject;
+        const Campo: string): string;
+      var
+        V: TJSONValue;
+      begin
+        Result := '';
+
+        V := Json.GetValue(Campo);
+
+        if Assigned(V) then
+          Result := V.Value;
+      end;
+
+function SnakeToCamel(const Texto: string): string;
+var
+  i: Integer;
+  UpperNext: Boolean;
+begin
+  Result := '';
+  UpperNext := False;
+
+  for i := 1 to Length(Texto) do
+  begin
+    if Texto[i] = '_' then
+    begin
+      UpperNext := True;
+      Continue;
+    end;
+
+    if UpperNext then
+    begin
+      Result := Result + UpperCase(Texto[i]);
+      UpperNext := False;
+    end
+    else
+    begin
+      Result := Result + LowerCase(Texto[i]);
+    end;
+  end;
+end;
+
+      procedure AddCampo(
+        JsonCampos: TJSONArray;
+        Dados: TJSONObject;
+        const CampoJson,
+              CampoOrigem,
+              Tipo: string);
+      var
+        JsonCampo: TJSONObject;
+        Valor: string;
+      begin
+        Valor := GetJsonValue(Dados, SnakeToCamel(CampoOrigem));
+
+        if Valor <> '' then
+        begin
+          JsonCampo := TJSONObject.Create;
+
+          JsonCampo.AddPair(
+            'campo',
+            TJSONString.Create(CampoJson)
+          );
+
+          JsonCampo.AddPair(
+            'valor',
+            TJSONString.Create(Valor)
+          );
+
+          JsonCampo.AddPair(
+            'type',
+            TJSONString.Create(Tipo)
+          );
+
+          JsonCampos.AddElement(JsonCampo);
+        end;
+      end;
+
+      procedure AddCampoValor(
+        JsonCampos: TJSONArray;
+        const CampoJson,
+              Valor,
+              Tipo: string);
+      var
+        JsonCampo: TJSONObject;
+      begin
+        if Valor <> '' then
+        begin
+          JsonCampo := TJSONObject.Create;
+
+          JsonCampo.AddPair(
+            'campo',
+            TJSONString.Create(CampoJson)
+          );
+
+          JsonCampo.AddPair(
+            'valor',
+            TJSONString.Create(Valor)
+          );
+
+          JsonCampo.AddPair(
+            'type',
+            TJSONString.Create(Tipo)
+          );
+
+          JsonCampos.AddElement(JsonCampo);
+        end;
+      end;
+
     var
-      Conexao: TConexao;
-      Qry: TFDQuery;
+      JSONArray: TJSONArray;
+      Dados: TJSONObject;
+      JsonBody: TJSONObject;
+      JsonCampos: TJSONArray;
+
     begin
 
-      Conexao := TConexao.Create('SincronizaParametros');
-      Qry := Conexao.CriaQRY;
+      JSONArray := nil;
+      JsonBody := nil;
 
-      Dados := TFDMemTable.Create(nil);
-      Dados.LoadFromJSON(Param);
+      try
 
-      JsonCampos := TJSONArray.Create;
+        JSONArray := TJSONObject.ParseJSONValue(Param) as TJSONArray;
 
-      JSonBody := TJSONObject.Create;
-      JSonBody.AddPair('user', FUserID);
+        if not Assigned(JSONArray) then
+          Exit;
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'nome_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('nome').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        if JSONArray.Count = 0 then
+          Exit;
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'img_header');
-      JsonCampo.AddPair('valor', Dados.FieldByName('banner').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        Dados := JSONArray.Items[0] as TJSONObject;
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'img_logo');
-      JsonCampo.AddPair('valor', Dados.FieldByName('logo').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        JsonCampos := TJSONArray.Create;
+        JsonBody := TJSONObject.Create;
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cnpj_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cnpj').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        JsonBody.AddPair(
+          'user',
+          TJSONNumber.Create(FUserID)
+        );
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'pixel');
-      JsonCampo.AddPair('valor', Dados.FieldByName('pixel').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'mensagem',
+          'mensagem_inicio',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'telefone_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('fone').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'nome_empresa',
+          'nome',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'end_rua_n_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('rua').AsString + ', nº ' +
-        Dados.FieldByName('numero').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'img_header',
+          'banner',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'end_bairro_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('bairro').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'img_logo',
+          'logo',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cidade_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cidade').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'cnpj_empresa',
+          'cnpj',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'end_uf_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('estado').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'pixel',
+          'pixel',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cep_empresa');
-      JsonCampo.AddPair('valor', Dados.FieldByName('cep').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'telefone_empresa',
+          'fone',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'minimo_delivery');
-      JsonCampo.AddPair('valor', Dados.FieldByName('valor_pedido_minimo')
-        .AsString);
-      JsonCampo.AddPair('type', 'float');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampoValor(
+          JsonCampos,
+          'end_rua_n_empresa',
+          GetJsonValue(Dados, 'rua') +
+          ', nº ' +
+          GetJsonValue(Dados, 'numero'),
+          'string'
+        );
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'confirm_delivery');
-      JsonCampo.AddPair('valor', Dados.FieldByName('delivery').AsString);
+        AddCampo(JsonCampos, Dados,
+          'end_bairro_empresa',
+          'bairro',
+          'string');
 
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'cidade_empresa',
+          'cidade',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'confirm_balcao');
-      JsonCampo.AddPair('valor', Dados.FieldByName('retirada').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'end_uf_empresa',
+          'estado',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'access_token_mp');
-      JsonCampo.AddPair('valor', Dados.FieldByName('token_mp').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'cep_empresa',
+          'cep',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'merchant');
-      JsonCampo.AddPair('valor', Dados.FieldByName('merchant').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'minimo_delivery',
+          'valor_pedido_minimo',
+          'float');
 
-      // JsonCampo := TJSONObject.Create;
-      // JsonCampo.AddPair('campo', 'localizacao_gp');
-      // JsonCampo.AddPair('valor', Dados.FieldByName('localizacao').AsString);
-      // JsonCampo.AddPair('type', 'string');
-      // JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'confirm_delivery',
+          'delivery',
+          'string');
 
-      Qry.SQL.Add
-        ('select mensagem_inicio, mensagem_conclusao, conclusao_envio_range, mensagem_fora_expediente from dados_whatsapp');
-      Qry.Open;
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'mensagem');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_inicio')
-        .AsWideString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'confirm_balcao',
+          'retirada',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'mensagem_conclusao');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_conclusao')
-        .AsWideString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'access_token_mp',
+          'token_mp',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'conclusao_envio_range');
-      JsonCampo.AddPair('valor', Qry.FieldByName('conclusao_envio_range')
-        .AsWideString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'merchant',
+          'merchant',
+          'string');
 
-      JsonCampo.AddPair('campo', 'mensagem_fora_horario');
-      JsonCampo.AddPair('valor', Qry.FieldByName('mensagem_fora_expediente').AsWideString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'mensagem_conclusao',
+          'mensagem_conclusao',
+          'string');
 
-      Qry.Free;
-      Conexao.Free;
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'fidelidade_status');
-      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'conclusao_envio_range',
+          'conclusao_envio_range',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'fidelidade_pontos');
-      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_pontos')
-        .AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'mensagem_fora_horario',
+          'mensagem_fora_expediente',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'fidelidade_desc');
-      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_desc').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'fidelidade_status',
+          'fidelidade',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'fidelidade_min');
-      JsonCampo.AddPair('valor', Dados.FieldByName('fidelidade_min').AsString);
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'fidelidade_pontos',
+          'fidelidade_pontos',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cor_topo');
-      JsonCampo.AddPair('valor',
-        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'fidelidade_desc',
+          'fidelidade_desc',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cor_loading');
-      JsonCampo.AddPair('valor',
-        ApenasLetrasENumeros(Dados.FieldByName('cor_fundo').AsString));
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampo(JsonCampos, Dados,
+          'fidelidade_min',
+          'fidelidade_min',
+          'string');
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'cor_titulo_produtos');
-      JsonCampo.AddPair('valor',
-        ApenasLetrasENumeros(Dados.FieldByName('cor_fonte').AsString));
-      JsonCampo.AddPair('type', 'string');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampoValor(
+          JsonCampos,
+          'cor_topo',
+          ApenasLetrasENumeros(
+            GetJsonValue(Dados, 'cor_fundo')
+          ),
+          'string'
+        );
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'lgn');
-      JsonCampo.AddPair('valor', Dados.FieldByName('longitude').AsString);
-      JsonCampo.AddPair('type', 'float');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampoValor(
+          JsonCampos,
+          'cor_loading',
+          ApenasLetrasENumeros(
+            GetJsonValue(Dados, 'cor_fundo')
+          ),
+          'string'
+        );
 
-      JsonCampo := TJSONObject.Create;
-      JsonCampo.AddPair('campo', 'lat');
-      JsonCampo.AddPair('valor', Dados.FieldByName('latitude').AsString);
-      JsonCampo.AddPair('type', 'float');
-      JsonCampos.AddElement(JsonCampo);
+        AddCampoValor(
+          JsonCampos,
+          'cor_titulo_produtos',
+          ApenasLetrasENumeros(
+            GetJsonValue(Dados, 'cor_fonte')
+          ),
+          'string'
+        );
 
-      JSonBody.AddPair('campos', JsonCampos);
+        AddCampo(JsonCampos, Dados,
+          'lgn',
+          'longitude',
+          'float');
 
-      EnviaPostParam(JSonBody);
+        AddCampo(JsonCampos, Dados,
+          'lat',
+          'latitude',
+          'float');
+
+        JsonBody.AddPair(
+          'campos',
+          JsonCampos
+        );
+
+
+        EnviaPostParam(JsonBody);
+
+      finally
+        JSONArray.Free;
+        JsonBody.Free;
+      end;
 
     end).Start;
 end;

@@ -5,7 +5,7 @@ interface
 uses Windows, JOSE.Types.JSON, Conexao, FireDAC.Comp.Client, DataSet.Serialize,
   System.SysUtils;
 
-function ObjetoProduto(SQL: String): TJsonArray;
+function ObjetoProduto(SQL,hash: String): TJsonArray;
 function TempoDecorrido(Inicio: UInt64): String;
 procedure ValidaPendenciaProduto(Codigo: Integer);
 procedure AdicionaPendencia(Conexao: TConexao; Produto: Integer;
@@ -248,7 +248,7 @@ begin
 
 end;
 
-function ObjetoProduto(SQL: String): TJsonArray;
+function ObjetoProduto(SQL,hash: String): TJsonArray;
 var
   Conexao: TConexao;
   Data: TJsonArray;
@@ -280,6 +280,7 @@ var
   ObjCombo: TJsonObject;
   Combos: TJsonArray;
   DadosCombo: TFDMemTable;
+
 begin
 
   Conexao := TConexao.Create('main');
@@ -304,7 +305,7 @@ begin
         Max := 0;
 
         JsonObjeto := TJsonObject.Create;
-
+        JsonObjeto.AddPair('hash',hash);
         JsonObjeto.AddPair('id', DadosProduto.FieldByName('codigo').AsInteger);
         JsonObjeto.AddPair('position', DadosProduto.FieldByName('position')
           .AsInteger);

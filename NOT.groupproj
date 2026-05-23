@@ -21,9 +21,6 @@
         <Projects Include="back-end\servidor\ServidorGooPedir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="back-end\impressao\ImpressaoGooPedir.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -86,23 +83,14 @@
     <Target Name="ServidorGooPedir:Make">
         <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ImpressaoGooPedir">
-        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj"/>
-    </Target>
-    <Target Name="ImpressaoGooPedir:Clean">
-        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ImpressaoGooPedir:Make">
-        <MSBuild Projects="back-end\impressao\ImpressaoGooPedir.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="NFCe;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir;ImpressaoGooPedir"/>
+        <CallTarget Targets="NFCe;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="NFCe:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean;ImpressaoGooPedir:Clean"/>
+        <CallTarget Targets="NFCe:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="NFCe:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make;ImpressaoGooPedir:Make"/>
+        <CallTarget Targets="NFCe:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

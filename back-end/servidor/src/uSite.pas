@@ -3,12 +3,13 @@ unit uSite;
 interface
 
 uses util, conexao, FireDAC.Comp.Client, DataSet.Serialize, System.SysUtils,
-   uInserirUpdate, Winapi.Windows, Winapi.ShellAPI, Vcl.Forms,
-  uControllerSite, JOSE.Types.JSON;
+  uInserirUpdate, Winapi.Windows, Winapi.ShellAPI, Vcl.Forms,
+  uControllerSite, JOSE.Types.JSON, uCacheControl;
 
 // Local
-function EnviaProduto(codigo: Integer; Base64Imagem: String): Integer;
-procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
+function EnviaProduto(codigo: Integer; Base64Imagem, categoria: String)
+  : Integer;
+procedure AlteraExtrasIguais(categoria, Nome: String; Valor: Real;
   CodigoProdutoAtual: Integer);
 
 function EnviaCategoria(codigo: Integer): Integer;
@@ -21,7 +22,20 @@ procedure EnviaTempoVemBuscar(Tempo: Integer);
 
 implementation
 
-uses uMain, System.Classes, uRequisicao, uControllCaches;
+uses uMain, System.Classes, uRequisicao, uControllCaches,
+  uIngredientesCardapio;
+
+procedure AtualizaIngredientesCardapioAsync;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      Resultado: TJSONObject;
+    begin
+      Resultado := ProcessarIngredientesCardapio;
+      Resultado.Free;
+    end).Start;
+end;
 
 procedure EnviaTempoDelivery(Tempo: Integer);
 begin
@@ -43,7 +57,7 @@ begin
   frmServidor.AtualizaCacheSite;
 end;
 
-procedure AlteraExtrasIguais(Categoria, Nome: String; Valor: Real;
+procedure AlteraExtrasIguais(categoria, Nome: String; Valor: Real;
   CodigoProdutoAtual: Integer);
 var
   conexao: TConexao;
@@ -53,7 +67,7 @@ var
   Qry: TFDQuery;
 begin
   JsonObject := TJSONObject.Create;
-  JsonObject.AddPair('categoria', Categoria);
+  JsonObject.AddPair('categoria', categoria);
   JsonObject.AddPair('nome', Nome);
   JsonObject.AddPair('valor', Valor);
   JsonObject.AddPair('codigo', CodigoProdutoAtual);
@@ -69,11 +83,12 @@ begin
   JsonObject.Free;
 end;
 
-function EnviaProduto(codigo: Integer; Base64Imagem: String): Integer;
+function EnviaProduto(codigo: Integer; Base64Imagem, categoria: String)
+  : Integer;
 var
   prog: String;
   conexao: TConexao;
-  Dados: TFDQuery;
+
 begin
   frmServidor.Queue.Enfileirar(codigo);
   if Base64Imagem <> '' then
@@ -81,8 +96,24 @@ begin
     EnviaFotoProduto(codigo, Base64Imagem, frmServidor.UserID);
   end;
 
+  if categoria = '' then
+  begin
+    conexao := TConexao.Create('EnviaProduto');
+    conexao.SQL.Add
+      ('select 0 as zero, codigo_grupo as grupo from produto where codigo = :codigo');
+    conexao.Parametros('codigo', codigo);
+    categoria := conexao.FieldByName('grupo');
+    conexao.Free;
+  end;
+
+  LimpaCache('GetProdutoCategoria', categoria);
+  frmServidor.ProdutosHash.Remover(categoria);
+  AtualizaIngredientesCardapioAsync;
+
   prog := ExtractFileDir(Application.ExeName) + '\ProdutoGoopedir.exe';
-  ShellExecute(0, 'open', PChar(prog),PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,SW_SHOWNORMAL);
+  ShellExecute(0, 'open', PChar(prog),
+    PChar(codigo.ToString + ' ' + frmServidor.UserID.ToString), nil,
+    SW_SHOWNORMAL);
 
 end;
 
@@ -94,6 +125,7 @@ end;
 procedure EnviaSabores(codigoGrupo: Integer);
 begin
   SiteSabores(codigoGrupo, frmServidor.UserID);
+  AtualizaIngredientesCardapioAsync;
 end;
 
 end.

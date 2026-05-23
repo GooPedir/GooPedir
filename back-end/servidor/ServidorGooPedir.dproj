@@ -236,6 +236,7 @@
         <DCCReference Include="src\tablet\uTablet.pas"/>
         <DCCReference Include="src\modulo\uImageLocal.pas"/>
         <DCCReference Include="src\controller\uCodigoPedidoDia.pas"/>
+        <DCCReference Include="src\controller\uIngredientesCardapio.pas"/>
         <DCCReference Include="src\other\Horse.SocketIO.Functions.pas"/>
         <DCCReference Include="src\other\Horse.SocketIO.pas"/>
         <DCCReference Include="src\other\Horse.SocketIO.ServerSocket.pas"/>
@@ -250,6 +251,10 @@
         <DCCReference Include="FastMM4LockFreeStack.pas"/>
         <DCCReference Include="FastMM4Messages.pas"/>
         <DCCReference Include="src\rota\rota.pas"/>
+        <DCCReference Include="HashMemoria.pas"/>
+        <DCCReference Include="src\other\Horse.Compression.pas"/>
+        <DCCReference Include="src\other\Horse.Compression.Types.pas"/>
+        <DCCReference Include="uNFCe.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -276,7 +281,7 @@
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
-            <Deployment Version="5">
+            <Deployment Version="4">
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="C:\goopedir\ServidorGooPedir.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
@@ -318,6 +323,16 @@
                         <Operation>0</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="AndroidClasses">
+                    <Platform Name="Android">
+                        <RemoteDir>classes</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>classes</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="AndroidFileProvider">
                     <Platform Name="Android">
                         <RemoteDir>res\xml</RemoteDir>
@@ -325,6 +340,12 @@
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\xml</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidGDBServer">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -958,9 +979,6 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>

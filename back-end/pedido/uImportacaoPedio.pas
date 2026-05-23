@@ -109,6 +109,7 @@ procedure InserirProduto(Produtos: TArray<TProduto>; Mesa, Pedido: Integer;
 procedure ProcessamentoProduto(Pedido: TPedido; Produtos: TArray<TProduto>;
   Mesa: Integer; Conexao: TConexao; Usuario, StatusCode: Integer);
 procedure ImprimirCozinha(Pedido: Integer);
+procedure ImprimirComanda(Pedido: Integer);
 function InsertTabelaPedidoBasica(Mesa: Integer): Integer;
 procedure AtualizaStatusPedido(Pedido, Status: Integer);
 function AtualizaSite(Pedido, CodigoDia, Codigo: Integer): Integer;
@@ -240,30 +241,35 @@ begin
   Req.Free;
 end;
 
+procedure ImprimirComanda(Pedido: Integer);
+var
+  Req: iRequisicao;
+begin
+  Req := CreateReq;
+  Req.URL := 'v1/imprimir/1/' + Pedido.ToString + '/0';
+  Req.AddHEader('user', '-2');
+  try
+    Req.Metodo := mPost;
+    Req.Execute;
+  finally
+
+  end;
+  Req.Free;
+end;
+
 procedure ImprimirCozinha(Pedido: Integer);
 var
   Req: iRequisicao;
 begin
   Req := CreateReq;
-
-  Req.URL := 'v1/produtos/pedido/2/' + Pedido.ToString;
+  Req.AddHEader('user', '-2');
+  Req.URL := '/impressao/pedido/produto/' + Pedido.ToString;
   try
-    Req.TempoExpiracao := 10 * 1000;
-    Req.Execute;
-
-    Req.URL := 'v1/imprimir';
-    Req.Body(Req.Retorno);
     Req.Metodo := mPost;
     Req.Execute;
-
-  except
-    on E: Exception do
-    begin
-
-    end;
+  finally
 
   end;
-
   Req.Free;
 end;
 
@@ -590,10 +596,9 @@ begin
     if Result[I].ValorExtra > Result[I].Preco then
       Result[I].ValorExtra := Result[I].Preco;
 
-
     if Result[I].ValorExtra > 0 then
     begin
-      //Result[I].ValorExtra := Result[I].ValorExtra - Result[I].Unitario;
+      // Result[I].ValorExtra := Result[I].ValorExtra - Result[I].Unitario;
     end;
   end;
 
@@ -690,7 +695,8 @@ begin
   Req := iRequisicao.Create(nil);
   try
     Req.BaseURL := getUrlGoopedir;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString+'&ambiente='+Ambiente;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +
+      '&ambiente=' + Ambiente;
     Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
     Req.Token(GetToken);
     Req.Execute;
@@ -902,10 +908,10 @@ begin
     Req.Execute;
     ProcessaGravacaoPedido(Req.Retorno);
   except
-  on e : exception do
-  begin
-    //showmessage(e.Message);
-  end;
+    on E: Exception do
+    begin
+      // showmessage(e.Message);
+    end;
   end;
   Req.Free;
 
@@ -950,21 +956,30 @@ begin
 
   if ValidaPedido then
   begin
-    Impressao := Conexao.GerarID('impressao_pedido', 'id');
-    Conexao.SQL.Add('delete from impressao_pedido where id_pedido = :pedido');
-    Conexao.Parametros('pedido', Pedido.Codigo);
-    Conexao.ExecuteSQL;
 
-    Conexao.SQL.Add
-      ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
-    Conexao.SQL.Add('values  (:id,current_date, current_time,:pedido,:status)');
-    Conexao.Parametros('id', Impressao);
-    Conexao.Parametros('pedido', Pedido.Codigo);
-    if Notificar then
-      Conexao.Parametros('status', 0)
+    if Conexao.GetParametro('nova_impressao') = '1' then
+    begin
+
+    end
     else
-      Conexao.Parametros('status', 1);
-    Conexao.ExecuteSQL;
+    begin
+      Impressao := Conexao.GerarID('impressao_pedido', 'id');
+      Conexao.SQL.Add('delete from impressao_pedido where id_pedido = :pedido');
+      Conexao.Parametros('pedido', Pedido.Codigo);
+      Conexao.ExecuteSQL;
+
+      Conexao.SQL.Add
+        ('insert into impressao_pedido (id,data_solicitacao, hora_solicitacao,id_pedido,status)');
+      Conexao.SQL.Add
+        ('values  (:id,current_date, current_time,:pedido,:status)');
+      Conexao.Parametros('id', Impressao);
+      Conexao.Parametros('pedido', Pedido.Codigo);
+      if Notificar then
+        Conexao.Parametros('status', 0)
+      else
+        Conexao.Parametros('status', 1);
+      Conexao.ExecuteSQL;
+    end;
 
     Pedido.CodigoDia := AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia,
       Pedido.Codigo);
@@ -972,6 +987,10 @@ begin
     if ((Notificar) and (Pedido.CodigoDia > 0)) then
     begin
       ImprimirCozinha(Pedido.Codigo);
+      if Conexao.GetParametro('nova_impressao') = '1' then
+      begin
+        ImprimirComanda(Pedido.Codigo);
+      end;
       AtualizaStatusPedido(Pedido.Codigo, StatusCode);
     end;
   end
@@ -1044,8 +1063,8 @@ begin
       Conexao.ExecuteSQL;
     end;
 
-    Req.URL := 'v1/baixa/estoque/produto/' + Produto.Codigo.ToString + '/'+Produto.CodigoProduto.ToString +
-      '/' + Produto.Quantidade.ToString;
+    Req.URL := 'v1/baixa/estoque/produto/' + Produto.Codigo.ToString + '/' +
+      Produto.CodigoProduto.ToString + '/' + Produto.Quantidade.ToString;
     Req.Metodo := mPost;
     try
       Req.Execute;

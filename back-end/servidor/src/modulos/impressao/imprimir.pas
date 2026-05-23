@@ -244,25 +244,34 @@ begin
   conexao.SQL.Add('  max(i.codigo) AS impressora_codigo,');
   conexao.SQL.Add('  max(i.descricao)   AS impressora_nome');
   conexao.SQL.Add('FROM impressao_pedido_produto AS ipp');
-  conexao.SQL.Add('JOIN pedido_produtos AS pp   ON pp.codigo         = ipp.id_pedido');
-  conexao.SQL.Add('JOIN pedido          AS ped  ON ped.codigo        = pp.codigo_pedido');
-  conexao.SQL.Add('JOIN produto         AS p    ON p.codigo          = pp.codigo_produto');
-  conexao.SQL.Add('JOIN tipo_produto    AS tp   ON tp.codigo         = p.codigo_grupo');
-  conexao.SQL.Add('LEFT JOIN usuario    AS u    ON u.codigo          = pp.usuario');
+  conexao.SQL.Add
+    ('JOIN pedido_produtos AS pp   ON pp.codigo         = ipp.id_pedido');
+  conexao.SQL.Add
+    ('JOIN pedido          AS ped  ON ped.codigo        = pp.codigo_pedido');
+  conexao.SQL.Add
+    ('JOIN produto         AS p    ON p.codigo          = pp.codigo_produto');
+  conexao.SQL.Add
+    ('JOIN tipo_produto    AS tp   ON tp.codigo         = p.codigo_grupo');
+  conexao.SQL.Add
+    ('LEFT JOIN usuario    AS u    ON u.codigo          = pp.usuario');
 
   /// * 🔽 AQUI ESTÁ A MÁGICA DO FALLBACK:
   // Usa a impressora do usuário (se > 0), senão a da categoria (tp.impressora) */
-  conexao.SQL.Add('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
+  conexao.SQL.Add
+    ('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
 
   if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
   then
   begin
-    conexao.SQL.Add('JOIN pedido ON pedido.codigo = pp.codigo_pedido AND pedido.id_ficha > 0');
+    conexao.SQL.Add
+      ('JOIN pedido ON pedido.codigo = pp.codigo_pedido AND pedido.id_ficha > 0');
   end;
 
   conexao.SQL.Add('WHERE (ped.codigo_pedido_dia = 0 AND ipp.status = 0)');
-  conexao.SQL.Add('   OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL OR ped.id_ficha = 0) AND ipp.status = 0)');
-  conexao.SQL.Add('   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 AND ipp.status = 0)');
+  conexao.SQL.Add
+    ('   OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL OR ped.id_ficha = 0) AND ipp.status = 0)');
+  conexao.SQL.Add
+    ('   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 AND ipp.status = 0)');
   conexao.SQL.Add('  AND pp.codigo_pedido = :codigo');
 
   try
@@ -933,8 +942,20 @@ var
   conexao: TConexao;
   Dados: TFDMemTable;
   Codigo: String;
+
+  Qry: TFDQuery;
+
 begin
+
   conexao := TConexao.Create('imprimir');
+
+  if conexao.GetParametro('nova_impressao') = '1' then
+  begin
+    frmServidor.enviarImpressaoGo(Req.Params['codigo'].ToInteger());
+    conexao.Free;
+    exit;
+  end;
+
   Dados := TFDMemTable.Create(nil);
   conexao.SQL.Add
     ('select * from pedido_produtos where codigo_pedido = :codigo');
@@ -1002,23 +1023,20 @@ end;
 procedure DoGetCaixaTresSangria(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 begin
-  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTresSangria(Req.Params['codigo']
-    .ToInteger));
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTresSangria(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
 end;
 
 procedure DoGetCaixaTresLancado(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 begin
-  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTresLancado(Req.Params['codigo']
-    .ToInteger));
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTresLancado(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
 end;
 
 procedure DoGetCaixaTres(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTres(Req.Params['codigo']
-    .ToInteger));
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaTres(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
 end;
 
@@ -1062,30 +1080,28 @@ end;
 procedure DoGetCaixaCincoProduto(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 begin
-  Res.Send<TJSONArray>(frmServidor.DoGetCaixaCincoProduto(Req.Params['codigo']
-    .ToInteger));
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaCincoProduto(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
 end;
 
 procedure DoGetCaixaCincoCategoria(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 begin
-  Res.Send<TJSONArray>(frmServidor.DoGetCaixaCincoCategoria(Req.Params['codigo']
-    .ToInteger));
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaCincoCategoria(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
 end;
 
 procedure DoGetCaixaCinco(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
-  I: Integer;
+  i: Integer;
   Dados: TFDMemTable;
 begin
   conexao := TConexao.Create('imprimir');
   frmServidor.PRODUTOS.Close;
   frmServidor.PRODUTOS.Open;
 
-  I := Req.Params['codigo'].ToInteger();
+  i := Req.Params['codigo'].ToInteger();
   // for I := 0 to 2 do
 
   conexao.SQL.Clear;
@@ -1106,7 +1122,7 @@ begin
   conexao.SQL.Add('prod.valor_venda as total,');
   conexao.SQL.Add('pp.quantidade as quantidade,');
   conexao.SQL.Add('CASE');
-  case I of
+  case i of
     0:
       begin
         conexao.SQL.Add('    WHEN p.codigo_cliente_endereco = 0 THEN "Mesa"');
@@ -1123,7 +1139,7 @@ begin
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo ');
   conexao.SQL.Add('join produto as prod on prod.codigo = pp.codigo_produto');
 
-  case I of
+  case i of
     0:
       begin
         // Mesa
@@ -1202,7 +1218,7 @@ begin
   conexao.SQL.Add('(pp.quantidade * pps.valor) as total,');
   conexao.SQL.Add('pp.quantidade as quantidade,');
   conexao.SQL.Add('CASE');
-  case I of
+  case i of
     0:
       begin
         conexao.SQL.Add('    WHEN p.codigo_cliente_endereco = 0 THEN "Mesa"');
@@ -1219,7 +1235,7 @@ begin
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo_pedido = p.codigo');
   conexao.SQL.Add
     ('join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo and pps.valor > 0');
-  case I of
+  case i of
     0:
       begin
         // Mesa
@@ -1281,45 +1297,16 @@ begin
 end;
 
 procedure DoGetCaixaSeis(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  conexao: TConexao;
 begin
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add('select ' + Req.Params['codigo'] +
-    ' as id, upper(m.nome) as motoboy,  group_concat(p.codigo_pedido_dia) as codigo, sum(p.valor_taxa_entrega) as taxa_entrega, sum(p.valor_total_pedido) as total, ce.bairro  from pedido as p ');
-  conexao.SQL.Add
-    ('join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco');
-  conexao.SQL.Add('join pedido_motoboy as pm on pm.codigo_pedido = p.codigo');
-  conexao.SQL.Add('join motoboy as m on m.codigo = pm.codigo_motoboy');
-  conexao.SQL.Add('where p.id_caixa  = :id');
-  conexao.SQL.Add('group by m.codigo, ce.bairro');
-  conexao.Parametros('id', Req.Params['codigo']);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaSeis(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
-
 end;
 
 procedure DoGetCaixaSete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  conexao: TConexao;
 begin
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add
-    ('select pedido.data_pedido,pedido.hora_pedido, pedido.codigo_pedido_dia, (select nome from cliente where cliente.codigo = pedido.codigo_cliente) as cliente,');
-  conexao.SQL.Add
-    ('pedido_produtos.valor_total, pedido_produtos.quantidade, (select upper(nome_produto) from produto where produto.codigo = pedido_produtos.codigo_produto) as produto,');
-  conexao.SQL.Add('pedido_produtos.id_caixa as id');
-  conexao.SQL.Add('from pedido_produtos ');
-  conexao.SQL.Add('join pedido on pedido.codigo = pedido_produtos.id_pedido');
-  conexao.SQL.Add('where pedido_produtos.id_caixa = :id');
-  conexao.Parametros('id', Req.Params['codigo']);
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
+  Res.Send<TJSONArray>(frmServidor.DoGetCaixaSete(Req.Params['codigo'].ToInteger));
   frmServidor.ImpressoraStatus;
-
 end;
-
 procedure DoPostImpressaoCaixa(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -1341,7 +1328,7 @@ begin
   frmServidor.memImpressora.Close;
   try
     // ////////showmessage1(req.Body);
-    frmServidor.memImpressora.LoadFromJSON(Req.Body);
+    frmServidor.memImpressora.LoadFromJSON(Req.BODY);
     // ////////showmessage1(frmServidor.memImpressora.RecordCount.ToString);
   except
 
@@ -1453,8 +1440,36 @@ begin
   Res.Send(DateTimeToStr(frmServidor.DataHoraImpressaoService));
 end;
 
+procedure DoPostImpressaoConfigGo(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  LJsonObject: TJSONObject;
+  url: String;
+begin
+  LJsonObject := TJSONObject.ParseJSONValue(Req.BODY) as TJSONObject;
+  try
+    if Assigned(LJsonObject) then
+    begin
+
+      if LJsonObject.TryGetValue<String>('url', url) then
+      begin
+        frmServidor.urlServicoImpressaoGo := url;
+      end
+      else
+      begin
+        frmServidor.urlServicoImpressaoGo := '';
+      end;
+    end;
+  finally
+    LJsonObject.Free;
+  end;
+end;
+
 procedure Registry;
 begin
+  // THorse.get('/impressao/padrao', DoGetImpressaoPadrao);
+
+  THorse.Post('/impressao/config/go', DoPostImpressaoConfigGo);
   THorse.get('/impressao/qrcod/pix', DoGetImpressaoQrcodPix);
   THorse.Post('/impressao/qrcod/pix/:pix', DoPostImpressaoQrcodPix);
   THorse.get('/impressao/pedidos', DoGetImpressaoPedidos);

@@ -7,7 +7,7 @@ uses Winapi.Windows, uDM, FireDAC.Comp.Client, DataSet.Serialize,
   uRequisicao,
   Data.DB,
   JOSE.Types.JSON, Winapi.TlHelp32, Winapi.ShellAPI, Vcl.Controls, Vcl.Forms,
-  Vcl.ExtCtrls, System.Hash, System.IOUtils, System.Variants;
+  Vcl.ExtCtrls, System.Hash, System.IOUtils, System.Variants, uGlobais;
 
 type
 
@@ -77,6 +77,7 @@ type
 
     function GetAll(Tabela: String): String;
     function GetParametro(Campo: String): Variant;
+    procedure SalvarParametro(Campo, Valor: String);
     function NomeBanco: String;
     function Usuario: String;
     function Senha: String;
@@ -97,6 +98,8 @@ type
     function BuscarCache(Hash: String): TJSONArray;
     procedure SalvarCache(Hash: String; Result: TJSONArray);
     procedure CriarParticoesHistoricasPedidoAll;
+
+    function GetConfiguracao(Parametro: String): String;
 
   end;
 
@@ -697,7 +700,10 @@ var
   LogPath, LogFile, MsgLog: string;
   LogStream: TFileStream;
 begin
-  // Ignora erros de chave duplicada, como j� fazia
+
+  if not Desenvolvimento then
+    exit;
+    // Ignora erros de chave duplicada, como j� fazia
   if pos('Duplicate entry', Erro) > 0 then
     exit;
 
@@ -787,25 +793,77 @@ begin
   Result := GetEnvironmentVariable('COMPUTERNAME');
 end;
 
+function TConexao.GetConfiguracao(Parametro: String): String;
+begin
+  Result := GetParametro(Parametro);
+end;
+
 function TConexao.GetParametro(Campo: String): Variant;
 var
   QRY: TFDQuery;
 begin
   UpdateLastActivityTime;
-  QRY := CriaQRY;
+  try
+    QRY := CriaQRY;
 
-  QRY.Close;
-  QRY.SQL.Clear;
-  QRY.SQL.Add('select * from dados_whatsapp');
-  QRY.Open;
+    QRY.Close;
+    QRY.SQL.Clear;
+    QRY.SQL.Add('select valor from configuracoes where chave = :chave');
+    QRY.ParamByName('chave').AsString := Campo;
+    QRY.Open;
 
-  Result := QRY.FieldByName(Campo).AsVariant;
+    Result := QRY.FieldByName('valor').AsVariant;
+  except
+    on E: Exception do
+    begin
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add('CREATE TABLE configuracoes (');
+      QRY.SQL.Add('  chave VARCHAR(100) PRIMARY KEY,');
+      QRY.SQL.Add('  valor TEXT');
+      QRY.SQL.Add(') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+      QRY.ExecSQL;
+    end;
+
+  end;
 
   QRY.Free;
 
   // FieldByName
 end;
-
+procedure TConexao.SalvarParametro(Campo, Valor: String);
+var
+  QRY: TFDQuery;
+begin
+  UpdateLastActivityTime;
+  QRY := CriaQRY;
+  try
+    try
+      QRY.SQL.Text := 'INSERT INTO configuracoes (chave, valor) ' +
+        'VALUES (:chave, :valor) ' +
+        'ON DUPLICATE KEY UPDATE valor = VALUES(valor)';
+      QRY.ParamByName('chave').AsString := Campo;
+      QRY.ParamByName('valor').AsString := Valor;
+      QRY.ExecSQL;
+    except
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add('CREATE TABLE configuracoes (');
+      QRY.SQL.Add('  chave VARCHAR(100) PRIMARY KEY,');
+      QRY.SQL.Add('  valor TEXT');
+      QRY.SQL.Add(') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+      QRY.ExecSQL;
+      QRY.SQL.Text := 'INSERT INTO configuracoes (chave, valor) ' +
+        'VALUES (:chave, :valor) ' +
+        'ON DUPLICATE KEY UPDATE valor = VALUES(valor)';
+      QRY.ParamByName('chave').AsString := Campo;
+      QRY.ParamByName('valor').AsString := Valor;
+      QRY.ExecSQL;
+    end;
+  finally
+    QRY.Free;
+  end;
+end;
 function TConexao.HashSQL(const ASQL: string): string;
 begin
   Result := THashMD5.GetHashString(ASQL);
@@ -1253,7 +1311,11 @@ procedure TConexao.Zerar;
 begin
   SetLength(FParametros, 0);
   SetLength(FValores, 0);
-  SQL.Clear;
+  try
+    SQL.Clear;
+  except
+
+  end;
 end;
 
 { TLogThread1 }
@@ -1261,6 +1323,7 @@ end;
 constructor TLogThread1.Create(const ComputerName, Erro, Banco: string);
 begin
   inherited Create(true); // Cria a Thread1 suspensa
+  FormatSettings.DecimalSeparator := ',';
   FComputerName := ComputerName;
   FErro := Erro;
   FBanco := Banco;

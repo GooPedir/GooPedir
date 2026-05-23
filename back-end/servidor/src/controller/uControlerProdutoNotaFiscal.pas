@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.JSON, System.Generics.Collections,
-  Horse, Conexao, System.DateUtils, dialogs;
+  Horse, Conexao, System.DateUtils, dialogs, FireDAC.Comp.Client, DataSet.Serialize;
 
 type
   TNotaEmpresa = record
@@ -69,8 +69,244 @@ procedure DoPostDadosNotaFiscalFornecedorItemFator(Req: THorseRequest;
 
 procedure DoPostValidarNotaFiscalDespesa(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+procedure DoGetFornecedores(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
+procedure DoPostFornecedor(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
+procedure DoGetFornecedorDossie(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
+procedure DoPostNotaFiscalEntradaEstoque(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
+function ValidarAlertaNotasFiscaisSemEntradaEstoque: TJSONObject;
 
 implementation
+
+function JSONStringValue(JSON: TJSONObject; const Name: string): string;
+var
+  Value: TJSONValue;
+begin
+  Result := '';
+  if not Assigned(JSON) then
+    Exit;
+
+  Value := JSON.GetValue(Name);
+  if Assigned(Value) and not (Value is TJSONNull) then
+    Result := Value.Value;
+end;
+
+function BuscarFornecedorPorParametro(Conexao: TConexao; const Valor: string): string;
+begin
+  Result := '';
+  if Trim(Valor) = '' then
+    Exit;
+
+  Conexao.SQL.Add('select id, 0 as zero from fornecedor where id = :valor or cnpj = :valor limit 1');
+  Conexao.Parametros('valor', Valor);
+  try
+    Result := Conexao.FieldByName('id');
+  except
+    Result := '';
+  end;
+end;
+
+function JSONParamValue(Req: THorseRequest; const Name: string): string;
+begin
+  Result := '';
+  try
+    Result := Req.Params[Name];
+  except
+  end;
+end;
+
+function JSONQueryValue(Req: THorseRequest; const Name: string): string;
+begin
+  Result := '';
+  try
+    Result := Req.Query[Name];
+  except
+  end;
+end;
+
+procedure GarantirCamposEntradaEstoqueNotaFiscal(Conexao: TConexao);
+begin
+  try
+    Conexao.SQL.Add('ALTER TABLE nota_fiscal_item ADD COLUMN entrada_estoque TINYINT DEFAULT 0');
+    Conexao.ExecuteSQL;
+  except
+  end;
+
+  try
+    Conexao.SQL.Add('ALTER TABLE nota_fiscal_item ADD COLUMN entrada_estoque_em DATETIME NULL');
+    Conexao.ExecuteSQL;
+  except
+  end;
+
+  try
+    Conexao.SQL.Add('ALTER TABLE nota_fiscal_item ADD COLUMN entrada_estoque_msg VARCHAR(255) NULL');
+    Conexao.ExecuteSQL;
+  except
+  end;
+end;
+
+procedure GarantirTipoAlertaEstoqueNotaFiscal(Conexao: TConexao);
+begin
+  try
+    Conexao.SQL.Add
+      ('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
+    Conexao.ExecuteSQL;
+  except
+  end;
+end;
+
+function ValidarAlertaNotasFiscaisSemEntradaEstoque: TJSONObject;
+var
+  Conexao: TConexao;
+  TotalNotas, TotalItens: Integer;
+  AlertaExistente: string;
+  Mensagem: string;
+begin
+  Conexao := TConexao.Create('ValidarAlertaNotasFiscaisSemEntradaEstoque');
+  Result := TJSONObject.Create;
+  try
+    GarantirCamposEntradaEstoqueNotaFiscal(Conexao);
+    GarantirTipoAlertaEstoqueNotaFiscal(Conexao);
+
+    Conexao.SQL.Add('select count(distinct nf.id) as total_notas, count(nfi.id) as total_itens');
+    Conexao.SQL.Add('from nota_fiscal nf');
+    Conexao.SQL.Add('join nota_fiscal_item nfi on nfi.nota_fiscal_id = nf.id');
+    Conexao.SQL.Add('where date(nf.data_emissao) >= date_sub(curdate(), interval 7 day)');
+    Conexao.SQL.Add('and coalesce(nfi.entrada_estoque, 0) <> 1');
+    TotalNotas := StrToIntDef(Conexao.FieldByName('total_notas'), 0);
+    TotalItens := StrToIntDef(Conexao.FieldByName('total_itens'), 0);
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('total_notas', TJSONNumber.Create(TotalNotas));
+    Result.AddPair('total_itens', TJSONNumber.Create(TotalItens));
+    Result.AddPair('alertaCriado', TJSONBool.Create(False));
+
+    if TotalNotas = 0 then
+      Exit;
+
+    Conexao.SQL.Add('select id, 0 as zero from alerta_sistema');
+    Conexao.SQL.Add('where status = "ABERTO" and tipo = "ESTOQUE"');
+    Conexao.SQL.Add('and CAST(payload AS CHAR) LIKE "%NOTAS_FISCAIS_SEM_ENTRADA_ESTOQUE%"');
+    Conexao.SQL.Add('limit 1');
+    AlertaExistente := Conexao.FieldByName('id');
+    if (AlertaExistente <> '') and (AlertaExistente <> '0') then
+      Exit;
+
+    Mensagem := IntToStr(TotalNotas) +
+      ' notas fiscais dos ultimos 7 dias pendentes de entrada no estoque.';
+
+    Conexao.SQL.Add('INSERT INTO alerta_sistema');
+    Conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
+    Conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", NULL,');
+    Conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "NOTAS_FISCAIS_SEM_ENTRADA_ESTOQUE",');
+    Conexao.SQL.Add('"mensagem", :mensagem, "total_notas", :total_notas,');
+    Conexao.SQL.Add('"total_itens", :total_itens, "periodo_dias", 7,');
+    Conexao.SQL.Add('"rota", "/v2/notafiscal/entrada-estoque"))');
+    Conexao.Parametros('mensagem', Mensagem);
+    Conexao.Parametros('total_notas', TotalNotas);
+    Conexao.Parametros('total_itens', TotalItens);
+    Conexao.ExecuteSQL;
+
+    Result.RemovePair('alertaCriado').Free;
+    Result.AddPair('alertaCriado', TJSONBool.Create(True));
+  except
+    on E: Exception do
+    begin
+      Result.Free;
+      Result := TJSONObject.Create;
+      Result.AddPair('success', TJSONBool.Create(False));
+      Result.AddPair('erro', E.Message);
+    end;
+  end;
+  Conexao.Free;
+end;
+procedure EntradaEstoqueProdutoNota(Conexao: TConexao; const ItemID: string;
+  CodigoProduto: Integer; Quantidade: Double);
+var
+  MovimentoID: Integer;
+  Transacao: string;
+begin
+  MovimentoID := Conexao.GerarID('produto_estoque', 'codigo');
+  Transacao := 'NF-' + ItemID;
+  Conexao.SQL.Add('insert ignore into produto_estoque (codigo,data,hora,operacao,codigo_produto,quantidade,saldo_novo,saldo_atual,transacao)');
+  Conexao.SQL.Add('values (:codigo,current_date,current_time,1,:codigo_produto,:quantidade,0,0,:transacao)');
+  Conexao.Parametros('codigo', MovimentoID);
+  Conexao.Parametros('codigo_produto', CodigoProduto);
+  Conexao.Parametros('quantidade', Quantidade);
+  Conexao.Parametros('transacao', Transacao);
+  Conexao.ExecuteSQL;
+end;
+
+procedure EntradaEstoqueIngredienteNota(Conexao: TConexao; const ItemID: string;
+  CodigoIngrediente: Integer; Quantidade, CustoTotal, Custo: Double);
+var
+  MovimentoID: Integer;
+begin
+  MovimentoID := Conexao.GerarID('ingredientes_estoque', 'id');
+
+  Conexao.SQL.Add('update ingredientes set saldo = COALESCE(saldo, 0) + :saldo where id = :id_ingredientes');
+  Conexao.Parametros('id_ingredientes', CodigoIngrediente);
+  Conexao.Parametros('saldo', Quantidade);
+  Conexao.ExecuteSQL;
+
+  Conexao.SQL.Add('insert into ingredientes_estoque (id,id_ingredientes,data,hora,tipo,quantidade,custo_total,custo)');
+  Conexao.SQL.Add('values (:id,:id_ingredientes,current_date,current_time,1,:quantidade,:custo_total,:custo)');
+  Conexao.Parametros('id', MovimentoID);
+  Conexao.Parametros('id_ingredientes', CodigoIngrediente);
+  Conexao.Parametros('quantidade', Quantidade);
+  Conexao.Parametros('custo_total', CustoTotal);
+  Conexao.Parametros('custo', Custo);
+  Conexao.ExecuteSQL;
+
+  if Custo > 0 then
+  begin
+    Conexao.SQL.Add('update ingredientes set custo = :custo, custo_ultimo = :custo where id = :id');
+    Conexao.Parametros('custo', Custo);
+    Conexao.Parametros('id', CodigoIngrediente);
+    Conexao.ExecuteSQL;
+  end;
+end;
+function FormatarValorNotificacaoNotaFiscal(Valor: Double): string;
+var
+  FmtMoeda: TFormatSettings;
+begin
+  FmtMoeda := TFormatSettings.Create;
+  FmtMoeda.DecimalSeparator := '.';
+  FmtMoeda.ThousandSeparator := '.';
+  Result := FormatFloat('#,##0.00', Valor, FmtMoeda);
+end;
+procedure RegistrarNotificacaoNotaFiscalBaixada(Conexao: TConexao;
+  const CodigoNota, FornecedorNome, Chave: string; ValorNota: Double);
+var
+  Mensagem, ValorFormatado: string;
+  FmtBanco: TFormatSettings;
+begin
+  ValorFormatado := FormatarValorNotificacaoNotaFiscal(ValorNota);
+  Mensagem := 'Nova nota fiscal lancada manualmente ' + FornecedorNome + ' R$ ' +
+    ValorFormatado;
+  FmtBanco := TFormatSettings.Create;
+  FmtBanco.DecimalSeparator := '.';
+  Conexao.SQL.Add('INSERT INTO alerta_sistema ' +
+    '(tipo, origem, referencia_id, payload) ' +
+    'VALUES (''SISTEMA'', ''SISTEMA'', NULL, ' +
+    'JSON_OBJECT(''mensagem'', :mensagem, ''fornecedor'', :fornecedor, ' +
+    '''origem_entrada'', ''manual'', ''valor'', :valor, ''valor_numero'', :valor_numero, ' +
+    '''nota_id'', :nota_id, ''chave'', :chave))');
+  Conexao.Parametros('mensagem', Mensagem);
+  Conexao.Parametros('fornecedor', FornecedorNome);
+  Conexao.Parametros('valor', 'R$ ' + ValorFormatado);
+  Conexao.Parametros('valor_numero', FormatFloat('0.00', ValorNota, FmtBanco));
+  Conexao.Parametros('nota_id', CodigoNota);
+  Conexao.Parametros('chave', Chave);
+  Conexao.ExecuteSQL;
+end;
 
 // procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
 // Res: THorseResponse; Next: TProc);
@@ -310,10 +546,16 @@ begin
 
       if (CodigoNota = '') or (CodigoNota = '0') then
       begin
+        Conexao.SQL.Add('select UUID() as id, 0 as zero');
+        CodigoNota := Conexao.FieldByName('id');
+        if (CodigoNota = '') or (CodigoNota = '0') then
+          raise Exception.Create('Nao foi possivel gerar o ID da nota fiscal.');
+
         Conexao.SQL.Add
           ('insert into nota_fiscal (id, fornecedor_id, serie, numero, chave, modelo, tipo, data_emissao, data_entrada, vNF, vFrete, vDesc, vOutro, xml_original, status_importacao, criado_em)');
         Conexao.SQL.Add
-          ('values (UUID(), :fornecedor_id, :serie, :numero, :chave, :modelo, :tipo, :data_emissao, :data_entrada, :vNF, :vFrete, :vDesc, :vOutro, :xml_original, :status_importacao, NOW())');
+          ('values (:id, :fornecedor_id, :serie, :numero, :chave, :modelo, :tipo, :data_emissao, :data_entrada, :vNF, :vFrete, :vDesc, :vOutro, :xml_original, :status_importacao, NOW())');
+        Conexao.Parametros('id', CodigoNota);
         Conexao.Parametros('fornecedor_id', CodigoFornecedor);
         Conexao.Parametros('serie', Nota.Serie);
         Conexao.Parametros('numero', Nota.Numero);
@@ -332,9 +574,8 @@ begin
         Conexao.Parametros('status_importacao', Nota.Status);
         Conexao.ExecuteSQL;
 
-        Conexao.SQL.Add('select id from nota_fiscal where chave = :chave');
-        Conexao.Parametros('chave', Nota.Chave);
-        CodigoNota := Conexao.FieldByName('id');
+        RegistrarNotificacaoNotaFiscalBaixada(Conexao, CodigoNota,
+          Empresa.Nome, Nota.Chave, Nota.vNF);
       end;
 
       // --- ITENS DA NOTA ---
@@ -397,7 +638,7 @@ begin
         ('CASE WHEN fi.tabela_vinculo = "produto" THEN upper(p.nome_produto) ELSE upper(i.descricao) END AS insumo_nome,');
       Conexao.SQL.Add
         ('CASE WHEN fi.tabela_vinculo = "produto" THEN upper(p.un) ELSE upper(i.unidade) END AS insumo_unidade ');
-      Conexao.SQL.Add('from fornecedor_item as fi ');
+      Conexao.SQL.Add('from fornecedor_item  as fi ');
       Conexao.SQL.Add
         ('left join produto as p on p.codigo = fi.codigo_vinculo ');
       Conexao.SQL.Add
@@ -425,8 +666,10 @@ var
 begin
   Conexao := TConexao.Create('DoPostValidarNotaFiscalDespesa');
   JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
+  Conexao.SQL.Add('select id, 0 as zero from despesas');
   Conexao.SQL.Add
-    ('select id, 0 as zero from despesa where chave_nota = :chave');
+    ('where replace(replace(replace(replace(coalesce(chave_nota, ""), " ", ""), ".", ""), "-", ""), "/", "") = replace(replace(replace(replace(:chave, " ", ""), ".", ""), "-", ""), "/", "")');
+  Conexao.SQL.Add('and coalesce(excluida, 0) = 0 limit 1');
   Conexao.Parametros('chave', JSONBody.GetValue<string>('chave'));
   reqs := 'true';
   try
@@ -466,4 +709,333 @@ begin
   Conexao.Free;
 end;
 
+procedure DoGetFornecedores(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  Conexao: TConexao;
+begin
+  Conexao := TConexao.Create('DoGetFornecedores');
+  try
+    Conexao.SQL.Add('select f.id, upper(f.nome) as nome, f.cnpj, f.telefone, f.email,');
+    Conexao.SQL.Add('coalesce(prod.quantidade_produtos, 0) as quantidade_produtos,');
+    Conexao.SQL.Add('coalesce(notas.total_notas, 0) as total_notas,');
+    Conexao.SQL.Add('coalesce(notas.valor_total_notas, 0) as valor_total_notas,');
+    Conexao.SQL.Add('coalesce(notas.total_desconto, 0) as total_desconto,');
+    Conexao.SQL.Add('coalesce(notas.total_frete, 0) as total_frete');
+    Conexao.SQL.Add('from fornecedor f');
+    Conexao.SQL.Add('left join (select fornecedor_id, count(distinct id) as quantidade_produtos from fornecedor_item group by fornecedor_id) prod on prod.fornecedor_id = f.id');
+    Conexao.SQL.Add('left join (select fornecedor_id, count(id) as total_notas, sum(vNF) as valor_total_notas, sum(vDesc) as total_desconto, sum(vFrete) as total_frete from nota_fiscal group by fornecedor_id) notas on notas.fornecedor_id = f.id');
+    Conexao.SQL.Add('order by nome');
+    Res.Send<TJSONArray>(Conexao.ConsultaSQL);
+  finally
+    Conexao.Free;
+  end;
+end;
+
+procedure DoPostFornecedor(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  Conexao: TConexao;
+  JSONBody: TJSONObject;
+  CodigoFornecedor: string;
+begin
+  Conexao := TConexao.Create('DoPostFornecedor');
+  JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
+  try
+    CodigoFornecedor := Req.Params['id'];
+    if CodigoFornecedor = '' then
+      CodigoFornecedor := JSONStringValue(JSONBody, 'id');
+
+    if CodigoFornecedor = '' then
+    begin
+      Res.Status(400).Send('Fornecedor nao informado');
+      Exit;
+    end;
+
+    Conexao.SQL.Add('update fornecedor set nome = :nome, cnpj = :cnpj, telefone = :telefone, email = :email');
+    Conexao.SQL.Add('where id = :id');
+    Conexao.Parametros('nome', JSONStringValue(JSONBody, 'nome'));
+    Conexao.Parametros('cnpj', JSONStringValue(JSONBody, 'cnpj'));
+    Conexao.Parametros('telefone', JSONStringValue(JSONBody, 'telefone'));
+    Conexao.Parametros('email', JSONStringValue(JSONBody, 'email'));
+    Conexao.Parametros('id', CodigoFornecedor);
+    Conexao.ExecuteSQL;
+
+    Res.Send<TJSONObject>(TJSONObject.Create
+      .AddPair('success', TJSONBool.Create(True))
+      .AddPair('id', CodigoFornecedor));
+  finally
+    if Assigned(JSONBody) then
+      JSONBody.Free;
+    Conexao.Free;
+  end;
+end;
+
+procedure DoGetFornecedorDossie(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  Conexao: TConexao;
+  Resultado: TJSONObject;
+  CodigoFornecedor, DataInicio, DataFim: string;
+begin
+  Conexao := TConexao.Create('DoGetFornecedorDossie');
+  Resultado := TJSONObject.Create;
+  try
+    CodigoFornecedor := BuscarFornecedorPorParametro(Conexao, Req.Params['fornecedor']);
+    DataInicio := Req.Params['data_inicio'];
+    DataFim := Req.Params['data_fim'];
+
+    if CodigoFornecedor = '' then
+    begin
+      Resultado.AddPair('success', TJSONBool.Create(False));
+      Resultado.AddPair('message', 'Fornecedor nao encontrado');
+      Res.Status(404).Send<TJSONObject>(Resultado);
+      Exit;
+    end;
+
+    Resultado.AddPair('success', TJSONBool.Create(True));
+    Resultado.AddPair('fornecedor_id', CodigoFornecedor);
+    Resultado.AddPair('data_inicio', DataInicio);
+    Resultado.AddPair('data_fim', DataFim);
+
+    Conexao.SQL.Add('select id, upper(nome) as nome, cnpj, telefone, email');
+    Conexao.SQL.Add('from fornecedor');
+    Conexao.SQL.Add('where id = :fornecedor');
+    Conexao.Parametros('fornecedor', CodigoFornecedor);
+    Resultado.AddPair('fornecedor', Conexao.ConsultaSQL);
+
+    Conexao.SQL.Add('select count(distinct nf.id) as total_notas,');
+    Conexao.SQL.Add('count(nfi.id) as total_itens,');
+    Conexao.SQL.Add('coalesce(sum(nfi.qCom), 0) as quantidade_total,');
+    Conexao.SQL.Add('coalesce(sum(nfi.vDesc), 0) as total_desconto,');
+    Conexao.SQL.Add('coalesce(sum(nfi.vFrete), 0) as total_frete,');
+    Conexao.SQL.Add('coalesce(sum(nfi.vTotal), 0) as total_comprado');
+    Conexao.SQL.Add('from nota_fiscal nf');
+    Conexao.SQL.Add('left join nota_fiscal_item nfi on nfi.nota_fiscal_id = nf.id');
+    Conexao.SQL.Add('where nf.fornecedor_id = :fornecedor');
+    Conexao.SQL.Add('and date(nf.data_emissao) between :inicio and :fim');
+    Conexao.Parametros('fornecedor', CodigoFornecedor);
+    Conexao.Parametros('inicio', DataInicio);
+    Conexao.Parametros('fim', DataFim);
+    Resultado.AddPair('resumo', Conexao.ConsultaSQL);
+
+    Conexao.SQL.Add('select fi.id as fornecedor_item_id,');
+    Conexao.SQL.Add('fi.cprod, upper(fi.xProd) as produto_fornecedor, fi.uCom as unidade_fornecedor,');
+    Conexao.SQL.Add('fi.tabela_vinculo, fi.codigo_vinculo, fi.fator,');
+    Conexao.SQL.Add('case when fi.tabela_vinculo = "produto" then upper(p.nome_produto) when fi.tabela_vinculo = "ingrediente" then upper(i.descricao) else null end as vinculo_nome,');
+    Conexao.SQL.Add('case when fi.tabela_vinculo = "produto" then p.saldo_atual when fi.tabela_vinculo = "ingrediente" then i.saldo else null end as saldo_atual,');
+    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.qCom else 0 end), 0) as quantidade_periodo,');
+    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vDesc else 0 end), 0) as desconto_periodo,');
+    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vFrete else 0 end), 0) as frete_periodo,');
+    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vTotal else 0 end), 0) as total_periodo,');
+    Conexao.SQL.Add('min(case when nf.id is not null then nfi.vUnCom end) as menor_valor_periodo,');
+    Conexao.SQL.Add('max(case when nf.id is not null then nfi.vUnCom end) as maior_valor_periodo,');
+    Conexao.SQL.Add('avg(case when nf.id is not null then nfi.vUnCom end) as media_valor_periodo,');
+    Conexao.SQL.Add('(select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) as ultimo_valor,');
+    Conexao.SQL.Add('(select nf2.data_emissao from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) as ultima_compra');
+    Conexao.SQL.Add('from fornecedor_item fi');
+    Conexao.SQL.Add('left join nota_fiscal_item nfi on nfi.fornecedor_item_id = fi.id');
+    Conexao.SQL.Add('left join nota_fiscal nf on nf.id = nfi.nota_fiscal_id and date(nf.data_emissao) between :inicio and :fim');
+    Conexao.SQL.Add('left join produto p on p.codigo = fi.codigo_vinculo');
+    Conexao.SQL.Add('left join ingredientes i on i.id = fi.codigo_vinculo');
+    Conexao.SQL.Add('where fi.fornecedor_id = :fornecedor');
+    Conexao.SQL.Add('group by fi.id, fi.cprod, fi.xProd, fi.uCom, fi.tabela_vinculo, fi.codigo_vinculo, fi.fator, p.nome_produto, p.saldo_atual, i.descricao, i.saldo');
+    Conexao.SQL.Add('order by quantidade_periodo desc, produto_fornecedor');
+    Conexao.Parametros('inicio', DataInicio);
+    Conexao.Parametros('fim', DataFim);
+    Conexao.Parametros('fornecedor', CodigoFornecedor);
+    Resultado.AddPair('itens', Conexao.ConsultaSQL);
+
+    Res.Send<TJSONObject>(Resultado);
+  finally
+    Conexao.Free;
+  end;
+end;
+procedure DoPostNotaFiscalEntradaEstoque(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  Conexao: TConexao;
+  JSONBody: TJSONObject;
+  DadosItens: TFDMemTable;
+  Retorno, ItemRetorno: TJSONObject;
+  Itens: TJSONArray;
+  NotaID, Chave, ItemID, TipoVinculo, CodigoVinculo, Mensagem, Token: string;
+  Quantidade, Fator, QuantidadeEntrada, CustoTotal, Custo: Double;
+  Processados, Ignorados, Erros: Integer;
+begin
+  Conexao := TConexao.Create('DoPostNotaFiscalEntradaEstoque');
+  DadosItens := TFDMemTable.Create(nil);
+  JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
+  Retorno := TJSONObject.Create;
+  Itens := TJSONArray.Create;
+  Processados := 0;
+  Ignorados := 0;
+  Erros := 0;
+  try
+    GarantirCamposEntradaEstoqueNotaFiscal(Conexao);
+
+    NotaID := JSONParamValue(Req, 'id');
+    Chave := JSONParamValue(Req, 'chave');
+    if NotaID = '' then
+      NotaID := JSONQueryValue(Req, 'id');
+    if Chave = '' then
+      Chave := JSONQueryValue(Req, 'chave');
+    if Assigned(JSONBody) then
+    begin
+      if NotaID = '' then
+        NotaID := JSONStringValue(JSONBody, 'id');
+      if Chave = '' then
+        Chave := JSONStringValue(JSONBody, 'chave');
+      if NotaID = '' then
+        NotaID := JSONStringValue(JSONBody, 'nota_fiscal_id');
+    end;
+
+    if (NotaID = '') and (Chave = '') then
+    begin
+      Retorno.AddPair('success', TJSONBool.Create(False));
+      Retorno.AddPair('message', 'Informe id ou chave da nota fiscal.');
+      Retorno.AddPair('itens', Itens);
+      Itens := nil;
+      Res.Status(400).Send<TJSONObject>(Retorno);
+      Exit;
+    end;
+
+    Conexao.SQL.Add('select nfi.id, nfi.qCom, nfi.vTotal, nfi.vProd, nfi.vUnCom,');
+    Conexao.SQL.Add('coalesce(nfi.entrada_estoque, 0) as entrada_estoque,');
+    Conexao.SQL.Add('fi.tabela_vinculo, fi.codigo_vinculo, coalesce(fi.fator, 1) as fator,');
+    Conexao.SQL.Add('nfi.xProd, nf.id as nota_id, nf.chave');
+    Conexao.SQL.Add('from nota_fiscal_item nfi');
+    Conexao.SQL.Add('join nota_fiscal nf on nf.id = nfi.nota_fiscal_id');
+    Conexao.SQL.Add('left join fornecedor_item fi on fi.id = nfi.fornecedor_item_id');
+    Conexao.SQL.Add('where 1=1');
+    if NotaID <> '' then
+    begin
+      Conexao.SQL.Add('and nf.id = :nota_id');
+      Conexao.Parametros('nota_id', NotaID);
+    end;
+    if Chave <> '' then
+    begin
+      Conexao.SQL.Add('and nf.chave = :chave');
+      Conexao.Parametros('chave', Chave);
+    end;
+    DadosItens.LoadFromJSON(Conexao.ConsultaSQL);
+
+    while not DadosItens.Eof do
+    begin
+      ItemID := DadosItens.FieldByName('id').AsString;
+      TipoVinculo := DadosItens.FieldByName('tabela_vinculo').AsString;
+      CodigoVinculo := DadosItens.FieldByName('codigo_vinculo').AsString;
+      Mensagem := '';
+
+      ItemRetorno := TJSONObject.Create;
+      ItemRetorno.AddPair('id', ItemID);
+      ItemRetorno.AddPair('xProd', DadosItens.FieldByName('xProd').AsString);
+      ItemRetorno.AddPair('tabela_vinculo', TipoVinculo);
+      ItemRetorno.AddPair('codigo_vinculo', CodigoVinculo);
+
+      if DadosItens.FieldByName('entrada_estoque').AsInteger = 1 then
+      begin
+        Inc(Ignorados);
+        ItemRetorno.AddPair('status', 'ignorado');
+        ItemRetorno.AddPair('message', 'Item ja teve entrada no estoque.');
+        Itens.AddElement(ItemRetorno);
+        DadosItens.Next;
+        Continue;
+      end;
+
+      if (CodigoVinculo = '') or ((TipoVinculo <> 'produto') and
+        (TipoVinculo <> 'ingrediente')) then
+      begin
+        Inc(Erros);
+        ItemRetorno.AddPair('status', 'erro');
+        ItemRetorno.AddPair('message', 'Item sem vinculo com produto ou ingrediente.');
+        Itens.AddElement(ItemRetorno);
+        DadosItens.Next;
+        Continue;
+      end;
+
+      Quantidade := DadosItens.FieldByName('qCom').AsFloat;
+      Fator := DadosItens.FieldByName('fator').AsFloat;
+      if Fator <= 0 then
+        Fator := 1;
+      QuantidadeEntrada := Quantidade * Fator;
+      CustoTotal := DadosItens.FieldByName('vTotal').AsFloat;
+      if QuantidadeEntrada > 0 then
+        Custo := CustoTotal / QuantidadeEntrada
+      else
+        Custo := 0;
+
+      try
+        Token := 'PROC-' + FormatDateTime('yyyymmddhhnnsszzz', Now) + '-' +
+          IntToStr(Random(999999));
+        Conexao.SQL.Add('update nota_fiscal_item set entrada_estoque = 2, entrada_estoque_msg = :token where id = :id and coalesce(entrada_estoque, 0) = 0');
+        Conexao.Parametros('token', Token);
+        Conexao.Parametros('id', ItemID);
+        Conexao.ExecuteSQL;
+        Conexao.SQL.Add('select 0 as zero, entrada_estoque_msg from nota_fiscal_item where id = :id');
+        Conexao.Parametros('id', ItemID);
+        if Conexao.FieldByName('entrada_estoque_msg') <> Token then
+        begin
+          Inc(Ignorados);
+          ItemRetorno.AddPair('status', 'ignorado');
+          ItemRetorno.AddPair('message', 'Item em processamento ou ja processado.');
+          Itens.AddElement(ItemRetorno);
+          DadosItens.Next;
+          Continue;
+        end;
+        if TipoVinculo = 'produto' then
+          EntradaEstoqueProdutoNota(Conexao, ItemID, StrToIntDef(CodigoVinculo, 0),
+            QuantidadeEntrada)
+        else
+          EntradaEstoqueIngredienteNota(Conexao, ItemID,
+            StrToIntDef(CodigoVinculo, 0), QuantidadeEntrada, CustoTotal, Custo);
+        Conexao.SQL.Add('update nota_fiscal_item set entrada_estoque = 1, entrada_estoque_em = current_timestamp, entrada_estoque_msg = null where id = :id');
+        Conexao.Parametros('id', ItemID);
+        Conexao.ExecuteSQL;
+        Inc(Processados);
+        ItemRetorno.AddPair('status', 'processado');
+        ItemRetorno.AddPair('quantidade_entrada', TJSONNumber.Create(QuantidadeEntrada));
+        ItemRetorno.AddPair('custo_total', TJSONNumber.Create(CustoTotal));
+        ItemRetorno.AddPair('custo', TJSONNumber.Create(Custo));
+      except
+        on E: Exception do
+        begin
+          Inc(Erros);
+          Mensagem := Copy(E.Message, 1, 255);
+          Conexao.SQL.Add('update nota_fiscal_item set entrada_estoque = 0, entrada_estoque_msg = :msg where id = :id');
+          Conexao.Parametros('msg', Mensagem);
+          Conexao.Parametros('id', ItemID);
+          Conexao.ExecuteSQL;
+          ItemRetorno.AddPair('status', 'erro');
+          ItemRetorno.AddPair('message', Mensagem);
+        end;
+      end;
+
+      Itens.AddElement(ItemRetorno);
+      DadosItens.Next;
+    end;
+
+    if Processados > 0 then
+    begin
+      Conexao.SQL.Add('update nota_fiscal set status_importacao = ''processada'' where (id = :nota_id or chave = :chave) and not exists (select 1 from nota_fiscal_item where nota_fiscal_id = nota_fiscal.id and coalesce(entrada_estoque, 0) = 0)');
+      Conexao.Parametros('nota_id', NotaID);
+      Conexao.Parametros('chave', Chave);
+      Conexao.ExecuteSQL;
+    end;
+
+    Retorno.AddPair('success', TJSONBool.Create(Erros = 0));
+    Retorno.AddPair('processados', TJSONNumber.Create(Processados));
+    Retorno.AddPair('ignorados', TJSONNumber.Create(Ignorados));
+    Retorno.AddPair('erros', TJSONNumber.Create(Erros));
+    Retorno.AddPair('itens', Itens);
+    Itens := nil;
+    Res.Send<TJSONObject>(Retorno);
+  finally
+    if Assigned(JSONBody) then
+      JSONBody.Free;
+    Itens.Free;
+    DadosItens.Free;
+    Conexao.Free;
+  end;
+end;
 end.

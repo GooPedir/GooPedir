@@ -37,8 +37,8 @@ uses
   GenericSocket,
   uAgent,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
-  Tasks, TaskManager, rota, HashMemoria, uIngredientesCardapio,
-  uControlerProdutoNotaFiscal, uNFCe;
+  Tasks, TaskManager, rota, HashMemoria,
+  uNFCe;
 
 type
   TTaskProc = reference to procedure;
@@ -173,6 +173,8 @@ type
     memTipoMesa: TFDMemTable;
     Button1: TButton;
     timerClose: TTimer;
+    FDMemTable1: TFDMemTable;
+    FDMemTable2: TFDMemTable;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure AposConectarBanco;
@@ -1906,15 +1908,15 @@ procedure TfrmServidor.EnviaGlitchtip(DSN, tipo, Identificacao,
 var
   JsonObjec, JSONBody, ExceptionObj, ExceptionVal, Tags: TJsonObject;
   ExceptionArr: TJsonArray;
-  Chave, API, URL: string;
+  chave, API, URL: string;
   iGlitchtip: iRequisicao;
 begin
   iGlitchtip := iRequisicao.Create(nil);
 
   // Extrai a chave e a URL da DSN
-  Chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
+  chave := Copy(DSN, pos('//', DSN) + 2, pos('@', DSN) - pos('//', DSN) - 2);
   URL := Copy(DSN, pos('@', DSN) + 1, length(DSN));
-  URL := StringReplace(URL, '/api/', '/api/' + Chave + '/store/', []);
+  URL := StringReplace(URL, '/api/', '/api/' + chave + '/store/', []);
   API := Copy(URL, pos('/', URL) + 1, length(URL));
   URL := StringReplace(URL, '/' + API, '', []);
 
@@ -1955,7 +1957,7 @@ begin
   // wrapper para envio
   JsonObjec := TJsonObject.Create;
   JsonObjec.AddPair('url', 'https://' + URL + '/api/' + API + '/store/');
-  JsonObjec.AddPair('autorizacao', Chave);
+  JsonObjec.AddPair('autorizacao', chave);
   JsonObjec.AddPair('body', JSONBody);
 
   iGlitchtip.URL := 'https://old.goopedir.com/glitchtip/index.php';
@@ -2456,144 +2458,77 @@ begin
 
 end;
 
-// function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
-// var
-// MySQLDumpPath, PastaBackup, CmdLine: string;
-// SI: TStartupInfo;
-// PI: TProcessInformation;
-// ExitCode: DWORD;
-// begin
-// Result := False;
-//
-// PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
-// 'backup\bd');
-// ForceDirectories(PastaBackup);
-// NomeArquivoBackup := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
-// FormatDateTime('yyyymmdd', now) // evita colisão/overwrite
-// ]);
-//
-// if FileExists(NomeArquivoBackup) then
-// begin
-// tBackupFTP.Enabled := true;
-// exit;
-// end;
-//
-// MySQLDumpPath := GetMySQLDumpPath;
-// // ex.: C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe
-// if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
-// begin
-// // //showmessage('mysqldump.exe não encontrado.');
-// exit;
-// end;
-//
-// // IMPORTANTE:
-// // - sem redirecionamento ">"
-// // - grava direto com --result-file
-// // - flags para bases grandes e InnoDB
-// // - GTID OFF evita barulho quando não precisa de replicação
-// // - hex-blob garante binários seguros
-// CmdLine := '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor + ' -P' +
-// (conexao.Porta) + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
-// // se a senha tiver caracteres especiais, considere usar --defaults-file (ver nota abaixo)
-// ' --databases ' + conexao.NomeBanco +
-// ' --single-transaction --quick --hex-blob' +
-// ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
-// ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
-// ' --result-file="' + NomeArquivoBackup + '"';
-//
-// ZeroMemory(@SI, SizeOf(SI));
-// SI.cb := SizeOf(SI);
-// SI.dwFlags := STARTF_USESHOWWINDOW;
-// SI.wShowWindow := SW_HIDE;
-//
-// ZeroMemory(@PI, SizeOf(PI));
-//
-// if not CreateProcess(nil, PChar(CmdLine), nil, nil, False, CREATE_NO_WINDOW,
-// nil, nil, SI, PI) then
-// exit;
-//
-// try
-// WaitForSingleObject(PI.hProcess, INFINITE);
-// if GetExitCodeProcess(PI.hProcess, ExitCode) then
-// begin
-// // mysqldump retorna 0 em sucesso
-// if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
-// (FileSizeByName(NomeArquivoBackup) > 0) then
-// begin
-// Result := true;
-// tBackupFTP.Enabled := true;
-// end
-// else
-// begin
-// // dica: logue ExitCode e gere um .log com stderr (ver seção “Logs”, abaixo)
-// // ////showmessage(Format('mysqldump falhou. ExitCode=%d', [ExitCode]));
-// end;
-// end;
-// finally
-// CloseHandle(PI.hThread);
-// CloseHandle(PI.hProcess);
-// end;
-// end;
-
 function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
 var
   MySQLDumpPath, PastaBackup, CmdLine, ArquivoLog: string;
+  ArquivoSQL, ArquivoZip, NomeSQLInterno: string;
   SI: TStartupInfo;
   PI: TProcessInformation;
   ExitCode: DWORD;
+  Zip: TZipFile;
 begin
   Result := false;
-
   PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
     'backup\bd');
   ForceDirectories(PastaBackup);
-
-  NomeArquivoBackup := Format('%s%s_%s.sql.gz', [PastaBackup, conexao.NomeBanco,
+  ArquivoSQL := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
     FormatDateTime('yyyymmdd', now)]);
-
+  ArquivoZip := Format('%s%s_%s.zip', [PastaBackup, conexao.NomeBanco,
+    FormatDateTime('yyyymmdd', now)]);
+  NomeArquivoBackup := ArquivoZip;
+  NomeSQLInterno := ExtractFileName(ArquivoSQL);
   ArquivoLog := PastaBackup + 'erro_backup.log';
-
-  if FileExists(NomeArquivoBackup) then
+  if FileExists(ArquivoZip) and (FileSizeByName(ArquivoZip) > 0) then
   begin
     if InicializacaoHabilitada('BackupFTPTimer') then
       tBackupFTP.Enabled := true;
     exit;
   end;
-
+  if FileExists(ArquivoSQL) then
+    DeleteFile(ArquivoSQL);
+  if FileExists(ArquivoZip) then
+    DeleteFile(ArquivoZip);
   MySQLDumpPath := GetMySQLDumpPath;
   if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
     exit;
-
   CmdLine := 'cmd /c "' + '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor +
     ' -P' + conexao.Porta + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
     ' --databases ' + conexao.NomeBanco +
     ' --single-transaction --quick --hex-blob' +
     ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
     ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
-    ' | gzip > "' + NomeArquivoBackup + '"' + ' 2> "' + ArquivoLog + '"' + '"';
-
+    ' --result-file="' + ArquivoSQL + '"' + ' 2> "' + ArquivoLog + '"' + '"';
   ZeroMemory(@SI, SizeOf(SI));
   SI.cb := SizeOf(SI);
   SI.dwFlags := STARTF_USESHOWWINDOW;
   SI.wShowWindow := SW_HIDE;
-
   ZeroMemory(@PI, SizeOf(PI));
-
   if not CreateProcess(nil, PChar(CmdLine), nil, nil, false, CREATE_NO_WINDOW,
     nil, nil, SI, PI) then
     exit;
-
   try
     WaitForSingleObject(PI.hProcess, INFINITE);
-
     if GetExitCodeProcess(PI.hProcess, ExitCode) then
     begin
-      if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
-        (FileSizeByName(NomeArquivoBackup) > 0) then
+      if (ExitCode = 0) and FileExists(ArquivoSQL) and
+        (FileSizeByName(ArquivoSQL) > 0) then
       begin
-        Result := true;
-        if InicializacaoHabilitada('BackupFTPTimer') then
-          tBackupFTP.Enabled := true;
+        Zip := TZipFile.Create;
+        try
+          Zip.Open(ArquivoZip, zmWrite);
+          Zip.Add(ArquivoSQL, NomeSQLInterno);
+          Zip.Close;
+        finally
+          Zip.Free;
+        end;
+        if FileExists(ArquivoZip) and (FileSizeByName(ArquivoZip) > 0) then
+        begin
+          Result := true;
+          NomeArquivoBackup := ArquivoZip;
+          DeleteFile(ArquivoSQL);
+          if InicializacaoHabilitada('BackupFTPTimer') then
+            tBackupFTP.Enabled := true;
+        end;
       end;
     end;
   finally
@@ -2601,248 +2536,6 @@ begin
     CloseHandle(PI.hProcess);
   end;
 end;
-
-procedure TfrmServidor.FazExclusaoClientes;
-var
-  conexao: Tconexao;
-  Dados: TFDMemTable;
-  DadosCliente: TFDMemTable;
-  Codigo: Integer;
-begin
-
-  conexao := Tconexao.Create('main');
-  Dados := TFDMemTable.Create(nil);
-
-  conexao.SQL.Add
-    ('SELECT celular, 0 as zero FROM cliente GROUP BY celular HAVING COUNT(celular) > 1;');
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-
-  if Dados.RecordCount > 0 then
-  begin
-
-    while not Dados.Eof do
-    begin
-      DadosCliente := TFDMemTable.Create(nil);
-      conexao.SQL.Add('select ');
-      conexao.SQL.Add('codigo,nome,celular,cpf,');
-      conexao.SQL.Add
-        ('(select count(*) from pedido where pedido.codigo_cliente = cliente.codigo) as pedidos,');
-      conexao.SQL.Add
-        ('(select count(*) from cliente_endereco where cliente_endereco.codigo_cliente = cliente.codigo) as endereco,');
-      conexao.SQL.Add
-        ('(select count(*) from caixa_receber where id_cliente = cliente.codigo) as pagar');
-      conexao.SQL.Add('from cliente where celular = ' +
-        QuotedStr(Dados.FieldByName('celular').AsString));
-      conexao.SQL.Add('order by cpf desc,nome desc, celular desc');
-      DadosCliente.LoadFromJSON(conexao.ConsultaSQL);
-      if DadosCliente.RecordCount > 0 then
-      begin
-        Codigo := DadosCliente.FieldByName('codigo').AsInteger;
-        DadosCliente.Next;
-        while not DadosCliente.Eof do
-        begin
-          conexao.SQL.Add
-            ('update pedido set codigo_cliente = :cliente where codigo_cliente = :old');
-          conexao.Parametros('cliente', Codigo);
-          conexao.Parametros('old', DadosCliente.FieldByName('codigo')
-            .AsInteger);
-          conexao.ExecuteSQL;
-
-          conexao.SQL.Add
-            ('update cliente_endereco set codigo_cliente = :cliente where codigo_cliente = :old');
-          conexao.Parametros('cliente', Codigo);
-          conexao.Parametros('old', DadosCliente.FieldByName('codigo')
-            .AsInteger);
-          conexao.ExecuteSQL;
-
-          conexao.SQL.Add
-            ('update caixa_receber set id_cliente = :cliente where id_caixa = :old');
-          conexao.Parametros('cliente', Codigo);
-          conexao.Parametros('old', DadosCliente.FieldByName('codigo')
-            .AsInteger);
-          conexao.ExecuteSQL;
-
-          conexao.SQL.Add('delete from cliente where codigo = :old');
-          conexao.Parametros('old', DadosCliente.FieldByName('codigo')
-            .AsInteger);
-          conexao.ExecuteSQL;
-
-          DadosCliente.Next;
-        end;
-        DadosCliente.Free;
-      end;
-
-      Dados.Next;
-    end;
-  end;
-  Dados.Free;
-  conexao.Free;
-
-end;
-
-procedure TfrmServidor.Fechar1Click(Sender: TObject);
-begin
-  FecharExe(ExtractFileDir(Application.ExeName) + '\ServicosGoopedir.exe');
-  FecharExe('ServicosGoopedir.exe');
-  fecharServico;
-
-end;
-
-procedure TfrmServidor.FecharExe(ExeFileName: String);
-const
-  PROCESS_TERMINATE = $0001;
-var
-  ContinueLoop: BOOL;
-  FSnapshotHandle: THandle;
-  FProcessEntry32: TProcessEntry32;
-begin
-
-  ExeFileName := ExtractFileName(ExeFileName);
-
-  FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-  FProcessEntry32.dwSize := SizeOf(FProcessEntry32);
-  ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
-  while Integer(ContinueLoop) <> 0 do
-  begin
-    if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile))
-      = UpperCase(ExeFileName)) or (UpperCase(FProcessEntry32.szExeFile)
-      = UpperCase(ExeFileName))) then
-      TerminateProcess(OpenProcess(PROCESS_TERMINATE, BOOL(0),
-        FProcessEntry32.th32ProcessID), 0);
-    ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
-  end;
-  CloseHandle(FSnapshotHandle);
-
-end;
-
-procedure TfrmServidor.fecharServico;
-begin
-  FecharExe(frmServidor.IMPRESSAO);
-  FecharExe(frmServidor.WHATSAPP);
-  FecharExe(frmServidor.SITE(NomeExeSite));
-  FecharExe(frmServidor.USANFCE);
-  FecharExe(Application.ExeName);
-  FecharExe('GooPedir.exe');
-end;
-
-procedure TfrmServidor.FecharServioSite1Click(Sender: TObject);
-begin
-  FecharExe(frmServidor.SITE(NomeExeSite));
-end;
-
-procedure TfrmServidor.FichaTecnica;
-var
-  conexao: Tconexao;
-  Dados: TFDMemTable;
-  DadosProduto: TFDMemTable;
-  Ingrediente: String;
-  CodigoIngrediente: Integer;
-  Codigo: Integer;
-  i: Integer;
-begin
-
-  conexao := Tconexao.Create('main');
-  try
-    if frmServidor.Configuracoes.FieldByName('ficha_tecnica').AsInteger = 1 then
-    begin
-
-      Dados := TFDMemTable.Create(nil);
-      DadosProduto := TFDMemTable.Create(nil);
-      conexao.SQL.Add
-        ('SELECT group_concat(pro_adi_personalizado.id_produto) as produtos, group_concat(pro_adi_personalizado_sabores.id) as ids, upper(pro_adi_personalizado_sabores.nome) as nome  FROM pro_adi_personalizado');
-      conexao.SQL.Add
-        ('join pro_adi_personalizado_sabores on pro_adi_personalizado_sabores.id_pro_adi_personalizado = pro_adi_personalizado.id');
-      conexao.SQL.Add('where pro_adi_personalizado_sabores.valor = 0');
-      conexao.SQL.Add('group by upper(pro_adi_personalizado_sabores.nome)');
-      Dados.LoadFromJSON(conexao.ConsultaSQL);
-      if Dados.RecordCount > 0 then
-      begin
-
-        while not Dados.Eof do
-        begin
-          DadosProduto.Close;
-          conexao.SQL.Add('select * from produto where codigo in (' +
-            Dados.FieldByName('produtos').AsString + ')');
-          DadosProduto.LoadFromJSON(conexao.ConsultaSQL);
-
-          Ingrediente := RemoveAcento(Dados.FieldByName('nome').AsString);
-          Ingrediente := StringReplace(Ingrediente, 'SEM ', '', [rfReplaceAll]);
-          for i := 0 to 9 do
-          begin
-            Ingrediente := StringReplace(Ingrediente, i.ToString, '',
-              [rfReplaceAll]);
-          end;
-          Ingrediente := trim(Ingrediente);
-
-          conexao.SQL.Add('select * from ingredientes where descricao = ' +
-            QuotedStr(Ingrediente));
-          try
-            CodigoIngrediente := conexao.FieldByName('id');
-          except
-            CodigoIngrediente := 0
-          end;
-          if CodigoIngrediente = 0 then
-          begin
-            CodigoIngrediente := conexao.GerarID('ingredientes', 'id');
-            conexao.SQL.Add
-              ('insert into ingredientes (id,descricao,unidade) values (:id,:descricao,:unidade)');
-            conexao.Parametros('id', CodigoIngrediente);
-            conexao.Parametros('descricao', Ingrediente);
-            conexao.Parametros('unidade', 'UN');
-
-            conexao.ExecuteSQL;
-          end;
-          while not DadosProduto.Eof do
-          begin
-            conexao.SQL.Add
-              ('select * from produto_ingredientes where id_produto = :id_produto and id_ingredientes = :id_ingredientes');
-            conexao.Parametros('id_ingredientes', CodigoIngrediente);
-            conexao.Parametros('id_produto', DadosProduto.FieldByName('codigo')
-              .AsInteger);
-
-            try
-              Codigo := conexao.FieldByName('id');
-
-            except
-              Codigo := 0;
-
-            end;
-
-            if Codigo = 0 then
-            begin
-              Codigo := conexao.GerarID('produto_ingredientes', 'id');
-              conexao.SQL.Add
-                ('insert into produto_ingredientes (id,id_produto,id_ingredientes,quantidade) values (:id,:id_produto,:id_ingredientes,:quantidade)');
-              conexao.Parametros('id', Codigo);
-              conexao.Parametros('id_produto',
-                DadosProduto.FieldByName('codigo').AsInteger);
-              conexao.Parametros('id_ingredientes', CodigoIngrediente);
-              conexao.Parametros('quantidade', 1);
-              conexao.ExecuteSQL;
-            end;
-
-            DadosProduto.Next;
-          end;
-
-          conexao.SQL.Add
-            ('update pro_adi_personalizado_sabores set id_ingredientes = :id_ingredientes where id in('
-            + Dados.FieldByName('ids').AsString + ')');
-
-          conexao.Parametros('id_ingredientes', CodigoIngrediente);
-          conexao.ExecuteSQL;
-
-          Dados.Next;
-        end;
-      end;
-      Dados.Free;
-    end;
-  except
-
-  end;
-  conexao.Free;
-
-end;
-
 function TfrmServidor.FileSizeByName(const FileName: string): Int64;
 var
   sr: TSearchRec;
@@ -2900,7 +2593,7 @@ var
   BODY: String;
 
 begin
-//  ShowMessage(FormatSettings.DecimalSeparator);
+
   ProdutosHash := THashMemoria.Create;
   semConexaoAPI := false;
   CertificadoAtual := TJsonObject.Create;
@@ -2982,10 +2675,10 @@ begin
   if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
   begin
     APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
-      frmServidor.Configuracoes.FieldByName('client_id').AsString,
-      frmServidor.Configuracoes.FieldByName('client_security').AsString,
-      GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento,
-      frmServidor.Configuracoes.FieldByName('user_id').AsString);
+      conexao.GetParametro('client_id'),
+      conexao.GetParametro('client_security'), GetHorarioAbertura,
+      GetHorarioFechamento, GetHorarioAtendimento,
+      conexao.GetParametro('user_id'));
     APIGoopedir.EnviaParametroUnico('nome_banco', conexao.NomeBanco, 'string');
   end;
 
@@ -3050,27 +2743,13 @@ begin
   finally
     Infra.Free;
   end;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Resultado: TJSONObject;
-    begin
-      Resultado := ValidarAlertaIngredientesPendentes;
-      Resultado.Free;
-      Resultado := ValidarAlertaNotasFiscaisSemEntradaEstoque;
-      Resultado.Free;
-    end).Start;
-
   if not Desenvolvimento then
   begin
     IniciarThreadEmissaoNFCe;
     IniciarThreadConsultaDFe;
   end;
-
   IniciarThreadStatusServicoNFe;
   IniciarThreadConsultaDFe;
-
-
 
   // SincronizarBackupFTP('C:\goopedir\backup\bd\viapian_forquilhinha19072025.sql','1');
 end;
@@ -4366,7 +4045,6 @@ var
   LogDir, LogFilePath, LogLine, BodyContent, MetodoHTTP: string;
   LogFile: TStreamWriter;
 begin
-FormatSettings.DecimalSeparator := ',';
   // continua o fluxo normal da requisição
   Next;
   exit;
@@ -5602,31 +5280,34 @@ begin
           FTP.ChangeDir(PastaRemota);
 
           NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
-          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-
-          // Remove data do nome
-          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-          while (length(NomeSemExtensao) > 0) and
-            (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
+          if SameText(ExtractFileExt(CaminhoArquivo), '.zip') then
+          begin
+            NomeZip := NomeArquivoOriginal;
+            NomeArquivoLimpo := CaminhoArquivo;
+          end
+          else
+          begin
+            // Remove data do nome
+            NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
+            while (length(NomeSemExtensao) > 0) and
+              (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
+              Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
             Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-          Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-          NomeZip := TPath.ChangeExtension(NomeSemExtensao, '.zip');
-
-          // Caminho local do ZIP
-          NomeArquivoLimpo := TPath.Combine(TPath.GetTempPath, NomeZip);
-
-          // Cria o ZIP
-          if FileExists(NomeArquivoLimpo) then
-            DeleteFile(NomeArquivoLimpo);
-
-          Zip := TZipFile.Create;
-          try
-            Zip.Open(NomeArquivoLimpo, zmWrite);
-            Zip.Add(CaminhoArquivo, NomeArquivoOriginal);
-            // mantém nome original dentro do zip
-            Zip.Close;
-          finally
-            Zip.Free;
+            NomeZip := TPath.ChangeExtension(NomeSemExtensao, '.zip');
+            // Caminho local do ZIP
+            NomeArquivoLimpo := TPath.Combine(TPath.GetTempPath, NomeZip);
+            // Cria o ZIP
+            if FileExists(NomeArquivoLimpo) then
+              DeleteFile(NomeArquivoLimpo);
+            Zip := TZipFile.Create;
+            try
+              Zip.Open(NomeArquivoLimpo, zmWrite);
+              Zip.Add(CaminhoArquivo, NomeArquivoOriginal);
+              // mantém nome original dentro do zip
+              Zip.Close;
+            finally
+              Zip.Free;
+            end;
           end;
           APIGoopedir.EnviaParametroUnico('nome_arquivo',
             PastaRemota + '/' + NomeZip, 'string');
@@ -5789,6 +5470,7 @@ var
   Test: String;
   ArquivoExcluir: String;
   StatusWhatsapp: Boolean;
+  Qry: TFDQuery;
 begin
   if not Assigned(APIGoopedir) then
     exit;
@@ -5846,11 +5528,24 @@ begin
       if UserID = -1 then
       begin
         self.DataBloqueio := IncDay(Data, 1);
-
         exit;
       end;
+      conexao := Tconexao.Create('user');
+      Qry := conexao.CriaQRY;
       try
-        Test := '9';
+        Qry.SQL.Text := 'INSERT INTO configuracoes (chave, valor) ' +
+          'VALUES (:chave, :valor) ' +
+          'ON DUPLICATE KEY UPDATE valor = VALUES(valor)';
+
+        Qry.ParamByName('valor').AsInteger := user;
+        Qry.ParamByName('chave').AsWideString := 'user_id';
+
+        Qry.ExecSQL;
+      finally
+        Qry.Free;
+      end;
+      conexao.Free;
+      try
         self.DataBloqueio := APIGoopedir.GetBloqueio;
       except
         // self.DataBloqueio := IncDay(Data, 1);

@@ -1,0 +1,9 @@
+services:
+  ocr-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: OCR API
+      OCR_LANGUAGE: por+eng
+      PDF_RENDER_DPI: 220

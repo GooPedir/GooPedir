@@ -1,4 +1,4 @@
-ï»¿unit uSQL;
+unit uSQL;
 
 interface
 
@@ -12,7 +12,7 @@ type
 
   TSQL = class
   private
-    { O Controle de atualizaÃ§Ã£o do banco vai ser por enquanto com base na versÃ£o do executavel }
+    { O Controle de atualização do banco vai ser por enquanto com base na versão do executavel }
     Function VersaoExe: String;
     procedure AtualizaCodigoUltimaVersao;
     function ExecultaSQL(SQL: String): Boolean;
@@ -160,7 +160,7 @@ begin
   MemoLog.Lines.Add
     ('****************************************************************************');
   MemoLog.Lines.Add('');
-  MemoLog.Lines.Add('Inicio AtualizaÃ§Ã£o');
+  MemoLog.Lines.Add('Inicio Atualização');
   MemoLog.Lines.Add('Data/Hora: ' + FormatDateTime('dd/mm/yyyy hh:nn:ss', now));
   MemoLog.Lines.Add('');
   MemoLog.Lines.Add
@@ -336,12 +336,12 @@ end;
 
 procedure TSQL.MigrarDadosWhatsappParaConfig;
 var
-  conexao : Tconexao;
+  conexao: TConexao;
   QryOrigem, QryInsert: TFDQuery;
-  i: Integer;
+  I: Integer;
   chave, valor: string;
 begin
-conexao := TConexao.Create('MigrarDadosWhatsappParaConfig');
+  conexao := TConexao.Create('MigrarDadosWhatsappParaConfig');
   QryOrigem := conexao.CriaQRY;
   QryInsert := conexao.CriaQRY;
   // pega os dados da tabela antiga
@@ -349,14 +349,12 @@ conexao := TConexao.Create('MigrarDadosWhatsappParaConfig');
   QryOrigem.Open;
   if not QryOrigem.IsEmpty then
   begin
-    for i := 0 to QryOrigem.FieldCount - 1 do
+    for I := 0 to QryOrigem.FieldCount - 1 do
     begin
-      chave := QryOrigem.Fields[i].FieldName;
-      valor := QryOrigem.Fields[i].AsString;
-      QryInsert.SQL.Text :=
-        'INSERT INTO configuracoes (chave, valor) ' +
-        'VALUES (:chave, :valor) ' +
-        'ON DUPLICATE KEY UPDATE valor = :valor';
+      chave := QryOrigem.Fields[I].FieldName;
+      valor := QryOrigem.Fields[I].AsString;
+      QryInsert.SQL.Text := 'INSERT INTO configuracoes (chave, valor) ' +
+        'VALUES (:chave, :valor) ' + 'ON DUPLICATE KEY UPDATE valor = :valor';
       QryInsert.ParamByName('chave').AsString := LowerCase(chave);
       QryInsert.ParamByName('valor').AsString := valor;
       QryInsert.ExecSQL;
@@ -384,13 +382,13 @@ begin
     DecodeDate(DataBase, AnoInicial, MesInicial, Dia);
     DecodeDate(DataAtual, AnoAtual, MesAtual, Dia);
 
-    // Loop do ano/mÃªs inicial atÃ© o ano/mÃªs anterior ao atual
+    // Loop do ano/mês inicial até o ano/mês anterior ao atual
     Ano := AnoInicial;
     Mes := MesInicial;
 
     while (Ano < AnoAtual) or ((Ano = AnoAtual) and (Mes < MesAtual)) do
     begin
-      // Monta inÃ­cio e fim do mÃªs
+      // Monta início e fim do mês
       DataInicioMes := EncodeDate(Ano, Mes, 1);
       tabela := 'pedido_' + Ano.ToString + '_' + FormatFloat('00', Mes);
       dados := TFDMemTable.Create(nil);
@@ -442,7 +440,7 @@ begin
 
       dados.Free;
 
-      // PrÃ³ximo mÃªs
+      // Próximo mês
       Inc(Mes);
       if Mes > 12 then
       begin
@@ -523,7 +521,7 @@ begin
 
     if Assigned(SeTiverAtualizacao) then
       SeTiverAtualizacao;
-    MemoLog.Lines.Add('Nova atualizaÃ§Ã£o disponÃ­vel!');
+    MemoLog.Lines.Add('Nova atualização disponível!');
     // AtualizaBanco;
     iniciaSerieNFCE;
   end
@@ -559,7 +557,7 @@ begin
 
   conexao.Free;
   MemoLog.Lines.Clear;
-  MemoLog.Lines.Add('Verificando AtualizaÃ§Ãµes . . .');
+  MemoLog.Lines.Add('Verificando Atualizações . . .');
 end;
 
 procedure TSQL.Banco(Versao: Integer);
@@ -590,7 +588,7 @@ begin
           ('CREATE TABLE status_pedido (id int NOT NULL, descricao varchar(255) DEFAULT NULL, PRIMARY KEY (id));');
 
         ExecultaSQL
-          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em ProduÃ§Ã£o"),(3,"Pronto"),(4,"DisponÃ­vel Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
+          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em Produção"),(3,"Pronto"),(4,"Disponível Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
       end;
     4:
       begin
@@ -599,7 +597,7 @@ begin
     5:
       begin
         ExecultaSQL('update tipo_sabor set ativo = 0 where nome not in (' +
-          QuotedStr('PromoÃ§Ã£o') + ',' + QuotedStr('Tradicional') + ',' +
+          QuotedStr('Promoção') + ',' + QuotedStr('Tradicional') + ',' +
           QuotedStr('Especial') + ',' + QuotedStr('Doce') + ')');
       end;
     6:
@@ -829,7 +827,8 @@ begin
     29:
       begin
         ExecultaSQL('CREATE INDEX codigo ON produto(codigo);');
-        ExecultaSQL('CREATE INDEX codigo_pedido_produto ON pedido_produto_sap(codigo_pedido_produto);');
+        ExecultaSQL
+          ('CREATE INDEX codigo_pedido_produto ON pedido_produto_sap(codigo_pedido_produto);');
         ExecultaSQL('CREATE INDEX id_mesa ON mesa(id_mesa);');
         ExecultaSQL('CREATE INDEX id_mesa_tipo ON mesa_tipo(id_mesa_tipo);');
         ExecultaSQL('CREATE INDEX id ON sabores_completo(id);');
@@ -1147,7 +1146,7 @@ begin
       end;
     69:
       begin
-        // SÃ³ fiz 1x
+        // Só fiz 1x
         ExecultaSQL('alter table pedido add nfce_imprimir integer default 0');
       end;
     70:
@@ -1340,7 +1339,7 @@ begin
     93:
       begin
         ExecultaSQL
-          ('insert into status_pedido (id,descricao) values (9,"Aguardando ConfirmaÃ§Ã£o")');
+          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
       end;
     94:
       begin
@@ -1468,14 +1467,20 @@ begin
       end;
     111:
       begin
-        ExecultaSQL('CREATE INDEX idx_pedido_usuario_status_caixa ON pedido (usuario, codigo_pedido_dia, status, id_caixa, codigo);');
-        ExecultaSQL('CREATE INDEX idx_cmp_produto ON caixa_movimento_produto (id_pedido_produto);');
-        ExecultaSQL('CREATE INDEX idx_sap_produto ON pedido_produto_sap (codigo_pedido_produto);');
-        ExecultaSQL('CREATE INDEX idx_pedido_produtos_codigo_pedido ON pedido_produtos (codigo_pedido);');
+        ExecultaSQL
+          ('CREATE INDEX idx_pedido_usuario_status_caixa ON pedido (usuario, codigo_pedido_dia, status, id_caixa, codigo);');
+        ExecultaSQL
+          ('CREATE INDEX idx_cmp_produto ON caixa_movimento_produto (id_pedido_produto);');
+        ExecultaSQL
+          ('CREATE INDEX idx_sap_produto ON pedido_produto_sap (codigo_pedido_produto);');
+        ExecultaSQL
+          ('CREATE INDEX idx_pedido_produtos_codigo_pedido ON pedido_produtos (codigo_pedido);');
         ExecultaSQL('CREATE INDEX idx_index_pedido_id ON index_pedido (id);');
-        ExecultaSQL('CREATE INDEX idx_produto_grupo_ativo ON produto (codigo_grupo, ativo);');
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_grupo_ativo ON produto (codigo_grupo, ativo);');
         ExecultaSQL('CREATE INDEX idx_balanca_id ON balanca (id);');
-        ExecultaSQL('CREATE INDEX idx_produto_codigo_grupo ON produto (codigo_grupo);');
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_codigo_grupo ON produto (codigo_grupo);');
 
       end;
     112:
@@ -1639,7 +1644,7 @@ begin
         SQL := SQL + ');';
         ExecultaSQL(SQL);
         // ============================================================
-        // TABELA: fornecedor_item (catÃ¡logo do fornecedor)
+        // TABELA: fornecedor_item (catálogo do fornecedor)
         // ============================================================
         SQL := ' CREATE TABLE fornecedor_item (';
         SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
@@ -1930,13 +1935,18 @@ begin
         SQL := SQL + '                     "CHAMAR_GARCOM",';
         SQL := SQL + '                     "ERRO_SENHA_TABLET",';
         SQL := SQL + '                     "ALERTA_SEGURANCA",';
-        SQL := SQL + '                     "OUTRO"';
+        SQL := SQL + '                     "NFCE_ERRO",';
+        SQL := SQL + '                     "OUTRO",';
+        SQL := SQL + '                     "PRODUTO",';
+        SQL := SQL + '                     "SISTEMA",';
+        SQL := SQL + '                     "DFE",';
+        SQL := SQL + '                     "ESTOQUE"';
         SQL := SQL + '                   ) NOT NULL,';
-
         SQL := SQL + '    origem        ENUM(';
         SQL := SQL + '                     "MESA",';
         SQL := SQL + '                     "TABLET",';
         SQL := SQL + '                     "SISTEMA",';
+        SQL := SQL + '                     "NFCE",';
         SQL := SQL + '                     "USUARIO"';
         SQL := SQL + '                   ) NOT NULL,';
 
@@ -2003,7 +2013,7 @@ begin
         SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
         ExecultaSQL(SQL);
         ExecultaSQL
-          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("CardÃ¡pio Tablet", "tablet", 1);');
+          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
 
       end;
     136:
@@ -2119,7 +2129,54 @@ begin
         ExecultaSQL(SQL);
         MigrarDadosWhatsappParaConfig;
       end;
+    147:
+      begin
+        ExecultaSQL('alter table usuario add id_caixa integer');
+        ExecultaSQL('alter table pedido add cliente_count integer default 0');
+        SQL := 'CREATE TABLE cliente_estatistica (';
+        SQL := SQL + '    codigo_cliente INT NOT NULL,    ';
+        SQL := SQL + '    pedidos INT NOT NULL DEFAULT 0,';
+        SQL := SQL + '    cancelados INT NOT NULL DEFAULT 0,';
+        SQL := SQL + '    finalizados INT NOT NULL DEFAULT 0,';
+        SQL := SQL + '    total_pedidos DOUBLE NOT NULL DEFAULT 0,';
+        SQL := SQL + '    total_cancelados DOUBLE NOT NULL DEFAULT 0,';
+        SQL := SQL + '    total_finalizados DOUBLE NOT NULL DEFAULT 0,';
+        SQL := SQL + '    ultimo_pedido DATETIME NULL,';
+        SQL := SQL +
+          '    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ';
+        SQL := SQL + '    ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL + '    PRIMARY KEY (codigo_cliente),';
+        SQL := SQL + '    INDEX idx_ultimo_pedido (ultimo_pedido))';
+        ExecultaSQL(SQL);
 
+        ExecultaSQL
+          ('CREATE INDEX idx_cliente_count ON pedido (cliente_count, codigo_cliente);');
+
+        ExecultaSQL('CREATE INDEX idx_status ON pedido (status);');
+
+        ExecultaSQL
+          ('CREATE INDEX idx_codigo_cliente ON pedido (codigo_cliente);');
+      end;
+    148:
+      begin
+        ExecultaSQL('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
+        ExecultaSQL('ALTER TABLE alerta_sistema MODIFY COLUMN origem ENUM("MESA","TABLET","SISTEMA","NFCE","USUARIO") NOT NULL');
+        ExecultaSQL('ALTER TABLE cliente ADD email_nfce varchar(255)');
+        ExecultaSQL('ALTER TABLE agent add usuario integer');
+        ExecultaSQL('delete from agent');
+
+      end;
+    149:
+      begin
+        ExecultaSQL('alter table dados_whatsapp add utilizar_dfe integer default 0');
+        ExecultaSQL('alter table dados_whatsapp add manifestar_dfe_tipo varchar(30)');
+        ExecultaSQL('alter table dfe_documento add manifestada TINYINT(1) NOT NULL DEFAULT 0');
+        ExecultaSQL('alter table dfe_documento add manifestacao_tipo VARCHAR(30) NULL');
+        ExecultaSQL('alter table dfe_documento add manifestacao_status VARCHAR(40) NULL');
+        ExecultaSQL('alter table dfe_documento add manifestacao_origem VARCHAR(20) NULL');
+        ExecultaSQL('alter table dfe_documento add manifestacao_data DATETIME NULL');
+        ExecultaSQL('CREATE INDEX idx_dfe_manifestada ON dfe_documento (manifestada, manifestacao_status)');
+      end;
     99999999:
       begin
         {
@@ -2133,7 +2190,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '146'
+  Result := '149'
 end;
 
 end.

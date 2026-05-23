@@ -345,10 +345,10 @@ const
 var
   DiaDaSemana: Integer;
 begin
-  // Obter o √≠ndice do dia da semana (1 para domingo, 2 para segunda, etc.)
+  // Obter o Ìndice do dia da semana (1 para domingo, 2 para segunda, etc.)
   DiaDaSemana := DayOfWeek(now);
 
-  // Mapear o √≠ndice para o nome do dia da semana
+  // Mapear o Ìndice para o nome do dia da semana
   Result := NomesDiasSemana[DiaDaSemana];
 end;
 
@@ -365,15 +365,15 @@ begin
   begin
     FieldValue := Tabela.FieldByName(Tabela.Fields[I].FieldName).Value;
 
-    // Valida√ß√£o do campo antes de adicionar ao par√¢metro
+    // ValidaÁ„o do campo antes de adicionar ao par‚metro
     if VarIsNull(FieldValue) or VarIsEmpty(FieldValue) then
     begin
-      // Se o campo for nulo ou vazio, atribui um valor padr√£o ou ignora
+      // Se o campo for nulo ou vazio, atribui um valor padr„o ou ignora
       Continue; // Ignora campos nulos ou vazios
     end;
 
     try
-      // Verifica o tipo do campo e adiciona ao par√¢metro correspondente
+      // Verifica o tipo do campo e adiciona ao par‚metro correspondente
       case Tabela.Fields[I].DataType of
         ftFloat, ftCurrency, ftBCD, ftFMTBcd:
           conexao.Parametros(Tabela.Fields[I].FieldName,
@@ -388,20 +388,20 @@ begin
           conexao.Parametros(Tabela.Fields[I].FieldName,
             Tabela.FieldByName(Tabela.Fields[I].FieldName).AsString);
       else
-        // Caso o tipo de campo n√£o seja tratado, lan√ßa uma exce√ß√£o ou ignora
-        raise Exception.Create('Tipo de campo n√£o suportado: ' + Tabela.Fields
+        // Caso o tipo de campo n„o seja tratado, lanÁa uma exceÁ„o ou ignora
+        raise Exception.Create('Tipo de campo n„o suportado: ' + Tabela.Fields
           [I].FieldName);
       end;
     except
       on E: Exception do
       begin
-        // Trata exce√ß√µes (opcional)
+        // Trata exceÁıes (opcional)
         raise Exception.Create('Erro ao processar campo ' + Tabela.Fields[I]
           .FieldName + ': ' + E.Message);
       end;
     end;
 
-    // Concatena os campos e par√¢metros para o SQL
+    // Concatena os campos e par‚metros para o SQL
     if I = 0 then
     begin
       Campo := Tabela.Fields[I].FieldName;
@@ -629,7 +629,7 @@ begin
           // Acessa o objeto "impressora"
           ImpressoraObject := JSONObject.GetValue('impressora') as TJsonObject;
 
-          // Obt√©m o valor da chave "comanda"
+          // ObtÈm o valor da chave "comanda"
           ComandaValue := ImpressoraObject.GetValue<Boolean>('comanda');
 
           // Exibe o valor no console
@@ -669,11 +669,11 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    // if ComandaValue then
-    // begin
-    if (not VerificaExe(PSSITE)) then
-      AbrirExe(PSSITE);
-    // end;
+//    if ComandaValue then
+//    begin
+      if (not VerificaExe(PSSITE)) then
+        AbrirExe(PSSITE);
+//    end;
 
     Sleep(1 * 1000);
   end;

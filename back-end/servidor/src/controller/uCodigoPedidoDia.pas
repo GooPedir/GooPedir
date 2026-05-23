@@ -57,6 +57,8 @@ begin
     end;
 
     Inc(FCodigoPedido);
+    if FCodigoPedido = 13 then
+      Inc(FCodigoPedido);
     Result := FCodigoPedido;
   finally
     FCritical.Leave;
@@ -64,10 +66,12 @@ begin
 end;
 
 initialization
-  FCritical := TCriticalSection.Create;
-  FReferenciaDia := DiaLogicoAtual;
+
+FCritical := TCriticalSection.Create;
+FReferenciaDia := DiaLogicoAtual;
 
 finalization
-  FCritical.Free;
+
+FCritical.Free;
 
 end.

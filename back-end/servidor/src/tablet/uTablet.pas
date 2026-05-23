@@ -277,7 +277,7 @@ begin
     conexao.SQL.Add('SELECT ' +
       'id, tipo, origem, referencia_id, tentativas, payload, data_evento ' +
       'FROM alerta_sistema ' + 'WHERE status = ''ABERTO'' ' +
-      'ORDER BY data_evento');
+      'ORDER BY data_evento limit 99');
 
     mem.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -297,7 +297,7 @@ var
   CodigoUsuario: string;
 begin
   conexao := TConexao.Create('DoListarAlertasMesaPorUsuario');
-  mem := TFDMemTable.Create(nil);
+
   try
     JSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
     CodigoUsuario := JSON.GetValue<string>('codigo_usuario');
@@ -313,12 +313,8 @@ begin
       '  AND m.usuario = :usuario ' + 'ORDER BY a.data_evento');
 
     conexao.Parametros('usuario', CodigoUsuario);
-
-    mem.LoadFromJSON(conexao.ConsultaSQL);
-
-    Res.Send(mem.ToJSONArray);
+    Res.Send(conexao.ConsultaSQL);
   finally
-    mem.Free;
     conexao.Free;
   end;
 end;

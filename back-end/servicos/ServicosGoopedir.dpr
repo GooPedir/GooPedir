@@ -76,7 +76,8 @@ uses
   JOSE.Types.Utils in '..\servidor\src\other\JOSE.Types.Utils.pas',
   ThirdParty.Posix.Syslog in '..\servidor\src\other\ThirdParty.Posix.Syslog.pas',
   Web.WebConst in '..\servidor\src\other\Web.WebConst.pas',
-  uSQL in '..\servidor\src\sql\uSQL.pas';
+  uSQL in '..\servidor\src\sql\uSQL.pas',
+  uGlobais in '..\servidor\uGlobais.pas';
 
 {$R *.res}
 

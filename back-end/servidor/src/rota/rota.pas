@@ -51,8 +51,7 @@ end;
 
 procedure DoPostMokup(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-  Res.Send(frmServidor.APIGoopedir.PostApi('api/empresa/pedidos/mockup',
-    '{ "quantidade": 5 }'));
+  Res.Send(frmServidor.APIGoopedir.PostApi('api/empresa/pedidos/mockup','{ "quantidade": 5 }'));
 end;
 
 procedure DoPostAtivaPausa(Req: THorseRequest; Res: THorseResponse;
@@ -78,6 +77,24 @@ begin
   conexao.Free;
 end;
 
+
+procedure DoPostBuscarNovoEndereco(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+ Res.Send(frmServidor.APIGoopedir.PostApi('api/localizacao/endereco',req.Body));
+end;
+
+procedure DoPostEnviarLocalizacao(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Res.Send(frmServidor.APIGoopedir.PostApi('api/whatsapp/pedido/'+Req.Params['id']+'/solicitar-localizacao-fixa',''));
+end;
+
+procedure DoPostAtualizarLocalizacao(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Res.Send(frmServidor.APIGoopedir.PostApi('api/localizacao/endereco',req.Body));
+end;
+
+
+
 procedure Registry;
 begin
   THorse.Get('/rota/pendente', DoGetRotaPendente);
@@ -87,7 +104,9 @@ begin
   THorse.Put('/rota/finalizar/:id', DoPutFinalizar);
   THorse.Post('/rota/mokup', DoPostMokup);
   THorse.Post('/rota/ativa/pausa/:status', DoPostAtivaPausa);
-
+  THorse.Post('/rota/nova/localizacao', DoPostBuscarNovoEndereco);
+  THorse.Post('/rota/pedir/localizacao/:id', DoPostEnviarLocalizacao);
+  THorse.Post('/rota/confirmar/localizacao', DoPostAtualizarLocalizacao);
   THorse.Get('/motoboy', DoGetMotoboy);
 
 end;

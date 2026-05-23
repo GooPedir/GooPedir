@@ -123,6 +123,7 @@ uses
   uTablet in 'src\tablet\uTablet.pas',
   uImageLocal in 'src\modulo\uImageLocal.pas',
   uCodigoPedidoDia in 'src\controller\uCodigoPedidoDia.pas',
+  uIngredientesCardapio in 'src\controller\uIngredientesCardapio.pas',
   Horse.SocketIO.Functions in 'src\other\Horse.SocketIO.Functions.pas',
   Horse.SocketIO in 'src\other\Horse.SocketIO.pas',
   Horse.SocketIO.ServerSocket in 'src\other\Horse.SocketIO.ServerSocket.pas',
@@ -136,9 +137,14 @@ uses
   FastMM4DataCollector in 'FastMM4DataCollector.pas',
   FastMM4LockFreeStack in 'FastMM4LockFreeStack.pas',
   FastMM4Messages in 'FastMM4Messages.pas',
-  rota in 'src\rota\rota.pas';
+  rota in 'src\rota\rota.pas',
+  HashMemoria in 'HashMemoria.pas',
+  Horse.Compression in 'src\other\Horse.Compression.pas',
+  Horse.Compression.Types in 'src\other\Horse.Compression.Types.pas',
+  uNFCe in 'uNFCe.pas';
 
 {$R *.res}
+
 
 begin
 //   ReportMemoryLeaksOnShutdown := True;

@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uRequisicao, Vcl.ExtCtrls, System.JSON,
-  Vcl.StdCtrls, uImportacaoPedio, uExportacaoPedido;
+  Vcl.StdCtrls, uImportacaoPedio, uExportacaoPedido, uGlobais;
 
 type
   TfrmPedidoSite = class(TForm)
@@ -17,6 +17,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure MedirTempoExecucao;
     procedure tMinimizaTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
 
@@ -35,6 +36,16 @@ implementation
 procedure TfrmPedidoSite.Button1Click(Sender: TObject);
 begin
   MedirTempoExecucao;
+end;
+
+procedure TfrmPedidoSite.FormCreate(Sender: TObject);
+begin
+  // 375770
+  if Desenvolvimento then
+  begin
+//     getPedido('376145');
+  end;
+
 end;
 
 procedure TfrmPedidoSite.MedirTempoExecucao;
@@ -67,17 +78,19 @@ begin
   try
     getPedidos;
   except
-  on e : Exception do begin
+    on e: Exception do
+    begin
 
-  end;
+    end;
 
   end;
   try
     EnviarPedidos;
   except
-  on e : Exception do begin
+    on e: Exception do
+    begin
 
-  end;
+    end;
   end;
   Application.Terminate;
 end;
