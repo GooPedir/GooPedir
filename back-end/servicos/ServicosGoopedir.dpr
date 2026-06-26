@@ -77,7 +77,10 @@ uses
   ThirdParty.Posix.Syslog in '..\servidor\src\other\ThirdParty.Posix.Syslog.pas',
   Web.WebConst in '..\servidor\src\other\Web.WebConst.pas',
   uSQL in '..\servidor\src\sql\uSQL.pas',
-  uGlobais in '..\servidor\uGlobais.pas';
+  uGlobais in '..\servidor\uGlobais.pas',
+  uControllCaches in '..\servidor\src\controller\uControllCaches.pas',
+  uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
+  uControlerProduto in '..\servidor\src\controller\uControlerProduto.pas';
 
 {$R *.res}
 

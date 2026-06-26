@@ -32,6 +32,7 @@ type
     procedure AbrirExe(Nome: String);
     procedure FecharExe(ExeFileName: String);
 
+    procedure AplicarCharsetConexao;
     function GetComputerName: string;
     procedure OnTimer(Sender: TObject);
     procedure UpdateLastActivityTime;
@@ -202,8 +203,28 @@ end;
 procedure TConexao.ConectaBanco(Banco: String);
 begin
   DataModulo.Banco.Connected := False;
+  DataModulo.Banco.Params.Values['CharacterSet'] := 'utf8mb4';
   DataModulo.Banco.Params.Database := Banco;
   DataModulo.Banco.Connected := true;
+  AplicarCharsetConexao;
+end;
+
+procedure TConexao.AplicarCharsetConexao;
+var
+  Qry: TFDQuery;
+begin
+  try
+    if not DataModulo.Banco.Connected then
+      Exit;
+
+    Qry := DataModulo.CriaQRY;
+    try
+      Qry.ExecSQL('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+    finally
+      Qry.Free;
+    end;
+  except
+  end;
 end;
 
 function TConexao.ConsultaSQL: TJSONArray;
@@ -231,6 +252,7 @@ constructor TConexao.Create(Nome: String);
 begin
   FNome := Nome;
   DataModulo := TDM.Create(nil);
+  AplicarCharsetConexao;
   FLastActivityTime := Now; // Inicia com a hora atual
 
   SQL := TStringlist.Create;
@@ -766,6 +788,8 @@ begin
   try
     ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
       ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
+      ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
       CACHE_TABLE + ' (' +
       'origem VARCHAR(100) NOT NULL, ' +
@@ -778,7 +802,6 @@ begin
       'INDEX idx_cache_expira (expira_em), ' +
       'INDEX idx_cache_atualizado (atualizado_em)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-
     Qry := CriaQRY;
     try
       Qry.SQL.Text := 'SELECT dados FROM ' + CACHE_DATABASE + '.' +
@@ -817,7 +840,6 @@ begin
     Result := TJSONArray.Create;
   end;
 end;
-
 function TConexao.GetComputerName: string;
 begin
   Result := GetEnvironmentVariable('COMPUTERNAME');
@@ -1222,6 +1244,8 @@ begin
   try
     ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
       ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
+      ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
       CACHE_TABLE + ' (' +
       'origem VARCHAR(100) NOT NULL, ' +
@@ -1234,7 +1258,10 @@ begin
       'INDEX idx_cache_expira (expira_em), ' +
       'INDEX idx_cache_atualizado (atualizado_em)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-
+    ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+      ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+      ' MODIFY dados LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL');
     SQL.Add('INSERT INTO ' + CACHE_DATABASE + '.' + CACHE_TABLE);
     SQL.Add('(origem, chave, dados, expira_em)');
     SQL.Add('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' +
@@ -1249,7 +1276,6 @@ begin
   except
   end;
 end;
-
 function TConexao.Senha: String;
 begin
   Result := LowerCase(DataModulo.Banco.Params.Password);

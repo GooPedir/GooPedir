@@ -3,9 +3,6 @@
         <ProjectGuid>{A579CC24-08D4-491C-99C0-A435C110280F}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="back-end\nfce\NFCe.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="back-end\servicos\ServicosGoopedir.dproj">
             <Dependencies/>
         </Projects>
@@ -29,15 +26,6 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="NFCe">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj"/>
-    </Target>
-    <Target Name="NFCe:Clean">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="NFCe:Make">
-        <MSBuild Projects="back-end\nfce\NFCe.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ServicosGoopedir">
         <MSBuild Projects="back-end\servicos\ServicosGoopedir.dproj"/>
     </Target>
@@ -84,13 +72,13 @@
         <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="NFCe;ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir"/>
+        <CallTarget Targets="ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="NFCe:Clean;ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean"/>
+        <CallTarget Targets="ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="NFCe:Make;ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make"/>
+        <CallTarget Targets="ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -46,6 +46,7 @@ type
 
 function GerarNFCe(codigo: Integer): String;
 function TransmitirNFCe(codigo: Integer; imprimir: Boolean = True): String;
+function ProximoNumeroNFCe(conexao: TConexao): Integer;
 procedure ImprimirNFCeChave(const chave: String);
 function CancelarNFCe(const chave, motivo: String): String;
 procedure EnviarNotaFiscalNFCe(const chave, caminho: String);
@@ -176,6 +177,7 @@ end;
 function BuscarFilaNFCe(limite: Integer): TJsonArray;
 var
   conexao: TConexao;
+  IntervaloReenvioMinutos: Integer;
 begin
   if limite <= 0 then
     limite := 10;
@@ -183,14 +185,23 @@ begin
     limite := 50;
   conexao := TConexao.Create('BuscarFilaNFCe');
   try
+    IntervaloReenvioMinutos := ParametroInt(conexao,
+      'nfce_reenvio_erro_minutos', 10);
+    if IntervaloReenvioMinutos <= 0 then
+      IntervaloReenvioMinutos := 10;
+    if IntervaloReenvioMinutos > 1440 then
+      IntervaloReenvioMinutos := 1440;
     conexao.SQL.Text := 'UPDATE pedido SET nfce_status = "PROCESSANDO", ' +
       'nfce_lock = NOW() WHERE nfce_emite = 1 ' +
-      'AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE") '
-      + 'AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") '
+      'AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE" '
+      + 'OR (nfce_status = "ERRO" AND (nfce_lock IS NULL OR nfce_lock <= DATE_SUB(NOW(), INTERVAL '
+      + IntToStr(IntervaloReenvioMinutos) + ' MINUTE)))) ' +
+      'AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") '
       + 'ORDER BY codigo LIMIT ' + IntToStr(limite);
     conexao.ExecuteSQL;
     conexao.SQL.Text := 'SELECT * FROM pedido ' +
       'WHERE nfce_status = "PROCESSANDO" ' +
+      'AND nfce_lock >= DATE_SUB(NOW(), INTERVAL 1 MINUTE) ' +
       'AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") ' + 'LIMIT ' +
       IntToStr(limite);
     Result := conexao.ConsultaSQL;
@@ -474,9 +485,35 @@ begin
 end;
 
 function ProximoNumeroNFCe(conexao: TConexao): Integer;
+var
+  Qry: TFDQuery;
+  NumeroGerador, NumeroPedido: Integer;
 begin
-  Result := conexao.GerarID('dados_whatsapp', 'nfce_numeracao');
+  NumeroGerador := conexao.GerarID('dados_whatsapp', 'nfce_numeracao');
+  NumeroPedido := 0;
+  Qry := conexao.CriaQRY;
+  try
+    Qry.SQL.Text :=
+      'SELECT COALESCE(MAX(CAST(nfce_numero AS UNSIGNED)), 0) AS numero ' +
+      'FROM pedido WHERE COALESCE(nfce_numero, "") <> "" ' +
+      'AND COALESCE(nfce_chave, "") NOT IN ("", "CANCELADA") ' +
+      'AND COALESCE(nfce_chave, "") NOT LIKE "CONTING%"';
+    Qry.Open;
+    NumeroPedido := Qry.FieldByName('numero').AsInteger;
+  finally
+    Qry.Free;
+  end;
+
+  Result := NumeroGerador;
+  if NumeroPedido >= Result then
+    Result := NumeroPedido + 1;
+
   conexao.SQL.Add('update dados_whatsapp set nfce_numeracao = :numero');
+  conexao.Parametros('numero', Result);
+  conexao.ExecuteSQL;
+  conexao.SQL.Clear;
+  conexao.SQL.Add
+    ('UPDATE geradores SET sequencial = :numero WHERE tabela = "dados_whatsapp"');
   conexao.Parametros('numero', Result);
   conexao.ExecuteSQL;
 end;
@@ -494,14 +531,37 @@ begin
   Result := IncludeTrailingPathDelimiter(Result);
 end;
 
+function PastaDocsNFCeAnoMes(const chave: String): String;
+var
+  ChaveLimpa, Ano, Mes: String;
+begin
+  ChaveLimpa := SomenteNumeros(chave);
+  Result := PastaDocsNFCe;
+  if Length(ChaveLimpa) >= 6 then
+  begin
+    Ano := '20' + Copy(ChaveLimpa, 3, 2);
+    Mes := Copy(ChaveLimpa, 5, 2);
+    Result := IncludeTrailingPathDelimiter(Result + Ano);
+    Result := IncludeTrailingPathDelimiter(Result + Mes);
+  end;
+  ForceDirectories(Result);
+end;
+
 function PastaDocsDFe: String;
 begin
   Result := IncludeTrailingPathDelimiter(PastaDocsNFCe + 'DFE');
 end;
 
 function ArquivoXMLNFCe(const chave: String): String;
+var
+  ArquivoNovo, ArquivoAntigo: String;
 begin
-  Result := PastaDocsNFCe + chave + '-nfe.xml';
+  ArquivoNovo := PastaDocsNFCeAnoMes(chave) + chave + '-nfe.xml';
+  ArquivoAntigo := PastaDocsNFCe + chave + '-nfe.xml';
+  if FileExists(ArquivoAntigo) and not FileExists(ArquivoNovo) then
+    Result := ArquivoAntigo
+  else
+    Result := ArquivoNovo;
 end;
 
 function NomeComputador: String;
@@ -544,7 +604,33 @@ begin
   if TipoImpressao = 1 then
     Result := 48;
 end;
-
+procedure RegistrarErroFiscal(conexao: TConexao; codigo: Integer;
+  const erro: String);
+begin
+  try
+    conexao.SQL.Clear;
+    conexao.SQL.Add('INSERT INTO erro_fiscal ');
+    conexao.SQL.Add('(origem, mensagem_hash, mensagem, contador) ');
+    conexao.SQL.Add('VALUES (''NFCE'', SHA2(TRIM(:erro), 256), :erro, 1) ');
+    conexao.SQL.Add('ON DUPLICATE KEY UPDATE ');
+    conexao.SQL.Add('contador = contador + 1, ');
+    conexao.SQL.Add('ultimo_em = CURRENT_TIMESTAMP, ');
+    conexao.SQL.Add('mensagem = VALUES(mensagem)');
+    conexao.Parametros('erro', erro);
+    conexao.ExecuteSQL;
+    conexao.SQL.Clear;
+    conexao.SQL.Add('INSERT IGNORE INTO erro_fiscal_pedido ');
+    conexao.SQL.Add('(erro_fiscal_id, pedido_id) ');
+    conexao.SQL.Add('SELECT id, :pedido FROM erro_fiscal ');
+    conexao.SQL.Add('WHERE origem = ''NFCE'' ');
+    conexao.SQL.Add('AND mensagem_hash = SHA2(TRIM(:erro), 256)');
+    conexao.Parametros('pedido', codigo);
+    conexao.Parametros('erro', erro);
+    conexao.ExecuteSQL;
+  except
+    // Mantem o registro original do erro mesmo se a tabela nova ainda nao existir.
+  end;
+end;
 procedure RegistrarErroNFCeComConexao(conexao: TConexao; codigo: Integer;
   const erro: String);
 begin
@@ -561,6 +647,7 @@ begin
   conexao.Parametros('pedido', codigo);
   conexao.Parametros('erro', erro);
   conexao.ExecuteSQL;
+  RegistrarErroFiscal(conexao, codigo, erro);
 end;
 
 function AmbienteNFCe(Acbr: TACBrNFe): String;
@@ -579,6 +666,28 @@ begin
   match := TRegEx.match(texto, '\d{44}');
   if match.Success then
     Result := match.Value;
+end;
+
+function ChaveNFCeMontada(Acbr: TACBrNFe): String;
+begin
+  Result := ExtrairChaveNFeDoTexto(Acbr.NotasFiscais.Items[0].NFe.infNFe.ID);
+  if Result = '' then
+    Result := ExtrairChaveNFeDoTexto(Acbr.NotasFiscais.Items[0].XML);
+end;
+
+procedure ValidarRetornoAutorizacaoNFCe(const chaveEsperada, chaveRetorno,
+  protocolo: String);
+begin
+  if Length(chaveRetorno) <> 44 then
+    raise Exception.Create('Retorno da NFC-e sem chave de autorizacao valida.');
+
+  if Trim(protocolo) = '' then
+    raise Exception.Create('Retorno da NFC-e sem protocolo de autorizacao.');
+
+  if (chaveEsperada <> '') and (chaveRetorno <> chaveEsperada) then
+    raise Exception.CreateFmt
+      ('Chave retornada pela SEFAZ diverge da NFC-e transmitida. Esperada: %s Retornada: %s',
+      [chaveEsperada, chaveRetorno]);
 end;
 
 function ExtrairNItemDoErro(const texto: String): Integer;
@@ -632,7 +741,7 @@ begin
     ('UPDATE pedido SET nfce_status = "EMITIDA", nfce_emite = 0 WHERE (codigo = :codigo or pedido_nfce = :codigo)');
   conexao.Parametros('codigo', codigo);
   conexao.ExecuteSQL;
-  if (chave = 'CONTINGENCIA') or (chave = 'CONTINGÊNCIA') then
+  if (chave = 'CONTINGENCIA') or (chave = 'CONTING?NCIA') then
   begin
     conexao.SQL.Clear;
     conexao.SQL.Add
@@ -1193,7 +1302,7 @@ function TransmitirNFCe(codigo: Integer; imprimir: Boolean): String;
 var
   Acbr: TACBrNFe;
   conexao: TConexao;
-  chave, protocolo, ambiente, erro, motivoStatus: String;
+  chave, chaveEsperada, protocolo, ambiente, erro, motivoStatus: String;
   numero: Integer;
 begin
   Acbr := nil;
@@ -1203,7 +1312,8 @@ begin
       Acbr := CreateAcbrNf(conexao);
       MontarNFCe(Acbr, conexao, codigo);
       ambiente := AmbienteNFCe(Acbr);
-      numero := Acbr.NotasFiscais.Items[0].NFe.Ide.cNF;
+      numero := Acbr.NotasFiscais.Items[0].NFe.Ide.nNF;
+      chaveEsperada := ChaveNFCeMontada(Acbr);
       if Acbr.NotasFiscais.Items[0].NFe.Ide.tpEmis = teContingencia then
       begin
         chave := 'CONTINGENCIA';
@@ -1236,13 +1346,16 @@ begin
         Acbr.WebServices.Consulta.NFeChave := chave;
         Acbr.WebServices.Consulta.Executar;
         protocolo := Acbr.WebServices.Consulta.protocolo;
-        RegistrarEmissaoNFCe(conexao, codigo, 0, chave, protocolo, ambiente);
+        ValidarRetornoAutorizacaoNFCe(chaveEsperada, chave, protocolo);
+        RegistrarEmissaoNFCe(conexao, codigo, numero, chave, protocolo, ambiente);
         RegistrarPedidoImpressaoNFCe(conexao, codigo);
         Result := chave;
         Exit;
       end;
       chave := Acbr.NotasFiscais.Items[0].NFe.procNFe.chNFe;
       protocolo := Acbr.NotasFiscais.Items[0].NFe.procNFe.nProt;
+      ValidarRetornoAutorizacaoNFCe(chaveEsperada, chave, protocolo);
+      Acbr.Configuracoes.Arquivos.PathSalvar := PastaDocsNFCeAnoMes(chave);
       Acbr.NotasFiscais.Items[0].GravarXML;
       RegistrarEmissaoNFCe(conexao, codigo, numero, chave, protocolo, ambiente);
       if imprimir then
@@ -1357,7 +1470,7 @@ begin
       end
       else if Assigned(ResponseJSON.GetValue('error')) then
       begin
-        if ResponseJSON.GetValue('error').Value = 'Já existe uma nota fiscal com esta chave para o CNPJ informado.'
+        if ResponseJSON.GetValue('error').Value = 'J? existe uma nota fiscal com esta chave para o CNPJ informado.'
         then
         begin
           arquivoRemoto := '';
@@ -1411,28 +1524,108 @@ begin
   end;
 end;
 
+function HtmlEscapeNFCe(const Valor: String): String;
+begin
+  Result := StringReplace(Valor, '&', '&amp;', [rfReplaceAll]);
+  Result := StringReplace(Result, '<', '&lt;', [rfReplaceAll]);
+  Result := StringReplace(Result, '>', '&gt;', [rfReplaceAll]);
+  Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
+end;
+
+procedure CarregarDadosEmailNFCe(conexao: TConexao; const chave: String;
+  out arquivoLocal, linkXml, empresa, cliente, pedido, numero, protocolo,
+  dataPedido, horaPedido, statusNota: String; out totalNota: Double);
+var
+  Qry: TFDQuery;
+begin
+  arquivoLocal := ArquivoXMLNFCe(chave);
+  linkXml := '';
+  empresa := '';
+  cliente := '';
+  pedido := '';
+  numero := '';
+  protocolo := '';
+  dataPedido := '';
+  horaPedido := '';
+  statusNota := '';
+  totalNota := 0;
+
+  Qry := conexao.CriaQRY;
+  try
+    Qry.SQL.Add('SELECT p.codigo, p.codigo_pedido_dia, p.nfce_numero,');
+    Qry.SQL.Add('p.nfce_protocolo, p.nfce_data, p.nfce_hora,');
+    Qry.SQL.Add('p.data_pedido, p.hora_pedido, p.valor_total_pedido,');
+    Qry.SQL.Add('p.nfce_status, p.nome as nome_pedido, c.nome as cliente,');
+    Qry.SQL.Add('pn.caminho, pn.path');
+    Qry.SQL.Add('FROM pedido p');
+    Qry.SQL.Add('LEFT JOIN cliente c ON c.codigo = p.codigo_cliente');
+    Qry.SQL.Add('LEFT JOIN pedido_nfce pn ON pn.id_pedido = p.codigo OR pn.chave = p.nfce_chave');
+    Qry.SQL.Add('WHERE p.nfce_chave = :chave OR pn.chave = :chave');
+    Qry.SQL.Add('ORDER BY p.codigo DESC LIMIT 1');
+    Qry.ParamByName('chave').AsString := chave;
+    Qry.Open;
+    if not Qry.Eof then
+    begin
+      pedido := Qry.FieldByName('codigo').AsString;
+      numero := Qry.FieldByName('nfce_numero').AsString;
+      protocolo := Qry.FieldByName('nfce_protocolo').AsString;
+      if not Qry.FieldByName('nfce_data').IsNull then
+        dataPedido := FormatDateTime('dd/mm/yyyy',
+          Qry.FieldByName('nfce_data').AsDateTime)
+      else if not Qry.FieldByName('data_pedido').IsNull then
+        dataPedido := FormatDateTime('dd/mm/yyyy',
+          Qry.FieldByName('data_pedido').AsDateTime);
+      if not Qry.FieldByName('nfce_hora').IsNull then
+        horaPedido := FormatDateTime('hh:nn:ss',
+          Qry.FieldByName('nfce_hora').AsDateTime)
+      else if not Qry.FieldByName('hora_pedido').IsNull then
+        horaPedido := FormatDateTime('hh:nn:ss',
+          Qry.FieldByName('hora_pedido').AsDateTime);
+      totalNota := Qry.FieldByName('valor_total_pedido').AsFloat;
+      statusNota := Qry.FieldByName('nfce_status').AsString;
+      cliente := Qry.FieldByName('nome_pedido').AsString;
+      if Trim(cliente) = '' then
+        cliente := Qry.FieldByName('cliente').AsString;
+      if Trim(cliente) = '' then
+        cliente := 'Venda';
+      linkXml := Qry.FieldByName('caminho').AsString;
+      if (not FileExists(arquivoLocal)) and
+        FileExists(Qry.FieldByName('path').AsString) then
+        arquivoLocal := Qry.FieldByName('path').AsString;
+    end;
+  finally
+    Qry.Free;
+  end;
+end;
+
 procedure EnviarEmailNFCe(const chave, emailDestino: String);
 var
   conexao: TConexao;
   Acbr: TACBrNFe;
   Mail: TACBrMail;
   arquivo: String;
-  remetente, senha, smtp, empresa: String;
+  remetente, senha, smtp, empresa, cliente, pedido, numero, protocolo, dataPedido,
+    horaPedido, statusNota, linkXml, BotaoXML: String;
   dataHoraEmissao: TDateTime;
   totalNota: Double;
   Porta: Integer;
+  XMLLocal: Boolean;
 begin
   if Trim(chave) = '' then
     raise Exception.Create('Chave da NFC-e nao informada.');
   if Trim(emailDestino) = '' then
     raise Exception.Create('E-mail de destino nao informado.');
-  arquivo := ArquivoXMLNFCe(chave);
-  if not FileExists(arquivo) then
-    raise Exception.Create('XML da NFC-e nao encontrado: ' + arquivo);
+
   conexao := TConexao.Create('EnviarEmailNFCe');
   Acbr := nil;
   Mail := nil;
   try
+    CarregarDadosEmailNFCe(conexao, chave, arquivo, linkXml, empresa, cliente,
+      pedido, numero, protocolo, dataPedido, horaPedido, statusNota, totalNota);
+    XMLLocal := FileExists(arquivo);
+    if (not XMLLocal) and (Trim(linkXml) = '') then
+      raise Exception.Create('XML da NFC-e nao encontrado na maquina e sem link de upload em pedido_nfce: ' + arquivo);
+
     remetente := ParametroStrPadrao(conexao, 'email_nfce',
       'contabilidade@goopedir.com');
     senha := ParametroStrPadrao(conexao, 'senha_email_nfce', 'Goopedir@2024');
@@ -1442,12 +1635,31 @@ begin
       raise Exception.Create('E-mail remetente da NFC-e nao configurado.');
     if senha = '' then
       raise Exception.Create('Senha do e-mail da NFC-e nao configurada.');
-    Acbr := CreateAcbrNf(conexao);
-    Acbr.NotasFiscais.Clear;
-    Acbr.NotasFiscais.LoadFromFile(arquivo, False);
-    empresa := Acbr.NotasFiscais.Items[0].NFe.Emit.xNome;
-    dataHoraEmissao := Acbr.NotasFiscais.Items[0].NFe.Ide.dEmi;
-    totalNota := Acbr.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF;
+
+    if XMLLocal then
+    begin
+      Acbr := CreateAcbrNf(conexao);
+      Acbr.NotasFiscais.Clear;
+      Acbr.NotasFiscais.LoadFromFile(arquivo, False);
+      empresa := Acbr.NotasFiscais.Items[0].NFe.Emit.xNome;
+      dataHoraEmissao := Acbr.NotasFiscais.Items[0].NFe.Ide.dEmi;
+      if dataPedido = '' then
+        dataPedido := FormatDateTime('dd/mm/yyyy', dataHoraEmissao);
+      if horaPedido = '' then
+        horaPedido := FormatDateTime('hh:nn:ss', dataHoraEmissao);
+      if totalNota = 0 then
+        totalNota := Acbr.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF;
+    end;
+    if empresa = '' then
+      empresa := ParametroStrPadrao(conexao, 'nome_empresa', 'Goopedir');
+    if statusNota = '' then
+      statusNota := 'EMITIDA';
+    if linkXml <> '' then
+      BotaoXML := '<p style="margin:24px 0;"><a href="' + HtmlEscapeNFCe(linkXml) +
+        '" style="background:#1f7aec;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;display:inline-block;font-weight:600;">Baixar XML da NFC-e</a></p>'
+    else
+      BotaoXML := '';
+
     Mail := TACBrMail.Create(nil);
     Mail.Host := smtp;
     Mail.Port := IntToStr(Porta);
@@ -1458,17 +1670,45 @@ begin
     Mail.SetTLS := False;
     Mail.SetSSL := True;
     Mail.IsHTML := True;
-    Mail.Subject := 'NFC-e ' + empresa + ' - ' + chave;
-    Mail.Body.Text := '<p>Olá,</p>' +
-      '<p>Segue em anexo o XML da sua NFC-e.</p>' +
-      '<p><strong>Empresa:</strong> ' + empresa + '</p>' +
-      '<p><strong>Emissão:</strong> ' + FormatDateTime('dd/mm/yyyy hh:nn:ss',
-      dataHoraEmissao) + '</p>' + '<p><strong>Total:</strong> R$ ' +
-      FormatFloat('#,##0.00', totalNota) + '</p>' +
-      '<p><strong>Chave:</strong> ' + chave + '</p>' +
-      '<p>Goopedir - www.goopedir.com.br</p>';
+    Mail.Subject := 'NFC-e ' + empresa + ' - Pedido ' + pedido;
+    Mail.Body.Text :=
+      '<div style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">' +
+      '<div style="max-width:680px;margin:0 auto;padding:28px 16px;">' +
+      '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">' +
+      '<div style="background:#111827;color:#ffffff;padding:22px 26px;">' +
+      '<div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;">NFC-e</div>' +
+      '<h1 style="font-size:22px;line-height:1.3;margin:8px 0 0;">Sua nota fiscal esta disponivel</h1>' +
+      '</div>' +
+      '<div style="padding:24px 26px;">' +
+      '<p style="font-size:15px;line-height:1.6;margin:0 0 18px;">Ola, ' +
+      HtmlEscapeNFCe(cliente) +
+      '. Seguem os dados da NFC-e emitida pela <strong>' +
+      HtmlEscapeNFCe(empresa) + '</strong>.</p>' +
+      '<table style="width:100%;border-collapse:collapse;margin:18px 0;background:#f9fafb;border-radius:8px;overflow:hidden;">' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Pedido</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
+      HtmlEscapeNFCe(pedido) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Numero NFC-e</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
+      HtmlEscapeNFCe(numero) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Emissao</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
+      HtmlEscapeNFCe(Trim(dataPedido + ' ' + horaPedido)) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Status</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
+      HtmlEscapeNFCe(statusNota) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Protocolo</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
+      HtmlEscapeNFCe(protocolo) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Total</td><td style="padding:10px 12px;text-align:right;font-size:18px;font-weight:700;color:#111827;">R$ ' +
+      FormatFloat('#,##0.00', totalNota) + '</td></tr>' +
+      '</table>' +
+      '<div style="font-size:12px;line-height:1.5;color:#6b7280;word-break:break-all;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">' +
+      '<strong>Chave de acesso:</strong><br>' + HtmlEscapeNFCe(chave) +
+      '</div>' + BotaoXML +
+      '<p style="font-size:13px;color:#6b7280;margin:22px 0 0;">' +
+      'Quando o XML esta disponivel nesta maquina ele segue anexado. Caso contrario, use o link acima para baixar o arquivo ja enviado ao servidor.' +
+      '</p></div></div>' +
+      '<p style="text-align:center;font-size:12px;color:#9ca3af;margin:18px 0 0;">Goopedir - www.goopedir.com.br</p>' +
+      '</div></div>';
     Mail.AddAddress(emailDestino);
-    Mail.AddAttachment(arquivo);
+    if XMLLocal then
+      Mail.AddAttachment(arquivo);
     Mail.Send;
   finally
     Mail.Free;
@@ -1476,7 +1716,6 @@ begin
     conexao.Free;
   end;
 end;
-
 procedure IniciarThreadEmissaoNFCe;
 begin
   if Assigned(ThreadEmissaoNFCe) then
@@ -1618,21 +1857,63 @@ var
 begin
   conexao := TConexao.Create('nfce');
   try
-    conexao.SQL.Add
-      ('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
-    conexao.SQL.Add
-      ('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2) as value,');
-    conexao.SQL.Add
-      ('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
-    conexao.SQL.Add
-      ('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
-    conexao.SQL.Add('FROM pedido');
-    conexao.SQL.Add
-      ('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-    conexao.SQL.Add
-      ('join produto on produto.codigo = pedido_produtos.codigo_produto');
-    conexao.SQL.Add
-      ('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
+//    conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
+//    conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2) as value,');
+//    conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
+//    conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
+//    conexao.SQL.Add('FROM pedido');
+//    conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+//    conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
+//    conexao.SQL.Add('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
+conexao.sql.add('SELECT *');
+conexao.sql.add('FROM (');
+conexao.sql.add('    SELECT ');
+conexao.sql.add('        UPPER(p.nome_produto) AS name,');
+conexao.sql.add('        p.codigo_barra AS bar,');
+conexao.sql.add('        p.codigo_interno AS code,');
+conexao.sql.add('        TRUNCATE((pp.valor_total / pp.quantidade), 2) AS value,');
+conexao.sql.add('        pp.quantidade AS quanty,');
+conexao.sql.add('        p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,');
+conexao.sql.add('        p.csosn,p.icms,p.ipi,p.pis,p.cofins,p.frete,');
+conexao.sql.add('        (');
+conexao.sql.add('            SELECT GROUP_CONCAT(UPPER(sap.descricao))');
+conexao.sql.add('            FROM pedido_produto_sap sap');
+conexao.sql.add('            WHERE sap.codigo_pedido_produto = pp.codigo');
+conexao.sql.add('              AND sap.valor > 0');
+conexao.sql.add('        ) AS additional');
+conexao.sql.add('    FROM pedido pe');
+conexao.sql.add('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
+conexao.sql.add('    JOIN produto p ON p.codigo = pp.codigo_produto');
+conexao.sql.add('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
+conexao.sql.add('      AND NOT EXISTS (');
+conexao.sql.add('          SELECT 1');
+conexao.sql.add('          FROM produto_combo_config pcc');
+conexao.sql.add('          JOIN produto_combo_item pci ON pci.combo_config_id = pcc.id');
+conexao.sql.add('          WHERE pcc.produto_combo_id = p.codigo');
+conexao.sql.add('            AND pcc.status = "ATIVO"');
+conexao.sql.add('      )');
+conexao.sql.add('    UNION ALL');
+conexao.sql.add('    SELECT ');
+conexao.sql.add('        UPPER(pi.nome_produto) AS name,');
+conexao.sql.add('        pi.codigo_barra AS bar,');
+conexao.sql.add('        pi.codigo_interno AS code,');
+conexao.sql.add('        TRUNCATE(((pp.valor_total / pp.quantidade) * pci.ratio), 2) AS value,');
+conexao.sql.add('        pp.quantidade AS quanty,');
+conexao.sql.add('        pi.un,pi.ncm,pi.cest,pi.cfop,pi.cstipi,pi.csticms,pi.cstpis,pi.cstcofins,');
+conexao.sql.add('        pi.csosn,pi.icms,pi.ipi,pi.pis,pi.cofins,pi.frete,');
+conexao.sql.add('        CONCAT("COMBO: ", UPPER(pc.nome_produto)) AS additional');
+conexao.sql.add('    FROM pedido pe');
+conexao.sql.add('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
+conexao.sql.add('    JOIN produto pc ON pc.codigo = pp.codigo_produto');
+conexao.sql.add('    JOIN produto_combo_config pcc ');
+conexao.sql.add('        ON pcc.produto_combo_id = pc.codigo');
+conexao.sql.add('       AND pcc.status = "ATIVO"');
+conexao.sql.add('    JOIN produto_combo_item pci ');
+conexao.sql.add('        ON pci.combo_config_id = pcc.id');
+conexao.sql.add('    JOIN produto pi ');
+conexao.sql.add('        ON pi.codigo = pci.produto_id');
+conexao.sql.add('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
+conexao.sql.add(') fiscal;');
     conexao.Parametros('codigo', codigo);
     Result := conexao.ConsultaSQL;
   finally
@@ -1828,12 +2109,12 @@ var
 begin
   TipoNormalizado := LowerCase(Trim(Tipo));
   Result := True;
-  if (TipoNormalizado = 'ciencia') or (TipoNormalizado = 'ciência') then
+  if (TipoNormalizado = 'ciencia') or (TipoNormalizado = 'ci?ncia') then
   begin
     Evento := teManifDestCiencia;
     Descricao := 'Ciencia da Operacao';
   end
-  else if (TipoNormalizado = 'confirmacao') or (TipoNormalizado = 'confirmação')
+  else if (TipoNormalizado = 'confirmacao') or (TipoNormalizado = 'confirma??o')
   then
   begin
     Evento := teManifDestConfirmacao;
@@ -1845,7 +2126,7 @@ begin
     Descricao := 'Desconhecimento da Operacao';
   end
   else if (TipoNormalizado = 'nao-realizada') or
-    (TipoNormalizado = 'não-realizada') or
+    (TipoNormalizado = 'n?o-realizada') or
     (TipoNormalizado = 'operacao-nao-realizada') or
     (TipoNormalizado = 'op-nao-realizada') then
   begin
@@ -2050,8 +2331,20 @@ begin
       AtualizarXMLDFeBanco(conexao, ChaveLimpa, XMLCompleto);
       Result.AddPair('xml_baixado', TJSONBool.Create(XMLCompleto <> ''));
       if XMLCompleto <> '' then
+      begin
         Result.AddPair('caminho_xml', PastaDFE + 'CHAVE_' + ChaveLimpa
           + '.xml');
+        try
+          Result.AddPair('importada',
+            TJSONBool.Create(ImportarNotaFiscalDFeXML(conexao, XMLCompleto)));
+        except
+          on E: Exception do
+          begin
+            Result.AddPair('importada', TJSONBool.Create(False));
+            Result.AddPair('erro_importacao', E.Message);
+          end;
+        end;
+      end;
     end;
   except
     on E: Exception do
@@ -2875,6 +3168,7 @@ begin
       Acbr.WebServices.StatusServico.cStat.ToString);
     SalvarParametroConfiguracao('nfe_status_servico_motivo',
       Acbr.WebServices.StatusServico.XMotivo);
+
   except
     on E: Exception do
     begin

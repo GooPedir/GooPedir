@@ -117,8 +117,8 @@
     <File Path="src\controller\uControllCaches.pas"/>
     <File Path="src\controller\uControllerSite.pas"/>
     <File Path="src\controller\uDadosWhatsapp.pas"/>
-    <File Path="src\controller\uRelatorios.pas"/>
     <File Path="src\controller\uIngredientesCardapio.pas"/>
+    <File Path="src\controller\uRelatorios.pas"/>
     <File Path="src\importacao"/>
     <File Path="src\importacao\uToPedindo.pas"/>
     <File Path="src\modulo"/>
@@ -259,12 +259,12 @@
     <File Path="src\uMain.pas"/>
     <File Path="src\uMain.dfm"/>
     <File Path="src\uSite.pas"/>
-    <File Path="FastMM4Options.inc"/>
-    <File Path="uGlobais.pas"/>
     <File Path="FastMM4DataCollector.pas"/>
     <File Path="FastMM4LockFreeStack.pas"/>
     <File Path="FastMM4Messages.pas"/>
+    <File Path="FastMM4Options.inc"/>
     <File Path="HashMemoria.pas"/>
+    <File Path="uGlobais.pas"/>
     <File Path="uNFCe.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

@@ -695,9 +695,8 @@ begin
   Req := iRequisicao.Create(nil);
   try
     Req.BaseURL := getUrlGoopedir;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +
-      '&ambiente=' + Ambiente;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente+'&produto=1';
     Req.Token(GetToken);
     Req.Execute;
 

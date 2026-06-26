@@ -184,24 +184,26 @@ var
   Codigo: Integer;
 begin
   conexao := TConexao.Create('nfce');
-  Codigo := conexao.GerarID('dados_whatsapp', 'nfce_numeracao');
-  conexao.SQL.Add('update dados_whatsapp set nfce_numeracao = :numero');
-  conexao.Parametros('numero', Codigo);
-  conexao.ExecuteSQL;
-  Res.Send(Codigo.ToString);
-  conexao.Free;
+  try
+    Codigo := ProximoNumeroNFCe(conexao);
+    Res.Send(Codigo.ToString);
+  finally
+    conexao.Free;
+  end;
 end;
 
 procedure DoGetNumeroLote(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 Var
   Serie: String;
+  conexao : TConexao;
 begin
-
+  conexao := TConexao.Create('DoGetNumeroLote');
   try
-    Serie := frmServidor.Configuracoes.FieldByName('nfce_serie').AsString;
+    Serie := conexao.GetParametro('nfce_serie')
   except
     Serie := '1';
   end;
+  conexao.Free;
 
   Res.Send(Serie);
 
@@ -291,7 +293,7 @@ begin
       ('select 0 as zero, nfce_chave from pedido where codigo = :codigo');
     conexao.Parametros('codigo', Req.Params['codigo']);
     Chave := conexao.FieldByName('nfce_chave');
-    DeletarNFCe(frmServidor.Configuracoes.FieldByName('cnpj').AsString, Chave);
+    DeletarNFCe(conexao.GetParametro('cnpj'), Chave);
   end
   else
   begin
@@ -796,6 +798,7 @@ procedure DoGetNFCeFila(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
   Limit: Integer;
+  IntervaloReenvioMinutos: Integer;
 begin
   try
     Limit := StrToIntDef(Req.Query['limit'], 10);
@@ -809,17 +812,28 @@ begin
 
   conexao := TConexao.Create('nfce');
   try
+    IntervaloReenvioMinutos := StrToIntDef(
+      conexao.GetParametro('nfce_reenvio_erro_minutos'), 10);
+    if IntervaloReenvioMinutos <= 0 then
+      IntervaloReenvioMinutos := 10;
+    if IntervaloReenvioMinutos > 1440 then
+      IntervaloReenvioMinutos := 1440;
+
     // 1) trava o lote
     conexao.SQL.Text := 'UPDATE pedido SET  nfce_status = "PROCESSANDO", ' +
       ' nfce_lock = NOW() WHERE nfce_emite = 1 ' +
-      '  AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE") AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01")'
+      'AND (nfce_status = "" OR nfce_status is null OR nfce_status = "PENDENTE" ' +
+      'OR (nfce_status = "ERRO" AND (nfce_lock IS NULL OR nfce_lock <= DATE_SUB(NOW(), INTERVAL '
+      + IntToStr(IntervaloReenvioMinutos) + ' MINUTE)))) ' +
+      'AND (codigo > 0) AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") '
       + 'ORDER BY codigo ' + 'LIMIT ' + IntToStr(Limit);
     conexao.ExecuteSQL;
 
     // 2) retorna o que foi travado agora
     conexao.SQL.Text := 'SELECT * FROM pedido ' +
-      'WHERE nfce_status = "PROCESSANDO" AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") ';
-    // '  AND nfce_lock >= NOW() - INTERVAL 1 MINUTE ';
+      'WHERE nfce_status = "PROCESSANDO" ' +
+      'AND nfce_lock >= DATE_SUB(NOW(), INTERVAL 1 MINUTE) ' +
+      'AND data_pedido >= DATE_FORMAT(CURDATE(), "%Y-%m-01") ';
     conexao.SQL.Add('LIMIT ' + IntToStr(Limit));
 
     Res.Send<TJSONArray>(conexao.ConsultaSQL);
@@ -867,6 +881,42 @@ end;
   EmailFiscal(Chave, Email);
   Res.Send('E-mail da NFC-e enviado com sucesso.');
 end;
+procedure DoGetErrosFiscais(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+  DataInicio, DataFim: String;
+begin
+  conexao := TConexao.Create('nfce');
+  try
+    DataInicio := Req.Params['data_inicio'];
+    DataFim := Req.Params['data_fim'];
+
+    conexao.SQL.Add('SELECT ');
+    conexao.SQL.Add('ef.id,');
+    conexao.SQL.Add('ef.origem,');
+    conexao.SQL.Add('ef.mensagem,');
+    conexao.SQL.Add('ef.contador,');
+    conexao.SQL.Add('COUNT(efp.pedido_id) AS contador_periodo,');
+    conexao.SQL.Add('ef.primeiro_em,');
+    conexao.SQL.Add('ef.ultimo_em,');
+    conexao.SQL.Add
+      ('GROUP_CONCAT(efp.pedido_id ORDER BY efp.pedido_id SEPARATOR '','') AS pedidos');
+    conexao.SQL.Add('FROM erro_fiscal ef');
+    conexao.SQL.Add
+      ('JOIN erro_fiscal_pedido efp ON efp.erro_fiscal_id = ef.id');
+    conexao.SQL.Add('WHERE DATE(efp.criado_em) BETWEEN :data_inicio AND :data_fim');
+    conexao.SQL.Add('GROUP BY ef.id, ef.origem, ef.mensagem, ef.contador,');
+    conexao.SQL.Add('ef.primeiro_em, ef.ultimo_em');
+    conexao.SQL.Add('ORDER BY contador_periodo DESC, ef.ultimo_em DESC');
+    conexao.Parametros('data_inicio', DataInicio);
+    conexao.Parametros('data_fim', DataFim);
+
+    Res.Send<TJSONArray>(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
 procedure Registry;
 begin
   THorse.Get('/nfce/pedido/outras/:codigo', DoGetPedidoOutros);
@@ -908,6 +958,7 @@ begin
   THorse.Get('/dfe/verifica/:ambiente', DoVerificaConsulta);
 
   THorse.Get('/nfce/fila', DoGetNFCeFila);
+  THorse.Get('/nfce/erros/:data_inicio/:data_fim', DoGetErrosFiscais);
   THorse.Get('/nfce/email/:chave/:email', DoEnviarEmailNFCe);
   THorse.Post('/nfce/email/:chave/:email', DoEnviarEmailNFCe);
   THorse.Post('/nfce/email', DoEnviarEmailNFCe);

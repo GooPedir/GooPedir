@@ -30,8 +30,47 @@ function SnakeToCamel(const Texto: string): string;
 implementation
 
 uses
-  conexao, System.SysUtils, System.Classes, Vcl.Dialogs;
+  conexao, uSQL, System.SysUtils, System.Classes, Vcl.Dialogs;
 
+procedure GarantirTabelaConfiguracoes;
+var
+  conexao: TConexao;
+  Qry: TFDQuery;
+  Migrador: TSQL;
+  Existe: Boolean;
+begin
+  conexao := nil;
+  Qry := nil;
+  conexao := TConexao.Create('GarantirTabelaConfiguracoes');
+  Qry := conexao.CriaQRY;
+  try
+    Qry.SQL.Text := 'SELECT COUNT(*) AS total FROM information_schema.tables ' +
+      'WHERE table_schema = DATABASE() AND table_name = ''configuracoes''';
+    Qry.Open;
+    Existe := Qry.FieldByName('total').AsInteger > 0;
+    if not Existe then
+    begin
+      Qry.Close;
+      Qry.SQL.Clear;
+      Qry.SQL.Add('CREATE TABLE configuracoes (');
+      Qry.SQL.Add('  chave VARCHAR(100) PRIMARY KEY,');
+      Qry.SQL.Add('  valor TEXT');
+      Qry.SQL.Add(') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+      Qry.ExecSQL;
+      Migrador := TSQL.Create;
+      try
+        Migrador.MigrarDadosWhatsappParaConfig;
+      finally
+        Migrador.Free;
+      end;
+    end;
+  finally
+    if Assigned(Qry) then
+      Qry.Free;
+    if Assigned(conexao) then
+      conexao.Free;
+  end;
+end;
 function GetFlavor(chave: String): TJsonArray;
 var
   conexao: TConexao;
@@ -287,6 +326,7 @@ begin
   // conexao.Free;
   // end;
 
+  GarantirTabelaConfiguracoes;
   Result := BuscaCache('DoGetParametros', 'cache');
   if Result.Count = 0 then
   begin
@@ -421,8 +461,7 @@ begin
   begin
     conexao := TConexao.Create('Util');
     conexao.SQL.Add('SELECT DISTINCT tp.* FROM tipo_produto as tp');
-    conexao.SQL.Add
-      ('HAVING (SELECT COUNT(*) FROM produto WHERE produto.codigo_grupo = tp.codigo and produto.ativo = 1) > 0');
+    conexao.SQL.Add('HAVING (SELECT COUNT(*) FROM produto WHERE produto.codigo_grupo = tp.codigo and produto.ativo = 1) > 0');
     conexao.SQL.Add('ORDER BY tp.ordem;');
     Result := conexao.ConsultaSQL;
     GravaCache('DoGetAllCategoria', chave, Result.ToString);

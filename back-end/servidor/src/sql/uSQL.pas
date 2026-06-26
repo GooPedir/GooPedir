@@ -169,9 +169,6 @@ begin
   for I := 0 to ListaSQL.Count - 1 do
   begin
     MemoLog.Lines.Add('');
-    // MemoLog.Lines.Add(ListaSQL[I]);
-    // LabelInfo.Text := (I + 1).ToString + '/' + (ListaSQL.Count).ToString;
-
     if conexao.ExecutarSQLAtualizacao(ListaSQL[I], VersaoExe) then
     begin
       MemoLog.Lines.Add('Executado com sucesso!');
@@ -2195,6 +2192,33 @@ begin
         ExecultaSQL('ALTER TABLE goopedir_cache.cache ADD COLUMN expira_em DATETIME NULL');
         ExecultaSQL('CREATE INDEX idx_cache_expira ON goopedir_cache.cache (expira_em)');
       end;
+    152:
+      begin
+        SQL := 'CREATE TABLE erro_fiscal (';
+        SQL := SQL + '  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + '  origem VARCHAR(30) NOT NULL,';
+        SQL := SQL + '  mensagem_hash CHAR(64) NOT NULL,';
+        SQL := SQL + '  mensagem TEXT NOT NULL,';
+        SQL := SQL + '  contador INT NOT NULL DEFAULT 1,';
+        SQL := SQL + '  primeiro_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '  ultimo_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '  PRIMARY KEY (id),';
+        SQL := SQL + '  UNIQUE KEY uk_erro_fiscal (origem, mensagem_hash),';
+        SQL := SQL + '  INDEX idx_erro_fiscal_ultimo (ultimo_em)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        ExecultaSQL(SQL);
+        SQL := 'CREATE TABLE erro_fiscal_pedido (';
+        SQL := SQL + '  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + '  erro_fiscal_id BIGINT UNSIGNED NOT NULL,';
+        SQL := SQL + '  pedido_id INT NOT NULL,';
+        SQL := SQL + '  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + '  PRIMARY KEY (id),';
+        SQL := SQL + '  UNIQUE KEY uk_erro_fiscal_pedido (erro_fiscal_id, pedido_id),';
+        SQL := SQL + '  INDEX idx_erro_fiscal_pedido_pedido (pedido_id),';
+        SQL := SQL + '  CONSTRAINT fk_erro_fiscal_pedido_erro FOREIGN KEY (erro_fiscal_id) REFERENCES erro_fiscal(id) ON DELETE CASCADE';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        ExecultaSQL(SQL);
+      end;
     99999999:
       begin
         {
@@ -2208,7 +2232,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '151'
+  Result := '152'
 end;
 
 end.

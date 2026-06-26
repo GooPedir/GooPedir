@@ -1,7 +1,7 @@
 program ProdutoGoopedir;
 
 uses
-    Vcl.Forms,
+  Vcl.Forms,
   Windows,
   Messages,
   SysUtils,
@@ -39,7 +39,8 @@ uses
   uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
   uInserirUpdate in '..\servidor\src\modulos\Controller\uInserirUpdate.pas',
   uControllerSite in '..\servidor\src\controller\uControllerSite.pas',
-  uGlobais in '..\servidor\uGlobais.pas';
+  uGlobais in '..\servidor\uGlobais.pas',
+  uSQL in '..\servidor\src\sql\uSQL.pas';
 
 {$R *.res}
 

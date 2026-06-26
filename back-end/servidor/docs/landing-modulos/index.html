@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dossie de Modulos | GooPedir</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Inicio">
+        <span class="brand-mark">G</span>
+        <span>GooPedir</span>
+      </a>
+      <nav class="topnav" aria-label="Navegacao principal">
+        <a href="#mapa">Mapa</a>
+        <a href="#modulos">Modulos</a>
+        <a href="#fluxos">Fluxos</a>
+        <a href="#backend">Backend</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <canvas id="moduleCanvas" aria-hidden="true"></canvas>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Dossie funcional do sistema</p>
+          <h1>Mapa dos modulos, rotas e dependencias do GooPedir.</h1>
+          <p class="hero-copy">
+            Uma visao executiva do backend por area: atendimento, salao,
+            financeiro, gestao, fiscal, produtos e estoque.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#modulos">Ver modulos</a>
+            <a class="button secondary" href="../dossie-modulos-sistema.md">Abrir dossie tecnico</a>
+          </div>
+        </div>
+        <div class="hero-metrics" aria-label="Resumo do dossie">
+          <div>
+            <strong>8</strong>
+            <span>areas</span>
+          </div>
+          <div>
+            <strong>40+</strong>
+            <span>rotas mapeadas</span>
+          </div>
+          <div>
+            <strong>4</strong>
+            <span>nucleos</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section compact" id="mapa">
+        <div class="section-heading">
+          <p class="eyebrow">Mapa geral</p>
+          <h2>Como o sistema se organiza</h2>
+        </div>
+        <div class="area-grid" id="areaGrid"></div>
+      </section>
+
+      <section class="section module-section" id="modulos">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Modulos</p>
+            <h2>Escolha uma area para explorar</h2>
+          </div>
+          <div class="filters" role="tablist" aria-label="Filtros de area">
+            <button class="filter active" data-filter="Todos" type="button">Todos</button>
+            <button class="filter" data-filter="Atendimento" type="button">Atendimento</button>
+            <button class="filter" data-filter="Financeiro" type="button">Financeiro</button>
+            <button class="filter" data-filter="Fiscal" type="button">Fiscal</button>
+            <button class="filter" data-filter="Produtos" type="button">Produtos</button>
+          </div>
+        </div>
+        <div class="module-grid" id="moduleGrid"></div>
+      </section>
+
+      <section class="section flow-section" id="fluxos">
+        <div class="section-heading">
+          <p class="eyebrow">Fluxos criticos</p>
+          <h2>Dependencias entre operacao, fiscal e estoque</h2>
+        </div>
+        <div class="flow-layout">
+          <div class="flow-rail" id="flowRail"></div>
+          <article class="flow-detail" id="flowDetail">
+            <span class="flow-kicker">Selecione um fluxo</span>
+            <h3>Pedido ate fiscal e estoque</h3>
+            <p>
+              O pedido e o centro operacional: movimenta mesa, caixa, fiscal,
+              cliente e baixa de estoque. A pagina destaca esses caminhos para
+              facilitar auditoria e evolucao do sistema.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section backend" id="backend">
+        <div class="backend-panel">
+          <div>
+            <p class="eyebrow">Backend Delphi/Horse</p>
+            <h2>Arquivos-base usados no levantamento</h2>
+          </div>
+          <ul class="source-list">
+            <li><code>src/util/util.pas</code><span>API v1, pedido, caixa, mesa, produto e estoque.</span></li>
+            <li><code>src/modulos/v2/v2.pas</code><span>API v2, gestao, dashboards, fiado, despesas e produtos.</span></li>
+            <li><code>src/modulos/nfce/nfce.pas</code><span>NFC-e, DF-e, notas emitidas e sincronizacao fiscal.</span></li>
+            <li><code>uNFCe.pas</code><span>Regra fiscal, fila de emissao, XML, erro e consulta SEFAZ.</span></li>
+            <li><code>src/controller/uControlerProdutoNotaFiscal.pas</code><span>Fornecedor, NF-e entrada, estoque e validacao de despesa.</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

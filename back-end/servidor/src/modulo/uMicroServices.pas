@@ -9,8 +9,8 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   System.Threading, uControllCaches, uMain;
 
 procedure Registry;
-procedure DoGetGerenciador(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-
+procedure DoGetGerenciador(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
 
 implementation
 
@@ -19,30 +19,16 @@ begin
   THorse.Get('/microservices/gerenciador', DoGetGerenciador);
 end;
 
-procedure DoGetGerenciador(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure DoGetGerenciador(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
 var
-JSonObject : TJSONObject;
+  JSonObject: TJSONObject;
 begin
-JSonObject := TJSONObject.Create;
+  JSonObject := TJSONObject.Create;
 
-if frmServidor.Configuracoes.FieldByName('a_impressora').AsInteger = 1 then
-JSonObject.AddPair('service_impressao',true)
-else
-JSonObject.AddPair('service_impressao',false);
+  JSonObject.AddPair('service_impressao', true);
 
-if frmServidor.Configuracoes.FieldByName('nfce').AsInteger = 1 then
-JSonObject.AddPair('service_nfce',true)
-else
-JSonObject.AddPair('service_nfce',false);
-
-
-  //
-  // JSonObject.AddPair('caminho_impressao',frmServidor.IMPRESSAO);
-  // JSonObject.AddPair('caminho_nfce',frmServidor.USANFCE);
-  // JSonObject.AddPair('caminho_site',frmServidor.SITE(NomeExeSite));
-
-
-
+  JSonObject.AddPair('service_nfce', true);
 
 end;
 

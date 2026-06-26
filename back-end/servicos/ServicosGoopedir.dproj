@@ -193,6 +193,9 @@
         <DCCReference Include="..\servidor\src\other\Web.WebConst.pas"/>
         <DCCReference Include="..\servidor\src\sql\uSQL.pas"/>
         <DCCReference Include="..\servidor\uGlobais.pas"/>
+        <DCCReference Include="..\servidor\src\controller\uControllCaches.pas"/>
+        <DCCReference Include="..\servidor\src\controller\uCacheControl.pas"/>
+        <DCCReference Include="..\servidor\src\controller\uControlerProduto.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

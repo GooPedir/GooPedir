@@ -130,6 +130,34 @@ begin
   except
   end;
 end;
+function NormalizarDataSQL(const Valor: string): string;
+var
+  Data: TDateTime;
+  Fmt: TFormatSettings;
+begin
+  Result := Trim(Valor);
+  if Result = '' then
+    Exit;
+  Fmt := TFormatSettings.Create;
+  Fmt.DateSeparator := '-';
+  Fmt.ShortDateFormat := 'dd-mm-yyyy';
+  if TryStrToDate(Result, Data, Fmt) then
+  begin
+    Result := FormatDateTime('yyyy-mm-dd', Data);
+    Exit;
+  end;
+  Fmt.DateSeparator := '/';
+  Fmt.ShortDateFormat := 'dd/mm/yyyy';
+  if TryStrToDate(Result, Data, Fmt) then
+  begin
+    Result := FormatDateTime('yyyy-mm-dd', Data);
+    Exit;
+  end;
+  Fmt.DateSeparator := '-';
+  Fmt.ShortDateFormat := 'yyyy-mm-dd';
+  if TryStrToDate(Result, Data, Fmt) then
+    Result := FormatDateTime('yyyy-mm-dd', Data);
+end;
 
 procedure GarantirCamposEntradaEstoqueNotaFiscal(Conexao: TConexao);
 begin
@@ -776,7 +804,7 @@ procedure DoGetFornecedorDossie(Req: THorseRequest;
 var
   Conexao: TConexao;
   Resultado: TJSONObject;
-  CodigoFornecedor, DataInicio, DataFim: string;
+  CodigoFornecedor, DataInicio, DataFim, DataInicioSQL, DataFimSQL: string;
 begin
   Conexao := TConexao.Create('DoGetFornecedorDossie');
   Resultado := TJSONObject.Create;
@@ -784,6 +812,8 @@ begin
     CodigoFornecedor := BuscarFornecedorPorParametro(Conexao, Req.Params['fornecedor']);
     DataInicio := Req.Params['data_inicio'];
     DataFim := Req.Params['data_fim'];
+    DataInicioSQL := NormalizarDataSQL(DataInicio);
+    DataFimSQL := NormalizarDataSQL(DataFim);
 
     if CodigoFornecedor = '' then
     begin
@@ -797,6 +827,7 @@ begin
     Resultado.AddPair('fornecedor_id', CodigoFornecedor);
     Resultado.AddPair('data_inicio', DataInicio);
     Resultado.AddPair('data_fim', DataFim);
+    Resultado.AddPair('dossie_versao', TJSONNumber.Create(2));
 
     Conexao.SQL.Add('select id, upper(nome) as nome, cnpj, telefone, email');
     Conexao.SQL.Add('from fornecedor');
@@ -804,19 +835,19 @@ begin
     Conexao.Parametros('fornecedor', CodigoFornecedor);
     Resultado.AddPair('fornecedor', Conexao.ConsultaSQL);
 
-    Conexao.SQL.Add('select count(distinct nf.id) as total_notas,');
-    Conexao.SQL.Add('count(nfi.id) as total_itens,');
-    Conexao.SQL.Add('coalesce(sum(nfi.qCom), 0) as quantidade_total,');
-    Conexao.SQL.Add('coalesce(sum(nfi.vDesc), 0) as total_desconto,');
-    Conexao.SQL.Add('coalesce(sum(nfi.vFrete), 0) as total_frete,');
-    Conexao.SQL.Add('coalesce(sum(nfi.vTotal), 0) as total_comprado');
+    Conexao.SQL.Add('select count(nf.id) as total_notas,');
+    Conexao.SQL.Add('coalesce(sum(itens.total_itens), 0) as total_itens,');
+    Conexao.SQL.Add('coalesce(sum(itens.quantidade_total), 0) as quantidade_total,');
+    Conexao.SQL.Add('coalesce(sum(nf.vDesc), 0) as total_desconto,');
+    Conexao.SQL.Add('coalesce(sum(nf.vFrete), 0) as total_frete,');
+    Conexao.SQL.Add('coalesce(sum(nf.vNF), 0) as total_comprado');
     Conexao.SQL.Add('from nota_fiscal nf');
-    Conexao.SQL.Add('left join nota_fiscal_item nfi on nfi.nota_fiscal_id = nf.id');
+    Conexao.SQL.Add('left join (select nota_fiscal_id, count(id) as total_itens, sum(qCom) as quantidade_total from nota_fiscal_item group by nota_fiscal_id) itens on itens.nota_fiscal_id = nf.id');
     Conexao.SQL.Add('where nf.fornecedor_id = :fornecedor');
     Conexao.SQL.Add('and date(nf.data_emissao) between :inicio and :fim');
     Conexao.Parametros('fornecedor', CodigoFornecedor);
-    Conexao.Parametros('inicio', DataInicio);
-    Conexao.Parametros('fim', DataFim);
+    Conexao.Parametros('inicio', DataInicioSQL);
+    Conexao.Parametros('fim', DataFimSQL);
     Resultado.AddPair('resumo', Conexao.ConsultaSQL);
 
     Conexao.SQL.Add('select fi.id as fornecedor_item_id,');
@@ -824,15 +855,46 @@ begin
     Conexao.SQL.Add('fi.tabela_vinculo, fi.codigo_vinculo, fi.fator,');
     Conexao.SQL.Add('case when fi.tabela_vinculo = "produto" then upper(p.nome_produto) when fi.tabela_vinculo = "ingrediente" then upper(i.descricao) else null end as vinculo_nome,');
     Conexao.SQL.Add('case when fi.tabela_vinculo = "produto" then p.saldo_atual when fi.tabela_vinculo = "ingrediente" then i.saldo else null end as saldo_atual,');
+    Conexao.SQL.Add('case when count(nfi.id) > 0 then 1 else 0 end as comprado_periodo,');
+    Conexao.SQL.Add('count(distinct nf.id) as notas_periodo,');
+    Conexao.SQL.Add('count(nfi.id) as compras_periodo,');
     Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.qCom else 0 end), 0) as quantidade_periodo,');
     Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vDesc else 0 end), 0) as desconto_periodo,');
     Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vFrete else 0 end), 0) as frete_periodo,');
-    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then nfi.vTotal else 0 end), 0) as total_periodo,');
+    Conexao.SQL.Add('coalesce(sum(case when nf.id is not null then coalesce(nfi.vTotal, coalesce(nfi.vProd, 0) + coalesce(nfi.vFrete, 0) + coalesce(nfi.vOutro, 0) - coalesce(nfi.vDesc, 0)) else 0 end), 0) as total_periodo,');
     Conexao.SQL.Add('min(case when nf.id is not null then nfi.vUnCom end) as menor_valor_periodo,');
     Conexao.SQL.Add('max(case when nf.id is not null then nfi.vUnCom end) as maior_valor_periodo,');
     Conexao.SQL.Add('avg(case when nf.id is not null then nfi.vUnCom end) as media_valor_periodo,');
+    Conexao.SQL.Add('(select count(*) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id) as compras_historico,');
+    Conexao.SQL.Add('(select min(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id) as menor_valor_historico,');
+    Conexao.SQL.Add('(select max(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id) as maior_valor_historico,');
+    Conexao.SQL.Add('(select avg(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id) as media_valor_historico,');
+    Conexao.SQL.Add('(select avg(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id and date(nf2.data_emissao) < :inicio) as media_valor_anterior,');
+    Conexao.SQL.Add('(select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao asc limit 1) as primeiro_valor,');
+    Conexao.SQL.Add('(select nf2.data_emissao from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao asc limit 1) as primeira_compra,');
     Conexao.SQL.Add('(select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) as ultimo_valor,');
-    Conexao.SQL.Add('(select nf2.data_emissao from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) as ultima_compra');
+    Conexao.SQL.Add('(select nf2.data_emissao from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) as ultima_compra,');
+    Conexao.SQL.Add('case when (select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao asc limit 1) > 0 then');
+    Conexao.SQL.Add('(((select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao desc limit 1) -');
+    Conexao.SQL.Add('(select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao asc limit 1)) /');
+    Conexao.SQL.Add('(select nfi2.vUnCom from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id order by nf2.data_emissao asc limit 1)) * 100 else null end as variacao_ultimo_vs_primeiro_percentual,');
+    Conexao.SQL.Add('case when (select avg(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on ');
+    Conexao.SQL.Add('nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id and date(nf2.data_emissao) < :inicio) > 0 and avg(case when nf.id is not null then nfi.vUnCom end) is not null then');
+    Conexao.SQL.Add('((avg(case when nf.id is not null then nfi.vUnCom end) - (select avg(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id and date(nf2.data_emissao) < :inicio)) /');
+    Conexao.SQL.Add('(select avg(nfi2.vUnCom) from nota_fiscal_item nfi2 join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id where nfi2.fornecedor_item_id = fi.id and date(nf2.data_emissao) < :inicio)) * 100 else null end as variacao_periodo_vs_anterior_percentual,');
+    Conexao.SQL.Add('coalesce((select concat(''['', group_concat(json_object(');
+    Conexao.SQL.Add('''nota_fiscal_id'', nf2.id, ''chave'', nf2.chave,');
+    Conexao.SQL.Add('''serie'', nf2.serie, ''numero'', nf2.numero,');
+    Conexao.SQL.Add('''data_emissao'', date_format(nf2.data_emissao, ''%Y-%m-%d''),');
+    Conexao.SQL.Add('''quantidade'', nfi2.qCom, ''unidade'', nfi2.uCom,');
+    Conexao.SQL.Add('''valor_unitario'', nfi2.vUnCom, ''valor_produto'', nfi2.vProd,');
+    Conexao.SQL.Add('''desconto'', nfi2.vDesc, ''frete'', nfi2.vFrete, ''outros'', nfi2.vOutro,');
+    Conexao.SQL.Add('''total_item'', coalesce(nfi2.vTotal, coalesce(nfi2.vProd, 0) +');
+    Conexao.SQL.Add('coalesce(nfi2.vFrete, 0) + coalesce(nfi2.vOutro, 0) - coalesce(nfi2.vDesc, 0)))');
+    Conexao.SQL.Add('order by nf2.data_emissao asc separator '',''), '']'')');
+    Conexao.SQL.Add('from nota_fiscal_item nfi2');
+    Conexao.SQL.Add('join nota_fiscal nf2 on nf2.id = nfi2.nota_fiscal_id');
+    Conexao.SQL.Add('where nfi2.fornecedor_item_id = fi.id), ''[]'') as historico_precos');
     Conexao.SQL.Add('from fornecedor_item fi');
     Conexao.SQL.Add('left join nota_fiscal_item nfi on nfi.fornecedor_item_id = fi.id');
     Conexao.SQL.Add('left join nota_fiscal nf on nf.id = nfi.nota_fiscal_id and date(nf.data_emissao) between :inicio and :fim');
@@ -841,11 +903,25 @@ begin
     Conexao.SQL.Add('where fi.fornecedor_id = :fornecedor');
     Conexao.SQL.Add('group by fi.id, fi.cprod, fi.xProd, fi.uCom, fi.tabela_vinculo, fi.codigo_vinculo, fi.fator, p.nome_produto, p.saldo_atual, i.descricao, i.saldo');
     Conexao.SQL.Add('order by quantidade_periodo desc, produto_fornecedor');
-    Conexao.Parametros('inicio', DataInicio);
-    Conexao.Parametros('fim', DataFim);
+    Conexao.Parametros('inicio', DataInicioSQL);
+    Conexao.Parametros('fim', DataFimSQL);
     Conexao.Parametros('fornecedor', CodigoFornecedor);
     Resultado.AddPair('itens', Conexao.ConsultaSQL);
-
+    Conexao.SQL.Add('select fi.id as fornecedor_item_id, fi.cprod, upper(fi.xProd) as produto_fornecedor,');
+    Conexao.SQL.Add('nf.id as nota_fiscal_id, nf.chave, nf.serie, nf.numero, nf.data_emissao,');
+    Conexao.SQL.Add('nfi.qCom as quantidade, nfi.uCom as unidade, nfi.vUnCom as valor_unitario,');
+    Conexao.SQL.Add('nfi.vProd as valor_produto, nfi.vDesc as desconto, nfi.vFrete as frete, nfi.vOutro as outros,');
+    Conexao.SQL.Add('coalesce(nfi.vTotal, coalesce(nfi.vProd, 0) + coalesce(nfi.vFrete, 0) + coalesce(nfi.vOutro, 0) - coalesce(nfi.vDesc, 0)) as total_item,');
+    Conexao.SQL.Add('case when date(nf.data_emissao) between :inicio and :fim then 1 else 0 end as no_periodo');
+    Conexao.SQL.Add('from fornecedor_item fi');
+    Conexao.SQL.Add('join nota_fiscal_item nfi on nfi.fornecedor_item_id = fi.id');
+    Conexao.SQL.Add('join nota_fiscal nf on nf.id = nfi.nota_fiscal_id');
+    Conexao.SQL.Add('where fi.fornecedor_id = :fornecedor');
+    Conexao.SQL.Add('order by produto_fornecedor, nf.data_emissao');
+    Conexao.Parametros('inicio', DataInicioSQL);
+    Conexao.Parametros('fim', DataFimSQL);
+    Conexao.Parametros('fornecedor', CodigoFornecedor);
+    Resultado.AddPair('historico_precos', Conexao.ConsultaSQL);
     Res.Send<TJSONObject>(Resultado);
   finally
     Conexao.Free;

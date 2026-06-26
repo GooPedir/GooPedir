@@ -119,7 +119,6 @@ begin
   Result := StrToFloatDef(Texto, 0, FS);
 end;
 
-
 function CodigoRadon(Codigo: Integer): Integer;
 begin
   Result := Random(Codigo) + Codigo;
@@ -144,7 +143,7 @@ var
   LogPath: string;
   Arquivo: TextFile;
 begin
-  exit;
+  Exit;
   try
     LogPath := TPath.Combine(ExtractFilePath(ParamStr(0)),
       'log_tempo_pedido.txt');
@@ -200,7 +199,7 @@ begin
       Result := conexao.ConsultaSQL;
       GravaCache('GetDadosProdutoPedido', Pedido.ToString, Result.ToString);
       conexao.Free;
-      exit
+      Exit
     end;
   end;
   conexao := Tconexao.Create('Util');
@@ -379,7 +378,7 @@ begin
     ID := Req.Params['categoria'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
   try
     Delivery := Req.Params['delivery'].ToInteger;
@@ -479,7 +478,7 @@ begin
     ID := Req.Params['produto'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
   Res.Send<TJSONArray>(GetProdutoAdiciona(Req.Params['produto']));
 
@@ -503,7 +502,7 @@ begin
   except
     Mesa := 0;
     Res.Send('[]');
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -543,14 +542,14 @@ begin
   except
     Codigo := 0;
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
     Tipo := 0;
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -592,7 +591,7 @@ begin
   except
     ID := 0;
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -696,7 +695,7 @@ begin
     CodigoPedido := Req.Params['pedido'].ToInteger;
   except
 
-    exit;
+    Exit;
   end;
   try
     Emitir := Req.Params['nota'].ToInteger;
@@ -708,21 +707,21 @@ begin
     Mesa := Req.Params['mesa'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     TipoPagamento := Req.Params['tipopagamento'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Impressao := Req.Params['impressao'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
@@ -730,28 +729,28 @@ begin
 
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Acrecimo := Req.Params['acrecimo'].ToDouble;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Taxa := Req.Params['taxaentrega'].ToDouble;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
@@ -910,10 +909,10 @@ begin
   end;
 
   try
-    AtualizaStatus(CodigoPedido,6);
+    AtualizaStatus(CodigoPedido, 6);
     if Emitir = 1 then
     begin
-      if frmServidor.Configuracoes.FieldByName('nfce').AsInteger > 0 then
+      if conexao.GetParametro('nfce') > 0 then
       begin
         // Validar Forma de Pagamento
         QRY := conexao.CriaQRY;
@@ -934,7 +933,13 @@ begin
         begin
           conexao.SQL.Add
             ('update pedido set nfce_emite = 1 where codigo = :pedido');
-             TransmitirNFCe(CodigoPedido);
+
+          TThread.CreateAnonymousThread(
+            procedure
+            begin
+              TransmitirNFCe(CodigoPedido);
+            end).start; // Inicie a Thread1
+
         end;
         conexao.Parametros('pedido', CodigoPedido);
         conexao.ExecuteSQL;
@@ -1032,7 +1037,7 @@ begin
     ID := Req.Params['produto'].ToInteger;
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   Res.Send<TJSONArray>(GetProdutoSabores(Req.Params['produto']));
@@ -1047,7 +1052,7 @@ begin
     ApagarProduto(Req.Params['id'].ToInteger, '', 0);
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 end;
 
@@ -1062,14 +1067,14 @@ begin
     Usuario := Req.Params['usuario'];
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Senha := Req.Params['senha'];
   except
     Res.Send('').Status(500);
-    exit;
+    Exit;
   end;
   IP := GetClientIP(Req);
   conexao := Tconexao.Create('Util');
@@ -1479,7 +1484,7 @@ begin
     Usuario := Req.Params['usuario'].ToInteger;
   except
     Res.Send('Usuário não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -1505,14 +1510,14 @@ begin
     Usuario := Req.Params['usuario'].ToInteger;
   except
     Res.Send('Usuário não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Valor := strtofloat(StringReplace(Req.Params['valor'], '.', ',', []));
   except
     Res.Send('valor não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -1569,14 +1574,14 @@ begin
     Pedido := Req.Params['pedido'].ToInteger;
   except
     Res.Send('Pedido não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
   Dados := TFDMemTable.Create(nil);
 
@@ -1639,7 +1644,7 @@ var
   Descricao: String;
 begin
   if frmServidor.FaturarEmAberto then
-    exit;
+    Exit;
 
   frmServidor.FaturarEmAberto := true;
 
@@ -1647,7 +1652,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
   Dados := TFDMemTable.Create(nil);
 
@@ -1700,7 +1705,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     Dados := TFDMemTable.Create(nil);
@@ -1710,7 +1715,7 @@ begin
     begin
       Dados.Free;
       Res.Send('Pagamento não informado').Status(500);
-      exit;
+      Exit;
     end;
 
     conexao := Tconexao.Create('Util');
@@ -1832,7 +1837,8 @@ begin
 
 end;
 
-procedure DoGetResumoCaixa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure DoGetResumoCaixa(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
 var
   conexao: Tconexao;
   Usuario, Status: Integer;
@@ -1845,6 +1851,7 @@ var
       Result := '';
     end;
   end;
+
 begin
   DataIni := ValorQuery('data_ini');
   if DataIni = '' then
@@ -1891,7 +1898,8 @@ begin
       conexao.SQL.Add('AND c.status = :status');
       conexao.Parametros('status', Status);
     end;
-    conexao.SQL.Add('ORDER BY c.data_abertura DESC, c.hora_abertura DESC, c.id DESC');
+    conexao.SQL.Add
+      ('ORDER BY c.data_abertura DESC, c.hora_abertura DESC, c.id DESC');
     Res.Send<TJSONArray>(conexao.ConsultaSQL);
   finally
     conexao.Free;
@@ -1910,7 +1918,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -1938,7 +1946,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -1965,7 +1973,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -1995,7 +2003,7 @@ begin
     Caixa := Req.Params['caixa'].ToInteger;
   except
     Res.Send('Caixa não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -2066,7 +2074,7 @@ begin
     Dados.LoadFromJSON(Req.Body);
   except
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -2236,7 +2244,7 @@ begin
   Dados.LoadFromJSON(Req.Body);
 
   if Dados.RecordCount = 0 then
-    exit;
+    Exit;
   conexao := Tconexao.Create('Util');
 
   ID := conexao.GerarID('pro_adi_personalizado', 'id');
@@ -2286,21 +2294,21 @@ begin
     Descricao := Req.Params['categoria'];
   except
     Res.Send('Descricao não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Min := Req.Params['min'].ToInteger;
   except
     Res.Send('Min não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Max := Req.Params['max'].ToInteger;
   except
     Res.Send('Max não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
@@ -2317,7 +2325,7 @@ begin
     begin
       // Writeln(E.Message);
       Dados.Free;
-      exit;
+      Exit;
     end;
   end;
 
@@ -2570,14 +2578,14 @@ begin
     Produto := Req.Params['produto'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Extra := Req.Params['extra'].ToInteger;
   except
     Res.Send('Extra não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -2637,7 +2645,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('SELECT * FROM produto_preco where id_produto = :id');
@@ -2703,7 +2711,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -2724,7 +2732,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select * from produto where codigo_interno like ' +
@@ -2756,7 +2764,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   Dados := TFDMemTable.Create(nil);
@@ -2967,14 +2975,14 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Arquivo := Req.Params['arquivo'];
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   frmServidor.memoImagem.Lines.Clear;
@@ -3014,7 +3022,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
   frmServidor.memoImagem.Lines.Clear;
   LocalImagem := Caminho + '\produto\imagem\' + ID.ToString + '.txt';
@@ -3056,7 +3064,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -3090,27 +3098,27 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Produto não informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     Descricao := Req.Params['categoria'];
   except
     Res.Send('Descricao não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Min := Req.Params['min'].ToInteger;
   except
     Res.Send('Min não informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Max := Req.Params['max'].ToInteger;
   except
     Res.Send('Max não informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
@@ -3308,14 +3316,14 @@ begin
     Codigo := Req.Params['codigo'].ToInteger;
   except
     Res.Send('Código Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
     Res.Send('Tipo Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     Servico := Req.Params['servico'].ToDouble;
@@ -3362,7 +3370,7 @@ begin
             frmServidor.EnviarConferencia(Codigo, -2);
           end;
           conexao.Free;
-          exit;
+          Exit;
         end;
 
         Aux := conexao.GerarID('impressao_pedido', 'id');
@@ -3462,14 +3470,14 @@ begin
     Pedido := Req.Params['pedido'].ToInteger;
   except
     Res.Send('Pedido Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Motoboy := Req.Params['motoboy'].ToInteger;
   except
     Res.Send('Motoboy Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -3508,14 +3516,14 @@ begin
     Pedido := Req.Params['pedido'].ToInteger;
   except
     Res.Send('Pedido Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Status := Req.Params['status'].ToInteger;
   except
     Res.Send('Status Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   AtualizaStatus(Pedido, Status);
 
@@ -3573,7 +3581,7 @@ begin
     Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -3597,7 +3605,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   Dados.Edit;
@@ -3676,14 +3684,14 @@ begin
     Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     CampoID := Req.Params['id'];
   except
     Res.Send('Campo PK Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   Dados := TFDMemTable.Create(nil);
@@ -3691,7 +3699,7 @@ begin
     Dados.LoadFromJSON(Req.Body);
   except
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -3775,7 +3783,7 @@ begin
     Celular := Req.Params['celular'];
   except
     Res.Send('Celular Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
 
@@ -3895,7 +3903,7 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Pedido Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -3930,14 +3938,14 @@ begin
     ID := Req.Params['id'].ToInteger;
   except
     Res.Send('Pedido Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     IDMesaAtual := Req.Params['mesa'].ToInteger;
   except
     Res.Send('Pedido Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select concat(tp.descricao,' + QuotedStr(' ') +
@@ -4120,7 +4128,7 @@ begin
     Senha := Req.Params['senha'];
   except
     Res.Send('Senha Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4145,7 +4153,7 @@ begin
     Senha := Req.Params['senha'];
   except
     Res.Send('Senha Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4176,7 +4184,7 @@ begin
     ID := Req.Params['mesa'].ToInteger;
   except
     Res.Send('Mesa Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4200,7 +4208,7 @@ begin
     ID := Req.Params['mesa'].ToInteger;
   except
     Res.Send('Mesa Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4696,7 +4704,7 @@ begin
     Celular := Req.Params['celular'];
   except
     Res.Send('celular Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4725,7 +4733,7 @@ begin
     ID := Req.Params['codigo'].ToInteger;
   except
     Res.Send('Código Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4746,7 +4754,7 @@ begin
     ID := Req.Params['codigo'].ToInteger;
   except
     Res.Send('Código Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -4791,9 +4799,9 @@ var
   imprimir: Boolean;
 
   DadosTipoPagamento: TFDMemTable;
-  Body : String;
+  Body: String;
 begin
-  Body :=Req.Body;
+  Body := Req.Body;
 
   try
     Tipo := (Req.Params['tipo'].ToInteger > 0);
@@ -4811,7 +4819,7 @@ begin
     if Dados.FieldByName('produto').AsString = '0' then
     begin
       Dados.Free;
-      exit;
+      Exit;
     end;
 
     conexao := Tconexao.Create('Util');
@@ -5088,7 +5096,7 @@ begin
     Tabela := Req.Params['tabela'];
   except
     Res.Send('Tabela Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     Campos := Req.Params['campo'];
@@ -5114,7 +5122,7 @@ begin
   if Tabela = 'dados_whatsapp' then
   begin
     Res.Send<TJSONArray>(GetParametros);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5152,7 +5160,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5213,7 +5221,7 @@ begin
 
   if Dados.RecordCount = 0 then
   begin
-    exit;
+    Exit;
   end;
 
   if Dados.FieldByName('tipo').AsInteger = 0 then
@@ -5244,7 +5252,7 @@ begin
   try
     Codigo := (Req.Params['codigo']);
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5320,7 +5328,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   while not Dados.Eof do
@@ -5380,7 +5388,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5414,7 +5422,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5518,20 +5526,20 @@ begin
     Banco := LowerCase(Req.Params['banco']);
   except
     Res.Send('Banco Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   try
     Chave := Req.Params['chave'];
   except
     Res.Send('Chave Não Informado').Status(500);
-    exit;
+    Exit;
   end;
 
   if Chave <> FormatDateTime('ddmmyyyy', Now) then
   begin
     Res.Send('Chave Errada').Status(500);
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5540,7 +5548,7 @@ begin
     Res.Send('Banco não conectado! Banco atual: ' + conexao.NomeBanco)
       .Status(500);
     conexao.Free;
-    exit;
+    Exit;
   end;
 
   Dados := TFDMemTable.Create(nil);
@@ -5580,7 +5588,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5627,7 +5635,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -5676,43 +5684,43 @@ begin
     Tipo := LowerCase(Req.Params['tipo']).ToInteger;
   except
     Res.Send('Tipo Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     iDia := Req.Params.Items['idia'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   try
     iMes := Req.Params.Items['imes'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   try
     iAno := Req.Params.Items['iano'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   try
     fDia := Req.Params.Items['fdia'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   try
     fMes := Req.Params.Items['fmes'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   try
     fAno := Req.Params.Items['fano'];
   except
     Res.Status(THTTPStatus.NotFound);
-    exit;
+    Exit;
   end;
   DataInicio := iAno + '-' + iMes + '-' + iDia;
   DataFim := fAno + '-' + fMes + '-' + fDia;
@@ -5864,13 +5872,13 @@ begin
     Extra := Req.Params['extra'].ToInteger;
   except
     Res.Send('Extra Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   try
     Produto := Req.Params['produto'].ToInteger;
   except
     Res.Send('Extra Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
@@ -5886,7 +5894,7 @@ begin
   begin
     conexao.Free;
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao.SQL.Add
@@ -5929,7 +5937,7 @@ begin
   end;
   conexao.Free;
   Dados.Free;
-  exit;
+  Exit;
 end;
 
 procedure DoGetSaborCodigo(Req: THorseRequest; Res: THorseResponse;
@@ -5942,7 +5950,7 @@ begin
     ID := Req.Params['codigo'].ToInteger;
   except
     Res.Send('ID Não Informado').Status(500);
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add
@@ -6036,7 +6044,7 @@ begin
       Dados.Free;
     end;
 
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add
@@ -6069,7 +6077,7 @@ begin
   try
     Busca := UpperCase(Req.Params['busca']);
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select  * from taxa_entrega where upper(bairro) like "%' +
@@ -6093,17 +6101,17 @@ begin
   try
     Codigo := Req.Params['id'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Caixa := Req.Params['caixa'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Pedido := Req.Params['pedido'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   Dados := TFDMemTable.Create(nil);
   Dados.LoadFromJSON(Req.Body);
@@ -6111,7 +6119,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit
+    Exit
   end;
   OBS := 'RECEBIDO EM ' + FormatDateTime('dd/mm/yyyy hh:nn', Now);
   conexao := Tconexao.Create('Util');
@@ -6142,7 +6150,7 @@ begin
   try
     Pedido := Req.Params['id'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6175,7 +6183,7 @@ begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('DoGetFichaSabor');
   conexao.SQL.Add
@@ -6194,7 +6202,7 @@ begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   Res.Send<TJSONArray>(GetFichaProduto(Req.Params['codigo']));
@@ -6229,24 +6237,24 @@ begin
   try
     ingrediente := Req.Params['ingrediente'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     qtd := Req.Params['qtd'].ToDouble;
     if Tipo <> 1 then
       qtd := qtd * -1;
   except
-    exit;
+    Exit;
   end;
   try
     Custo := Req.Params['custo'].ToDouble;
   except
-    exit;
+    Exit;
   end;
 
   MovimentacaoInsulmo(ingrediente, Tipo, qtd, Custo, Custo / qtd, false);
@@ -6327,7 +6335,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add
@@ -6370,17 +6378,17 @@ begin
   try
     ID := Req.Params['id'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Descricao := Req.Params['descricao'];
   except
-    exit;
+    Exit;
   end;
   try
     Unidade := Req.Params['unidade'];
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   if ID > 0 then
@@ -6415,17 +6423,17 @@ begin
   try
     Min := Req.Params['min'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Max := Req.Params['max'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Tipo := UpperCase(Req.Params['tipo']);
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('select * from mesa_tipo where upper(descricao) = :tipo');
@@ -6484,7 +6492,7 @@ begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6567,7 +6575,7 @@ begin
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   try
@@ -6600,7 +6608,7 @@ begin
   try
     Pedido := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6621,7 +6629,7 @@ begin
   try
     Pedido := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6641,7 +6649,7 @@ begin
   try
     Pedido := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6741,7 +6749,7 @@ begin
   end;
 
   Dados.Free;
-  if frmServidor.Configuracoes.FieldByName('ficha_tecnica').AsInteger = 1 then
+  if conexao.GetParametro('ficha_tecnica') = 1 then
   begin
 
     Dados := TFDMemTable.Create(nil);
@@ -6787,7 +6795,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -6934,7 +6942,7 @@ begin
     frmServidor.memTesteImpressao.FieldByName('ID').AsInteger :=
       Req.Params['id'].ToInteger;
     frmServidor.memTesteImpressao.Post;
-    exit;
+    Exit;
   except
     on E: Exception do
     begin
@@ -6957,7 +6965,7 @@ begin
   if Dados.RecordCount = 0 then
   begin
     Dados.Free;
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   if Dados.FieldByName('codigo').AsInteger = 0 then
@@ -7077,28 +7085,28 @@ begin
   try
     UnidadeDe := Req.Params['unde'];
   except
-    exit;
+    Exit;
   end;
   try
     UnidadePara := Req.Params['unpara'];
   except
-    exit;
+    Exit;
   end;
   try
     Valor := Req.Params['valor'].ToDouble;
   except
-    exit;
+    Exit;
   end;
   try
 
     Tipo := Req.Params['tipo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add
@@ -7134,17 +7142,17 @@ begin
   try
     Unidade := Req.Params['un'];
   except
-    exit;
+    Exit;
   end;
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Codigo := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add
@@ -7167,12 +7175,12 @@ begin
   try
     Tabela := Req.Params['tabela'];
   except
-    exit;
+    Exit;
   end;
   try
     Campo := Req.Params['campo'];
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
@@ -7224,17 +7232,17 @@ begin
   try
     Produto := Req.Params['codigo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Tipo := Req.Params['tipo'].ToInteger;
   except
-    exit;
+    Exit;
   end;
   try
     Quantidade := Req.Params['quantidade'].ToInteger;
   except
-    exit;
+    Exit;
   end;
 
   if Tipo <> 1 then
@@ -7263,19 +7271,19 @@ begin
   try
     token := Req.Params['token'];
   except
-    exit;
+    Exit;
   end;
 
   try
     Valor := Req.Params['valor'];
   except
-    exit;
+    Exit;
   end;
 
   try
     Pedido := Req.Params['pedido'];
   except
-    exit;
+    Exit;
   end;
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
@@ -7394,7 +7402,7 @@ Next: TProc);
 var
   Codigo: Integer;
   Celular: string;
-  nome: string;
+  Nome: string;
   rua: string;
   Numero: string;
   complemento: string;
@@ -7412,7 +7420,7 @@ begin
   end;
   conexao := Tconexao.Create('Util');
   Celular := Req.Params['celular'];
-  nome := Req.Params['nome'];
+  Nome := Req.Params['nome'];
   rua := Req.Params['rua'];
   Numero := Req.Params['numero'];
   complemento := Req.Params['complemento'];
@@ -7427,7 +7435,7 @@ begin
     conexao.SQL.Add
       ('insert into cliente (codigo,nome,celular,celular_wpp,ativo) values  (:codigo,:nome,:celular,:celular_wpp,1)');
     conexao.Parametros('codigo', Codigo);
-    conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
+    conexao.Parametros('nome', UpperCase(RemoveAcento(Nome)));
     conexao.Parametros('celular', Celular);
     conexao.Parametros('celular_wpp', NonoDigito(Celular));
     conexao.ExecuteSQL;
@@ -7437,7 +7445,7 @@ begin
     ('update cliente set nome = :nome, cpf = :cpf, celular = :celular, celular_wpp = :celular_wpp where codigo = :codigo');
   conexao.Parametros('codigo', Codigo);
   conexao.Parametros('cpf', cpf);
-  conexao.Parametros('nome', UpperCase(RemoveAcento(nome)));
+  conexao.Parametros('nome', UpperCase(RemoveAcento(Nome)));
   conexao.Parametros('celular', Celular);
   conexao.Parametros('celular_wpp', NonoDigito(Celular));
   conexao.ExecuteSQL;
@@ -8245,27 +8253,27 @@ var
   conexao: Tconexao;
 
   Codigo: Integer;
-  nome: String;
+  Nome: String;
 begin
 
   if CodigoCliente = 0 then
   begin
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
   conexao.SQL.Add('SELECT * FROM CLIENTE WHERE CODIGO = :CODIGO');
   conexao.Parametros('CODIGO', CodigoCliente);
   try
-    nome := conexao.FieldByName('nome');
+    Nome := conexao.FieldByName('nome');
   except
 
   end;
 
-  if nome <> '' then
+  if Nome <> '' then
   begin
     conexao.SQL.Add('update caixa_movimento set descricao = concat(descricao,' +
-      QuotedStr(' (' + UpperCase(nome) + ')') + ')  where id = :id');
+      QuotedStr(' (' + UpperCase(Nome) + ')') + ')  where id = :id');
     conexao.Parametros('id', Movimento);
     conexao.ExecuteSQL;
   end;
@@ -9030,6 +9038,7 @@ begin
   LimpaCacheGeral;
   ValidarNotificacaoEstoqueBaixo;
 end;
+
 function EscapeXML(const Texto: string): string;
 begin
   Result := StringReplace(Texto, '&', '&amp;', [rfReplaceAll]);
@@ -9038,35 +9047,38 @@ begin
   Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
   Result := StringReplace(Result, '''', '&apos;', [rfReplaceAll]);
 end;
-function GarantirParametroEstoqueMinimo(Conexao: TConexao): Double;
+
+function GarantirParametroEstoqueMinimo(conexao: Tconexao): Double;
 var
   ValorParametro: string;
   FS: TFormatSettings;
 begin
   FS := TFormatSettings.Create;
   FS.DecimalSeparator := '.';
-  ValorParametro := VarToStr(Conexao.GetParametro('estoque_min_recomendado'));
+  ValorParametro := VarToStr(conexao.GetParametro('estoque_min_recomendado'));
   ValorParametro := StringReplace(ValorParametro, ',', '.', [rfReplaceAll]);
   Result := StrToFloatDef(ValorParametro, 0, FS);
   if Result <= 0 then
   begin
     Result := 30;
-    Conexao.SQL.Add
+    conexao.SQL.Add
       ('insert into configuracoes (chave, valor) values ("estoque_min_recomendado", "30") on duplicate key update valor = "30"');
-    Conexao.ExecuteSQL;
+    conexao.ExecuteSQL;
   end;
 end;
-procedure GarantirTipoAlertaEstoque(Conexao: TConexao);
+
+procedure GarantirTipoAlertaEstoque(conexao: Tconexao);
 begin
   try
-    Conexao.SQL.Add
+    conexao.SQL.Add
       ('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
-    Conexao.ExecuteSQL;
+    conexao.ExecuteSQL;
   except
   end;
 end;
+
 function GerarXMLProdutosEstoqueBaixo(Dados: TFDMemTable;
-  EstoqueMinimoPadrao: Double): string;
+EstoqueMinimoPadrao: Double): string;
 var
   XML: TStringList;
   FS: TFormatSettings;
@@ -9101,63 +9113,66 @@ begin
     XML.Free;
   end;
 end;
+
 procedure ValidarNotificacaoEstoqueBaixo;
 var
-  Conexao: TConexao;
+  conexao: Tconexao;
   Dados: TFDMemTable;
   EstoqueMinimoPadrao: Double;
   XML, Pasta, Arquivo, URL, Mensagem: string;
 begin
-  Conexao := TConexao.Create('ValidarNotificacaoEstoqueBaixo');
+  conexao := Tconexao.Create('ValidarNotificacaoEstoqueBaixo');
   Dados := TFDMemTable.Create(nil);
   try
-    GarantirTipoAlertaEstoque(Conexao);
-    EstoqueMinimoPadrao := GarantirParametroEstoqueMinimo(Conexao);
-    Conexao.SQL.Add('select codigo, nome_produto,');
-    Conexao.SQL.Add('coalesce(saldo_atual, 0) as saldo_atual,');
-    Conexao.SQL.Add('estoque_min,');
-    Conexao.SQL.Add('case when coalesce(estoque_min, 0) > 0 then estoque_min else :estoque_min_padrao end as estoque_minimo_usado');
-    Conexao.SQL.Add('from produto');
-    Conexao.SQL.Add('where controle_estoque = 1 and deletado = 0');
-    Conexao.SQL.Add('having saldo_atual <= estoque_minimo_usado');
-    Conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
-    Dados.LoadFromJSON(Conexao.ConsultaSQL);
+    GarantirTipoAlertaEstoque(conexao);
+    EstoqueMinimoPadrao := GarantirParametroEstoqueMinimo(conexao);
+    conexao.SQL.Add('select codigo, nome_produto,');
+    conexao.SQL.Add('coalesce(saldo_atual, 0) as saldo_atual,');
+    conexao.SQL.Add('estoque_min,');
+    conexao.SQL.Add
+      ('case when coalesce(estoque_min, 0) > 0 then estoque_min else :estoque_min_padrao end as estoque_minimo_usado');
+    conexao.SQL.Add('from produto');
+    conexao.SQL.Add('where controle_estoque = 1 and deletado = 0');
+    conexao.SQL.Add('having saldo_atual <= estoque_minimo_usado');
+    conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
     if Dados.RecordCount = 0 then
       Exit;
-    Conexao.SQL.Add('select id, 0 as zero from alerta_sistema');
-    Conexao.SQL.Add('where status = "ABERTO" and tipo = "ESTOQUE"');
-    Conexao.SQL.Add('and CAST(payload AS CHAR) LIKE "%ESTOQUE_BAIXO_PRODUTO%"');
-    Conexao.SQL.Add('limit 1');
-    if Conexao.FieldByName('id') <> '0' then
+    conexao.SQL.Add('select id, 0 as zero from alerta_sistema');
+    conexao.SQL.Add('where status = "ABERTO" and tipo = "ESTOQUE"');
+    conexao.SQL.Add('and CAST(payload AS CHAR) LIKE "%ESTOQUE_BAIXO_PRODUTO%"');
+    conexao.SQL.Add('limit 1');
+    if conexao.FieldByName('id') <> '0' then
       Exit;
     XML := GerarXMLProdutosEstoqueBaixo(Dados, EstoqueMinimoPadrao);
     Pasta := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) +
       'cache' + PathDelim + 'alertas' + PathDelim;
     ForceDirectories(Pasta);
-    Arquivo := 'estoque_baixo_' + FormatDateTime('yyyymmddhhnnss', Now) +
-      '.xml';
+    Arquivo := 'estoque_baixo_' + FormatDateTime('yyyymmddhhnnss', Now)
+      + '.xml';
     TFile.WriteAllText(Pasta + Arquivo, XML, TEncoding.UTF8);
     URL := '/v2/produto/estoque/baixo/xml/' + Arquivo;
     Mensagem := IntToStr(Dados.RecordCount) +
       ' produtos com estoque baixo. Acesse o alerta para visualizar o XML.';
-    Conexao.SQL.Add('INSERT INTO alerta_sistema');
-    Conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
-    Conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", NULL,');
-    Conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "ESTOQUE_BAIXO_PRODUTO",');
-    Conexao.SQL.Add('"mensagem", :mensagem, "quantidade", :quantidade,');
-    Conexao.SQL.Add('"estoque_min_padrao", :estoque_min_padrao,');
-    Conexao.SQL.Add('"xml_arquivo", :xml_arquivo, "xml_url", :xml_url))');
-    Conexao.Parametros('mensagem', Mensagem);
-    Conexao.Parametros('quantidade', Dados.RecordCount);
-    Conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
-    Conexao.Parametros('xml_arquivo', Arquivo);
-    Conexao.Parametros('xml_url', URL);
-    Conexao.ExecuteSQL;
+    conexao.SQL.Add('INSERT INTO alerta_sistema');
+    conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
+    conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", NULL,');
+    conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "ESTOQUE_BAIXO_PRODUTO",');
+    conexao.SQL.Add('"mensagem", :mensagem, "quantidade", :quantidade,');
+    conexao.SQL.Add('"estoque_min_padrao", :estoque_min_padrao,');
+    conexao.SQL.Add('"xml_arquivo", :xml_arquivo, "xml_url", :xml_url))');
+    conexao.Parametros('mensagem', Mensagem);
+    conexao.Parametros('quantidade', Dados.RecordCount);
+    conexao.Parametros('estoque_min_padrao', EstoqueMinimoPadrao);
+    conexao.Parametros('xml_arquivo', Arquivo);
+    conexao.Parametros('xml_url', URL);
+    conexao.ExecuteSQL;
   finally
     Dados.Free;
-    Conexao.Free;
+    conexao.Free;
   end;
 end;
+
 procedure ApagarProduto(ID: Integer; Motivo: String; CodigoUsuario: Integer);
 var
   conexao: Tconexao;
@@ -9216,7 +9231,8 @@ begin
       conexao.SQL.Add('(tipo, origem, referencia_id, payload)');
       conexao.SQL.Add('VALUES ("ESTOQUE", "SISTEMA", :referencia_id,');
       conexao.SQL.Add('JSON_OBJECT("tipo_alerta", "RETORNO_ESTOQUE_PEDIDO",');
-      conexao.SQL.Add('"mensagem", :mensagem, "pedido_produto", :pedido_produto,');
+      conexao.SQL.Add
+        ('"mensagem", :mensagem, "pedido_produto", :pedido_produto,');
       conexao.SQL.Add('"produto", :produto, "quantidade", :quantidade))');
       conexao.Parametros('referencia_id', Produto);
       conexao.Parametros('mensagem',
@@ -9509,19 +9525,6 @@ begin
         conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
         conexao.ExecuteSQL;
 
-        try
-          {
-            if frmServidor.Configuracoes.FieldByName('nfce').AsInteger > 0 then
-            begin
-            conexao.SQL.Add
-            ('update pedido set nfce_emite = 1 where codigo = :pedido');
-            conexao.Parametros('pedido', Dados.FieldByName('codigo').AsInteger);
-            conexao.ExecuteSQL;
-            end; }
-        except
-
-        end;
-
       end;
 
       Dados.Next;
@@ -9556,14 +9559,13 @@ var
 begin
   try
 
-    if frmServidor.Configuracoes.FieldByName('marketin').AsInteger = 0 then
-      exit;
+    if conexao.GetParametro('marketin') = 0 then
+      Exit;
 
-    if frmServidor.Configuracoes.FieldByName('marketin_' + DiaAtualAbreviado)
-      .AsInteger = 0 then
-      exit;
+    if conexao.GetParametro('marketin_' + DiaAtualAbreviado) = 0 then
+      Exit;
   except
-    exit;
+    Exit;
   end;
 
   conexao := Tconexao.Create('Util');
@@ -9573,7 +9575,7 @@ begin
     if conexao.FieldByName('tot') > 0 then
     begin
       conexao.Free;
-      exit;
+      Exit;
     end;
   except
 
@@ -9602,14 +9604,12 @@ begin
   conexao.SQL.Add('  GROUP BY codigo_cliente');
   // conexao.sql.add('  HAVING COUNT(*) > (SELECT media FROM MediaPedidos)');
 
-  if (frmServidor.Configuracoes.FieldByName('marketin_segmento').AsInteger = 1)
-  then
+  if (conexao.GetParametro('marketin_segmento') = 1) then
   begin
     conexao.SQL.Add('HAVING COUNT(*) > (SELECT media FROM MediaPedidos)');
   end;
 
-  if (frmServidor.Configuracoes.FieldByName('marketin_segmento').AsInteger = 2)
-  then
+  if (conexao.GetParametro('marketin_segmento') = 2) then
   begin
     conexao.SQL.Add('HAVING COUNT(*) < (SELECT media FROM MediaPedidos)');
   end;
@@ -9622,8 +9622,7 @@ begin
   conexao.SQL.Add('  FROM OrdenadoPorQuantidade ');
   conexao.SQL.Add('  ORDER BY RAND()');
   conexao.SQL.Add(') AS Aleatorio');
-  conexao.SQL.Add('LIMIT ' + frmServidor.Configuracoes.FieldByName
-    ('marketin_qtd').AsString);
+  conexao.SQL.Add('LIMIT ' + conexao.GetParametro('marketin_qtd'));
 
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
@@ -9631,31 +9630,12 @@ begin
   begin
     // GravaMarketing(Cliente: Integer; Valor: Real; Validade: Integer);
     GravaMarketing(Dados.FieldByName('codigo_cliente').AsInteger,
-      frmServidor.Configuracoes.FieldByName('marketin_desc').AsFloat, 1);
+      conexao.GetParametro('marketin_desc'), 1);
     Dados.Next;
   end;
 
   Dados.Free;
   conexao.Free;
-
-  // for I := 0 to frmServidor.Configuracoes.FieldByName('marketin_qtd')
-  // .AsInteger do
-  // begin
-  //
-  // case frmServidor.Configuracoes.FieldByName('marketin_segmento').AsInteger of
-  // 0:
-  // begin
-  // // Ambos
-  //
-  // end;
-  // 1:
-  // begin
-  // // Mais Pedidos
-  // end;
-  // // Menos Pedidos
-  // end;
-  //
-  // end;
 
 end;
 
@@ -9702,7 +9682,7 @@ begin
   begin
     Dados.Free;
     conexao.Free;
-    exit;
+    Exit;
   end;
   try
     Requisicao := iRequisicao.Create(nil);
@@ -9720,7 +9700,7 @@ begin
         Dados.FieldByName('valor').AsString + '", "data_validade":"' +
         COPY(Dados.FieldByName('validade').AsString, 0, 10) +
         '", "total_vezes":"1", "mostrar_site":"1", "valor_min":"' +
-        frmServidor.Configuracoes.FieldByName('marketin_min').AsString + '" }';
+        conexao.GetParametro('marketin_min') + '" }';
       Requisicao.Body(Body);
       Requisicao.TempoExpiracao := 30 * 1000;
       Requisicao.Execute;
@@ -9745,13 +9725,13 @@ end;
 procedure LimparPastas(const Caminho: string);
 var
   pastas: TStringDynArray;
-  pasta: string;
+  Pasta: string;
 begin
   try
     pastas := TDirectory.GetDirectories(Caminho);
-    for pasta in pastas do
+    for Pasta in pastas do
     begin
-      TDirectory.Delete(pasta, true);
+      TDirectory.Delete(Pasta, true);
       // O segundo parâmetro indica que deve excluir todos os arquivos e subpastas
     end;
   except
@@ -10113,7 +10093,7 @@ var
 begin
 
   if VarIsEmpty(Pizza) or (VarToStr(Pizza) = 'null') then
-    exit;
+    Exit;
 
   Adicionais := SplitString(VarToStr(Pizza), ',');
 
@@ -10338,7 +10318,7 @@ begin
         QRY.ParamByName('mesa').AsInteger := Mesa;
         QRY.ExecSQL;
 
-        exit;
+        Exit;
       end;
     end;
     if (DescricaoMesa = '') then

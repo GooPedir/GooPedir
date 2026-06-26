@@ -155,10 +155,9 @@ begin
   conexao := TConexao.Create('PedidoSite');
   Retorno := TJSONObject.Create;
 
-  case frmServidor.Configuracoes.FieldByName('status_pedidos_site').AsInteger of
+  case conexao.GetParametro('status_pedidos_site') of
     1:
       begin
-        // ['Não Aplicado', 'Em Espera','Em Produção','Pronto','Cancelado'
         StatusPedido := 1;
       end;
     2:
@@ -177,8 +176,7 @@ begin
 
   // status_pedidos_site
 
-  conexao.SQL.Add
-    ('select codigo, 0 as zero from pedido where id_pedido_site = :site');
+  conexao.SQL.Add('select codigo, 0 as zero from pedido where id_pedido_site = :site');
   conexao.Parametros('site', Pedido);
 
   try

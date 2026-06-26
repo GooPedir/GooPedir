@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao;
+  DataSet.Serialize, JSON, uRequisicao,uControllCaches;
 
 type
   TPedidoInfra = class
@@ -315,11 +315,8 @@ var
 
 begin
 
-  conexao := TConexao.Create('main');
-  // VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
+
+  Configuracoes.LoadFromJSON(GetParametros);
 
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;

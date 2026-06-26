@@ -19,7 +19,7 @@ uses
   uSite,
   GooPedirAPIController,
   REST.Client,
-  IdFTP, ACBRutil,
+  ACBRutil,
   System.Generics.Collections,
   REST.Types,
   Data.Bind.Components,
@@ -199,9 +199,8 @@ type
     procedure IFoodPollingError(Error: Exception);
     procedure VerificarOuCriarBanco;
     procedure ExecutarSQLScript(const SQLText: string);
-    function SincronizarBackupFTP(const CaminhoArquivo, NomeUsuario: string;
+    function SincronizarBackupS3(const CaminhoArquivo, NomeUsuario: string;
       APIGoopedir: TGooPedirAPIController): Boolean;
-    function FTP_DirectoryExists(FTP: TIdFTP; const Directory: string): Boolean;
     procedure tBackupFTPTimer(Sender: TObject);
 
     procedure ReProcessaImpressaoPedidoProduto(conexao: Tconexao);
@@ -262,6 +261,11 @@ type
     procedure SeturlServicoImpressaoGo(const Value: String);
     procedure SetdebugErro(const Value: String);
     procedure SetdataHoraServicoImpressaoGo(const Value: TDateTime);
+  private
+    FclientID: String;
+  private
+    procedure SetclientID(const Value: String);
+  published
 
   public
     { Public declarations }
@@ -414,6 +418,7 @@ type
       read FdataHoraServicoImpressaoGo write SetdataHoraServicoImpressaoGo;
 
     property debugErro: String read FdebugErro write SetdebugErro;
+    function clientID: String;
 
   var
     BalancaManager: TBalancaManager;
@@ -485,7 +490,8 @@ implementation
 
 uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
   DataSet.Serialize.Consts, DataSet.Serialize.Export, DataSet.Serialize.Import,
-  DataSet.Serialize.Language, DataSet.Serialize, uTablet,
+  DataSet.Serialize.Language, DataSet.Serialize, uTablet, System.Hash,
+  System.Net.HttpClient, System.Net.HttpClientComponent, System.Net.URLClient,
   DataSet.Serialize.UpdatedStatus, DataSet.Serialize.Utils,
   Horse.BasicAuthentication, Horse.Commons, Horse.Constants,
   Horse.Core.Group.Contract, Horse.Core.Group, Horse.Core,
@@ -558,7 +564,7 @@ var
   VersaoMysql: String;
   IniFile: TIniFile;
   HorarioRestart: String;
-  ClientId: String;
+  clientID: String;
   ClientSecret: String;
   PedidosManager: TPedidosManager;
 
@@ -576,7 +582,7 @@ begin
     HabilitarProduo1Click(nil);
   end;
 
-  ClientId := IniFile.ReadString('IFOOD', 'CLIENTID', '');
+  clientID := IniFile.ReadString('IFOOD', 'CLIENTID', '');
   ClientSecret := IniFile.ReadString('IFOOD', 'CLIENTSECRET', '');
   IniFile.Free;
 
@@ -1418,6 +1424,21 @@ begin
     .Connect('localhost', 8050, '@brst');
 end;
 
+function TfrmServidor.clientID: String;
+var
+  conexao: Tconexao;
+begin
+  Result := FclientID;
+
+  if FclientID = '' then
+  begin
+    conexao := Tconexao.Create('');
+    FclientID := conexao.GetParametro('client_id');
+    conexao.Free;
+  end;
+  Result := FclientID;
+end;
+
 procedure TfrmServidor.ComandaStatus;
 begin
   DataHoraImpressaoServiceComanda := now;
@@ -1990,6 +2011,7 @@ var
   Descricao: String;
   reqImpressao: iRequisicao;
   BODY: String;
+  data : Double;
 begin
   conexao := Tconexao.Create('EnviarConferencia');
   Objeto := TJsonObject.Create;
@@ -2043,8 +2065,7 @@ begin
   end;
   QryImpressora.Open;
   Objeto.AddPair('driver', QryImpressora.FieldByName('driver').AsString);
-  Objeto.AddPair('modelo',
-    ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
+  Objeto.AddPair('modelo',ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
 
   if QryPedido.FieldByName('id_ficha').AsInteger = 0 then
   begin
@@ -2077,8 +2098,8 @@ begin
     Objeto.AddPair('sequencial', QryPedido.FieldByName('sequencial').AsInteger);
     Objeto.AddPair('codigo', QryPedido.FieldByName('codigo').AsInteger);
     Objeto.AddPair('cliente', ObjetoCliente);
-
-    Objeto.AddPair('data', QryPedido.FieldByName('data').AsDateTime);
+    data := QryPedido.FieldByName('data').AsDateTime;
+    Objeto.AddPair('data', StrToInt(FormatFloat('0',data)));
     Objeto.AddPair('hora', QryPedido.FieldByName('hora').AsDateTime);
 
     Objeto.AddPair('partner', QryPedido.FieldByName('partner').AsString);
@@ -2538,39 +2559,44 @@ end;
 function TfrmServidor.FazerBackupMySQL(conexao: Tconexao): Boolean;
 var
   MySQLDumpPath, PastaBackup, CmdLine, ArquivoLog: string;
+  ArquivoSQL, ArquivoZip, NomeSQLInterno: string;
   SI: TStartupInfo;
   PI: TProcessInformation;
   ExitCode: DWORD;
+  Zip: TZipFile;
 begin
   Result := false;
-
   PastaBackup := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) +
     'backup\bd');
   ForceDirectories(PastaBackup);
-
-  NomeArquivoBackup := Format('%s%s_%s.sql.gz', [PastaBackup, conexao.NomeBanco,
+  ArquivoSQL := Format('%s%s_%s.sql', [PastaBackup, conexao.NomeBanco,
     FormatDateTime('yyyymmdd', now)]);
-
+  ArquivoZip := Format('%s%s_%s.zip', [PastaBackup, conexao.NomeBanco,
+    FormatDateTime('yyyymmdd', now)]);
+  NomeArquivoBackup := ArquivoZip;
+  NomeSQLInterno := ExtractFileName(ArquivoSQL);
   ArquivoLog := PastaBackup + 'erro_backup.log';
-
-  if FileExists(NomeArquivoBackup) then
+  if FileExists(ArquivoZip) and (FileSizeByName(ArquivoZip) > 0) then
   begin
     if InicializacaoHabilitada('BackupFTPTimer') then
       tBackupFTP.Enabled := true;
     exit;
   end;
-
+  if FileExists(ArquivoSQL) then
+    DeleteFile(ArquivoSQL);
+  if FileExists(ArquivoZip) then
+    DeleteFile(ArquivoZip);
   MySQLDumpPath := GetMySQLDumpPath;
-  if (MySQLDumpPath = '') or (not FileExists(MySQLDumpPath)) then
+  if (MySQLDumpPath = '') or ((ExtractFilePath(MySQLDumpPath) <> '') and
+    (not FileExists(MySQLDumpPath))) then
     exit;
-
   CmdLine := 'cmd /c "' + '"' + MySQLDumpPath + '"' + ' -h' + conexao.Servidor +
     ' -P' + conexao.Porta + ' -u' + conexao.Usuario + ' -p' + conexao.Senha +
     ' --databases ' + conexao.NomeBanco +
     ' --single-transaction --quick --hex-blob' +
     ' --routines --events --triggers' + ' --set-gtid-purged=OFF' +
     ' --default-character-set=utf8mb4' + ' --max-allowed-packet=512M' +
-    ' | gzip > "' + NomeArquivoBackup + '"' + ' 2> "' + ArquivoLog + '"' + '"';
+    ' --result-file="' + ArquivoSQL + '"' + ' 2> "' + ArquivoLog + '"' + '"';
 
   ZeroMemory(@SI, SizeOf(SI));
   SI.cb := SizeOf(SI);
@@ -2588,12 +2614,25 @@ begin
 
     if GetExitCodeProcess(PI.hProcess, ExitCode) then
     begin
-      if (ExitCode = 0) and FileExists(NomeArquivoBackup) and
-        (FileSizeByName(NomeArquivoBackup) > 0) then
+      if (ExitCode = 0) and FileExists(ArquivoSQL) and
+        (FileSizeByName(ArquivoSQL) > 0) then
       begin
-        Result := true;
-        if InicializacaoHabilitada('BackupFTPTimer') then
-          tBackupFTP.Enabled := true;
+        Zip := TZipFile.Create;
+        try
+          Zip.Open(ArquivoZip, zmWrite);
+          Zip.Add(ArquivoSQL, NomeSQLInterno);
+          Zip.Close;
+        finally
+          Zip.Free;
+        end;
+        if FileExists(ArquivoZip) and (FileSizeByName(ArquivoZip) > 0) then
+        begin
+          Result := true;
+          NomeArquivoBackup := ArquivoZip;
+          DeleteFile(ArquivoSQL);
+          if InicializacaoHabilitada('BackupFTPTimer') then
+            tBackupFTP.Enabled := true;
+        end;
       end;
     end;
   finally
@@ -2743,7 +2782,7 @@ begin
 
   conexao := Tconexao.Create('main');
   try
-    if frmServidor.Configuracoes.FieldByName('ficha_tecnica').AsInteger = 1 then
+    if conexao.GetParametro('ficha_tecnica') = 1 then
     begin
 
       Dados := TFDMemTable.Create(nil);
@@ -2900,7 +2939,7 @@ var
   BODY: String;
 
 begin
-//  ShowMessage(FormatSettings.DecimalSeparator);
+  // ShowMessage(FormatSettings.DecimalSeparator);
   ProdutosHash := THashMemoria.Create;
   semConexaoAPI := false;
   CertificadoAtual := TJsonObject.Create;
@@ -2951,6 +2990,7 @@ begin
   except
 
   end;
+
   PIX.Open;
   codigoPedido := 0;
   StatusMensagemWhatsapp := 0;
@@ -2979,13 +3019,12 @@ begin
     HabilitarProduo1Click(nil);
   end;
 
-  if frmServidor.Configuracoes.FieldByName('client_id').AsString <> '' then
+  if clientID <> '' then
   begin
-    APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
-      frmServidor.Configuracoes.FieldByName('client_id').AsString,
-      frmServidor.Configuracoes.FieldByName('client_security').AsString,
-      GetHorarioAbertura, GetHorarioFechamento, GetHorarioAtendimento,
-      frmServidor.Configuracoes.FieldByName('user_id').AsString);
+    APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir, clientID,
+      conexao.GetParametro('client_security'), GetHorarioAbertura,
+      GetHorarioFechamento, GetHorarioAtendimento,
+      conexao.GetParametro('user_id'));
     APIGoopedir.EnviaParametroUnico('nome_banco', conexao.NomeBanco, 'string');
   end;
 
@@ -3053,7 +3092,7 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     var
-      Resultado: TJSONObject;
+      Resultado: TJsonObject;
     begin
       Resultado := ValidarAlertaIngredientesPendentes;
       Resultado.Free;
@@ -3066,25 +3105,8 @@ begin
     IniciarThreadEmissaoNFCe;
     IniciarThreadConsultaDFe;
   end;
-
   IniciarThreadStatusServicoNFe;
-  IniciarThreadConsultaDFe;
 
-
-
-  // SincronizarBackupFTP('C:\goopedir\backup\bd\viapian_forquilhinha19072025.sql','1');
-end;
-
-function TfrmServidor.FTP_DirectoryExists(FTP: TIdFTP;
-const Directory: string): Boolean;
-begin
-  Result := true;
-  try
-    FTP.List(nil, Directory, false);
-  except
-    on E: Exception do
-      Result := false;
-  end;
 end;
 
 function TfrmServidor.GenerateUUID: string;
@@ -3104,56 +3126,8 @@ var
   conexao: Tconexao;
   horaInicio: string;
 begin
-  // if CodigoPedido > 0 then
-  // begin
-  // Inc(CodigoPedido);
-  // Result := CodigoPedido;
-  // exit;
-  // end;
-  //
-  // // Define o horário de corte baseado na hora atual
-  // if HourOf(now) >= 15 then
-  // horaInicio := '14:59:59' // para incluir pedidos a partir das 15h
-  // else
-  // horaInicio := '04:59:59'; // para incluir pedidos a partir das 5h
-  //
-  // conexao := Tconexao.Create('main');
-  // try
-  // conexao.SQL.Add
-  // ('select 0 as zero, COALESCE(max(codigo_pedido_dia),0) as codigo from pedido where data_pedido = curdate() and hora_pedido > :hora');
-  // conexao.Parametros('hora', horaInicio);
-  // CodigoPedido := conexao.FieldByName('codigo');
-  // finally
-  // conexao.Free;
-  // end;
-  //
-  // CodigoPedido := CodigoPedido + 1;
-  // Result := CodigoPedido;
   Result := ProximoCodigoPedidoDia;
 end;
-
-
-// function TfrmServidor.GerarCodigoPedidoDia: Integer;
-// var
-// conexao: Tconexao;
-// begin
-//
-// if CodigoPedido > 0 then
-// begin
-// Inc(CodigoPedido);
-// Result := CodigoPedido;
-// exit;
-// end;
-//
-// conexao := Tconexao.Create('main');
-// conexao.SQL.Add
-// ('select COALESCE(max(codigo_pedido_dia),0) as codigo, 0 as zero from pedido where data_pedido = curdate() and hora_pedido > "04:59:59"');
-// CodigoPedido := conexao.FieldByName('codigo');
-// conexao.Free;
-// CodigoPedido := CodigoPedido + 1;
-// Result := CodigoPedido;
-//
-// end;
 
 function TfrmServidor.GetCachedData: string;
 var
@@ -4266,19 +4240,6 @@ end;
 function TfrmServidor.IntegracaoiFood: Boolean;
 begin
 
-  try
-    Result := frmServidor.Configuracoes.FieldByName('ifood_integracao')
-      .AsInteger = 1;
-
-    if Result then
-    begin
-      if IDiFood = '' then
-        Result := false;
-    end;
-  except
-
-  end;
-
 end;
 
 procedure TfrmServidor.LoadImpressora;
@@ -4366,7 +4327,7 @@ var
   LogDir, LogFilePath, LogLine, BodyContent, MetodoHTTP: string;
   LogFile: TStreamWriter;
 begin
-FormatSettings.DecimalSeparator := ',';
+  FormatSettings.DecimalSeparator := ',';
   // continua o fluxo normal da requisição
   Next;
   exit;
@@ -4502,8 +4463,7 @@ begin
   Result := TJsonArray.Create;
 
   Qry.SQL.Add('SELECT pp.codigo,');
-  Qry.SQL.Add
-    ('ped.codigo_pedido_dia as dia, cli.nome as cliente, ped.nome as nomeCli,');
+  Qry.SQL.Add('ped.codigo_pedido_dia as dia, cli.nome as cliente, ped.nome as nomeCli,');
   Qry.SQL.Add('pp.valor_unitario,');
   Qry.SQL.Add('pp.valor_total,');
   Qry.SQL.Add('pp.valor_adicional,');
@@ -4514,13 +4474,13 @@ begin
   Qry.SQL.Add('ped.desc_ficha,');
   Qry.SQL.Add('upper(u.nome) as usuario,');
   Qry.SQL.Add('upper(i.descricao) as nomeImpressora,');
+  Qry.SQL.Add('upper(i.tipo_impressao) as tipoImpressao,');
   Qry.SQL.Add('i.driver,');
   Qry.SQL.Add('upper(tp.descricao) as nomeCategoria,');
   Qry.SQL.Add('upper(pps.nomeclatura) as extraDescricao,');
   Qry.SQL.Add('upper(pps.descricao) as extraNome, pp.uuid');
   Qry.SQL.Add('FROM pedido_produtos as pp');
-  Qry.SQL.Add
-    ('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
+  Qry.SQL.Add('left join pedido_produto_sap as pps on pps.codigo_pedido_produto = pp.codigo');
   Qry.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
   Qry.SQL.Add('left join cliente as cli on cli.codigo = ped.codigo_cliente');
   Qry.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
@@ -4537,7 +4497,6 @@ begin
   Qry.SQL.Add('WHEN lower(pps.nomeclatura) = ''sabor'' THEN 1');
   Qry.SQL.Add('WHEN lower(pps.nomeclatura) = ''ingredientes'' THEN 2');
   Qry.SQL.Add('ELSE 3 END, lower(pps.nomeclatura)');
-
   Qry.ParamByName('codigo').AsInteger := codigoPedido;
   Qry.Open;
 
@@ -4545,7 +4504,6 @@ begin
   begin
     conexao.SQL.Add('update pedido_produtos set impresso = 1, impressao = 1 ' +
       'where ' + Campo + ' = :codigo and impressao = 3');
-
     conexao.Parametros('codigo', codigoPedido);
     conexao.ExecuteSQL;
   end;
@@ -4559,7 +4517,6 @@ begin
 
   while not Qry.Eof do
   begin
-
     // =========================
     // MODO TUDO = FALSE
     // =========================
@@ -4590,15 +4547,10 @@ begin
 
           conexao.SQL.Add('from pedido as p');
           conexao.SQL.Add('left join mesa as m on m.id_mesa = p.id_ficha');
-          conexao.SQL.Add
-            ('left join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
+          conexao.SQL.Add('left join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
           conexao.SQL.Add('where p.codigo = :codigo');
-
-          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido')
-            .AsString);
-
+          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido').AsString);
           Descricao := conexao.FieldByName('descricao');
-
           if Descricao = '' then
           begin
             if Qry.FieldByName('endereco').AsInteger > 1 then
@@ -4610,15 +4562,10 @@ begin
 
         if Atualiza then
         begin
-          conexao.SQL.Add
-            ('update pedido set desc_ficha = :descricao where codigo = :codigo');
-
+          conexao.SQL.Add('update pedido set desc_ficha = :descricao where codigo = :codigo');
           conexao.Parametros('descricao', Descricao);
-
-          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido')
-            .AsString);
+          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido').AsString);
           conexao.Parametros('cliente', Qry.FieldByName('cliente').AsString);
-
           conexao.ExecuteSQL;
         end;
 
@@ -4626,8 +4573,8 @@ begin
         jsonRoot.AddPair('numero', TJSONNumber.Create(0));
         jsonRoot.AddPair('usuario', Qry.FieldByName('usuario').AsString);
         jsonRoot.AddPair('driver', Qry.FieldByName('driver').AsString);
-        jsonRoot.AddPair('impressora', Qry.FieldByName('nomeImpressora')
-          .AsString);
+        jsonRoot.AddPair('impressora', Qry.FieldByName('nomeImpressora').AsString);
+        jsonRoot.AddPair('modelo',ModeloImpressora(Qry.FieldByName('tipoImpressao').AsInteger));
 
         // nomeCli
         if Qry.FieldByName('nomeCli').AsString <> '' then
@@ -4657,7 +4604,6 @@ begin
       begin
         jsonRoot := TJsonObject.Create;
         produtosArray := TJsonArray.Create;
-
         jsonRoot.AddPair('produtos', produtosArray);
       end;
     end;
@@ -4676,11 +4622,9 @@ begin
       objProduto.AddPair('nome', Qry.FieldByName('nomeProduto').AsString);
       objProduto.AddPair('uuid', Qry.FieldByName('uuid').AsString);
 
-      objProduto.AddPair('categoria', Qry.FieldByName('nomeCategoria')
-        .AsString);
+      objProduto.AddPair('categoria', Qry.FieldByName('nomeCategoria').AsString);
 
-      objProduto.AddPair('quantidade',
-        TJSONNumber.Create(Qry.FieldByName('quantidade').AsInteger));
+      objProduto.AddPair('quantidade',TJSONNumber.Create(Qry.FieldByName('quantidade').AsInteger));
 
       // =========================
       // VALORES SOMENTE NO TUDO
@@ -4758,7 +4702,9 @@ begin
   // FINALIZA
   // =========================
   if Assigned(objProduto) then
+  begin
     produtosArray.AddElement(objProduto);
+  end;
 
   if Assigned(jsonRoot) then
     Result.AddElement(jsonRoot);
@@ -5269,25 +5215,6 @@ begin
   begin
     try
 
-      // if not BackupExe then
-      // IniciaIfood;
-
-      // IFood.MerchantID(IDiFood);
-      // // BuscaDadosiFood;
-      // // IFood.MerchantStatus.AutoStatus := true;
-      // // IFood.Polling.AutoPolling := true;
-      // // BuscaDadosiFood;
-      //
-      // if not Assigned(ProcessamentoiFood) then
-      // begin
-      // ProcessamentoiFood := TProcessamentoiFood.Create;
-      // ProcessamentoiFood.IFood := IFood;
-      // ProcessamentoiFood.statusiFood := frmServidor.Configuracoes.FieldByName
-      // ('aceitar_pedidos_ifood').AsInteger;
-      // ProcessamentoiFood.Start;
-      // end;
-
-      // ProcessamentoiFood.TestImport;
     except
       on E: Exception do
       begin
@@ -5316,6 +5243,11 @@ end;
 procedure TfrmServidor.SetBase64Whatsapp(const Value: String);
 begin
   FBase64Whatsapp := Value;
+end;
+
+procedure TfrmServidor.SetclientID(const Value: String);
+begin
+  FclientID := Value;
 end;
 
 procedure TfrmServidor.SetDataBloqueio(const Value: TDate);
@@ -5564,94 +5496,281 @@ begin
 
 end;
 
-function TfrmServidor.SincronizarBackupFTP(const CaminhoArquivo,
+function BytesToHexLower(const Bytes: TBytes): string;
+const
+  Hex: array [0 .. 15] of Char = '0123456789abcdef';
+var
+  i: Integer;
+begin
+  SetLength(Result, length(Bytes) * 2);
+  for i := 0 to High(Bytes) do
+  begin
+    Result[(i * 2) + 1] := Hex[Bytes[i] shr 4];
+    Result[(i * 2) + 2] := Hex[Bytes[i] and $0F];
+  end;
+end;
+
+function HmacSha256(const Data: string; const Key: TBytes): TBytes;
+begin
+  Result := THashSHA2.GetHMACAsBytes(TEncoding.UTF8.GetBytes(Data), Key,
+    THashSHA2.TSHA2Version.SHA256);
+end;
+
+function HmacSha256Bytes(const Data: string; const Key: string): TBytes;
+begin
+  Result := HmacSha256(Data, TEncoding.UTF8.GetBytes(Key));
+end;
+
+const
+  PROV_RSA_AES = 24;
+  CRYPT_VERIFYCONTEXT = $F0000000;
+  CALG_SHA_256 = $0000800C;
+  HP_HASHVAL = $0002;
+function CryptAcquireContext(var phProv: NativeUInt;
+pszContainer, pszProvider: PChar; dwProvType, dwFlags: DWORD): BOOL; stdcall;
+  external 'advapi32.dll' name 'CryptAcquireContextW';
+function CryptCreateHash(hProv: NativeUInt; Algid: Cardinal; hKey: NativeUInt;
+dwFlags: DWORD; var phHash: NativeUInt): BOOL; stdcall;
+  external 'advapi32.dll' name 'CryptCreateHash';
+function CryptHashData(hHash: NativeUInt; pbData: Pointer; dwDataLen: DWORD;
+dwFlags: DWORD): BOOL; stdcall; external 'advapi32.dll' name 'CryptHashData';
+function CryptGetHashParam(hHash: NativeUInt; dwParam: DWORD; pbData: Pointer;
+var pdwDataLen: DWORD; dwFlags: DWORD): BOOL; stdcall;
+  external 'advapi32.dll' name 'CryptGetHashParam';
+function CryptDestroyHash(hHash: NativeUInt): BOOL; stdcall;
+  external 'advapi32.dll' name 'CryptDestroyHash';
+function CryptReleaseContext(hProv: NativeUInt; dwFlags: DWORD): BOOL; stdcall;
+  external 'advapi32.dll' name 'CryptReleaseContext';
+
+function Sha256BytesHex(const Bytes: TBytes): string;
+var
+  Prov, Hash: NativeUInt;
+  HashBytes: TBytes;
+  HashLen: DWORD;
+begin
+  Prov := 0;
+  Hash := 0;
+  if not CryptAcquireContext(Prov, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)
+  then
+    raise Exception.Create('Nao foi possivel inicializar CryptoAPI.');
+  try
+    if not CryptCreateHash(Prov, CALG_SHA_256, 0, 0, Hash) then
+      raise Exception.Create('Nao foi possivel criar hash SHA256.');
+    try
+      if length(Bytes) > 0 then
+        if not CryptHashData(Hash, @Bytes[0], length(Bytes), 0) then
+          raise Exception.Create('Nao foi possivel calcular hash SHA256.');
+      HashLen := 32;
+      SetLength(HashBytes, HashLen);
+      if not CryptGetHashParam(Hash, HP_HASHVAL, @HashBytes[0], HashLen, 0) then
+        raise Exception.Create('Nao foi possivel ler hash SHA256.');
+      SetLength(HashBytes, HashLen);
+      Result := BytesToHexLower(HashBytes);
+    finally
+      CryptDestroyHash(Hash);
+    end;
+  finally
+    CryptReleaseContext(Prov, 0);
+  end;
+end;
+
+function Sha256FileHex(const FileName: string): string;
+var
+  Stream: TFileStream;
+  Buffer: array [0 .. 8191] of Byte;
+  ReadCount: Integer;
+  Prov, Hash: NativeUInt;
+  HashBytes: TBytes;
+  HashLen: DWORD;
+begin
+  Prov := 0;
+  Hash := 0;
+  if not CryptAcquireContext(Prov, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)
+  then
+    raise Exception.Create('Nao foi possivel inicializar CryptoAPI.');
+  Stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    if not CryptCreateHash(Prov, CALG_SHA_256, 0, 0, Hash) then
+      raise Exception.Create('Nao foi possivel criar hash SHA256.');
+    try
+      repeat
+        ReadCount := Stream.Read(Buffer, SizeOf(Buffer));
+        if ReadCount > 0 then
+          if not CryptHashData(Hash, @Buffer[0], ReadCount, 0) then
+            raise Exception.Create('Nao foi possivel calcular hash SHA256.');
+      until ReadCount = 0;
+      HashLen := 32;
+      SetLength(HashBytes, HashLen);
+      if not CryptGetHashParam(Hash, HP_HASHVAL, @HashBytes[0], HashLen, 0) then
+        raise Exception.Create('Nao foi possivel ler hash SHA256.');
+      SetLength(HashBytes, HashLen);
+      Result := BytesToHexLower(HashBytes);
+    finally
+      CryptDestroyHash(Hash);
+    end;
+  finally
+    Stream.Free;
+    CryptReleaseContext(Prov, 0);
+  end;
+end;
+
+function Sha256TextHex(const Value: string): string;
+begin
+  Result := Sha256BytesHex(TEncoding.UTF8.GetBytes(Value));
+end;
+
+function S3EncodePathSegment(const Value: string): string;
+var
+  Bytes: TBytes;
+  B: Byte;
+begin
+  Result := '';
+  Bytes := TEncoding.UTF8.GetBytes(Value);
+  for B in Bytes do
+  begin
+    if ((B >= Ord('A')) and (B <= Ord('Z'))) or
+      ((B >= Ord('a')) and (B <= Ord('z'))) or
+      ((B >= Ord('0')) and (B <= Ord('9'))) or (B = Ord('-')) or (B = Ord('_'))
+      or (B = Ord('.')) or (B = Ord('~')) then
+      Result := Result + Char(B)
+    else
+      Result := Result + '%' + IntToHex(B, 2);
+  end;
+end;
+
+function S3EncodeKey(const Key: string): string;
+var
+  Parts: TArray<string>;
+  Part: string;
+begin
+  Result := '';
+  Parts := Key.Split(['/']);
+  for Part in Parts do
+  begin
+    if Result <> '' then
+      Result := Result + '/';
+    Result := Result + S3EncodePathSegment(Part);
+  end;
+end;
+
+function AwsCredentialValue(const IniKey, EnvKey: string): string;
+begin
+  Result := LerIniString('AWS', IniKey, '');
+  if Result = '' then
+    Result := GetEnvironmentVariable(EnvKey);
+end;
+
+procedure LogBackupS3Error(const CaminhoArquivo, Mensagem: string);
+var
+  LogFile: string;
+begin
+  try
+    LogFile := IncludeTrailingPathDelimiter(ExtractFilePath(CaminhoArquivo)) +
+      'erro_backup_s3.log';
+    TFile.AppendAllText(LogFile, FormatDateTime('yyyy-mm-dd hh:nn:ss', now) +
+      ' - ' + Mensagem + sLineBreak);
+  except
+  end;
+end;
+
+function TfrmServidor.SincronizarBackupS3(const CaminhoArquivo,
   NomeUsuario: string; APIGoopedir: TGooPedirAPIController): Boolean;
 begin
+  Result := FileExists(CaminhoArquivo);
+  if not Result then
+    exit;
   TThread.CreateAnonymousThread(
     procedure
     var
-      FTP: TIdFTP;
-      SSL: TIdSSLIOHandlerSocketOpenSSL;
-      AnoMes, PastaRemota, NomeArquivoOriginal, NomeZip, NomeSemExtensao,
-        NomeArquivoLimpo: string;
-      Zip: TZipFile;
+      HTTP: TNetHTTPClient;
+      Response: IHTTPResponse;
+      Stream: TFileStream;
+      AnoMes, S3Key, S3Path, URL, NomeArquivoOriginal: string;
+      AccessKey, SecretKey, SessionToken: string;
+      AmzDate, DateStamp, PayloadHash, CanonicalHeaders, SignedHeaders: string;
+      CanonicalRequest, CredentialScope, StringToSign, Authorization: string;
+      SigningKey: TBytes;
+      Headers: TNetHeaders;
     begin
-      FTP := TIdFTP.Create(nil);
-      SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+      AccessKey := 'AKIASQVBDFEQY24JEVPM';
+      SecretKey := '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';
+      SessionToken := AwsCredentialValue('SESSION_TOKEN', 'AWS_SESSION_TOKEN');
+      if (AccessKey = '') or (SecretKey = '') then
+      begin
+        LogBackupS3Error(CaminhoArquivo, 'AWS credentials not configured.');
+        exit;
+      end;
+      HTTP := TNetHTTPClient.Create(nil);
+      Stream := nil;
       try
         try
-          FTP.Host := 'ftp.goopedir.com';
-          FTP.Username := 'u567036950.backup';
-          FTP.Password := 'backup@Goopedir2025';
-          FTP.Passive := true;
-          FTP.ConnectTimeout := 15000;
-          FTP.Connect;
-
+          HTTP.ConnectionTimeout := 15000;
+          HTTP.ResponseTimeout := 120000;
+          HTTP.ContentType := 'application/zip';
+          HTTP.Accept := '*/*';
           AnoMes := FormatDateTime('yyyy_mm', now);
-          PastaRemota := NomeUsuario + '/' + AnoMes;
-
-          // Cria diretórios
-          try
-            FTP.MakeDir(NomeUsuario);
-          except
-          end;
-          try
-            FTP.MakeDir(PastaRemota);
-          except
-          end;
-          FTP.ChangeDir(PastaRemota);
-
           NomeArquivoOriginal := ExtractFileName(CaminhoArquivo);
-          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-
-          // Remove data do nome
-          NomeSemExtensao := ChangeFileExt(NomeArquivoOriginal, '');
-          while (length(NomeSemExtensao) > 0) and
-            (NomeSemExtensao[length(NomeSemExtensao)] in ['0' .. '9']) do
-            Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-          Delete(NomeSemExtensao, length(NomeSemExtensao), 1);
-          NomeZip := TPath.ChangeExtension(NomeSemExtensao, '.zip');
-
-          // Caminho local do ZIP
-          NomeArquivoLimpo := TPath.Combine(TPath.GetTempPath, NomeZip);
-
-          // Cria o ZIP
-          if FileExists(NomeArquivoLimpo) then
-            DeleteFile(NomeArquivoLimpo);
-
-          Zip := TZipFile.Create;
-          try
-            Zip.Open(NomeArquivoLimpo, zmWrite);
-            Zip.Add(CaminhoArquivo, NomeArquivoOriginal);
-            // mantém nome original dentro do zip
-            Zip.Close;
-          finally
-            Zip.Free;
+          S3Key := NomeUsuario + '/' + AnoMes + '/' + NomeArquivoOriginal;
+          S3Path := '/' + S3EncodeKey(S3Key);
+          URL := 'https://goopedir.s3.sa-east-1.amazonaws.com' + S3Path;
+          AmzDate := FormatDateTime('yyyymmdd"T"hhnnss"Z"',
+            TTimeZone.Local.ToUniversalTime(now));
+          DateStamp := Copy(AmzDate, 1, 8);
+          PayloadHash := Sha256FileHex(CaminhoArquivo);
+          SignedHeaders := 'host;x-amz-content-sha256;x-amz-date';
+          CanonicalHeaders := 'host:goopedir.s3.sa-east-1.amazonaws.com' + #10 +
+            'x-amz-content-sha256:' + PayloadHash + #10 + 'x-amz-date:' +
+            AmzDate + #10;
+          if SessionToken <> '' then
+          begin
+            SignedHeaders := SignedHeaders + ';x-amz-security-token';
+            CanonicalHeaders := CanonicalHeaders + 'x-amz-security-token:' +
+              SessionToken + #10;
           end;
-          APIGoopedir.EnviaParametroUnico('nome_arquivo',
-            PastaRemota + '/' + NomeZip, 'string');
-          APIGoopedir.EnviaParametroUnico('nome_zip', NomeZip, 'string');
-          // Envia o .zip em vez do .sql
-          FTP.Put(NomeArquivoLimpo, NomeZip, false);
-          TThread.Synchronize(nil,
-            procedure
-            begin
-
-            end);
-
+          CanonicalRequest := 'PUT' + #10 + S3Path + #10 + #10 +
+            CanonicalHeaders + #10 + SignedHeaders + #10 + PayloadHash;
+          CredentialScope := DateStamp + '/sa-east-1/s3/aws4_request';
+          StringToSign := 'AWS4-HMAC-SHA256' + #10 + AmzDate + #10 +
+            CredentialScope + #10 + Sha256TextHex(CanonicalRequest);
+          SigningKey := HmacSha256Bytes(DateStamp, 'AWS4' + SecretKey);
+          SigningKey := HmacSha256('sa-east-1', SigningKey);
+          SigningKey := HmacSha256('s3', SigningKey);
+          SigningKey := HmacSha256('aws4_request', SigningKey);
+          Authorization := 'AWS4-HMAC-SHA256 Credential=' + AccessKey + '/' +
+            CredentialScope + ', SignedHeaders=' + SignedHeaders +
+            ', Signature=' + BytesToHexLower(HmacSha256(StringToSign,
+            SigningKey));
+          SetLength(Headers, 3);
+          Headers[0].Name := 'x-amz-date';
+          Headers[0].Value := AmzDate;
+          Headers[1].Name := 'x-amz-content-sha256';
+          Headers[1].Value := PayloadHash;
+          Headers[2].Name := 'Authorization';
+          Headers[2].Value := Authorization;
+          if SessionToken <> '' then
+          begin
+            SetLength(Headers, 4);
+            Headers[3].Name := 'x-amz-security-token';
+            Headers[3].Value := SessionToken;
+          end;
+          Stream := TFileStream.Create(CaminhoArquivo, fmOpenRead or
+            fmShareDenyWrite);
+          Response := HTTP.Put(URL, Stream, nil, Headers);
+          if (Response.StatusCode < 200) or (Response.StatusCode > 299) then
+            raise Exception.Create(Format('S3 HTTP %d: %s',
+              [Response.StatusCode, Response.StatusText]));
+          APIGoopedir.EnviaParametroUnico('nome_arquivo', S3Key, 'string');
+          APIGoopedir.EnviaParametroUnico('nome_zip', NomeArquivoOriginal,
+            'string');
         except
           on E: Exception do
-            TThread.Synchronize(nil,
-              procedure
-              begin
-
-              end);
+          begin
+            LogBackupS3Error(CaminhoArquivo, E.ClassName + ': ' + E.Message);
+          end;
         end;
       finally
-        if FTP.Connected then
-          FTP.Disconnect;
-        FTP.Free;
-        SSL.Free;
+        Stream.Free;
+        HTTP.Free;
       end;
     end).Start;
 end;
@@ -5677,12 +5796,7 @@ end;
 
 function TfrmServidor.StatusPedidoiFood: Integer;
 begin
-  try
-    Result := frmServidor.Configuracoes.FieldByName('aceitar_pedidos_ifood')
-      .AsInteger;
-  except
-    Result := 0;
-  end;
+
 end;
 
 procedure TfrmServidor.tAtualizaProcessosTimer(Sender: TObject);
@@ -5706,11 +5820,7 @@ end;
 
 function TfrmServidor.TaxaiFood: Real;
 begin
-  try
-    Result := frmServidor.Configuracoes.FieldByName('ifood_percentual').AsFloat;
-  except
-    Result := 0;
-  end;
+
 end;
 
 procedure TfrmServidor.tBackupFTPTimer(Sender: TObject);
@@ -5723,7 +5833,7 @@ begin
   if not InicializacaoHabilitada('BackupFTPTimer') then
     exit;
   tBackupFTP.Enabled := false;
-  SincronizarBackupFTP(NomeArquivoBackup, UserID.ToString, APIGoopedir);
+  SincronizarBackupS3(NomeArquivoBackup, UserID.ToString, APIGoopedir);
 end;
 
 procedure TfrmServidor.TemAtualizacao;
@@ -5793,7 +5903,7 @@ begin
   if not Assigned(APIGoopedir) then
     exit;
 
-  if frmServidor.Configuracoes.FieldByName('client_id').AsString = '' then
+  if clientID = '' then
   begin
     user := 0;
     Result := 0;
@@ -5801,6 +5911,7 @@ begin
     frmServidor.TrayIcon1.Hint := Port.ToString + 'p - Não Licenciado';
     exit;
   end;
+
   if user = -1 then
   begin
     // Fazer opção para recuperar o cache e não sincronizar produtos
@@ -6104,11 +6215,9 @@ begin
     // ('SELECT * FROM impressao_pedido where data_solicitacao = current_date() and status = 0 and id_pedido > 0');
     // DadosImpressao.LoadFromJSON(conexao.ConsultaSQL);
 
-    HoraAbertura :=
-      StrToTime(Copy(frmServidor.Configuracoes.FieldByName('horario_abertura')
+    HoraAbertura := StrToTime(Copy(conexao.GetParametro('horario_abertura')
       .AsString, 0, 8));
-    HoraFechamento :=
-      StrToTime(Copy(frmServidor.Configuracoes.FieldByName('horario_fechamento')
+    HoraFechamento := StrToTime(Copy(conexao.GetParametro('horario_fechamento')
       .AsString, 0, 8));
 
     // if DadosImpressao.RecordCount >= 5 then
@@ -6117,20 +6226,17 @@ begin
     // end;
 
     try
-      ServicoImpressao := frmServidor.Configuracoes.FieldByName('a_impressora')
-        .AsInteger = 1;
+      ServicoImpressao := conexao.GetParametro('a_impressora') = 1;
     except
       ServicoImpressao := false;
     end;
     try
-      ServicoWhatsapp := frmServidor.Configuracoes.FieldByName('a_whatsapp')
-        .AsInteger = 1;
+      ServicoWhatsapp := conexao.GetParametro('a_whatsapp') = 1;
     except
       ServicoWhatsapp := false;
     end;
     try
-      ServicoNFCe := frmServidor.Configuracoes.FieldByName('nfce')
-        .AsInteger = 1;
+      ServicoNFCe := conexao.GetParametro('nfce') = 1;
     except
       ServicoNFCe := false;
     end;

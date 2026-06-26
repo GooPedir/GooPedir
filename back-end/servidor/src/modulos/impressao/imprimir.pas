@@ -196,45 +196,6 @@ procedure DoGetImpressaoPedidosCozinhaPedido(Req: THorseRequest;
 var
   conexao: TConexao;
 begin
-  // conexao := TConexao.Create('imprimir');
-  // // conexao.SQL.Add('SELECT * FROM impressao_pedido where status = 0 and id_pedido > 0');
-  //
-  // conexao.SQL.Add('SELECT 0 as zero, group_concat(distinct  ipp.id_pedido) as grupo, (select nome from usuario where codigo = ipp.usuario) as usuario');
-  // conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
-  // conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  // conexao.SQL.Add('join pedido as ped on ped.codigo = pp.codigo_pedido');
-  // conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-  // conexao.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  // conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
-  // conexao.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
-  // if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
-  // then
-  // begin
-  // conexao.SQL.Add
-  // ('join pedido on pedido.codigo = pp.codigo_pedido and pedido.id_ficha > 0');
-  // end;
-  // conexao.SQL.Add
-  // ('where (ped.codigo_pedido_dia = 0 and ipp.status = 0) OR (ped.codigo_pedido_dia > 0 AND (ped.id_ficha IS NULL or ped.id_ficha = 0)  and ipp.status = 0)   OR (ped.codigo_pedido_dia = 0 AND ped.id_ficha > 0 and ipp.status = 0)');
-  // conexao.SQL.Add(' and pp.codigo_pedido = :codigo');
-  //
-  // try
-  // if frmServidor.Configuracoes.FieldByName('impressao_agrupada').AsInteger = 1
-  // then
-  // begin
-  // conexao.SQL.Add
-  // ('group by pp.codigo_pedido,i.codigo,i.codigo,ipp.usuario');
-  // end
-  // else
-  // begin
-  // conexao.SQL.Add('group by pp.codigo_pedido,ipp.usuario');
-  // end;
-  // except
-  // end;
-  // conexao.Parametros('codigo', Req.Params['codigo']);
-  //
-  // Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  // conexao.Free;
-  // frmServidor.ImpressoraStatus;
   conexao := TConexao.Create('imprimir');
 
   conexao.SQL.Add('SELECT');
@@ -260,7 +221,7 @@ begin
   conexao.SQL.Add
     ('JOIN impressoras AS i ON i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora)');
 
-  if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
+  if conexao.GetParametro('nfce') > 0
   then
   begin
     conexao.SQL.Add
@@ -275,7 +236,7 @@ begin
   conexao.SQL.Add('  AND pp.codigo_pedido = :codigo');
 
   try
-    if frmServidor.Configuracoes.FieldByName('impressao_agrupada').AsInteger = 1
+    if conexao.GetParametro('impressao_agrupada') = '1'
     then
     begin
       // Agrupa por pedido + impressora + usuário (mantive i.codigo uma única vez)
@@ -310,7 +271,7 @@ begin
     ('SELECT 0 as zero, group_concat(distinct ipp.id_pedido) as grupo, concat("(",upper(max(i.descricao)),") ",max(u.nome)) as usuario');
   conexao.SQL.Add('FROM impressao_pedido_produto as ipp');
   conexao.SQL.Add('join pedido_produtos as pp on pp.codigo = ipp.id_pedido');
-  if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0
+  if conexao.GetParametro('cozinha_apenas_mesa') <> '0'
   then
   begin
     conexao.SQL.Add
@@ -330,16 +291,10 @@ begin
   conexao.SQL.Add
     ('join impressoras as i on i.codigo = COALESCE(NULLIF(u.impressora, 0), tp.impressora) ');
   conexao.SQL.Add('where (ipp.status = 0) ');
-  // conexao.SQL.Add('where (ipp.status = 0 and (ped.codigo_pedido_dia > 0 or ped.id_ficha))');
-  // if frmServidor.Configuracoes.FieldByName('cozinha_apenas_mesa').AsInteger > 0 then
-  // begin
-  // //conexao.SQL.Add('join pedido on pedido.codigo = pp.codigo_pedido');
-  // conexao.SQL.Add('and ped.id_ficha > 0');
-  // end;
-  // // conexao.SQL.Add('where ipp.status = 0');
+
 
   try
-    if frmServidor.Configuracoes.FieldByName('impressao_agrupada').AsInteger = 1
+    if conexao.GetParametro('impressao_agrupada') = '1'
     then
     begin
       conexao.SQL.Add
@@ -391,7 +346,7 @@ begin
   conexao.SQL.Add('pp.quantidade as qtd,');
   conexao.SQL.Add('pp.valor_total as vl_total,');
   conexao.SQL.Add('p.codigo_interno as codigo_produto,');
-  if frmServidor.Configuracoes.FieldByName('oculta_categoria').AsInteger = 1
+  if conexao.GetParametro('oculta_categoria') = '1'
   then
   begin
     conexao.SQL.Add('"" as categoria,');
@@ -649,7 +604,7 @@ begin
   conexao.SQL.Add('END as endereco_completo,');
   conexao.SQL.Add('');
   conexao.SQL.Add('tprod.codigo as tipo_produto_codigo,');
-  if frmServidor.Configuracoes.FieldByName('oculta_categoria').AsInteger = 1
+  if conexao.GetParametro('oculta_categoria') = '1'
   then
   begin
     conexao.SQL.Add('"" as tipo_produto_nome,');

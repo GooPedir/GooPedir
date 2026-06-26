@@ -33,6 +33,7 @@ procedure RegistrarConfiguracoesInicializacaoPadrao;
 function getUrlGoopedir: String;
 function GetMotherboardSerial: string;
 function Desenvolvimento: Boolean;
+function pcLocal: Boolean;
 function API_BASE_URL: string;
 
 implementation
@@ -147,18 +148,23 @@ begin
   end;
 end;
 
-function Desenvolvimento: Boolean;
+function pcLocal: Boolean;
 begin
-  // PC Allan (240538505700048)
   Result := false;
-  Exit;
-
+  exit;
+  // PC Allan (240538505700048)
   if GetMotherboardSerial() = '240538505700048' then
   begin
     Result := True;
     exit;
   end;
+end;
 
+function Desenvolvimento: Boolean;
+begin
+  Result := false;
+  exit;
+  Result := pcLocal;
 end;
 
 function API_BASE_URL: string;
@@ -166,7 +172,12 @@ begin
   if Desenvolvimento then
     Result := 'http://localhost:3001/'
   else
-    Result := 'https://api.goopedir.cloud/';
+  begin
+    if pcLocal then
+      Result := 'https://api-dev.goopedir.cloud/'
+    else
+      Result := 'https://api.goopedir.cloud/';
+  end;
 end;
 
 function API_LOGIN: string;

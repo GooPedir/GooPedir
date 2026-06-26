@@ -490,10 +490,23 @@ begin
   begin
     CodigoProduto := Conexao.GerarID('produto', 'codigo');
     Conexao.SQL.Clear;
-    Conexao.SQL.Add
-      ('insert into produto (data_cadastro,codigo, nome_produto, descricao, id_site, codigo_grupo, position, valor_venda, ativo, valor_desconto, percentual_desconto, fidelidade, novidade, vembuscar, delivery, tiposite,foto_ifood,deletado)');
-    Conexao.SQL.Add
-      ('values (curdate(),:codigo, :nome_produto, :descricao, :id_site, :codigo_grupo, :ordem, :valor, :ativo, :promo_valor, :percentual_desconto, :fidelidade, :novidade, :vembuscar, :delivery, :tiposite, :url,:deletado)');
+    // Conexao.SQL.Add
+    // ('insert into produto (data_cadastro,codigo, nome_produto, descricao, id_site, codigo_grupo, position, valor_venda, ativo, valor_desconto, percentual_desconto, fidelidade, novidade, vembuscar, delivery, tiposite,foto_ifood,deletado)');
+    // Conexao.SQL.Add
+    // ('values (curdate(),:codigo, :nome_produto, :descricao, :id_site, :codigo_grupo, :ordem, :valor, :ativo, :promo_valor, :percentual_desconto, :fidelidade, :novidade, :vembuscar, :delivery, :tiposite, :url,:deletado)');
+    Conexao.SQL.Add('insert into produto (' +
+      'data_cadastro,codigo,nome_produto,descricao,id_site,codigo_grupo,position,'
+      + 'valor_venda,ativo,valor_desconto,percentual_desconto,fidelidade,novidade,'
+      + 'vembuscar,delivery,tiposite,foto_ifood,deletado,' +
+      'un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,' +
+      'icms,ipi,pis,cofins)');
+
+    Conexao.SQL.Add('values (' +
+      'curdate(),:codigo,:nome_produto,:descricao,:id_site,:codigo_grupo,:ordem,'
+      + ':valor,:ativo,:promo_valor,:percentual_desconto,:fidelidade,:novidade,'
+      + ':vembuscar,:delivery,:tiposite,:url,:deletado,' +
+      ':un,:ncm,:cest,:cfop,:cstipi,:csticms,:cstpis,:cstcofins,:csosn,' +
+      ':icms,:ipi,:pis,:cofins)');
     // Se existir tabela de relação categoria x produto:
     Conexao.Parametros('codigo', CodigoProduto);
     Conexao.Parametros('nome_produto', Nome);
@@ -513,6 +526,20 @@ begin
     Conexao.Parametros('delivery', Ord(Delivery));
     Conexao.Parametros('tiposite', Tipos);
     Conexao.Parametros('url', URL);
+    Conexao.Parametros('un', GetStr(Produto, 'un'));
+    Conexao.Parametros('ncm', GetInt(Produto, 'ncm'));
+    Conexao.Parametros('cest', GetStr(Produto, 'cest'));
+    Conexao.Parametros('cfop', GetInt(Produto, 'cfop'));
+    Conexao.Parametros('cstipi', GetInt(Produto, 'cstipi'));
+    Conexao.Parametros('csticms', GetInt(Produto, 'csticms'));
+    Conexao.Parametros('cstpis', GetInt(Produto, 'cstpis'));
+    Conexao.Parametros('cstcofins', GetInt(Produto, 'cstcofins'));
+    Conexao.Parametros('csosn', GetInt(Produto, 'csosn'));
+
+    Conexao.Parametros('icms', GetCurr(Produto, 'icms'));
+    Conexao.Parametros('ipi', GetCurr(Produto, 'ipi'));
+    Conexao.Parametros('pis', GetCurr(Produto, 'pis'));
+    Conexao.Parametros('cofins', GetCurr(Produto, 'cofins'));
     Conexao.ExecuteSQL;
 
   end
@@ -525,7 +552,13 @@ begin
       ('valor_venda=:valor, ativo=:ativo, valor_desconto=:promo_valor, percentual_desconto=:percentual_desconto,');
     Conexao.SQL.Add
       ('fidelidade=:fidelidade, novidade=:novidade,foto_ifood=:url, vembuscar=:vembuscar, delivery=:delivery, tiposite=:tiposite, id_site=:id_site');
+    Conexao.SQL.Add(', un=:un' + ', ncm=:ncm' + ', cest=:cest' + ', cfop=:cfop'
+      + ', cstipi=:cstipi' + ', csticms=:csticms' + ', cstpis=:cstpis' +
+      ', cstcofins=:cstcofins' + ', csosn=:csosn' + ', icms=:icms' +
+      ', ipi=:ipi' + ', pis=:pis' + ', cofins=:cofins');
+
     Conexao.SQL.Add('where codigo=:codigo');
+    // Conexao.SQL.Add('where codigo=:codigo');
     Conexao.Parametros('nome_produto', Nome);
     Conexao.Parametros('descricao', Desc);
     Conexao.Parametros('codigo_grupo', CodigoCategoria);
@@ -544,6 +577,20 @@ begin
     Conexao.Parametros('codigo', CodigoProduto);
     Conexao.Parametros('url', URL);
     Conexao.Parametros('deletado', GetInt(Produto, 'deletado'));
+    Conexao.Parametros('un', GetStr(Produto, 'un'));
+    Conexao.Parametros('ncm', GetInt(Produto, 'ncm'));
+    Conexao.Parametros('cest', GetStr(Produto, 'cest'));
+    Conexao.Parametros('cfop', GetInt(Produto, 'cfop'));
+    Conexao.Parametros('cstipi', GetInt(Produto, 'cstipi'));
+    Conexao.Parametros('csticms', GetInt(Produto, 'csticms'));
+    Conexao.Parametros('cstpis', GetInt(Produto, 'cstpis'));
+    Conexao.Parametros('cstcofins', GetInt(Produto, 'cstcofins'));
+    Conexao.Parametros('csosn', GetInt(Produto, 'csosn'));
+
+    Conexao.Parametros('icms', GetCurr(Produto, 'icms'));
+    Conexao.Parametros('ipi', GetCurr(Produto, 'ipi'));
+    Conexao.Parametros('pis', GetCurr(Produto, 'pis'));
+    Conexao.Parametros('cofins', GetCurr(Produto, 'cofins'));
     Conexao.ExecuteSQL;
 
   end;
@@ -565,24 +612,13 @@ begin
 end;
 
 function Ambiente: String;
-var
-  Conexao: TConexao;
 begin
-  Conexao := TConexao.Create('Ambiente');
-  Conexao.SQL.Add('SELECT 0 as zero, ambiente FROM dados_whatsapp');
+
   Result := 'PROD';
 
-  try
-    Result := Conexao.FieldByName('ambiente');
-    if (Result = '1') then
-      Result := 'DESENV'
-    else
-      Result := 'PROD'
-  except
-    Result := 'PROD'
-  end;
+  if pcLocal then
+    Result := 'DESENV';
 
-  Conexao.Free;
 end;
 
 end.

@@ -17,7 +17,6 @@ type
     procedure Button1Click(Sender: TObject);
     procedure MedirTempoExecucao;
     procedure tMinimizaTimer(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
 
@@ -38,16 +37,6 @@ begin
   MedirTempoExecucao;
 end;
 
-procedure TfrmPedidoSite.FormCreate(Sender: TObject);
-begin
-  // 375770
-  if Desenvolvimento then
-  begin
-//     getPedido('376145');
-  end;
-
-end;
-
 procedure TfrmPedidoSite.MedirTempoExecucao;
 var
   TempoInicial, TempoFinal: DWORD;
@@ -64,14 +53,11 @@ begin
 
   // Exibe o tempo decorrido em uma mensagem
   // //showmessage
-  (Format('A função getPedidos demorou %d milissegundos para executar.',
-    [TempoDecorrido]));
+  (Format('A função getPedidos demorou %d milissegundos para executar.',[TempoDecorrido]));
 end;
 
 procedure TfrmPedidoSite.tMinimizaTimer(Sender: TObject);
-
 begin
-
   tMinimiza.Enabled := false;
   self.Hide();
   self.WindowState := wsMinimized;

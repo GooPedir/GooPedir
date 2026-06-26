@@ -40,12 +40,14 @@ begin
     if CacheInicializado then
       Exit;
 
-    Con := Tconexao.Create('GarantirBancoCache');
-    try
-      Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
-        ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-      Con.ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
-        CACHE_TABLE + ' (' +
+      Con := Tconexao.Create('GarantirBancoCache');
+      try
+        Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
+          ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        Con.ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
+          ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        Con.ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
+          CACHE_TABLE + ' (' +
         'origem VARCHAR(100) NOT NULL, ' +
         'chave VARCHAR(255) NOT NULL, ' +
         'dados LONGTEXT NOT NULL, ' +
@@ -54,9 +56,13 @@ begin
         'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
         + 'PRIMARY KEY (origem, chave), ' +
         'INDEX idx_cache_expira (expira_em), ' +
-        'INDEX idx_cache_atualizado (atualizado_em)' +
-        ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-      CacheInicializado := True;
+          'INDEX idx_cache_atualizado (atualizado_em)' +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+          ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+          ' MODIFY dados LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL');
+        CacheInicializado := True;
     finally
       Con.Free;
     end;
