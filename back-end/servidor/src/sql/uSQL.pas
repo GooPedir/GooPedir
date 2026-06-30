@@ -2156,8 +2156,10 @@ begin
       end;
     148:
       begin
-        ExecultaSQL('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
-        ExecultaSQL('ALTER TABLE alerta_sistema MODIFY COLUMN origem ENUM("MESA","TABLET","SISTEMA","NFCE","USUARIO") NOT NULL');
+        ExecultaSQL
+          ('ALTER TABLE alerta_sistema MODIFY COLUMN tipo ENUM("CHAMAR_GARCOM","ERRO_SENHA_TABLET","ALERTA_SEGURANCA","NFCE_ERRO","OUTRO","PRODUTO","SISTEMA","DFE","ESTOQUE") NOT NULL');
+        ExecultaSQL
+          ('ALTER TABLE alerta_sistema MODIFY COLUMN origem ENUM("MESA","TABLET","SISTEMA","NFCE","USUARIO") NOT NULL');
         ExecultaSQL('ALTER TABLE cliente ADD email_nfce varchar(255)');
         ExecultaSQL('ALTER TABLE agent add usuario integer');
         ExecultaSQL('delete from agent');
@@ -2165,32 +2167,42 @@ begin
       end;
     149:
       begin
-        ExecultaSQL('alter table dados_whatsapp add utilizar_dfe integer default 0');
-        ExecultaSQL('alter table dados_whatsapp add manifestar_dfe_tipo varchar(30)');
-        ExecultaSQL('alter table dfe_documento add manifestada TINYINT(1) NOT NULL DEFAULT 0');
-        ExecultaSQL('alter table dfe_documento add manifestacao_tipo VARCHAR(30) NULL');
-        ExecultaSQL('alter table dfe_documento add manifestacao_status VARCHAR(40) NULL');
-        ExecultaSQL('alter table dfe_documento add manifestacao_origem VARCHAR(20) NULL');
-        ExecultaSQL('alter table dfe_documento add manifestacao_data DATETIME NULL');
-        ExecultaSQL('CREATE INDEX idx_dfe_manifestada ON dfe_documento (manifestada, manifestacao_status)');
+        ExecultaSQL
+          ('alter table dados_whatsapp add utilizar_dfe integer default 0');
+        ExecultaSQL
+          ('alter table dados_whatsapp add manifestar_dfe_tipo varchar(30)');
+        ExecultaSQL
+          ('alter table dfe_documento add manifestada TINYINT(1) NOT NULL DEFAULT 0');
+        ExecultaSQL
+          ('alter table dfe_documento add manifestacao_tipo VARCHAR(30) NULL');
+        ExecultaSQL
+          ('alter table dfe_documento add manifestacao_status VARCHAR(40) NULL');
+        ExecultaSQL
+          ('alter table dfe_documento add manifestacao_origem VARCHAR(20) NULL');
+        ExecultaSQL
+          ('alter table dfe_documento add manifestacao_data DATETIME NULL');
+        ExecultaSQL
+          ('CREATE INDEX idx_dfe_manifestada ON dfe_documento (manifestada, manifestacao_status)');
       end;
     150:
       begin
-        ExecultaSQL('CREATE DATABASE IF NOT EXISTS `goopedir_cache` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        ExecultaSQL
+          ('CREATE DATABASE IF NOT EXISTS `goopedir_cache` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
         ExecultaSQL('CREATE TABLE IF NOT EXISTS `goopedir_cache`.`cache` (' +
-          'origem VARCHAR(100) NOT NULL, ' +
-          'chave VARCHAR(255) NOT NULL, ' +
+          'origem VARCHAR(100) NOT NULL, ' + 'chave VARCHAR(255) NOT NULL, ' +
           'dados LONGTEXT NOT NULL, ' +
           'criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
-          'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ' +
-          'PRIMARY KEY (origem, chave), ' +
+          'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
+          + 'PRIMARY KEY (origem, chave), ' +
           'INDEX idx_cache_atualizado (atualizado_em)' +
           ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
       end;
     151:
       begin
-        ExecultaSQL('ALTER TABLE goopedir_cache.cache ADD COLUMN expira_em DATETIME NULL');
-        ExecultaSQL('CREATE INDEX idx_cache_expira ON goopedir_cache.cache (expira_em)');
+        ExecultaSQL
+          ('ALTER TABLE goopedir_cache.cache ADD COLUMN expira_em DATETIME NULL');
+        ExecultaSQL
+          ('CREATE INDEX idx_cache_expira ON goopedir_cache.cache (expira_em)');
       end;
     152:
       begin
@@ -2200,12 +2212,14 @@ begin
         SQL := SQL + '  mensagem_hash CHAR(64) NOT NULL,';
         SQL := SQL + '  mensagem TEXT NOT NULL,';
         SQL := SQL + '  contador INT NOT NULL DEFAULT 1,';
-        SQL := SQL + '  primeiro_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '  primeiro_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
         SQL := SQL + '  ultimo_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
         SQL := SQL + '  PRIMARY KEY (id),';
         SQL := SQL + '  UNIQUE KEY uk_erro_fiscal (origem, mensagem_hash),';
         SQL := SQL + '  INDEX idx_erro_fiscal_ultimo (ultimo_em)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
         ExecultaSQL(SQL);
         SQL := 'CREATE TABLE erro_fiscal_pedido (';
         SQL := SQL + '  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,';
@@ -2213,11 +2227,26 @@ begin
         SQL := SQL + '  pedido_id INT NOT NULL,';
         SQL := SQL + '  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
         SQL := SQL + '  PRIMARY KEY (id),';
-        SQL := SQL + '  UNIQUE KEY uk_erro_fiscal_pedido (erro_fiscal_id, pedido_id),';
+        SQL := SQL +
+          '  UNIQUE KEY uk_erro_fiscal_pedido (erro_fiscal_id, pedido_id),';
         SQL := SQL + '  INDEX idx_erro_fiscal_pedido_pedido (pedido_id),';
-        SQL := SQL + '  CONSTRAINT fk_erro_fiscal_pedido_erro FOREIGN KEY (erro_fiscal_id) REFERENCES erro_fiscal(id) ON DELETE CASCADE';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        SQL := SQL +
+          '  CONSTRAINT fk_erro_fiscal_pedido_erro FOREIGN KEY (erro_fiscal_id) REFERENCES erro_fiscal(id) ON DELETE CASCADE';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
         ExecultaSQL(SQL);
+      end;
+    153:
+      begin
+        ExecultaSQL('ALTER TABLE produto DROP INDEX codigo;');
+        ExecultaSQL('ALTER TABLE produto DROP INDEX idx_produto_codigo;');
+        ExecultaSQL
+          ('ALTER TABLE mesa ADD INDEX idx_mesa_selecionada (selecionada);');
+        ExecultaSQL
+          ('ALTER TABLE caixa ADD INDEX idx_caixa_usuario_status (id_usuario, status);');
+      end;
+      154: begin
+        ExecultaSQL('alter table cliente add fidelidade integer');
       end;
     99999999:
       begin
@@ -2232,7 +2261,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '152'
+  Result := '153'
 end;
 
 end.

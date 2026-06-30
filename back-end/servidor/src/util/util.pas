@@ -1488,8 +1488,7 @@ begin
   end;
 
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add
-    ('SELECT * FROM caixa where id_usuario = :caixa and status = 1');
+  conexao.SQL.Add('SELECT * FROM caixa where id_usuario = :caixa and status = 1');
   conexao.Parametros('caixa', Usuario);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
@@ -4423,6 +4422,7 @@ var
   LogTempo: TJSONObject;
   t0, t1, t2, t3, t4, t5, t6: Int64;
   VendaDireta: Boolean;
+  quant : String;
 begin
   t0 := GetTickCount64;
   VendaDireta := false;
@@ -4463,15 +4463,18 @@ begin
 
   t2 := GetTickCount64;
 
-  conexao.SQL.Add
-    ('select m.id_mesa as mesa, concat(mt.descricao," ",m.nr_mesa) as descricao, p.id_ficha, m.tot_mesa as valor_total_pedido from pedido as p');
-
-  conexao.SQL.Add('join mesa as m on m.selecionada = p.codigo');
+  conexao.SQL.Clear;
+  conexao.SQL.Add('select ');
+  conexao.SQL.Add('  m.id_mesa as mesa,');
+  conexao.SQL.Add('  concat(mt.descricao, '' '', m.nr_mesa) as descricao,');
+  conexao.SQL.Add('  p.id_ficha,');
+  conexao.SQL.Add('  m.tot_mesa as valor_total_pedido');
+  conexao.SQL.Add('from mesa as m');
+  conexao.SQL.Add('join pedido as p on p.codigo = m.selecionada');
   conexao.SQL.Add('join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
-
-  conexao.SQL.Add
-    ('where p.codigo = :codigo and (p.id_ficha <> m.id_mesa or p.id_ficha is null)');
-
+  conexao.SQL.Add('where m.selecionada = :codigo');
+  conexao.SQL.Add('  and (p.id_ficha <> m.id_mesa or p.id_ficha is null)');
+  conexao.SQL.Add('limit 1');
   conexao.Parametros('codigo', ID);
 
   Dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -4480,17 +4483,11 @@ begin
 
   if Dados.RecordCount > 0 then
   begin
-    conexao.SQL.Add
-      ('update pedido set id_ficha = :mesa, desc_ficha = :descricao, valor_total_pedido = :valor_total_pedido where codigo = :codigo');
-
+    conexao.SQL.Add('update pedido set id_ficha = :mesa, desc_ficha = :descricao, valor_total_pedido = :valor_total_pedido where codigo = :codigo');
     conexao.Parametros('mesa', Dados.FieldByName('mesa').AsInteger);
     conexao.Parametros('descricao', Dados.FieldByName('descricao').AsString);
-
-    conexao.Parametros('valor_total_pedido',
-      Dados.FieldByName('valor_total_pedido').AsFloat);
-
+    conexao.Parametros('valor_total_pedido',Dados.FieldByName('valor_total_pedido').AsFloat);
     conexao.Parametros('codigo', ID);
-
     conexao.ExecuteSQL;
   end;
 
@@ -4500,9 +4497,7 @@ begin
   t4 := GetTickCount64;
 
   conexao.SQL.Add('SELECT * FROM pedido where codigo = :codigo');
-
   conexao.Parametros('codigo', ID);
-
   Dados.LoadFromJSON(conexao.ConsultaSQL);
 
   t5 := GetTickCount64;
@@ -4510,7 +4505,15 @@ begin
   if Dados.RecordCount > 0 then
   begin
     DadosObjeto := Dados.ToJSONObject;
-    DadosObjeto.AddPair('productList', GetDadosProdutoPedido(ID));
+    conexao.SQL.Clear;
+    conexao.SQL.Add('SELECT 0, 1 as um FROM pedido_produtos WHERE codigo_pedido = :codigo LIMIT 1');
+    conexao.Parametros('codigo', ID);
+    quant := conexao.FieldByName('um');
+    if (quant='1') then
+    DadosObjeto.AddPair('productList', GetDadosProdutoPedido(ID))
+    else
+     DadosObjeto.AddPair('productList', TJSONArray.Create);
+
   end
   else
   begin

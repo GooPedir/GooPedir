@@ -24,6 +24,7 @@ type
     Codigo: Integer;
     Mesa: Integer;
     PedidoMesa: Integer;
+    Fidelidade : Integer;
   end;
 
   TEndereco = record
@@ -418,6 +419,7 @@ begin
   Result.Celular := JSON.GetValue<string>('cliente.celular', '');
   Result.CPF := JSON.GetValue<string>('cliente.cpf', '');
   Result.Nascimento := JSON.GetValue<string>('cliente.nascimento', '');
+  Result.Fidelidade := JSON.GetValue<Integer>('cliente.fidelidade', 0);
   Conexao := TConexao.Create('ExtrairCliente');
 
   try
@@ -462,13 +464,14 @@ begin
   else
   begin
     Conexao.SQL.Add
-      ('update cliente set nome = :nome, celular = :celular, celular_wpp = :celular, cpf = :cpf, data_nascimento = :data_nascimento where codigo = :codigo');
+      ('update cliente set fidelidade = :fidelidade, nome = :nome, celular = :celular, celular_wpp = :celular, cpf = :cpf, data_nascimento = :data_nascimento where codigo = :codigo');
   end;
   Conexao.Parametros('codigo', Result.Codigo);
   Conexao.Parametros('nome', RemoverAcentos(Result.Nome));
   Conexao.Parametros('celular', (Result.Celular));
   Conexao.Parametros('cpf', Result.CPF);
   Conexao.Parametros('data_nascimento', Result.Nascimento);
+  Conexao.Parametros('fidelidade', Result.Fidelidade);
 
   Conexao.ExecuteSQL;
   Conexao.Free;

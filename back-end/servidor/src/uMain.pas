@@ -38,7 +38,7 @@ uses
   uAgent,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
   Tasks, TaskManager, rota, HashMemoria, uIngredientesCardapio,
-  uControlerProdutoNotaFiscal, uNFCe;
+  uControlerProdutoNotaFiscal, uNFCe, uTempoRotas;
 
 type
   TTaskProc = reference to procedure;
@@ -1512,7 +1512,7 @@ begin
     except
       on E: Exception do
       begin
-        ShowMessage(E.Message);
+//        ShowMessage(E.Message);
       end;
 
     end;
@@ -2077,7 +2077,7 @@ begin
     QryPedido.SQL.Add
       ('p.latitude, p.longitude, p.desc_desconto_ifood as desconto, p.valor_desconto, p.nfce_chave, p.nfce_protocolo, p.nfce_numero, p.partner, p.mp as transacao ,');
     QryPedido.SQL.Add
-      ('c.nome, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
+      ('c.nome, c.fidelidade, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
     QryPedido.SQL.Add('FROM pedido as p');
     QryPedido.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
     QryPedido.SQL.Add
@@ -2095,6 +2095,7 @@ begin
     ObjetoCliente.AddPair('cpf', QryPedido.FieldByName('cpf').AsString);
     ObjetoCliente.AddPair('celular', QryPedido.FieldByName('celular').AsString);
     ObjetoCliente.AddPair('pedidos', QryPedido.FieldByName('pedidos').AsString);
+    ObjetoCliente.AddPair('fidelidade', QryPedido.FieldByName('fidelidade').AsString);
     Objeto.AddPair('sequencial', QryPedido.FieldByName('sequencial').AsInteger);
     Objeto.AddPair('codigo', QryPedido.FieldByName('codigo').AsInteger);
     Objeto.AddPair('cliente', ObjetoCliente);
@@ -3030,8 +3031,12 @@ begin
 
   if conexao.GetParametro('compressao_json') = '1' then
     THorse.Use(Compression());
+
+  InicializarTempoRotas;
+  THorse.Use(TempoRotasMiddleware);
   conexao.Free;
   // Rotas
+  RegistrarRotasTempoRotas;
   v2.Registry;
   rota.Registry;
   token.Registry;

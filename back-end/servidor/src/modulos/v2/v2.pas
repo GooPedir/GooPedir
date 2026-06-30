@@ -4172,8 +4172,8 @@ procedure DoGetDadosBloqueio(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 begin
   // frmServidor.ResetUser;
-  // if not Assigned(frmServidor.JsonDadosBloqueio) then
-  frmServidor.DadosBloqueio;
+  if not Assigned(frmServidor.JsonDadosBloqueio) then
+    frmServidor.DadosBloqueio;
   try
     Res.Send<TJSONObject>(TJSONObject.ParseJSONValue
       (frmServidor.JsonDadosBloqueio.ToString) as TJSONObject);
@@ -5726,7 +5726,8 @@ begin
   conexao := TConexao.Create('DoGetBancos');
   conexao.SQL.Add('SELECT 0 as atual, schema_name as banco');
   conexao.SQL.Add('FROM information_schema.schemata');
-  conexao.SQL.Add('WHERE schema_name NOT REGEXP "^(mysql|sys|information_schema|performance_schema|goopedir|goopedir_cache)" ORDER BY schema_name');
+  conexao.SQL.Add
+    ('WHERE schema_name NOT REGEXP "^(mysql|sys|information_schema|performance_schema|goopedir|goopedir_cache)" ORDER BY schema_name');
   Dados.LoadFromJSON(conexao.ConsultaSQL);
   if Dados.RecordCount > 0 then
   begin
@@ -6829,6 +6830,9 @@ begin
   begin
     JSONObject.AddPair('ambiente', 'prod');
   end;
+
+  JSONObject.AddPair('urlGoopedir', API_BASE_URL);
+
   JSONObject.AddPair('ifood', ArrayiFood);
   JSONObject.AddPair('user', frmServidor.UserID.ToString);
   JSONNFCe := TJSONObject.Create;

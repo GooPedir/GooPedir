@@ -151,7 +151,6 @@ end;
 function pcLocal: Boolean;
 begin
   Result := false;
-  exit;
   // PC Allan (240538505700048)
   if GetMotherboardSerial() = '240538505700048' then
   begin
@@ -162,13 +161,13 @@ end;
 
 function Desenvolvimento: Boolean;
 begin
-  Result := false;
-  exit;
-  Result := pcLocal;
+  Result := LerIniBool('server', 'Desenvolvimento', pcLocal);
+
 end;
 
 function API_BASE_URL: string;
 begin
+
   if Desenvolvimento then
     Result := 'http://localhost:3001/'
   else
@@ -176,7 +175,7 @@ begin
     if pcLocal then
       Result := 'https://api-dev.goopedir.cloud/'
     else
-      Result := 'https://api.goopedir.cloud/';
+    Result := 'https://api.goopedir.cloud/'
   end;
 end;
 
