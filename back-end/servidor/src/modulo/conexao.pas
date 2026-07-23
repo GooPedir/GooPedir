@@ -718,6 +718,10 @@ begin
   if pos('Duplicate entry', Erro) > 0 then
     exit;
 
+  if pos('Duplicate column name', Erro) > 0 then
+    exit;
+
+
   // Caminho da pasta de log (na mesma pasta do execut?vel)
   LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
   if not DirectoryExists(LogPath) then
@@ -748,11 +752,6 @@ begin
     // Se nem salvar log conseguimos, s? desiste
   end;
 
-  // Ainda envia pro Glitchtip, se voc? quiser manter
-  EnviaGlitchtip
-    ('https://aeb22e97438d453c9a5651422ad3c0f4@nginx-glitchtip.l1p88w.easypanel.host/3',
-    DataModulo.Banco.Params.Database, DataModulo.Banco.Params.Database,
-    Erro + ' - ' + SQL.Text);
 end;
 
 
@@ -1130,7 +1129,14 @@ begin
       end
       else
       begin
-        QRY.ParamByName(FParametros[I]).Value := FValores[I];
+        if VarIsStr(FValores[I]) and (Length(VarToStr(FValores[I])) > 32767) then
+        begin
+          QRY.ParamByName(FParametros[I]).DataType := ftMemo;
+          QRY.ParamByName(FParametros[I]).Size := Length(VarToStr(FValores[I]));
+          QRY.ParamByName(FParametros[I]).AsString := VarToStr(FValores[I]);
+        end
+        else
+          QRY.ParamByName(FParametros[I]).Value := FValores[I];
       end;
 
       try

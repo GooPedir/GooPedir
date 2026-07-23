@@ -533,8 +533,7 @@ begin
   end;
   if Result.Count = 0 then
   begin
-    SQL := ' SELECT * FROM produto WHERE ativo = 1 and deletado = 0 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'
-      + UpperCase(chave) + '%" ORDER BY position LIMIT 10';
+    SQL := ' SELECT * FROM produto WHERE ativo = 1 and deletado = 0 and upper(nome_produto) COLLATE utf8_general_ci LIKE "%'+ UpperCase(chave) + '%" ORDER BY position LIMIT 10';
     Result := ObjetoProduto(SQL,chave);
     GravaCache('GetProdutoCategoria', chave, Result.ToString);
   end;

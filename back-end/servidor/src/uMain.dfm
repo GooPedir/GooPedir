@@ -2,7 +2,7 @@ object frmServidor: TfrmServidor
   Left = 0
   Top = 0
   Caption = 'Goopedir'
-  ClientHeight = 555
+  ClientHeight = 580
   ClientWidth = 935
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

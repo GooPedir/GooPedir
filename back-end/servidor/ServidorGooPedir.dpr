@@ -142,7 +142,8 @@ uses
   Horse.Compression in 'src\other\Horse.Compression.pas',
   Horse.Compression.Types in 'src\other\Horse.Compression.Types.pas',
   uNFCe in 'uNFCe.pas',
-  uTempoRotas in 'src\modulo\uTempoRotas.pas';
+  uTempoRotas in 'src\modulo\uTempoRotas.pas',
+  financeiro in 'src\modulos\financeiro\financeiro.pas';
 
 {$R *.res}
 

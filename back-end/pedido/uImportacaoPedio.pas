@@ -66,6 +66,7 @@ type
   end;
 
   TPedido = record
+    UserId: integer;
     Codigo: Integer;
     CodigoDia: Integer;
     ID: string;
@@ -86,8 +87,8 @@ function CreateReq: iRequisicao;
 function RemoverNonoDigito(const Celular: string): string;
 procedure getPedidos;
 function UserID: Integer;
-procedure getPedido(ID: String);
-procedure ProcessaGravacaoPedido(Body: String);
+procedure getPedido(ID, UserId: String);
+procedure ProcessaGravacaoPedido(Body,UserId: String);
 function ExtrairCliente(JSON: TJSONObject): TCliente;
 function ExtrairEndereco(JSON: TJSONObject; Cliente: TCliente; Pedido: TPedido)
   : TEndereco;
@@ -323,7 +324,7 @@ var
 begin
   Conexao := TConexao.Create('GetCodigoProduto');
   Conexao.SQL.Add
-    ('select codigo, 0 as zero from produto where id_site = :id or upper(nome_produto) = :produto');
+    ('select p.codigo, 0 as zero from produto as p join tipo_produto as tp on tp.codigo = p.codigo_grupo where (p.id_site = :id or upper(p.nome_produto) = :produto) and p.deletado = 0 ');
   Conexao.Parametros('produto', UpperCase(NomeProduto));
   Conexao.Parametros('id', CodigoSite);
   try
@@ -456,9 +457,9 @@ begin
     Result.Codigo := Conexao.GerarID('cliente', 'codigo');
 
     Conexao.SQL.Add
-      ('insert into cliente (codigo,nome,celular,celular_wpp,ativo,origem,cpf,data_nascimento)');
+      ('insert into cliente (codigo,nome,celular,celular_wpp,ativo,origem,cpf,data_nascimento,fidelidade)');
     Conexao.SQL.Add
-      ('values (:codigo,:nome,:celular,:celular,1,1,:cpf,:data_nascimento)');
+      ('values (:codigo,:nome,:celular,:celular,1,1,:cpf,:data_nascimento,:fidelidade)');
 
   end
   else
@@ -639,6 +640,7 @@ end;
 function ExtrairPedido(JSON: TJSONObject): TPedido;
 begin
   Result.ID := JSON.GetValue<string>('id', '');
+  Result.UserId := JSON.GetValue<Integer>('userId', 0);
   Result.Data := StrToDateTimeDef(JSON.GetValue<string>('data', ''), Now);
   Result.SubTotal := JSON.GetValue<Double>('sub', 0);
   Result.Desconto := JSON.GetValue<Double>('desconto', 0);
@@ -699,7 +701,7 @@ begin
   try
     Req.BaseURL := getUrlGoopedir;
     Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente+'&produto=1';
+//    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente+'&produto=1';
     Req.Token(GetToken);
     Req.Execute;
 
@@ -748,7 +750,7 @@ begin
           if ItemVal is TJSONObject then
           begin
             ItemObj := ItemVal as TJSONObject;
-            getPedido(ItemObj.GetValue<String>('id'));
+            getPedido(ItemObj.GetValue<String>('id'),'0');
             // Ex.: ler campos do pedido, se houver
             // var pedidoId := ItemObj.GetValue<Integer>('id');
             // ... sua lógica aqui ...
@@ -899,7 +901,7 @@ begin
 
 end;
 
-procedure getPedido(ID: String);
+procedure getPedido(ID,UserId: String);
 var
   Req: iRequisicao;
 begin
@@ -908,7 +910,7 @@ begin
   Req.URL := 'api/pedido/legacy/' + ID;
   try
     Req.Execute;
-    ProcessaGravacaoPedido(Req.Retorno);
+    ProcessaGravacaoPedido(Req.Retorno,UserId);
   except
     on E: Exception do
     begin
@@ -982,26 +984,30 @@ begin
         Conexao.Parametros('status', 1);
       Conexao.ExecuteSQL;
     end;
-
-    Pedido.CodigoDia := AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia,
-      Pedido.Codigo);
-
-    if ((Notificar) and (Pedido.CodigoDia > 0)) then
+    if (Pedido.CodigoDia = 0) then
     begin
-      ImprimirCozinha(Pedido.Codigo);
-      if Conexao.GetParametro('nova_impressao') = '1' then
-      begin
-        ImprimirComanda(Pedido.Codigo);
-      end;
-      AtualizaStatusPedido(Pedido.Codigo, StatusCode);
+          Pedido.CodigoDia := AtualizaSite(Pedido.ID.ToInteger, Pedido.CodigoDia,Pedido.Codigo);
+          if ((Notificar) and (Pedido.CodigoDia > 0)) then
+          begin
+            ImprimirCozinha(Pedido.Codigo);
+            if Conexao.GetParametro('nova_impressao') = '1' then
+            begin
+              ImprimirComanda(Pedido.Codigo);
+            end;
+
+          end;
     end;
+
+
+
+
+    AtualizaStatusPedido(Pedido.Codigo, StatusCode);
   end
   else
   begin
     Conexao.SQL.Add('delete from pedido where codigo = :codigo');
     Conexao.Parametros('codigo', Pedido.Codigo);
-    Conexao.ExecuteSQL;
-
+    Conexao.ExecuteSQL
   end;
 end;
 
@@ -1207,7 +1213,7 @@ begin
 
 end;
 
-procedure ProcessaGravacaoPedido(Body: String);
+procedure ProcessaGravacaoPedido(Body,UserId: String);
 var
   JSON: TJSONObject;
   Cliente: TCliente;
@@ -1221,9 +1227,20 @@ begin
 
   JSON := TJSONObject.ParseJSONValue(Body) as TJSONObject; // Insira o JSON aqui
   try
+    Pedido := ExtrairPedido(JSON);
+    if (UserId <> '0') then
+    begin
+        if (Pedido.UserId.ToString <> UserId) then
+        begin
+          JSON.Free;
+          Exit;
+        end;
+
+    end;
+
     Pagamento := ExtrairPagamento(JSON);
     Cliente := ExtrairCliente(JSON);
-    Pedido := ExtrairPedido(JSON);
+
     Endereco := ExtrairEndereco(JSON, Cliente, Pedido);
     Produtos := ExtrairProdutos(JSON);
 
@@ -1241,6 +1258,9 @@ begin
         // Adicionar Novos Pedidos
         ProcessarPedido(Pedido, Cliente, Endereco, Produtos, Pagamento);
       end;
+    end else
+    begin
+
     end;
 
     // Agora você pode usar as variáveis Cliente, Endereco, Produtos, Pagamento e Pedido
@@ -1264,7 +1284,7 @@ begin
   inherited;
   try
     // Executa a função getPedido em segundo plano
-    getPedido(FID);
+    //getPedido(FID);
   except
     on E: Exception do
     begin

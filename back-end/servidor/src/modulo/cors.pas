@@ -16,7 +16,7 @@ begin
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Methods',
     'GET, POST, PUT, DELETE, OPTIONS');
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Headers',
-    'Content-Type, Authorization, inicio, fim, x-server-time, dtfim, dtinicio, hrfim, hrinicio, user');
+    'Content-Type, Authorization, inicio, fim, x-server-time, dtfim, dtinicio, hrfim, hrinicio, user, usuario');
   Res.RawWebResponse.SetCustomHeader('Access-Control-Expose-Headers',
     'x-server-time');
   Res.RawWebResponse.SetCustomHeader

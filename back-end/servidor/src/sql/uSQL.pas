@@ -19,6 +19,7 @@ type
     function VerificaSQL: Boolean;
     procedure AtualizaBanco;
     procedure Banco(Versao: Integer);
+    procedure CarregarClassTribSeed;
     procedure IniciaAtualizacao;
     function UltimoCodigo(tabela, campo: String): string;
 
@@ -555,6 +556,78 @@ begin
   conexao.Free;
   MemoLog.Lines.Clear;
   MemoLog.Lines.Add('Verificando Atualizações . . .');
+end;
+
+procedure TSQL.CarregarClassTribSeed;
+var
+  Arquivos: array [0 .. 4] of String;
+  Arquivo: String;
+  Lista: TStringList;
+  Conteudo: String;
+  Comando: String;
+  I: Integer;
+  C: Char;
+  DentroTexto: Boolean;
+begin
+  Arquivos[0] := ExtractFilePath(ParamStr(0)) + 'src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[1] := ExtractFilePath(ParamStr(0)) + 'fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[2] := GetCurrentDir + '\src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[3] := GetCurrentDir + '\fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[4] := 'src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
+
+  Arquivo := '';
+  for I := Low(Arquivos) to High(Arquivos) do
+  begin
+    if FileExists(Arquivos[I]) then
+    begin
+      Arquivo := Arquivos[I];
+      Break;
+    end;
+  end;
+
+  if Arquivo = '' then
+    Exit;
+
+  Lista := TStringList.Create;
+  try
+    Lista.LoadFromFile(Arquivo, TEncoding.UTF8);
+    Conteudo := Lista.Text;
+  finally
+    Lista.Free;
+  end;
+
+  Comando := '';
+  DentroTexto := false;
+  I := 1;
+  while I <= Length(Conteudo) do
+  begin
+    C := Conteudo[I];
+
+    if C = '''' then
+    begin
+      Comando := Comando + C;
+      if DentroTexto and (I < Length(Conteudo)) and (Conteudo[I + 1] = '''') then
+      begin
+        Inc(I);
+        Comando := Comando + Conteudo[I];
+      end
+      else
+        DentroTexto := not DentroTexto;
+    end
+    else if (C = ';') and (not DentroTexto) then
+    begin
+      if Trim(Comando) <> '' then
+        ExecultaSQL(Trim(Comando));
+      Comando := '';
+    end
+    else
+      Comando := Comando + C;
+
+    Inc(I);
+  end;
+
+  if Trim(Comando) <> '' then
+    ExecultaSQL(Trim(Comando));
 end;
 
 procedure TSQL.Banco(Versao: Integer);
@@ -1803,6 +1876,21 @@ begin
       end;
     127:
       begin
+        SQL := 'CREATE TABLE IF NOT EXISTS bancos (';
+        SQL := SQL + ' id INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + ' codigo INT NOT NULL,';
+        SQL := SQL + ' ispb VARCHAR(20) DEFAULT NULL,';
+        SQL := SQL + ' nome VARCHAR(150) DEFAULT NULL,';
+        SQL := SQL + ' nome_completo VARCHAR(255) DEFAULT NULL,';
+        SQL := SQL + ' ativo INT DEFAULT 1,';
+        SQL := SQL + ' criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + ' atualizado_em TIMESTAMP NULL DEFAULT NULL,';
+        SQL := SQL + ' PRIMARY KEY (id),';
+        SQL := SQL + ' UNIQUE KEY uk_bancos_codigo (codigo),';
+        SQL := SQL + ' INDEX idx_bancos_nome (nome),';
+        SQL := SQL + ' INDEX idx_bancos_ativo (ativo)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
 
       end;
     128:
@@ -2248,6 +2336,203 @@ begin
       154: begin
         ExecultaSQL('alter table cliente add fidelidade integer');
       end;
+    155:
+      begin
+        ExecultaSQL
+          ('alter table produto add ibs_cbs_cst varchar(3) default "000"');
+        ExecultaSQL
+          ('alter table produto add ibs_cbs_class_trib varchar(7) default "000001"');
+        ExecultaSQL
+          ('alter table produto add ibs_uf_aliq decimal(10,4) default 0.1');
+        ExecultaSQL
+          ('alter table produto add ibs_mun_aliq decimal(10,4) default 0');
+        ExecultaSQL
+          ('alter table produto add cbs_aliq decimal(10,4) default 0.9');
+      end;
+    156:
+      begin
+        SQL := 'CREATE TABLE IF NOT EXISTS fiscal_ibs_cbs_cst (';
+        SQL := SQL + '  cst VARCHAR(3) NOT NULL,';
+        SQL := SQL + '  descricao VARCHAR(255) NOT NULL,';
+        SQL := SQL + '  ind_gibscbs TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gibscbs_mono TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gred TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gdif TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gtransf_cred TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gcred_pres_ibszfm TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gajuste_compet TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfe TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfce TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_cte TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_cteos TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_bpe TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_bpetm TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nf3e TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfcom TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfse TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL + '  PRIMARY KEY (cst)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        ExecultaSQL(SQL);
+
+        SQL := 'CREATE TABLE IF NOT EXISTS fiscal_ibs_cbs_class_trib (';
+        SQL := SQL + '  cclass_trib VARCHAR(7) NOT NULL,';
+        SQL := SQL + '  cst VARCHAR(3) NOT NULL,';
+        SQL := SQL + '  nome VARCHAR(255) NOT NULL,';
+        SQL := SQL + '  descricao TEXT NULL,';
+        SQL := SQL + '  lc_redacao TEXT NULL,';
+        SQL := SQL + '  lc_214_25 VARCHAR(100) NULL,';
+        SQL := SQL + '  tipo_aliquota VARCHAR(100) NULL,';
+        SQL := SQL + '  pred_ibs DECIMAL(10,4) NOT NULL DEFAULT 0,';
+        SQL := SQL + '  pred_cbs DECIMAL(10,4) NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_redutor_bc VARCHAR(10) NULL,';
+        SQL := SQL + '  ind_gtrib_regular TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gcred_pres_oper TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gmono_padrao TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gmono_reten TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gmono_ret TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gmono_dif TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_gestorno_cred TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  credito_para TEXT NULL,';
+        SQL := SQL + '  dini_vig DATE NULL,';
+        SQL := SQL + '  dfim_vig DATE NULL,';
+        SQL := SQL + '  data_atualizacao DATE NULL,';
+        SQL := SQL + '  ind_nfe_abi TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfe TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfce TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_cte TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_cteos TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_bpe TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_bpeta TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_bpetm TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nf3e TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfse TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfse_via TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfcom TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfag TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_nfgas TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  ind_dere TINYINT NOT NULL DEFAULT 0,';
+        SQL := SQL + '  anexo VARCHAR(100) NULL,';
+        SQL := SQL + '  link VARCHAR(500) NULL,';
+        SQL := SQL + '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL + '  PRIMARY KEY (cclass_trib),';
+        SQL := SQL + '  INDEX idx_fiscal_class_trib_cst (cst),';
+        SQL := SQL + '  CONSTRAINT fk_fiscal_class_trib_cst FOREIGN KEY (cst) REFERENCES fiscal_ibs_cbs_cst(cst)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        ExecultaSQL(SQL);
+
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_ibs_cbs_cst ON produto (ibs_cbs_cst)');
+        ExecultaSQL
+          ('CREATE INDEX idx_produto_ibs_cbs_class_trib ON produto (ibs_cbs_class_trib)');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN ibs_cbs_class_trib VARCHAR(7) DEFAULT "000001"');
+        ExecultaSQL
+          ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN cclass_trib VARCHAR(7) NOT NULL');
+        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL');
+        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
+        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_cbs_class_trib VARCHAR(7) DEFAULT "000001";');
+        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
+        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
+        ExecultaSQL('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
+        ExecultaSQL('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
+        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN cclass_trib VARCHAR(7) NOT NULL;');
+        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
+        CarregarClassTribSeed;
+      end;
+    157:
+      begin
+        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
+        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
+        ExecultaSQL('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
+        ExecultaSQL('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
+      end;
+    158:
+      begin
+        SQL := 'CREATE TABLE IF NOT EXISTS bancos (';
+        SQL := SQL + ' id INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + ' codigo INT NOT NULL,';
+        SQL := SQL + ' ispb VARCHAR(20) DEFAULT NULL,';
+        SQL := SQL + ' nome VARCHAR(150) DEFAULT NULL,';
+        SQL := SQL + ' nome_completo VARCHAR(255) DEFAULT NULL,';
+        SQL := SQL + ' ativo INT DEFAULT 1,';
+        SQL := SQL + ' criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + ' atualizado_em TIMESTAMP NULL DEFAULT NULL,';
+        SQL := SQL + ' PRIMARY KEY (id),';
+        SQL := SQL + ' UNIQUE KEY uk_bancos_codigo (codigo),';
+        SQL := SQL + ' INDEX idx_bancos_nome (nome),';
+        SQL := SQL + ' INDEX idx_bancos_ativo (ativo)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
+
+      end;
+    159:
+      begin
+        SQL := 'CREATE TABLE IF NOT EXISTS cartoes (';
+        SQL := SQL + ' id INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + ' banco_id INT NOT NULL,';
+        SQL := SQL + ' nome VARCHAR(100) NOT NULL,';
+        SQL := SQL + ' tipo VARCHAR(20) NOT NULL DEFAULT "credito",';
+        SQL := SQL + ' melhor_dia INT DEFAULT 1,';
+        SQL := SQL + ' dia_vencimento INT DEFAULT 1,';
+        SQL := SQL + ' limite DECIMAL(15,2) DEFAULT 0,';
+        SQL := SQL + ' limite_usado DECIMAL(15,2) DEFAULT 0,';
+        SQL := SQL + ' vencimento_ano_mes VARCHAR(7) DEFAULT NULL,';
+        SQL := SQL + ' ativo INT DEFAULT 1,';
+        SQL := SQL + ' criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + ' atualizado_em TIMESTAMP NULL DEFAULT NULL,';
+        SQL := SQL + ' PRIMARY KEY (id),';
+        SQL := SQL + ' INDEX idx_cartoes_banco (banco_id),';
+        SQL := SQL + ' INDEX idx_cartoes_tipo (tipo),';
+        SQL := SQL + ' INDEX idx_cartoes_ativo (ativo),';
+        SQL := SQL + ' CONSTRAINT fk_cartoes_banco FOREIGN KEY (banco_id) REFERENCES bancos(id)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
+      end;
+    160:
+      begin
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN cartao_id INT DEFAULT 0;');
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN limite_cartao_retornado INT DEFAULT 0;');
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrente INT DEFAULT 0;');
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrencia_tipo INT DEFAULT 0;');
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrencia_grupo VARCHAR(40) DEFAULT NULL;');
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN fatura_ano_mes VARCHAR(7) DEFAULT NULL;');
+        ExecultaSQL('CREATE INDEX idx_despesas_cartao ON despesas (cartao_id);');
+        ExecultaSQL('CREATE INDEX idx_despesas_recorrencia_grupo ON despesas (recorrencia_grupo);');
+        ExecultaSQL('CREATE INDEX idx_despesas_fatura ON despesas (fatura_ano_mes);');
+      end;
+    161:
+      begin
+        SQL := 'CREATE TABLE IF NOT EXISTS despesa_recorrencia (';
+        SQL := SQL + ' id INT NOT NULL AUTO_INCREMENT,';
+        SQL := SQL + ' categoria INT NOT NULL,';
+        SQL := SQL + ' descricao VARCHAR(100) DEFAULT NULL,';
+        SQL := SQL + ' valor DECIMAL(15,2) DEFAULT 0,';
+        SQL := SQL + ' cartao_id INT DEFAULT 0,';
+        SQL := SQL + ' recorrencia_tipo INT DEFAULT 3,';
+        SQL := SQL + ' dia_vencimento INT DEFAULT 1,';
+        SQL := SQL + ' proximo_vencimento DATE NOT NULL,';
+        SQL := SQL + ' ativo INT DEFAULT 1,';
+        SQL := SQL + ' chave_nota VARCHAR(45) DEFAULT NULL,';
+        SQL := SQL + ' fatura_ano_mes VARCHAR(7) DEFAULT NULL,';
+        SQL := SQL + ' recorrencia_grupo VARCHAR(40) NOT NULL,';
+        SQL := SQL + ' criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + ' atualizado_em TIMESTAMP NULL DEFAULT NULL,';
+        SQL := SQL + ' PRIMARY KEY (id),';
+        SQL := SQL + ' UNIQUE KEY uk_despesa_recorrencia_grupo (recorrencia_grupo),';
+        SQL := SQL + ' INDEX idx_despesa_recorrencia_proximo (ativo, proximo_vencimento),';
+        SQL := SQL + ' INDEX idx_despesa_recorrencia_cartao (cartao_id)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        ExecultaSQL(SQL);
+      end;
+    162:
+      begin
+        ExecultaSQL('ALTER TABLE despesas ADD COLUMN data_compra DATE DEFAULT NULL;');
+        ExecultaSQL('CREATE INDEX idx_despesas_data_compra ON despesas (data_compra);');
+      end;
+      163: begin
+        ExecultaSQL('ALTER TABLE log_operacao ADD tempo_ms INT NULL;');
+      end;
     99999999:
       begin
         {
@@ -2261,7 +2546,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '153'
+  Result := '163';
 end;
 
 end.

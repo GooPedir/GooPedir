@@ -10,7 +10,7 @@ uses Math, Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   System.Threading, uControllCaches, System.Generics.Collections,
   uNewConsultas, uControllerSite, GooPedirAPIController, uAtualizacaoSite,
   System.IOUtils, uGlobais, conexao, Xml.XMLDoc, Xml.XMLIntf,
-  uControlerProdutoNotaFiscal, uGenericaFuncion;
+  uControlerProdutoNotaFiscal, uGenericaFuncion, uTablet;
 procedure Registry;
 function DaysBetweenDates(const Date1, Date2: string): Integer;
 procedure MovimentoProduto(Codigo, Tipo: Integer);
@@ -1826,7 +1826,7 @@ begin
   DataInicial := Req.Headers['inicio'];
   DataFinal := Req.Headers['fim'];
   conexao.SQL.Add('select l.*, u.nome from log_operacao as l');
-  conexao.SQL.Add('join usuario as u on u.codigo = l.usuario');
+  conexao.SQL.Add('left join usuario as u on u.codigo = l.usuario');
   conexao.SQL.Add('where l.data_hora between "' + DataInicial +
     ' 00:00:01" and "' + DataFinal +
     ' 23:59:59" and l.endpoint <> "/v1/login"');
@@ -1835,6 +1835,53 @@ begin
   conexao.Free;
 end;
 
+procedure DoGetLogOperacaoResumo(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+var
+  conexao: TConexao;
+  DataInicial, DataFinal: string;
+begin
+  conexao := TConexao.Create('DoGetLogOperacaoResumo');
+  try
+    DataInicial := Req.Headers['inicio'];
+    DataFinal := Req.Headers['fim'];
+
+    conexao.SQL.Add('select');
+    conexao.SQL.Add('  l.endpoint,');
+    conexao.SQL.Add('  l.operacao,');
+    conexao.SQL.Add('  count(*) as total_requisicoes,');
+    conexao.SQL.Add('  count(distinct l.usuario) as total_usuarios,');
+    conexao.SQL.Add('  count(distinct l.ip) as total_ips,');
+    conexao.SQL.Add('  round(count(*) / greatest(timestampdiff(minute, min(l.data_hora), max(l.data_hora)) + 1, 1), 2) as requisicoes_por_minuto,');
+    conexao.SQL.Add('  round(count(*) / greatest(timestampdiff(hour, min(l.data_hora), max(l.data_hora)) + 1, 1), 2) as requisicoes_por_hora,');
+    conexao.SQL.Add('  round(avg(coalesce(l.tempo_ms, 0)), 2) as tempo_medio_ms,');
+    conexao.SQL.Add('  min(coalesce(l.tempo_ms, 0)) as menor_tempo_ms,');
+    conexao.SQL.Add('  max(coalesce(l.tempo_ms, 0)) as maior_tempo_ms,');
+    conexao.SQL.Add('  sum(coalesce(l.tempo_ms, 0)) as tempo_total_ms,');
+    conexao.SQL.Add('  round(avg(length(coalesce(l.body, ''''))), 2) as tamanho_medio_body,');
+    conexao.SQL.Add('  max(length(coalesce(l.body, ''''))) as maior_body,');
+    conexao.SQL.Add('  sum(case when coalesce(l.tempo_ms, 0) <= 100 then 1 else 0 end) as qtd_ate_100ms,');
+    conexao.SQL.Add('  sum(case when coalesce(l.tempo_ms, 0) > 100 and coalesce(l.tempo_ms, 0) <= 500 then 1 else 0 end) as qtd_101_500ms,');
+    conexao.SQL.Add('  sum(case when coalesce(l.tempo_ms, 0) > 500 and coalesce(l.tempo_ms, 0) <= 1000 then 1 else 0 end) as qtd_501_1000ms,');
+    conexao.SQL.Add('  sum(case when coalesce(l.tempo_ms, 0) > 1000 and coalesce(l.tempo_ms, 0) <= 3000 then 1 else 0 end) as qtd_1001_3000ms,');
+    conexao.SQL.Add('  sum(case when coalesce(l.tempo_ms, 0) > 3000 then 1 else 0 end) as qtd_acima_3000ms,');
+    conexao.SQL.Add('  round((sum(case when coalesce(l.tempo_ms, 0) > 1000 then 1 else 0 end) / count(*)) * 100, 2) as percentual_lentas,');
+    conexao.SQL.Add('  min(l.data_hora) as primeira_requisicao,');
+    conexao.SQL.Add('  max(l.data_hora) as ultima_requisicao,');
+    conexao.SQL.Add('  group_concat(distinct l.usuario order by l.usuario separator '', '') as usuarios,');
+    conexao.SQL.Add('  group_concat(distinct l.ip order by l.ip separator '', '') as ips');
+    conexao.SQL.Add('from log_operacao as l');
+    conexao.SQL.Add('where l.data_hora between :inicio and :fim');
+    conexao.SQL.Add('  and l.endpoint <> "/v1/login"');
+    conexao.SQL.Add('group by l.endpoint, l.operacao');
+    conexao.SQL.Add('order by total_requisicoes desc, tempo_medio_ms desc');
+    conexao.Parametros('inicio', DataInicial + ' 00:00:01');
+    conexao.Parametros('fim', DataFinal + ' 23:59:59');
+    Res.Send<TJsonArray>(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
 procedure DoGetFechamentoFiado(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
@@ -2336,6 +2383,58 @@ begin
   conexao.Free;
 end;
 
+function ValorJSONProduto(Objeto: TJSONObject;
+  const Nome, Padrao: String): String;
+begin
+  Result := Padrao;
+  if Assigned(Objeto) and Assigned(Objeto.Values[Nome]) then
+    Result := Objeto.Values[Nome].Value;
+end;
+
+procedure PropagarIBSCBSProdutosSemConfiguracao(conexao: TConexao;
+  JSONObject: TJSONObject; CodigoProdutoAtual: Integer);
+var
+  TemIBSCBS: Boolean;
+begin
+  TemIBSCBS := Assigned(JSONObject.Values['ibs_cbs_cst']) or
+    Assigned(JSONObject.Values['ibs_cbs_class_trib']) or
+    Assigned(JSONObject.Values['ibs_uf_aliq']) or
+    Assigned(JSONObject.Values['ibs_mun_aliq']) or
+    Assigned(JSONObject.Values['cbs_aliq']);
+
+  if not TemIBSCBS then
+    exit;
+
+  conexao.SQL.Clear;
+  conexao.SQL.Add('UPDATE produto SET ');
+  conexao.SQL.Add('ibs_cbs_cst = :ibs_cbs_cst, ');
+  conexao.SQL.Add('ibs_cbs_class_trib = :ibs_cbs_class_trib, ');
+  conexao.SQL.Add('ibs_uf_aliq = :ibs_uf_aliq, ');
+  conexao.SQL.Add('ibs_mun_aliq = :ibs_mun_aliq, ');
+  conexao.SQL.Add('cbs_aliq = :cbs_aliq ');
+  conexao.SQL.Add('WHERE codigo <> :codigo ');
+  conexao.SQL.Add
+    ('AND (ibs_cbs_cst IS NULL OR TRIM(ibs_cbs_cst) = "" OR ibs_cbs_cst = "000") ');
+  conexao.SQL.Add
+    ('AND (ibs_cbs_class_trib IS NULL OR TRIM(ibs_cbs_class_trib) = "" OR ibs_cbs_class_trib = "000001") ');
+  conexao.SQL.Add('AND (ibs_uf_aliq IS NULL OR ibs_uf_aliq IN (0, 0.1)) ');
+  conexao.SQL.Add('AND (ibs_mun_aliq IS NULL OR ibs_mun_aliq = 0) ');
+  conexao.SQL.Add('AND (cbs_aliq IS NULL OR cbs_aliq IN (0, 0.9))');
+  conexao.Parametros('ibs_cbs_cst', ValorJSONProduto(JSONObject,
+    'ibs_cbs_cst', '000'));
+  conexao.Parametros('ibs_cbs_class_trib', ValorJSONProduto(JSONObject,
+    'ibs_cbs_class_trib', '000001'));
+  conexao.Parametros('ibs_uf_aliq', ValorJSONProduto(JSONObject,
+    'ibs_uf_aliq', '0.1'));
+  conexao.Parametros('ibs_mun_aliq', ValorJSONProduto(JSONObject,
+    'ibs_mun_aliq', '0'));
+  conexao.Parametros('cbs_aliq', ValorJSONProduto(JSONObject,
+    'cbs_aliq', '0.9'));
+  conexao.Parametros('codigo', CodigoProdutoAtual);
+  conexao.ExecuteSQL;
+  conexao.SQL.Clear;
+end;
+
 procedure DoPostProduct(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
@@ -2464,6 +2563,11 @@ begin
       conexao.SQL.Add('ipi = :ipi, ');
       conexao.SQL.Add('pis = :pis, ');
       conexao.SQL.Add('cofins = :cofins, ');
+      conexao.SQL.Add('ibs_cbs_cst = :ibs_cbs_cst, ');
+      conexao.SQL.Add('ibs_cbs_class_trib = :ibs_cbs_class_trib, ');
+      conexao.SQL.Add('ibs_uf_aliq = :ibs_uf_aliq, ');
+      conexao.SQL.Add('ibs_mun_aliq = :ibs_mun_aliq, ');
+      conexao.SQL.Add('cbs_aliq = :cbs_aliq, ');
       conexao.SQL.Add('frete = :frete ');
       conexao.SQL.Add('WHERE codigo = :codigo');
       // Parâmetros do JSON, com validação para valores nulos ou inexistentes
@@ -2550,6 +2654,21 @@ begin
         JSONObject.Values['pis'].Value, '0'));
       conexao.Parametros('cofins', IfThen(JSONObject.Values['cofins'] <> nil,
         JSONObject.Values['cofins'].Value, '0'));
+      conexao.Parametros('ibs_cbs_cst',
+        IfThen(JSONObject.Values['ibs_cbs_cst'] <> nil,
+        JSONObject.Values['ibs_cbs_cst'].Value, '000'));
+      conexao.Parametros('ibs_cbs_class_trib',
+        IfThen(JSONObject.Values['ibs_cbs_class_trib'] <> nil,
+        JSONObject.Values['ibs_cbs_class_trib'].Value, '000001'));
+      conexao.Parametros('ibs_uf_aliq',
+        IfThen(JSONObject.Values['ibs_uf_aliq'] <> nil,
+        JSONObject.Values['ibs_uf_aliq'].Value, '0.1'));
+      conexao.Parametros('ibs_mun_aliq',
+        IfThen(JSONObject.Values['ibs_mun_aliq'] <> nil,
+        JSONObject.Values['ibs_mun_aliq'].Value, '0'));
+      conexao.Parametros('cbs_aliq',
+        IfThen(JSONObject.Values['cbs_aliq'] <> nil,
+        JSONObject.Values['cbs_aliq'].Value, '0.9'));
       conexao.Parametros('frete', IfThen(JSONObject.Values['frete'] <> nil,
         JSONObject.Values['frete'].Value, '0'));
       conexao.Parametros('codigo', IfThen(JSONObject.Values['id'] <> nil,
@@ -2566,6 +2685,7 @@ begin
       end;
       // Executa a query
       conexao.ExecuteSQL;
+      PropagarIBSCBSProdutosSemConfiguracao(conexao, JSONObject, Codigo);
       conexao.SQL.Clear;
       try
         if JSONObject.Values['ncm'].Value = '' then
@@ -4175,8 +4295,7 @@ begin
   if not Assigned(frmServidor.JsonDadosBloqueio) then
     frmServidor.DadosBloqueio;
   try
-    Res.Send<TJSONObject>(TJSONObject.ParseJSONValue
-      (frmServidor.JsonDadosBloqueio.ToString) as TJSONObject);
+    Res.Send(frmServidor.JsonDadosBloqueio.ToString);
   except
   end;
 end;
@@ -5178,6 +5297,81 @@ begin
   conexao.Free;
 end;
 
+procedure DoGetFiscalIBSCBSCST(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('DoGetFiscalIBSCBSCST');
+  try
+    conexao.SQL.Add('select cst, descricao, ind_nfe, ind_nfce, ind_nfse');
+    conexao.SQL.Add('from fiscal_ibs_cbs_cst');
+    conexao.SQL.Add('order by cst');
+    Res.Send<TJsonArray>(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
+
+procedure DoGetFiscalIBSCBSClassTrib(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  CST: String;
+begin
+  conexao := TConexao.Create('DoGetFiscalIBSCBSClassTrib');
+  try
+    CST := '';
+    try
+      CST := Trim(Req.Params['cst']);
+    except
+      CST := '';
+    end;
+    conexao.SQL.Add('select cclass_trib, cst, nome, descricao, tipo_aliquota,');
+    conexao.SQL.Add('pred_ibs, pred_cbs, ind_redutor_bc, credito_para,');
+    conexao.SQL.Add
+      ('dini_vig, dfim_vig, ind_nfe, ind_nfce, ind_nfse, anexo, link');
+    conexao.SQL.Add('from fiscal_ibs_cbs_class_trib');
+    if CST <> '' then
+    begin
+      conexao.SQL.Add('where cst = :cst');
+      conexao.Parametros('cst', CST);
+    end;
+    conexao.SQL.Add('order by cst, cclass_trib');
+    Res.Send<TJsonArray>(conexao.ConsultaSQL);
+  finally
+    conexao.Free;
+  end;
+end;
+
+procedure DoGetFiscalIBSCBSConfiguracao(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  JSON: TJSONObject;
+begin
+  conexao := TConexao.Create('DoGetFiscalIBSCBSConfiguracao');
+  JSON := TJSONObject.Create;
+  try
+    conexao.SQL.Add('select cst, descricao, ind_nfe, ind_nfce, ind_nfse');
+    conexao.SQL.Add('from fiscal_ibs_cbs_cst');
+    conexao.SQL.Add('order by cst');
+    JSON.AddPair('cst', conexao.ConsultaSQL);
+
+    conexao.SQL.Add('select cclass_trib, cst, nome, descricao, tipo_aliquota,');
+    conexao.SQL.Add('pred_ibs, pred_cbs, ind_redutor_bc, credito_para,');
+    conexao.SQL.Add
+      ('dini_vig, dfim_vig, ind_nfe, ind_nfce, ind_nfse, anexo, link');
+    conexao.SQL.Add('from fiscal_ibs_cbs_class_trib');
+    conexao.SQL.Add('order by cst, cclass_trib');
+    JSON.AddPair('class_trib', conexao.ConsultaSQL);
+
+    Res.Send<TJSONObject>(JSON);
+  finally
+    conexao.Free;
+  end;
+end;
+
 procedure DoGetProdutoFiscal(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -5185,7 +5379,7 @@ var
 begin
   conexao := TConexao.Create('DoGetProdutoFiscal');
   conexao.SQL.Add
-    ('select codigo, nome_produto, un, ncm,cest,cfop,cstipi,csticms,csosn, icms,ipi, pis,cofins, frete from produto');
+    ('select codigo, nome_produto, un, ncm,cest,cfop,cstipi,csticms,csosn, icms,ipi, pis,cofins, frete, ibs_cbs_cst, ibs_cbs_class_trib, ibs_uf_aliq, ibs_mun_aliq, cbs_aliq from produto');
   Res.Send<TJsonArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -5905,6 +6099,21 @@ begin
   end;
   iRequest.Free;
   Res.Send(Retorno);
+end;
+
+
+
+procedure DoGetImportaPedidoSite(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  path : String;
+  parametro : String;
+begin
+
+//conexao.Parametros('codigo', Req.Params['id'].ToInteger);
+  path := frmServidor.PathExe  + 'psGoopedir.exe ';
+  parametro := Req.Params['id']+' '+frmServidor.UserID.ToString;
+  frmServidor.AbrirExe(path,parametro);
+  Res.Send('Ok');
 end;
 
 procedure DoDeleteProduto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -6723,14 +6932,33 @@ var
   ObjetoiFood: TJSONObject;
   ArrayiFood: TJsonArray;
   DadosiFood: TFDMemTable;
+  Tempos: TJSONObject;
+  Stopwatch: TStopwatch;
+
+  procedure IniciarTempo;
+  begin
+    Stopwatch := TStopwatch.StartNew;
+  end;
+
+  procedure RegistrarTempo(const Nome: string);
+  begin
+    Stopwatch.Stop;
+    Tempos.AddPair(Nome, IntToStr(Stopwatch.ElapsedMilliseconds) + 'ms');
+  end;
+
 begin
+  Tempos := TJSONObject.Create;
   conexao := TConexao.Create('V2Status');
   DadosiFood := TFDMemTable.Create(nil);
+  IniciarTempo;
   try
     JSONModulos := TJSONObject.ParseJSONValue(frmServidor.GetModulo)
       as TJSONObject;
   except
+    JSONModulos := TJSONObject.Create;
   end;
+  RegistrarTempo('modulos');
+  IniciarTempo;
   try
     Usuario := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
     conexao.SQL.Add
@@ -6752,10 +6980,14 @@ begin
   except
     conexao.SQL.Clear;
   end;
+  RegistrarTempo('usuario');
   JSONObject := TJSONObject.Create;
+  IniciarTempo;
   if conexao.GetParametro('client_id') = '' then
   begin
     JSONObject.AddPair('licensa', False);
+    RegistrarTempo('licensa');
+    JSONObject.AddPair('tempos', Tempos);
     Res.Send(JSONObject);
     exit;
   end
@@ -6763,9 +6995,15 @@ begin
   begin
     JSONObject.AddPair('licensa', True);
   end;
+  RegistrarTempo('licensa');
+  IniciarTempo;
   JSONObject.AddPair('urlLoja', frmServidor.APIGoopedir.GetUrlLoja);
+  RegistrarTempo('urlLoja');
+  IniciarTempo;
   JSONObject.AddPair('atualizacao', frmServidor.mAtualizacao.ToJSONArray());
+  RegistrarTempo('atualizacao_memoria');
   JSONObject.AddPair('modulos', JSONModulos);
+  IniciarTempo;
   JSonObjectWhatsapp := TJSONObject.Create;
   JSonObjectWhatsapp.AddPair('status', frmServidor.StatusWhatsapp);
   JSonObjectWhatsapp.AddPair('celular', frmServidor.NumeroWhatsapp);
@@ -6782,13 +7020,19 @@ begin
     JSONObject.AddPair('whatsapp', JSonObjectWhatsapp);
   except
   end;
+  RegistrarTempo('whatsapp');
+  IniciarTempo;
   try
     JSONObject.AddPair('impressora', frmServidor.ImpressaoStatus);
   except
   end;
+  RegistrarTempo('impressora');
+  IniciarTempo;
   JSONObject.AddPair('site',
     TJSONObject.ParseJSONValue(frmServidor.GetCachedData) as TJSONObject);
+  RegistrarTempo('site');
   ArrayiFood := TJsonArray.Create;
+  IniciarTempo;
   if frmServidor.dataSetMerchants1.RecordCount > 0 then
   begin
     conexao.SQL.Add('select * from ifood_connect');
@@ -6820,6 +7064,8 @@ begin
     ObjetoiFood.AddPair('loja', DadosiFood.FieldByName('name').AsString);
     ArrayiFood.AddElement(ObjetoiFood);
   end;
+  RegistrarTempo('ifood');
+  IniciarTempo;
   // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants1.ToJSONArray());
   // DadosIfood.LoadFromJSON(frmServidor.dataSetMerchants2.ToJSONArray());
   if (Desenvolvimento()) then
@@ -6830,24 +7076,31 @@ begin
   begin
     JSONObject.AddPair('ambiente', 'prod');
   end;
+  RegistrarTempo('ambiente');
 
   JSONObject.AddPair('urlGoopedir', API_BASE_URL);
 
   JSONObject.AddPair('ifood', ArrayiFood);
   JSONObject.AddPair('user', frmServidor.UserID.ToString);
   JSONNFCe := TJSONObject.Create;
+  IniciarTempo;
   conexao.SQL.Add('SELECT 0 as zero, nfce FROM dados_whatsapp');
   NFC := conexao.FieldByName('nfce');
+  RegistrarTempo('nfce_configuracao');
   if NFC = '1' then
   begin
     JSONNFCe.AddPair('usa', True);
+    IniciarTempo;
     conexao.SQL.Add
       ('SELECT count(*) as quantidade, 0 as zero FROM pedido WHERE nfce_emite = 1 and id_caixa > 0  AND status > 0  AND data_pedido >= '
       + QuotedStr(FormatDateTime('yyyy-mm-01', now)) +
       ' and codigo_pedido_dia > 0');
     Quantidade := conexao.FieldByName('quantidade');
+    RegistrarTempo('nfce_contingencia');
     JSONNFCe.AddPair('contigencia', Quantidade);
+    IniciarTempo;
     JSONNFCe.AddPair('erro', frmServidor.memErrosNFCE.ToJSONArray());
+    RegistrarTempo('nfce_erros');
   end
   else
   begin
@@ -6856,6 +7109,7 @@ begin
     JSONNFCe.AddPair('erro', '[]');
   end;
   JSONObject.AddPair('nfce', JSONNFCe);
+  IniciarTempo;
   try
     Reader := TStreamReader.Create('atualizacao.json', TEncoding.UTF8);
     try
@@ -6867,29 +7121,74 @@ begin
       as TJSONObject);
   except
   end;
+  RegistrarTempo('arquivo_atualizacao');
+  IniciarTempo;
   JSONObject.AddPair('taxaEntrega', frmServidor.GetTaxaEntrega);
+  RegistrarTempo('taxaEntrega');
+  IniciarTempo;
   JSONObject.AddPair('tipoPagamento', frmServidor.GetTipopagamento);
+  RegistrarTempo('tipoPagamento');
+  IniciarTempo;
   if Assigned(frmServidor.CertificadoAtual) then
   begin
     frmServidor.RetornaCertificado.Free;
     JSONObject.AddPair('CertificadoAtual',
       TJSONObject.ParseJSONValue(frmServidor.CertificadoAtual.ToString));
   end;
+  RegistrarTempo('certificado');
   if frmServidor.memPaineis.RecordCount = 0 then
   begin
+    IniciarTempo;
     conexao.SQL.Add('SELECT * FROM painel where tipo <> 3');
     frmServidor.memPaineis.LoadFromJSON(conexao.ConsultaSQL);
+    RegistrarTempo('painel_consulta');
+  end
+  else
+  begin
+    IniciarTempo;
+    RegistrarTempo('painel_cache');
   end;
   if frmServidor.memBanner.RecordCount = 0 then
   begin
+    IniciarTempo;
     conexao.SQL.Add
       ('select *, DAYOFWEEK(curdate()) from banner where link <> "" and dia_semana like concat("%",DAYOFWEEK(curdate()),"%")');
     frmServidor.memBanner.LoadFromJSON(conexao.ConsultaSQL);
+    RegistrarTempo('banner_consulta');
+  end
+  else
+  begin
+    IniciarTempo;
+    RegistrarTempo('banner_cache');
   end;
+  IniciarTempo;
   JSONObject.AddPair('banner', frmServidor.memBanner.ToJSONArray());
   JSONObject.AddPair('painel', frmServidor.memPaineis.ToJSONArray());
   JSONObject.AddPair('tipoMesa', frmServidor.memTipoMesa.ToJSONArray());
+  RegistrarTempo('dados_memoria');
+  IniciarTempo;
+  if not Assigned(frmServidor.JsonDadosBloqueio) then
+    frmServidor.DadosBloqueio;
+  JSONObject.AddPair('bloqueio',TJSONObject.ParseJSONValue(frmServidor.JsonDadosBloqueio.ToString)as TJSONObject);
+  JSONObject.AddPair('faturas',TJSONArray.ParseJSONValue(frmServidor.Faturas.ToString)as TJSONArray);
+  RegistrarTempo('bloqueio');
+
+  IniciarTempo;
+  conexao.SQL.Add
+    ('SELECT * FROM caixa where id_usuario = :caixa and status = 1');
+  try
+    conexao.Parametros('caixa', Req.Headers['user'].ToInteger());
+  except
+    conexao.Parametros('caixa', 0);
+  end;
+  JSONObject.AddPair('userCaixa', conexao.ConsultaSQL);
+  RegistrarTempo('userCaixa');
+  IniciarTempo;
+  JSONObject.AddPair('alerta', GetAlerta(conexao));
+  RegistrarTempo('alerta');
+  JSONObject.AddPair('tempos', Tempos);
   conexao.Free;
+
   try
     Res.Send(JSONObject);
   finally
@@ -8870,6 +9169,239 @@ begin
     Result := ChaveNotaDespesa(Nota);
 end;
 
+function ValorJSONDespesa(JSON: TJSONObject;
+const Campo, Padrao: string): string;
+var
+  Value: TJSONValue;
+begin
+  Result := Padrao;
+  if not Assigned(JSON) then
+    exit;
+  Value := JSON.GetValue(Campo);
+  if Assigned(Value) and not(Value is TJSONNull) then
+    Result := Value.Value;
+end;
+
+function InteiroJSONDespesa(JSON: TJSONObject; const Campo: string;
+Padrao: Integer): Integer;
+var
+  Value: TJSONValue;
+begin
+  Result := Padrao;
+  if not Assigned(JSON) then
+    exit;
+  Value := JSON.GetValue(Campo);
+  if Assigned(Value) and not(Value is TJSONNull) then
+    TryStrToInt(Value.Value, Result);
+end;
+
+function BooleanJSONDespesa(JSON: TJSONObject; const Campo: string;
+Padrao: Boolean): Boolean;
+var
+  Value: TJSONValue;
+  Texto: string;
+begin
+  Result := Padrao;
+  if not Assigned(JSON) then
+    exit;
+  Value := JSON.GetValue(Campo);
+  if not Assigned(Value) or (Value is TJSONNull) then
+    exit;
+  Texto := LowerCase(Trim(Value.Value));
+  Result := (Texto = 'true') or (Texto = '1') or (Texto = 'sim');
+end;
+
+function FloatSQLDespesa(Valor: Real): string;
+var
+  FormatSettings: TFormatSettings;
+begin
+  FormatSettings := TFormatSettings.Create;
+  FormatSettings.DecimalSeparator := '.';
+  Result := FloatToStr(Valor, FormatSettings);
+end;
+
+function CartaoDespesaID(JSON: TJSONObject): Integer;
+begin
+  Result := InteiroJSONDespesa(JSON, 'cartao_id', 0);
+  if Result = 0 then
+    Result := InteiroJSONDespesa(JSON, 'cartao', 0);
+  if Result = 0 then
+    Result := InteiroJSONDespesa(JSON, 'id_cartao', 0);
+end;
+
+procedure MovimentarLimiteCartaoDespesa(conexao: TConexao; CartaoID: Integer;
+Valor: Real; RetornarLimite: Boolean);
+begin
+  if (CartaoID <= 0) or (Valor <= 0) then
+    exit;
+  conexao.SQL.Clear;
+  conexao.SQL.Add
+    ('update cartoes set limite_usado = greatest(0, coalesce(limite_usado, 0) ');
+  if RetornarLimite then
+    conexao.SQL.Add('- :valor), atualizado_em = now() where id = :cartao_id')
+  else
+    conexao.SQL.Add('+ :valor), atualizado_em = now() where id = :cartao_id');
+  conexao.Parametros('valor', FloatSQLDespesa(Valor));
+  conexao.Parametros('cartao_id', CartaoID);
+  conexao.ExecuteSQL;
+  conexao.SQL.Clear;
+end;
+
+procedure RetornarLimiteDespesa(conexao: TConexao; DespesaID: Integer);
+var
+  Dados: TFDMemTable;
+begin
+  Dados := TFDMemTable.Create(nil);
+  try
+    conexao.SQL.Clear;
+    conexao.SQL.Add
+      ('select id, cartao_id, valor, coalesce(limite_cartao_retornado, 0) as limite_cartao_retornado');
+    conexao.SQL.Add
+      ('from despesas where id = :id and coalesce(cartao_id, 0) > 0 limit 1');
+    conexao.Parametros('id', DespesaID);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+    if Dados.RecordCount = 0 then
+      exit;
+    if Dados.FieldByName('limite_cartao_retornado').AsInteger = 1 then
+      exit;
+    MovimentarLimiteCartaoDespesa(conexao, Dados.FieldByName('cartao_id')
+      .AsInteger, Dados.FieldByName('valor').AsFloat, True);
+    conexao.SQL.Clear;
+    conexao.SQL.Add
+      ('update despesas set limite_cartao_retornado = 1 where id = :id');
+    conexao.Parametros('id', DespesaID);
+    conexao.ExecuteSQL;
+  finally
+    Dados.Free;
+  end;
+end;
+
+procedure CriarRegraDespesaRecorrente(conexao: TConexao; JSON: TJSONObject;
+DataInicial: TDate; Valor: Real; CartaoID: Integer;
+const ChaveNota, GrupoRecorrencia: string);
+begin
+  conexao.SQL.Clear;
+  conexao.SQL.Add('insert into despesa_recorrencia');
+  conexao.SQL.Add('(categoria, descricao, valor, cartao_id, recorrencia_tipo,');
+  conexao.SQL.Add('dia_vencimento, proximo_vencimento, ativo, chave_nota,');
+  conexao.SQL.Add
+    ('fatura_ano_mes, recorrencia_grupo, criado_em, atualizado_em)');
+  conexao.SQL.Add('values');
+  conexao.SQL.Add
+    ('(:categoria, :descricao, :valor, :cartao_id, :recorrencia_tipo,');
+  conexao.SQL.Add(':dia_vencimento, :proximo_vencimento, 1, :chave_nota,');
+  conexao.SQL.Add(':fatura_ano_mes, :recorrencia_grupo, now(), now())');
+  conexao.Parametros('categoria', JSON.Values['categoria'].Value);
+  conexao.Parametros('descricao', JSON.Values['descricao'].Value);
+  conexao.Parametros('valor', FloatSQLDespesa(Valor));
+  conexao.Parametros('cartao_id', CartaoID);
+  conexao.Parametros('recorrencia_tipo', InteiroJSONDespesa(JSON,
+    'recorrencia', 3));
+  conexao.Parametros('dia_vencimento', DayOf(DataInicial));
+  conexao.Parametros('proximo_vencimento', FormatDateTime('yyyy-mm-dd',
+    IncMonth(DataInicial, 1)));
+  conexao.Parametros('chave_nota', ChaveNota);
+  conexao.Parametros('fatura_ano_mes', ValorJSONDespesa(JSON,
+    'fatura_ano_mes', ''));
+  conexao.Parametros('recorrencia_grupo', GrupoRecorrencia);
+  conexao.ExecuteSQL;
+  conexao.SQL.Clear;
+end;
+
+function ProximaDataRecorrencia(DataAtual: TDate; Tipo: Integer): TDate;
+begin
+  case Tipo of
+    1:
+      Result := IncDay(DataAtual, 1);
+    2:
+      Result := IncDay(DataAtual, 7);
+    4:
+      Result := IncMonth(DataAtual, 12);
+  else
+    Result := IncMonth(DataAtual, 1);
+  end;
+end;
+
+procedure GerarDespesasRecorrentesAte(conexao: TConexao; DataLimite: TDate);
+var
+  Regras: TFDMemTable;
+  Vencimento: TDate;
+  AnoMes: string;
+begin
+  Regras := TFDMemTable.Create(nil);
+  try
+    conexao.SQL.Clear;
+    conexao.SQL.Add('select * from despesa_recorrencia');
+    conexao.SQL.Add('where ativo = 1 and proximo_vencimento <= :data_limite');
+    conexao.Parametros('data_limite', FormatDateTime('yyyy-mm-dd', DataLimite));
+    Regras.LoadFromJSON(conexao.ConsultaSQL);
+    if Regras.RecordCount = 0 then
+      exit;
+    Regras.First;
+    while not Regras.Eof do
+    begin
+      Vencimento := ISO8601ToDate(Regras.FieldByName('proximo_vencimento').AsString);
+      while Vencimento <= DataLimite do
+      begin
+        AnoMes := FormatDateTime('yyyy-mm', Vencimento);
+        conexao.SQL.Clear;
+        conexao.SQL.Add('insert into despesas');
+        conexao.SQL.Add
+          ('(categoria, descricao, valor, parcelas, parcela, vencimento,');
+        conexao.SQL.Add
+          ('status, chave_nota, cartao_id, limite_cartao_retornado,');
+        conexao.SQL.Add
+          ('recorrente, recorrencia_tipo, recorrencia_grupo, fatura_ano_mes)');
+        conexao.SQL.Add
+          ('select :categoria, :descricao, :valor, 1, 1, :vencimento,');
+        conexao.SQL.Add('1, :chave_nota, :cartao_id, 0, 1, :recorrencia_tipo,');
+        conexao.SQL.Add(':recorrencia_grupo, :fatura_ano_mes from dual');
+        conexao.SQL.Add('where not exists (select 1 from despesas');
+        conexao.SQL.Add('where recorrencia_grupo = :recorrencia_grupo_check');
+        conexao.SQL.Add('and fatura_ano_mes = :fatura_ano_mes_check');
+        conexao.SQL.Add('and excluida = 0 limit 1)');
+        conexao.Parametros('categoria', Regras.FieldByName('categoria')
+          .AsInteger);
+        conexao.Parametros('descricao', Regras.FieldByName('descricao')
+          .AsString);
+        conexao.Parametros('valor', FloatSQLDespesa(Regras.FieldByName('valor')
+          .AsFloat));
+        conexao.Parametros('vencimento', FormatDateTime('yyyy-mm-dd',
+          Vencimento));
+        conexao.Parametros('chave_nota', Regras.FieldByName('chave_nota')
+          .AsString);
+        conexao.Parametros('cartao_id', Regras.FieldByName('cartao_id')
+          .AsInteger);
+        conexao.Parametros('recorrencia_tipo',
+          Regras.FieldByName('recorrencia_tipo').AsInteger);
+        conexao.Parametros('recorrencia_grupo',
+          Regras.FieldByName('recorrencia_grupo').AsString);
+        conexao.Parametros('fatura_ano_mes', AnoMes);
+        conexao.Parametros('recorrencia_grupo_check',
+          Regras.FieldByName('recorrencia_grupo').AsString);
+        conexao.Parametros('fatura_ano_mes_check', AnoMes);
+        conexao.ExecuteSQL;
+        if Regras.FieldByName('cartao_id').AsInteger > 0 then
+          MovimentarLimiteCartaoDespesa(conexao, Regras.FieldByName('cartao_id')
+            .AsInteger, Regras.FieldByName('valor').AsFloat, False);
+        Vencimento := ProximaDataRecorrencia(Vencimento,
+          Regras.FieldByName('recorrencia_tipo').AsInteger);
+      end;
+      conexao.SQL.Clear;
+      conexao.SQL.Add
+        ('update despesa_recorrencia set proximo_vencimento = :proximo,');
+      conexao.SQL.Add('atualizado_em = now() where id = :id');
+      conexao.Parametros('proximo', FormatDateTime('yyyy-mm-dd', Vencimento));
+      conexao.Parametros('id', Regras.FieldByName('id').AsInteger);
+      conexao.ExecuteSQL;
+      conexao.SQL.Clear;
+      Regras.Next;
+    end;
+  finally
+    Regras.Free;
+  end;
+end;
+
 procedure DoPostDespesa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: TConexao;
@@ -8879,7 +9411,14 @@ var
   Data: TDate;
   Valor: Real;
   ChaveNota: string;
-  formatSettings: TFormatSettings;
+  CartaoID: Integer;
+  Parcelas: Integer;
+  StatusDespesa: Integer;
+  Recorrente: Integer;
+  RecorrenciaProcedural: Boolean;
+  GrupoRecorrencia: string;
+  ValorParcela: Real;
+  FormatSettings: TFormatSettings;
 begin
   conexao := TConexao.Create('DoPostDespesa');
   JSON := TJSONObject.ParseJSONValue(Req.body);
@@ -8888,15 +9427,26 @@ begin
     // Converter o JSONValue para um TJSONObject
     JSONObject := JSON as TJSONObject;
     // Configurar o separador decimal explicitamente
-    formatSettings := TFormatSettings.Create;
-    formatSettings.DecimalSeparator := '.';
+    FormatSettings := TFormatSettings.Create;
+    FormatSettings.DecimalSeparator := '.';
     // Converte usando o formato especificado
-    Valor := StrToFloat(JSONObject.Values['valor'].Value, formatSettings);
+    Valor := StrToFloat(JSONObject.Values['valor'].Value, FormatSettings);
     ChaveNota := ChaveNotaDespesa(JSONObject);
+    CartaoID := CartaoDespesaID(JSONObject);
+    Parcelas := JSONObject.Values['parcelas'].Value.ToInteger;
+    Recorrente := 0;
+    RecorrenciaProcedural := BooleanJSONDespesa(JSONObject, 'recorrente', False)
+      and (Parcelas <= 1);
+    if RecorrenciaProcedural then
+      Recorrente := 1;
+    GrupoRecorrencia := FormatDateTime('yyyymmddhhnnsszzz', now) +
+      IntToStr(Random(10000));
     Data := StrToDate(Copy(JSONObject.Values['data'].Value, 9, 2) + '/' +
       Copy(JSONObject.Values['data'].Value, 6, 2) + '/' +
       Copy(JSONObject.Values['data'].Value, 0, 4));
-    for i := 1 to JSONObject.Values['parcelas'].Value.ToInteger do
+    if RecorrenciaProcedural then
+      Parcelas := 1;
+    for i := 1 to Parcelas do
     begin
       if i <> 1 then
       begin
@@ -8920,29 +9470,78 @@ begin
         end;
       end;
       conexao.SQL.Add
-        ('insert into despesas (categoria,descricao,valor,parcelas,parcela,vencimento,status,chave_nota) values');
+        ('insert into despesas (categoria,descricao,valor,parcelas,parcela,vencimento,status,chave_nota,cartao_id,limite_cartao_retornado,recorrente,recorrencia_tipo,recorrencia_grupo,fatura_ano_mes) values');
       conexao.SQL.Add
-        ('(:categoria,:descricao,:valor,:parcelas,:parcela,:vencimento,:status,:chave_nota) ');
+        ('(:categoria,:descricao,:valor,:parcelas,:parcela,:vencimento,:status,:chave_nota,:cartao_id,:limite_cartao_retornado,:recorrente,:recorrencia_tipo,:recorrencia_grupo,:fatura_ano_mes) ');
       conexao.Parametros('categoria', JSONObject.Values['categoria'].Value);
       conexao.Parametros('descricao', JSONObject.Values['descricao'].Value);
-      conexao.Parametros('valor', Valor / JSONObject.Values['parcelas']
-        .Value.ToInteger);
-      conexao.Parametros('parcelas', JSONObject.Values['parcelas'].Value);
+      ValorParcela := Valor / Parcelas;
+      conexao.Parametros('valor', ValorParcela);
+      conexao.Parametros('parcelas', Parcelas);
       conexao.Parametros('parcela', i);
       conexao.Parametros('vencimento', FormatDateTime('yyyy-mm-dd', Data));
       if JSONObject.Values['status'].Value.ToBoolean then
-      begin
-        conexao.Parametros('status', 2);
-      end
+        StatusDespesa := 2
       else
-      begin
-        conexao.Parametros('status', 1);
-      end;
+        StatusDespesa := 1;
+      conexao.Parametros('status', StatusDespesa);
       conexao.Parametros('chave_nota', ChaveNota);
+      if CartaoID > 0 then
+        conexao.Parametros('cartao_id', CartaoID)
+      else
+        conexao.Parametros('cartao_id', 0);
+      if (CartaoID > 0) and (StatusDespesa = 2) then
+        conexao.Parametros('limite_cartao_retornado', 1)
+      else
+        conexao.Parametros('limite_cartao_retornado', 0);
+      conexao.Parametros('recorrente', Recorrente);
+      conexao.Parametros('recorrencia_tipo', InteiroJSONDespesa(JSONObject,
+        'recorrencia', 0));
+      conexao.Parametros('recorrencia_grupo', GrupoRecorrencia);
+      conexao.Parametros('fatura_ano_mes', ValorJSONDespesa(JSONObject,
+        'fatura_ano_mes', ''));
       conexao.ExecuteSQL;
+      if (CartaoID > 0) and (StatusDespesa <> 2) then
+        MovimentarLimiteCartaoDespesa(conexao, CartaoID, ValorParcela, False);
     end;
+    if RecorrenciaProcedural then
+      CriarRegraDespesaRecorrente(conexao, JSONObject, Data, Valor, CartaoID,
+        ChaveNota, GrupoRecorrencia);
   end;
   conexao.Free;
+end;
+
+procedure DoPostGerarDespesaRecorrencia(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  JSON: TJSONValue;
+  JSONObject: TJSONObject;
+  Ano: Integer;
+  Mes: Integer;
+  Retorno: TJSONObject;
+begin
+  conexao := TConexao.Create('DoPostGerarDespesaRecorrencia');
+  JSON := TJSONObject.ParseJSONValue(Req.body);
+  Retorno := TJSONObject.Create;
+  try
+    Ano := YearOf(Date);
+    Mes := MonthOf(Date);
+    if Assigned(JSON) and (JSON is TJSONObject) then
+    begin
+      JSONObject := JSON as TJSONObject;
+      Ano := InteiroJSONDespesa(JSONObject, 'ano', Ano);
+      Mes := InteiroJSONDespesa(JSONObject, 'mes', Mes);
+    end;
+    GerarDespesasRecorrentesAte(conexao, EndOfAMonth(Ano, Mes));
+    Retorno.AddPair('status', 'ok');
+    Retorno.AddPair('ano', TJSONNumber.Create(Ano));
+    Retorno.AddPair('mes', TJSONNumber.Create(Mes));
+    Res.Send<TJSONObject>(Retorno);
+  finally
+    JSON.Free;
+    conexao.Free;
+  end;
 end;
 
 procedure DoGetDespesaSugestao(Req: THorseRequest; Res: THorseResponse;
@@ -9009,13 +9608,18 @@ begin
     if JSONObject.Values['type'].Value = '1' then
     begin
       conexao.SQL.Add('update despesas set status = 2 where id = :id');
+      conexao.Parametros('id', JSONObject.Values['id'].Value);
+      conexao.ExecuteSQL;
+      RetornarLimiteDespesa(conexao, JSONObject.Values['id'].Value.ToInteger);
     end
     else
     begin
+      if BooleanJSONDespesa(JSONObject, 'retornar_limite', False) then
+        RetornarLimiteDespesa(conexao, JSONObject.Values['id'].Value.ToInteger);
       conexao.SQL.Add('update despesas set excluida = 1 where id = :id');
+      conexao.Parametros('id', JSONObject.Values['id'].Value);
+      conexao.ExecuteSQL;
     end;
-    conexao.Parametros('id', JSONObject.Values['id'].Value);
-    conexao.ExecuteSQL;
   end;
   conexao.Free;
   JSON.Free;
@@ -9048,11 +9652,17 @@ begin
     JSONObject := JSON as TJSONObject;
     DataiFood := IncMonth(StrToDate('01/' + JSONObject.Values['mes'].Value + '/'
       + JSONObject.Values['ano'].Value), -1);
+    GerarDespesasRecorrentesAte(conexao,
+      EndOfAMonth(JSONObject.Values['ano'].Value.ToInteger,
+      JSONObject.Values['mes'].Value.ToInteger));
+    conexao.SQL.Clear;
     conexao.SQL.Add
-      ('select *, curdate() as data_servidor, (select descricao from descricao where id = despesas.categoria) as categoria_despesa from despesas');
+      ('select d.*, curdate() as data_servidor, dc.descricao as categoria_despesa, c.nome as cartao_nome, c.tipo as cartao_tipo, c.limite as cartao_limite, c.limite_usado as cartao_limite_usado from despesas d');
+    conexao.SQL.Add('left join descricao dc on dc.id = d.categoria');
+    conexao.SQL.Add('left join cartoes c on c.id = d.cartao_id');
     conexao.SQL.Add
-      ('where YEAR(vencimento) = :ano AND MONTH(vencimento) = :mes and excluida = 0');
-    conexao.SQL.Add('order by status, vencimento desc');
+      ('where YEAR(d.vencimento) = :ano AND MONTH(d.vencimento) = :mes and d.excluida = 0');
+    conexao.SQL.Add('order by d.status, d.vencimento desc');
     conexao.Parametros('ano', JSONObject.Values['ano'].Value);
     conexao.Parametros('mes', JSONObject.Values['mes'].Value);
     Dados.LoadFromJSON(conexao.ConsultaSQL);
@@ -9180,6 +9790,129 @@ begin
   conexao.Free;
 end;
 
+function DescricaoSemParcelaDespesa(const Texto: string): string;
+begin
+  Result := Trim(TRegEx.Replace(Texto, '\s*-\s*parcela\s+\d+\s*/\s*\d+\s*$', '',
+    [roIgnoreCase]));
+  Result := TRegEx.Replace(Result, '\s+', ' ');
+end;
+
+function DescricaoCategoriaDespesa(Value: TJSONValue): string;
+begin
+  Result := '';
+  if not Assigned(Value) or (Value is TJSONNull) then
+    exit;
+  if Value is TJSONObject then
+  begin
+    Result := ValorJSONDespesa(Value as TJSONObject, 'descricao', '');
+    if Result = '' then
+      Result := ValorJSONDespesa(Value as TJSONObject, 'nome', '');
+    if Result = '' then
+      Result := ValorJSONDespesa(Value as TJSONObject, 'name', '');
+  end
+  else
+    Result := Value.Value;
+  Result := DescricaoSemParcelaDespesa(Result);
+end;
+
+function BuscarCategoriaDespesaPorDescricao(conexao: TConexao;
+const Descricao: string): Integer;
+var
+  Qry: TFDQuery;
+begin
+  Result := 0;
+  if Trim(Descricao) = '' then
+    exit;
+  Qry := conexao.CriaQRY;
+  try
+    Qry.SQL.Add('select categoria');
+    Qry.SQL.Add('from despesas');
+    Qry.SQL.Add('where upper(trim(descricao)) = upper(trim(:descricao))');
+    Qry.SQL.Add('and coalesce(excluida, 0) = 0');
+    Qry.SQL.Add('and coalesce(categoria, 0) > 0');
+    Qry.SQL.Add('order by id desc limit 1');
+    Qry.ParamByName('descricao').AsString := Descricao;
+    Qry.Open;
+    if not Qry.IsEmpty then
+      Result := Qry.FieldByName('categoria').AsInteger;
+  finally
+    Qry.Free;
+  end;
+end;
+
+procedure DoPostDespesaCategoriaBuscar(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  JSONValue: TJSONValue;
+  JSONArray: TJsonArray;
+  Retorno: TJsonArray;
+  ItemRetorno: TJSONObject;
+  Descricao: string;
+  ID: Integer;
+  i: Integer;
+
+  procedure AdicionarResultado(Value: TJSONValue);
+  begin
+    Descricao := DescricaoCategoriaDespesa(Value);
+    ID := BuscarCategoriaDespesaPorDescricao(conexao, Descricao);
+    ItemRetorno := TJSONObject.Create;
+    ItemRetorno.AddPair('descricao', Descricao);
+    ItemRetorno.AddPair('id', TJSONNumber.Create(ID));
+    ItemRetorno.AddPair('encontrado', TJSONBool.Create(ID > 0));
+    Retorno.AddElement(ItemRetorno);
+  end;
+
+begin
+  conexao := TConexao.Create('DoPostDespesaCategoriaBuscar');
+  JSONValue := TJSONObject.ParseJSONValue(Req.body);
+  Retorno := TJsonArray.Create;
+  try
+    if not Assigned(JSONValue) then
+    begin
+      Res.Status(400);
+      Res.Send('json invalido');
+      exit;
+    end;
+
+    if JSONValue is TJsonArray then
+    begin
+      JSONArray := JSONValue as TJsonArray;
+      for i := 0 to JSONArray.Count - 1 do
+        AdicionarResultado(JSONArray.Items[i]);
+    end
+    else
+      AdicionarResultado(JSONValue);
+
+    Res.Send<TJsonArray>(Retorno);
+  finally
+    JSONValue.Free;
+    conexao.Free;
+  end;
+end;
+
+procedure DoGetDespesaCategoriaBuscar(Req: THorseRequest; Res: THorseResponse;
+Next: TProc);
+var
+  conexao: TConexao;
+  Retorno: TJSONObject;
+  Descricao: string;
+  ID: Integer;
+begin
+  conexao := TConexao.Create('DoGetDespesaCategoriaBuscar');
+  Retorno := TJSONObject.Create;
+  try
+    Descricao := DescricaoSemParcelaDespesa(Req.Params['descricao']);
+    ID := BuscarCategoriaDespesaPorDescricao(conexao, Descricao);
+    Retorno.AddPair('descricao', Descricao);
+    Retorno.AddPair('id', TJSONNumber.Create(ID));
+    Retorno.AddPair('encontrado', TJSONBool.Create(ID > 0));
+    Res.Send<TJSONObject>(Retorno);
+  finally
+    conexao.Free;
+  end;
+end;
+
 procedure DoGetDespesaCategoria(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
@@ -9207,6 +9940,7 @@ begin
   THorse.Get('/v2/movimentacao/pagamento', DoGetMovimentacaoPagamento);
   THorse.Get('/v2/fechamento/fiado', DoGetFechamentoFiado);
   THorse.Get('/v2/log/operacao', DoGetLogOperacao);
+  THorse.Get('/v2/log/operacao/resumo', DoGetLogOperacaoResumo);
   THorse.Post('/v2/category', DoPostCategory);
   THorse.Post('/v2/category/size/new', DoPostCategorySizeNew);
   THorse.Get('/v2/product/of/category/:category', DoGetCaetegory);
@@ -9219,6 +9953,10 @@ begin
   THorse.Get('/v2/pedidos/motoboy/:codigo', DoGetPedidosMotoboy);
   THorse.Get('/v2/pedidos/motoboy/pagamento/:pagamento', DoGetPedidosMotoboy);
   THorse.Post('/v2/pedidos/motoboy', PostGetPedidosMotoboy);
+  THorse.Get('/v2/fiscal/ibs-cbs/cst', DoGetFiscalIBSCBSCST);
+  THorse.Get('/v2/fiscal/ibs-cbs/class-trib', DoGetFiscalIBSCBSClassTrib);
+  THorse.Get('/v2/fiscal/ibs-cbs/class-trib/:cst', DoGetFiscalIBSCBSClassTrib);
+  THorse.Get('/v2/fiscal/ibs-cbs/configuracao', DoGetFiscalIBSCBSConfiguracao);
   THorse.Get('/v2/produtos/ifood', DoGetProdutosiFood);
   THorse.Get('/v2/cnpj/:cnpj', DoGetCNPJ);
   THorse.Post('/v2/parametro', DoAtualizParametro);
@@ -9352,8 +10090,13 @@ begin
   THorse.Post('/v2/tempo/entrega/pedido/:codigo', DoPostTempoEntregaPedido);
   // Despesas
   THorse.Post('/v2/despesa/categoria', DoPostDespesaCategoria);
+  THorse.Post('/v2/despesa/categoria/buscar', DoPostDespesaCategoriaBuscar);
+  THorse.Get('/v2/despesa/categoria/buscar/:descricao',
+    DoGetDespesaCategoriaBuscar);
   THorse.Get('/v2/despesa/categoria', DoGetDespesaCategoria);
   THorse.Post('/v2/despesa', DoPostDespesa);
+  THorse.Post('/v2/despesa/recorrencia/gerar', DoPostGerarDespesaRecorrencia);
+  THorse.Get('/v2/despesa/recorrencia/gerar', DoPostGerarDespesaRecorrencia);
   THorse.Get('/v2/despesa/sugestao', DoGetDespesaSugestao);
   THorse.Get('/v2/despesa/sugestao/:busca', DoGetDespesaSugestao);
   THorse.Get('/v2/despesa/ano', DoGetDespesasAnos);
@@ -9414,6 +10157,8 @@ begin
   THorse.put('v2/bancos', DoPutBancos);
   // Dashboard
   THorse.Get('/v2/dashboard/principal', DoGetDadosDashBoardPrincipal);
+
+  THorse.Get('v2/importa/pedido/site/:id', DoGetImportaPedidoSite);
 end;
 
 function DaysBetweenDates(const Date1, Date2: string): Integer;
@@ -9596,17 +10341,17 @@ end;
 
 function ConverterData(const dataOriginal: string): string;
 var
-  ano, Mes, Dia: Integer;
+  Ano, Mes, Dia: Integer;
 begin
   // Tenta extrair ano, mês e dia da string
-  ano := StrToIntDef(Copy(dataOriginal, 1, 4), 0);
+  Ano := StrToIntDef(Copy(dataOriginal, 1, 4), 0);
   Mes := StrToIntDef(Copy(dataOriginal, 6, 2), 0);
   Dia := StrToIntDef(Copy(dataOriginal, 9, 2), 0);
   // Verifica se os valores extraídos são válidos
-  if (ano <> 0) and (Mes <> 0) and (Dia <> 0) then
+  if (Ano <> 0) and (Mes <> 0) and (Dia <> 0) then
   begin
     // Formata a data no formato desejado
-    Result := Format('%02d/%02d/%04d', [Dia, Mes, ano]);
+    Result := Format('%02d/%02d/%04d', [Dia, Mes, Ano]);
   end
   else
   begin

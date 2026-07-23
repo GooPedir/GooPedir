@@ -60,7 +60,6 @@ var
   hMutex := CreateMutex(nil, True, MutexName);
   if GetLastError = ERROR_ALREADY_EXISTS then
   begin
-
     Halt; // Encerra a aplicação
     if hMutex <> 0 then
       CloseHandle(hMutex);

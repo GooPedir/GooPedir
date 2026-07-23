@@ -58,7 +58,7 @@ begin
   Conexao.ExecuteSQL;
   Dados := TFDMemTable.Create(nil);
   Conexao.SQL.Add
-    ('select p.codigo as produtoID, p.nome_produto as produto, p.descricao as produtoDescricao, p.foto_ifood as produtoUrl, p.alerta as produtoAlerta, p.valor_venda as produtoValor, p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,p.csosn,');
+    ('select p.codigo as produtoID, p.nome_produto as produto, p.descricao as produtoDescricao, p.foto_ifood as produtoUrl, p.alerta as produtoAlerta, p.valor_venda as produtoValor, p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,p.csosn,p.ibs_cbs_cst,p.ibs_cbs_class_trib,p.ibs_uf_aliq,p.ibs_mun_aliq,p.cbs_aliq,');
   Conexao.SQL.Add
     ('(select count(*) from produto_combo_config where produto_combo_id = p.codigo and status = "ATIVO") as combo, pap.id as extraId, pap.descricao as extra, pap.qtd_minima as extraMin, pap.qtd_maxima as extraMax, ');
   Conexao.SQL.Add
@@ -157,6 +157,18 @@ begin
       begin
         AdicionaPendencia(Conexao, Codigo, 'Produto sem CSOSN',
           'CSOSN deve ser informado');
+      end;
+
+      if Trim(Dados.FieldByName('ibs_cbs_cst').AsString) = '' then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem CST IBS/CBS',
+          'CST IBS/CBS deve ser informado');
+      end;
+
+      if Trim(Dados.FieldByName('ibs_cbs_class_trib').AsString) = '' then
+      begin
+        AdicionaPendencia(Conexao, Codigo, 'Produto sem Class. Trib. IBS/CBS',
+          'Classificacao tributaria IBS/CBS deve ser informada');
       end;
     end;
     // Validação dos Adicionais
@@ -395,6 +407,16 @@ begin
         JsonObjeto.AddPair('cofins', DadosProduto.FieldByName('cofins')
           .AsString);
         JsonObjeto.AddPair('frete', DadosProduto.FieldByName('frete').AsFloat);
+        JsonObjeto.AddPair('ibs_cbs_cst', DadosProduto.FieldByName('ibs_cbs_cst')
+          .AsString);
+        JsonObjeto.AddPair('ibs_cbs_class_trib',
+          DadosProduto.FieldByName('ibs_cbs_class_trib').AsString);
+        JsonObjeto.AddPair('ibs_uf_aliq', DadosProduto.FieldByName('ibs_uf_aliq')
+          .AsFloat);
+        JsonObjeto.AddPair('ibs_mun_aliq', DadosProduto.FieldByName('ibs_mun_aliq')
+          .AsFloat);
+        JsonObjeto.AddPair('cbs_aliq', DadosProduto.FieldByName('cbs_aliq')
+          .AsFloat);
         JsonObjeto.AddPair('un', DadosProduto.FieldByName('un').AsString);
         JsonObjeto.AddPair('fidelidade', DadosProduto.FieldByName('fidelidade')
           .AsString);

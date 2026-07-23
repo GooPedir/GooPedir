@@ -256,6 +256,7 @@
         <DCCReference Include="src\other\Horse.Compression.Types.pas"/>
         <DCCReference Include="uNFCe.pas"/>
         <DCCReference Include="src\modulo\uTempoRotas.pas"/>
+        <DCCReference Include="src\modulos\financeiro\financeiro.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

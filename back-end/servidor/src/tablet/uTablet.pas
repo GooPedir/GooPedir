@@ -27,6 +27,7 @@ type
 
 procedure Registry;
 function retornarCor(Cor: String): String;
+function GetAlerta(conexao: TConexao): TJSONArray;
 
 procedure DoGetConfigTablet(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
@@ -269,23 +270,10 @@ procedure DoListarAlertasTablet(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
   conexao: TConexao;
-  mem: TFDMemTable;
 begin
   conexao := TConexao.Create('DoListarAlertasTablet');
-  mem := TFDMemTable.Create(nil);
-  try
-    conexao.SQL.Add('SELECT ' +
-      'id, tipo, origem, referencia_id, tentativas, payload, data_evento ' +
-      'FROM alerta_sistema ' + 'WHERE status = ''ABERTO'' ' +
-      'ORDER BY data_evento limit 99');
-
-    mem.LoadFromJSON(conexao.ConsultaSQL);
-
-    Res.Send(mem.ToJSONArray);
-  finally
-    mem.Free;
-    conexao.Free;
-  end;
+  Res.Send<TJSONArray>(GetAlerta(conexao));
+  conexao.Free;
 end;
 
 procedure DoListarAlertasMesaPorUsuario(Req: THorseRequest; Res: THorseResponse;
@@ -788,6 +776,24 @@ begin
   end;
 
   Result := Arr;
+end;
+
+function GetAlerta(conexao: TConexao): TJSONArray;
+var
+  mem: TFDMemTable;
+begin
+  mem := TFDMemTable.Create(nil);
+  try
+    conexao.SQL.Add
+      ('SELECT id, tipo, origem, referencia_id, tentativas, payload, data_evento '
+      + 'FROM alerta_sistema WHERE status = ''ABERTO'' ORDER BY data_evento limit 99');
+    mem.LoadFromJSON(conexao.ConsultaSQL);
+    Result := mem.ToJSONArray;
+  finally
+    mem.Free;
+  end;
+  if not Assigned(Result) then
+    Result := TJSONArray.Create;
 end;
 
 end.

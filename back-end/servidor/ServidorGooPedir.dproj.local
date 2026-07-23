@@ -128,14 +128,16 @@
     <File Path="src\modulo\uDM.dfm"/>
     <File Path="src\modulo\uImageLocal.pas"/>
     <File Path="src\modulo\uMicroServices.pas"/>
-    <File Path="src\modulo\uTriggerManager.pas"/>
     <File Path="src\modulo\uTempoRotas.pas"/>
+    <File Path="src\modulo\uTriggerManager.pas"/>
     <File Path="src\modulos"/>
     <File Path="src\modulos\Controller"/>
     <File Path="src\modulos\Controller\PedidoController.pas"/>
     <File Path="src\modulos\Controller\PedidoSite.pas"/>
     <File Path="src\modulos\Controller\ProdutoQueue.pas"/>
     <File Path="src\modulos\Controller\uInserirUpdate.pas"/>
+    <File Path="src\modulos\financeiro"/>
+    <File Path="src\modulos\financeiro\financeiro.pas"/>
     <File Path="src\modulos\impressao"/>
     <File Path="src\modulos\impressao\imprimir.pas"/>
     <File Path="src\modulos\nfce"/>

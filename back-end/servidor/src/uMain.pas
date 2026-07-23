@@ -38,7 +38,7 @@ uses
   uAgent,
   uAtualizacaoSite, uGlobais, uProcedure, ProdutoQueue, uControlerProduto,
   Tasks, TaskManager, rota, HashMemoria, uIngredientesCardapio,
-  uControlerProdutoNotaFiscal, uNFCe, uTempoRotas;
+  uControlerProdutoNotaFiscal, uNFCe, uTempoRotas, financeiro;
 
 type
   TTaskProc = reference to procedure;
@@ -59,6 +59,22 @@ type
   TCacheItem = record
     Timestamp: TDateTime;
     Data: string;
+  end;
+
+  TLogOperacaoItem = record
+    IP: string;
+    Usuario: string;
+    Operacao: string;
+    Endpoint: string;
+    Body: string;
+    TempoMS: Int64;
+  end;
+
+  TLogOperacaoThread = class(TThread)
+  protected
+    procedure Execute; override;
+  public
+    constructor Create;
   end;
 
   TSincronizaProdutosThread = class(TThread)
@@ -270,7 +286,8 @@ type
   public
     { Public declarations }
     Function VerificaExe(Nome: String): Boolean;
-    procedure AbrirExe(Nome: String);
+    procedure AbrirExe(const Nome: String); overload;
+    procedure AbrirExe(const Nome, Parametros: String); overload;
     procedure FecharExe(ExeFileName: String);
     function IMPRESSAO: String;
     function WHATSAPP: String;
@@ -294,7 +311,7 @@ type
     procedure BuscarModulo;
     function GetModulo: String;
 
-    procedure AddLog(Text: String);
+    procedure AddLog(Erro: String);
     procedure AddErro(Identificacao, Erro: String);
     procedure EnviaGlitchtip(DSN, tipo, Identificacao, Mensagem: String);
     function GenerateUUID: string;
@@ -517,13 +534,94 @@ uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
   REST.JSON, uToPedindo, uControllCaches, uDadosWhatsapp, Horse.Compression,
   Horse.Compression.Types;
 
-procedure TfrmServidor.AbrirExe(Nome: String);
+var
+  LogOperacaoQueue: TThreadedQueue<TLogOperacaoItem>;
+  LogOperacaoThread: TLogOperacaoThread;
+
+procedure InicializarLogOperacao;
+begin
+  if LogOperacaoQueue = nil then
+    LogOperacaoQueue := TThreadedQueue<TLogOperacaoItem>.Create(1000, 0, 1000);
+
+  if LogOperacaoThread = nil then
+    LogOperacaoThread := TLogOperacaoThread.Create;
+end;
+
+procedure EnfileirarLogOperacao(const Item: TLogOperacaoItem);
+begin
+  if LogOperacaoQueue = nil then
+    InicializarLogOperacao;
+
+  LogOperacaoQueue.PushItem(Item);
+end;
+
+function LogOperacaoIP(Req: THorseRequest): string;
+begin
+  Result := Req.Headers['CF-Connecting-IP'];
+
+  if Result = '' then
+    Result := Req.Headers['X-Forwarded-For'];
+
+  if Result = '' then
+    Result := Req.Headers['X-Real-IP'];
+
+  if Result = '' then
+    Result := Req.RawWebRequest.RemoteAddr;
+end;
+
+{ TLogOperacaoThread }
+
+constructor TLogOperacaoThread.Create;
+begin
+  inherited Create(False);
+  FreeOnTerminate := False;
+end;
+
+procedure TLogOperacaoThread.Execute;
+var
+  Item: TLogOperacaoItem;
+  Conexao: Tconexao;
+begin
+  while not Terminated do
+  begin
+    if (LogOperacaoQueue <> nil) and
+      (LogOperacaoQueue.PopItem(Item) = wrSignaled) then
+    begin
+      Conexao := nil;
+      try
+        Conexao := Tconexao.Create('LogOperacao');
+        Conexao.SQL.Clear;
+        Conexao.SQL.Add
+          ('insert into log_operacao (ip, usuario, operacao, endpoint, body, tempo_ms) values (:ip, :usuario, :operacao, :endpoint, :body, :tempo_ms)');
+        Conexao.Parametros('ip', Item.IP);
+        Conexao.Parametros('usuario', Item.Usuario);
+        Conexao.Parametros('operacao', Item.Operacao);
+        Conexao.Parametros('endpoint', Item.Endpoint);
+        Conexao.Parametros('body', Item.Body);
+        Conexao.Parametros('tempo_ms', Item.TempoMS);
+        Conexao.ExecuteSQL;
+      except
+        on E: Exception do
+          Writeln('Erro ao registrar log_operacao: ' + E.Message);
+      end;
+      if Conexao <> nil then
+        Conexao.Free;
+    end;
+  end;
+end;
+
+procedure TfrmServidor.AbrirExe(const Nome: String);
 begin
   if length(trim(Nome)) = 0 then
     exit;
 
   ShellExecute(handle, 'open', PChar(Nome), '', '', SW_SHOWNORMAL);
 
+end;
+
+procedure TfrmServidor.AbrirExe(const Nome, Parametros: String);
+begin
+ ShellExecute(Handle, 'open', PChar(Nome), PChar(Parametros), nil, SW_SHOWNORMAL);
 end;
 
 procedure TfrmServidor.AddErro(Identificacao, Erro: String);
@@ -533,11 +631,47 @@ begin
     'Erro', Identificacao, Erro);
 end;
 
-procedure TfrmServidor.AddLog(Text: String);
+procedure TfrmServidor.AddLog(Erro: String);
+var
+  LogPath, LogFile, MsgLog: string;
+  LogStream: TFileStream;
 begin
-  EnviaGlitchtip
-    ('https://393ce11c328044b4a747820f31ce790a@nginx-glitchtip.l1p88w.easypanel.host/1',
-    'Log', 'AddLog', Text);
+
+  if not Desenvolvimento then
+    exit;
+    // Ignora erros de chave duplicada, como j? fazia
+  if pos('Duplicate entry', Erro) > 0 then
+    exit;
+
+  // Caminho da pasta de log (na mesma pasta do execut?vel)
+  LogPath := ExtractFilePath(ParamStr(0)) + 'log\';
+  if not DirectoryExists(LogPath) then
+    ForceDirectories(LogPath);
+
+  // Arquivo de log do dia
+  LogFile := LogPath + FormatDateTime('yyyy-mm-dd', Now) + '.log';
+
+  // Mensagem de log
+  MsgLog := FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + Erro + sLineBreak;
+
+  // Escreve no arquivo
+  try
+    if FileExists(LogFile) then
+      LogStream := TFileStream.Create(LogFile, fmOpenReadWrite or
+        fmShareDenyNone)
+    else
+      LogStream := TFileStream.Create(LogFile, fmCreate or fmShareDenyNone);
+
+    try
+      LogStream.Seek(0, soEnd);
+      LogStream.WriteBuffer(Pointer(MsgLog)^, length(MsgLog) * sizeof(Char));
+    finally
+      LogStream.Free;
+    end;
+  except
+    // Se nem salvar log conseguimos, s? desiste
+  end;
+
 end;
 
 procedure TfrmServidor.AgendarReinicio;
@@ -916,7 +1050,6 @@ begin
   except
     on E: Exception do
     begin
-      // //showmessage(E.Message);
     end;
   end;
   IniFile.WriteDate('ATIVA', 'ATIVA', Date);
@@ -1485,8 +1618,7 @@ begin
       begin
         if JsonObject.GetValue<String>('status') = 'connecting' then
         begin
-          Base64Whatsapp := StringReplace(JsonObject.GetValue<String>('qrcod'),
-            'data:image/png;base64,', '', [rfReplaceAll]);
+          Base64Whatsapp := StringReplace(JsonObject.GetValue<String>('qrcod'),'data:image/png;base64,', '', [rfReplaceAll]);
           NomeWhatsapp := '';
           ImagemWhatsapp := '';
           NumeroWhatsapp := '';
@@ -1512,7 +1644,7 @@ begin
     except
       on E: Exception do
       begin
-//        ShowMessage(E.Message);
+        // ShowMessage(E.Message);
       end;
 
     end;
@@ -1570,65 +1702,34 @@ var
   Requisicao: iRequisicao;
 begin
 
-  try
-    // frmServidor.setUser;
-    Requisicao := iRequisicao.Create(nil);
-    Requisicao.URL := 'https://old.goopedir.com/v1/faturasn/' +
-      frmServidor.UserID.ToString + '/a';
-    Requisicao.TempoExpiracao := 60 * 1000;
-    Requisicao.Execute;
-
-    if SemDataBloqueio then
-    begin
-      frmServidor.DataBloqueio := IncDay(Date, -10);
-    end;
-
-    if frmServidor.DataBloqueio = Date then
-      Difference := 1
-    else
-      Difference := DaysBetween(Date, frmServidor.DataBloqueio);
-
-    if Date > frmServidor.DataBloqueio then
-      Difference := 0;
-
-    if Assigned(JsonDadosBloqueio) then
-      JsonDadosBloqueio.Free;
-
-    if Requisicao.Retorno = 'null' then
-    begin
-      Faturas := TJsonArray.Create;
-    end
-    else
-    begin
-      Faturas := TJsonArray.ParseJSONValue(Requisicao.Retorno) as TJsonArray;
-    end;
-
-    JsonDadosBloqueio := TJsonObject.Create;
-    JsonDadosBloqueio.AddPair('vencimento',
-      DateToStr(frmServidor.DataBloqueio));
-    JsonDadosBloqueio.AddPair('dias', Difference);
-    JsonDadosBloqueio.AddPair('user', frmServidor.UserID);
-    JsonDadosBloqueio.AddPair('faturas', Faturas);
-    if (FormatDateTime('yyyy', DataConfianca) = FormatDateTime('yyyy', now)) and
-      (FormatDateTime('mm', DataConfianca) = FormatDateTime('mm', now)) then
-    begin
-      JsonDadosBloqueio.AddPair('confianca', false);
-    end
-    else
-    begin
-      JsonDadosBloqueio.AddPair('confianca', true);
-    end;
-
-  except
-    on E: Exception do
-    begin
-      // Res.Send(E.Message);
-      JsonDadosBloqueio := TJsonObject.Create;
-
-    end;
-
+  if frmServidor.DataBloqueio = StrToDate('30/12/1899') then
+  begin
+    exit;
   end;
 
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := getUrlGoopedir;
+  Requisicao.URL := 'api/interno/desbloqueio/confianca/consulta/' +
+    UserID.ToString;
+  try
+    Requisicao.Execute;
+    JsonDadosBloqueio := TJsonObject.ParseJSONValue(Requisicao.Retorno)
+      as TJsonObject;
+  except
+    JsonDadosBloqueio := TJsonObject.Create;
+  end;
+  Requisicao.Free;
+
+  Requisicao := iRequisicao.Create(nil);
+  Requisicao.BaseURL := getUrlGoopedir;
+  Requisicao.URL := 'api/faturas/' + UserID.ToString;
+  try
+    Requisicao.Execute;
+    Faturas := TJsonArray.ParseJSONValue(Requisicao.Retorno) as TJsonArray;
+  except
+    Faturas := TJsonArray.Create;
+  end;
+  Requisicao.Free;
 end;
 
 function TfrmServidor.DadosProdutos: TJsonArray;
@@ -2011,8 +2112,8 @@ var
   Descricao: String;
   reqImpressao: iRequisicao;
   BODY: String;
-  data : Double;
-begin
+  Data: Double;
+begin  try
   conexao := Tconexao.Create('EnviarConferencia');
   Objeto := TJsonObject.Create;
 
@@ -2065,27 +2166,22 @@ begin
   end;
   QryImpressora.Open;
   Objeto.AddPair('driver', QryImpressora.FieldByName('driver').AsString);
-  Objeto.AddPair('modelo',ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
+  Objeto.AddPair('modelo',
+    ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
 
   if QryPedido.FieldByName('id_ficha').AsInteger = 0 then
   begin
 
     QryPedido.Close;
     QryPedido.SQL.Clear;
-    QryPedido.SQL.Add
-      ('SELECT p.valor_taxa_entrega as entrega,p.troco, p.codigo, p.codigo_pedido_dia as sequencial, p.data_pedido as data, p.hora_pedido as hora, p.valor_taxa_entrega as entrega, ');
-    QryPedido.SQL.Add
-      ('p.latitude, p.longitude, p.desc_desconto_ifood as desconto, p.valor_desconto, p.nfce_chave, p.nfce_protocolo, p.nfce_numero, p.partner, p.mp as transacao ,');
-    QryPedido.SQL.Add
-      ('c.nome, c.fidelidade, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
+    QryPedido.SQL.Add('SELECT p.valor_taxa_entrega as entrega,p.troco, p.codigo, p.codigo_pedido_dia as sequencial, p.data_pedido as data, p.hora_pedido as hora, p.valor_taxa_entrega as entrega, ');
+    QryPedido.SQL.Add('p.latitude, p.longitude, p.desc_desconto_ifood as desconto, p.valor_desconto, p.nfce_chave, p.nfce_protocolo, p.nfce_numero, p.partner, p.mp as transacao ,');
+    QryPedido.SQL.Add('c.nome, c.fidelidade, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
     QryPedido.SQL.Add('FROM pedido as p');
     QryPedido.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
-    QryPedido.SQL.Add
-      ('left join cliente_endereco as cend on cend.codigo = p.codigo_cliente_endereco');
-    QryPedido.SQL.Add
-      ('left join cliente_estatistica as ce on ce.codigo_cliente = c.codigo');
-    QryPedido.SQL.Add
-      ('left join tipo_pagamento as tp on tp.codigo = p.tipo_pagamento');
+    QryPedido.SQL.Add('left join cliente_endereco as cend on cend.codigo = p.codigo_cliente_endereco');
+    QryPedido.SQL.Add('left join cliente_estatistica as ce on ce.codigo_cliente = c.codigo');
+    QryPedido.SQL.Add('left join tipo_pagamento as tp on tp.codigo = p.tipo_pagamento');
     QryPedido.SQL.Add('where p.codigo = :codigo');
     QryPedido.ParamByName('codigo').AsInteger := Codigo;
     QryPedido.Open;
@@ -2095,12 +2191,13 @@ begin
     ObjetoCliente.AddPair('cpf', QryPedido.FieldByName('cpf').AsString);
     ObjetoCliente.AddPair('celular', QryPedido.FieldByName('celular').AsString);
     ObjetoCliente.AddPair('pedidos', QryPedido.FieldByName('pedidos').AsString);
-    ObjetoCliente.AddPair('fidelidade', QryPedido.FieldByName('fidelidade').AsString);
+    ObjetoCliente.AddPair('fidelidade', QryPedido.FieldByName('fidelidade')
+      .AsString);
     Objeto.AddPair('sequencial', QryPedido.FieldByName('sequencial').AsInteger);
     Objeto.AddPair('codigo', QryPedido.FieldByName('codigo').AsInteger);
     Objeto.AddPair('cliente', ObjetoCliente);
-    data := QryPedido.FieldByName('data').AsDateTime;
-    Objeto.AddPair('data', StrToInt(FormatFloat('0',data)));
+    Data := QryPedido.FieldByName('data').AsDateTime;
+    Objeto.AddPair('data', StrToInt(FormatFloat('0', Data)));
     Objeto.AddPair('hora', QryPedido.FieldByName('hora').AsDateTime);
 
     Objeto.AddPair('partner', QryPedido.FieldByName('partner').AsString);
@@ -2157,16 +2254,11 @@ begin
   begin
     // Foi faturado
     QryPagamento.SQL.Clear;
-    QryPagamento.SQL.Add
-      ('SELECT tp.descricao, cm.valor, cli.nome FROM caixa_movimento as cm ');
-    QryPagamento.SQL.Add
-      ('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
-    QryPagamento.SQL.Add
-      ('left join caixa_receber as cr on cr.id_caixa = cm.id_caixa and cr.id_pedido = cm.id_pedido and cr.id_tipo_pagamento = tp.codigo');
-    QryPagamento.SQL.Add
-      ('left join cliente as cli on cli.codigo = cr.id_cliente');
-    QryPagamento.SQL.Add
-      ('where cm.id_pedido = :codigo and cm.tipo = 1 order by cm.valor desc');
+    QryPagamento.SQL.Add('SELECT tp.descricao, cm.valor, cli.nome FROM caixa_movimento as cm ');
+    QryPagamento.SQL.Add('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
+    QryPagamento.SQL.Add('left join caixa_receber as cr on cr.id_caixa = cm.id_caixa and cr.id_pedido = cm.id_pedido and cr.id_tipo_pagamento = tp.codigo');
+    QryPagamento.SQL.Add('left join cliente as cli on cli.codigo = cr.id_cliente');
+    QryPagamento.SQL.Add('where cm.id_pedido = :codigo and cm.tipo = 1 order by cm.valor desc');
     QryPagamento.ParamByName('codigo').AsInteger := Codigo;
     QryPagamento.Open;
     while not QryPagamento.Eof do
@@ -2205,6 +2297,13 @@ begin
   Objeto.AddPair('pagamento', ArrayPagamentos);
 
   Objeto.AddPair('itens', MontaArrayProdutos(Codigo, 'codigo_pedido', true));
+except
+on e : Exception do
+begin
+
+end;
+
+end;
 
   reqImpressao := iRequisicao.Create(nil);
   reqImpressao.BaseURL := frmServidor.urlServicoImpressaoGo;
@@ -2213,7 +2312,7 @@ begin
   try
     BODY := Objeto.ToJSON;
     reqImpressao.BODY(BODY);
-    reqImpressao.TempoExpiracao := 2;
+    reqImpressao.TempoExpiracao := 20;
     reqImpressao.Execute;
   except
     urlServicoImpressaoGo := '';
@@ -2948,6 +3047,7 @@ begin
   ClientSocket := TGenericSocket.New;
   conexao := Tconexao.Create('main');
 
+
   // Migrado Para o Core
 
   conexao.SQL.Add('select * from dados_whatsapp');
@@ -3043,11 +3143,13 @@ begin
   util.Registry;
   NFCE.Registry;
   imprimir.Registry;
+  financeiro.Registry;
   if InicializacaoHabilitada('LoadImpressora') then
     LoadImpressora;
   uTablet.Registry;
 
   // Middlewares
+  InicializarLogOperacao;
   THorse.Use(LogMiddleware);
   THorse.Use(ConfigurarCORS);
   THorse.Use(ExceptionMiddleware);
@@ -4103,6 +4205,7 @@ begin
     end;
 
   end;
+  BODY := reqImpressao.Retorno;
   Qry.Free;
   conexao.Free;
   //
@@ -4329,53 +4432,37 @@ end;
 procedure TfrmServidor.LogMiddleware(Req: THorseRequest; Res: THorseResponse;
 Next: TProc);
 var
-  LogDir, LogFilePath, LogLine, BodyContent, MetodoHTTP: string;
-  LogFile: TStreamWriter;
+  Item: TLogOperacaoItem;
+  Inicio: UInt64;
+  BodyOriginal: string;
 begin
-  FormatSettings.DecimalSeparator := ',';
-  // continua o fluxo normal da requisição
-  Next;
-  exit;
-
-  EnviaGlitchtip
-    ('https://9327eaf954a340cb94c64a8bf4afb696@nginx-glitchtip.l1p88w.easypanel.host/5',
-    Req.RawWebRequest.RawPathInfo, Metodo(Req), BodyContent);
+  Inicio := GetTickCount64;
+  BodyOriginal := Req.Body;
+  Item.IP := '';
+  Item.Usuario := 'servidor';
+  Item.Operacao := Req.RawWebRequest.Method;
+  Item.Endpoint := Req.RawWebRequest.RawPathInfo;
+  Item.Body := '';
+  Item.TempoMS := 0;
 
   try
-    MetodoHTTP := Req.RawWebRequest.Method;
-
-    // Define pasta base dos logs
-    LogDir := ExtractFilePath(ParamStr(0)) + 'logs\rotas\';
-    if not DirectoryExists(LogDir) then
-      ForceDirectories(LogDir);
-
-    // Cria um arquivo novo por dia: ex: rotas_2025-11-03.log
-    LogFilePath := LogDir + 'rotas_' + FormatDateTime('yyyy-mm-dd', now) + '-' +
-      Test.ToString + '.log';
-
-    // Captura o body apenas se for POST
-    if SameText(MetodoHTTP, 'POST') then
-      BodyContent := Req.BODY
-    else
-      BodyContent := '';
-
-    // Monta a linha de log
-    LogLine := Format('[%s] %s %s | IP: %s | Body: %s',
-      [FormatDateTime('hh:nn:ss.zzz', now), MetodoHTTP,
-      Req.RawWebRequest.RawPathInfo, Req.RawWebRequest.RemoteAddr,
-      BodyContent]);
-
-    // Abre o arquivo e escreve
-    LogFile := TStreamWriter.Create(LogFilePath, true, TEncoding.UTF8);
-    try
-      LogFile.WriteLine(LogLine);
-    finally
-      LogFile.Free;
-    end;
+    Item.IP := LogOperacaoIP(Req);
+    Item.Usuario := Req.Headers['usuario'];
+    if Item.Usuario = '' then
+      Item.Usuario := Req.Headers['user'];
+    if Item.Usuario = '' then
+      Item.Usuario := 'servidor';
   except
     on E: Exception do
-      // opcional: tratamento de falha no log
-      Writeln('Erro ao registrar log: ' + E.Message);
+      //Writeln('Erro ao enfileirar log_operacao: ' + E.Message);
+  end;
+
+  try
+    Next;
+  finally
+    Item.Body := BodyOriginal;
+    Item.TempoMS := GetTickCount64 - Inicio;
+    EnfileirarLogOperacao(Item);
   end;
 end;
 
@@ -4421,7 +4508,7 @@ begin
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Methods',
     'GET, POST, PUT, DELETE, OPTIONS');
   Res.RawWebResponse.SetCustomHeader('Access-Control-Allow-Headers',
-    'Content-Type, Authorization');
+    'Content-Type, Authorization, usuario, user');
   if Req.RawWebRequest.Method = 'OPTIONS' then
     Res.Status(204).Send('')
   else
@@ -4490,8 +4577,8 @@ begin
   Qry.SQL.Add('left join cliente as cli on cli.codigo = ped.codigo_cliente');
   Qry.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
   Qry.SQL.Add('join tipo_produto as tp on tp.codigo = p.codigo_grupo');
-  Qry.SQL.Add('join impressoras as i on i.codigo = tp.impressora');
-  Qry.SQL.Add('join usuario as u on u.codigo = pp.usuario');
+  Qry.SQL.Add('left join impressoras as i on i.codigo = tp.impressora');
+  Qry.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
   Qry.SQL.Add('where pp.' + Campo + ' = :codigo');
 
   if not Tudo then
@@ -4540,7 +4627,10 @@ begin
 
         Atualiza := false;
         Descricao := Qry.FieldByName('desc_ficha').AsString;
-
+        if Qry.FieldByName('endereco').AsInteger > 1 then
+        begin
+              Descricao := 'Delivery ' + Qry.FieldByName('dia').AsString
+        end;
         if Descricao = '' then
         begin
           Atualiza := true;
@@ -4552,24 +4642,25 @@ begin
 
           conexao.SQL.Add('from pedido as p');
           conexao.SQL.Add('left join mesa as m on m.id_mesa = p.id_ficha');
-          conexao.SQL.Add('left join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
+          conexao.SQL.Add
+            ('left join mesa_tipo as mt on mt.id_mesa_tipo = m.fk_tipo_mesa');
           conexao.SQL.Add('where p.codigo = :codigo');
-          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido').AsString);
+          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido')
+            .AsString);
           Descricao := conexao.FieldByName('descricao');
           if Descricao = '' then
           begin
-            if Qry.FieldByName('endereco').AsInteger > 1 then
-              Descricao := 'Delivery ' + Qry.FieldByName('dia').AsString
-            else
               Descricao := 'Retirada ' + Qry.FieldByName('dia').AsString;
           end;
         end;
 
         if Atualiza then
         begin
-          conexao.SQL.Add('update pedido set desc_ficha = :descricao where codigo = :codigo');
+          conexao.SQL.Add
+            ('update pedido set desc_ficha = :descricao where codigo = :codigo');
           conexao.Parametros('descricao', Descricao);
-          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido').AsString);
+          conexao.Parametros('codigo', Qry.FieldByName('codigo_pedido')
+            .AsString);
           conexao.Parametros('cliente', Qry.FieldByName('cliente').AsString);
           conexao.ExecuteSQL;
         end;
@@ -4578,8 +4669,10 @@ begin
         jsonRoot.AddPair('numero', TJSONNumber.Create(0));
         jsonRoot.AddPair('usuario', Qry.FieldByName('usuario').AsString);
         jsonRoot.AddPair('driver', Qry.FieldByName('driver').AsString);
-        jsonRoot.AddPair('impressora', Qry.FieldByName('nomeImpressora').AsString);
-        jsonRoot.AddPair('modelo',ModeloImpressora(Qry.FieldByName('tipoImpressao').AsInteger));
+        jsonRoot.AddPair('impressora', Qry.FieldByName('nomeImpressora')
+          .AsString);
+        jsonRoot.AddPair('modelo',
+          ModeloImpressora(Qry.FieldByName('tipoImpressao').AsInteger));
 
         // nomeCli
         if Qry.FieldByName('nomeCli').AsString <> '' then
@@ -4627,9 +4720,11 @@ begin
       objProduto.AddPair('nome', Qry.FieldByName('nomeProduto').AsString);
       objProduto.AddPair('uuid', Qry.FieldByName('uuid').AsString);
 
-      objProduto.AddPair('categoria', Qry.FieldByName('nomeCategoria').AsString);
+      objProduto.AddPair('categoria', Qry.FieldByName('nomeCategoria')
+        .AsString);
 
-      objProduto.AddPair('quantidade',TJSONNumber.Create(Qry.FieldByName('quantidade').AsInteger));
+      objProduto.AddPair('quantidade',
+        TJSONNumber.Create(Qry.FieldByName('quantidade').AsInteger));
 
       // =========================
       // VALORES SOMENTE NO TUDO
@@ -5904,6 +5999,7 @@ var
   Test: String;
   ArquivoExcluir: String;
   StatusWhatsapp: Boolean;
+
 begin
   if not Assigned(APIGoopedir) then
     exit;
@@ -5920,7 +6016,6 @@ begin
   if user = -1 then
   begin
     // Fazer opção para recuperar o cache e não sincronizar produtos
-
     Result := user;
     exit;
   end;
@@ -5962,7 +6057,6 @@ begin
       if UserID = -1 then
       begin
         self.DataBloqueio := IncDay(Data, 1);
-
         exit;
       end;
       try
@@ -5972,12 +6066,17 @@ begin
         // self.DataBloqueio := IncDay(Data, 1);
         SemDataBloqueio := true;
       end;
+      conexao := Tconexao.Create('SemDataBloqueio');
+      conexao.SQL.Add('update motoboy set acesso_site = SHA2(CONCAT(' +
+        UserID.ToString + ', "-", id_site), 256)');
+      conexao.ExecuteSQL;
+      conexao.Free;
+      DadosBloqueio;
 
     except
       on E: Exception do
       begin
         frmServidor.AddErro('UserID', E.Message);
-
       end;
 
     end;

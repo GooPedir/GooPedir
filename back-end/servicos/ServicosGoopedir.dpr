@@ -80,7 +80,8 @@ uses
   uGlobais in '..\servidor\uGlobais.pas',
   uControllCaches in '..\servidor\src\controller\uControllCaches.pas',
   uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
-  uControlerProduto in '..\servidor\src\controller\uControlerProduto.pas';
+  uControlerProduto in '..\servidor\src\controller\uControlerProduto.pas',
+  financeiro in '..\servidor\src\modulos\financeiro\financeiro.pas';
 
 {$R *.res}
 

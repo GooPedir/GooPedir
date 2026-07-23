@@ -11,6 +11,7 @@ uses
   JSON,
   ACBrDFeSSL,
   ACBrDFe,
+  ACBrDFe.Conversao,
   ACBrNFe,
   pcnConversao,
   conexao,
@@ -36,7 +37,7 @@ uses
   pcnAuxiliar, pcnConversaoNFe, pcnNFeRTXT,
   pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeOpenSSL, ACBrDFeUtil,
-  ACBrNFeNotasFiscais, ACBrNFeConfiguracoes;
+  ACBrNFeNotasFiscais, ACBrNFeConfiguracoes, ACBrNFe.Classes;
 
 type
   TNFCeImpressora = record
@@ -94,6 +95,10 @@ type
     TributosFederal: Double;
     TributosEstadual: Double;
     ValorItens: Double;
+    BaseIBSCBS: Double;
+    ValorIBSUF: Double;
+    ValorIBSMun: Double;
+    ValorCBS: Double;
     TotalPagamento: Double;
   end;
 
@@ -138,12 +143,16 @@ type
 function ParametroStr(conexao: TConexao; const chave: String): String; forward;
 function ParametroInt(conexao: TConexao; const chave: String;
   valorPadrao: Integer): Integer; forward;
+
+function PathSchemasNFe(conexao: TConexao): String; forward;
 function DFeHabilitado(conexao: TConexao): Boolean; forward;
 function ManifestarDFePendentesAutomatico: Integer; forward;
 procedure AtualizarXMLDFeBanco(conexao: TConexao;
   const chave, XML: String); forward;
 function ImportarNotaFiscalDFeXML(conexao: TConexao; const XML: String)
   : Boolean; forward;
+function BlocoTagXML(const XML, Nome: String): String; forward;
+function ValorTagXML(const XML, Nome: String): Double; forward;
 
 function ParametroStrPadrao(conexao: TConexao;
   const chave, valorPadrao: String): String;
@@ -213,6 +222,8 @@ end;
 function JsonStr(obj: TJSONObject; const campo: String): String;
 var
   valor: TJSONValue;
+  par: TJSONPair;
+  I: Integer;
 begin
   Result := '';
   if not Assigned(obj) then
@@ -220,9 +231,29 @@ begin
 
   valor := obj.GetValue(campo);
   if Assigned(valor) then
+  begin
     Result := valor.Value;
+    Exit;
+  end;
+
+  for I := 0 to obj.Count - 1 do
+  begin
+    par := obj.Pairs[I];
+    if Assigned(par) and SameText(par.JsonString.Value, campo) then
+    begin
+      if Assigned(par.JsonValue) then
+        Result := par.JsonValue.Value;
+      Exit;
+    end;
+  end;
 end;
 
+function JsonStrAny(obj: TJSONObject; const campo1, campo2: String): String;
+begin
+  Result := JsonStr(obj, campo1);
+  if (Result = '') and (campo2 <> '') then
+    Result := JsonStr(obj, campo2);
+end;
 function JsonFloat(obj: TJSONObject; const campo: String): Double;
 var
   texto: String;
@@ -236,9 +267,136 @@ begin
     Result := StrToFloatDef(StringReplace(texto, '.', ',', [rfReplaceAll]), 0);
 end;
 
+function JsonFloatName(obj: TJSONObject; const campo1, campo2: String): Double;
+var
+  texto: String;
+  fs: TFormatSettings;
+begin
+  texto := JsonStrAny(obj, campo1, campo2);
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := '.';
+  Result := StrToFloatDef(texto, 0, fs);
+  if Result = 0 then
+    Result := StrToFloatDef(StringReplace(texto, '.', ',', [rfReplaceAll]), 0);
+end;
 function JsonInt(obj: TJSONObject; const campo: String): Integer;
 begin
   Result := StrToIntDef(JsonStr(obj, campo), 0);
+end;
+
+function SetEnumPropPorNome(obj: TObject;
+  const Propriedade, valor: String): Boolean;
+var
+  Info: PPropInfo;
+  EnumValue: Integer;
+  Kind: TTypeKind;
+begin
+  Result := False;
+  if (not Assigned(obj)) or (Trim(valor) = '') then
+    Exit;
+
+  Info := GetPropInfo(obj, Propriedade);
+  if not Assigned(Info) then
+    Exit;
+
+  Kind := Info.PropType^.Kind;
+  if Kind in [tkString, tkLString, tkWString, tkUString] then
+  begin
+    SetStrProp(obj, Info, valor);
+    Result := True;
+    Exit;
+  end;
+
+  if Kind = tkEnumeration then
+  begin
+    EnumValue := GetEnumValue(Info.PropType^, valor);
+    if EnumValue < 0 then
+      Exit;
+
+    SetOrdProp(obj, Info, EnumValue);
+    Result := True;
+  end;
+end;
+
+
+function CSTIBSCBSPorCodigo(const Codigo: String): TCSTIBSCBS;
+begin
+  if Codigo = '200' then
+    Result := cst200
+  else if Codigo = '220' then
+    Result := cst220
+  else if Codigo = '510' then
+    Result := cst510
+  else
+    Result := cst000;
+end;
+
+procedure AlimentarIBSCBSACBr(Produto: TDetCollectionItem; Item: TJSONObject;
+  BaseCalculo: Double; var Totais: TNFCeTotais);
+var
+  CSTCodigo, ClassTrib: String;
+  CSTEnum: TCSTIBSCBS;
+  AliqIBSUF, AliqIBSMun, AliqCBS: Double;
+  RedIBS, RedCBS: Double;
+  NomeProduto: String;
+begin
+  if not Assigned(Produto) then
+    Exit;
+
+  NomeProduto := '[' + JsonStr(Item, 'code') + '] ' + JsonStr(Item, 'name');
+
+  CSTCodigo := Trim(JsonStrAny(Item, 'ibsCbsCst', 'ibs_cbs_cst'));
+  if CSTCodigo = '' then
+    CSTCodigo := '000';
+  CSTEnum := CSTIBSCBSPorCodigo(CSTCodigo);
+  ClassTrib := Trim(JsonStrAny(Item, 'ibsCbsClassTrib', 'ibs_cbs_class_trib'));
+  if ClassTrib = '' then
+    ClassTrib := '000001';
+
+  RedIBS := JsonFloatName(Item, 'ibsCbsPredIbs', 'ibs_cbs_pred_ibs');
+  RedCBS := JsonFloatName(Item, 'ibsCbsPredCbs', 'ibs_cbs_pred_cbs');
+  AliqIBSUF := JsonFloatName(Item, 'ibsUfAliq', 'ibs_uf_aliq') * (Max(0, 100 - RedIBS) / 100);
+  AliqIBSMun := JsonFloatName(Item, 'ibsMunAliq', 'ibs_mun_aliq') * (Max(0, 100 - RedIBS) / 100);
+  AliqCBS := JsonFloatName(Item, 'cbsAliq', 'cbs_aliq') * (Max(0, 100 - RedCBS) / 100);
+
+  with Produto.Imposto.IBSCBS do
+  begin
+    CST := CSTEnum;
+    cClassTrib := ClassTrib;
+    gIBSCBS.vBC := BaseCalculo;
+    gIBSCBS.gIBSUF.pIBSUF := AliqIBSUF;
+    gIBSCBS.gIBSUF.vIBSUF := RoundTo((BaseCalculo * AliqIBSUF) / 100, -2);
+    if RedIBS > 0 then
+    begin
+      gIBSCBS.gIBSUF.gRed.pRedAliq := RedIBS;
+      gIBSCBS.gIBSUF.gRed.pAliqEfet := AliqIBSUF;
+    end;
+
+    gIBSCBS.gIBSMun.pIBSMun := AliqIBSMun;
+    gIBSCBS.gIBSMun.vIBSMun := RoundTo((BaseCalculo * AliqIBSMun) / 100, -2);
+    gIBSCBS.vIBS := gIBSCBS.gIBSUF.vIBSUF + gIBSCBS.gIBSMun.vIBSMun;
+    if RedIBS > 0 then
+    begin
+      gIBSCBS.gIBSMun.gRed.pRedAliq := RedIBS;
+      gIBSCBS.gIBSMun.gRed.pAliqEfet := AliqIBSMun;
+    end;
+
+    gIBSCBS.gCBS.pCBS := AliqCBS;
+    gIBSCBS.gCBS.vCBS := RoundTo((BaseCalculo * AliqCBS) / 100, -2);
+    if RedCBS > 0 then
+    begin
+      gIBSCBS.gCBS.gRed.pRedAliq := RedCBS;
+      gIBSCBS.gCBS.gRed.pAliqEfet := AliqCBS;
+    end;
+  end;
+
+  Totais.BaseIBSCBS := Totais.BaseIBSCBS + BaseCalculo;
+  Totais.ValorIBSUF := Totais.ValorIBSUF +
+    RoundTo((BaseCalculo * AliqIBSUF) / 100, -2);
+  Totais.ValorIBSMun := Totais.ValorIBSMun +
+    RoundTo((BaseCalculo * AliqIBSMun) / 100, -2);
+  Totais.ValorCBS := Totais.ValorCBS +
+    RoundTo((BaseCalculo * AliqCBS) / 100, -2);
 end;
 
 constructor TThreadEmissaoNFCe.Create;
@@ -266,7 +424,7 @@ procedure TThreadEmissaoNFCe.ProcessarFila;
 var
   fila: TJsonArray;
   I, codigo: Integer;
-  item: TJSONObject;
+  Item: TJSONObject;
 begin
   fila := BuscarFilaNFCe(FLimite);
   try
@@ -274,8 +432,8 @@ begin
     begin
       if Terminated then
         Break;
-      item := JsonObj(fila, I);
-      codigo := JsonInt(item, 'codigo');
+      Item := JsonObj(fila, I);
+      codigo := JsonInt(Item, 'codigo');
       if codigo <= 0 then
         Continue;
       try
@@ -389,9 +547,9 @@ begin
   end;
 end;
 
-function DescricaoProdutoErro(item: TJSONObject): String;
+function DescricaoProdutoErro(Item: TJSONObject): String;
 begin
-  Result := '[' + JsonStr(item, 'code') + '] ' + JsonStr(item, 'name');
+  Result := '[' + JsonStr(Item, 'code') + '] ' + JsonStr(Item, 'name');
 end;
 
 function SomenteNumeros(const texto: String): String;
@@ -438,21 +596,21 @@ begin
   Result := digito = StrToIntDef(numeros[Length(numeros)], -1);
 end;
 
-procedure InicializarTotais(var totais: TNFCeTotais);
+procedure InicializarTotais(var Totais: TNFCeTotais);
 begin
-  FillChar(totais, SizeOf(totais), 0);
+  FillChar(Totais, SizeOf(Totais), 0);
 end;
 
 function CalcularTotalProdutos(produtos: TJsonArray): Double;
 var
   I: Integer;
-  item: TJSONObject;
+  Item: TJSONObject;
 begin
   Result := 0;
   for I := 0 to produtos.Count - 1 do
   begin
-    item := JsonObj(produtos, I);
-    Result := Result + (JsonFloat(item, 'value') * JsonFloat(item, 'quanty'));
+    Item := JsonObj(produtos, I);
+    Result := Result + (JsonFloat(Item, 'value') * JsonFloat(Item, 'quanty'));
   end;
 end;
 
@@ -463,6 +621,167 @@ begin
   Result := 0;
   for I := 0 to pagamentos.Count - 1 do
     Result := Result + RoundTo(JsonFloat(JsonObj(pagamentos, I), 'valor'), -2);
+end;
+
+function ValorXML(const valor: Double; const Mascara: String): String;
+var
+  fs: TFormatSettings;
+begin
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := '.';
+  Result := FormatFloat(Mascara, valor, fs);
+end;
+
+function TagsIBSCBSItemPadrao(const CST, ClassTrib: String;
+  const BaseCalculo, AliqIBSUF, ValorIBSUF, AliqIBSMun, ValorIBSMun, AliqCBS,
+  ValorCBS: Double): String;
+var
+  CSTXML, ClassTribXML: String;
+begin
+  CSTXML := Trim(CST);
+  if CSTXML = '' then
+    CSTXML := '000';
+  ClassTribXML := Trim(ClassTrib);
+  if ClassTribXML = '' then
+    ClassTribXML := '000001';
+
+  Result := '<IBSCBS>' + '<CST>' + CSTXML + '</CST>' + '<cClassTrib>' +
+    ClassTribXML + '</cClassTrib>' + '<gIBSCBS>' + '<vBC>' +
+    ValorXML(BaseCalculo, '0.00') + '</vBC>' + '<gIBSUF>' + '<pIBSUF>' +
+    ValorXML(AliqIBSUF, '0.0000') + '</pIBSUF>' + '<vIBSUF>' +
+    ValorXML(ValorIBSUF, '0.00') + '</vIBSUF>' + '</gIBSUF>' + '<gIBSMun>' +
+    '<pIBSMun>' + ValorXML(AliqIBSMun, '0.0000') + '</pIBSMun>' + '<vIBSMun>' +
+    ValorXML(ValorIBSMun, '0.00') + '</vIBSMun>' + '</gIBSMun>' + '<vIBS>' +
+    ValorXML(ValorIBSUF + ValorIBSMun, '0.00') + '</vIBS>' + '<gCBS>' + '<pCBS>'
+    + ValorXML(AliqCBS, '0.0000') + '</pCBS>' + '<vCBS>' +
+    ValorXML(ValorCBS, '0.00') + '</vCBS>' + '</gCBS>' + '</gIBSCBS>' +
+    '</IBSCBS>';
+end;
+
+function TagsIBSCBSTotalPadrao(const BaseCalculo, ValorIBSUF, ValorIBSMun,
+  ValorCBS: Double): String;
+begin
+  Result := '<IBSCBSTot>' + '<vBCIBSCBS>' + ValorXML(BaseCalculo, '0.00') +
+    '</vBCIBSCBS>' + '<gIBS>' + '<gIBSUF>' + '<vDif>0.00</vDif>' +
+    '<vDevTrib>0.00</vDevTrib>' + '<vIBSUF>' + ValorXML(ValorIBSUF, '0.00') +
+    '</vIBSUF>' + '</gIBSUF>' + '<gIBSMun>' + '<vDif>0.00</vDif>' +
+    '<vDevTrib>0.00</vDevTrib>' + '<vIBSMun>' + ValorXML(ValorIBSMun, '0.00') +
+    '</vIBSMun>' + '</gIBSMun>' + '<vIBS>' + ValorXML(ValorIBSUF + ValorIBSMun,
+    '0.00') + '</vIBS>' + '<vCredPres>0.00</vCredPres>' +
+    '<vCredPresCondSus>0.00</vCredPresCondSus>' + '</gIBS>' + '<gCBS>' +
+    '<vDif>0.00</vDif>' + '<vDevTrib>0.00</vDevTrib>' + '<vCBS>' +
+    ValorXML(ValorCBS, '0.00') + '</vCBS>' + '<vCredPres>0.00</vCredPres>' +
+    '<vCredPresCondSus>0.00</vCredPresCondSus>' + '</gCBS>' + '</IBSCBSTot>';
+end;
+
+function AplicarTagsIBSCBSPadraoXML(const XML: String; produtos: TJsonArray;
+  const Totais: TNFCeTotais): String;
+var
+  DetMatch: TMatch;
+  Matches: TMatchCollection;
+  I: Integer;
+  DetXML, NovoDetXML, ImpostoXML, ProdXML: String;
+  Item: TJSONObject;
+  BaseCalculo, AliqIBSUF, ValorIBSUF, AliqIBSMun, ValorIBSMun, AliqCBS,
+    ValorCBS, TotalBaseIBSCBS, TotalIBSUF, TotalIBSMun, TotalCBS: Double;
+begin
+  Result := XML;
+  TotalBaseIBSCBS := 0;
+  TotalIBSUF := 0;
+  TotalIBSMun := 0;
+  TotalCBS := 0;
+
+  if Pos('<IBSCBS>', Result) = 0 then
+  begin
+    Matches := TRegEx.Matches(Result,
+      '<(?:[A-Za-z0-9_]+:)?det\b[^>]*>.*?</(?:[A-Za-z0-9_]+:)?det>',
+      [roSingleLine, roIgnoreCase]);
+
+    for I := Matches.Count - 1 downto 0 do
+    begin
+      DetMatch := Matches.Item[I];
+      DetXML := DetMatch.Value;
+      ImpostoXML := BlocoTagXML(DetXML, 'imposto');
+      if (ImpostoXML = '') or (Pos('<IBSCBS>', ImpostoXML) > 0) then
+        Continue;
+
+      ProdXML := BlocoTagXML(DetXML, 'prod');
+      BaseCalculo := ValorTagXML(ProdXML, 'vProd') - ValorTagXML(ProdXML,
+        'vDesc') + ValorTagXML(ProdXML, 'vFrete') + ValorTagXML(ProdXML, 'vSeg')
+        + ValorTagXML(ProdXML, 'vOutro');
+      if BaseCalculo < 0 then
+        BaseCalculo := 0;
+      if I < produtos.Count then
+        Item := JsonObj(produtos, I)
+      else
+        Item := nil;
+      AliqIBSUF := JsonFloatName(Item, 'ibsUfAliq', 'ibs_uf_aliq') *
+        (Max(0, 100 - JsonFloatName(Item, 'ibsCbsPredIbs', 'ibs_cbs_pred_ibs')) / 100);
+      AliqIBSMun := JsonFloatName(Item, 'ibsMunAliq', 'ibs_mun_aliq') *
+        (Max(0, 100 - JsonFloatName(Item, 'ibsCbsPredIbs', 'ibs_cbs_pred_ibs')) / 100);
+      AliqCBS := JsonFloatName(Item, 'cbsAliq', 'cbs_aliq') *
+        (Max(0, 100 - JsonFloatName(Item, 'ibsCbsPredCbs', 'ibs_cbs_pred_cbs')) / 100);
+      ValorIBSUF := RoundTo((BaseCalculo * AliqIBSUF) / 100, -2);
+      ValorIBSMun := RoundTo((BaseCalculo * AliqIBSMun) / 100, -2);
+      ValorCBS := RoundTo((BaseCalculo * AliqCBS) / 100, -2);
+      TotalBaseIBSCBS := TotalBaseIBSCBS + BaseCalculo;
+      TotalIBSUF := TotalIBSUF + ValorIBSUF;
+      TotalIBSMun := TotalIBSMun + ValorIBSMun;
+      TotalCBS := TotalCBS + ValorCBS;
+
+      NovoDetXML := TRegEx.Replace(DetXML, '(</(?:[A-Za-z0-9_]+:)?imposto>)',
+        TagsIBSCBSItemPadrao(JsonStrAny(Item, 'ibsCbsCst', 'ibs_cbs_cst'),
+        JsonStrAny(Item, 'ibsCbsClassTrib', 'ibs_cbs_class_trib'), BaseCalculo, AliqIBSUF, ValorIBSUF,
+        AliqIBSMun, ValorIBSMun, AliqCBS, ValorCBS) + '$1',
+        [roSingleLine, roIgnoreCase]);
+      Result := Copy(Result, 1, DetMatch.Index) + NovoDetXML +
+        Copy(Result, DetMatch.Index + DetMatch.Length + 1, MaxInt);
+    end;
+  end;
+
+  if TotalBaseIBSCBS = 0 then
+    TotalBaseIBSCBS := Totais.ValorItens;
+
+  if Pos('<IBSCBSTot>', Result) = 0 then
+    Result := TRegEx.Replace(Result, '(</(?:[A-Za-z0-9_]+:)?ICMSTot>)',
+      '$1' + TagsIBSCBSTotalPadrao(TotalBaseIBSCBS, TotalIBSUF, TotalIBSMun,
+      TotalCBS), [roSingleLine, roIgnoreCase]);
+end;
+
+function RecortarDocumentoNFeXML(const XML: String): String;
+var
+  Match: TMatch;
+  Declaracao: String;
+begin
+  Result := XML;
+  Match := TRegEx.Match(XML,
+    '<(?:[A-Za-z0-9_]+:)?NFe\b[^>]*>.*?</(?:[A-Za-z0-9_]+:)?NFe>',
+    [roSingleLine, roIgnoreCase]);
+  if not Match.Success then
+    Exit;
+
+  Declaracao := '';
+  if TRegEx.IsMatch(XML, '^\s*<\?xml[^>]*\?>', [roSingleLine, roIgnoreCase])
+  then
+    Declaracao := TRegEx.Match(XML, '^\s*<\?xml[^>]*\?>',
+      [roSingleLine, roIgnoreCase]).Value;
+
+  Result := Declaracao + Match.Value;
+end;
+
+procedure AplicarTagsIBSCBSPadrao(Acbr: TACBrNFe; produtos: TJsonArray;
+  const Totais: TNFCeTotais);
+var
+  XML: String;
+begin
+  XML := AplicarTagsIBSCBSPadraoXML(Acbr.NotasFiscais.Items[0].XML,
+    produtos, Totais);
+  XML := RecortarDocumentoNFeXML(XML);
+  if XML = RecortarDocumentoNFeXML(Acbr.NotasFiscais.Items[0].XML) then
+    Exit;
+
+  Acbr.NotasFiscais.Clear;
+  Acbr.NotasFiscais.LoadFromString(XML);
 end;
 
 function LerComplemento(complementos: TJsonArray): TNFCeComplemento;
@@ -604,6 +923,7 @@ begin
   if TipoImpressao = 1 then
     Result := 48;
 end;
+
 procedure RegistrarErroFiscal(conexao: TConexao; codigo: Integer;
   const erro: String);
 begin
@@ -631,6 +951,7 @@ begin
     // Mantem o registro original do erro mesmo se a tabela nova ainda nao existir.
   end;
 end;
+
 procedure RegistrarErroNFCeComConexao(conexao: TConexao; codigo: Integer;
   const erro: String);
 begin
@@ -660,12 +981,12 @@ end;
 
 function ExtrairChaveNFeDoTexto(const texto: String): String;
 var
-  match: TMatch;
+  Match: TMatch;
 begin
   Result := '';
-  match := TRegEx.match(texto, '\d{44}');
-  if match.Success then
-    Result := match.Value;
+  Match := TRegEx.Match(texto, '\d{44}');
+  if Match.Success then
+    Result := Match.Value;
 end;
 
 function ChaveNFCeMontada(Acbr: TACBrNFe): String;
@@ -692,12 +1013,12 @@ end;
 
 function ExtrairNItemDoErro(const texto: String): Integer;
 var
-  match: TMatch;
+  Match: TMatch;
 begin
   Result := -1;
-  match := TRegEx.match(texto, '\[nItem:(\d+)\]');
-  if match.Success then
-    Result := StrToIntDef(match.Groups[1].Value, -1);
+  Match := TRegEx.Match(texto, '\[nItem:(\d+)\]');
+  if Match.Success then
+    Result := StrToIntDef(Match.Groups[1].Value, -1);
 end;
 
 function MensagemErroTransmissao(Acbr: TACBrNFe; const erro: String): String;
@@ -873,6 +1194,23 @@ begin
   Qry.Free;
 end;
 
+function PathSchemasNFe(conexao: TConexao): String;
+var
+  Candidato: String;
+begin
+  Result := Trim(ParametroDFe(conexao, 'nfe_path_schemas'));
+  if (Result <> '') and DirectoryExists(Result) then
+    Exit;
+
+  Candidato := TPath.Combine(ExtractFilePath(ParamStr(0)), 'Schemas');
+  if DirectoryExists(Candidato) then
+    Exit(Candidato);
+
+
+
+  Result := '';
+end;
+
 function DFeHabilitado(conexao: TConexao): Boolean;
 begin
   Result := StrToIntDef(ParametroDFe(conexao, 'utilizar_dfe'), 0) = 1;
@@ -892,6 +1230,9 @@ end;
 procedure ConfigurarNFCe(ACBrNFe: TACBrNFe; conexao: TConexao);
 begin
   ACBrNFe.Configuracoes.Geral.AtualizarXMLCancelado := True;
+  ACBrNFe.Configuracoes.Geral.ModeloDF := moNFCe;
+  ACBrNFe.Configuracoes.Geral.VersaoDF := ve400;
+  ACBrNFe.Configuracoes.Arquivos.PathSchemas := PathSchemasNFe(conexao);
   ACBrNFe.Configuracoes.Geral.FormatoAlerta :=
     'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.';
   ACBrNFe.Configuracoes.Geral.IdCSC := ParametroStr(conexao, 'id_token_scs');
@@ -998,14 +1339,172 @@ begin
   end;
 end;
 
+// procedure AlimentarProdutos(Acbr: TACBrNFe; produtos: TJsonArray;
+// const complemento: TNFCeComplemento; totalNota: Double;
+// var totais: TNFCeTotais);
+// var
+// I: Integer;
+// item: TJSONObject;
+// DetItem: TDetCollectionItem;
+// descricaoProduto: String;
+// qtde, valorUnit, valorItem, BaseIBSCBS: Double;
+// cstPis, cstCofins, cstIcms, csosnIcms: Integer;
+// converteOk, ok: Boolean;
+// begin
+// with Acbr.NotasFiscais.Items[0].NFe do
+// begin
+// for I := 0 to produtos.Count - 1 do
+// begin
+// item := JsonObj(produtos, I);
+// descricaoProduto := DescricaoProdutoErro(item);
+// qtde := JsonFloat(item, 'quanty');
+// valorUnit := JsonFloat(item, 'value');
+// valorItem := qtde * valorUnit;
+//
+// DetItem := Det.Add;
+// with DetItem do
+// begin
+// Prod.CEST := '';
+// Prod.CFOP := JsonStr(item, 'cfop');
+// Prod.NCM := JsonStr(item, 'ncm');
+// Prod.nItem := I + 1;
+// Prod.cProd := JsonStr(item, 'code');
+// Prod.xProd := JsonStr(item, 'name');
+// Prod.EXTIPI := '';
+//
+// Prod.uCom := JsonStr(item, 'un');
+// if Prod.uCom = '' then
+// Prod.uCom := 'UN';
+//
+// Prod.uTrib := Prod.uCom;
+// Prod.qCom := qtde;
+// Prod.qTrib := qtde;
+// Prod.vUnCom := valorUnit;
+// Prod.vUnTrib := valorUnit;
+// Prod.vProd := valorItem;
+//
+// if totalNota > 0 then
+// begin
+// Prod.vOutro := RoundTo((Prod.vProd / totalNota) *
+// complemento.TaxaEntrega, -2);
+// Prod.vDesc := RoundTo(((Prod.vProd + Prod.vOutro) / totalNota) *
+// complemento.TaxaDesconto, -2);
+// end;
+//
+// Prod.IndTot := itSomaTotalNFe;
+//
+// totais.ValorProdutos := totais.ValorProdutos + Prod.vProd;
+// totais.ValorNF := totais.ValorNF +
+// (Prod.vProd - Prod.vDesc + Prod.vOutro);
+// totais.ValorDesconto := totais.ValorDesconto + Prod.vDesc;
+// totais.ValorOutros := totais.ValorOutros + Prod.vOutro;
+// totais.ValorItens := totais.ValorItens +
+// (Prod.vProd - Prod.vDesc + Prod.vOutro);
+//
+// cstPis := StrToIntDef(JsonStr(item, 'cstpis'), 0);
+// cstCofins := StrToIntDef(JsonStr(item, 'cstcofins'), 0);
+// cstIcms := StrToIntDef(JsonStr(item, 'csticms'), 0);
+// csosnIcms := StrToIntDef(JsonStr(item, 'csosn'), 0);
+//
+// with Imposto do
+// begin
+// vTotTrib := 0;
+//
+// ICMS.orig := StrToOrig(ok, '0');
+// with ICMS do
+// begin
+// if Emit.CRT = crtRegimeNormal then
+// begin
+// CST := StrToCSTICMS(converteOk, FormatFloat('00', cstIcms));
+// if not converteOk then
+// raise EDatabaseError.CreateFmt
+// ('Situacao tributaria ICMS "%s" desconhecida no produto %s.',
+// [IntToStr(cstIcms), descricaoProduto]);
+//
+// if Imposto.ICMS.CST in [cst10, cst30, cst60, cst70, cst90] then
+// Prod.CEST := JsonStr(item, 'cest');
+//
+// modBC := dbiValorOperacao;
+// if CST = cst60 then
+// vBC := 0
+// else
+// vBC := valorItem;
+//
+// pICMS := JsonFloat(item, 'icms');
+// vICMS := RoundTo((vBC * pICMS) / 100, -2);
+// pRedBC := 0.00;
+//
+// if vBC > 0 then
+// begin
+// totais.BaseICMS := totais.BaseICMS + vBC;
+// totais.ValorICMS := totais.ValorICMS + vICMS;
+// end;
+// end
+// else
+// begin
+// CSOSN := StrToCSOSNIcms(converteOk, IntToStr(csosnIcms));
+// if not converteOk then
+// raise EDatabaseError.CreateFmt
+// ('Situacao tributaria CSOSN "%s" desconhecida no produto %s.',
+// [IntToStr(csosnIcms), descricaoProduto]);
+//
+// if Imposto.ICMS.CSOSN in [csosn201, csosn202, csosn203, csosn500,
+// csosn900] then
+// Prod.CEST := JsonStr(item, 'cest');
+// end;
+//
+// pFCP := 0;
+// end;
+//
+// PIS.CST := StrToCSTPIS(converteOk, FormatFloat('00', cstPis));
+// if not converteOk then
+// raise EDatabaseError.CreateFmt
+// ('Situacao tributaria do PIS "%s" desconhecida no produto %s.',
+// [IntToStr(cstPis), descricaoProduto]);
+//
+// PIS.vBC := valorItem;
+// PIS.pPIS := JsonFloat(item, 'cstpis');
+// PIS.vPIS := JsonFloat(item, 'pis');
+//
+// COFINS.CST := StrToCSTCOFINS(converteOk,
+// FormatFloat('00', cstCofins));
+// if not converteOk then
+// raise EDatabaseError.CreateFmt
+// ('Situacao tributaria do COFINS "%s" desconhecida no produto %s.',
+// [IntToStr(cstCofins), descricaoProduto]);
+//
+// COFINS.vBC := valorItem;
+// COFINS.pCOFINS := JsonFloat(item, 'cstcofins');
+// COFINS.vCOFINS := JsonFloat(item, 'cofins');
+//
+// totais.ValorPIS := totais.ValorPIS + PIS.vPIS;
+// totais.ValorCOFINS := totais.ValorCOFINS + COFINS.vCOFINS;
+// end;
+// BaseIBSCBS := Prod.vProd - Prod.vDesc + Prod.vOutro;
+// if BaseIBSCBS < 0 then
+// BaseIBSCBS := 0;
+// AlimentarIBSCBSACBr(DetItem, item, BaseIBSCBS, totais);
+//
+// Prod.indEscala := StrToIndEscala(ok, '0');
+//
+// Prod.cEAN := JsonStr(item, 'bar');
+// if not GTINValido(Prod.cEAN) then
+// Prod.cEAN := 'SEM GTIN';
+// Prod.cEANTrib := Prod.cEAN;
+// end;
+// end;
+// end;
+// end;
+
 procedure AlimentarProdutos(Acbr: TACBrNFe; produtos: TJsonArray;
   const complemento: TNFCeComplemento; totalNota: Double;
-  var totais: TNFCeTotais);
+  var Totais: TNFCeTotais);
 var
   I: Integer;
-  item: TJSONObject;
+  Item: TJSONObject;
+  DetItem: TDetCollectionItem;
   descricaoProduto: String;
-  qtde, valorUnit, valorItem: Double;
+  qtde, valorUnit, valorItem, BaseIBSCBS: Double;
   cstPis, cstCofins, cstIcms, csosnIcms: Integer;
   converteOk, ok: Boolean;
 begin
@@ -1013,23 +1512,24 @@ begin
   begin
     for I := 0 to produtos.Count - 1 do
     begin
-      item := JsonObj(produtos, I);
-      descricaoProduto := DescricaoProdutoErro(item);
-      qtde := JsonFloat(item, 'quanty');
-      valorUnit := JsonFloat(item, 'value');
+      Item := JsonObj(produtos, I);
+      descricaoProduto := DescricaoProdutoErro(Item);
+      qtde := JsonFloat(Item, 'quanty');
+      valorUnit := JsonFloat(Item, 'value');
       valorItem := qtde * valorUnit;
 
-      with Det.Add do
+      DetItem := Det.Add;
+      with DetItem do
       begin
         Prod.CEST := '';
-        Prod.CFOP := JsonStr(item, 'cfop');
-        Prod.NCM := JsonStr(item, 'ncm');
+        Prod.CFOP := JsonStr(Item, 'cfop');
+        Prod.NCM := JsonStr(Item, 'ncm');
         Prod.nItem := I + 1;
-        Prod.cProd := JsonStr(item, 'code');
-        Prod.xProd := JsonStr(item, 'name');
+        Prod.cProd := JsonStr(Item, 'code');
+        Prod.xProd := JsonStr(Item, 'name');
         Prod.EXTIPI := '';
 
-        Prod.uCom := JsonStr(item, 'un');
+        Prod.uCom := JsonStr(Item, 'un');
         if Prod.uCom = '' then
           Prod.uCom := 'UN';
 
@@ -1050,18 +1550,18 @@ begin
 
         Prod.IndTot := itSomaTotalNFe;
 
-        totais.ValorProdutos := totais.ValorProdutos + Prod.vProd;
-        totais.ValorNF := totais.ValorNF +
+        Totais.ValorProdutos := Totais.ValorProdutos + Prod.vProd;
+        Totais.ValorNF := Totais.ValorNF +
           (Prod.vProd - Prod.vDesc + Prod.vOutro);
-        totais.ValorDesconto := totais.ValorDesconto + Prod.vDesc;
-        totais.ValorOutros := totais.ValorOutros + Prod.vOutro;
-        totais.ValorItens := totais.ValorItens +
+        Totais.ValorDesconto := Totais.ValorDesconto + Prod.vDesc;
+        Totais.ValorOutros := Totais.ValorOutros + Prod.vOutro;
+        Totais.ValorItens := Totais.ValorItens +
           (Prod.vProd - Prod.vDesc + Prod.vOutro);
 
-        cstPis := StrToIntDef(JsonStr(item, 'cstpis'), 0);
-        cstCofins := StrToIntDef(JsonStr(item, 'cstcofins'), 0);
-        cstIcms := StrToIntDef(JsonStr(item, 'csticms'), 0);
-        csosnIcms := StrToIntDef(JsonStr(item, 'csosn'), 0);
+        cstPis := StrToIntDef(JsonStr(Item, 'cstpis'), 0);
+        cstCofins := StrToIntDef(JsonStr(Item, 'cstcofins'), 0);
+        cstIcms := StrToIntDef(JsonStr(Item, 'csticms'), 0);
+        csosnIcms := StrToIntDef(JsonStr(Item, 'csosn'), 0);
 
         with Imposto do
         begin
@@ -1079,7 +1579,7 @@ begin
                   [IntToStr(cstIcms), descricaoProduto]);
 
               if Imposto.ICMS.CST in [cst10, cst30, cst60, cst70, cst90] then
-                Prod.CEST := JsonStr(item, 'cest');
+                Prod.CEST := JsonStr(Item, 'cest');
 
               modBC := dbiValorOperacao;
               if CST = cst60 then
@@ -1087,14 +1587,14 @@ begin
               else
                 vBC := valorItem;
 
-              pICMS := JsonFloat(item, 'icms');
+              pICMS := JsonFloat(Item, 'icms');
               vICMS := RoundTo((vBC * pICMS) / 100, -2);
               pRedBC := 0.00;
 
               if vBC > 0 then
               begin
-                totais.BaseICMS := totais.BaseICMS + vBC;
-                totais.ValorICMS := totais.ValorICMS + vICMS;
+                Totais.BaseICMS := Totais.BaseICMS + vBC;
+                Totais.ValorICMS := Totais.ValorICMS + vICMS;
               end;
             end
             else
@@ -1107,7 +1607,7 @@ begin
 
               if Imposto.ICMS.CSOSN in [csosn201, csosn202, csosn203, csosn500,
                 csosn900] then
-                Prod.CEST := JsonStr(item, 'cest');
+                Prod.CEST := JsonStr(Item, 'cest');
             end;
 
             pFCP := 0;
@@ -1120,8 +1620,8 @@ begin
               [IntToStr(cstPis), descricaoProduto]);
 
           PIS.vBC := valorItem;
-          PIS.pPIS := JsonFloat(item, 'cstpis');
-          PIS.vPIS := JsonFloat(item, 'pis');
+          PIS.pPIS := JsonFloat(Item, 'cstpis');
+          PIS.vPIS := JsonFloat(Item, 'pis');
 
           COFINS.CST := StrToCSTCOFINS(converteOk,
             FormatFloat('00', cstCofins));
@@ -1131,16 +1631,21 @@ begin
               [IntToStr(cstCofins), descricaoProduto]);
 
           COFINS.vBC := valorItem;
-          COFINS.pCOFINS := JsonFloat(item, 'cstcofins');
-          COFINS.vCOFINS := JsonFloat(item, 'cofins');
+          COFINS.pCOFINS := JsonFloat(Item, 'cstcofins');
+          COFINS.vCOFINS := JsonFloat(Item, 'cofins');
 
-          totais.ValorPIS := totais.ValorPIS + PIS.vPIS;
-          totais.ValorCOFINS := totais.ValorCOFINS + COFINS.vCOFINS;
+          Totais.ValorPIS := Totais.ValorPIS + PIS.vPIS;
+          Totais.ValorCOFINS := Totais.ValorCOFINS + COFINS.vCOFINS;
         end;
+        BaseIBSCBS := Prod.vProd - Prod.vDesc + Prod.vOutro;
+        if BaseIBSCBS < 0 then
+          BaseIBSCBS := 0;
+        vItem := BaseIBSCBS;
+        AlimentarIBSCBSACBr(DetItem, Item, BaseIBSCBS, Totais);
 
         Prod.indEscala := StrToIndEscala(ok, '0');
 
-        Prod.cEAN := JsonStr(item, 'bar');
+        Prod.cEAN := JsonStr(Item, 'bar');
         if not GTINValido(Prod.cEAN) then
           Prod.cEAN := 'SEM GTIN';
         Prod.cEANTrib := Prod.cEAN;
@@ -1149,34 +1654,51 @@ begin
   end;
 end;
 
-procedure AlimentarTotais(Acbr: TACBrNFe; const totais: TNFCeTotais);
+procedure AlimentarTotais(Acbr: TACBrNFe; const Totais: TNFCeTotais);
 begin
   with Acbr.NotasFiscais.Items[0].NFe do
   begin
-    Total.ICMSTot.vBC := totais.BaseICMS;
-    Total.ICMSTot.vICMS := totais.ValorICMS;
+    Total.ICMSTot.vBC := Totais.BaseICMS;
+    Total.ICMSTot.vICMS := Totais.ValorICMS;
     Total.ICMSTot.vFrete := 0.00;
     Total.ICMSTot.vSeg := 0.00;
-    Total.ICMSTot.vOutro := totais.ValorOutros;
+    Total.ICMSTot.vOutro := Totais.ValorOutros;
     Total.ICMSTot.VBCST := 0.00;
     Total.ICMSTot.vST := 0.00;
     Total.ICMSTot.vII := 0.00;
     Total.ICMSTot.vIPI := 0.00;
-    Total.ICMSTot.vPIS := totais.ValorPIS;
-    Total.ICMSTot.vCOFINS := totais.ValorCOFINS;
-    Total.ICMSTot.vProd := totais.ValorProdutos;
-    Total.ICMSTot.vDesc := totais.ValorDesconto;
-    Total.ICMSTot.vTotTrib := totais.ValorTributos;
-    Total.ICMSTot.vNF := totais.ValorNF;
+    Total.ICMSTot.vPIS := Totais.ValorPIS;
+    Total.ICMSTot.vCOFINS := Totais.ValorCOFINS;
+    Total.ICMSTot.vProd := Totais.ValorProdutos;
+    Total.ICMSTot.vDesc := Totais.ValorDesconto;
+    Total.ICMSTot.vTotTrib := Totais.ValorTributos;
+    Total.ICMSTot.vNF := Totais.ValorNF;
+
+    Total.IBSCBSTot.vBCIBSCBS := Totais.BaseIBSCBS;
+    Total.IBSCBSTot.gIBS.gIBSUFTot.vDif := 0;
+    Total.IBSCBSTot.gIBS.gIBSUFTot.vDevTrib := 0;
+    Total.IBSCBSTot.gIBS.gIBSUFTot.vIBSUF := Totais.ValorIBSUF;
+    Total.IBSCBSTot.gIBS.gIBSMunTot.vDif := 0;
+    Total.IBSCBSTot.gIBS.gIBSMunTot.vDevTrib := 0;
+    Total.IBSCBSTot.gIBS.gIBSMunTot.vIBSMun := Totais.ValorIBSMun;
+    Total.IBSCBSTot.gIBS.vIBS := Totais.ValorIBSUF + Totais.ValorIBSMun;
+    Total.IBSCBSTot.gIBS.vCredPres := 0;
+    Total.IBSCBSTot.gIBS.vCredPresCondSus := 0;
+    Total.IBSCBSTot.gCBS.vDif := 0;
+    Total.IBSCBSTot.gCBS.vDevTrib := 0;
+    Total.IBSCBSTot.gCBS.vCBS := Totais.ValorCBS;
+    Total.IBSCBSTot.gCBS.vCredPres := 0;
+    Total.IBSCBSTot.gCBS.vCredPresCondSus := 0;
+
     Transp.modFrete := mfSemFrete;
   end;
 end;
 
 procedure AlimentarPagamentos(Acbr: TACBrNFe; pagamentos: TJsonArray;
-  diferencaCentavos, valorTotal: Double; var totais: TNFCeTotais);
+  diferencaCentavos, valorTotal: Double; var Totais: TNFCeTotais);
 var
   I: Integer;
-  item: TJSONObject;
+  Item: TJSONObject;
   valorPagamento: Double;
 begin
   if pagamentos.Count = 0 then
@@ -1185,24 +1707,24 @@ begin
   begin
     for I := 0 to pagamentos.Count - 1 do
     begin
-      item := JsonObj(pagamentos, I);
-      valorPagamento := RoundTo(JsonFloat(item, 'valor') +
+      Item := JsonObj(pagamentos, I);
+      valorPagamento := RoundTo(JsonFloat(Item, 'valor') +
         diferencaCentavos, -2);
 
       with pag.New do
       begin
         tPag := fpOutro;
-        xPag := JsonStr(item, 'descricao');
+        xPag := JsonStr(Item, 'descricao');
         vPag := valorPagamento;
       end;
 
-      totais.TotalPagamento := totais.TotalPagamento + valorPagamento;
+      Totais.TotalPagamento := Totais.TotalPagamento + valorPagamento;
       diferencaCentavos := 0;
     end;
-    if totais.TotalPagamento <= 0 then
+    if Totais.TotalPagamento <= 0 then
       raise Exception.Create('Nao emitir NFC-e: total de pagamento zerado.');
-    if totais.TotalPagamento > valorTotal then
-      pag.vTroco := totais.TotalPagamento - valorTotal;
+    if Totais.TotalPagamento > valorTotal then
+      pag.vTroco := Totais.TotalPagamento - valorTotal;
   end;
 end;
 
@@ -1228,7 +1750,7 @@ var
   produtos: TJsonArray;
   complementos: TJsonArray;
   complemento: TNFCeComplemento;
-  totais: TNFCeTotais;
+  Totais: TNFCeTotais;
   numeroNota, Serie: Integer;
   totalProdutos, totalPago, totalNota, diferencaCentavos: Double;
 begin
@@ -1243,7 +1765,7 @@ begin
       raise Exception.Create('Nao emitir NFC-e: pedido sem produto.');
     if pagamentos.Count = 0 then
       raise Exception.Create('Nao emitir NFC-e: pedido sem pagamento.');
-    InicializarTotais(totais);
+    InicializarTotais(Totais);
     complemento := LerComplemento(complementos);
     totalProdutos := CalcularTotalProdutos(produtos);
     totalPago := CalcularTotalPagamentos(pagamentos);
@@ -1257,16 +1779,24 @@ begin
     AlimentarIde(Acbr, conexao, numeroNota, Serie);
     AlimentarEmitente(Acbr, conexao);
     AlimentarDestinatario(Acbr, complemento);
-    AlimentarProdutos(Acbr, produtos, complemento, totalNota, totais);
-    AlimentarTotais(Acbr, totais);
+    AlimentarProdutos(Acbr, produtos, complemento, totalNota, Totais);
+    AlimentarTotais(Acbr, Totais);
     AlimentarPagamentos(Acbr, pagamentos, diferencaCentavos,
-      totais.ValorItens, totais);
+      Totais.ValorItens, Totais);
     AlimentarInformacoesAdicionais(Acbr);
     Acbr.NotasFiscais.GerarNFe;
+    if (Totais.BaseIBSCBS > 0) and (Pos('<IBSCBS>', Acbr.NotasFiscais.Items[0].XML) = 0) then
+      raise Exception.CreateFmt('ACBr nao gerou IBSCBS no XML. Primeiro item: CST=%s cClassTrib=%s vBC=%.2f IBS=%.2f CBS=%.2f.',
+        [JsonStrAny(JsonObj(produtos, 0), 'ibsCbsCst', 'ibs_cbs_cst'),
+         JsonStrAny(JsonObj(produtos, 0), 'ibsCbsClassTrib', 'ibs_cbs_class_trib'),
+         Totais.BaseIBSCBS, Totais.ValorIBSUF + Totais.ValorIBSMun, Totais.ValorCBS]);
   finally
-    complementos.Free;
-    produtos.Free;
-    pagamentos.Free;
+    if Assigned(complementos) then
+      complementos.Free;
+    if Assigned(produtos) then
+      produtos.Free;
+    if Assigned(pagamentos) then
+      pagamentos.Free;
   end;
 end;
 
@@ -1347,7 +1877,8 @@ begin
         Acbr.WebServices.Consulta.Executar;
         protocolo := Acbr.WebServices.Consulta.protocolo;
         ValidarRetornoAutorizacaoNFCe(chaveEsperada, chave, protocolo);
-        RegistrarEmissaoNFCe(conexao, codigo, numero, chave, protocolo, ambiente);
+        RegistrarEmissaoNFCe(conexao, codigo, numero, chave, protocolo,
+          ambiente);
         RegistrarPedidoImpressaoNFCe(conexao, codigo);
         Result := chave;
         Exit;
@@ -1524,9 +2055,9 @@ begin
   end;
 end;
 
-function HtmlEscapeNFCe(const Valor: String): String;
+function HtmlEscapeNFCe(const valor: String): String;
 begin
-  Result := StringReplace(Valor, '&', '&amp;', [rfReplaceAll]);
+  Result := StringReplace(valor, '&', '&amp;', [rfReplaceAll]);
   Result := StringReplace(Result, '<', '&lt;', [rfReplaceAll]);
   Result := StringReplace(Result, '>', '&gt;', [rfReplaceAll]);
   Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
@@ -1559,7 +2090,8 @@ begin
     Qry.SQL.Add('pn.caminho, pn.path');
     Qry.SQL.Add('FROM pedido p');
     Qry.SQL.Add('LEFT JOIN cliente c ON c.codigo = p.codigo_cliente');
-    Qry.SQL.Add('LEFT JOIN pedido_nfce pn ON pn.id_pedido = p.codigo OR pn.chave = p.nfce_chave');
+    Qry.SQL.Add
+      ('LEFT JOIN pedido_nfce pn ON pn.id_pedido = p.codigo OR pn.chave = p.nfce_chave');
     Qry.SQL.Add('WHERE p.nfce_chave = :chave OR pn.chave = :chave');
     Qry.SQL.Add('ORDER BY p.codigo DESC LIMIT 1');
     Qry.ParamByName('chave').AsString := chave;
@@ -1570,17 +2102,17 @@ begin
       numero := Qry.FieldByName('nfce_numero').AsString;
       protocolo := Qry.FieldByName('nfce_protocolo').AsString;
       if not Qry.FieldByName('nfce_data').IsNull then
-        dataPedido := FormatDateTime('dd/mm/yyyy',
-          Qry.FieldByName('nfce_data').AsDateTime)
+        dataPedido := FormatDateTime('dd/mm/yyyy', Qry.FieldByName('nfce_data')
+          .AsDateTime)
       else if not Qry.FieldByName('data_pedido').IsNull then
         dataPedido := FormatDateTime('dd/mm/yyyy',
           Qry.FieldByName('data_pedido').AsDateTime);
       if not Qry.FieldByName('nfce_hora').IsNull then
-        horaPedido := FormatDateTime('hh:nn:ss',
-          Qry.FieldByName('nfce_hora').AsDateTime)
+        horaPedido := FormatDateTime('hh:nn:ss', Qry.FieldByName('nfce_hora')
+          .AsDateTime)
       else if not Qry.FieldByName('hora_pedido').IsNull then
-        horaPedido := FormatDateTime('hh:nn:ss',
-          Qry.FieldByName('hora_pedido').AsDateTime);
+        horaPedido := FormatDateTime('hh:nn:ss', Qry.FieldByName('hora_pedido')
+          .AsDateTime);
       totalNota := Qry.FieldByName('valor_total_pedido').AsFloat;
       statusNota := Qry.FieldByName('nfce_status').AsString;
       cliente := Qry.FieldByName('nome_pedido').AsString;
@@ -1604,8 +2136,8 @@ var
   Acbr: TACBrNFe;
   Mail: TACBrMail;
   arquivo: String;
-  remetente, senha, smtp, empresa, cliente, pedido, numero, protocolo, dataPedido,
-    horaPedido, statusNota, linkXml, BotaoXML: String;
+  remetente, senha, smtp, empresa, cliente, pedido, numero, protocolo,
+    dataPedido, horaPedido, statusNota, linkXml, BotaoXML: String;
   dataHoraEmissao: TDateTime;
   totalNota: Double;
   Porta: Integer;
@@ -1624,7 +2156,9 @@ begin
       pedido, numero, protocolo, dataPedido, horaPedido, statusNota, totalNota);
     XMLLocal := FileExists(arquivo);
     if (not XMLLocal) and (Trim(linkXml) = '') then
-      raise Exception.Create('XML da NFC-e nao encontrado na maquina e sem link de upload em pedido_nfce: ' + arquivo);
+      raise Exception.Create
+        ('XML da NFC-e nao encontrado na maquina e sem link de upload em pedido_nfce: '
+        + arquivo);
 
     remetente := ParametroStrPadrao(conexao, 'email_nfce',
       'contabilidade@goopedir.com');
@@ -1655,7 +2189,8 @@ begin
     if statusNota = '' then
       statusNota := 'EMITIDA';
     if linkXml <> '' then
-      BotaoXML := '<p style="margin:24px 0;"><a href="' + HtmlEscapeNFCe(linkXml) +
+      BotaoXML := '<p style="margin:24px 0;"><a href="' +
+        HtmlEscapeNFCe(linkXml) +
         '" style="background:#1f7aec;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;display:inline-block;font-weight:600;">Baixar XML da NFC-e</a></p>'
     else
       BotaoXML := '';
@@ -1672,40 +2207,38 @@ begin
     Mail.IsHTML := True;
     Mail.Subject := 'NFC-e ' + empresa + ' - Pedido ' + pedido;
     Mail.Body.Text :=
-      '<div style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">' +
-      '<div style="max-width:680px;margin:0 auto;padding:28px 16px;">' +
-      '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">' +
-      '<div style="background:#111827;color:#ffffff;padding:22px 26px;">' +
-      '<div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;">NFC-e</div>' +
-      '<h1 style="font-size:22px;line-height:1.3;margin:8px 0 0;">Sua nota fiscal esta disponivel</h1>' +
-      '</div>' +
-      '<div style="padding:24px 26px;">' +
+      '<div style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">'
+      + '<div style="max-width:680px;margin:0 auto;padding:28px 16px;">' +
+      '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">'
+      + '<div style="background:#111827;color:#ffffff;padding:22px 26px;">' +
+      '<div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;">NFC-e</div>'
+      + '<h1 style="font-size:22px;line-height:1.3;margin:8px 0 0;">Sua nota fiscal esta disponivel</h1>'
+      + '</div>' + '<div style="padding:24px 26px;">' +
       '<p style="font-size:15px;line-height:1.6;margin:0 0 18px;">Ola, ' +
       HtmlEscapeNFCe(cliente) +
       '. Seguem os dados da NFC-e emitida pela <strong>' +
       HtmlEscapeNFCe(empresa) + '</strong>.</p>' +
-      '<table style="width:100%;border-collapse:collapse;margin:18px 0;background:#f9fafb;border-radius:8px;overflow:hidden;">' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Pedido</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
-      HtmlEscapeNFCe(pedido) + '</td></tr>' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Numero NFC-e</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
-      HtmlEscapeNFCe(numero) + '</td></tr>' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Emissao</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
-      HtmlEscapeNFCe(Trim(dataPedido + ' ' + horaPedido)) + '</td></tr>' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Status</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
-      HtmlEscapeNFCe(statusNota) + '</td></tr>' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Protocolo</td><td style="padding:10px 12px;text-align:right;font-weight:600;">' +
-      HtmlEscapeNFCe(protocolo) + '</td></tr>' +
-      '<tr><td style="padding:10px 12px;color:#6b7280;">Total</td><td style="padding:10px 12px;text-align:right;font-size:18px;font-weight:700;color:#111827;">R$ ' +
-      FormatFloat('#,##0.00', totalNota) + '</td></tr>' +
-      '</table>' +
-      '<div style="font-size:12px;line-height:1.5;color:#6b7280;word-break:break-all;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">' +
-      '<strong>Chave de acesso:</strong><br>' + HtmlEscapeNFCe(chave) +
+      '<table style="width:100%;border-collapse:collapse;margin:18px 0;background:#f9fafb;border-radius:8px;overflow:hidden;">'
+      + '<tr><td style="padding:10px 12px;color:#6b7280;">Pedido</td><td style="padding:10px 12px;text-align:right;font-weight:600;">'
+      + HtmlEscapeNFCe(pedido) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Numero NFC-e</td><td style="padding:10px 12px;text-align:right;font-weight:600;">'
+      + HtmlEscapeNFCe(numero) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Emissao</td><td style="padding:10px 12px;text-align:right;font-weight:600;">'
+      + HtmlEscapeNFCe(Trim(dataPedido + ' ' + horaPedido)) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Status</td><td style="padding:10px 12px;text-align:right;font-weight:600;">'
+      + HtmlEscapeNFCe(statusNota) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Protocolo</td><td style="padding:10px 12px;text-align:right;font-weight:600;">'
+      + HtmlEscapeNFCe(protocolo) + '</td></tr>' +
+      '<tr><td style="padding:10px 12px;color:#6b7280;">Total</td><td style="padding:10px 12px;text-align:right;font-size:18px;font-weight:700;color:#111827;">R$ '
+      + FormatFloat('#,##0.00', totalNota) + '</td></tr>' + '</table>' +
+      '<div style="font-size:12px;line-height:1.5;color:#6b7280;word-break:break-all;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">'
+      + '<strong>Chave de acesso:</strong><br>' + HtmlEscapeNFCe(chave) +
       '</div>' + BotaoXML +
       '<p style="font-size:13px;color:#6b7280;margin:22px 0 0;">' +
-      'Quando o XML esta disponivel nesta maquina ele segue anexado. Caso contrario, use o link acima para baixar o arquivo ja enviado ao servidor.' +
-      '</p></div></div>' +
-      '<p style="text-align:center;font-size:12px;color:#9ca3af;margin:18px 0 0;">Goopedir - www.goopedir.com.br</p>' +
-      '</div></div>';
+      'Quando o XML esta disponivel nesta maquina ele segue anexado. Caso contrario, use o link acima para baixar o arquivo ja enviado ao servidor.'
+      + '</p></div></div>' +
+      '<p style="text-align:center;font-size:12px;color:#9ca3af;margin:18px 0 0;">Goopedir - www.goopedir.com.br</p>'
+      + '</div></div>';
     Mail.AddAddress(emailDestino);
     if XMLLocal then
       Mail.AddAttachment(arquivo);
@@ -1716,6 +2249,7 @@ begin
     conexao.Free;
   end;
 end;
+
 procedure IniciarThreadEmissaoNFCe;
 begin
   if Assigned(ThreadEmissaoNFCe) then
@@ -1857,63 +2391,86 @@ var
 begin
   conexao := TConexao.Create('nfce');
   try
-//    conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
-//    conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2) as value,');
-//    conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
-//    conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
-//    conexao.SQL.Add('FROM pedido');
-//    conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
-//    conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
-//    conexao.SQL.Add('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
-conexao.sql.add('SELECT *');
-conexao.sql.add('FROM (');
-conexao.sql.add('    SELECT ');
-conexao.sql.add('        UPPER(p.nome_produto) AS name,');
-conexao.sql.add('        p.codigo_barra AS bar,');
-conexao.sql.add('        p.codigo_interno AS code,');
-conexao.sql.add('        TRUNCATE((pp.valor_total / pp.quantidade), 2) AS value,');
-conexao.sql.add('        pp.quantidade AS quanty,');
-conexao.sql.add('        p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,');
-conexao.sql.add('        p.csosn,p.icms,p.ipi,p.pis,p.cofins,p.frete,');
-conexao.sql.add('        (');
-conexao.sql.add('            SELECT GROUP_CONCAT(UPPER(sap.descricao))');
-conexao.sql.add('            FROM pedido_produto_sap sap');
-conexao.sql.add('            WHERE sap.codigo_pedido_produto = pp.codigo');
-conexao.sql.add('              AND sap.valor > 0');
-conexao.sql.add('        ) AS additional');
-conexao.sql.add('    FROM pedido pe');
-conexao.sql.add('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
-conexao.sql.add('    JOIN produto p ON p.codigo = pp.codigo_produto');
-conexao.sql.add('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
-conexao.sql.add('      AND NOT EXISTS (');
-conexao.sql.add('          SELECT 1');
-conexao.sql.add('          FROM produto_combo_config pcc');
-conexao.sql.add('          JOIN produto_combo_item pci ON pci.combo_config_id = pcc.id');
-conexao.sql.add('          WHERE pcc.produto_combo_id = p.codigo');
-conexao.sql.add('            AND pcc.status = "ATIVO"');
-conexao.sql.add('      )');
-conexao.sql.add('    UNION ALL');
-conexao.sql.add('    SELECT ');
-conexao.sql.add('        UPPER(pi.nome_produto) AS name,');
-conexao.sql.add('        pi.codigo_barra AS bar,');
-conexao.sql.add('        pi.codigo_interno AS code,');
-conexao.sql.add('        TRUNCATE(((pp.valor_total / pp.quantidade) * pci.ratio), 2) AS value,');
-conexao.sql.add('        pp.quantidade AS quanty,');
-conexao.sql.add('        pi.un,pi.ncm,pi.cest,pi.cfop,pi.cstipi,pi.csticms,pi.cstpis,pi.cstcofins,');
-conexao.sql.add('        pi.csosn,pi.icms,pi.ipi,pi.pis,pi.cofins,pi.frete,');
-conexao.sql.add('        CONCAT("COMBO: ", UPPER(pc.nome_produto)) AS additional');
-conexao.sql.add('    FROM pedido pe');
-conexao.sql.add('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
-conexao.sql.add('    JOIN produto pc ON pc.codigo = pp.codigo_produto');
-conexao.sql.add('    JOIN produto_combo_config pcc ');
-conexao.sql.add('        ON pcc.produto_combo_id = pc.codigo');
-conexao.sql.add('       AND pcc.status = "ATIVO"');
-conexao.sql.add('    JOIN produto_combo_item pci ');
-conexao.sql.add('        ON pci.combo_config_id = pcc.id');
-conexao.sql.add('    JOIN produto pi ');
-conexao.sql.add('        ON pi.codigo = pci.produto_id');
-conexao.sql.add('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
-conexao.sql.add(') fiscal;');
+    // conexao.SQL.Add('SELECT upper(produto.nome_produto) as name, produto.codigo_barra as bar, produto.codigo_interno as code, ');
+    // conexao.SQL.Add('TRUNCATE((pedido_produtos.valor_total / pedido_produtos.quantidade), 2) as value,');
+    // conexao.SQL.Add('pedido_produtos.quantidade as quanty, un,ncm,cest,cfop,cstipi,csticms,cstpis,cstcofins,csosn,icms,ipi,pis,cofins,frete,');
+    // conexao.SQL.Add('(select group_concat(upper(pedido_produto_sap.descricao)) from pedido_produto_sap where pedido_produto_sap.codigo_pedido_produto = pedido_produtos.codigo and pedido_produto_sap.valor > 0) as additional');
+    // conexao.SQL.Add('FROM pedido');
+    // conexao.SQL.Add('join pedido_produtos on pedido_produtos.codigo_pedido = pedido.codigo');
+    // conexao.SQL.Add('join produto on produto.codigo = pedido_produtos.codigo_produto');
+    // conexao.SQL.Add('where pedido.codigo = :codigo or pedido.pedido_nfce = :codigo');
+    conexao.SQL.Add('SELECT *');
+    conexao.SQL.Add('FROM (');
+    conexao.SQL.Add('    SELECT ');
+    conexao.SQL.Add('        UPPER(p.nome_produto) AS name,');
+    conexao.SQL.Add('        p.codigo_barra AS bar,');
+    conexao.SQL.Add('        p.codigo_interno AS code,');
+    conexao.SQL.Add
+      ('        TRUNCATE((pp.valor_total / pp.quantidade), 2) AS value,');
+    conexao.SQL.Add('        pp.quantidade AS quanty,');
+    conexao.SQL.Add
+      ('        p.un,p.ncm,p.cest,p.cfop,p.cstipi,p.csticms,p.cstpis,p.cstcofins,');
+    conexao.SQL.Add('        p.csosn,p.icms,p.ipi,p.pis,p.cofins,p.frete,');
+    conexao.SQL.Add
+      ('        p.ibs_cbs_cst AS ibsCbsCst,p.ibs_cbs_class_trib AS ibsCbsClassTrib,p.ibs_uf_aliq AS ibsUfAliq,p.ibs_mun_aliq AS ibsMunAliq,p.cbs_aliq AS cbsAliq,');
+    conexao.SQL.Add
+      ('        COALESCE(fct.pred_ibs, 0) AS ibsCbsPredIbs, COALESCE(fct.pred_cbs, 0) AS ibsCbsPredCbs,');
+    conexao.SQL.Add('        (');
+    conexao.SQL.Add('            SELECT GROUP_CONCAT(UPPER(sap.descricao))');
+    conexao.SQL.Add('            FROM pedido_produto_sap sap');
+    conexao.SQL.Add('            WHERE sap.codigo_pedido_produto = pp.codigo');
+    conexao.SQL.Add('              AND sap.valor > 0');
+    conexao.SQL.Add('        ) AS additional');
+    conexao.SQL.Add('    FROM pedido pe');
+    conexao.SQL.Add
+      ('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
+    conexao.SQL.Add('    JOIN produto p ON p.codigo = pp.codigo_produto');
+    conexao.SQL.Add
+      ('    LEFT JOIN fiscal_ibs_cbs_class_trib fct ON fct.cclass_trib = p.ibs_cbs_class_trib');
+    conexao.SQL.Add
+      ('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
+    conexao.SQL.Add('      AND NOT EXISTS (');
+    conexao.SQL.Add('          SELECT 1');
+    conexao.SQL.Add('          FROM produto_combo_config pcc');
+    conexao.SQL.Add
+      ('          JOIN produto_combo_item pci ON pci.combo_config_id = pcc.id');
+    conexao.SQL.Add('          WHERE pcc.produto_combo_id = p.codigo');
+    conexao.SQL.Add('            AND pcc.status = "ATIVO"');
+    conexao.SQL.Add('      )');
+    conexao.SQL.Add('    UNION ALL');
+    conexao.SQL.Add('    SELECT ');
+    conexao.SQL.Add('        UPPER(pi.nome_produto) AS name,');
+    conexao.SQL.Add('        pi.codigo_barra AS bar,');
+    conexao.SQL.Add('        pi.codigo_interno AS code,');
+    conexao.SQL.Add
+      ('        TRUNCATE(((pp.valor_total / pp.quantidade) * pci.ratio), 2) AS value,');
+    conexao.SQL.Add('        pp.quantidade AS quanty,');
+    conexao.SQL.Add
+      ('        pi.un,pi.ncm,pi.cest,pi.cfop,pi.cstipi,pi.csticms,pi.cstpis,pi.cstcofins,');
+    conexao.SQL.Add
+      ('        pi.csosn,pi.icms,pi.ipi,pi.pis,pi.cofins,pi.frete,');
+    conexao.SQL.Add
+      ('        pi.ibs_cbs_cst AS ibsCbsCst,pi.ibs_cbs_class_trib AS ibsCbsClassTrib,pi.ibs_uf_aliq AS ibsUfAliq,pi.ibs_mun_aliq AS ibsMunAliq,pi.cbs_aliq AS cbsAliq,');
+    conexao.SQL.Add
+      ('        COALESCE(fcti.pred_ibs, 0) AS ibsCbsPredIbs, COALESCE(fcti.pred_cbs, 0) AS ibsCbsPredCbs,');
+    conexao.SQL.Add
+      ('        CONCAT("COMBO: ", UPPER(pc.nome_produto)) AS additional');
+    conexao.SQL.Add('    FROM pedido pe');
+    conexao.SQL.Add
+      ('    JOIN pedido_produtos pp ON pp.codigo_pedido = pe.codigo');
+    conexao.SQL.Add('    JOIN produto pc ON pc.codigo = pp.codigo_produto');
+    conexao.SQL.Add('    JOIN produto_combo_config pcc ');
+    conexao.SQL.Add('        ON pcc.produto_combo_id = pc.codigo');
+    conexao.SQL.Add('       AND pcc.status = "ATIVO"');
+    conexao.SQL.Add('    JOIN produto_combo_item pci ');
+    conexao.SQL.Add('        ON pci.combo_config_id = pcc.id');
+    conexao.SQL.Add('    JOIN produto pi ');
+    conexao.SQL.Add('        ON pi.codigo = pci.produto_id');
+    conexao.SQL.Add
+      ('    LEFT JOIN fiscal_ibs_cbs_class_trib fcti ON fcti.cclass_trib = pi.ibs_cbs_class_trib');
+    conexao.SQL.Add
+      ('    WHERE (pe.codigo = :codigo OR pe.pedido_nfce = :codigo)');
+    conexao.SQL.Add(') fiscal;');
     conexao.Parametros('codigo', codigo);
     Result := conexao.ConsultaSQL;
   finally
@@ -1965,8 +2522,8 @@ begin
     Result := 'homologacao';
 end;
 
-function TryDataHoraParametro(const Valor: String; out DataHora: TDateTime)
-  : Boolean;
+function TryDataHoraParametro(const valor: String;
+  out DataHora: TDateTime): Boolean;
 var
   Fmt: TFormatSettings;
 begin
@@ -1975,10 +2532,11 @@ begin
   Fmt.TimeSeparator := ':';
   Fmt.ShortDateFormat := 'yyyy-mm-dd';
   Fmt.LongTimeFormat := 'hh:nn:ss';
-  Result := TryStrToDateTime(Trim(Valor), DataHora, Fmt);
+  Result := TryStrToDateTime(Trim(valor), DataHora, Fmt);
 end;
 
-procedure GravarControleDFeParametro(conexao: TConexao; const UltimoNSU: String);
+procedure GravarControleDFeParametro(conexao: TConexao;
+  const UltimoNSU: String);
 begin
   conexao.SalvarParametro(PARAM_DFE_ULTIMA_EXECUCAO,
     FormatDateTime('yyyy-mm-dd hh:nn:ss', Now));
@@ -2012,8 +2570,8 @@ begin
   end;
 end;
 
-function ConsultaDFeLiberada(conexao: TConexao;
-  const CNPJ, ambiente: String; out Mensagem: String): Boolean;
+function ConsultaDFeLiberada(conexao: TConexao; const CNPJ, ambiente: String;
+  out Mensagem: String): Boolean;
 var
   Dados: TFDMemTable;
   UltimaExecucao, ProximaExecucao: TDateTime;
@@ -2021,8 +2579,8 @@ var
 begin
   Result := True;
   Mensagem := '';
-  ParametroUltimaExecucao := Trim(ParametroStr(conexao,
-    PARAM_DFE_ULTIMA_EXECUCAO));
+  ParametroUltimaExecucao :=
+    Trim(ParametroStr(conexao, PARAM_DFE_ULTIMA_EXECUCAO));
   if TryDataHoraParametro(ParametroUltimaExecucao, UltimaExecucao) then
   begin
     ProximaExecucao := IncHour(UltimaExecucao, 1);
@@ -2430,37 +2988,37 @@ end;
 
 function TextoTagXML(const XML, Nome: String): String;
 var
-  match: TMatch;
+  Match: TMatch;
 begin
   Result := '';
-  match := TRegEx.match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome +
+  Match := TRegEx.Match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome +
     '\b[^>]*>(.*?)</(?:[A-Za-z0-9_]+:)?' + Nome + '>',
     [roIgnoreCase, roSingleLine]);
-  if match.Success then
-    Result := Trim(DecodificarTextoXML(match.Groups[1].Value));
+  if Match.Success then
+    Result := Trim(DecodificarTextoXML(Match.Groups[1].Value));
 end;
 
 function BlocoTagXML(const XML, Nome: String): String;
 var
-  match: TMatch;
+  Match: TMatch;
 begin
   Result := '';
-  match := TRegEx.match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome +
+  Match := TRegEx.Match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome +
     '\b[^>]*>.*?</(?:[A-Za-z0-9_]+:)?' + Nome + '>',
     [roIgnoreCase, roSingleLine]);
-  if match.Success then
-    Result := match.Value;
+  if Match.Success then
+    Result := Match.Value;
 end;
 
 function AtributoTagXML(const XML, Nome, Atributo: String): String;
 var
-  match: TMatch;
+  Match: TMatch;
 begin
   Result := '';
-  match := TRegEx.match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome + '\b[^>]*\s' +
+  Match := TRegEx.Match(XML, '<(?:[A-Za-z0-9_]+:)?' + Nome + '\b[^>]*\s' +
     Atributo + '\s*=\s*["'']([^"'']+)["'']', [roIgnoreCase, roSingleLine]);
-  if match.Success then
-    Result := Trim(DecodificarTextoXML(match.Groups[1].Value));
+  if Match.Success then
+    Result := Trim(DecodificarTextoXML(Match.Groups[1].Value));
 end;
 
 function ValorTagXML(const XML, Nome: String): Double;
@@ -2607,7 +3165,7 @@ begin
     [roIgnoreCase, roSingleLine]);
   for I := 0 to Matches.Count - 1 do
   begin
-    DetXML := Matches.item[I].Value;
+    DetXML := Matches.Item[I].Value;
     ProdXML := BlocoTagXML(DetXML, 'prod');
     if ProdXML = '' then
       Continue;
@@ -2882,7 +3440,8 @@ begin
     Acbr.Configuracoes.Geral.ModeloDF := moNFe;
     ambiente := AmbienteDFeTexto(Acbr.Configuracoes.WebServices.ambiente);
     UltimoNSU := UltimoNSUDFe(conexao, CNPJConsulta, ambiente);
-    if not ConsultaDFeLiberada(conexao, CNPJConsulta, ambiente, MensagemDFe) then
+    if not ConsultaDFeLiberada(conexao, CNPJConsulta, ambiente, MensagemDFe)
+    then
     begin
       JSONInfo := TJSONObject.Create;
       JSONInfo.AddPair('cnpj', CNPJConsulta);
@@ -2929,7 +3488,7 @@ begin
       Acbr.DistribuicaoDFePorUltNSU
         (UFtoCUF(UpperCase(ParametroStr(conexao, 'estado'))), CNPJConsulta,
         UltimoNSU);
-     with Acbr.WebServices.DistribuicaoDFe.retDistDFeInt do
+      with Acbr.WebServices.DistribuicaoDFe.retDistDFeInt do
       begin
         if cStat = 138 then
         begin

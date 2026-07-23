@@ -43,8 +43,8 @@ end;
 procedure TfrmPedidoSite.FormCreate(Sender: TObject);
 
 begin
-  pedido := 383615;
-  userId := 43;
+  pedido := 0;
+  userId := 0;
   try
     pedido := ParamStr(1).ToInteger();
     userId := ParamStr(2).ToInteger();
@@ -66,7 +66,7 @@ var
 begin
   TempoInicial := GetTickCount; // Marca o tempo inicial
 
-  getPedidos; // Executa a função que você quer medir
+  getPedidos; // Executa a funÃ§Ã£o que vocÃª quer medir
 
   TempoFinal := GetTickCount; // Marca o tempo final
 
@@ -75,7 +75,7 @@ begin
 
   // Exibe o tempo decorrido em uma mensagem
   // //showmessage
-  (Format('A função getPedidos demorou %d milissegundos para executar.',
+  (Format('A funÃ§Ã£o getPedidos demorou %d milissegundos para executar.',
     [TempoDecorrido]));
 end;
 

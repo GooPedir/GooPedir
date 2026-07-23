@@ -8,7 +8,7 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
   System.Variants, conexao, uCacheControl, uControllCaches,
   System.Generics.Collections, System.DateUtils, uNewConsultas,
-  uControlerProduto, uGlobais, uNFCe;
+  uControlerProduto, uGlobais, uNFCe, System.Diagnostics;
 
 type
   TValoresPizza = record
@@ -1172,7 +1172,7 @@ begin
   try
     HoraFinal := TransformaHora(Req.Params['horafim']);
   except
-    HoraInicial := StrToTime('23:59:59');
+    HoraFinal := StrToTime('23:59:59');
   end;
 
   {
@@ -1371,12 +1371,6 @@ begin
   except
     HoraInicial := StrToTime('00:00:00');
   end;
-  try
-    HoraFinal := TransformaHora(Req.Params['horafim']);
-  except
-    HoraInicial := StrToTime('23:59:59');
-  end;
-
   conexao.SQL.Add
     ('select pm.codigo_motoboy, upper(m.nome) as motoboy, ce.bairro, group_concat(p.codigo_pedido_dia) as pedidos,');
   conexao.SQL.Add('group_concat(CONCAT(' + QuotedStr(' [') +
@@ -1405,6 +1399,7 @@ end;
 procedure DoGetPedidos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: Tconexao;
+  QryCount: TFDQuery;
   DataInicial: TDate;
   DataFinal: TDate;
   HoraInicial: TTime;
@@ -1412,10 +1407,16 @@ var
   Tipo: String;
   Faturado: String;
   SQL: String;
-  MesesAno: TArray<string>;
-  MesAno: string;
   Dados: TFDMemTable;
   JsonArray: TJSONArray;
+  Resultado: TJSONArray;
+  Cache: TJSONObject;
+  CacheDados: TJSONArray;
+  CacheKey: String;
+  TotalPedidos: Integer;
+  TotalCache: Integer;
+  AssinaturaPedidos: string;
+  AssinaturaCache: string;
 begin
   try
     DataInicial := TransformaData(Req.Params['dataini']);
@@ -1435,13 +1436,13 @@ begin
   try
     HoraFinal := TransformaHora(Req.Params['horafim']);
   except
-    HoraInicial := StrToTime('23:59:59');
+    HoraFinal := StrToTime('23:59:59');
   end;
 
   try
     HoraFinal := TransformaHora(Req.Params['horafim']);
   except
-    HoraInicial := StrToTime('23:59:59');
+    HoraFinal := StrToTime('23:59:59');
   end;
 
   try
@@ -1458,21 +1459,111 @@ begin
 
   conexao := Tconexao.Create('Util');
   Dados := TFDMemTable.Create(nil);
-  SQL := UnionPedio('pedido', Tipo);
-  SQL := SQL + ' order by data, hora desc,codigo_dia';
-  conexao.SQL.Add(SQL);
-  conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
-  conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
-  JsonArray := conexao.ConsultaSQL;
   try
-    Dados.LoadFromJSON(JsonArray.ToString);
+    CacheKey := FormatDateTime('yyyy-mm-dd', DataInicial) + '_' +
+      FormatDateTime('yyyy-mm-dd', DataFinal) + '_' +
+      FormatDateTime('hh:nn:ss', HoraInicial) + '_' +
+      FormatDateTime('hh:nn:ss', HoraFinal) + '_' + Tipo + '_' + Faturado;
+
+    TotalPedidos := 0;
+    AssinaturaPedidos := '';
+    QryCount := conexao.CriaQRY;
+    try
+//      QryCount.SQL.Text :=
+//        'select count(*) as total, ' +
+//        'coalesce(sum(crc32(concat_ws(''|'', ' +
+//        'p.codigo, p.codigoOld, p.codigo_pedido_dia, p.codigo_cliente, p.nome, ' +
+//        'p.codigo_cliente_endereco, p.data_pedido, p.hora_pedido, p.status, ' +
+//        'p.nfce_status, p.nfce_chave, p.nfce_protocolo, p.valor_pedido, ' +
+//        'p.valor_taxa_entrega, p.valor_desconto, p.valor_total_pedido, ' +
+//        'p.tipo_pagamento, p.motivo_cancelamento, p.pedido_site, p.id_caixa, ' +
+//        'p.id_ficha, p.origem, p.id_ifood, p.status_ifood, ' +
+//        'p.status_ifood_descricao, p.order_ifood, p.desc_desconto_ifood, ' +
+//        'p.estimada_ifood, p.agendada_ifood, pm.codigo_motoboy, m.nome, ' +
+//        'c.nome, c.celular, c.cpf, ce.rua, ce.numero, ce.bairro, ce.cidade))), 0) as assinatura ' +
+//        'from pedido as p ' +
+//        'left join pedido_motoboy as pm on (pm.codigo_pedido = p.codigo or pm.codigo_pedido = p.codigoOld) ' +
+//        'left join motoboy as m on (m.codigo = pm.codigo_motoboy) ' +
+//        'left join cliente as c on c.codigo = p.codigo_cliente ' +
+//        'left join cliente_endereco as ce on ce.codigo = p.codigo_cliente_endereco ' +
+//        'where p.data_pedido between :inicial and :final and p.status > -1 and p.origem in ('
+//        + Tipo + ')';
+      QryCount.SQL.Text :=
+        'SELECT COUNT(*) AS total, ' +
+        'COALESCE(MAX(p.updated_at), ''1900-01-01 00:00:00'') AS assinatura ' +
+        'FROM pedido p ' +
+        'WHERE p.data_pedido BETWEEN :inicial AND :final ' +
+        'AND p.status > -1 ' +
+        'AND p.origem IN (' + Tipo + ')';
+      QryCount.ParamByName('inicial').AsString :=
+        FormatDateTime('yyyy-mm-dd', DataInicial);
+      QryCount.ParamByName('final').AsString :=
+        FormatDateTime('yyyy-mm-dd', DataFinal);
+      QryCount.Open;
+      if not QryCount.Eof then
+      begin
+        TotalPedidos := QryCount.FieldByName('total').AsInteger;
+        AssinaturaPedidos := QryCount.FieldByName('assinatura').AsString;
+      end;
+    finally
+      QryCount.Free;
+    end;
+
+    Cache := BuscaCacheObject('DoGetPedidos', CacheKey);
+    try
+      TotalCache := -1;
+      AssinaturaCache := '';
+      Cache.TryGetValue<string>('assinatura', AssinaturaCache);
+      if Cache.TryGetValue<Integer>('total', TotalCache) and
+        (TotalCache = TotalPedidos) and (AssinaturaCache = AssinaturaPedidos) then
+      begin
+        CacheDados := Cache.GetValue<TJSONArray>('dados');
+        if CacheDados <> nil then
+        begin
+          Resultado := TJSONObject.ParseJSONValue(CacheDados.ToString)
+            as TJSONArray;
+          if Resultado <> nil then
+          begin
+            Res.Send<TJSONArray>(Resultado);
+            Exit;
+          end;
+        end;
+      end;
+    finally
+      Cache.Free;
+    end;
+
+    SQL := UnionPedio('pedido', Tipo);
+    SQL := SQL + ' order by data, hora desc,codigo_dia';
+    conexao.SQL.Add(SQL);
+    conexao.Parametros('inicial', FormatDateTime('yyyy-mm-dd', DataInicial));
+    conexao.Parametros('final', FormatDateTime('yyyy-mm-dd', DataFinal));
+    JsonArray := conexao.ConsultaSQL;
+    try
+      Dados.LoadFromJSON(JsonArray.ToString);
+    finally
+      JsonArray.Free; // sem isso, voc? vazava mem?ria a cada chamada
+    end;
+
+    Resultado := Dados.ToJSONArray();
+    Cache := TJSONObject.Create;
+    try
+      Cache.AddPair('total', TJSONNumber.Create(TotalPedidos));
+      Cache.AddPair('assinatura', AssinaturaPedidos);
+      Cache.AddPair('dados', TJSONObject.ParseJSONValue(Resultado.ToString));
+      GravaCache('DoGetPedidos', CacheKey, Cache.ToString);
+    finally
+      Cache.Free;
+    end;
+
+    Res.Send<TJSONArray>(Resultado);
   finally
-    JsonArray.Free; // sem isso, você vazava memória a cada chamada
+    Dados.Free;
+    conexao.Free;
   end;
-  Res.Send<TJSONArray>(Dados.ToJSONArray());
-  Dados.Free;
-  conexao.Free;
 end;
+
+
 
 procedure DoGetCaixa(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
@@ -10030,16 +10121,16 @@ begin
       end).start;
     QRY.Free;
     // LOG DA OPERAÇÃO (ANTES DE PROCESSAR)
-    conexao := Tconexao.Create('Util');
-    conexao.SQL.Clear;
-    conexao.SQL.Add
-      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) values (:ip, :usuario, :operacao, :endpoint, :body)');
-    conexao.Parametros('ip', IP);
-    conexao.Parametros('usuario', Usuario); // default
-    conexao.Parametros('operacao', 'AdicionaProduto');
-    conexao.Parametros('endpoint', '/v2/grava/varios/produtos');
-    conexao.Parametros('body', Body);
-    conexao.ExecuteSQL;
+//    conexao := Tconexao.Create('Util');
+//    conexao.SQL.Clear;
+//    conexao.SQL.Add
+//      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) values (:ip, :usuario, :operacao, :endpoint, :body)');
+//    conexao.Parametros('ip', IP);
+//    conexao.Parametros('usuario', Usuario); // default
+//    conexao.Parametros('operacao', 'AdicionaProduto');
+//    conexao.Parametros('endpoint', '/v2/grava/varios/produtos');
+//    conexao.Parametros('body', Body);
+//    conexao.ExecuteSQL;
 
     conexao.SQL.Add
       ('select codigo_pedido_dia as cod, 0 as zero from pedido where codigo = :codigo');
@@ -10399,54 +10490,39 @@ begin
   SQL := SQL + ' codigo_pedido_dia as codigo_dia,';
   SQL := SQL + ' codigo_cliente,';
   SQL := SQL + ' CASE';
-  SQL := SQL +
-    '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
+  SQL := SQL + '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
     QuotedStr('BALCÃO') + ' AND p.nome <> ''''';
   SQL := SQL + '  THEN p.nome';
-  SQL := SQL +
-    '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
+  SQL := SQL + '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
   SQL := SQL + ' END AS cliente,';
-  SQL := SQL +
-    ' (select celular from cliente where codigo = codigo_cliente) as celular,';
-  SQL := SQL +
-    ' (select cpf from cliente where codigo = codigo_cliente) as documento,';
+  SQL := SQL + ' (select celular from cliente where codigo = codigo_cliente) as celular,';
+  SQL := SQL + ' (select cpf from cliente where codigo = codigo_cliente) as documento,';
   SQL := SQL + ' codigo_cliente_endereco as cliente_endereco,';
   SQL := SQL + ' (SELECT ';
-  SQL := SQL + ' upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +
-    QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +
-    QuotedStr(' ] ') + ')) ';
-  SQL := SQL +
-    ' FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,';
-  SQL := SQL + ' DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +
-    ') as data,';
+  SQL := SQL + ' upper(concat(rua,' + QuotedStr(' - ') + ',numero,' +QuotedStr(' [ ') + ',bairro,' + QuotedStr(' / ') + ',cidade,' +QuotedStr(' ] ') + ')) ';
+  SQL := SQL + ' FROM cliente_endereco where codigo = codigo_cliente_endereco) as endereco_completo,';
+  SQL := SQL + ' DATE_FORMAT(data_pedido,' + QuotedStr('%d/%m/%Y') +') as data,';
   SQL := SQL + ' (hora_pedido) as hora,';
-  SQL := SQL + ' cast(timediff(current_timestamp,concat(data_pedido,' +
-    QuotedStr(' ') + ',hora_pedido)) as char) as tempo,';
+  SQL := SQL + ' cast(timediff(current_timestamp,concat(data_pedido,' + QuotedStr(' ') + ',hora_pedido)) as char) as tempo,';
   SQL := SQL + ' p.status,';
   SQL := SQL + ' p.nfce_status,';
   SQL := SQL + ' p.nfce_chave,';
   SQL := SQL + ' p.nfce_protocolo,';
-  SQL := SQL +
-    ' (select descricao from status_pedido where id = p.status) status_descricao,';
-  SQL := SQL + ' REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as valor,';
-  SQL := SQL + ' REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as taxa,';
-  SQL := SQL + ' REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as desconto,';
-  SQL := SQL + ' REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' +
-    QuotedStr(',') + ') as total,';
+  SQL := SQL + ' (select descricao from status_pedido where id = p.status) status_descricao,';
+  SQL := SQL + ' REPLACE(valor_pedido, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as valor,';
+  SQL := SQL + ' REPLACE(valor_taxa_entrega, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as taxa,';
+  SQL := SQL + ' REPLACE(valor_desconto, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as desconto,';
+  SQL := SQL + ' REPLACE(valor_total_pedido, ' + QuotedStr('.') + ', ' + QuotedStr(',') + ') as total,';
   SQL := SQL + ' tipo_pagamento as pagamento,';
   SQL := SQL + ' motivo_cancelamento,';
-  SQL := SQL +
-    ' pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,';
+  SQL := SQL + ' pedido_site as pedidosite, id_caixa as caixa, id_ficha as ficha,';
   SQL := SQL + ' origem,';
   SQL := SQL + ' CASE';
   SQL := SQL + '     WHEN codigo_cliente_endereco = 0 THEN "Vem Buscar"';
   SQL := SQL + '      WHEN id_ficha > 0 THEN "Ficha"';
   SQL := SQL + '     ELSE "Delivery"';
   SQL := SQL + '     END as tipo,';
-  SQL := SQL + ' upper(m.nome) as motoboy,';
+  SQL := SQL + ' (select upper(nome) from motoboy where codigo = (select codigo_motoboy from pedido_motoboy where codigo_pedido = p.codigo or codigo_pedido = p.codigo)) as motoboy,';
   SQL := SQL + ' p.id_ifood,';
   SQL := SQL + ' p.status_ifood,';
   SQL := SQL + ' p.status_ifood_descricao,';
@@ -10455,15 +10531,9 @@ begin
   SQL := SQL + '  p.estimada_ifood as estimada_ifood,';
   SQL := SQL + '  p.agendada_ifood as agendada_ifood,';
   SQL := SQL + '  p.order_ifood,';
-  SQL := SQL +
-    '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento limit 1) as pagamento';
+  SQL := SQL + '  (select descricao from tipo_pagamento where codigo = p.tipo_pagamento limit 1) as pagamento';
   SQL := SQL + ' from ' + Tabela + ' as p';
-  SQL := SQL +
-    ' left join pedido_motoboy as pm on (pm.codigo_pedido = p.codigo or pm.codigo_pedido = p.codigoOld)';
-  SQL := SQL + ' left join motoboy as m on (m.codigo = pm.codigo_motoboy)';
-  SQL := SQL +
-    ' where data_pedido between :inicial and :final and p.status > -1 and origem in ('
-    + Tipo + ')';
+  SQL := SQL + ' where p.data_pedido between :inicial and :final and p.status > -1 and p.origem in ('+ Tipo + ')';
   Result := SQL;
 end;
 
