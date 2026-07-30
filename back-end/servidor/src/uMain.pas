@@ -23,7 +23,7 @@ uses
   System.Generics.Collections,
   REST.Types,
   Data.Bind.Components,
-  System.SyncObjs,
+  System.SyncObjs, System.Diagnostics,
   Horse.XMLDoc, Xml.XMLDoc, uCodigoPedidoDia,
   Horse.SocketIO.ServerSocket,
   Data.Bind.ObjectScope, Horse.ExceptionHandler, Horse, Horse.ServerStatic,
@@ -532,7 +532,7 @@ uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
   RESTRequest4D.Utils, ThirdParty.Posix.Syslog, token.autorizacao, token, uDM,
   util.backup, util, Web.WebConst, Winapi.ShellAPI, v2, NFCE, imprimir,
   REST.JSON, uToPedindo, uControllCaches, uDadosWhatsapp, Horse.Compression,
-  Horse.Compression.Types;
+  Horse.Compression.Types, uPerformanceMetrics;
 
 var
   LogOperacaoQueue: TThreadedQueue<TLogOperacaoItem>;
@@ -2103,232 +2103,396 @@ var
   QryPedido: TFDQuery;
   QryPagamento: TFDQuery;
   QryImpressora: TFDQuery;
-
   Objeto: TJsonObject;
   ObjetoCliente: TJsonObject;
   ObjetoEndereco: TJsonObject;
   ArrayPagamentos: TJsonArray;
   ObjetoPagamento: TJsonObject;
-  Descricao: String;
+  ArrayProdutos: TJsonArray;
   reqImpressao: iRequisicao;
   BODY: String;
   Data: Double;
-begin  try
-  conexao := Tconexao.Create('EnviarConferencia');
-  Objeto := TJsonObject.Create;
+  TotalWatch: TStopwatch;
+  StepWatch: TStopwatch;
+  TraceId: string;
+  CurrentStep: string;
+  Success: Boolean;
+  ErrorLogged: Boolean;
 
-  QryUsuario := conexao.CriaQRY;
-  QryPedido := conexao.CriaQRY;
-  QryImpressora := conexao.CriaQRY;
-  QryPagamento := conexao.CriaQRY;
-  debugErro := '1';
-  QryUsuario.SQL.Add
-    ('select nome, impressora, id_caixa from usuario where codigo = :codigo');
-  QryUsuario.ParamByName('codigo').AsInteger := Usuario;
-  QryUsuario.Open;
-  debugErro := '2';
-  QryPedido.SQL.Add
-    ('select id_ficha, id_caixa, valor_pedido as produto, valor_total_pedido as total, servico, servico_percentual as percentual, desc_ficha, codigo_cliente_endereco from pedido where codigo = :codigo');
-  QryPedido.ParamByName('codigo').AsInteger := Codigo;
-  QryPedido.Open;
-  debugErro := '3';
-  Objeto.AddPair('mesa', trim(QryPedido.FieldByName('desc_ficha').AsString));
-
-  Objeto.AddPair('taxa_servico_percent',
-    QryPedido.FieldByName('percentual').AsFloat);
-  Objeto.AddPair('taxa_servico_valor', QryPedido.FieldByName('servico')
-    .AsFloat);
-  Objeto.AddPair('total_produtos', QryPedido.FieldByName('produto').AsFloat);
-  Objeto.AddPair('total_geral', QryPedido.FieldByName('total').AsFloat);
-
-  Objeto.AddPair('operador', QryUsuario.FieldByName('nome').AsString);
-  Objeto.AddPair('cx', QryUsuario.FieldByName('id_caixa').AsString);
-  Objeto.AddPair('imprimir_agora', true);
-
-  QryImpressora.SQL.Add('SELECT ');
-  QryImpressora.SQL.Add('    driver, ');
-  QryImpressora.SQL.Add('    tipo_impressao ');
-  QryImpressora.SQL.Add('FROM impressoras');
-  QryImpressora.SQL.Add('WHERE ativo = 1');
-  QryImpressora.SQL.Add('  AND (');
-  QryImpressora.SQL.Add('        (codigo = :codigo)');
-  QryImpressora.SQL.Add('        OR (:codigo = 0 AND impressora_padrao = 1)');
-  QryImpressora.SQL.Add('      )');
-  QryImpressora.SQL.Add('ORDER BY CASE ');
-  QryImpressora.SQL.Add('        WHEN codigo = :codigo THEN 0');
-  QryImpressora.SQL.Add('        ELSE 1');
-  QryImpressora.SQL.Add('    END');
-  try
-    QryImpressora.ParamByName('codigo').AsInteger :=
-      QryUsuario.FieldByName('impressora').AsInteger;
-  except
-    QryImpressora.ParamByName('codigo').AsInteger := 0;
-  end;
-  QryImpressora.Open;
-  Objeto.AddPair('driver', QryImpressora.FieldByName('driver').AsString);
-  Objeto.AddPair('modelo',
-    ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
-
-  if QryPedido.FieldByName('id_ficha').AsInteger = 0 then
+  procedure StartStep(const AStep: string);
   begin
-
-    QryPedido.Close;
-    QryPedido.SQL.Clear;
-    QryPedido.SQL.Add('SELECT p.valor_taxa_entrega as entrega,p.troco, p.codigo, p.codigo_pedido_dia as sequencial, p.data_pedido as data, p.hora_pedido as hora, p.valor_taxa_entrega as entrega, ');
-    QryPedido.SQL.Add('p.latitude, p.longitude, p.desc_desconto_ifood as desconto, p.valor_desconto, p.nfce_chave, p.nfce_protocolo, p.nfce_numero, p.partner, p.mp as transacao ,');
-    QryPedido.SQL.Add('c.nome, c.fidelidade, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
-    QryPedido.SQL.Add('FROM pedido as p');
-    QryPedido.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
-    QryPedido.SQL.Add('left join cliente_endereco as cend on cend.codigo = p.codigo_cliente_endereco');
-    QryPedido.SQL.Add('left join cliente_estatistica as ce on ce.codigo_cliente = c.codigo');
-    QryPedido.SQL.Add('left join tipo_pagamento as tp on tp.codigo = p.tipo_pagamento');
-    QryPedido.SQL.Add('where p.codigo = :codigo');
-    QryPedido.ParamByName('codigo').AsInteger := Codigo;
-    QryPedido.Open;
-    ObjetoCliente := TJsonObject.Create;
-    ObjetoEndereco := TJsonObject.Create;
-    ObjetoCliente.AddPair('nome', QryPedido.FieldByName('nome').AsString);
-    ObjetoCliente.AddPair('cpf', QryPedido.FieldByName('cpf').AsString);
-    ObjetoCliente.AddPair('celular', QryPedido.FieldByName('celular').AsString);
-    ObjetoCliente.AddPair('pedidos', QryPedido.FieldByName('pedidos').AsString);
-    ObjetoCliente.AddPair('fidelidade', QryPedido.FieldByName('fidelidade')
-      .AsString);
-    Objeto.AddPair('sequencial', QryPedido.FieldByName('sequencial').AsInteger);
-    Objeto.AddPair('codigo', QryPedido.FieldByName('codigo').AsInteger);
-    Objeto.AddPair('cliente', ObjetoCliente);
-    Data := QryPedido.FieldByName('data').AsDateTime;
-    Objeto.AddPair('data', StrToInt(FormatFloat('0', Data)));
-    Objeto.AddPair('hora', QryPedido.FieldByName('hora').AsDateTime);
-
-    Objeto.AddPair('partner', QryPedido.FieldByName('partner').AsString);
-    Objeto.AddPair('desconto', QryPedido.FieldByName('desconto').AsString);
-    try
-      Objeto.AddPair('valor_desconto',
-        QryPedido.FieldByName('valor_desconto').AsFloat);
-    except
-      Objeto.AddPair('valor_desconto', 0);
-    end;
-
-    try
-      Objeto.AddPair('taxa_entrega', QryPedido.FieldByName('entrega').AsFloat);
-    except
-      Objeto.AddPair('taxa_entrega', 0);
-
-    end;
-
-    Objeto.AddPair('nfceChave', QryPedido.FieldByName('nfce_chave').AsString);
-    Objeto.AddPair('nfceProtocolo', QryPedido.FieldByName('nfce_protocolo')
-      .AsString);
-    Objeto.AddPair('nfceNumero', QryPedido.FieldByName('nfce_numero').AsString);
-
-    if QryPedido.FieldByName('rua').AsString <> '' then
-    begin
-      // Delivery
-      Objeto.AddPair('tipo', 'DELIVERY');
-      ObjetoEndereco.AddPair('rua', QryPedido.FieldByName('rua').AsString);
-      ObjetoEndereco.AddPair('bairro', QryPedido.FieldByName('bairro')
-        .AsString);
-      ObjetoEndereco.AddPair('numero', QryPedido.FieldByName('numero')
-        .AsString);
-      ObjetoEndereco.AddPair('complemento', QryPedido.FieldByName('complemento')
-        .AsString);
-      ObjetoEndereco.AddPair('cidade', QryPedido.FieldByName('cidade')
-        .AsString);
-      ObjetoEndereco.AddPair('estado', QryPedido.FieldByName('estado')
-        .AsString);
-      ObjetoEndereco.AddPair('latitude', QryPedido.FieldByName('latitude')
-        .AsString);
-      ObjetoEndereco.AddPair('longitude', QryPedido.FieldByName('longitude')
-        .AsString);
-      Objeto.AddPair('endereco', ObjetoEndereco);
-      debugErro := '11';
-    end
-    else
-    begin
-      // Retirada
-      Objeto.AddPair('tipo', 'VEM BUSCAR');
-    end;
-  end;
-  ArrayPagamentos := TJsonArray.Create;
-  if QryPedido.FieldByName('id_caixa').AsString <> '' then
-  begin
-    // Foi faturado
-    QryPagamento.SQL.Clear;
-    QryPagamento.SQL.Add('SELECT tp.descricao, cm.valor, cli.nome FROM caixa_movimento as cm ');
-    QryPagamento.SQL.Add('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
-    QryPagamento.SQL.Add('left join caixa_receber as cr on cr.id_caixa = cm.id_caixa and cr.id_pedido = cm.id_pedido and cr.id_tipo_pagamento = tp.codigo');
-    QryPagamento.SQL.Add('left join cliente as cli on cli.codigo = cr.id_cliente');
-    QryPagamento.SQL.Add('where cm.id_pedido = :codigo and cm.tipo = 1 order by cm.valor desc');
-    QryPagamento.ParamByName('codigo').AsInteger := Codigo;
-    QryPagamento.Open;
-    while not QryPagamento.Eof do
-    begin
-      ObjetoPagamento := TJsonObject.Create;
-      ObjetoPagamento.AddPair('descricao', QryPagamento.FieldByName('descricao')
-        .AsString);
-      ObjetoPagamento.AddPair('valor',
-        QryPagamento.FieldByName('valor').AsFloat);
-      ObjetoPagamento.AddPair('nome', QryPagamento.FieldByName('nome')
-        .AsString);
-      ObjetoPagamento.AddPair('faturado', true);
-      ArrayPagamentos.Add(ObjetoPagamento);
-      QryPagamento.Next;
-    end;
-  end
-  else
-  begin
-    // Não Faturado
-
-    try
-      ObjetoPagamento := TJsonObject.Create;
-      ObjetoPagamento.AddPair('descricao', QryPedido.FieldByName('descricao')
-        .AsString);
-      ObjetoPagamento.AddPair('transacao', QryPedido.FieldByName('transacao')
-        .AsString);
-      ObjetoPagamento.AddPair('troco', QryPedido.FieldByName('troco').AsFloat);
-      ObjetoPagamento.AddPair('faturado', false);
-      ArrayPagamentos.Add(ObjetoPagamento);
-    except
-      ObjetoPagamento.Free;
-    end;
-
+    CurrentStep := AStep;
+    StepWatch := TStopwatch.StartNew;
   end;
 
-  Objeto.AddPair('pagamento', ArrayPagamentos);
+  procedure EndStep(const Extra: string = '');
+  var
+    LinhaExtra: string;
+  begin
+    StepWatch.Stop;
+    LinhaExtra := Trim(Extra);
+    if LinhaExtra <> '' then
+      LinhaExtra := ' ' + LinhaExtra;
 
-  Objeto.AddPair('itens', MontaArrayProdutos(Codigo, 'codigo_pedido', true));
-except
-on e : Exception do
+    AddLog(Format(
+      '[CONFERENCIA_STEP] trace_id=%s pedido=%d usuario=%d step=%s duration_ms=%d%s',
+      [TraceId, Codigo, Usuario, CurrentStep, StepWatch.ElapsedMilliseconds,
+      LinhaExtra]));
+  end;
+
+  function SafeFieldString(AQry: TFDQuery; const Campo: string): string;
+  begin
+    Result := '';
+    try
+      if Assigned(AQry) and AQry.Active and (not AQry.IsEmpty) then
+        Result := AQry.FieldByName(Campo).AsString;
+    except
+      Result := '';
+    end;
+  end;
+
+  function SafeFieldInteger(AQry: TFDQuery; const Campo: string): Integer;
+  begin
+    Result := 0;
+    try
+      if Assigned(AQry) and AQry.Active and (not AQry.IsEmpty) then
+        Result := AQry.FieldByName(Campo).AsInteger;
+    except
+      Result := 0;
+    end;
+  end;
+
+  procedure LogError(const E: Exception);
+  begin
+    ErrorLogged := True;
+    AddLog(Format(
+      '[CONFERENCIA_ERROR] trace_id=%s pedido=%d usuario=%d step=%s error="%s"',
+      [TraceId, Codigo, Usuario, CurrentStep,
+      StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
+  end;
+
 begin
+  TotalWatch := TStopwatch.StartNew;
+  TraceId := FormatDateTime('yyyymmddhhnnsszzz', Now);
+  CurrentStep := 'inicio';
+  Success := False;
+  ErrorLogged := False;
+  conexao := nil;
+  QryUsuario := nil;
+  QryPedido := nil;
+  QryPagamento := nil;
+  QryImpressora := nil;
+  Objeto := nil;
+  ObjetoCliente := nil;
+  ObjetoEndereco := nil;
+  ArrayPagamentos := nil;
+  ArrayProdutos := nil;
+  reqImpressao := nil;
+  BODY := '';
 
-end;
-
-end;
-
-  reqImpressao := iRequisicao.Create(nil);
-  reqImpressao.BaseURL := frmServidor.urlServicoImpressaoGo;
-  reqImpressao.URL := '/impressao/conferencia';
-  reqImpressao.Metodo := mPost;
   try
-    BODY := Objeto.ToJSON;
-    reqImpressao.BODY(BODY);
-    reqImpressao.TempoExpiracao := 20;
-    reqImpressao.Execute;
-  except
-    urlServicoImpressaoGo := '';
-    conexao.SQL.Clear;
-    conexao.SQL.Add
-      ('insert into log_operacao (ip, usuario, operacao, endpoint, body) values (:ip, :usuario, :operacao, :endpoint, :body)');
-    conexao.Parametros('ip', 'servidor');
-    conexao.Parametros('usuario', 'servidor'); // default
-    conexao.Parametros('operacao', 'EnviarConferencia');
-    conexao.Parametros('endpoint', reqImpressao.URL);
-    conexao.Parametros('body', BODY);
-    conexao.ExecuteSQL;
-  end;
-  conexao.Free;
-end;
+    try
+      StartStep('connection_create');
+      conexao := Tconexao.Create('EnviarConferencia');
+      EndStep;
 
+      StartStep('objects_create');
+      Objeto := TJsonObject.Create;
+      QryUsuario := conexao.CriaQRY;
+      QryPedido := conexao.CriaQRY;
+      QryImpressora := conexao.CriaQRY;
+      QryPagamento := conexao.CriaQRY;
+      EndStep;
+
+      debugErro := '1';
+      QryUsuario.SQL.Add
+        ('select nome, impressora, id_caixa from usuario where codigo = :codigo');
+      QryUsuario.ParamByName('codigo').AsInteger := Usuario;
+      StartStep('query_usuario');
+      QryUsuario.Open;
+      EndStep(Format('rows=%d impressora=%d', [QryUsuario.RecordCount,
+        SafeFieldInteger(QryUsuario, 'impressora')]));
+
+      debugErro := '2';
+      QryPedido.SQL.Add
+        ('select id_ficha, id_caixa, valor_pedido as produto, valor_total_pedido as total, servico, servico_percentual as percentual, desc_ficha, codigo_cliente_endereco from pedido where codigo = :codigo');
+      QryPedido.ParamByName('codigo').AsInteger := Codigo;
+      StartStep('query_pedido_inicial');
+      QryPedido.Open;
+      EndStep(Format('rows=%d id_ficha=%d id_caixa="%s"',
+        [QryPedido.RecordCount, SafeFieldInteger(QryPedido, 'id_ficha'),
+        SafeFieldString(QryPedido, 'id_caixa')]));
+
+      debugErro := '3';
+      StartStep('json_header');
+      Objeto.AddPair('mesa', trim(QryPedido.FieldByName('desc_ficha').AsString));
+      Objeto.AddPair('taxa_servico_percent',
+        QryPedido.FieldByName('percentual').AsFloat);
+      Objeto.AddPair('taxa_servico_valor', QryPedido.FieldByName('servico')
+        .AsFloat);
+      Objeto.AddPair('total_produtos', QryPedido.FieldByName('produto').AsFloat);
+      Objeto.AddPair('total_geral', QryPedido.FieldByName('total').AsFloat);
+      Objeto.AddPair('operador', QryUsuario.FieldByName('nome').AsString);
+      Objeto.AddPair('cx', QryUsuario.FieldByName('id_caixa').AsString);
+      Objeto.AddPair('imprimir_agora', true);
+      EndStep;
+
+      QryImpressora.SQL.Add('SELECT ');
+      QryImpressora.SQL.Add('    driver, ');
+      QryImpressora.SQL.Add('    tipo_impressao ');
+      QryImpressora.SQL.Add('FROM impressoras');
+      QryImpressora.SQL.Add('WHERE ativo = 1');
+      QryImpressora.SQL.Add('  AND (');
+      QryImpressora.SQL.Add('        (codigo = :codigo)');
+      QryImpressora.SQL.Add('        OR (:codigo = 0 AND impressora_padrao = 1)');
+      QryImpressora.SQL.Add('      )');
+      QryImpressora.SQL.Add('ORDER BY CASE ');
+      QryImpressora.SQL.Add('        WHEN codigo = :codigo THEN 0');
+      QryImpressora.SQL.Add('        ELSE 1');
+      QryImpressora.SQL.Add('    END');
+      try
+        QryImpressora.ParamByName('codigo').AsInteger :=
+          QryUsuario.FieldByName('impressora').AsInteger;
+      except
+        QryImpressora.ParamByName('codigo').AsInteger := 0;
+      end;
+      StartStep('query_impressora');
+      QryImpressora.Open;
+      EndStep(Format('rows=%d driver="%s" tipo=%d',
+        [QryImpressora.RecordCount, SafeFieldString(QryImpressora, 'driver'),
+        SafeFieldInteger(QryImpressora, 'tipo_impressao')]));
+
+      Objeto.AddPair('driver', QryImpressora.FieldByName('driver').AsString);
+      Objeto.AddPair('modelo',
+        ModeloImpressora(QryImpressora.FieldByName('tipo_impressao').AsInteger));
+
+      if QryPedido.FieldByName('id_ficha').AsInteger = 0 then
+      begin
+        QryPedido.Close;
+        QryPedido.SQL.Clear;
+        QryPedido.SQL.Add('SELECT p.valor_taxa_entrega as entrega,p.troco, p.codigo, p.codigo_pedido_dia as sequencial, p.data_pedido as data, p.hora_pedido as hora, p.valor_taxa_entrega as entrega, ');
+        QryPedido.SQL.Add('p.latitude, p.longitude, p.desc_desconto_ifood as desconto, p.valor_desconto, p.nfce_chave, p.nfce_protocolo, p.nfce_numero, p.partner, p.mp as transacao ,');
+        QryPedido.SQL.Add('c.nome, c.fidelidade, c.celular, p.cpf, ce.pedidos, cend.rua, cend.bairro, cend.numero, cend.complemento, cend.cidade, cend.estado, tp.descricao, p.id_caixa, p.troco');
+        QryPedido.SQL.Add('FROM pedido as p');
+        QryPedido.SQL.Add('join cliente as c on c.codigo = p.codigo_cliente');
+        QryPedido.SQL.Add('left join cliente_endereco as cend on cend.codigo = p.codigo_cliente_endereco');
+        QryPedido.SQL.Add('left join cliente_estatistica as ce on ce.codigo_cliente = c.codigo');
+        QryPedido.SQL.Add('left join tipo_pagamento as tp on tp.codigo = p.tipo_pagamento');
+        QryPedido.SQL.Add('where p.codigo = :codigo');
+        QryPedido.ParamByName('codigo').AsInteger := Codigo;
+        StartStep('query_pedido_detalhado');
+        QryPedido.Open;
+        EndStep(Format('rows=%d tipo="%s"', [QryPedido.RecordCount,
+          SafeFieldString(QryPedido, 'descricao')]));
+
+        ObjetoCliente := TJsonObject.Create;
+        ObjetoEndereco := TJsonObject.Create;
+
+        StartStep('json_cliente');
+        ObjetoCliente.AddPair('nome', QryPedido.FieldByName('nome').AsString);
+        ObjetoCliente.AddPair('cpf', QryPedido.FieldByName('cpf').AsString);
+        ObjetoCliente.AddPair('celular', QryPedido.FieldByName('celular').AsString);
+        ObjetoCliente.AddPair('pedidos', QryPedido.FieldByName('pedidos').AsString);
+        ObjetoCliente.AddPair('fidelidade', QryPedido.FieldByName('fidelidade')
+          .AsString);
+        Objeto.AddPair('sequencial', QryPedido.FieldByName('sequencial').AsInteger);
+        Objeto.AddPair('codigo', QryPedido.FieldByName('codigo').AsInteger);
+        Objeto.AddPair('cliente', ObjetoCliente);
+        ObjetoCliente := nil;
+        Data := QryPedido.FieldByName('data').AsDateTime;
+        Objeto.AddPair('data', StrToInt(FormatFloat('0', Data)));
+        Objeto.AddPair('hora', QryPedido.FieldByName('hora').AsDateTime);
+        Objeto.AddPair('partner', QryPedido.FieldByName('partner').AsString);
+        Objeto.AddPair('desconto', QryPedido.FieldByName('desconto').AsString);
+        try
+          Objeto.AddPair('valor_desconto',
+            QryPedido.FieldByName('valor_desconto').AsFloat);
+        except
+          Objeto.AddPair('valor_desconto', 0);
+        end;
+        try
+          Objeto.AddPair('taxa_entrega', QryPedido.FieldByName('entrega').AsFloat);
+        except
+          Objeto.AddPair('taxa_entrega', 0);
+        end;
+        Objeto.AddPair('nfceChave', QryPedido.FieldByName('nfce_chave').AsString);
+        Objeto.AddPair('nfceProtocolo', QryPedido.FieldByName('nfce_protocolo')
+          .AsString);
+        Objeto.AddPair('nfceNumero', QryPedido.FieldByName('nfce_numero').AsString);
+        EndStep;
+
+        StartStep('json_endereco');
+        if QryPedido.FieldByName('rua').AsString <> '' then
+        begin
+          Objeto.AddPair('tipo', 'DELIVERY');
+          ObjetoEndereco.AddPair('rua', QryPedido.FieldByName('rua').AsString);
+          ObjetoEndereco.AddPair('bairro', QryPedido.FieldByName('bairro')
+            .AsString);
+          ObjetoEndereco.AddPair('numero', QryPedido.FieldByName('numero')
+            .AsString);
+          ObjetoEndereco.AddPair('complemento', QryPedido.FieldByName('complemento')
+            .AsString);
+          ObjetoEndereco.AddPair('cidade', QryPedido.FieldByName('cidade')
+            .AsString);
+          ObjetoEndereco.AddPair('estado', QryPedido.FieldByName('estado')
+            .AsString);
+          ObjetoEndereco.AddPair('latitude', QryPedido.FieldByName('latitude')
+            .AsString);
+          ObjetoEndereco.AddPair('longitude', QryPedido.FieldByName('longitude')
+            .AsString);
+          Objeto.AddPair('endereco', ObjetoEndereco);
+          ObjetoEndereco := nil;
+          debugErro := '11';
+        end
+        else
+        begin
+          Objeto.AddPair('tipo', 'VEM BUSCAR');
+          ObjetoEndereco.Free;
+          ObjetoEndereco := nil;
+        end;
+        EndStep;
+      end;
+
+      ArrayPagamentos := TJsonArray.Create;
+      if SafeFieldInteger(QryPedido, 'id_caixa') > 0 then
+      begin
+        QryPagamento.SQL.Clear;
+        QryPagamento.SQL.Add('SELECT tp.descricao, cm.valor, cli.nome FROM caixa_movimento as cm ');
+        QryPagamento.SQL.Add('join tipo_pagamento as tp on tp.codigo = cm.id_tipo_pagamento');
+        QryPagamento.SQL.Add('left join caixa_receber as cr on cr.id_caixa = cm.id_caixa and cr.id_pedido = cm.id_pedido and cr.id_tipo_pagamento = tp.codigo');
+        QryPagamento.SQL.Add('left join cliente as cli on cli.codigo = cr.id_cliente');
+        QryPagamento.SQL.Add('where cm.id_pedido = :codigo and cm.tipo = 1 order by cm.valor desc');
+        QryPagamento.ParamByName('codigo').AsInteger := Codigo;
+        StartStep('query_pagamentos');
+        QryPagamento.Open;
+        EndStep(Format('rows=%d', [QryPagamento.RecordCount]));
+
+        StartStep('json_pagamentos');
+        while not QryPagamento.Eof do
+        begin
+          ObjetoPagamento := TJsonObject.Create;
+          ObjetoPagamento.AddPair('descricao', QryPagamento.FieldByName('descricao')
+            .AsString);
+          ObjetoPagamento.AddPair('valor',
+            QryPagamento.FieldByName('valor').AsFloat);
+          ObjetoPagamento.AddPair('nome', QryPagamento.FieldByName('nome')
+            .AsString);
+          ObjetoPagamento.AddPair('faturado', true);
+          ArrayPagamentos.Add(ObjetoPagamento);
+          QryPagamento.Next;
+        end;
+        EndStep(Format('items=%d', [ArrayPagamentos.Count]));
+      end
+      else
+      begin
+        StartStep('json_pagamentos');
+        ObjetoPagamento := nil;
+        try
+          ObjetoPagamento := TJsonObject.Create;
+          ObjetoPagamento.AddPair('descricao', QryPedido.FieldByName('descricao')
+            .AsString);
+          ObjetoPagamento.AddPair('transacao', QryPedido.FieldByName('transacao')
+            .AsString);
+          ObjetoPagamento.AddPair('troco', QryPedido.FieldByName('troco').AsFloat);
+          ObjetoPagamento.AddPair('faturado', false);
+          ArrayPagamentos.Add(ObjetoPagamento);
+        except
+          on E: Exception do
+          begin
+            FreeAndNil(ObjetoPagamento);
+            LogError(E);
+          end;
+        end;
+        EndStep(Format('items=%d', [ArrayPagamentos.Count]));
+      end;
+
+      Objeto.AddPair('pagamento', ArrayPagamentos);
+      ArrayPagamentos := nil;
+
+      StartStep('monta_produtos');
+      ArrayProdutos := MontaArrayProdutos(Codigo, 'codigo_pedido', true);
+      EndStep(Format('items=%d', [ArrayProdutos.Count]));
+      Objeto.AddPair('itens', ArrayProdutos);
+      ArrayProdutos := nil;
+
+      StartStep('json_serialize');
+      BODY := Objeto.ToJSON;
+      EndStep(Format('bytes=%d', [TEncoding.UTF8.GetByteCount(BODY)]));
+
+      StartStep('http_prepare');
+      reqImpressao := iRequisicao.Create(nil);
+      reqImpressao.BaseURL := frmServidor.urlServicoImpressaoGo;
+      reqImpressao.URL := '/impressao/conferencia';
+      reqImpressao.Metodo := mPost;
+      reqImpressao.BODY(BODY);
+      reqImpressao.TempoExpiracao := 20;
+      EndStep(Format('base_url="%s" endpoint="%s"',
+        [frmServidor.urlServicoImpressaoGo, '/impressao/conferencia']));
+
+      try
+        StartStep('http_execute');
+        reqImpressao.Execute;
+        EndStep;
+      except
+        on E: Exception do
+        begin
+          LogError(E);
+          urlServicoImpressaoGo := '';
+          StartStep('error_log_insert');
+          conexao.SQL.Clear;
+          conexao.SQL.Add
+            ('insert into log_operacao (ip, usuario, operacao, endpoint, body) values (:ip, :usuario, :operacao, :endpoint, :body)');
+          conexao.Parametros('ip', 'servidor');
+          conexao.Parametros('usuario', 'servidor');
+          conexao.Parametros('operacao', 'EnviarConferencia');
+          conexao.Parametros('endpoint', reqImpressao.URL);
+          conexao.Parametros('body', BODY);
+          conexao.ExecuteSQL;
+          EndStep;
+
+        end;
+      end;
+
+      Success := True;
+    except
+      on E: Exception do
+      begin
+        if not ErrorLogged then
+          LogError(E);
+      end;
+    end;
+  finally
+    StartStep('objects_free');
+    reqImpressao := nil;
+    if Assigned(ArrayProdutos) then
+      ArrayProdutos.Free;
+    if Assigned(ArrayPagamentos) then
+      ArrayPagamentos.Free;
+    if Assigned(ObjetoEndereco) then
+      ObjetoEndereco.Free;
+    if Assigned(ObjetoCliente) then
+      ObjetoCliente.Free;
+    if Assigned(QryPagamento) then
+      QryPagamento.Free;
+    if Assigned(QryImpressora) then
+      QryImpressora.Free;
+    if Assigned(QryPedido) then
+      QryPedido.Free;
+    if Assigned(QryUsuario) then
+      QryUsuario.Free;
+    if Assigned(Objeto) then
+      Objeto.Free;
+    if Assigned(conexao) then
+      conexao.Free;
+    EndStep;
+
+    TotalWatch.Stop;
+    AddLog(Format(
+      '[CONFERENCIA_TOTAL] trace_id=%s pedido=%d usuario=%d total_ms=%d success=%s',
+      [TraceId, Codigo, Usuario, TotalWatch.ElapsedMilliseconds,
+      LowerCase(BoolToStr(Success, True))]));
+  end;
+end;
 procedure TfrmServidor.enviarImpressaoGo(Codigo: Integer;
   Campo: String = 'codigo_pedido');
 var
@@ -3133,7 +3297,10 @@ begin
     THorse.Use(Compression());
 
   InicializarTempoRotas;
+  InicializarParametrosCache;
+  InicializarVersionamentoMesas;
   THorse.Use(TempoRotasMiddleware);
+  THorse.Use(PerformanceMetricsMiddleware);
   conexao.Free;
   // Rotas
   RegistrarRotasTempoRotas;
@@ -3182,7 +3349,7 @@ begin
   end;
 
   THorse.Get('/debug/stop',
-    procedure(Req: THorseRequest; Res: THorseResponse; Next: TProc)
+    procedure(Req: THorseRequest; Res: THorseResponse; Next: TNextProc)
     begin
       Res.Send('Encerrando servidor...');
       self.Show();

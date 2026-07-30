@@ -1952,7 +1952,20 @@ begin
       end;
     130:
       begin
-
+        SQL := 'CREATE TABLE IF NOT EXISTS fila_impressao (';
+        SQL := SQL + ' id BIGINT AUTO_INCREMENT PRIMARY KEY,';
+        SQL := SQL + ' pedido_id BIGINT NOT NULL,';
+        SQL := SQL + ' tipo VARCHAR(50) NOT NULL,';
+        SQL := SQL + ' payload LONGTEXT NULL,';
+        SQL := SQL + ' status VARCHAR(20) NOT NULL DEFAULT ''PENDENTE'',';
+        SQL := SQL + ' tentativas INT NOT NULL DEFAULT 0,';
+        SQL := SQL + ' erro TEXT NULL,';
+        SQL := SQL + ' criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,';
+        SQL := SQL + ' processado_em DATETIME NULL,';
+        SQL := SQL + ' INDEX idx_fila_status_criado (status, criado_em),';
+        SQL := SQL + ' INDEX idx_fila_pedido (pedido_id)';
+        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
+        ExecultaSQL(SQL);
       end;
     131:
       begin

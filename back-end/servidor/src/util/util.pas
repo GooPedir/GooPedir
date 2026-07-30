@@ -8,7 +8,8 @@ uses Horse, JOSE.Core.JWT, JOSE.Core.Builder, Horse.JWT, uDM,
   uRequisicao, System.RegularExpressions, v2, SysUtils, IOUtils,
   System.Variants, conexao, uCacheControl, uControllCaches,
   System.Generics.Collections, System.DateUtils, uNewConsultas,
-  uControlerProduto, uGlobais, uNFCe, System.Diagnostics;
+  uControlerProduto, uGlobais, uNFCe, System.Diagnostics, uPerformanceMetrics,
+  uFilaImpressao;
 
 type
   TValoresPizza = record
@@ -93,12 +94,222 @@ function Adiciona(Adicionais: Variant; QRY, QRYINSERT: TFDQuery;
 function NovoPedido(CodigoPedido, Mesa: Integer; QRY: TFDQuery): Integer;
 function CapitalizeFirstLetter(const Input: string): string;
 procedure atualizaDadosMesa(Pedido: string);
+procedure InicializarVersionamentoMesas;
 
 implementation
 
 uses FireDAC.Stan.Option, token, JOSE.Types.JSON, System.Classes,
   Data.DB, IdWinsock2, Vcl.Dialogs, Vcl.ExtCtrls, Horse.Upload, System.Types,
-  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite;
+  Winapi.Windows, uMain, System.StrUtils, Vcl.StdCtrls, uSite,
+  System.SyncObjs;
+
+const
+  EMPRESA_PADRAO_MESAS = 0;
+
+var
+  MesasCacheLock: TCriticalSection;
+  MesasCacheVersion: Int64 = -1;
+  MesasCacheJSON: string = '';
+
+procedure InicializarVersionamentoMesas;
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('InicializarVersionamentoMesas');
+  try
+    conexao.SQL.Add('CREATE TABLE IF NOT EXISTS recurso_versao (');
+    conexao.SQL.Add('  empresa_id INT NOT NULL,');
+    conexao.SQL.Add('  recurso VARCHAR(50) NOT NULL,');
+    conexao.SQL.Add('  versao BIGINT NOT NULL DEFAULT 1,');
+    conexao.SQL.Add('  atualizado_em DATETIME NOT NULL,');
+    conexao.SQL.Add('  PRIMARY KEY (empresa_id, recurso)');
+    conexao.SQL.Add(') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    conexao.ExecuteSQL;
+
+    conexao.SQL.Add('INSERT INTO recurso_versao (empresa_id, recurso, versao, atualizado_em)');
+    conexao.SQL.Add('VALUES (:empresa, ''mesas'', 1, NOW())');
+    conexao.SQL.Add('ON DUPLICATE KEY UPDATE versao = versao');
+    conexao.Parametros('empresa', EMPRESA_PADRAO_MESAS);
+    conexao.ExecuteSQL;
+  finally
+    conexao.Free;
+  end;
+end;
+
+function ObterVersaoMesas: Int64;
+var
+  conexao: TConexao;
+begin
+  Result := 1;
+  conexao := TConexao.Create('ObterVersaoMesas');
+  try
+    conexao.SQL.Add('SELECT versao FROM recurso_versao');
+    conexao.SQL.Add('WHERE empresa_id = :empresa AND recurso = ''mesas''');
+    conexao.Parametros('empresa', EMPRESA_PADRAO_MESAS);
+    try
+      Result := conexao.FieldByName('versao');
+    except
+      InicializarVersionamentoMesas;
+      Result := 1;
+    end;
+  finally
+    conexao.Free;
+  end;
+end;
+
+procedure InvalidarCacheMesas;
+begin
+  MesasCacheLock.Acquire;
+  try
+    MesasCacheVersion := -1;
+    MesasCacheJSON := '';
+  finally
+    MesasCacheLock.Release;
+  end;
+end;
+
+procedure NotificarAlteracaoMesas;
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('NotificarAlteracaoMesas');
+  try
+    conexao.SQL.Add('INSERT INTO recurso_versao (empresa_id, recurso, versao, atualizado_em)');
+    conexao.SQL.Add('VALUES (:empresa, ''mesas'', 1, NOW())');
+    conexao.SQL.Add('ON DUPLICATE KEY UPDATE versao = versao + 1, atualizado_em = NOW()');
+    conexao.Parametros('empresa', EMPRESA_PADRAO_MESAS);
+    conexao.ExecuteSQL;
+  finally
+    conexao.Free;
+  end;
+  InvalidarCacheMesas;
+end;
+
+function CarregarMesasJSON(const Mesa: Integer = 0): TJSONArray;
+var
+  conexao: TConexao;
+begin
+  conexao := TConexao.Create('CarregarMesasJSON');
+  try
+    conexao.SQL.Add('SELECT ' +
+      '  TIMESTAMPDIFF(SECOND, hora, NOW()) AS tempo, ' +
+      '  CASE ' + '    WHEN EXISTS ( ' + '      SELECT 1 FROM alerta_sistema a ' +
+      '      WHERE a.tipo = ''CHAMAR_GARCOM'' ' +
+      '        AND a.status = ''ABERTO'' ' +
+      '        AND a.referencia_id = m.id_mesa ' + '    ) THEN 1 ELSE 0 ' +
+      '  END AS tem_chamado, ' + 'm.fk_tipo_mesa as tipo_mesa,' +
+      '  m.id_mesa, m.descricao, mt.descricao AS descricao1, ' +
+      '  m.nr_mesa, m.selecionada, m.tot_mesa, m.sts_mesa ');
+    conexao.SQL.Add('FROM mesa AS m ' +
+      'JOIN mesa_tipo AS mt ON mt.id_mesa_tipo = m.fk_tipo_mesa ' +
+      'WHERE m.ativo = 1 AND mt.ativo = 1');
+    if Mesa > 0 then
+      conexao.SQL.Add('AND m.nr_mesa = ' + Mesa.ToString);
+    conexao.SQL.Add('ORDER BY mt.id_mesa_tipo, m.nr_mesa');
+    Result := conexao.ConsultaSQL;
+  finally
+    conexao.Free;
+  end;
+end;
+
+function ObterMesasCacheJSON(Versao: Int64; out JSONText: string): Boolean;
+begin
+  MesasCacheLock.Acquire;
+  try
+    Result := (MesasCacheVersion = Versao) and (MesasCacheJSON <> '');
+    if Result then
+      JSONText := MesasCacheJSON;
+  finally
+    MesasCacheLock.Release;
+  end;
+end;
+
+procedure GravarMesasCacheJSON(Versao: Int64; const JSONText: string);
+begin
+  MesasCacheLock.Acquire;
+  try
+    MesasCacheVersion := Versao;
+    MesasCacheJSON := JSONText;
+  finally
+    MesasCacheLock.Release;
+  end;
+end;
+
+procedure DoGetMesasSync(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  ClienteVersao: Int64;
+  ServidorVersao: Int64;
+  Json: TJSONObject;
+  Dados: TJSONArray;
+  DadosJSON: string;
+  Resposta: string;
+  SWTotal: TStopwatch;
+  SW: TStopwatch;
+  VersionMS: Int64;
+  DataMS: Int64;
+  SerializeMS: Int64;
+  ETag: string;
+begin
+  SWTotal := TStopwatch.StartNew;
+  ClienteVersao := StrToInt64Def(Req.Params['versao'], 0);
+  DataMS := 0;
+  SerializeMS := 0;
+
+  SW := TStopwatch.StartNew;
+  ServidorVersao := ObterVersaoMesas;
+  SW.Stop;
+  VersionMS := SW.ElapsedMilliseconds;
+
+  ETag := '"mesas-' + ServidorVersao.ToString + '"';
+  Res.RawWebResponse.SetCustomHeader('ETag', ETag);
+  Res.RawWebResponse.SetCustomHeader('Cache-Control', 'private, no-cache');
+
+  if (ClienteVersao = ServidorVersao) or (Req.Headers['If-None-Match'] = ETag) then
+  begin
+    Json := TJSONObject.Create;
+    try
+      Json.AddPair('changed', TJSONBool.Create(False));
+      Json.AddPair('version', ServidorVersao.ToString);
+      Json.AddPair('data', TJSONNull.Create);
+      Resposta := Json.ToJSON;
+      PerformanceSyncMesas(EMPRESA_PADRAO_MESAS, ClienteVersao, ServidorVersao,
+        False, VersionMS, 0, 0, TEncoding.UTF8.GetByteCount(Resposta),
+        SWTotal.ElapsedMilliseconds);
+      if Req.Headers['If-None-Match'] = ETag then
+        Res.Status(304)
+      else
+        Res.ContentType('application/json; charset=utf-8').Send(Resposta);
+    finally
+      Json.Free;
+    end;
+    Exit;
+  end;
+
+  if not ObterMesasCacheJSON(ServidorVersao, DadosJSON) then
+  begin
+    SW := TStopwatch.StartNew;
+    Dados := CarregarMesasJSON;
+    SW.Stop;
+    DataMS := SW.ElapsedMilliseconds;
+
+    try
+      SW := TStopwatch.StartNew;
+      DadosJSON := Dados.ToJSON;
+      SW.Stop;
+      SerializeMS := SW.ElapsedMilliseconds;
+    finally
+      Dados.Free;
+    end;
+    GravarMesasCacheJSON(ServidorVersao, DadosJSON);
+  end;
+
+  Resposta := '{"changed":true,"version":"' + ServidorVersao.ToString +
+    '","data":' + DadosJSON + '}';
+  PerformanceSyncMesas(EMPRESA_PADRAO_MESAS, ClienteVersao, ServidorVersao,
+    True, VersionMS, DataMS, SerializeMS, TEncoding.UTF8.GetByteCount(Resposta),
+    SWTotal.ElapsedMilliseconds);
+  Res.ContentType('application/json; charset=utf-8').Send(Resposta);
+end;
 
 function ValorDecimalJSON(Dados: TFDMemTable; const Campo: String): Double;
 var
@@ -325,9 +536,7 @@ end;
 
 procedure DoGetMesas(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
-  conexao: Tconexao;
   Mesa: Integer;
-  SQL: String;
 begin
   try
     Mesa := Req.Params['mesa'].ToInteger;
@@ -335,39 +544,8 @@ begin
     Mesa := 0;
   end;
 
-  // if length(SQL) > 0 then
-  // begin
-  // conexao.SQL.Add(SQL);
-  // conexao.ExecuteSQL;
-  // end;
-  conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('SELECT ' +
-    '  TIMESTAMPDIFF(SECOND, hora, NOW()) AS tempo, ' +
-
-    // ?? FLAG DE CHAMADO ABERTO
-    '  CASE ' + '    WHEN EXISTS ( ' + '      SELECT 1 FROM alerta_sistema a ' +
-    '      WHERE a.tipo = ''CHAMAR_GARCOM'' ' +
-    '        AND a.status = ''ABERTO'' ' +
-    '        AND a.referencia_id = m.id_mesa ' + '    ) THEN 1 ELSE 0 ' +
-    '  END AS tem_chamado, ' + 'm.fk_tipo_mesa as tipo_mesa,' +
-    '  m.id_mesa, m.descricao, mt.descricao AS descricao1, ' +
-    '  m.nr_mesa, m.selecionada, m.tot_mesa, m.sts_mesa ');
-  conexao.SQL.Add('FROM mesa AS m ' +
-    'JOIN mesa_tipo AS mt ON mt.id_mesa_tipo = m.fk_tipo_mesa ' +
-    'WHERE m.ativo = 1 AND mt.ativo = 1');
-
-  if Mesa > 0 then
-  begin
-    conexao.SQL.Add('AND m.nr_mesa = ' + Mesa.ToString);
-  end;
-
-  conexao.SQL.Add('ORDER BY mt.id_mesa_tipo, m.nr_mesa');
-
-  Res.Send<TJSONArray>(conexao.ConsultaSQL);
-  conexao.Free;
-
+  Res.Send<TJSONArray>(CarregarMesasJSON(Mesa));
 end;
-
 procedure DoGetProduto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: Tconexao;
@@ -4157,6 +4335,7 @@ begin
 
   conexao.SQL.Add('update mesa set sts_mesa = 0 where tot_mesa = 0;');
   conexao.ExecuteSQL;
+  NotificarAlteracaoMesas;
 
   Dados.Free;
   conexao.Free;
@@ -4282,6 +4461,7 @@ begin
     ('update mesa set tot_mesa = 0, sts_mesa = 0, selecionada = 0 where id_mesa = :id');
   conexao.Parametros('id', ID);
   conexao.ExecuteSQL;
+  NotificarAlteracaoMesas;
 
   conexao.Free;
 end;
@@ -4305,6 +4485,7 @@ begin
   conexao.SQL.Add('delete from mesa where id_mesa = :id');
   conexao.Parametros('id', ID);
   conexao.ExecuteSQL;
+  NotificarAlteracaoMesas;
 
   conexao.Free;
 end;
@@ -4894,7 +5075,57 @@ var
 
   DadosTipoPagamento: TFDMemTable;
   Body: String;
+  SWStep: TStopwatch;
+  ImpressaoEnfileirada: Boolean;
+  PedidoFinalizado: Integer;
+  RequestId: string;
+  EmbalagemTotalWatch: TStopwatch;
+  EmbalagemStepWatch: TStopwatch;
+  EmbalagemItemWatch: TStopwatch;
+  EmbalagemCurrentStep: string;
+  EmbalagemItens: Integer;
+  EmbalagemUpdates: Integer;
+  EmbalagemSuccess: Boolean;
+  PedidoImpressao: Integer;
+  UsuarioImpressao: Integer;
+
+  procedure MarkStep(const StepName: string);
+  begin
+    SWStep.Stop;
+    PerformanceStep(StepName, SWStep.ElapsedMilliseconds);
+    SWStep := TStopwatch.StartNew;
+  end;
+
+  procedure StartEmbalagemStep(const AStep: string);
+  begin
+    EmbalagemCurrentStep := AStep;
+    EmbalagemStepWatch := TStopwatch.StartNew;
+  end;
+
+  procedure EndEmbalagemStep(const Extra: string = '');
+  var
+    LinhaExtra: string;
+  begin
+    EmbalagemStepWatch.Stop;
+    LinhaExtra := Trim(Extra);
+    if LinhaExtra <> '' then
+      LinhaExtra := ' ' + LinhaExtra;
+
+    frmServidor.AddLog(Format(
+      '[EMBALAGEM_STEP] request_id=%s pedido=%d step=%s duration_ms=%d%s',
+      [RequestId, Dados.FieldByName('codigo').AsInteger, EmbalagemCurrentStep,
+      EmbalagemStepWatch.ElapsedMilliseconds, LinhaExtra]));
+  end;
+
+  procedure LogEmbalagemError(const E: Exception);
+  begin
+    frmServidor.AddLog(Format(
+      '[EMBALAGEM_ERROR] request_id=%s pedido=%d step=%s error="%s"',
+      [RequestId, Dados.FieldByName('codigo').AsInteger, EmbalagemCurrentStep,
+      StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
+  end;
 begin
+  SWStep := TStopwatch.StartNew;
   Body := Req.Body;
 
   try
@@ -4904,19 +5135,27 @@ begin
   end;
 
   Entrega := 0;
+  conexao := nil;
   Dados := TFDMemTable.Create(nil);
   Dados.LoadFromJSON(Body);
   Dados.Edit;
+  imprimir := False;
+  ImpressaoEnfileirada := False;
+  PedidoFinalizado := 0;
+  RequestId := FormatDateTime('yyyymmddhhnnsszzz', Now);
+  MarkStep('parse_body');
 
   if Dados.RecordCount > 0 then
   begin
     if Dados.FieldByName('produto').AsString = '0' then
     begin
       Dados.Free;
+      MarkStep('produto_zero');
       Exit;
     end;
 
     conexao := Tconexao.Create('Util');
+    MarkStep('connection_create');
     ValorEntrega := ValorDecimalJSON(Dados, 'entrega');
     ValorAcrescimo := ValorDecimalJSON(Dados, 'acrecimo');
     ValorDesconto := ValorDecimalJSON(Dados, 'desconto');
@@ -4947,6 +5186,7 @@ begin
       end;
 
     end;
+    MarkStep('cliente');
     try
       ClienteNome := Dados.FieldByName('balcao').AsString;
     except
@@ -4987,6 +5227,7 @@ begin
       Dados.FieldByName('endereco').AsInteger := 0;
 
     Entrega := Dados.FieldByName('endereco').AsInteger;
+    MarkStep('endereco');
 
     if not Tipo then
     begin
@@ -5025,36 +5266,86 @@ begin
       end;
       if Dados.FieldByName('endereco').AsInteger > 0 then
       begin
-        conexao.SQL.Add
-          ('select pp.*, p.valor_embalagem_delivery from pedido_produtos as pp');
-        conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
-        conexao.SQL.Add('where pp.codigo_pedido = :codigo');
-        conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
-        DadosEntrega := TFDMemTable.Create(nil);
-        DadosEntrega.LoadFromJSON(conexao.ConsultaSQL);
+        DadosEntrega := nil;
+        EmbalagemTotalWatch := TStopwatch.StartNew;
+        EmbalagemCurrentStep := 'inicio';
+        EmbalagemItens := 0;
+        EmbalagemUpdates := 0;
+        EmbalagemSuccess := False;
+        try
+          StartEmbalagemStep('query_produtos');
+          conexao.SQL.Add
+            ('select pp.*, p.valor_embalagem_delivery from pedido_produtos as pp');
+          conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
+          conexao.SQL.Add('where pp.codigo_pedido = :codigo');
+          conexao.Parametros('codigo', Dados.FieldByName('codigo').AsInteger);
+          DadosEntrega := TFDMemTable.Create(nil);
+          DadosEntrega.LoadFromJSON(conexao.ConsultaSQL);
+          EmbalagemItens := DadosEntrega.RecordCount;
+          EndEmbalagemStep(Format('rows=%d', [EmbalagemItens]));
 
-        if DadosEntrega.RecordCount > 0 then
-        begin
+          StartEmbalagemStep('dataset_copy');
+          DadosEntrega.First;
+          EndEmbalagemStep(Format('rows=%d', [DadosEntrega.RecordCount]));
+
+          StartEmbalagemStep('loop_calculo');
+          EmbalagemItens := 0;
+          DadosEntrega.First;
           while not DadosEntrega.Eof do
           begin
-            // conexao.SQL.Add('update pedido_produtos set vl_delivery = :adicional, valor_total = (valor_unitario + valor_adicional + vl_delivery) * quantidade where codigo = :codigo');
-            conexao.SQL.Add('UPDATE pedido_produtos ');
-            conexao.SQL.Add('SET vl_delivery = COALESCE(:adicional, 0),');
-            conexao.SQL.Add
-              ('    valor_total = (valor_unitario + COALESCE(valor_adicional, 0) + COALESCE(vl_delivery, 0)) * quantidade ');
-            conexao.SQL.Add('WHERE codigo = :codigo;');
-            conexao.Parametros('adicional',
-              DadosEntrega.FieldByName('valor_embalagem_delivery').AsFloat);
-            conexao.Parametros('codigo', DadosEntrega.FieldByName('codigo')
-              .AsInteger);
-            conexao.ExecuteSQL;
+            Inc(EmbalagemItens);
             DadosEntrega.Next;
           end;
+          EndEmbalagemStep(Format('items=%d', [EmbalagemItens]));
+
+          StartEmbalagemStep('updates');
+          if DadosEntrega.RecordCount > 0 then
+          begin
+            DadosEntrega.First;
+            while not DadosEntrega.Eof do
+            begin
+              EmbalagemItemWatch := TStopwatch.StartNew;
+              conexao.SQL.Add('UPDATE pedido_produtos ');
+              conexao.SQL.Add('SET vl_delivery = COALESCE(:adicional, 0),');
+              conexao.SQL.Add
+                ('    valor_total = (valor_unitario + COALESCE(valor_adicional, 0) + COALESCE(vl_delivery, 0)) * quantidade ');
+              conexao.SQL.Add('WHERE codigo = :codigo;');
+              conexao.Parametros('adicional',
+                DadosEntrega.FieldByName('valor_embalagem_delivery').AsFloat);
+              conexao.Parametros('codigo', DadosEntrega.FieldByName('codigo')
+                .AsInteger);
+              conexao.ExecuteSQL;
+              EmbalagemItemWatch.Stop;
+              Inc(EmbalagemUpdates);
+              frmServidor.AddLog(Format(
+                '[EMBALAGEM_ITEM] request_id=%s pedido=%d produto=%d duration_ms=%d',
+                [RequestId, Dados.FieldByName('codigo').AsInteger,
+                DadosEntrega.FieldByName('codigo_produto').AsInteger,
+                EmbalagemItemWatch.ElapsedMilliseconds]));
+              DadosEntrega.Next;
+            end;
+          end;
+          EndEmbalagemStep(Format('updates=%d', [EmbalagemUpdates]));
+          EmbalagemSuccess := True;
+        except
+          on E: Exception do
+          begin
+            LogEmbalagemError(E);
+          end;
         end;
-        DadosEntrega.Free;
+        EmbalagemTotalWatch.Stop;
+        frmServidor.AddLog(Format(
+          '[EMBALAGEM_TOTAL] request_id=%s pedido=%d total_ms=%d success=%s items=%d updates=%d',
+          [RequestId, Dados.FieldByName('codigo').AsInteger,
+          EmbalagemTotalWatch.ElapsedMilliseconds,
+          LowerCase(BoolToStr(EmbalagemSuccess, True)), EmbalagemItens,
+          EmbalagemUpdates]));
+        if Assigned(DadosEntrega) then
+          DadosEntrega.Free;
       end;
 
     end;
+    MarkStep('pedido_inicial_embalagem');
 
     conexao.SQL.Add
       ('update cliente set nome = :nome, celular = :celular, celular_wpp = :celular, cpf = :cpf where codigo = :codigo');
@@ -5068,6 +5359,7 @@ begin
 
     conexao.Parametros('codigo', Dados.FieldByName('cliente').AsString);
     conexao.ExecuteSQL;
+    MarkStep('update_cliente');
 
     if Dados.FieldByName('endereco').AsInteger > 0 then
     begin
@@ -5085,6 +5377,7 @@ begin
       conexao.ExecuteSQL;
 
     end;
+    MarkStep('update_endereco');
 
     try
       Troco := ValorDecimalJSON(Dados, 'troco');
@@ -5102,6 +5395,7 @@ begin
     except
       TotalProduto := 0;
     end;
+    MarkStep('total_produtos');
 
     if TotalProduto = 0 then
     begin
@@ -5157,23 +5451,66 @@ begin
     conexao.Parametros('troco', Troco);
     conexao.Parametros('nome', ClienteNome);
     conexao.ExecuteSQL;
+    PedidoFinalizado := Dados.FieldByName('codigo').AsInteger;
+    MarkStep('update_pedido');
 
+//    if imprimir then
+//    begin
+//      try
+//        ImpressaoEnfileirada := EnfileirarImpressaoPedido(conexao,
+//          Dados.FieldByName('codigo').AsInteger, 'PEDIDO_PRODUTO');
+//      except
+//        ImpressaoEnfileirada := False;
+//      end;
+//
+//      if not ImpressaoEnfileirada then
+//        EnfileirarImpressaoGo(Dados.FieldByName('codigo').AsInteger);
+//    end;
     if imprimir then
     begin
-      frmServidor.EnviarConferencia(Dados.FieldByName('codigo').AsInteger,
-        Req.Headers['user'].ToInteger());
-      frmServidor.enviarImpressaoGo(Dados.FieldByName('codigo').AsInteger);
+      PedidoImpressao := Dados.FieldByName('codigo').AsInteger;
+      UsuarioImpressao := Req.Headers['user'].ToInteger();
+
+      TThread.CreateAnonymousThread(
+        procedure
+        begin
+          try
+            frmServidor.EnviarConferencia(PedidoImpressao, UsuarioImpressao);
+          except
+            on E: Exception do
+            begin
+              frmServidor.AddLog(Format(
+                '[ATUALIZA_PEDIDO_IMPRESSAO_ERROR] pedido=%d error="%s"',
+                [PedidoImpressao,
+                StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
+            end;
+          end;
+
+          EnfileirarImpressaoGo(PedidoImpressao);
+        end).Start;
+
+      MarkStep('enviar_conferencia_thread');
+    end
+    else
+    begin
+      MarkStep('impressao_ignorada');
     end;
+    MarkStep('impressao_fila');
 
     conexao.ExecuteSQL('call sp_atualiza_preparo_pedido(' +
       Dados.FieldByName('codigo').AsString + ')');
+    MarkStep('sp_atualiza_preparo_pedido');
   end;
 
   Dados.Free;
-  conexao.Free;
+  if Assigned(conexao) then
+    conexao.Free;
+  MarkStep('finalizacao');
+  Res.Send('{"success":true,"pedido":' + PedidoFinalizado.ToString +
+    ',"impressaoEnfileirada":' + LowerCase(BoolToStr(ImpressaoEnfileirada,
+    True)) + '}');
 
 end;
-
 procedure DoGetConsultaGenerica(Req: THorseRequest; Res: THorseResponse;
 
 Next: TProc);
@@ -5184,6 +5521,17 @@ var
   Campos: String;
   Condicao: String;
   OrderBy: String;
+  QryStatus: TFDQuery;
+  ArrStatus: TJSONArray;
+  SWStatus: TStopwatch;
+  JSONStatus: string;
+
+  procedure MarkStatusPedido(const StepName: string);
+  begin
+    SWStatus.Stop;
+    PerformanceStep('status_pedido_' + StepName, SWStatus.ElapsedMilliseconds);
+    SWStatus := TStopwatch.StartNew;
+  end;
 begin
 
   try
@@ -5216,6 +5564,34 @@ begin
   if Tabela = 'dados_whatsapp' then
   begin
     Res.Send<TJSONArray>(GetParametros);
+    Exit;
+  end;
+
+  if SameText(Tabela, 'status_pedido') then
+  begin
+    SWStatus := TStopwatch.StartNew;
+    conexao := Tconexao.Create('Util');
+    MarkStatusPedido('connection');
+    QryStatus := conexao.CriaQRY;
+    MarkStatusPedido('query_create');
+    try
+      QryStatus.SQL.Add('select ' + Campos + ' from ' + Tabela + ' where 1 = 1 ' +
+        Condicao + OrderBy);
+      MarkStatusPedido('prepare');
+      QryStatus.Open;
+      MarkStatusPedido('execute');
+      QryStatus.FetchAll;
+      MarkStatusPedido('fetch');
+      ArrStatus := QryStatus.ToJSONArray;
+      JSONStatus := ArrStatus.ToJSON;
+      PerformanceJSON(SWStatus.ElapsedMilliseconds, ArrStatus.Count,
+        TEncoding.UTF8.GetByteCount(JSONStatus));
+      MarkStatusPedido('json');
+      Res.Send<TJSONArray>(ArrStatus);
+    finally
+      QryStatus.Free;
+      conexao.Free;
+    end;
     Exit;
   end;
 
@@ -6565,6 +6941,7 @@ begin
       conexao.Parametros('nr_mesa', I);
       conexao.Parametros('fk_tipo_mesa', CodigoTipo);
       conexao.ExecuteSQL;
+      NotificarAlteracaoMesas;
     end;
     //
   end;
@@ -7905,6 +8282,7 @@ begin
   THorse.Get('v1/versao/app', DoGetVersao);
 
   THorse.Get('/v1/mesas/', DoGetMesas);
+  THorse.Get('/v1/mesas/sync/:versao', DoGetMesasSync);
   THorse.Get('/v1/mesas/:mesa', DoGetMesas);
   THorse.Get('/v1/mesa/:mesa', DoGetMesa);
   THorse.Get('/v1/test/', DoGetTest);
@@ -10138,7 +10516,7 @@ begin
     try
       if conexao.FieldByName('cod') > 0 then
       begin
-        frmServidor.enviarImpressaoGo(Pedido);
+        EnfileirarImpressaoGo(Pedido);
       end;
 
     except
@@ -10522,7 +10900,7 @@ begin
   SQL := SQL + '      WHEN id_ficha > 0 THEN "Ficha"';
   SQL := SQL + '     ELSE "Delivery"';
   SQL := SQL + '     END as tipo,';
-  SQL := SQL + ' (select upper(nome) from motoboy where codigo = (select codigo_motoboy from pedido_motoboy where codigo_pedido = p.codigo or codigo_pedido = p.codigo)) as motoboy,';
+  SQL := SQL + ' (select upper(nome) from motoboy where codigo = (select codigo_motoboy from pedido_motoboy where codigo_pedido = p.codigo order by codigo desc limit 1)) as motoboy,';
   SQL := SQL + ' p.id_ifood,';
   SQL := SQL + ' p.status_ifood,';
   SQL := SQL + ' p.status_ifood_descricao,';
@@ -10536,5 +10914,11 @@ begin
   SQL := SQL + ' where p.data_pedido between :inicial and :final and p.status > -1 and p.origem in ('+ Tipo + ')';
   Result := SQL;
 end;
+
+initialization
+  MesasCacheLock := TCriticalSection.Create;
+
+finalization
+  MesasCacheLock.Free;
 
 end.

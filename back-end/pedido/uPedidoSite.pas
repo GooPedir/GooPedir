@@ -43,8 +43,8 @@ end;
 procedure TfrmPedidoSite.FormCreate(Sender: TObject);
 
 begin
-  pedido := 383615;
-  userId := 43;
+  pedido := 0;
+  userId := 0;
   try
     pedido := ParamStr(1).ToInteger();
     userId := ParamStr(2).ToInteger();

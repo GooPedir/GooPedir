@@ -40,6 +40,7 @@ type
     function HashSQL(const ASQL: string): string;
     function GetCache(Hash: String): TJSONArray;
     procedure SaveCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer = 5);
+    procedure AplicarCharsetCache;
 
   var
 
@@ -107,12 +108,15 @@ type
 implementation
 
 uses
-  System.SysUtils, Vcl.Dialogs;
+  System.SysUtils, System.SyncObjs, Vcl.Dialogs, uPerformanceMetrics;
 
 const
   CACHE_DATABASE = 'goopedir_cache';
   CACHE_TABLE = 'cache';
   CACHE_VALIDADE_PADRAO_MINUTOS = 5;
+
+var
+  SetNamesExecutado: Integer = 0;
 
 { TConexao }
 
@@ -120,66 +124,52 @@ function TConexao.ConsultaSQL(SQL: String): TJSONArray;
 var
   QRY: TFDQuery;
   I: Integer;
-  New: String;
-  Dados: String;
-  JsonArray: TJSONArray;
+  InicioSQL: UInt64;
+  InicioJSON: UInt64;
+  Linhas: Integer;
+  TamanhoJSON: Integer;
 begin
+  Result := nil;
   UpdateLastActivityTime;
   QRY := CriaQRY;
-
-  QRY.Close;
-  QRY.SQL.Clear;
-  QRY.SQL.Add(SQL);
-  for I := 0 to length(FParametros) - 1 do
-  begin
-    QRY.ParamByName(FParametros[I]).Value := FValores[I];
-  end;
   try
-    QRY.Open;
-
-    JsonArray := QRY.ToJSONArray();
     try
-      Result := TJSONObject.ParseJSONValue
-        (TEncoding.UTF8.GetBytes(JsonArray.ToJSON), 0) as TJSONArray;
-      // Dados.LoadFromJSON(JsonArray.ToString);
-    finally
-      JsonArray.Free; // sem isso, você vazava memória a cada chamada
+      QRY.Close;
+      QRY.SQL.Clear;
+      QRY.SQL.Add(SQL);
+      for I := 0 to length(FParametros) - 1 do
+      begin
+        QRY.ParamByName(FParametros[I]).Value := FValores[I];
+      end;
+
+      InicioSQL := GetTickCount64;
+      QRY.Open;
+      Linhas := QRY.RecordCount;
+      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, Linhas, True);
+
+      InicioJSON := GetTickCount64;
+      Result := QRY.ToJSONArray;
+      TamanhoJSON := Length(TEncoding.UTF8.GetBytes(Result.ToJSON));
+      PerformanceJSON(GetTickCount64 - InicioJSON, Result.Count, TamanhoJSON);
+
+      if cache then
+      begin
+        SaveCache(HashSQL(SQL), Result);
+      end;
+    except
+      on E: Exception do
+      begin
+        PerformanceSQL(HashSQL(SQL), SQL, 0, 0, False, E.Message);
+        GerarLog('ConsultaSQL: ' + E.message);
+        FreeAndNil(Result);
+        raise;
+      end;
     end;
-    // Result := TFDMemTable.Create(nil);
-
-    if cache then
-    begin
-      SaveCache(HashSQL(SQL), Result);
-    end;
-
-    // if pos('insert into conexao (id,datahora)', LowerCase(SQL)) = 0 then
-    // begin
-    // QRY.SQL.Text := 'update conexao set mysql = "' + copy(FNome + '-' + SQL, 1,
-    // 253) + '", datahora = current_timestamp where id = ' +
-    // CodigoConexao.ToString;
-    // try
-    // QRY.ExecSQL;
-    // except
-    //
-    // end;
-    // end;
-  except
-    on E: Exception do
-    begin
-      // showme
-      GerarLog(E.message);
-    end;
-
-  end;
-
-  // Writeln(SQL);
-
-  if Assigned(QRY) then
+  finally
     QRY.Free;
-
-  Zerar;
+    Zerar;
+  end;
 end;
-
 procedure TConexao.AbrirExe(Nome: String);
 var
   Handle: HWND;
@@ -201,30 +191,46 @@ begin
 end;
 
 procedure TConexao.ConectaBanco(Banco: String);
+var
+  InicioOpen: UInt64;
 begin
+  InicioOpen := GetTickCount64;
   DataModulo.Banco.Connected := False;
   DataModulo.Banco.Params.Values['CharacterSet'] := 'utf8mb4';
   DataModulo.Banco.Params.Database := Banco;
   DataModulo.Banco.Connected := true;
   AplicarCharsetConexao;
+  PerformanceDBConnection(FNome, 0, GetTickCount64 - InicioOpen, False);
 end;
 
 procedure TConexao.AplicarCharsetConexao;
 var
   Qry: TFDQuery;
+  Inicio: UInt64;
 begin
+  if TInterlocked.CompareExchange(SetNamesExecutado, 1, 0) <> 0 then
+    Exit;
+
+  Inicio := GetTickCount64;
   try
     if not DataModulo.Banco.Connected then
-      Exit;
+      DataModulo.Banco.Connected := True;
 
     Qry := DataModulo.CriaQRY;
     try
       Qry.ExecSQL('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+      PerformanceStep('db_session_set_names_once', GetTickCount64 - Inicio);
     finally
       Qry.Free;
     end;
   except
+    TInterlocked.Exchange(SetNamesExecutado, 0);
   end;
+end;
+
+procedure TConexao.AplicarCharsetCache;
+begin
+  // Charset ja e configurado na conexao FireDAC. Evita SET NAMES repetido.
 end;
 
 function TConexao.ConsultaSQL: TJSONArray;
@@ -249,10 +255,19 @@ begin
 end;
 
 constructor TConexao.Create(Nome: String);
+var
+  InicioCreate: UInt64;
+  CreateMS: UInt64;
+  InicioOpen: UInt64;
 begin
   FNome := Nome;
+  InicioCreate := GetTickCount64;
   DataModulo := TDM.Create(nil);
+  CreateMS := GetTickCount64 - InicioCreate;
+  InicioOpen := GetTickCount64;
   AplicarCharsetConexao;
+  PerformanceDBConnection(FNome, CreateMS, GetTickCount64 - InicioOpen,
+    DataModulo.Banco.Connected);
   FLastActivityTime := Now; // Inicia com a hora atual
 
   SQL := TStringlist.Create;
@@ -785,6 +800,7 @@ var
 begin
   Result := TJSONArray.Create;
   try
+    AplicarCharsetCache;
     ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
       ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
@@ -811,7 +827,7 @@ begin
       Qry.Open;
       if not Qry.Eof then
       begin
-        JSONText := Qry.FieldByName('dados').AsString;
+        JSONText := Qry.FieldByName('dados').AsWideString;
         ValorJSON := TJSONObject.ParseJSONValue(JSONText);
         if ValorJSON is TJSONArray then
         begin
@@ -852,6 +868,7 @@ end;
 function TConexao.GetParametro(Campo: String): Variant;
 var
   QRY: TFDQuery;
+  InicioSQL: UInt64;
 begin
   UpdateLastActivityTime;
   try
@@ -861,7 +878,10 @@ begin
     QRY.SQL.Clear;
     QRY.SQL.Add('select valor from configuracoes where chave = :chave');
     QRY.ParamByName('chave').AsString := Campo;
+    InicioSQL := GetTickCount64;
     QRY.Open;
+    PerformanceSQL(HashSQL(QRY.SQL.Text), QRY.SQL.Text,
+      GetTickCount64 - InicioSQL, QRY.RecordCount, True);
 
     Result := QRY.FieldByName('valor').AsVariant;
   except
@@ -1097,6 +1117,7 @@ var
   Update: boolean;
   SqlUpdate: String;
   QryUpdate: TFDQuery;
+  InicioSQL: UInt64;
 begin
   UpdateLastActivityTime;
   QryUpdate := DataModulo.CriaQRY;
@@ -1129,11 +1150,14 @@ begin
       end
       else
       begin
-        if VarIsStr(FValores[I]) and (Length(VarToStr(FValores[I])) > 32767) then
+        if VarIsStr(FValores[I]) then
         begin
-          QRY.ParamByName(FParametros[I]).DataType := ftMemo;
+          if Length(VarToStr(FValores[I])) > 32767 then
+            QRY.ParamByName(FParametros[I]).DataType := ftWideMemo
+          else
+            QRY.ParamByName(FParametros[I]).DataType := ftWideString;
           QRY.ParamByName(FParametros[I]).Size := Length(VarToStr(FValores[I]));
-          QRY.ParamByName(FParametros[I]).AsString := VarToStr(FValores[I]);
+          QRY.ParamByName(FParametros[I]).AsWideString := VarToStr(FValores[I]);
         end
         else
           QRY.ParamByName(FParametros[I]).Value := FValores[I];
@@ -1169,7 +1193,19 @@ begin
 
     end;
     QryUpdate.Free;
-    QRY.ExecSQL;
+    InicioSQL := GetTickCount64;
+    try
+      QRY.ExecSQL;
+      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL,
+        QRY.RowsAffected, True);
+    except
+      on E: Exception do
+      begin
+        PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, 0,
+          False, E.Message);
+        raise;
+      end;
+    end;
 
   except
     on E: Exception do
@@ -1248,6 +1284,7 @@ end;
 procedure TConexao.SaveCache(Hash: String; Result: TJSONArray; ValidadeMinutos: Integer);
 begin
   try
+    AplicarCharsetCache;
     ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
       ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +

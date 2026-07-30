@@ -14,7 +14,53 @@ function AtualizaLetra(Valor: String): String;
 implementation
 
 uses
-  conexao, uMain, System.IOUtils, System.Classes;
+  conexao, uMain, System.IOUtils, System.Classes, System.Diagnostics,
+  System.Generics.Collections, System.SyncObjs, uPerformanceMetrics,
+  uFilaImpressao;
+
+var
+  ImpressaoIdempotenciaLock: TCriticalSection;
+  ImpressaoEmExecucao: TDictionary<string, TDateTime>;
+
+function TryBeginImpressao(const Chave: string): Boolean;
+var
+  Key: string;
+begin
+  Result := False;
+  Key := UpperCase(Trim(Chave));
+  if Key = '' then
+    Exit;
+
+  ImpressaoIdempotenciaLock.Acquire;
+  try
+    if ImpressaoEmExecucao.ContainsKey(Key) then
+    begin
+      PerformanceStep('impressao_duplicada', 0);
+      Exit;
+    end;
+
+    ImpressaoEmExecucao.Add(Key, Now);
+    Result := True;
+  finally
+    ImpressaoIdempotenciaLock.Release;
+  end;
+end;
+
+procedure EndImpressao(const Chave: string);
+var
+  Key: string;
+begin
+  Key := UpperCase(Trim(Chave));
+  if Key = '' then
+    Exit;
+
+  ImpressaoIdempotenciaLock.Acquire;
+  try
+    ImpressaoEmExecucao.Remove(Key);
+  finally
+    ImpressaoIdempotenciaLock.Release;
+  end;
+end;
 
 function AtualizaLetra(Valor: String): String;
 begin
@@ -808,23 +854,46 @@ procedure DoPostImpressaoPedido(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
 var
   conexao: TConexao;
+  SWStep: TStopwatch;
+  ChaveIdempotencia: string;
+
+  procedure MarkStep(const StepName: string);
+  begin
+    SWStep.Stop;
+    PerformanceStep(StepName, SWStep.ElapsedMilliseconds);
+    SWStep := TStopwatch.StartNew;
+  end;
 begin
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add
-    ('update impressao_pedido set data_impressao = current_date, hora_impressao = current_time, status = 1 where id_pedido = :id');
-  conexao.Parametros('id', Req.Params['codigo']);
-  conexao.ExecuteSQL;
+  ChaveIdempotencia := 'PEDIDO:' + Req.Params['codigo'];
+  if not TryBeginImpressao(ChaveIdempotencia) then
+    Exit;
 
-  conexao.SQL.Add
-    ('update pedido set status = 1 where codigo = :id and status = -1');
-  conexao.Parametros('id', Req.Params['codigo']);
-  conexao.ExecuteSQL;
+  SWStep := TStopwatch.StartNew;
+  try
+    conexao := TConexao.Create('imprimir');
+    MarkStep('connection_create');
+    conexao.SQL.Add
+      ('update impressao_pedido set data_impressao = current_date, hora_impressao = current_time, status = 1 where id_pedido = :id');
+    conexao.Parametros('id', Req.Params['codigo']);
+    conexao.ExecuteSQL;
+    MarkStep('update_impressao_pedido');
 
-  conexao.SQL.Add('update pedido set pedido_impresso = 1 where codigo = :id');
-  conexao.Parametros('id', Req.Params['codigo']);
-  conexao.ExecuteSQL;
-  conexao.Free;
-  frmServidor.ImpressoraStatus;
+    conexao.SQL.Add
+      ('update pedido set status = 1 where codigo = :id and status = -1');
+    conexao.Parametros('id', Req.Params['codigo']);
+    conexao.ExecuteSQL;
+    MarkStep('update_pedido_status');
+
+    conexao.SQL.Add('update pedido set pedido_impresso = 1 where codigo = :id');
+    conexao.Parametros('id', Req.Params['codigo']);
+    conexao.ExecuteSQL;
+    MarkStep('update_pedido_impresso');
+    conexao.Free;
+    frmServidor.ImpressoraStatus;
+    MarkStep('impressora_status');
+  finally
+    EndImpressao(ChaveIdempotencia);
+  end;
 end;
 
 procedure DoGetImpressaoCaixaCodigo(Req: THorseRequest; Res: THorseResponse;
@@ -897,54 +966,79 @@ var
   conexao: TConexao;
   Dados: TFDMemTable;
   Codigo: String;
+  SWStep: TStopwatch;
+  ChaveIdempotencia: string;
 
-  Qry: TFDQuery;
-
+  procedure MarkStep(const StepName: string);
+  begin
+    SWStep.Stop;
+    PerformanceStep(StepName, SWStep.ElapsedMilliseconds);
+    SWStep := TStopwatch.StartNew;
+  end;
 begin
 
-  conexao := TConexao.Create('imprimir');
+  ChaveIdempotencia := 'PRODUTO:' + Req.Params['codigo'];
+  if not TryBeginImpressao(ChaveIdempotencia) then
+    Exit;
 
-  if conexao.GetParametro('nova_impressao') = '1' then
-  begin
-    frmServidor.enviarImpressaoGo(Req.Params['codigo'].ToInteger());
-    conexao.Free;
-    exit;
-  end;
+  SWStep := TStopwatch.StartNew;
+  try
+    Codigo := '';
+    conexao := TConexao.Create('imprimir');
+    MarkStep('connection_create');
 
-  Dados := TFDMemTable.Create(nil);
-  conexao.SQL.Add
-    ('select * from pedido_produtos where codigo_pedido = :codigo');
-  conexao.Parametros('codigo', Req.Params['codigo']);
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
-  if Dados.RecordCount > 0 then
-  begin
-
-    while not Dados.Eof do
+    if conexao.GetParametro('nova_impressao') = '1' then
     begin
-      if Codigo = '' then
-        Codigo := Dados.FieldByName('codigo').AsString
-      else
-        Codigo := Codigo + ',' + Dados.FieldByName('codigo').AsString;
-      Dados.Next;
+      MarkStep('parametro_nova_impressao');
+      frmServidor.enviarImpressaoGo(Req.Params['codigo'].ToInteger());
+      MarkStep('enviar_impressao_go');
+      conexao.Free;
+      exit;
     end;
-  end;
+    MarkStep('parametro_nova_impressao');
 
-  if Codigo <> '' then
-  begin
+    Dados := TFDMemTable.Create(nil);
     conexao.SQL.Add
-      ('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido in ('
-      + Codigo + ')');
+      ('select * from pedido_produtos where codigo_pedido = :codigo');
+    conexao.Parametros('codigo', Req.Params['codigo']);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+    MarkStep('select_pedido_produtos');
+    if Dados.RecordCount > 0 then
+    begin
+
+      while not Dados.Eof do
+      begin
+        if Codigo = '' then
+          Codigo := Dados.FieldByName('codigo').AsString
+        else
+          Codigo := Codigo + ',' + Dados.FieldByName('codigo').AsString;
+        Dados.Next;
+      end;
+    end;
+    MarkStep('montar_lista_produtos');
+
+    if Codigo <> '' then
+    begin
+      conexao.SQL.Add
+        ('update impressao_pedido_produto set status = 0 where data_impressao is null and id_pedido in ('
+        + Codigo + ')');
+      conexao.ExecuteSQL;
+    end;
+    MarkStep('update_fila_produtos');
+
+    Dados.Free;
+
+    conexao.SQL.Add
+      ('update pedido_produtos set impresso = 1, impressao = 1 where codigo = :codigo');
+    conexao.Parametros('codigo', Req.Params['codigo']);
     conexao.ExecuteSQL;
+    MarkStep('update_pedido_produtos');
+    conexao.Free;
+    frmServidor.ImpressoraStatus;
+    MarkStep('impressora_status');
+  finally
+    EndImpressao(ChaveIdempotencia);
   end;
-
-  Dados.Free;
-
-  conexao.SQL.Add
-    ('update pedido_produtos set impresso = 1, impressao = 1 where codigo = :codigo');
-  conexao.Parametros('codigo', Req.Params['codigo']);
-  conexao.ExecuteSQL;
-  conexao.Free;
-  frmServidor.ImpressoraStatus;
 end;
 
 procedure DoPostImpressaoPedidoProdutos(Req: THorseRequest; Res: THorseResponse;
@@ -952,18 +1046,40 @@ procedure DoPostImpressaoPedidoProdutos(Req: THorseRequest; Res: THorseResponse;
 var
   conexao: TConexao;
   Codigo: String;
+  SWStep: TStopwatch;
+  ChaveIdempotencia: string;
+
+  procedure MarkStep(const StepName: string);
+  begin
+    SWStep.Stop;
+    PerformanceStep(StepName, SWStep.ElapsedMilliseconds);
+    SWStep := TStopwatch.StartNew;
+  end;
 begin
-  Codigo := Req.Params['codigo'];
-  conexao := TConexao.Create('imprimir');
-  conexao.SQL.Add
-    ('update impressao_pedido_produto set data_impressao = current_date, hora_impressao = current_time, status = 1 where id_pedido in ('
-    + Req.Params['codigo'] + ')');
-  conexao.ExecuteSQL;
-  conexao.SQL.Add('update pedido_produtos set impresso = 1 where codigo in(' +
-    Req.Params['codigo'] + ')');
-  conexao.ExecuteSQL;
-  conexao.Free;
-  frmServidor.ImpressoraStatus;
+  ChaveIdempotencia := 'PRODUTOS:' + Req.Params['codigo'];
+  if not TryBeginImpressao(ChaveIdempotencia) then
+    Exit;
+
+  SWStep := TStopwatch.StartNew;
+  try
+    Codigo := Req.Params['codigo'];
+    conexao := TConexao.Create('imprimir');
+    MarkStep('connection_create');
+    conexao.SQL.Add
+      ('update impressao_pedido_produto set data_impressao = current_date, hora_impressao = current_time, status = 1 where id_pedido in ('
+      + Req.Params['codigo'] + ')');
+    conexao.ExecuteSQL;
+    MarkStep('update_impressao_produtos');
+    conexao.SQL.Add('update pedido_produtos set impresso = 1 where codigo in(' +
+      Req.Params['codigo'] + ')');
+    conexao.ExecuteSQL;
+    MarkStep('update_pedido_produtos');
+    conexao.Free;
+    frmServidor.ImpressoraStatus;
+    MarkStep('impressora_status');
+  finally
+    EndImpressao(ChaveIdempotencia);
+  end;
 
 
   // conexao := TConexao.Create('imprimir');
@@ -1473,5 +1589,13 @@ begin
     DoPostImpressaoPedidoProdutoUsuario)
 
 end;
+
+initialization
+  ImpressaoIdempotenciaLock := TCriticalSection.Create;
+  ImpressaoEmExecucao := TDictionary<string, TDateTime>.Create;
+
+finalization
+  ImpressaoEmExecucao.Free;
+  ImpressaoIdempotenciaLock.Free;
 
 end.

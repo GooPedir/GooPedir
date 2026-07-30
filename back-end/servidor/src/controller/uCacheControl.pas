@@ -1,4 +1,4 @@
-﻿unit uCacheControl;
+unit uCacheControl;
 
 interface
 
@@ -15,9 +15,11 @@ procedure ClearAll;
 implementation
 
 uses
+  Winapi.Windows,
   System.SyncObjs,
   FireDAC.Comp.Client,
-  conexao;
+  conexao,
+  uPerformanceMetrics;
 
 const
   CACHE_DATABASE = 'goopedir_cache';
@@ -28,20 +30,39 @@ var
   CacheLock: TObject;
   CacheInicializado: Boolean = False;
 
+procedure AplicarCharsetCache(Con: Tconexao);
+begin
+  // Charset ja e configurado na conexao FireDAC. Evita SET NAMES em toda chamada.
+end;
+
 procedure GarantirBancoCache;
 var
   Con: Tconexao;
+  Inicio: UInt64;
+  LockInicio: UInt64;
+  HoldInicio: UInt64;
 begin
   if CacheInicializado then
     Exit;
 
+  LockInicio := GetTickCount64;
   TMonitor.Enter(CacheLock);
+  PerformanceLockWait('cache_inicializacao', GetTickCount64 - LockInicio);
+  HoldInicio := GetTickCount64;
   try
     if CacheInicializado then
       Exit;
 
+      Inicio := GetTickCount64;
       Con := Tconexao.Create('GarantirBancoCache');
+      PerformanceCacheStep('cache_global', 'create_connection',
+        GetTickCount64 - Inicio);
       try
+        Inicio := GetTickCount64;
+        AplicarCharsetCache(Con);
+        PerformanceCacheStep('cache_global', 'session_setup',
+          GetTickCount64 - Inicio);
+        Inicio := GetTickCount64;
         Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
           ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
         Con.ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
@@ -62,11 +83,14 @@ begin
           ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
         Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
           ' MODIFY dados LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL');
+        PerformanceCacheStep('cache_global', 'ensure_schema',
+          GetTickCount64 - Inicio);
         CacheInicializado := True;
     finally
       Con.Free;
     end;
   finally
+    PerformanceLockHold('cache_inicializacao', GetTickCount64 - HoldInicio);
     TMonitor.Exit(CacheLock);
   end;
 end;
@@ -81,11 +105,21 @@ end;
 procedure GravaCache(Origem, Chave, Dados: String; ValidadeMinutos: Integer);
 var
   Con: Tconexao;
+  Inicio: UInt64;
 begin
   try
+    Inicio := GetTickCount64;
     GarantirBancoCache;
+    PerformanceCacheStep(Origem, 'ensure_cache', GetTickCount64 - Inicio);
+      Inicio := GetTickCount64;
       Con := Tconexao.Create('GravaCache');
+      PerformanceCacheStep(Origem, 'create_connection',
+        GetTickCount64 - Inicio);
     try
+      Inicio := GetTickCount64;
+      AplicarCharsetCache(Con);
+      PerformanceCacheStep(Origem, 'session_setup', GetTickCount64 - Inicio);
+      Inicio := GetTickCount64;
       Con.SQL.Add('INSERT INTO ' + CACHE_DATABASE + '.' + CACHE_TABLE);
       Con.SQL.Add('(origem, chave, dados, expira_em)');
       Con.SQL.Add('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' +
@@ -96,7 +130,11 @@ begin
       Con.Parametros('origem', Origem);
       Con.Parametros('chave', Chave);
       Con.Parametros('dados', Dados);
+      PerformanceCacheStep(Origem, 'build_write_command',
+        GetTickCount64 - Inicio);
+      Inicio := GetTickCount64;
       Con.ExecuteSQL;
+      PerformanceCacheStep(Origem, 'write_database', GetTickCount64 - Inicio);
     finally
       Con.Free;
     end;
@@ -108,24 +146,44 @@ function LerCacheTexto(Origem, Chave: String): String;
 var
   Con: Tconexao;
   Qry: TFDQuery;
+  Inicio: UInt64;
 begin
   Result := '';
   try
+    Inicio := GetTickCount64;
     GarantirBancoCache;
+    PerformanceCacheStep(Origem, 'ensure_cache', GetTickCount64 - Inicio);
+    Inicio := GetTickCount64;
     Con := Tconexao.Create('LerCacheTexto');
+    PerformanceCacheStep(Origem, 'create_connection', GetTickCount64 - Inicio);
     try
+      Inicio := GetTickCount64;
+      AplicarCharsetCache(Con);
+      PerformanceCacheStep(Origem, 'session_setup', GetTickCount64 - Inicio);
+      Inicio := GetTickCount64;
       Qry := Con.CriaQRY;
+      PerformanceCacheStep(Origem, 'create_query', GetTickCount64 - Inicio);
       try
+        Inicio := GetTickCount64;
         Qry.SQL.Text := 'SELECT dados FROM ' + CACHE_DATABASE + '.' +
           CACHE_TABLE + ' WHERE origem = :origem AND chave = :chave' +
           ' AND (expira_em IS NULL OR expira_em > CURRENT_TIMESTAMP)';
         Qry.ParamByName('origem').AsString := Origem;
         Qry.ParamByName('chave').AsString := Chave;
+        PerformanceCacheStep(Origem, 'prepare_read_query',
+          GetTickCount64 - Inicio);
+        Inicio := GetTickCount64;
         Qry.Open;
+        PerformanceCacheStep(Origem, 'read_database', GetTickCount64 - Inicio);
         if not Qry.Eof then
-          Result := Qry.FieldByName('dados').AsString;
+        begin
+          Inicio := GetTickCount64;
+          Result := Qry.FieldByName('dados').AsWideString;
+          PerformanceCacheStep(Origem, 'copy_result', GetTickCount64 - Inicio);
+        end;
         if Result = '' then
         begin
+          Inicio := GetTickCount64;
           Qry.Close;
           Qry.SQL.Text := 'DELETE FROM ' + CACHE_DATABASE + '.' + CACHE_TABLE +
             ' WHERE origem = :origem AND chave = :chave' +
@@ -133,6 +191,8 @@ begin
           Qry.ParamByName('origem').AsString := Origem;
           Qry.ParamByName('chave').AsString := Chave;
           Qry.ExecSQL;
+          PerformanceCacheStep(Origem, 'delete_expired',
+            GetTickCount64 - Inicio);
         end;
       finally
         Qry.Free;
@@ -149,13 +209,18 @@ function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 var
   Conteudo: String;
   ValorJSON: TJSONValue;
+  Inicio: UInt64;
 begin
+  Inicio := GetTickCount64;
   Conteudo := LerCacheTexto(Origem, Chave);
+  PerformanceCacheStep(Origem, 'read_text', GetTickCount64 - Inicio);
   if Conteudo = '' then
     Exit(TJsonObject.Create);
 
   try
+    Inicio := GetTickCount64;
     ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    PerformanceCacheStep(Origem, 'parse_json_object', GetTickCount64 - Inicio);
     if ValorJSON is TJsonObject then
       Result := TJsonObject(ValorJSON)
     else
@@ -172,13 +237,18 @@ function BuscaCache(Origem, Chave: String): TJSONArray;
 var
   Conteudo: String;
   ValorJSON: TJSONValue;
+  Inicio: UInt64;
 begin
+  Inicio := GetTickCount64;
   Conteudo := LerCacheTexto(Origem, Chave);
+  PerformanceCacheStep(Origem, 'read_text', GetTickCount64 - Inicio);
   if Conteudo = '' then
     Exit(TJSONArray.Create);
 
   try
+    Inicio := GetTickCount64;
     ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    PerformanceCacheStep(Origem, 'parse_json_array', GetTickCount64 - Inicio);
     if ValorJSON is TJSONArray then
       Result := TJSONArray(ValorJSON)
     else
@@ -194,16 +264,26 @@ end;
 procedure LimpaCache(Origem, Chave: String);
 var
   Con: Tconexao;
+  Inicio: UInt64;
 begin
   try
+    Inicio := GetTickCount64;
     GarantirBancoCache;
+    PerformanceCacheStep(Origem, 'ensure_cache', GetTickCount64 - Inicio);
+    Inicio := GetTickCount64;
     Con := Tconexao.Create('LimpaCache');
+    PerformanceCacheStep(Origem, 'create_connection', GetTickCount64 - Inicio);
     try
+      Inicio := GetTickCount64;
+      AplicarCharsetCache(Con);
+      PerformanceCacheStep(Origem, 'session_setup', GetTickCount64 - Inicio);
+      Inicio := GetTickCount64;
       Con.SQL.Add('DELETE FROM ' + CACHE_DATABASE + '.' + CACHE_TABLE);
       Con.SQL.Add('WHERE origem = :origem AND chave = :chave');
       Con.Parametros('origem', Origem);
       Con.Parametros('chave', Chave);
       Con.ExecuteSQL;
+      PerformanceCacheStep(Origem, 'delete_key', GetTickCount64 - Inicio);
     finally
       Con.Free;
     end;
@@ -214,12 +294,22 @@ end;
 procedure ClearAll;
 var
   Con: Tconexao;
+  Inicio: UInt64;
 begin
   try
+    Inicio := GetTickCount64;
     GarantirBancoCache;
+    PerformanceCacheStep('cache_global', 'ensure_cache',
+      GetTickCount64 - Inicio);
+    Inicio := GetTickCount64;
     Con := Tconexao.Create('ClearAllCache');
+    PerformanceCacheStep('cache_global', 'create_connection',
+      GetTickCount64 - Inicio);
     try
+      Inicio := GetTickCount64;
+      AplicarCharsetCache(Con);
       Con.ExecuteSQL('TRUNCATE TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE);
+      PerformanceCacheStep('cache_global', 'truncate', GetTickCount64 - Inicio);
     finally
       Con.Free;
     end;

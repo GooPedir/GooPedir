@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -184,6 +184,12 @@
             <Deployment Version="4">
                 <DeployFile LocalName="C:\Users\GooPedir\Desktop\Sem-Título-1.png" Configuration="Debug" Class="UWP_DelphiLogo44"/>
                 <DeployFile LocalName="C:\goopedir\psGoopedir.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="C:\goopedir\psGoopedir.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>psGoopedir.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="C:\goopedir\psGoopedir.exe" Configuration="Release" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">

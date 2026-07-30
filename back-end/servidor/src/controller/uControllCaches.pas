@@ -15,6 +15,8 @@ function GetFichaSabor(chave: String): TJsonArray;
 function GetProdutoCategoria(chave,hash: String): TJsonArray;
 function GetProdutoPesquisa(chave: String): TJsonArray;
 function GetParametros: TJsonArray;
+procedure InicializarParametrosCache;
+procedure LimparParametrosCacheMemoria;
 function GetFlavor(chave: String): TJsonArray;
 
 procedure LimpaCacheGeral;
@@ -30,7 +32,25 @@ function SnakeToCamel(const Texto: string): string;
 implementation
 
 uses
-  conexao, uSQL, System.SysUtils, System.Classes, Vcl.Dialogs;
+  conexao, uSQL, System.SysUtils, System.Classes, Vcl.Dialogs,
+  System.Diagnostics, System.SyncObjs, System.DateUtils, uPerformanceMetrics;
+
+var
+  ParametrosCacheLock: TCriticalSection;
+  ParametrosCacheInicializado: Boolean = False;
+  ParametrosCacheJSON: string = '';
+  ParametrosCacheExpiraEm: TDateTime = 0;
+
+procedure LimparParametrosCacheMemoria;
+begin
+  ParametrosCacheLock.Acquire;
+  try
+    ParametrosCacheJSON := '';
+    ParametrosCacheExpiraEm := 0;
+  finally
+    ParametrosCacheLock.Release;
+  end;
+end;
 
 procedure GarantirTabelaConfiguracoes;
 var
@@ -71,6 +91,21 @@ begin
       conexao.Free;
   end;
 end;
+
+procedure InicializarParametrosCache;
+begin
+  ParametrosCacheLock.Acquire;
+  try
+    if ParametrosCacheInicializado then
+      Exit;
+
+    GarantirTabelaConfiguracoes;
+    ParametrosCacheInicializado := True;
+  finally
+    ParametrosCacheLock.Release;
+  end;
+end;
+
 function GetFlavor(chave: String): TJsonArray;
 var
   conexao: TConexao;
@@ -314,75 +349,138 @@ var
   Objeto: TJSONObject;
   Erro: Boolean;
   Qry: TFDQuery;
-begin
+  SWStep: TStopwatch;
+  SWItem: TStopwatch;
+  Serialized: string;
 
-  // Result := BuscaCache('DoGetParametros', 'cache');
-  // if Result.Count = 0 then
-  // begin
-  // conexao := TConexao.Create('Util');
-  // conexao.SQL.Add('select * from dados_whatsapp');
-  // Result := conexao.ConsultaSQL;
-  // GravaCache('DoGetParametros', 'cache', Result.ToString);
-  // conexao.Free;
-  // end;
-
-  GarantirTabelaConfiguracoes;
-  Result := BuscaCache('DoGetParametros', 'cache');
-  if Result.Count = 0 then
+  procedure MarkStep(const StepName: string);
   begin
-    conexao := TConexao.Create('Util');
+    SWStep.Stop;
+    PerformanceStep('parametros_' + StepName, SWStep.ElapsedMilliseconds);
+    SWStep := TStopwatch.StartNew;
+  end;
+
+  function CloneCachedArray(const JSONText: string): TJsonArray;
+  begin
+    Result := TJSONObject.ParseJSONValue(JSONText) as TJsonArray;
+    if Result = nil then
+      Result := TJsonArray.Create;
+  end;
+begin
+  SWStep := TStopwatch.StartNew;
+  InicializarParametrosCache;
+  MarkStep('init_check');
+
+  ParametrosCacheLock.Acquire;
+  try
+    if (ParametrosCacheJSON <> '') and (ParametrosCacheExpiraEm > Now) then
+      Serialized := ParametrosCacheJSON
+    else
+      Serialized := '';
+  finally
+    ParametrosCacheLock.Release;
+  end;
+  MarkStep('memory_cache_lookup');
+
+  if Serialized <> '' then
+  begin
+    Result := CloneCachedArray(Serialized);
+    MarkStep('memory_cache_parse');
+    Exit;
+  end;
+
+  Result := BuscaCache('DoGetParametros', 'cache');
+  MarkStep('cache_lookup');
+  if Result.Count > 0 then
+  begin
+    Serialized := Result.ToString;
+    ParametrosCacheLock.Acquire;
+    try
+      ParametrosCacheJSON := Serialized;
+      ParametrosCacheExpiraEm := IncSecond(Now, 60);
+    finally
+      ParametrosCacheLock.Release;
+    end;
+    MarkStep('memory_cache_store_from_cache');
+    Exit;
+  end;
+
+  conexao := TConexao.Create('Util');
+  try
+    MarkStep('connection_create');
     Qry := conexao.CriaQRY;
-    Qry.SQL.Add('select * from configuracoes');
-    Qry.Open;
-    Objeto := TJSONObject.Create;
-    ArrayParametro := TJsonArray.Create;
-    if Qry.RecordCount > 0 then
-    begin
-      while not Qry.Eof do
+    try
+      MarkStep('query_create');
+      Qry.SQL.Add('select chave, valor from configuracoes');
+      Qry.Open;
+      PerformanceSQL('parametros_select_all', Qry.SQL.Text,
+        SWStep.ElapsedMilliseconds, Qry.RecordCount, True);
+      SWStep := TStopwatch.StartNew;
+      Objeto := TJSONObject.Create;
+      ArrayParametro := TJsonArray.Create;
+      if Qry.RecordCount > 0 then
       begin
-        try
-          Erro := False;
-            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
-            Qry.FieldByName('valor').AsInteger)
-        except
-          Erro := True;
-        end;
-        if Erro then
+        while not Qry.Eof do
         begin
+          SWItem := TStopwatch.StartNew;
           try
             Erro := False;
             Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
-              Qry.FieldByName('valor').AsFloat)
+              Qry.FieldByName('valor').AsInteger)
           except
             Erro := True;
           end;
-        end;
-        if Erro then
-        begin
-          try
-            Erro := False;
-            Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),Qry.FieldByName('valor').AsWideString)
-          except
-            on e: exception do
-            begin
-              ShowMessage(e.Message);
+          if Erro then
+          begin
+            try
+              Erro := False;
+              Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
+                Qry.FieldByName('valor').AsFloat)
+            except
               Erro := True;
             end;
           end;
+          if Erro then
+          begin
+            try
+              Erro := False;
+              Objeto.AddPair(SnakeToCamel(Qry.FieldByName('chave').AsString),
+                Qry.FieldByName('valor').AsWideString)
+            except
+              Erro := True;
+            end;
+          end;
+          SWItem.Stop;
+          if SWItem.ElapsedMilliseconds > 5 then
+            PerformanceParamSlow(Qry.FieldByName('chave').AsString,
+              SWItem.ElapsedMilliseconds);
+
+          Qry.Next;
         end;
-
-        Qry.Next;
       end;
+      MarkStep('parameter_loop');
+      ArrayParametro.Add(Objeto);
+      Result := ArrayParametro;
+      MarkStep('json_build');
+      Serialized := Result.ToString;
+      ParametrosCacheLock.Acquire;
+      try
+        ParametrosCacheJSON := Serialized;
+        ParametrosCacheExpiraEm := IncSecond(Now, 60);
+      finally
+        ParametrosCacheLock.Release;
+      end;
+      MarkStep('memory_cache_store');
+      GravaCache('DoGetParametros', 'cache', Serialized);
+      MarkStep('cache_write');
+    finally
+      Qry.Free;
     end;
-    Qry.Free;
-    ArrayParametro.Add(Objeto);
-    Result := ArrayParametro;
-    GravaCache('DoGetParametros', 'cache', Result.ToString);
+  finally
     conexao.Free;
+    SWStep.Stop;
   end;
-
 end;
-
 function GetProdutoAdiciona(chave: String): TJsonArray;
 var
   conexao: TConexao;
@@ -629,6 +727,7 @@ end;
 
 procedure AtualizaParametro;
 begin
+  LimparParametrosCacheMemoria;
   LimpaCache('DoGetParametros', 'cache');
   GetParametros;
 
@@ -677,7 +776,7 @@ begin
     SQL := SQL + ' order by codigo_grupo, position';
   end;
 
-  Result := ObjetoProduto(SQL,Tipo); // ?? já retorna JSON
+  Result := ObjetoProduto(SQL,Tipo); // ?? j? retorna JSON
 end;
 
 // function MontarArvoreMenu(const Itens: TFDMemTable; PaiId: Variant): TJsonArray;
@@ -757,7 +856,7 @@ begin
     Obj.AddPair('id', Itens.FieldByName('id').AsInteger);
     Obj.AddPair('nome', Itens.FieldByName('nome').AsString);
 
-    // conteúdo
+    // conte?do
     if Itens.FieldByName('produto_id').AsFloat > 0 then
     begin
       Obj.AddPair('produto', BuscarProdutoPorChave('PRODUTO',
@@ -822,5 +921,11 @@ begin
     end;
   end;
 end;
+
+initialization
+  ParametrosCacheLock := TCriticalSection.Create;
+
+finalization
+  ParametrosCacheLock.Free;
 
 end.

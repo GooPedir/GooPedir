@@ -95,7 +95,14 @@ begin
     Banco.Params.SaveToFile('configuracao\Confi.dados');
   end;
     Banco.Params.Values['CharacterSet'] := 'utf8mb4';
-    Banco.Params.Add('SSLProtocol=TLSv1.2');
+    Banco.Params.Values['Pooled'] := 'True';
+    Banco.Params.Values['POOL_MaximumItems'] := '50';
+    Banco.Params.Values['POOL_ExpireTimeout'] := '90000';
+    Banco.Params.Values['POOL_CleanupTimeout'] := '30000';
+    if Banco.Params.IndexOfName('SSLProtocol') < 0 then
+      Banco.Params.Add('SSLProtocol=TLSv1.2')
+    else
+      Banco.Params.Values['SSLProtocol'] := 'TLSv1.2';
 
     Banco.Params.Values['Reconnect'] := 'True';
     Banco.Params.Values['Compress'] := 'false';
