@@ -6,7 +6,8 @@ uses
   System.SysUtils,
   System.JSON;
 
-procedure GravaCache(Origem, Chave, Dados: String; ValidadeMinutos: Integer = 5);
+procedure GravaCache(Origem, Chave, Dados: String;
+  ValidadeMinutos: Integer = 5);
 function BuscaCache(Origem, Chave: String): TJSONArray;
 function BuscaCacheObject(Origem, Chave: String): TJsonObject;
 procedure LimpaCache(Origem, Chave: String);
@@ -53,39 +54,37 @@ begin
     if CacheInicializado then
       Exit;
 
+    Inicio := GetTickCount64;
+    Con := Tconexao.Create('GarantirBancoCache');
+    PerformanceCacheStep('cache_global', 'create_connection',
+      GetTickCount64 - Inicio);
+    try
       Inicio := GetTickCount64;
-      Con := Tconexao.Create('GarantirBancoCache');
-      PerformanceCacheStep('cache_global', 'create_connection',
+      AplicarCharsetCache(Con);
+      PerformanceCacheStep('cache_global', 'session_setup',
         GetTickCount64 - Inicio);
-      try
-        Inicio := GetTickCount64;
-        AplicarCharsetCache(Con);
-        PerformanceCacheStep('cache_global', 'session_setup',
-          GetTickCount64 - Inicio);
-        Inicio := GetTickCount64;
-        Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
-          ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-        Con.ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
-          ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-        Con.ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
-          CACHE_TABLE + ' (' +
-        'origem VARCHAR(100) NOT NULL, ' +
-        'chave VARCHAR(255) NOT NULL, ' +
-        'dados LONGTEXT NOT NULL, ' +
+      Inicio := GetTickCount64;
+      Con.ExecuteSQL('CREATE DATABASE IF NOT EXISTS ' + CACHE_DATABASE +
+        ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+      Con.ExecuteSQL('ALTER DATABASE ' + CACHE_DATABASE +
+        ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+      Con.ExecuteSQL('CREATE TABLE IF NOT EXISTS ' + CACHE_DATABASE + '.' +
+        CACHE_TABLE + ' (' + 'origem VARCHAR(100) NOT NULL, ' +
+        'chave VARCHAR(255) NOT NULL, ' + 'dados LONGTEXT NOT NULL, ' +
         'criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
         'expira_em DATETIME NULL, ' +
         'atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
         + 'PRIMARY KEY (origem, chave), ' +
         'INDEX idx_cache_expira (expira_em), ' +
-          'INDEX idx_cache_atualizado (atualizado_em)' +
-          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-        Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
-          ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-        Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
-          ' MODIFY dados LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL');
-        PerformanceCacheStep('cache_global', 'ensure_schema',
-          GetTickCount64 - Inicio);
-        CacheInicializado := True;
+        'INDEX idx_cache_atualizado (atualizado_em)' +
+        ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+      Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+        ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+      Con.ExecuteSQL('ALTER TABLE ' + CACHE_DATABASE + '.' + CACHE_TABLE +
+        ' MODIFY dados LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL');
+      PerformanceCacheStep('cache_global', 'ensure_schema',
+        GetTickCount64 - Inicio);
+      CacheInicializado := True;
     finally
       Con.Free;
     end;
@@ -111,10 +110,9 @@ begin
     Inicio := GetTickCount64;
     GarantirBancoCache;
     PerformanceCacheStep(Origem, 'ensure_cache', GetTickCount64 - Inicio);
-      Inicio := GetTickCount64;
-      Con := Tconexao.Create('GravaCache');
-      PerformanceCacheStep(Origem, 'create_connection',
-        GetTickCount64 - Inicio);
+    Inicio := GetTickCount64;
+    Con := Tconexao.Create('GravaCache');
+    PerformanceCacheStep(Origem, 'create_connection', GetTickCount64 - Inicio);
     try
       Inicio := GetTickCount64;
       AplicarCharsetCache(Con);
@@ -122,8 +120,9 @@ begin
       Inicio := GetTickCount64;
       Con.SQL.Add('INSERT INTO ' + CACHE_DATABASE + '.' + CACHE_TABLE);
       Con.SQL.Add('(origem, chave, dados, expira_em)');
-      Con.SQL.Add('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' +
-        NormalizaValidade(ValidadeMinutos).ToString + ' MINUTE))');
+      Con.SQL.Add
+        ('VALUES (:origem, :chave, :dados, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL '
+        + NormalizaValidade(ValidadeMinutos).ToString + ' MINUTE))');
       Con.SQL.Add('ON DUPLICATE KEY UPDATE dados = VALUES(dados),');
       Con.SQL.Add('expira_em = VALUES(expira_em),');
       Con.SQL.Add('atualizado_em = CURRENT_TIMESTAMP');
@@ -219,7 +218,7 @@ begin
 
   try
     Inicio := GetTickCount64;
-    ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    ValorJSON := TJsonObject.ParseJSONValue(Conteudo);
     PerformanceCacheStep(Origem, 'parse_json_object', GetTickCount64 - Inicio);
     if ValorJSON is TJsonObject then
       Result := TJsonObject(ValorJSON)
@@ -247,7 +246,7 @@ begin
 
   try
     Inicio := GetTickCount64;
-    ValorJSON := TJSONObject.ParseJSONValue(Conteudo);
+    ValorJSON := TJsonObject.ParseJSONValue(Conteudo);
     PerformanceCacheStep(Origem, 'parse_json_array', GetTickCount64 - Inicio);
     if ValorJSON is TJSONArray then
       Result := TJSONArray(ValorJSON)
@@ -318,9 +317,11 @@ begin
 end;
 
 initialization
-  CacheLock := TObject.Create;
+
+CacheLock := TObject.Create;
 
 finalization
-  CacheLock.Free;
+
+CacheLock.Free;
 
 end.

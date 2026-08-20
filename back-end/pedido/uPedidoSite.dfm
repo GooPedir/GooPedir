@@ -2,8 +2,8 @@ object frmPedidoSite: TfrmPedidoSite
   Left = 0
   Top = 0
   Caption = 'frmPedidoSite'
-  ClientHeight = 600
-  ClientWidth = 872
+  ClientHeight = 570
+  ClientWidth = 895
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -28,18 +28,24 @@ object frmPedidoSite: TfrmPedidoSite
     Status = 0
     MostrarAguarde = False
     TempoExpiracao = 2000
-    Left = 64
+    Left = 16
     Top = 8
   end
   object tMinimiza: TTimer
     Interval = 1
     OnTimer = tMinimizaTimer
-    Left = 8
+    Left = 16
     Top = 128
   end
   object TrayIcon1: TTrayIcon
     Visible = True
-    Left = 8
+    Left = 16
     Top = 64
+  end
+  object Timer1: TTimer
+    Interval = 120000
+    OnTimer = Timer1Timer
+    Left = 8
+    Top = 192
   end
 end

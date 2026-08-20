@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  System.SysUtils, System.SyncObjs, Vcl.Dialogs, uPerformanceMetrics;
+  System.SysUtils, System.SyncObjs, Vcl.Dialogs;
 
 const
   CACHE_DATABASE = 'goopedir_cache';
@@ -145,12 +145,12 @@ begin
       InicioSQL := GetTickCount64;
       QRY.Open;
       Linhas := QRY.RecordCount;
-      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, Linhas, True);
+//      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, Linhas, True);
 
       InicioJSON := GetTickCount64;
       Result := QRY.ToJSONArray;
       TamanhoJSON := Length(TEncoding.UTF8.GetBytes(Result.ToJSON));
-      PerformanceJSON(GetTickCount64 - InicioJSON, Result.Count, TamanhoJSON);
+//      PerformanceJSON(GetTickCount64 - InicioJSON, Result.Count, TamanhoJSON);
 
       if cache then
       begin
@@ -159,7 +159,7 @@ begin
     except
       on E: Exception do
       begin
-        PerformanceSQL(HashSQL(SQL), SQL, 0, 0, False, E.Message);
+//        PerformanceSQL(HashSQL(SQL), SQL, 0, 0, False, E.Message);
         GerarLog('ConsultaSQL: ' + E.message);
         FreeAndNil(Result);
         raise;
@@ -200,7 +200,7 @@ begin
   DataModulo.Banco.Params.Database := Banco;
   DataModulo.Banco.Connected := true;
   AplicarCharsetConexao;
-  PerformanceDBConnection(FNome, 0, GetTickCount64 - InicioOpen, False);
+//  PerformanceDBConnection(FNome, 0, GetTickCount64 - InicioOpen, False);
 end;
 
 procedure TConexao.AplicarCharsetConexao;
@@ -219,7 +219,7 @@ begin
     Qry := DataModulo.CriaQRY;
     try
       Qry.ExecSQL('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
-      PerformanceStep('db_session_set_names_once', GetTickCount64 - Inicio);
+//      PerformanceStep('db_session_set_names_once', GetTickCount64 - Inicio);
     finally
       Qry.Free;
     end;
@@ -266,8 +266,8 @@ begin
   CreateMS := GetTickCount64 - InicioCreate;
   InicioOpen := GetTickCount64;
   AplicarCharsetConexao;
-  PerformanceDBConnection(FNome, CreateMS, GetTickCount64 - InicioOpen,
-    DataModulo.Banco.Connected);
+//  PerformanceDBConnection(FNome, CreateMS, GetTickCount64 - InicioOpen,
+//    DataModulo.Banco.Connected);
   FLastActivityTime := Now; // Inicia com a hora atual
 
   SQL := TStringlist.Create;
@@ -320,11 +320,11 @@ begin
     DecodeDate(DataInicial, AnoI, MesI, DiaI);
     DataInicial := EncodeDate(AnoI, MesI, 1);
 
-    // garante dia = 1 do mês final
+    // garante dia = 1 do mï¿½s final
     DecodeDate(DataFinal, AnoF, MesF, DiaF);
     DataFinal := EncodeDate(AnoF, MesF, 1);
 
-    // monta início do comando
+    // monta inï¿½cio do comando
     SQLParticoes.Add('ALTER TABLE pedido');
     SQLParticoes.Add('PARTITION BY RANGE (TO_DAYS(data_pedido)) (');
 
@@ -341,7 +341,7 @@ begin
       DataLoop := IncMonth(DataLoop);
     end;
 
-    // remover vírgula da última partição
+    // remover vï¿½rgula da ï¿½ltima partiï¿½ï¿½o
     SQLParticoes[SQLParticoes.Count - 1] :=
       TrimRight(SQLParticoes[SQLParticoes.Count - 1]).TrimRight([',']);
 
@@ -370,7 +370,7 @@ procedure TConexao.DisconectBanco;
 begin
   DataModulo.Banco.Connected := False;
   DataModulo.Banco.Params.Database := '';
-  DataModulo.Banco.Connected := true;
+  DataModulo.Banco.Connected := True;
 end;
 
 procedure TConexao.EnviaGlitchtip(DSN, Tipo, Identificacao, Mensagem: String);
@@ -880,8 +880,8 @@ begin
     QRY.ParamByName('chave').AsString := Campo;
     InicioSQL := GetTickCount64;
     QRY.Open;
-    PerformanceSQL(HashSQL(QRY.SQL.Text), QRY.SQL.Text,
-      GetTickCount64 - InicioSQL, QRY.RecordCount, True);
+//    PerformanceSQL(HashSQL(QRY.SQL.Text), QRY.SQL.Text,
+//      GetTickCount64 - InicioSQL, QRY.RecordCount, True);
 
     Result := QRY.FieldByName('valor').AsVariant;
   except
@@ -1078,12 +1078,12 @@ begin
   Result := Erro;
   if pos('TOKEN UNKNOWN', Erro) > 0 then
   begin
-    Result := 'Tabela Não Localizada';
+    Result := 'Tabela Nï¿½o Localizada';
   end;
 
   if pos('TABLE SQL ALREADY EXISTS', Erro) > 0 then
   begin
-    Result := 'Tabela já Existente';
+    Result := 'Tabela jï¿½ Existente';
   end;
 end;
 
@@ -1196,13 +1196,13 @@ begin
     InicioSQL := GetTickCount64;
     try
       QRY.ExecSQL;
-      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL,
-        QRY.RowsAffected, True);
+//      PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL,
+//        QRY.RowsAffected, True);
     except
       on E: Exception do
       begin
-        PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, 0,
-          False, E.Message);
+//        PerformanceSQL(HashSQL(SQL), SQL, GetTickCount64 - InicioSQL, 0,
+//          False, E.Message);
         raise;
       end;
     end;

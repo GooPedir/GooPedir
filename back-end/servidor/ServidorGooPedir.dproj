@@ -108,6 +108,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="src\modulo\uNginxMonitor.pas"/>
         <DCCReference Include="src\uMain.pas">
             <Form>frmServidor</Form>
         </DCCReference>

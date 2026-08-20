@@ -14,10 +14,12 @@ type
     Button1: TButton;
     tMinimiza: TTimer;
     TrayIcon1: TTrayIcon;
+    Timer1: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure MedirTempoExecucao;
     procedure tMinimizaTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
 
@@ -43,8 +45,16 @@ end;
 procedure TfrmPedidoSite.FormCreate(Sender: TObject);
 
 begin
+{$IFDEF DEBUG}
+  if (not Desenvolvimento) then
+  begin
+    ShowMessage('O sistema não pode ser executado em modo DEBUG.');
+    Exit;
+  end;
+{$ENDIF}
+
   pedido := 0;
-  userId := 0;
+  userId := 43;
   try
     pedido := ParamStr(1).ToInteger();
     userId := ParamStr(2).ToInteger();
@@ -74,9 +84,13 @@ begin
   TempoDecorrido := TempoFinal - TempoInicial;
 
   // Exibe o tempo decorrido em uma mensagem
-  // //showmessage
   (Format('A função getPedidos demorou %d milissegundos para executar.',
     [TempoDecorrido]));
+end;
+
+procedure TfrmPedidoSite.Timer1Timer(Sender: TObject);
+begin
+Application.Terminate;
 end;
 
 procedure TfrmPedidoSite.tMinimizaTimer(Sender: TObject);
@@ -85,7 +99,6 @@ begin
   self.Hide();
   self.WindowState := wsMinimized;
   try
-
     if pedido = 0 then
       getPedidos
     else
@@ -104,7 +117,6 @@ begin
   except
     on e: Exception do
     begin
-
     end;
   end;
   Application.Terminate;

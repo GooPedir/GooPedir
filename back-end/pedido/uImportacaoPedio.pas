@@ -146,16 +146,20 @@ var
   JSON: TJSONObject;
 begin
   iReq := CreateReq;
+  iReq.BaseURL := 'http://localhost:2121/';
   iReq.URL := 'v2/status';
   try
     iReq.Execute;
 
     JSON := TJSONObject.ParseJSONValue(iReq.Retorno) as TJSONObject;
-
     Result := JSON.GetValue<Integer>('modulos.usuario', 0);
 
   except
+    on e : exception do
+    begin
     Result := 0;
+//    ShowMessage(e.Message);
+    end;
   end;
   iReq.Free;
 end;
@@ -693,20 +697,23 @@ var
 
 begin
 
-  User := UserID;
-  if User = 0 then
-    exit;
+
+    User := UserID;
+ 
 
   Req := iRequisicao.Create(nil);
   try
     Req.BaseURL := getUrlGoopedir;
-    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente;
+    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString;
 //    Req.URL := 'api/goopedir/pedidos/motoboy?codigo=' + User.ToString +'&ambiente=' + Ambiente+'&produto=1';
     Req.Token(GetToken);
+    Req.TempoExpiracao := 30000;
     Req.Execute;
+
 
     // Parse do JSON retornado (agora é OBJETO na raiz)
     LRootVal := TJSONObject.ParseJSONValue(Req.Retorno);
+//    ShowMessage(Req.Retorno);
     try
       if not Assigned(LRootVal) then
         exit;
@@ -908,13 +915,14 @@ begin
   Req := iRequisicao.Create(nil);
   Req.BaseURL := getUrlGoopedir;
   Req.URL := 'api/pedido/legacy/' + ID;
+  Req.TempoExpiracao := 30000;
   try
     Req.Execute;
     ProcessaGravacaoPedido(Req.Retorno,UserId);
   except
     on E: Exception do
     begin
-      // showmessage(e.Message);
+//       showmessage('AAA: '+e.Message);
     end;
   end;
   Req.Free;

@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao;
+  DataSet.Serialize, JSON, uRequisicao,uControllCaches;
 
 type
   TPedidoInfra = class
@@ -315,21 +315,17 @@ var
 
 begin
 
-  conexao := TConexao.Create('main');
-  // VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
 
+  Configuracoes.LoadFromJSON(GetParametros);
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;
-
   Atualizacao.SeTiverAtualizacao := TemAtualizacao;
   Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
   Atualizacao.VerificaAtualizacao;
+
 end;
 
 procedure TfrmServicosGoopedir.IniciarAtualizacao;
@@ -461,6 +457,7 @@ end;
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
 begin
+
   if length(trim(Nome)) = 0 then
     exit;
 
@@ -591,6 +588,7 @@ var
   UltimoRestartNFCe: TDateTime;
 begin
   inherited;
+  AbrirExe(NGINX);
   contador := 0;
   UltimoRestartNFCe := now;
   while not Terminated do
@@ -667,14 +665,11 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if (not VerificaExe(NGINX)) then
-      AbrirExe(NGINX);
-
-
+//    if ComandaValue then
+//    begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
-
-
+//    end;
 
     Sleep(1 * 1000);
   end;

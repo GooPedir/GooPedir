@@ -4,6 +4,7 @@ program ServidorGooPedir;
 
 uses
   Vcl.Forms,
+  uNginxMonitor in 'src\modulo\uNginxMonitor.pas',
   uMain in 'src\uMain.pas' {frmServidor},
   token in 'src\token\token.pas',
   util in 'src\util\util.pas',
@@ -152,6 +153,12 @@ uses
 
 begin
 //   ReportMemoryLeaksOnShutdown := True;
+  if IsNginxWatcherParam then
+  begin
+    RunNginxWatcherService;
+    Exit;
+  end;
+
   Application.Initialize;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;

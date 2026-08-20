@@ -15,10 +15,14 @@ type
 
     function TriggerExiste(const Nome: string): Boolean;
     function ProcedureExiste(const Nome: string): Boolean;
+    function EventExiste(const Nome: string): Boolean;
+    function ColunaExiste(const Tabela, Coluna: string): Boolean;
 
     procedure ExecutarSQL(const SQL: string);
     procedure RecriarTrigger(const Nome, SQL: string);
     procedure RecriarProcedure(const Nome, SQL: string);
+    procedure CriarEventSeNaoExiste(const Nome, SQL: string);
+    procedure GarantirEstruturaBase;
 
     procedure RegistrarTriggers;
     procedure RegistrarProcedures;
@@ -59,16 +63,17 @@ begin
   Q := FConexao.CriaQRY;
   try
     Q.SQL.Text := SQL;
-    TRY
-    Q.ExecSQL;
+    try
+      Q.ExecSQL;
     except
-
-    END;
+      on E: Exception do
+        raise Exception.CreateFmt('Erro ao executar SQL de infraestrutura: %s'#13#10'SQL: %s',
+          [E.Message, SQL]);
+    end;
   finally
     Q.Free;
   end;
 end;
-
 function TInfraBanco.TriggerExiste(const Nome: string): Boolean;
 var
   Q: TFDQuery;
@@ -107,28 +112,89 @@ begin
   end;
 end;
 
+function TInfraBanco.EventExiste(const Nome: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := FConexao.CriaQRY;
+  try
+    Q.SQL.Text :=
+      'SELECT 1 FROM information_schema.EVENTS ' +
+      'WHERE EVENT_SCHEMA = DATABASE() ' +
+      'AND EVENT_NAME = :nome';
+
+    Q.ParamByName('nome').AsString := Nome;
+    Q.Open;
+    Result := not Q.IsEmpty;
+  finally
+    Q.Free;
+  end;
+end;
+function TInfraBanco.ColunaExiste(const Tabela, Coluna: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := FConexao.CriaQRY;
+  try
+    Q.SQL.Text :=
+      'SELECT 1 FROM information_schema.COLUMNS ' +
+      'WHERE TABLE_SCHEMA = DATABASE() ' +
+      'AND TABLE_NAME = :tabela ' +
+      'AND COLUMN_NAME = :coluna';
+
+    Q.ParamByName('tabela').AsString := Tabela;
+    Q.ParamByName('coluna').AsString := Coluna;
+    Q.Open;
+    Result := not Q.IsEmpty;
+  finally
+    Q.Free;
+  end;
+end;
 procedure TInfraBanco.RecriarTrigger(const Nome, SQL: string);
 begin
   if TriggerExiste(Nome) then
-    ExecutarSQL('DROP TRIGGER ' + Nome);
+    Exit;
 
   ExecutarSQL(SQL);
+
+  if not TriggerExiste(Nome) then
+    raise Exception.CreateFmt('Trigger %s nao foi criada.', [Nome]);
 end;
 
 procedure TInfraBanco.RecriarProcedure(const Nome, SQL: string);
 begin
   if ProcedureExiste(Nome) then
-    ExecutarSQL('DROP PROCEDURE ' + Nome);
+    Exit;
 
   ExecutarSQL(SQL);
+
+  if not ProcedureExiste(Nome) then
+    raise Exception.CreateFmt('Procedure %s nao foi criada.', [Nome]);
+end;
+
+procedure TInfraBanco.CriarEventSeNaoExiste(const Nome, SQL: string);
+begin
+  if EventExiste(Nome) then
+    Exit;
+
+  ExecutarSQL(SQL);
+
+  if not EventExiste(Nome) then
+    raise Exception.CreateFmt('Event %s nao foi criado.', [Nome]);
 end;
 
 { ===================================================== }
 { REGISTRO PRINCIPAL }
 { ===================================================== }
 
+procedure TInfraBanco.GarantirEstruturaBase;
+begin
+  if not ColunaExiste('cliente', 'data_cadastro') then
+    ExecutarSQL('ALTER TABLE cliente ADD data_cadastro date;');
+end;
 procedure TInfraBanco.ValidarEstrutura;
 begin
+  GarantirEstruturaBase;
   RegistrarTriggers;
   RegistrarProcedures;
 end;
@@ -177,7 +243,7 @@ RecriarTrigger(
   '  CALL sp_atualiza_preparo_pedido(NEW.codigo); ' +
   'END IF; ' +
 
-  // regra da descrição
+  // regra da descriï¿½ï¿½o
   'IF (NEW.desc_ficha IS NULL OR NEW.desc_ficha = '''') ' +
   'AND NEW.codigo_pedido_dia <> 0 THEN ' +
 
@@ -239,14 +305,14 @@ begin
   RecriarProcedure(
     'sp_calcula_tempo_preparo_pedido_produto',
     'CREATE PROCEDURE sp_calcula_tempo_preparo_pedido_produto(IN p_codigo_pedido_produto INT) BEGIN ' +
-    '/* aqui entra o corpo completo que você já possui */ ' +
+    '/* aqui entra o corpo completo que vocï¿½ jï¿½ possui */ ' +
     'END;'
   );
 
   RecriarProcedure(
     'sp_atualiza_preparo_pedido',
     'CREATE PROCEDURE sp_atualiza_preparo_pedido(IN p_codigo_pedido INT) BEGIN ' +
-    '/* aqui entra o corpo completo que você já possui */ ' +
+    '/* aqui entra o corpo completo que vocï¿½ jï¿½ possui */ ' +
     'END;'
   );
   
@@ -309,7 +375,7 @@ RecriarProcedure(
   'END;'
 );  
 
-ExecutarSQL('CREATE EVENT ev_cliente_estatistica ON SCHEDULE EVERY 5 SECOND DO CALL proc_atualiza_cliente_estatistica();');
+CriarEventSeNaoExiste('ev_cliente_estatistica', 'CREATE EVENT ev_cliente_estatistica ON SCHEDULE EVERY 5 SECOND DO CALL proc_atualiza_cliente_estatistica();');
 
 end;
 

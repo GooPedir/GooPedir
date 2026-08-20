@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao;
+  DataSet.Serialize, JSON, uRequisicao,uControllCaches;
 
 type
   TPedidoInfra = class
@@ -315,11 +315,8 @@ var
 
 begin
 
-  conexao := TConexao.Create('main');
-  // VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
+
+  Configuracoes.LoadFromJSON(GetParametros);
 
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;
@@ -330,6 +327,7 @@ begin
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
   Atualizacao.VerificaAtualizacao;
+
 end;
 
 procedure TfrmServicosGoopedir.IniciarAtualizacao;
@@ -570,6 +568,7 @@ begin
   IniFile.Free;
   uReq := iRequisicao.Create(nil);
   uReq.BaseURL := URL;
+  AlteraExtrasIguais;
 
 end;
 
@@ -590,6 +589,7 @@ var
   UltimoRestartNFCe: TDateTime;
 begin
   inherited;
+  AbrirExe(NGINX);
   contador := 0;
   UltimoRestartNFCe := now;
   while not Terminated do
@@ -600,7 +600,7 @@ begin
     begin
 
       uReq.BaseURL := URLBKP;
-      uReq.URL := '/v2/status';
+      uReq.URL := '/v2/heart';
       uReq.Metodo := mGet;
       try
         uReq.Execute;
@@ -612,7 +612,7 @@ begin
     end;
 
     uReq.BaseURL := URL;
-    uReq.URL := '/v2/status';
+    uReq.URL := '/v2/heart';
     uReq.Metodo := mGet;
     try
       uReq.Execute;
@@ -666,17 +666,13 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if (not VerificaExe(NGINX)) then
-      AbrirExe(NGINX);
-
-    if ComandaValue then
-    begin
+//    if ComandaValue then
+//    begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
-    end;
+//    end;
 
-    AlteraExtrasIguais;
-    Sleep(15 * 1000);
+    Sleep(1 * 1000);
   end;
 
 end;

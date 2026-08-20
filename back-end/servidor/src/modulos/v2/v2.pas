@@ -9,7 +9,7 @@ uses Math, Horse, JOSE.Core.JWT, JOSE.Core.Builder, SysUtils, Horse.JWT, uDM,
   uRequisicao, System.RegularExpressions, DateUtils, PedidoSite,
   System.Threading, uControllCaches, System.Generics.Collections,
   uNewConsultas, uControllerSite, GooPedirAPIController, uAtualizacaoSite,
-  System.IOUtils, uGlobais, conexao, Xml.XMLDoc, Xml.XMLIntf,
+  System.IOUtils, System.SyncObjs, uGlobais, conexao, Xml.XMLDoc, Xml.XMLIntf,
   uControlerProdutoNotaFiscal, uGenericaFuncion, uTablet;
 procedure Registry;
 function DaysBetweenDates(const Date1, Date2: string): Integer;
@@ -46,6 +46,15 @@ type
 var
   DashboardVendaCacheAquecendo: Boolean = False;
   DashboardVendaIgnorarCache: Boolean = False;
+  V2StatusTraceLock: TCriticalSection;
+  APIGoopedirLock: TCriticalSection;
+  ServerStartedAt: TDateTime;
+  ServerHealthTotalErros500: Int64 = 0;
+  ServerHealthUltimoErro: string = '';
+  ServerHealthUltimaEtapa: string = '';
+
+procedure RegistrarErroSaudeServidor(const Etapa, Mensagem: string); forward;
+procedure ExecutarAquecimentoCacheDashboardVendaTask; forward;
 
 function ParseISODate(const S: string): TDate;
 var
@@ -61,6 +70,13 @@ begin
   else
     raise Exception.CreateFmt
       ('Data inv?lida: %s. Use o formato YYYY-MM-DD.', [S]);
+end;
+
+procedure RegistrarErroSaudeServidor(const Etapa, Mensagem: string);
+begin
+  TInterlocked.Increment(ServerHealthTotalErros500);
+  ServerHealthUltimaEtapa := Etapa;
+  ServerHealthUltimoErro := Copy(Mensagem, 1, 500);
 end;
 
 // function BuscarRelatorioVenda(DataIni, DataFim: String): TJsonArray;
@@ -1973,8 +1989,34 @@ begin
 end;
 
 procedure DoGetHeart(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Retorno: TJSONObject;
 begin
-  Res.Send('OK');
+  Retorno := TJSONObject.Create;
+  Retorno.AddPair('ok', True);
+  Retorno.AddPair('service', 'ServidorGooPedir');
+  Retorno.AddPair('port', TJSONNumber.Create(THorse.Port));
+  Retorno.AddPair('uptimeSec', TJSONNumber.Create(SecondsBetween(Now,
+    ServerStartedAt)));
+  Retorno.AddPair('time', FormatDateTime('yyyy-mm-dd hh:nn:ss', Now));
+  Res.Send<TJSONObject>(Retorno);
+end;
+
+procedure DoGetHealth(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Retorno: TJSONObject;
+begin
+  Retorno := TJSONObject.Create;
+  Retorno.AddPair('ok', True);
+  Retorno.AddPair('service', 'ServidorGooPedir');
+  Retorno.AddPair('port', TJSONNumber.Create(THorse.Port));
+  Retorno.AddPair('uptimeSec', TJSONNumber.Create(SecondsBetween(Now,
+    ServerStartedAt)));
+  Retorno.AddPair('errors500', TJSONNumber.Create(ServerHealthTotalErros500));
+  Retorno.AddPair('lastError', ServerHealthUltimoErro);
+  Retorno.AddPair('lastErrorStep', ServerHealthUltimaEtapa);
+  Retorno.AddPair('time', FormatDateTime('yyyy-mm-dd hh:nn:ss', Now));
+  Res.Send<TJSONObject>(Retorno);
 end;
 
 procedure DoGetNFCeGeradas(Req: THorseRequest; Res: THorseResponse;
@@ -3746,21 +3788,22 @@ begin
   TThread.Sleep(1000);
 end;
 
+procedure ExecutarAquecimentoCacheDashboardVendaTask;
+begin
+  try
+    ExecutarAquecimentoCacheDashboardVenda;
+  except
+  end;
+  DashboardVendaCacheAquecendo := False;
+end;
+
 procedure IniciarAquecimentoCacheDashboardVenda;
 begin
   if DashboardVendaCacheAquecendo then
     exit;
   DashboardVendaCacheAquecendo := True;
 
-  TTask.Run(
-    procedure
-    begin
-      try
-        ExecutarAquecimentoCacheDashboardVenda;
-      except
-      end;
-      DashboardVendaCacheAquecendo := False;
-    end);
+  TTask.Run(ExecutarAquecimentoCacheDashboardVendaTask);
 end;
 
 function BuscarDashBoardVenda(DataIni, DataFim: String): TJSONObject;
@@ -6657,11 +6700,7 @@ begin
     TThread.CreateAnonymousThread(
       procedure
       begin
-        TThread.Synchronize(TThread.CurrentThread,
-          procedure
-          begin
-            frmServidor.ImportaProdutosToPedindo;
-          end);
+        frmServidor.ImportaProdutosToPedindo;
       end).start;
   finally
     JSONObject.Free;
@@ -6773,11 +6812,8 @@ var
 begin
   conexao := TConexao.Create('DoPostRegistro');
   Usuario := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
-  conexao.SQL.Add
-    ('update dados_whatsapp set client_id = :id, client_security = :security');
-  conexao.Parametros('id', Usuario.GetValue<String>('id'));
-  conexao.Parametros('security', Usuario.GetValue<String>('security'));
-  conexao.ExecuteSQL;
+  conexao.SalvarParametro('client_id', Usuario.GetValue<String>('id'));
+  conexao.SalvarParametro('client_security', Usuario.GetValue<String>('security'));
   conexao.SQL.Add('delete from usuario');
   conexao.ExecuteSQL;
   Codigo := conexao.GerarID('usuario', 'codigo');
@@ -6822,21 +6858,19 @@ begin
       Retorno.AddPair('user', APIGoopedir.UserID);
       Retorno.AddPair('name', APIGoopedir.Name);
       Retorno.AddPair('quantidade', Quantidade);
-      conexao.SQL.Add
-        ('update dados_whatsapp set client_id = :id, client_security = :security');
-      conexao.Parametros('id', Usuario.GetValue<String>('id'));
-      conexao.Parametros('security', Usuario.GetValue<String>('security'));
-      conexao.ExecuteSQL;
-      frmServidor.Configuracoes.Close;
-      conexao.SQL.Add('select * from dados_whatsapp');
-      frmServidor.Configuracoes.Close;
-      frmServidor.Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-      frmServidor.APIGoopedir.Free;
-      frmServidor.APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
-        conexao.GetParametro('client_id'),
-        conexao.GetParametro('client_security'), frmServidor.GetHorarioAbertura,
-        frmServidor.GetHorarioFechamento,
-        frmServidor.GetHorarioAtendimento, '');
+      conexao.SalvarParametro('client_id', Usuario.GetValue<String>('id'));
+      conexao.SalvarParametro('client_security', Usuario.GetValue<String>('security'));
+      APIGoopedirLock.Enter;
+      try
+        frmServidor.APIGoopedir.Free;
+        frmServidor.APIGoopedir := TGooPedirAPIController.Create(getUrlGoopedir,
+          conexao.GetParametro('client_id'),
+          conexao.GetParametro('client_security'), frmServidor.GetHorarioAbertura,
+          frmServidor.GetHorarioFechamento,
+          frmServidor.GetHorarioAtendimento, '');
+      finally
+        APIGoopedirLock.Leave;
+      end;
       conexao.Free;
     end;
   except
@@ -6847,6 +6881,41 @@ begin
   end;
   Res.Send<TJSONObject>(Retorno);
   APIGoopedir.Free;
+end;
+
+function V2StatusTraceValue(const Value: string): string;
+begin
+  Result := StringReplace(Value, #13, ' ', [rfReplaceAll]);
+  Result := StringReplace(Result, #10, ' ', [rfReplaceAll]);
+  Result := StringReplace(Result, '|', '/', [rfReplaceAll]);
+end;
+
+procedure V2StatusTrace(const RequestId, Evento, Etapa: string;
+  const DuracaoMS: Int64; Req: THorseRequest; const Detalhe: string = '');
+var
+  LogDir: string;
+  LogFile: string;
+  Linha: string;
+begin
+  try
+    LogDir := TPath.Combine(ExtractFilePath(ParamStr(0)), 'logs');
+    TDirectory.CreateDirectory(LogDir);
+    LogFile := TPath.Combine(LogDir, 'v2-status-' + FormatDateTime('yyyymmdd',
+      Now) + '.log');
+    Linha := Format('%s|request=%s|evento=%s|etapa=%s|duracao_ms=%d|ip=%s|user=%s|body_len=%d|detalhe=%s%s',
+      [FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now),
+      V2StatusTraceValue(RequestId), V2StatusTraceValue(Evento),
+      V2StatusTraceValue(Etapa), DuracaoMS, V2StatusTraceValue(GetClientIP(Req)),
+      V2StatusTraceValue(Req.Headers['user']), Length(Req.Body),
+      V2StatusTraceValue(Detalhe), sLineBreak]);
+    V2StatusTraceLock.Enter;
+    try
+      TFile.AppendAllText(LogFile, Linha, TEncoding.UTF8);
+    finally
+      V2StatusTraceLock.Leave;
+    end;
+  except
+  end;
 end;
 
 procedure DoPostBanner(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -6929,6 +6998,11 @@ var
   DadosiFood: TFDMemTable;
   Tempos: TJSONObject;
   Stopwatch: TStopwatch;
+  RequestId: string;
+  EtapaAtual: string;
+  InicioRequest: TStopwatch;
+  PendenciasEmpresa: TJSONObject;
+  TemPendenciaEmpresa: Boolean;
 
   procedure IniciarTempo;
   begin
@@ -6939,10 +7013,76 @@ var
   begin
     Stopwatch.Stop;
     Tempos.AddPair(Nome, IntToStr(Stopwatch.ElapsedMilliseconds) + 'ms');
+    EtapaAtual := Nome;
+    if Stopwatch.ElapsedMilliseconds >= 3000 then
+      V2StatusTrace(RequestId, 'etapa_lenta', Nome,
+        Stopwatch.ElapsedMilliseconds, Req);
   end;
 
+  function CountSQL(const SQL: string): Integer;
+  begin
+    Result := 0;
+    try
+      conexao.SQL.Add(SQL);
+      Result := conexao.FieldByName('quantidade');
+    except
+      Result := 0;
+    end;
+  end;
+
+  procedure AddValidacaoEmpresa(const Nome: string; const Ok: Boolean;
+    const Quantidade: Integer = -1);
+  var
+    Item: TJSONObject;
+  begin
+    Item := TJSONObject.Create;
+    Item.AddPair('ok', Ok);
+    if Quantidade >= 0 then
+      Item.AddPair('quantidade', TJSONNumber.Create(Quantidade));
+    PendenciasEmpresa.AddPair(Nome, Item);
+    if not Ok then
+      TemPendenciaEmpresa := True;
+  end;
+
+  procedure ValidarPendenciasEmpresa;
+  var
+    Qtd: Integer;
+  begin
+    TemPendenciaEmpresa := False;
+    PendenciasEmpresa := TJSONObject.Create;
+
+    Qtd := CountSQL('select count(*) as quantidade, 0 as zero from usuario where codigo = ' +
+      QuotedStr(CodigoUsuario) + ' and upper(nome) = ''ADMIN'' and senha = md5(''admin'')');
+    AddValidacaoEmpresa('usuarioAdminPadrao', Qtd = 0, Qtd);
+
+    Qtd := CountSQL('select count(*) as quantidade, 0 as zero from taxa_entrega');
+    AddValidacaoEmpresa('taxaEntrega', Qtd > 0, Qtd);
+
+    Qtd := CountSQL('select count(distinct bairro) as quantidade, 0 as zero from taxa_entrega where bairro is not null and length(trim(bairro)) > 0');
+    AddValidacaoEmpresa('bairro', Qtd > 0, Qtd);
+
+    Qtd := CountSQL('select count(*) as quantidade, 0 as zero from tipo_produto');
+    AddValidacaoEmpresa('categoria', Qtd > 0, Qtd);
+
+    Qtd := CountSQL('select count(*) as quantidade, 0 as zero from impressoras');
+    AddValidacaoEmpresa('impressora', Qtd > 0, Qtd);
+
+    Qtd := CountSQL('select count(*) as quantidade, 0 as zero from produto where ativo = 1 and (deletado = 0 or deletado is null)');
+    AddValidacaoEmpresa('produto', Qtd > 0, Qtd);
+
+    AddValidacaoEmpresa('camposObrigatoriosSite', True);
+  end;
 begin
+  RequestId := FormatDateTime('yyyymmddhhnnsszzz', Now) + '-' +
+    IntToHex(GetCurrentThreadId, 8);
+  EtapaAtual := 'inicio';
+  InicioRequest := TStopwatch.StartNew;
+  V2StatusTrace(RequestId, 'inicio', EtapaAtual, 0, Req);
   Tempos := TJSONObject.Create;
+  JSONObject := nil;
+  conexao := nil;
+  DadosiFood := nil;
+  try
   conexao := TConexao.Create('V2Status');
   DadosiFood := TFDMemTable.Create(nil);
   IniciarTempo;
@@ -6968,8 +7108,17 @@ begin
     CodigoUsuario := Usuario.GetValue<String>('codigo');
     if Consulta <> CodigoUsuario then
     begin
+      JSONObject := TJSONObject.Create;
+      JSONObject.AddPair('erro', True);
+      JSONObject.AddPair('requestId', RequestId);
+      JSONObject.AddPair('mensagem', 'Usuario invalido para consulta de status');
+      V2StatusTrace(RequestId, 'usuario_invalido', EtapaAtual,
+        InicioRequest.ElapsedMilliseconds, Req);
       conexao.Free;
-      Res.Status(1);
+      conexao := nil;
+      DadosiFood.Free;
+      DadosiFood := nil;
+      Res.Status(401).Send<TJSONObject>(JSONObject);
       exit;
     end;
   except
@@ -6978,12 +7127,23 @@ begin
   RegistrarTempo('usuario');
   JSONObject := TJSONObject.Create;
   IniciarTempo;
+  ValidarPendenciasEmpresa;
+  JSONObject.AddPair('pendenciaEmpresa', TemPendenciaEmpresa);
+  JSONObject.AddPair('pendenciasEmpresa', PendenciasEmpresa);
+  RegistrarTempo('pendencias_empresa');
+  IniciarTempo;
   if conexao.GetParametro('client_id') = '' then
   begin
     JSONObject.AddPair('licensa', False);
     RegistrarTempo('licensa');
     JSONObject.AddPair('tempos', Tempos);
+    V2StatusTrace(RequestId, 'sem_licensa', EtapaAtual,
+      InicioRequest.ElapsedMilliseconds, Req);
     Res.Send(JSONObject);
+    conexao.Free;
+    conexao := nil;
+    DadosiFood.Free;
+    DadosiFood := nil;
     exit;
   end
   else
@@ -6992,7 +7152,15 @@ begin
   end;
   RegistrarTempo('licensa');
   IniciarTempo;
-  JSONObject.AddPair('urlLoja', frmServidor.APIGoopedir.GetUrlLoja);
+  APIGoopedirLock.Enter;
+  try
+    if Assigned(frmServidor.APIGoopedir) then
+      JSONObject.AddPair('urlLoja', frmServidor.APIGoopedir.GetUrlLoja)
+    else
+      JSONObject.AddPair('urlLoja', '');
+  finally
+    APIGoopedirLock.Leave;
+  end;
   RegistrarTempo('urlLoja');
   IniciarTempo;
   JSONObject.AddPair('atualizacao', frmServidor.mAtualizacao.ToJSONArray());
@@ -7183,12 +7351,38 @@ begin
   RegistrarTempo('alerta');
   JSONObject.AddPair('tempos', Tempos);
   conexao.Free;
+  conexao := nil;
+  DadosiFood.Free;
+  DadosiFood := nil;
 
   try
+    V2StatusTrace(RequestId, 'fim', EtapaAtual,
+      InicioRequest.ElapsedMilliseconds, Req);
     Res.Send(JSONObject);
   finally
     // JSonObject.Free;
     // JSonObjectWhatsapp.Free;
+  end;
+  except
+    on E: Exception do
+    begin
+      V2StatusTrace(RequestId, 'erro', EtapaAtual,
+        InicioRequest.ElapsedMilliseconds, Req, E.ClassName + ': ' + E.Message);
+      RegistrarErroSaudeServidor(EtapaAtual, E.ClassName + ': ' + E.Message);
+      try
+        if Assigned(conexao) then
+          conexao.Free;
+        if Assigned(DadosiFood) then
+          DadosiFood.Free;
+      except
+      end;
+      JSONObject := TJSONObject.Create;
+      JSONObject.AddPair('erro', True);
+      JSONObject.AddPair('requestId', RequestId);
+      JSONObject.AddPair('etapa', EtapaAtual);
+      JSONObject.AddPair('mensagem', E.Message);
+      Res.Status(500).Send<TJSONObject>(JSONObject);
+    end;
   end;
 end;
 
@@ -9921,8 +10115,16 @@ end;
 
 procedure Registry;
 begin
+  if ServerStartedAt = 0 then
+    ServerStartedAt := Now;
+  if not Assigned(V2StatusTraceLock) then
+    V2StatusTraceLock := TCriticalSection.Create;
+  if not Assigned(APIGoopedirLock) then
+    APIGoopedirLock := TCriticalSection.Create;
+
   IniciarAquecimentoCacheDashboardVenda;
   THorse.Get('/v2/heart', DoGetHeart);
+  THorse.Get('/v2/health', DoGetHealth);
   THorse.Get('/v2/cardapio/valida/hash/:categoria/:hash',
     DoGetCardapioValidaHash);
   THorse.Get('/v2/resultado/metricas', DoGetResultadoMetricas);

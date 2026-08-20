@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao;
+  DataSet.Serialize, JSON, uRequisicao,uControllCaches;
 
 type
   TPedidoInfra = class
@@ -315,12 +315,9 @@ var
 
 begin
 
-  conexao := TConexao.Create('main');
-  // VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
 
+  Configuracoes.LoadFromJSON(GetParametros);
+  ShowMessage('xx');
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;
 
@@ -462,6 +459,8 @@ end;
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
 begin
+  if not VerificaExe(Nome) then exit;
+
   if length(trim(Nome)) = 0 then
     exit;
 
@@ -669,11 +668,11 @@ begin
     if (not VerificaExe(SERVIDOR)) then
       AbrirExe(SERVIDOR);
 
-    if ComandaValue then
-    begin
+//    if ComandaValue then
+//    begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
-    end;
+//    end;
 
     Sleep(1 * 1000);
   end;

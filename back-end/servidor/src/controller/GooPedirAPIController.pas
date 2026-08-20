@@ -208,7 +208,6 @@ begin
     except
       on e: exception do
       begin
-        ShowMessage(e.Message);
       end;
     end;
 
@@ -553,7 +552,6 @@ begin
     except
       on e: exception do
       begin
-        ShowMessage(e.Message);
       end;
     end;
 

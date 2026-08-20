@@ -88,7 +88,10 @@ var
 
 function MetricsEnabled: Boolean;
 begin
-  Result := not SameText(GetEnvironmentVariable('GOOPEDIR_PERFORMANCE'), '0');
+  {$IFDEF DEBUG}
+  Result := True;
+  {$ENDIF}
+  Result := False;
 end;
 
 function LogDirectory: string;

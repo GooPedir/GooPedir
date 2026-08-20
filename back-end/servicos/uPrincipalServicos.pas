@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao,uControllCaches;
+  DataSet.Serialize, JSON, uRequisicao, uControllCaches;
 
 type
   TPedidoInfra = class
@@ -314,20 +314,15 @@ var
   conexao: TConexao;
 
 begin
-
-
   Configuracoes.LoadFromJSON(GetParametros);
-
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;
-
   Atualizacao.SeTiverAtualizacao := TemAtualizacao;
   Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
   Atualizacao.AposConcluirAtualizacao := FimAtualizacao;
   Atualizacao.AtualizaEstoque := AtualizaSaldoEstoque;
   Atualizacao.VerificaAtualizacao;
-
 end;
 
 procedure TfrmServicosGoopedir.IniciarAtualizacao;
@@ -459,6 +454,7 @@ end;
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
 begin
+
   if length(trim(Nome)) = 0 then
     exit;
 
@@ -589,7 +585,6 @@ var
   UltimoRestartNFCe: TDateTime;
 begin
   inherited;
-  AbrirExe(NGINX);
   contador := 0;
   UltimoRestartNFCe := now;
   while not Terminated do
@@ -647,13 +642,13 @@ begin
       ServicoNFCe := false;
     end;
 
-    if ServicoNFCe then
-    begin
-      if (not VerificaExe((USANFCE))) then
-      begin
-        AbrirExe(USANFCE);
-      end;
-    end;
+//    if ServicoNFCe then
+//    begin
+//      if (not VerificaExe((USANFCE))) then
+//      begin
+//        AbrirExe(USANFCE);
+//      end;
+//    end;
 
     if (not VerificaExe(SITE(Name))) then
     begin
@@ -664,13 +659,12 @@ begin
       AbrirExe(IMPRESSAO);
 
     if (not VerificaExe(SERVIDOR)) then
-      AbrirExe(SERVIDOR);
-
-//    if ComandaValue then
-//    begin
+      AbrirExe(SERVIDOR)
+    else begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
-//    end;
+    end;
+
 
     Sleep(1 * 1000);
   end;

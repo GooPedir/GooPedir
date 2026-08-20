@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Data.DB, FireDAC.Comp.DataSet, conexao, Vcl.ExtCtrls, uSQL, Vcl.StdCtrls,
-  DataSet.Serialize, JSON, uRequisicao;
+  DataSet.Serialize, JSON, uRequisicao, uControllCaches;
 
 type
   TPedidoInfra = class
@@ -314,16 +314,9 @@ var
   conexao: TConexao;
 
 begin
-
-  conexao := TConexao.Create('main');
-  // VersaoMysql := conexao.ValidaVersao;
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
-
+  Configuracoes.LoadFromJSON(GetParametros);
   Atualizacao := TSQL.Create;
   Atualizacao.MemoLog := Memo1;
-
   Atualizacao.SeTiverAtualizacao := TemAtualizacao;
   Atualizacao.seNaoTiverAtualizacao := SemAtualizacao;
   Atualizacao.IniciarAtualizacao := IniciarAtualizacao;
@@ -461,6 +454,7 @@ end;
 
 procedure TAbrirServicos.AbrirExe(Nome: String);
 begin
+
   if length(trim(Nome)) = 0 then
     exit;
 
@@ -648,34 +642,37 @@ begin
       ServicoNFCe := false;
     end;
 
-    if ServicoNFCe then
-    begin
-      if (not VerificaExe((USANFCE))) then
-      begin
-        AbrirExe(USANFCE);
-      end;
-    end;
+//    if ServicoNFCe then
+//    begin
+//      if (not VerificaExe((USANFCE))) then
+//      begin
+//        AbrirExe(USANFCE);
+//      end;
+//    end;
 
     if (not VerificaExe(SITE(Name))) then
     begin
       AbrirExe(SITE(Name));
     end;
 
+    if not VerificaExe(NGINX) then
+      AbrirExe(NGINX);
+
     if (not VerificaExe(IMPRESSAO)) then
       AbrirExe(IMPRESSAO);
 
     if (not VerificaExe(SERVIDOR)) then
-      AbrirExe(SERVIDOR);
-
-    if (not VerificaExe(NGINX)) then
-      AbrirExe(NGINX);
-
-    if ComandaValue then
-    begin
+      AbrirExe(SERVIDOR)
+    else begin
       if (not VerificaExe(PSSITE)) then
         AbrirExe(PSSITE);
     end;
 
+
+    // if ComandaValue then
+    // begin
+
+    // end;
 
     Sleep(1 * 1000);
   end;

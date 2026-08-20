@@ -24,7 +24,7 @@ begin
 
   Conexao := TConexao.Create('TSendPedido');
   Conexao.SQL.Add
-    ('SELECT * FROM pedido where codigo_pedido_dia > 0 and pedido_site is null and data_pedido >= "2025-08-25"');
+    ('SELECT * FROM pedido where codigo_pedido_dia > 0 and pedido_site is null and data_pedido >= "2026-08-03" limit 6');
   Pedidos := TFDmemtable.Create(nil);
   Pedidos.LoadFromJSON(Conexao.ConsultaSQL);
 
@@ -95,7 +95,7 @@ begin
   except
     on e: exception do
     begin
-      ////showmessage(e.Message)
+//showmessage(e.Message)
     end;
 
   end;

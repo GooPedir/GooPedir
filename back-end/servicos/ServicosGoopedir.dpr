@@ -81,6 +81,7 @@ uses
   uControllCaches in '..\servidor\src\controller\uControllCaches.pas',
   uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
   uControlerProduto in '..\servidor\src\controller\uControlerProduto.pas',
+  uPerformanceMetrics in '..\servidor\src\diagnostico\uPerformanceMetrics.pas',
   financeiro in '..\servidor\src\modulos\financeiro\financeiro.pas';
 
 {$R *.res}

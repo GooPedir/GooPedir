@@ -3566,7 +3566,6 @@ begin
   except
     on E: Exception do
     begin
-      ShowMessage(E.Message);
     end;
 
   end;

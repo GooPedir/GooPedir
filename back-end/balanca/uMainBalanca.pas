@@ -142,11 +142,9 @@ begin
 
   try
     iAtualiza.Execute;
-    // showmessage('Balança alterada com sucesso!');
   except
     on e: Exception do
     begin
-      // showmessage('erro: ' + e.Message);
     end;
 
   end;

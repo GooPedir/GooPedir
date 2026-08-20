@@ -132,6 +132,7 @@
     <File Path="src\modulo\uMicroServices.pas"/>
     <File Path="src\modulo\uTempoRotas.pas"/>
     <File Path="src\modulo\uTriggerManager.pas"/>
+    <File Path="src\modulo\uNginxMonitor.pas"/>
     <File Path="src\modulos"/>
     <File Path="src\modulos\Controller"/>
     <File Path="src\modulos\Controller\PedidoController.pas"/>

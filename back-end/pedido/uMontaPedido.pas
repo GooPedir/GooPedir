@@ -138,6 +138,7 @@ begin
     // já no formato dd/mm/yyyy conforme sua origem
     Nome := FieldAsStringSafe(mtPedido, 'nome');
     cel := FieldAsStringSafe(mtPedido, 'celular');
+//    cel := '48998111156';
     statusPedido := FieldAsStringSafe(mtPedido, 'statusPedido');
 
     CodigoPedido := FieldAsStringSafe(mtPedido, 'codigo');

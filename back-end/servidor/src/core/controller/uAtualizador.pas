@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  uRequisicao, System.Classes, System.IOUtils;
+  uRequisicao, System.Classes, System.IOUtils, uSQL;
 
 { TAtualizacao }
 
@@ -62,7 +62,7 @@ begin
     Lista.Text := SQLText;
     ComandoAtual := '';
 
-    // Primeira rodada: executa tudo possível
+    // Primeira rodada: executa tudo possï¿½vel
     for i := 0 to Lista.Count - 1 do
     begin
       if (trim(Lista[i]) = '') or (trim(Lista[i]).StartsWith('--')) or
@@ -115,7 +115,7 @@ begin
           begin
             if (Tentativas >= 3) then
             begin
-              // Se já tentou 3x e não deu, grava no erro
+              // Se jï¿½ tentou 3x e nï¿½o deu, grava no erro
               Erros.Add(Pendentes[i]);
               Pendentes.Delete(i);
             end
@@ -132,7 +132,7 @@ begin
     begin
       Erros.SaveToFile(ExtractFilePath(ParamStr(0)) + 'log_erros_sql.txt');
       ////showmessage
-        ('Alguns comandos SQL não puderam ser executados. Veja o arquivo log_erros_sql.txt');
+        ('Alguns comandos SQL nï¿½o puderam ser executados. Veja o arquivo log_erros_sql.txt');
     end;
 
   finally
@@ -188,12 +188,10 @@ end;
 procedure TAtualizacao.VerificarOuCriarBanco(Configuracao: TFDMemTable);
 var
   Qry: TFDQuery;
-  HTTP: TIdHTTP;
-  SSL: TIdSSLIOHandlerSocketOpenSSL;
   SQLScript, DatabaseName: string;
-  Stream: TStringStream;
   conexao: TConexao;
   iReq: iRequisicao;
+  AtualizadorSQL: TSQL;
 begin
   conexao := TConexao.Create('VerificarOuCriarBanco');
   try
@@ -232,6 +230,12 @@ begin
         conexao.ConectaBanco(DatabaseName);
         conexao.Free;
         ExecutarSQLScript(SQLScript);
+        AtualizadorSQL := TSQL.Create;
+        try
+          AtualizadorSQL.AtualizarBancoNovo;
+        finally
+          AtualizadorSQL.Free;
+        end;
 
         ////showmessage('Banco de dados criado com sucesso.');
       end

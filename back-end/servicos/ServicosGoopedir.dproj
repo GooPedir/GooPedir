@@ -196,6 +196,7 @@
         <DCCReference Include="..\servidor\src\controller\uControllCaches.pas"/>
         <DCCReference Include="..\servidor\src\controller\uCacheControl.pas"/>
         <DCCReference Include="..\servidor\src\controller\uControlerProduto.pas"/>
+        <DCCReference Include="..\servidor\src\diagnostico\uPerformanceMetrics.pas"/>
         <DCCReference Include="..\servidor\src\modulos\financeiro\financeiro.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

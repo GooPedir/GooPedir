@@ -12,7 +12,7 @@ type
 
   TSQL = class
   private
-    { O Controle de atualização do banco vai ser por enquanto com base na versão do executavel }
+    { O Controle de atualizaï¿½ï¿½o do banco vai ser por enquanto com base na versï¿½o do executavel }
     Function VersaoExe: String;
     procedure AtualizaCodigoUltimaVersao;
     function ExecultaSQL(SQL: String): Boolean;
@@ -39,6 +39,7 @@ type
     constructor Create;
     procedure VerificaAtualizacao;
     procedure AtualizarBanco;
+    procedure AtualizarBancoNovo;
     procedure LimpaClientesDuplicado;
     procedure ProcessaHistoricoCliente(DataBase: TDate);
     procedure MigrarDadosWhatsappParaConfig;
@@ -123,6 +124,60 @@ begin
 
 end;
 
+procedure TSQL.AtualizarBancoNovo;
+var
+  I: Integer;
+  VersaoAtual: Integer;
+  Conexao: TConexao;
+begin
+  ListaSQL.Clear;
+  UltimoSQLBanco := 0;
+  VersaoAtual := StrToIntDef(VersaoExe, 0);
+
+  Conexao := TConexao.Create('uSQL BancoNovo');
+  try
+    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' +
+      'valor TEXT' +
+      ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+
+    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
+      'IDSQL INTEGER,VERSAOSQL INTEGER, SQLUSADOSQL BLOB, ERROSQL BLOB,' +
+      'DATASQL DATE, HORASQL TIME, STATUSSQL VARCHAR(15));');
+  finally
+    Conexao.Free;
+  end;
+
+  for I := UltimoSQLBanco to VersaoAtual do
+    Banco(I);
+
+  Conexao := TConexao.Create('uSQL BancoNovo');
+  try
+    for I := 0 to ListaSQL.Count - 1 do
+      Conexao.ExecuteSQL(ListaSQL[I]);
+
+    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' +
+      'valor TEXT' +
+      ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+
+    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
+      'IDSQL INTEGER,VERSAOSQL INTEGER, SQLUSADOSQL BLOB, ERROSQL BLOB,' +
+      'DATASQL DATE, HORASQL TIME, STATUSSQL VARCHAR(15));');
+
+    Conexao.SQL.Add('INSERT INTO MEU_SQL (IDSQL,VERSAOSQL,SQLUSADOSQL,ERROSQL,DATASQL,HORASQL,STATUSSQL) VALUES (:IDSQL,:VERSAOSQL,:SQLUSADOSQL,:ERROSQL,current_date,current_time,:STATUSSQL)');
+    Conexao.Parametros('IDSQL', Conexao.GerarID('MEU_SQL', 'IDSQL'));
+    Conexao.Parametros('VERSAOSQL', VersaoAtual);
+    Conexao.Parametros('SQLUSADOSQL', 'Banco novo atualizado ate a versao local');
+    Conexao.Parametros('ERROSQL', '');
+    Conexao.Parametros('STATUSSQL', 'SUCESSO');
+    Conexao.ExecuteSQL;
+  finally
+    Conexao.Free;
+  end;
+
+  StatusAtualizacao := 1;
+end;
 constructor TSQL.Create;
 var
   Versao: String;
@@ -161,7 +216,7 @@ begin
   MemoLog.Lines.Add
     ('****************************************************************************');
   MemoLog.Lines.Add('');
-  MemoLog.Lines.Add('Inicio Atualização');
+  MemoLog.Lines.Add('Inicio Atualizaï¿½ï¿½o');
   MemoLog.Lines.Add('Data/Hora: ' + FormatDateTime('dd/mm/yyyy hh:nn:ss', now));
   MemoLog.Lines.Add('');
   MemoLog.Lines.Add
@@ -380,13 +435,13 @@ begin
     DecodeDate(DataBase, AnoInicial, MesInicial, Dia);
     DecodeDate(DataAtual, AnoAtual, MesAtual, Dia);
 
-    // Loop do ano/mês inicial até o ano/mês anterior ao atual
+    // Loop do ano/mï¿½s inicial atï¿½ o ano/mï¿½s anterior ao atual
     Ano := AnoInicial;
     Mes := MesInicial;
 
     while (Ano < AnoAtual) or ((Ano = AnoAtual) and (Mes < MesAtual)) do
     begin
-      // Monta início e fim do mês
+      // Monta inï¿½cio e fim do mï¿½s
       DataInicioMes := EncodeDate(Ano, Mes, 1);
       tabela := 'pedido_' + Ano.ToString + '_' + FormatFloat('00', Mes);
       dados := TFDMemTable.Create(nil);
@@ -438,7 +493,7 @@ begin
 
       dados.Free;
 
-      // Próximo mês
+      // Prï¿½ximo mï¿½s
       Inc(Mes);
       if Mes > 12 then
       begin
@@ -519,7 +574,7 @@ begin
 
     if Assigned(SeTiverAtualizacao) then
       SeTiverAtualizacao;
-    MemoLog.Lines.Add('Nova atualização disponível!');
+    MemoLog.Lines.Add('Nova atualizaï¿½ï¿½o disponï¿½vel!');
     // AtualizaBanco;
     iniciaSerieNFCE;
   end
@@ -555,7 +610,7 @@ begin
 
   conexao.Free;
   MemoLog.Lines.Clear;
-  MemoLog.Lines.Add('Verificando Atualizações . . .');
+  MemoLog.Lines.Add('Verificando Atualizaï¿½ï¿½es . . .');
 end;
 
 procedure TSQL.CarregarClassTribSeed;
@@ -658,7 +713,7 @@ begin
           ('CREATE TABLE status_pedido (id int NOT NULL, descricao varchar(255) DEFAULT NULL, PRIMARY KEY (id));');
 
         ExecultaSQL
-          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em Produção"),(3,"Pronto"),(4,"Disponível Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
+          ('INSERT INTO status_pedido VALUES (0,"Cancelado"),(1,"Em Espera"),(2,"Em Produï¿½ï¿½o"),(3,"Pronto"),(4,"Disponï¿½vel Para Retirada"),(5,"Saiu Para Entrega"),(6,"Finalizado"),(7,"Faturado");');
       end;
     4:
       begin
@@ -667,7 +722,7 @@ begin
     5:
       begin
         ExecultaSQL('update tipo_sabor set ativo = 0 where nome not in (' +
-          QuotedStr('Promoção') + ',' + QuotedStr('Tradicional') + ',' +
+          QuotedStr('Promoï¿½ï¿½o') + ',' + QuotedStr('Tradicional') + ',' +
           QuotedStr('Especial') + ',' + QuotedStr('Doce') + ')');
       end;
     6:
@@ -1216,7 +1271,7 @@ begin
       end;
     69:
       begin
-        // Só fiz 1x
+        // Sï¿½ fiz 1x
         ExecultaSQL('alter table pedido add nfce_imprimir integer default 0');
       end;
     70:
@@ -1409,7 +1464,7 @@ begin
     93:
       begin
         ExecultaSQL
-          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmação")');
+          ('insert into status_pedido (id,descricao) values (9,"Aguardando Confirmaï¿½ï¿½o")');
       end;
     94:
       begin
@@ -1714,7 +1769,7 @@ begin
         SQL := SQL + ');';
         ExecultaSQL(SQL);
         // ============================================================
-        // TABELA: fornecedor_item (catálogo do fornecedor)
+        // TABELA: fornecedor_item (catï¿½logo do fornecedor)
         // ============================================================
         SQL := ' CREATE TABLE fornecedor_item (';
         SQL := SQL + '     id CHAR(36) PRIMARY KEY,';
@@ -2111,7 +2166,7 @@ begin
         SQL := SQL + ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
         ExecultaSQL(SQL);
         ExecultaSQL
-          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardápio Tablet", "tablet", 1);');
+          ('INSERT INTO menu (nome, tipo, ativo) VALUES ("Cardï¿½pio Tablet", "tablet", 1);');
 
       end;
     136:

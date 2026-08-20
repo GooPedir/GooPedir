@@ -1,4 +1,4 @@
-﻿unit uMain;
+unit uMain;
 
 interface
 
@@ -496,6 +496,7 @@ var
 
   Cache: TCacheItem;
   Port: Integer;
+  HorseEscutando: Boolean = False;
   LogFilePath: String;
   GerarLog: Boolean;
   MeusModulos: String;
@@ -532,7 +533,111 @@ uses Data.FireDACJSONReflect, DataSet.Serialize.Config,
   RESTRequest4D.Utils, ThirdParty.Posix.Syslog, token.autorizacao, token, uDM,
   util.backup, util, Web.WebConst, Winapi.ShellAPI, v2, NFCE, imprimir,
   REST.JSON, uToPedindo, uControllCaches, uDadosWhatsapp, Horse.Compression,
-  Horse.Compression.Types, uPerformanceMetrics;
+  Horse.Compression.Types, uPerformanceMetrics, System.StrUtils, uNginxMonitor;
+
+function TryGetPortaParametro(out APorta: Integer): Boolean;
+var
+  I: Integer;
+  Parametro: string;
+  Valor: string;
+  P: Integer;
+begin
+  Result := False;
+
+  for I := 1 to ParamCount do
+  begin
+    Parametro := Trim(ParamStr(I));
+    Valor := '';
+
+    if SameText(Parametro, '--port') or SameText(Parametro, '-port') or
+      SameText(Parametro, '/port') or SameText(Parametro, '--porta') or
+      SameText(Parametro, '-porta') or SameText(Parametro, '/porta') then
+    begin
+      if I < ParamCount then
+        Valor := Trim(ParamStr(I + 1));
+    end
+    else if StartsText('--port=', Parametro) then
+      Valor := Copy(Parametro, Length('--port=') + 1, MaxInt)
+    else if StartsText('-port=', Parametro) then
+      Valor := Copy(Parametro, Length('-port=') + 1, MaxInt)
+    else if StartsText('/port=', Parametro) then
+      Valor := Copy(Parametro, Length('/port=') + 1, MaxInt)
+    else if StartsText('--porta=', Parametro) then
+      Valor := Copy(Parametro, Length('--porta=') + 1, MaxInt)
+    else if StartsText('-porta=', Parametro) then
+      Valor := Copy(Parametro, Length('-porta=') + 1, MaxInt)
+    else if StartsText('/porta=', Parametro) then
+      Valor := Copy(Parametro, Length('/porta=') + 1, MaxInt)
+    else if StartsText('port=', Parametro) then
+      Valor := Copy(Parametro, Length('port=') + 1, MaxInt)
+    else if StartsText('porta=', Parametro) then
+      Valor := Copy(Parametro, Length('porta=') + 1, MaxInt)
+    else if StartsText('--port:', Parametro) then
+      Valor := Copy(Parametro, Length('--port:') + 1, MaxInt)
+    else if StartsText('/port:', Parametro) then
+      Valor := Copy(Parametro, Length('/port:') + 1, MaxInt)
+    else if StartsText('--porta:', Parametro) then
+      Valor := Copy(Parametro, Length('--porta:') + 1, MaxInt)
+    else if StartsText('/porta:', Parametro) then
+      Valor := Copy(Parametro, Length('/porta:') + 1, MaxInt)
+    else
+    begin
+      P := Pos('=', Parametro);
+      if P = 0 then
+        P := Pos(':', Parametro);
+      if (P > 0) and
+        (SameText(Copy(Parametro, 1, P - 1), 'port') or
+        SameText(Copy(Parametro, 1, P - 1), 'porta')) then
+        Valor := Copy(Parametro, P + 1, MaxInt);
+    end;
+
+    if Valor = '' then
+    begin
+      if SameText(Parametro, 'port') or SameText(Parametro, 'porta') then
+      begin
+        if I < ParamCount then
+          Valor := Trim(ParamStr(I + 1));
+      end
+    end;
+
+    if Valor = '' then
+    begin
+      if (I = 1) and TryStrToInt(Parametro, APorta) then
+      begin
+        Result := (APorta > 0) and (APorta <= 65535);
+        if Result then
+          Exit;
+      end;
+    end;
+
+    if TryStrToInt(Valor, APorta) and (APorta > 0) and (APorta <= 65535) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function LinhaComandoParametros: string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to ParamCount do
+  begin
+    if Result <> '' then
+      Result := Result + ' ';
+    Result := Result + ParamStr(I);
+  end;
+end;
+
+procedure IniciarHorseServidor;
+begin
+  if HorseEscutando then
+    Exit;
+  THorse.Listen(Port);
+  HorseEscutando := True;
+end;
 
 var
   LogOperacaoQueue: TThreadedQueue<TLogOperacaoItem>;
@@ -1504,7 +1609,7 @@ end;
 
 procedure TfrmServidor.buscarAtualizacao(user: Integer);
 var
-  iReq: iRequisicao;
+ iReq : iRequisicao;
 begin
   iReq := iRequisicao.Create(nil);
   iReq.BaseURL := getUrlGoopedir;
@@ -3201,6 +3306,9 @@ var
   Nome: String;
   Infra: TInfraBanco;
   BODY: String;
+  PortParametro: Integer;
+  PortaRecebidaPorParametro: Boolean;
+  SocketIOPort: Integer;
 
 begin
   // ShowMessage(FormatSettings.DecimalSeparator);
@@ -3208,6 +3316,17 @@ begin
   semConexaoAPI := false;
   CertificadoAtual := TJsonObject.Create;
   ClearAll;
+  try
+    ValidarNginxInicializacao;
+  except
+    on E: Exception do
+    begin
+      MessageDlg('Falha ao validar/iniciar o nginx.'#13#10#13#10 + E.Message,
+        mtError, [mbOK], 0);
+      Application.Terminate;
+      Exit;
+    end;
+  end;
   ClientSocket := TGenericSocket.New;
   conexao := Tconexao.Create('main');
 
@@ -3259,10 +3378,23 @@ begin
   PIX.Open;
   codigoPedido := 0;
   StatusMensagemWhatsapp := 0;
-  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile := TIniFile.Create(TPath.Combine(ExtractFilePath(ParamStr(0)),
+    'goopedir.ini'));
   Port := LerIniInteger('server', 'port', 2121);
+  PortaRecebidaPorParametro := TryGetPortaParametro(PortParametro);
+  if PortaRecebidaPorParametro then
+    Port := PortParametro;
+  SocketIOPort := Port + 8000;
+  if SocketIOPort > 65535 then
+    SocketIOPort := Port + 1;
   HorarioRestart := IniFile.ReadString('server', 'restart', '03:00');
   IniFile.WriteInteger('server', 'port', Port);
+  IniFile.WriteInteger('server', 'socketio_port', SocketIOPort);
+  if PortaRecebidaPorParametro then
+    IniFile.WriteString('server', 'port_source', 'parametro')
+  else
+    IniFile.WriteString('server', 'port_source', 'ini');
+  IniFile.WriteString('server', 'commandline', LinhaComandoParametros);
   IniFile.WriteString('server', 'baseurl', 'http://localhost:' +
     Port.ToString + '/');
   IniFile.WriteString('server', 'restart', '03:00');
@@ -3323,7 +3455,7 @@ begin
   THorse.Use(Jhonson);
   THorse.Use(OctetStream);
   THorse.Use(MiddlewareCORS);
-  THorse.Use(SocketIO);
+  THorse.Use(SocketIO(SocketIOPort));
 
   // if InicializacaoHabilitada('AtualizaCacheSite') then
   // AtualizaCacheSite;
@@ -3340,16 +3472,40 @@ begin
   GerarLog := true;
 
   // AposConectarBanco;
-  // Agora pode iniciar Horse
+  // Infraestrutura de banco obrigatoria: se trigger/procedure falhar, o servidor nao sobe.
+  Infra := TInfraBanco.Create;
   try
-    THorse.Listen(Port);
-  except
-    Application.Terminate;
-    exit;
+    try
+      Infra.ValidarEstrutura;
+    except
+      on E: Exception do
+      begin
+        MessageDlg('Falha ao validar triggers/procedures do banco.'#13#10#13#10 +
+          E.Message + #13#10#13#10 +
+          'O servidor nao sera iniciado ate essa pendencia ser corrigida.',
+          mtError, [mbOK], 0);
+        Application.Terminate;
+        Exit;
+      end;
+    end;
+  finally
+    Infra.Free;
   end;
 
+  // Agora pode iniciar Horse
+  try
+    IniciarHorseServidor;
+  except
+    on E: Exception do
+    begin
+      MessageDlg('Falha ao iniciar o servidor.'#13#10#13#10 + E.Message,
+        mtError, [mbOK], 0);
+      Application.Terminate;
+      exit;
+    end;
+  end;
   THorse.Get('/debug/stop',
-    procedure(Req: THorseRequest; Res: THorseResponse; Next: TNextProc)
+    procedure(Req: THorseRequest; Res: THorseResponse; Next: Horse.TNextProc)
     begin
       Res.Send('Encerrando servidor...');
       self.Show();
@@ -3357,12 +3513,6 @@ begin
       Application.Terminate;
     end);
 
-  Infra := TInfraBanco.Create;
-  try
-    Infra.ValidarEstrutura;
-  finally
-    Infra.Free;
-  end;
   TThread.CreateAnonymousThread(
     procedure
     var
@@ -5496,11 +5646,7 @@ begin
   FazExclusaoClientes;
 
   try
-    THorse.Listen(Port,
-      procedure(Horse: THorse)
-      begin
-
-      end);
+    IniciarHorseServidor;
   except
     Application.Terminate;
     exit;
@@ -6365,12 +6511,10 @@ end;
 procedure TfrmServidor.VerificarOuCriarBanco;
 var
   Qry: TFDQuery;
-  HTTP: TIdHTTP;
-  SSL: TIdSSLIOHandlerSocketOpenSSL;
   SQLScript, DatabaseName: string;
-  Stream: TStringStream;
   conexao: Tconexao;
   iReq: iRequisicao;
+  AtualizadorSQL: TSQL;
 begin
   conexao := Tconexao.Create('VerificarOuCriarBanco');
   try
@@ -6418,6 +6562,12 @@ begin
         conexao.ConectaBanco(DatabaseName);
         conexao.Free;
         ExecutarSQLScript(SQLScript);
+        AtualizadorSQL := TSQL.Create;
+        try
+          AtualizadorSQL.AtualizarBancoNovo;
+        finally
+          AtualizadorSQL.Free;
+        end;
 
         // //showmessage('Banco de dados criado com sucesso.');
       end

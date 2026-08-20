@@ -38,6 +38,12 @@ function API_BASE_URL: string;
 
 implementation
 
+function CaminhoIniGoopedir: string;
+begin
+  Result := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) +
+    'goopedir.ini';
+end;
+
 function GetToken: String;
 begin
   Result := LerIniString('server', 'token', '');
@@ -52,7 +58,7 @@ function LerIniString(const Secao, Chave, ValorPadrao: String): String;
 var
   IniFile: TIniFile;
 begin
-  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile := TIniFile.Create(CaminhoIniGoopedir);
   try
     Result := IniFile.ReadString(Secao, Chave, ValorPadrao);
   finally
@@ -65,7 +71,7 @@ function LerIniInteger(const Secao, Chave: String;
 var
   IniFile: TIniFile;
 begin
-  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile := TIniFile.Create(CaminhoIniGoopedir);
   try
     Result := IniFile.ReadInteger(Secao, Chave, ValorPadrao);
   finally
@@ -77,7 +83,7 @@ function LerIniBool(const Secao, Chave: String; ValorPadrao: Boolean): Boolean;
 var
   IniFile: TIniFile;
 begin
-  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile := TIniFile.Create(CaminhoIniGoopedir);
   try
     Result := IniFile.ReadBool(Secao, Chave, ValorPadrao);
   finally
@@ -97,7 +103,7 @@ var
   valor: Boolean;
 begin
   valor := false;
-  IniFile := TIniFile.Create('./goopedir.ini');
+  IniFile := TIniFile.Create(CaminhoIniGoopedir);
   try
     IniFile.WriteBool('INICIALIZACAO', 'InicializarCodigo', valor);
     IniFile.WriteBool('INICIALIZACAO', 'IniciaIfood', valor);
@@ -150,26 +156,24 @@ end;
 
 function pcLocal: Boolean;
 begin
-  Result := true;
+  Result := false;
+{$IFDEF DEBUG}
   // PC Allan (240538505700048)
   if GetMotherboardSerial() = '240538505700048' then
   begin
     Result := True;
     exit;
   end;
+{$ENDIF}
 end;
 
 function Desenvolvimento: Boolean;
 begin
-  Result := LerIniBool('server', 'Desenvolvimento', pcLocal);
-  Result := True;
+  Result := pcLocal;
 end;
 
 function API_BASE_URL: string;
 begin
-      Result := 'https://api.goopedir.com.br/';
-      exit;
-  Result := 'https://api.goopedir.cloud/'; exit;
   if Desenvolvimento then
     // Result := 'https://api-dev.goopedir.cloud/'
     Result := 'http://localhost:3001/'
