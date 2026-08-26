@@ -1,4 +1,4 @@
-unit uSQL;
+﻿unit uSQL;
 
 interface
 
@@ -6,6 +6,8 @@ uses
   IdComponent, IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase,
   IdFTP, System.Zip, ShellAPI, Registry, System.Classes, FMX.StdCtrls,
   Vcl.StdCtrls, FireDAC.Comp.Client, DataSet.Serialize;
+
+procedure ConfigurarParametrosAtualizacaoPadrao;
 
 type
   TCallback = procedure of object;
@@ -62,6 +64,44 @@ implementation
 
 uses conexao, System.SysUtils;
 
+procedure ConfigurarParametrosAtualizacaoPadrao;
+const
+  ATUALIZACAO_EXECUTAVEIS_PADRAO =
+    'atualizador.exe;GooPedir.exe;ServicosGoopedir.exe;SiteGooPedir.exe;' +
+    'ImpressaoGooPedir.exe;NFCe.exe;WhatsappGoPedir.exe;psGoopedir.exe';
+var
+  Conexao: TConexao;
+
+  procedure InserirParametroPadrao(const Chave, Valor: string);
+  begin
+    Conexao.SQL.Add('INSERT INTO configuracoes (chave, valor)');
+    Conexao.SQL.Add('VALUES (:chave, :valor)');
+    Conexao.SQL.Add('ON DUPLICATE KEY UPDATE valor = valor');
+    Conexao.Parametros('chave', Chave);
+    Conexao.Parametros('valor', Valor);
+    Conexao.ExecuteSQL;
+  end;
+
+begin
+  Conexao := TConexao.Create('ConfigurarParametrosAtualizacaoPadrao');
+  try
+    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' +
+      'valor TEXT' +
+      ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+
+    InserirParametroPadrao('atualizacao_ambiente', 'producao');
+    InserirParametroPadrao('atualizacao_token', '');
+    InserirParametroPadrao('atualizacao_url', '');
+    InserirParametroPadrao('atualizacao_executaveis', ATUALIZACAO_EXECUTAVEIS_PADRAO);
+
+{$IFDEF DEBUG}
+    Conexao.SalvarParametro('atualizacao_ambiente', 'testes');
+{$ENDIF}
+  finally
+    Conexao.Free;
+  end;
+end;
 procedure TSQL.AtualizaBanco;
 var
   I: Integer;
@@ -2601,6 +2641,14 @@ begin
       163: begin
         ExecultaSQL('ALTER TABLE log_operacao ADD tempo_ms INT NULL;');
       end;
+    164:
+      begin
+        ExecultaSQL('CREATE TABLE IF NOT EXISTS configuracoes (chave VARCHAR(100) PRIMARY KEY, valor TEXT) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_ambiente'', ''producao'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_token'', ''IWC8cNw2RrgbL7280RSaTzzoD8LrWS3YjbhT24J8lfT'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_url'', ''https://atualizacao.goopedir.com'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_executaveis'', ''atualizador.exe;GooPedir.exe;ServicosGoopedir.exe;SiteGooPedir.exe;ImpressaoGooPedir.exe;NFCe.exe;WhatsappGoPedir.exe;psGoopedir.exe'') ON DUPLICATE KEY UPDATE valor = valor;');
+      end;
     99999999:
       begin
         {
@@ -2614,7 +2662,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '163';
+  Result := '164';
 end;
 
 end.

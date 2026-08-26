@@ -13,8 +13,8 @@ object frmPedidoSite: TfrmPedidoSite
   OnCreate = FormCreate
   TextHeight = 15
   object Button1: TButton
-    Left = 136
-    Top = 8
+    Left = 8
+    Top = 240
     Width = 75
     Height = 25
     Caption = 'Button1'

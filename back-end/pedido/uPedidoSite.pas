@@ -50,11 +50,12 @@ begin
   begin
     ShowMessage('O sistema não pode ser executado em modo DEBUG.');
     Exit;
+  end
+  else
+  begin
+    // Atualizar ambiente
   end;
 {$ENDIF}
-
-  pedido := 0;
-  userId := 43;
   try
     pedido := ParamStr(1).ToInteger();
     userId := ParamStr(2).ToInteger();
@@ -90,7 +91,7 @@ end;
 
 procedure TfrmPedidoSite.Timer1Timer(Sender: TObject);
 begin
-Application.Terminate;
+  Application.Terminate;
 end;
 
 procedure TfrmPedidoSite.tMinimizaTimer(Sender: TObject);

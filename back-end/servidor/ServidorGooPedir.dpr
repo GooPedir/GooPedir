@@ -111,6 +111,7 @@ uses
   uControllerSite in 'src\controller\uControllerSite.pas',
   uNewConsultas in 'src\modulos\uNewConsultas.pas',
   uAtualizacaoSite in 'src\controller\uAtualizacaoSite.pas',
+  uAtualizacaoPDV in 'src\controller\uAtualizacaoPDV.pas',
   uGlobais in 'uGlobais.pas',
   uProcedure in 'src\procedure\uProcedure.pas',
   ProdutoQueue in 'src\modulos\Controller\ProdutoQueue.pas',
@@ -146,7 +147,8 @@ uses
   uTempoRotas in 'src\modulo\uTempoRotas.pas',
   financeiro in 'src\modulos\financeiro\financeiro.pas',
   uPerformanceMetrics in 'src\diagnostico\uPerformanceMetrics.pas',
-  uFilaImpressao in 'src\modulos\impressao\uFilaImpressao.pas';
+  uFilaImpressao in 'src\modulos\impressao\uFilaImpressao.pas',
+  uDashboardAnalytics in 'src\modulos\dashboard\uDashboardAnalytics.pas';
 
 {$R *.res}
 

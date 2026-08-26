@@ -317,6 +317,18 @@ begin
   Result := StrToFloatDef(Texto, 0, FS);
 end;
 
+function ValorDecimalParametro(const TextoParametro: String): Double;
+var
+  Texto: String;
+  FS: TFormatSettings;
+begin
+  Texto := Trim(TextoParametro);
+  Texto := StringReplace(Texto, ',', '.', [rfReplaceAll]);
+  FS := TFormatSettings.Create;
+  FS.DecimalSeparator := '.';
+  Result := StrToFloat(Texto, FS);
+end;
+
 function CodigoRadon(Codigo: Integer): Integer;
 var
   Timestamp: Int64;
@@ -392,12 +404,13 @@ begin
       conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
       conexao.SQL.Add('left join pedido_produto_sap' + Origem +
         ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> '
-        + QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN�%"');
+        + QuotedStr(' ') +
+        ' and CONVERT(upper(pps.nomeclatura) USING utf8mb4) COLLATE utf8mb4_unicode_ci not like _utf8mb4"%ATEN%" COLLATE utf8mb4_unicode_ci');
       conexao.SQL.Add
         ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
       conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
       conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-        ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+        ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and CONVERT(upper(ppsO.nomeclatura) USING utf8mb4) COLLATE utf8mb4_unicode_ci like _utf8mb4"%OBS%" COLLATE utf8mb4_unicode_ci');
       conexao.SQL.Add('where pp.codigo_pedido = :codigo');
       conexao.SQL.Add('group by pp.codigo');
       conexao.Parametros('codigo', Pedido);
@@ -419,12 +432,13 @@ begin
   conexao.SQL.Add('join produto as p on p.codigo = pp.codigo_produto');
   conexao.SQL.Add('left join pedido_produto_sap' + Origem +
     ' as pps on pps.codigo_pedido_produto = pp.codigo and pps.descricao <> ' +
-    QuotedStr(' ') + ' and upper(pps.nomeclatura) not like "%ATEN�%"');
+    QuotedStr(' ') +
+    ' and CONVERT(upper(pps.nomeclatura) USING utf8mb4) COLLATE utf8mb4_unicode_ci not like _utf8mb4"%ATEN%" COLLATE utf8mb4_unicode_ci');
   conexao.SQL.Add
     ('left join caixa_movimento_produto as cmp on cmp.id_pedido_produto = pp.codigo');
   conexao.SQL.Add('left join usuario as u on u.codigo = pp.usuario');
   conexao.SQL.Add('left join pedido_produto_sap' + Origem +
-    ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and upper(ppsO.nomeclatura) like "%OBS%"');
+    ' as ppsO on ppsO.codigo_pedido_produto = pp.codigo and CONVERT(upper(ppsO.nomeclatura) USING utf8mb4) COLLATE utf8mb4_unicode_ci like _utf8mb4"%OBS%" COLLATE utf8mb4_unicode_ci');
   conexao.SQL.Add('where pp.codigo_pedido = :codigo');
   conexao.SQL.Add('group by pp.codigo');
   conexao.Parametros('codigo', Pedido);
@@ -818,7 +832,7 @@ var
 begin
   retorno := MovimentoCaixa(Req.Params['caixa'].ToInteger,
     Req.Params['pedido'].ToInteger, Req.Params['tipo'].ToInteger, 1,
-    strtofloat(StringReplace(Req.Params['total'], '.', ',', [])), '', 0);
+    ValorDecimalParametro(Req.Params['total']), '', 0);
   Res.Send('{"codigo":' + retorno.ToString + '}');
 end;
 
@@ -828,7 +842,7 @@ begin
   // THorse.Put('/v1/pedido/pagamento/pix/:caixa/:pedido/:tipo/:total',
   MovimentoCaixa(Req.Params['caixa'].ToInteger, Req.Params['pedido'].ToInteger,
     Req.Params['tipo'].ToInteger, 1,
-    strtofloat(StringReplace(Req.Params['total'], '.', ',', [])),
+    ValorDecimalParametro(Req.Params['total']),
     'Recebimento PIX', 0);
 end;
 
@@ -10448,7 +10462,7 @@ begin
           conexao.ExecuteSQL;
 
           // ------------------------------------------
-          // 6. INSERIR OBSERVA��O (SAP)
+          // 6. INSERIR OBSERVACAO (SAP)
           // ------------------------------------------
           if Observacao <> '' then
           begin
@@ -10458,7 +10472,7 @@ begin
               + 'value (:id,:codigo_pedido_produto,0,:nomeclatura,:descricao,0,0)');
             conexao.Parametros('id', CodigoAux);
             conexao.Parametros('codigo_pedido_produto', CodigoPedidoProduto);
-            conexao.Parametros('nomeclatura', 'OBSERVA��O');
+            conexao.Parametros('nomeclatura', 'OBSERVACAO');
             conexao.Parametros('descricao', Observacao);
             conexao.ExecuteSQL;
           end;
@@ -10897,8 +10911,9 @@ begin
   SQL := SQL + ' codigo_pedido_dia as codigo_dia,';
   SQL := SQL + ' codigo_cliente,';
   SQL := SQL + ' CASE';
-  SQL := SQL + '  WHEN (SELECT nome FROM cliente WHERE codigo = codigo_cliente) = ' +
-    QuotedStr('BALC�O') + ' AND p.nome <> ''''';
+  SQL := SQL + '  WHEN CONVERT((SELECT nome FROM cliente WHERE codigo = codigo_cliente) USING utf8mb4) COLLATE utf8mb4_unicode_ci = ' +
+    '_utf8mb4' + QuotedStr('BALCAO') +
+    ' COLLATE utf8mb4_unicode_ci AND CONVERT(COALESCE(p.nome, '''') USING utf8mb4) COLLATE utf8mb4_unicode_ci <> _utf8mb4'''' COLLATE utf8mb4_unicode_ci';
   SQL := SQL + '  THEN p.nome';
   SQL := SQL + '  ELSE (SELECT nome FROM cliente WHERE codigo = codigo_cliente)';
   SQL := SQL + ' END AS cliente,';

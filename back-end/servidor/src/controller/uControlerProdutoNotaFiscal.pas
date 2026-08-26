@@ -1,10 +1,12 @@
-unit uControlerProdutoNotaFiscal;
+ï»¿unit uControlerProdutoNotaFiscal;
 
 interface
 
 uses
   System.SysUtils, System.Classes, System.JSON, System.Generics.Collections,
-  Horse, Conexao, System.DateUtils, dialogs, FireDAC.Comp.Client, DataSet.Serialize;
+  Horse, Conexao, System.DateUtils, dialogs, FireDAC.Comp.Client, DataSet.Serialize,
+  System.RegularExpressions, System.Net.HttpClient, System.Net.URLClient,
+  System.StrUtils;
 
 type
   TNotaEmpresa = record
@@ -62,6 +64,9 @@ type
   end;
 
 procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+
+procedure DoPostConsultarNFCeSantaCatarina(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 
 procedure DoPostDadosNotaFiscalFornecedorItemFator(Req: THorseRequest;
@@ -336,148 +341,450 @@ begin
   Conexao.ExecuteSQL;
 end;
 
-// procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
-// Res: THorseResponse; Next: TProc);
-// var
-// Conexao: TConexao;
-// JSONBody: TJSONObject;
-// EmpresaObj, NotaObj: TJSONObject;
-// ProdutosArray: TJSONArray;
-// Empresa: TNotaEmpresa;
-// Nota: TNota;
-// Produtos: TList<TNotaProduto>;
-// ProdutoItem: TNotaProduto;
-// I: Integer;
-// CodigoFornecedor: String;
-// CodigoProduto: String;
-// begin
-// Conexao := TConexao.Create('DoPostDadosNotaFiscalFornecedor');
-// try
-//
-// JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
-//
-// // --- Empresa ---
-// EmpresaObj := JSONBody.GetValue<TJSONObject>('empresa');
-// Empresa.CNPJ := EmpresaObj.GetValue<string>('cnpj');
-// Empresa.Nome := EmpresaObj.GetValue<string>('nome');
-//
-// // --- Nota ---
-// NotaObj := JSONBody.GetValue<TJSONObject>('nota');
-// Nota.ValorTotal := NotaObj.GetValue<Double>('valorTotal');
-// Nota.DataExpedicao :=
-// ISO8601ToDate(NotaObj.GetValue<string>('dataExpedicao'));
-//
-// // --- Produtos ---
-// Produtos := TList<TNotaProduto>.Create;
-// try
-// ProdutosArray := JSONBody.GetValue<TJSONArray>('produtos');
-// for I := 0 to ProdutosArray.Count - 1 do
-// begin
-// with TJSONObject(ProdutosArray.Items[I]) do
-// begin
-// ProdutoItem.Codigo := GetValue<string>('codigo');
-// ProdutoItem.Nome := GetValue<string>('nome');
-// ProdutoItem.NCM := GetValue<string>('ncm');
-// ProdutoItem.cEAN := GetValue<string>('cEAN');
-// ProdutoItem.CEST := GetValue<string>('CEST');
-// ProdutoItem.CFOP := GetValue<string>('CFOP');
-// ProdutoItem.uCom := GetValue<string>('uCom');
-// ProdutoItem.Unidade := GetValue<string>('unidade');
-// ProdutoItem.Quantidade := GetValue<Double>('quantidade');
-// ProdutoItem.ValorUnitario := GetValue<Double>('valorUnitario');
-//
-// end;
-// Produtos.Add(ProdutoItem);
-// end;
-//
-// Conexao.SQL.Add('select * from fornecedor where cnpj = :cnpj');
-// Conexao.Parametros('cnpj', Empresa.CNPJ);
-// try
-// CodigoFornecedor := Conexao.FieldByName('id');
-// except
-//
-// end;
-//
-// if CodigoFornecedor = '0' then
-// begin
-// Conexao.SQL.Add
-// ('insert into fornecedor (id,cnpj,nome) value (UUID(),:cnpj,:nome)');
-// Conexao.Parametros('cnpj', Empresa.CNPJ);
-// Conexao.Parametros('nome', Empresa.Nome);
-// Conexao.ExecuteSQL;
-// Conexao.SQL.Add('select * from fornecedor where cnpj = :cnpj');
-// Conexao.Parametros('cnpj', Empresa.CNPJ);
-// try
-// CodigoFornecedor := Conexao.FieldByName('id');
-// except
-//
-// end;
-// end;
-//
-// for I := 0 to Produtos.Count - 1 do
-// begin
-// CodigoProduto := '';
-// Conexao.SQL.Add
-// ('select * from fornecedor_item  where fornecedor_id = :fornecedor and cprod = :cprod');
-// Conexao.Parametros('fornecedor', CodigoFornecedor);
-// Conexao.Parametros('cprod', Produtos[I].Codigo);
-// try
-// CodigoProduto := Conexao.FieldByName('id');
-// except
-//
-// end;
-// if CodigoProduto = '0' then
-// begin
-// Conexao.SQL.Add
-// ('insert into fornecedor_item (id,fornecedor_id,cprod,cEAN,xProd,NCM,CEST,CFOP,uCom)');
-// Conexao.SQL.Add
-// ('values (UUID(),:fornecedor_id,:cprod,:cEAN,:xProd,:NCM,:CEST,:CFOP,:uCom)');
-// Conexao.Parametros('fornecedor_id', CodigoFornecedor);
-// Conexao.Parametros('cprod', Produtos[I].Codigo);
-// Conexao.Parametros('cEAN', Produtos[I].cEAN);
-// Conexao.Parametros('xProd', Produtos[I].Nome);
-// Conexao.Parametros('NCM', Produtos[I].NCM);
-// Conexao.Parametros('CEST', Produtos[I].CEST);
-// Conexao.Parametros('CFOP', Produtos[I].CFOP);
-// Conexao.Parametros('uCom', Produtos[I].uCom);
-// Conexao.ExecuteSQL;
-// end;
-//
-// end;
-//
-// // Aqui você pode integrar com o banco
-// // Exemplo:
-// // Conexao.InserirEmpresa(Empresa);
-// // Conexao.InserirNota(Nota, Empresa.CNPJ);
-// // for ProdutoItem in Produtos do
-// // Conexao.InserirProduto(ProdutoItem, NotaID);
-// Conexao.SQL.Add('select fi.*, ');
-// Conexao.SQL.Add('CASE');
-// Conexao.SQL.Add
-// ('    WHEN fi.tabela_vinculo = "produto" THEN upper(p.nome_produto)');
-// Conexao.SQL.Add('    ELSE upper(i.descricao)');
-// Conexao.SQL.Add('  END AS insumo_nome,');
-// Conexao.SQL.Add('CASE');
-// Conexao.SQL.Add
-// ('    WHEN fi.tabela_vinculo = "produto" THEN upper(p.un)');
-// Conexao.SQL.Add('    ELSE upper(i.unidade)');
-// Conexao.SQL.Add('  END AS insumo_unidade  ');
-// Conexao.SQL.Add('from fornecedor_item as fi');
-// Conexao.SQL.Add('left join produto as p on p.codigo = fi.codigo_vinculo');
-// Conexao.SQL.Add
-// ('left join ingredientes as i on i.id = fi.codigo_vinculo');
-//
-// Conexao.SQL.Add('where fornecedor_id = :fornecedor');
-// Conexao.Parametros('fornecedor', CodigoFornecedor);
-//
-// Res.Send<TJSONArray>(Conexao.ConsultaSQL);
-// finally
-// Produtos.Free;
-// end;
-// finally
-// Conexao.Free;
-// end;
-// end;
+function ImportarPayloadNotaFiscalFornecedor(JSONBody: TJSONObject): TJSONObject;
+var
+  Conexao: TConexao;
+  EmpresaObj, NotaObj: TJSONObject;
+  ProdutosArray, ItensFornecedor: TJSONArray;
+  ProdutoObj: TJSONObject;
+  Empresa: TNotaEmpresa;
+  Nota: TNota;
+  I: Integer;
+  CodigoFornecedor, CodigoNota, CodigoFornecedorItem: String;
+  Fmt: TFormatSettings;
+  NotaJaExistia: Boolean;
+begin
+  Result := TJSONObject.Create;
+  Conexao := TConexao.Create('ImportarPayloadNotaFiscalFornecedor');
+  Fmt := TFormatSettings.Create;
+  Fmt.DecimalSeparator := '.';
+  try
+    EmpresaObj := JSONBody.GetValue<TJSONObject>('empresa');
+    NotaObj := JSONBody.GetValue<TJSONObject>('nota');
+    ProdutosArray := JSONBody.GetValue<TJSONArray>('produtos');
+    if (not Assigned(EmpresaObj)) or (not Assigned(NotaObj)) or (not Assigned(ProdutosArray)) then
+      raise Exception.Create('Payload de importacao da nota fiscal invalido.');
+
+    Empresa.CNPJ := JSONStringValue(EmpresaObj, 'cnpj');
+    Empresa.Nome := JSONStringValue(EmpresaObj, 'nome');
+    Nota.Serie := JSONStringValue(NotaObj, 'serie');
+    Nota.Numero := JSONStringValue(NotaObj, 'numero');
+    Nota.Chave := JSONStringValue(NotaObj, 'chave');
+    Nota.Modelo := JSONStringValue(NotaObj, 'modelo');
+    Nota.Tipo := JSONStringValue(NotaObj, 'tipo');
+    if SameText(Nota.Modelo, '65') then
+      Nota.Tipo := 'NFCe'
+    else if Nota.Tipo = '' then
+      Nota.Tipo := 'NF';
+    Nota.DataEmissao := ISO8601ToDate(JSONStringValue(NotaObj, 'data_emissao'));
+    Nota.DataEntrada := ISO8601ToDate(JSONStringValue(NotaObj, 'data_entrada'));
+    Nota.vNF := StrToFloatDef(StringReplace(JSONStringValue(NotaObj, 'vNF'), ',', '.', [rfReplaceAll]), 0, Fmt);
+    Nota.vFrete := StrToFloatDef(StringReplace(JSONStringValue(NotaObj, 'vFrete'), ',', '.', [rfReplaceAll]), 0, Fmt);
+    Nota.vDesc := StrToFloatDef(StringReplace(JSONStringValue(NotaObj, 'vDesc'), ',', '.', [rfReplaceAll]), 0, Fmt);
+    Nota.vOutro := StrToFloatDef(StringReplace(JSONStringValue(NotaObj, 'vOutro'), ',', '.', [rfReplaceAll]), 0, Fmt);
+    Nota.XML := JSONStringValue(NotaObj, 'xml_original');
+    Nota.Status := JSONStringValue(NotaObj, 'status_importacao');
+    if Nota.Status = '' then
+      Nota.Status := 'pendente';
+
+    Conexao.SQL.Add('select id, 0 as zero from fornecedor where cnpj = :cnpj');
+    Conexao.Parametros('cnpj', Empresa.CNPJ);
+    CodigoFornecedor := Conexao.FieldByName('id');
+    if (CodigoFornecedor = '') or (CodigoFornecedor = '0') then
+    begin
+      Conexao.SQL.Add('insert into fornecedor (id, cnpj, nome, criado_em) values (UUID(), :cnpj, :nome, NOW())');
+      Conexao.Parametros('cnpj', Empresa.CNPJ);
+      Conexao.Parametros('nome', Empresa.Nome);
+      Conexao.ExecuteSQL;
+      Conexao.SQL.Add('select id, 0 as zero from fornecedor where cnpj = :cnpj');
+      Conexao.Parametros('cnpj', Empresa.CNPJ);
+      CodigoFornecedor := Conexao.FieldByName('id');
+    end;
+
+    Conexao.SQL.Add('select id, 0 as zero from nota_fiscal where chave = :chave');
+    Conexao.Parametros('chave', Nota.Chave);
+    CodigoNota := Conexao.FieldByName('id');
+    NotaJaExistia := (CodigoNota <> '') and (CodigoNota <> '0');
+
+    if not NotaJaExistia then
+    begin
+      Conexao.SQL.Add('select UUID() as id, 0 as zero');
+      CodigoNota := Conexao.FieldByName('id');
+      if (CodigoNota = '') or (CodigoNota = '0') then
+        raise Exception.Create('Nao foi possivel gerar o ID da nota fiscal.');
+
+      Conexao.SQL.Add('insert into nota_fiscal (id, fornecedor_id, serie, numero, chave, modelo, tipo, data_emissao, data_entrada, vNF, vFrete, vDesc, vOutro, xml_original, status_importacao, criado_em)');
+      Conexao.SQL.Add('values (:id, :fornecedor_id, :serie, :numero, :chave, :modelo, :tipo, :data_emissao, :data_entrada, :vNF, :vFrete, :vDesc, :vOutro, :xml_original, :status_importacao, NOW())');
+      Conexao.Parametros('id', CodigoNota);
+      Conexao.Parametros('fornecedor_id', CodigoFornecedor);
+      Conexao.Parametros('serie', Nota.Serie);
+      Conexao.Parametros('numero', Nota.Numero);
+      Conexao.Parametros('chave', Nota.Chave);
+      Conexao.Parametros('modelo', Nota.Modelo);
+      Conexao.Parametros('tipo', Nota.Tipo);
+      Conexao.Parametros('data_emissao', FormatDateTime('yyyy-mm-dd hh:nn:ss', Nota.DataEmissao));
+      Conexao.Parametros('data_entrada', FormatDateTime('yyyy-mm-dd hh:nn:ss', Nota.DataEntrada));
+      Conexao.Parametros('vNF', FormatFloat('0.##', Nota.vNF, Fmt));
+      Conexao.Parametros('vFrete', FormatFloat('0.##', Nota.vFrete, Fmt));
+      Conexao.Parametros('vDesc', FormatFloat('0.##', Nota.vDesc, Fmt));
+      Conexao.Parametros('vOutro', FormatFloat('0.##', Nota.vOutro, Fmt));
+      Conexao.Parametros('xml_original', Nota.XML);
+      Conexao.Parametros('status_importacao', Nota.Status);
+      Conexao.ExecuteSQL;
+      RegistrarNotificacaoNotaFiscalBaixada(Conexao, CodigoNota, Empresa.Nome, Nota.Chave, Nota.vNF);
+    end;
+
+    if not NotaJaExistia then
+    begin
+      for I := 0 to ProdutosArray.Count - 1 do
+      begin
+        ProdutoObj := ProdutosArray.Items[I] as TJSONObject;
+        Conexao.SQL.Add('select id, 0 as zero from fornecedor_item where fornecedor_id = :fornecedor and cprod = :cprod');
+        Conexao.Parametros('fornecedor', CodigoFornecedor);
+        Conexao.Parametros('cprod', JSONStringValue(ProdutoObj, 'cProd'));
+        CodigoFornecedorItem := Conexao.FieldByName('id');
+
+        if (CodigoFornecedorItem = '') or (CodigoFornecedorItem = '0') then
+        begin
+          Conexao.SQL.Add('insert into fornecedor_item (id, fornecedor_id, cprod, xProd, NCM, CFOP, uCom, criado_em)');
+          Conexao.SQL.Add('values (UUID(), :fornecedor_id, :cprod, :xProd, :NCM, :CFOP, :uCom, NOW())');
+          Conexao.Parametros('fornecedor_id', CodigoFornecedor);
+          Conexao.Parametros('cprod', JSONStringValue(ProdutoObj, 'cProd'));
+          Conexao.Parametros('xProd', JSONStringValue(ProdutoObj, 'xProd'));
+          Conexao.Parametros('NCM', JSONStringValue(ProdutoObj, 'NCM'));
+          Conexao.Parametros('CFOP', JSONStringValue(ProdutoObj, 'CFOP'));
+          Conexao.Parametros('uCom', JSONStringValue(ProdutoObj, 'uCom'));
+          Conexao.ExecuteSQL;
+          Conexao.SQL.Add('select id, 0 as zero from fornecedor_item where fornecedor_id = :fornecedor and cprod = :cprod');
+          Conexao.Parametros('fornecedor', CodigoFornecedor);
+          Conexao.Parametros('cprod', JSONStringValue(ProdutoObj, 'cProd'));
+          CodigoFornecedorItem := Conexao.FieldByName('id');
+        end;
+
+        Conexao.SQL.Add('insert into nota_fiscal_item (id, nota_fiscal_id, fornecedor_item_id, cProd, xProd, NCM, CFOP, qCom, uCom, vUnCom, vProd, vDesc, vFrete, vOutro, uTrib, criado_em)');
+        Conexao.SQL.Add('values (UUID(), :nota_fiscal_id, :fornecedor_item_id, :cProd, :xProd, :NCM, :CFOP, :qCom, :uCom, :vUnCom, :vProd, :vDesc, :vFrete, :vOutro, :uTrib, NOW())');
+        Conexao.Parametros('nota_fiscal_id', CodigoNota);
+        Conexao.Parametros('fornecedor_item_id', CodigoFornecedorItem);
+        Conexao.Parametros('cProd', JSONStringValue(ProdutoObj, 'cProd'));
+        Conexao.Parametros('xProd', JSONStringValue(ProdutoObj, 'xProd'));
+        Conexao.Parametros('NCM', JSONStringValue(ProdutoObj, 'NCM'));
+        Conexao.Parametros('CFOP', JSONStringValue(ProdutoObj, 'CFOP'));
+        Conexao.Parametros('qCom', FormatFloat('0.######', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'qCom'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('uCom', JSONStringValue(ProdutoObj, 'uCom'));
+        Conexao.Parametros('vUnCom', FormatFloat('0.######', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'vUnCom'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('vProd', FormatFloat('0.##', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'vProd'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('vDesc', FormatFloat('0.##', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'vDesc'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('vFrete', FormatFloat('0.##', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'vFrete'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('vOutro', FormatFloat('0.##', StrToFloatDef(StringReplace(JSONStringValue(ProdutoObj, 'vOutro'), ',', '.', [rfReplaceAll]), 0, Fmt), Fmt));
+        Conexao.Parametros('uTrib', JSONStringValue(ProdutoObj, 'uTrib'));
+        Conexao.ExecuteSQL;
+      end;
+    end;
+
+    Conexao.SQL.Add('select fi.*, ');
+    Conexao.SQL.Add('CASE WHEN fi.tabela_vinculo = "produto" THEN upper(p.nome_produto) ELSE upper(i.descricao) END AS insumo_nome,');
+    Conexao.SQL.Add('CASE WHEN fi.tabela_vinculo = "produto" THEN upper(p.un) ELSE upper(i.unidade) END AS insumo_unidade ');
+    Conexao.SQL.Add('from fornecedor_item as fi ');
+    Conexao.SQL.Add('left join produto as p on p.codigo = fi.codigo_vinculo ');
+    Conexao.SQL.Add('left join ingredientes as i on i.id = fi.codigo_vinculo ');
+    Conexao.SQL.Add('where fornecedor_id = :fornecedor');
+    Conexao.Parametros('fornecedor', CodigoFornecedor);
+    ItensFornecedor := Conexao.ConsultaSQL;
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('fornecedor_id', CodigoFornecedor);
+    Result.AddPair('nota_fiscal_id', CodigoNota);
+    Result.AddPair('nota_ja_existia', TJSONBool.Create(NotaJaExistia));
+    Result.AddPair('itens_fornecedor', ItensFornecedor);
+  except
+    Result.Free;
+    Conexao.Free;
+    raise;
+  end;
+  Conexao.Free;
+end;
+
+function NFCeSomenteNumeros(const Valor: string): string;
+var I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(Valor) do
+    if CharInSet(Valor[I], ['0'..'9']) then
+      Result := Result + Valor[I];
+end;
+
+function NFCeDecodeHTML(const Valor: string): string;
+begin
+  Result := Valor;
+  Result := StringReplace(Result, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&#160;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&amp;', '&', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&quot;', '"', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&#39;', '''', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&lt;', '<', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '&gt;', '>', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, #$C2#$A0, ' ', [rfReplaceAll]);
+  Result := Trim(Result);
+end;
+
+function NFCeStripTags(const Valor: string): string;
+begin
+  Result := TRegEx.Replace(Valor, '<br\s*/?>', ' ', [roIgnoreCase]);
+  Result := TRegEx.Replace(Result, '<[^>]+>', ' ', [roSingleLine]);
+  Result := TRegEx.Replace(Result, '\s+', ' ', [roSingleLine]);
+  Result := NFCeDecodeHTML(Result);
+end;
+
+function NFCeValorBR(const Valor: string): Double;
+var Fmt: TFormatSettings;
+begin
+  Fmt := TFormatSettings.Create;
+  Fmt.DecimalSeparator := ',';
+  Fmt.ThousandSeparator := '.';
+  Result := StrToFloatDef(Trim(Valor), 0, Fmt);
+end;
+
+function NFCeTextoMatch(const Texto, Padrao: string): string;
+var Match: TMatch;
+begin
+  Result := '';
+  Match := TRegEx.Match(Texto, Padrao, [roIgnoreCase, roSingleLine]);
+  if Match.Success then
+    Result := NFCeStripTags(Match.Groups[1].Value);
+end;
+
+function NFCeDataEmissaoSC(const Valor: string): TDateTime;
+var Fmt: TFormatSettings;
+begin
+  Result := Now;
+  Fmt := TFormatSettings.Create;
+  Fmt.DateSeparator := '/';
+  Fmt.TimeSeparator := ':';
+  Fmt.ShortDateFormat := 'dd/mm/yyyy';
+  Fmt.LongTimeFormat := 'hh:nn:ss';
+  TryStrToDateTime(Trim(Valor), Result, Fmt);
+end;
+procedure NFCeSetJSONNumber(Obj: TJSONObject; const Nome: string; Valor: Double);
+var
+  Par: TJSONPair;
+begin
+  Par := Obj.RemovePair(Nome);
+  if Assigned(Par) then
+    Par.Free;
+  Obj.AddPair(Nome, TJSONNumber.Create(Valor));
+end;
+
+function NFCeChaveAgrupamentoProduto(const Codigo, Nome, Unidade: string;
+  ValorUnitario: Double): string;
+var
+  Fmt: TFormatSettings;
+begin
+  Fmt := TFormatSettings.Create;
+  Fmt.DecimalSeparator := '.';
+  Result := Trim(Codigo) + '|' + UpperCase(Trim(Nome)) + '|' +
+    UpperCase(Trim(Unidade)) + '|' + FormatFloat('0.000000', ValorUnitario, Fmt);
+end;
+
+function BaixarHTMLNFCeSC(const URL: string): string;
+var
+  HTTP: THTTPClient;
+  Response: IHTTPResponse;
+begin
+  if (Pos('sat.sef.sc.gov.br', LowerCase(URL)) = 0) or
+     (Pos('nfce_detalhes.aspx', LowerCase(URL)) = 0) then
+    raise Exception.Create('URL de NFC-e de Santa Catarina invalida.');
+
+  HTTP := THTTPClient.Create;
+  try
+    HTTP.ConnectionTimeout := 15000;
+    HTTP.ResponseTimeout := 30000;
+    HTTP.UserAgent := 'Mozilla/5.0 GooPedir NFCe Parser';
+    Response := HTTP.Get(URL);
+    if Response.StatusCode <> 200 then
+      raise Exception.Create('Falha ao consultar NFC-e SC. HTTP ' + Response.StatusCode.ToString);
+    Result := Response.ContentAsString(TEncoding.UTF8);
+  finally
+    HTTP.Free;
+  end;
+end;
+
+function ParseNFCeSantaCatarina(const URL, HTML: string): TJSONObject;
+var
+  Produtos, PayloadProdutos: TJSONArray;
+  Produto, PayloadProduto, Empresa, Nota, Totais, Payload: TJSONObject;
+  ProdutosAgrupados, PayloadProdutosAgrupados: TDictionary<string, TJSONObject>;
+  Matches: TMatchCollection;
+  Linha, InfoNota, Chave, Numero, Serie, EmissaoTexto, CNPJ, Nome, Codigo, ProdutoNome, Unidade, ChaveAgrupamento: string;
+  I: Integer;
+  ValorTotal, Desconto, ValorPagar, Qtd, Unitario, TotalItem, QtdAgrupada, TotalAgrupado: Double;
+begin
+  Result := TJSONObject.Create;
+  Produtos := TJSONArray.Create;
+  PayloadProdutos := TJSONArray.Create;
+  Empresa := TJSONObject.Create;
+  Nota := TJSONObject.Create;
+  Totais := TJSONObject.Create;
+  Payload := TJSONObject.Create;
+  ProdutosAgrupados := TDictionary<string, TJSONObject>.Create;
+  PayloadProdutosAgrupados := TDictionary<string, TJSONObject>.Create;
+  try
+    Nome := NFCeTextoMatch(HTML, '<div\s+id="u20"\s+class="txtTopo">(.*?)</div>');
+    CNPJ := NFCeSomenteNumeros(NFCeTextoMatch(HTML, 'CNPJ:\s*(.*?)</div>'));
+    Chave := NFCeSomenteNumeros(NFCeTextoMatch(HTML, '<span\s+class="chave">(.*?)</span>'));
+    InfoNota := NFCeTextoMatch(HTML, '<strong>N.?mero:\s*</strong>(.*?)<br><br><strong>Protocolo');
+    Numero := NFCeSomenteNumeros(NFCeTextoMatch(InfoNota, '^(.*?)S.?rie:'));
+    Serie := NFCeSomenteNumeros(NFCeTextoMatch(InfoNota, 'S.?rie:\s*(.*?)Emiss'));
+    EmissaoTexto := NFCeTextoMatch(InfoNota, 'Emiss.o:\s*([0-9/]+\s+[0-9:]+)');
+
+    ValorTotal := NFCeValorBR(NFCeTextoMatch(HTML, 'Valor total R\$:\s*</label><span[^>]*>(.*?)</span>'));
+    Desconto := NFCeValorBR(NFCeTextoMatch(HTML, 'Descontos R\$:\s*</label><span[^>]*>(.*?)</span>'));
+    ValorPagar := NFCeValorBR(NFCeTextoMatch(HTML, 'Valor a pagar R\$:\s*</label><span[^>]*>(.*?)</span>'));
+
+    Matches := TRegEx.Matches(HTML, '<tr\s+id="Item \+ [0-9]+">(.*?)</tr>', [roIgnoreCase, roSingleLine]);
+    for I := 0 to Matches.Count - 1 do
+    begin
+      Linha := Matches.Item[I].Groups[1].Value;
+      Codigo := NFCeSomenteNumeros(NFCeTextoMatch(Linha, '\(C.?digo:\s*(.*?)\)'));
+      ProdutoNome := NFCeTextoMatch(Linha, '<span\s+class="txtTit">(.*?)</span>');
+      Unidade := NFCeTextoMatch(Linha, 'UN:\s*</strong>(.*?)</span>');
+      Qtd := NFCeValorBR(NFCeTextoMatch(Linha, 'Qtde\.:</strong>(.*?)</span>'));
+      Unitario := NFCeValorBR(NFCeTextoMatch(Linha, 'Vl\. Unit\.:</strong>(.*?)</span>'));
+      TotalItem := NFCeValorBR(NFCeTextoMatch(Linha, '<span\s+class="valor">(.*?)</span>'));
+
+      ChaveAgrupamento := NFCeChaveAgrupamentoProduto(Codigo, ProdutoNome,
+        Unidade, Unitario);
+
+      if ProdutosAgrupados.TryGetValue(ChaveAgrupamento, Produto) then
+      begin
+        QtdAgrupada := Produto.GetValue<Double>('quantidade') + Qtd;
+        TotalAgrupado := Produto.GetValue<Double>('valor_total') + TotalItem;
+        NFCeSetJSONNumber(Produto, 'quantidade', QtdAgrupada);
+        NFCeSetJSONNumber(Produto, 'valor_total', TotalAgrupado);
+
+        PayloadProduto := PayloadProdutosAgrupados.Items[ChaveAgrupamento];
+        NFCeSetJSONNumber(PayloadProduto, 'qCom', QtdAgrupada);
+        NFCeSetJSONNumber(PayloadProduto, 'vProd', TotalAgrupado);
+        NFCeSetJSONNumber(PayloadProduto, 'vTotal', TotalAgrupado);
+      end
+      else
+      begin
+        Produto := TJSONObject.Create;
+        Produto.AddPair('codigo', Codigo);
+        Produto.AddPair('nome', ProdutoNome);
+        Produto.AddPair('unidade', Unidade);
+        Produto.AddPair('quantidade', TJSONNumber.Create(Qtd));
+        Produto.AddPair('valor_unitario', TJSONNumber.Create(Unitario));
+        Produto.AddPair('valor_total', TJSONNumber.Create(TotalItem));
+        Produtos.AddElement(Produto);
+        ProdutosAgrupados.Add(ChaveAgrupamento, Produto);
+
+        PayloadProduto := TJSONObject.Create;
+        PayloadProduto.AddPair('cProd', Codigo);
+        PayloadProduto.AddPair('xProd', ProdutoNome);
+        PayloadProduto.AddPair('NCM', '');
+        PayloadProduto.AddPair('CFOP', '');
+        PayloadProduto.AddPair('qCom', TJSONNumber.Create(Qtd));
+        PayloadProduto.AddPair('uCom', Unidade);
+        PayloadProduto.AddPair('vUnCom', TJSONNumber.Create(Unitario));
+        PayloadProduto.AddPair('vProd', TJSONNumber.Create(TotalItem));
+        PayloadProduto.AddPair('vDesc', TJSONNumber.Create(0));
+        PayloadProduto.AddPair('vFrete', TJSONNumber.Create(0));
+        PayloadProduto.AddPair('vOutro', TJSONNumber.Create(0));
+        PayloadProduto.AddPair('vTotal', TJSONNumber.Create(TotalItem));
+        PayloadProduto.AddPair('uTrib', Unidade);
+        PayloadProdutos.AddElement(PayloadProduto);
+        PayloadProdutosAgrupados.Add(ChaveAgrupamento, PayloadProduto);
+      end;
+    end;
+
+    Empresa.AddPair('nome', Nome);
+    Empresa.AddPair('cnpj', CNPJ);
+    Nota.AddPair('serie', Serie);
+    Nota.AddPair('numero', Numero);
+    Nota.AddPair('chave', Chave);
+    Nota.AddPair('modelo', '65');
+    Nota.AddPair('tipo', 'NFCe');
+    Nota.AddPair('data_emissao', FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', NFCeDataEmissaoSC(EmissaoTexto)));
+    Nota.AddPair('data_entrada', FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', Now));
+    Nota.AddPair('vNF', TJSONNumber.Create(ValorPagar));
+    Nota.AddPair('vFrete', TJSONNumber.Create(0));
+    Nota.AddPair('vDesc', TJSONNumber.Create(Desconto));
+    Nota.AddPair('vOutro', TJSONNumber.Create(0));
+    Nota.AddPair('xml_original', HTML);
+    Nota.AddPair('status_importacao', 'pendente');
+
+    Totais.AddPair('valor_total_produtos', TJSONNumber.Create(ValorTotal));
+    Totais.AddPair('desconto', TJSONNumber.Create(Desconto));
+    Totais.AddPair('valor_total_nota', TJSONNumber.Create(ValorPagar));
+    Totais.AddPair('quantidade_itens', TJSONNumber.Create(Produtos.Count));
+
+    Payload.AddPair('empresa', TJSONObject.ParseJSONValue(Empresa.ToString) as TJSONObject);
+    Payload.AddPair('nota', TJSONObject.ParseJSONValue(Nota.ToString) as TJSONObject);
+    Payload.AddPair('produtos', TJSONObject.ParseJSONValue(PayloadProdutos.ToString) as TJSONArray);
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('uf', 'SC');
+    Result.AddPair('tipo', 'NFCe');
+    Result.AddPair('url', URL);
+    Result.AddPair('empresa', Empresa);
+    Result.AddPair('nota', Nota);
+    Result.AddPair('totais', Totais);
+    Result.AddPair('produtos', Produtos);
+    Result.AddPair('payload_importacao', Payload);
+    Empresa := nil; Nota := nil; Totais := nil; Produtos := nil; Payload := nil;
+    PayloadProdutos.Free; PayloadProdutos := nil;
+    ProdutosAgrupados.Free; PayloadProdutosAgrupados.Free;
+  except
+    Empresa.Free; Nota.Free; Totais.Free; Produtos.Free; PayloadProdutos.Free; Payload.Free;
+    ProdutosAgrupados.Free; PayloadProdutosAgrupados.Free;
+    raise;
+  end;
+end;
+
+procedure DoPostConsultarNFCeSantaCatarina(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  JSONBody, Retorno, PayloadImportacao, Importacao: TJSONObject;
+  URL, HTML: string;
+begin
+  JSONBody := nil;
+  Retorno := nil;
+  Importacao := nil;
+  try
+    JSONBody := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
+    if not Assigned(JSONBody) then
+      raise Exception.Create('Body JSON invalido.');
+
+    URL := JSONStringValue(JSONBody, 'url');
+    if URL = '' then
+      URL := JSONStringValue(JSONBody, 'URL');
+    if URL = '' then
+      raise Exception.Create('Informe a URL da NFC-e no campo url.');
+
+    HTML := BaixarHTMLNFCeSC(URL);
+    Retorno := ParseNFCeSantaCatarina(URL, HTML);
+    PayloadImportacao := Retorno.GetValue<TJSONObject>('payload_importacao');
+    Importacao := ImportarPayloadNotaFiscalFornecedor(PayloadImportacao);
+    Retorno.AddPair('importacao', Importacao);
+    Importacao := nil;
+    Res.Send<TJSONObject>(Retorno);
+    Retorno := nil;
+  except
+    on E: Exception do
+    begin
+      Importacao.Free;
+      Retorno.Free;
+      Retorno := TJSONObject.Create;
+      Retorno.AddPair('success', TJSONBool.Create(False));
+      Retorno.AddPair('erro', E.Message);
+      Res.Status(400).Send<TJSONObject>(Retorno);
+      Retorno := nil;
+    end;
+  end;
+  JSONBody.Free;
+  Importacao.Free;
+  Retorno.Free;
+end;
 
 procedure DoPostDadosNotaFiscalFornecedor(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
@@ -512,6 +819,10 @@ begin
     Nota.Chave := NotaObj.GetValue<string>('chave');
     Nota.Modelo := NotaObj.GetValue<string>('modelo');
     Nota.Tipo := NotaObj.GetValue<string>('tipo');
+    if SameText(Nota.Modelo, '65') then
+      Nota.Tipo := 'NFCe'
+    else if Nota.Tipo = '' then
+      Nota.Tipo := 'NF';
     Nota.DataEmissao := ISO8601ToDate(NotaObj.GetValue<string>('data_emissao'));
     Nota.DataEntrada := ISO8601ToDate(NotaObj.GetValue<string>('data_entrada'));
     Nota.vNF := NotaObj.GetValue<Double>('vNF');
@@ -609,7 +920,7 @@ begin
       // --- ITENS DA NOTA ---
       for I := 0 to Produtos.Count - 1 do
       begin
-        // Verifica se já existe o item do fornecedor
+        // Verifica se jï¿½ existe o item do fornecedor
         Conexao.SQL.Add
           ('select id, 0 as zero from fornecedor_item where fornecedor_id = :fornecedor and cprod = :cprod');
         Conexao.Parametros('fornecedor', CodigoFornecedor);

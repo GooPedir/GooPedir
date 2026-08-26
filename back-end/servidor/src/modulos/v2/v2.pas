@@ -5656,7 +5656,7 @@ begin
     begin
       Codigo := conexao.GerarID('pedido_produto_sap', 'id');
       conexao.SQL.Add
-        ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"OBSERVA??O",:descricao)');
+        ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"OBSERVACAO",:descricao)');
       conexao.Parametros('id', Codigo);
       conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
       conexao.Parametros('descricao', ProductItem.GetValue<String>('new'));
@@ -5677,15 +5677,15 @@ begin
       ('delete from pedido_produto_sap where codigo_pedido_produto = :codigo and descricao = :descricao');
     conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
     conexao.Parametros('descricao',
-      'OBSERVA??O FOI ALTERADA E ESSA ? UMA REIMPRESS?O');
+      'OBSERVACAO FOI ALTERADA E ESSA E UMA REIMPRESSAO');
     conexao.ExecuteSQL;
     Codigo := conexao.GerarID('pedido_produto_sap', 'id');
     conexao.SQL.Add
-      ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"* * * * ATEN??O * * * *",:descricao)');
+      ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao) values (:id,:codigo,0,"* * * * ATENCAO * * * *",:descricao)');
     conexao.Parametros('id', Codigo);
     conexao.Parametros('codigo', ProductItem.GetValue<Integer>('codigo'));
     conexao.Parametros('descricao',
-      'OBSERVA??O FOI ALTERADA E ESSA ? UMA REIMPRESS?O');
+      'OBSERVACAO FOI ALTERADA E ESSA E UMA REIMPRESSAO');
     conexao.ExecuteSQL;
     if conexao.GetParametro('nova_impressao') = '1' then
     begin
@@ -6978,6 +6978,18 @@ begin
   Res.Send(frmServidor.memBanner.ToJSONArray());
 end;
 
+procedure DoGetAtualizacao(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Res.Send<TJSONObject>(frmServidor.AtualizacaoStatus);
+end;
+
+procedure DoPostAtualizacaoIniciar(Req: THorseRequest; Res: THorseResponse;
+  Next: TProc);
+begin
+  frmServidor.IniciarAtualizacao;
+  Res.Send<TJSONObject>(frmServidor.AtualizacaoStatus);
+end;
+
 procedure DoGetStatus(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   JSONObject: TJSONObject;
@@ -6991,8 +7003,6 @@ var
   Consulta: String;
   CodigoUsuario: String;
   NFC: String;
-  Reader: TStreamReader;
-  JSONStr: string;
   ObjetoiFood: TJSONObject;
   ArrayiFood: TJsonArray;
   DadosiFood: TFDMemTable;
@@ -7163,8 +7173,10 @@ begin
   end;
   RegistrarTempo('urlLoja');
   IniciarTempo;
-  JSONObject.AddPair('atualizacao', frmServidor.mAtualizacao.ToJSONArray());
-  RegistrarTempo('atualizacao_memoria');
+  JSONObject.AddPair('atualizacaoEmAndamento',
+    TJSONBool.Create(frmServidor.AtualizacaoEmAndamento));
+  RegistrarTempo('atualizacao_estado');
+  IniciarTempo;
   JSONObject.AddPair('modulos', JSONModulos);
   IniciarTempo;
   JSonObjectWhatsapp := TJSONObject.Create;
@@ -7272,19 +7284,6 @@ begin
     JSONNFCe.AddPair('erro', '[]');
   end;
   JSONObject.AddPair('nfce', JSONNFCe);
-  IniciarTempo;
-  try
-    Reader := TStreamReader.Create('atualizacao.json', TEncoding.UTF8);
-    try
-      JSONStr := Reader.ReadToEnd;
-    finally
-      Reader.Free;
-    end;
-    JSONObject.AddPair('atualizacao', TJSONObject.ParseJSONValue(JSONStr)
-      as TJSONObject);
-  except
-  end;
-  RegistrarTempo('arquivo_atualizacao');
   IniciarTempo;
   JSONObject.AddPair('taxaEntrega', frmServidor.GetTaxaEntrega);
   RegistrarTempo('taxaEntrega');
@@ -8702,7 +8701,7 @@ begin
       ('insert into pedido_produto_sap (id,codigo_pedido_produto,tipo,nomeclatura,descricao,valor,tipo_valor) value (:id,:codigo_pedido_produto,0,:nomeclatura,:descricao,:valor,:tipo_valor)');
     conexao.Parametros('id', CodigoAux);
     conexao.Parametros('codigo_pedido_produto', CodigoPedidoItem);
-    conexao.Parametros('nomeclatura', 'OBSERVA??O');
+    conexao.Parametros('nomeclatura', 'OBSERVACAO');
     conexao.Parametros('descricao', '');
     conexao.Parametros('valor', 0);
     conexao.Parametros('tipo_valor', '0');
@@ -10251,6 +10250,9 @@ begin
   THorse.Post('/whatsapp/goopedir/atualizar', DoPostWhatsappAtualizar);
   THorse.Post('/v2/licensa', DoPostLicensa);
   THorse.Post('/v2/registro', DoPostRegistro);
+  THorse.Get('/v2/atualizacao', DoGetAtualizacao);
+  THorse.Post('/v2/atualizacao', DoGetAtualizacao);
+  THorse.Post('/v2/atualizacao/iniciar', DoPostAtualizacaoIniciar);
   THorse.Get('/v2/status', DoGetStatus);
   THorse.Post('/v2/status', DoGetStatus);
   THorse.Get('/v2/banner', DoGetBanner);
@@ -10332,6 +10334,7 @@ begin
   THorse.Get('/v2/tipos', DoGetTipos);
   THorse.Post('v2/atualiza/obs/produto', DoPostAtualizaObsProduto);
   THorse.Post('v2/proxy', DoPostPonte);
+  THorse.Post('v2/notafiscal/nfce/sc/consultar', DoPostConsultarNFCeSantaCatarina);
   THorse.Post('v2/notafiscal/fornecedor', DoPostDadosNotaFiscalFornecedor);
   THorse.Post('v2/notafiscal/fornecedor/item/fator',
     DoPostDadosNotaFiscalFornecedorItemFator);

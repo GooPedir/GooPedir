@@ -193,7 +193,13 @@ begin
   iReq.Body(JSON);
   iReq.Metodo := mPost;
   try
-    iReq.Execute;
+
+    {$IFDEF DEBUG}
+      if (not Desenvolvimento) then
+      begin
+         iReq.Execute;
+      end;
+    {$ENDIF}
     Retorno := iReq.Retorno;
   except
 
@@ -699,7 +705,7 @@ begin
 
 
     User := UserID;
- 
+
 
   Req := iRequisicao.Create(nil);
   try
@@ -1268,9 +1274,7 @@ begin
       end;
     end else
     begin
-
     end;
-
     // Agora você pode usar as variáveis Cliente, Endereco, Produtos, Pagamento e Pedido
   finally
     JSON.Free;

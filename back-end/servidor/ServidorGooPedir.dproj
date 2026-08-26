@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Realease</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -223,6 +223,7 @@
         <DCCReference Include="src\controller\uControllerSite.pas"/>
         <DCCReference Include="src\modulos\uNewConsultas.pas"/>
         <DCCReference Include="src\controller\uAtualizacaoSite.pas"/>
+        <DCCReference Include="src\controller\uAtualizacaoPDV.pas"/>
         <DCCReference Include="uGlobais.pas"/>
         <DCCReference Include="src\procedure\uProcedure.pas"/>
         <DCCReference Include="src\modulos\Controller\ProdutoQueue.pas"/>
@@ -260,6 +261,7 @@
         <DCCReference Include="src\modulos\financeiro\financeiro.pas"/>
         <DCCReference Include="src\diagnostico\uPerformanceMetrics.pas"/>
         <DCCReference Include="src\modulos\impressao\uFilaImpressao.pas"/>
+        <DCCReference Include="src\modulos\dashboard\uDashboardAnalytics.pas"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

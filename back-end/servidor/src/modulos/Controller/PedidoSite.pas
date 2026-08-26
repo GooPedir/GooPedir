@@ -312,7 +312,7 @@ begin
       conexao.Parametros('id', CodigoSAP);
       conexao.Parametros('produto', Codigo);
       conexao.Parametros('tipo', 1);
-      conexao.Parametros('nomeclatura', 'OBSERVAÇÃO');
+      conexao.Parametros('nomeclatura', 'OBSERVACAO');
       conexao.Parametros('descricao', Produto.GetValue('observacao').Value);
       conexao.Parametros('valor', 0);
       conexao.ExecuteSQL;

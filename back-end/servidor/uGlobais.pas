@@ -176,7 +176,8 @@ function API_BASE_URL: string;
 begin
   if Desenvolvimento then
     // Result := 'https://api-dev.goopedir.cloud/'
-    Result := 'http://localhost:3001/'
+//    Result := 'http://localhost:3001/'
+Result := 'https://api.goopedir.cloud/'
   else
   begin
     if pcLocal then

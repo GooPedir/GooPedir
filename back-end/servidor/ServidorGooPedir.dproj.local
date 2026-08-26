@@ -119,6 +119,7 @@
     <File Path="src\controller\uDadosWhatsapp.pas"/>
     <File Path="src\controller\uIngredientesCardapio.pas"/>
     <File Path="src\controller\uRelatorios.pas"/>
+    <File Path="src\controller\uAtualizacaoPDV.pas"/>
     <File Path="src\diagnostico"/>
     <File Path="src\diagnostico\uPerformanceMetrics.pas"/>
     <File Path="src\importacao"/>
@@ -139,6 +140,8 @@
     <File Path="src\modulos\Controller\PedidoSite.pas"/>
     <File Path="src\modulos\Controller\ProdutoQueue.pas"/>
     <File Path="src\modulos\Controller\uInserirUpdate.pas"/>
+    <File Path="src\modulos\dashboard"/>
+    <File Path="src\modulos\dashboard\uDashboardAnalytics.pas"/>
     <File Path="src\modulos\financeiro"/>
     <File Path="src\modulos\financeiro\financeiro.pas"/>
     <File Path="src\modulos\impressao"/>
