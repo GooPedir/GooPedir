@@ -1,0 +1,688 @@
+{
+  "schemaVersion": 1,
+  "product": "servidor",
+  "channel": "test",
+  "version": "front-enzo",
+  "releaseId": "4",
+  "generatedAt": "2026-08-26T21:37:26.309Z",
+  "files": [
+    {
+      "source": "nginx/html/asset-manifest.json",
+      "destination": "nginx/html/html/asset-manifest.json",
+      "sha256": "753141a7b390e10ef13cb927760e646d3e770cf81fc30367d1f99dd89e99942b",
+      "sizeBytes": 8669
+    },
+    {
+      "source": "nginx/html/audio/ifood.mp3",
+      "destination": "nginx/html/html/audio/ifood.mp3",
+      "sha256": "d94002727898516dde09a4c9e7699dec4e7250fd821344caaddda57f2fb81798",
+      "sizeBytes": 1571203
+    },
+    {
+      "source": "nginx/html/audio/sinal.mp3",
+      "destination": "nginx/html/html/audio/sinal.mp3",
+      "sha256": "d96ad40b054181a0ef89676a0c5c30781f7b6e6abd7b9bfc621cc786ad9581e8",
+      "sizeBytes": 30554
+    },
+    {
+      "source": "nginx/html/do-icone-balcao.png",
+      "destination": "nginx/html/html/do-icone-balcao.png",
+      "sha256": "05f62f0fec5d1db4f441d88672315e82acf5e57ea0c9fd40601fb55fb4c8aae7",
+      "sizeBytes": 1578
+    },
+    {
+      "source": "nginx/html/do-icone-localizacao.png",
+      "destination": "nginx/html/html/do-icone-localizacao.png",
+      "sha256": "56ccafad3a7fb80ac11dfaccaff020763460a3864efa40f503e0897e9b3d68b2",
+      "sizeBytes": 1269
+    },
+    {
+      "source": "nginx/html/fiscal/CFOP.json",
+      "destination": "nginx/html/html/fiscal/CFOP.json",
+      "sha256": "07d1570d6d7863c335d991bb1e101d5cc3dcc7976abf2537b740980c67c33206",
+      "sizeBytes": 269661
+    },
+    {
+      "source": "nginx/html/fiscal/COFINS.json",
+      "destination": "nginx/html/html/fiscal/COFINS.json",
+      "sha256": "8d4067e776383b81a85d66719d8644dc5d68d9b91118c9a778b29bc9ee12cf66",
+      "sizeBytes": 4148
+    },
+    {
+      "source": "nginx/html/fiscal/CSOSNICMS.json",
+      "destination": "nginx/html/html/fiscal/CSOSNICMS.json",
+      "sha256": "f938fd57104b8fb492ecd61c3faf9bd295ea2db1e9c332b507cc76b77a6b190e",
+      "sizeBytes": 1558
+    },
+    {
+      "source": "nginx/html/fiscal/CSTICMS.json",
+      "destination": "nginx/html/html/fiscal/CSTICMS.json",
+      "sha256": "b85ee2720276fc2cd4d81314aabe666571ac0ea17e03bc8987ecc5cdc1eec560",
+      "sizeBytes": 962
+    },
+    {
+      "source": "nginx/html/fiscal/CSTIPI.json",
+      "destination": "nginx/html/html/fiscal/CSTIPI.json",
+      "sha256": "956af28e2268c2fa35f0ffea67e36f624019f7bdd305763acd584632ae6c59fd",
+      "sizeBytes": 1356
+    },
+    {
+      "source": "nginx/html/fiscal/CSTORIGEM.json",
+      "destination": "nginx/html/html/fiscal/CSTORIGEM.json",
+      "sha256": "d3a0d732b63212e31e4da0e1c6eb04b7daddb0460eb659d9d6fbee6b6efa3cda",
+      "sizeBytes": 1201
+    },
+    {
+      "source": "nginx/html/fiscal/CSTPIS.json",
+      "destination": "nginx/html/html/fiscal/CSTPIS.json",
+      "sha256": "8d4067e776383b81a85d66719d8644dc5d68d9b91118c9a778b29bc9ee12cf66",
+      "sizeBytes": 4148
+    },
+    {
+      "source": "nginx/html/fiscal/HOST.json",
+      "destination": "nginx/html/html/fiscal/HOST.json",
+      "sha256": "85c8acde7cd50178dcbea51b91466691938f9d3b76bddff64ec871823ea0b096",
+      "sizeBytes": 895
+    },
+    {
+      "source": "nginx/html/fiscal/NCM.json",
+      "destination": "nginx/html/html/fiscal/NCM.json",
+      "sha256": "5f342d10a1876378aec0349896befd9b6587c2d432f82d4d1f168b2bfce40f0c",
+      "sizeBytes": 218352
+    },
+    {
+      "source": "nginx/html/goopedir-logo.png",
+      "destination": "nginx/html/html/goopedir-logo.png",
+      "sha256": "169256cd8cf544e4c4df48f6e7c1f8a51830c47ef07bf2d858afe80b91d821fd",
+      "sizeBytes": 13637
+    },
+    {
+      "source": "nginx/html/ifood.svg",
+      "destination": "nginx/html/html/ifood.svg",
+      "sha256": "4ce7710f013956ca5f8eb3383dce0aa4c3dc460d464ecdc588cdc0f40a9bef78",
+      "sizeBytes": 1184
+    },
+    {
+      "source": "nginx/html/img/1.svg",
+      "destination": "nginx/html/html/img/1.svg",
+      "sha256": "3c441251174e24d146ec7f76938dbc1eb0bfd6d2a29715e1eccd91bfe35b498e",
+      "sizeBytes": 1408
+    },
+    {
+      "source": "nginx/html/img/2.svg",
+      "destination": "nginx/html/html/img/2.svg",
+      "sha256": "b05065ad6a980a725ebbf51e23565f6209de31ea580c3a17dfd9777975cc4b15",
+      "sizeBytes": 1736
+    },
+    {
+      "source": "nginx/html/img/3.svg",
+      "destination": "nginx/html/html/img/3.svg",
+      "sha256": "049c4f235c67dea3dc4fec18ec1a540ccfd1b0811e52607a6ba92c08bfbebcc6",
+      "sizeBytes": 2027
+    },
+    {
+      "source": "nginx/html/img/4.svg",
+      "destination": "nginx/html/html/img/4.svg",
+      "sha256": "b29452e1ac6fefc161afd21f4ed392cde96177cc751785b806565078907a31cd",
+      "sizeBytes": 2885
+    },
+    {
+      "source": "nginx/html/img/goopedir-logo.png",
+      "destination": "nginx/html/html/img/goopedir-logo.png",
+      "sha256": "169256cd8cf544e4c4df48f6e7c1f8a51830c47ef07bf2d858afe80b91d821fd",
+      "sizeBytes": 13637
+    },
+    {
+      "source": "nginx/html/img/icone1.png",
+      "destination": "nginx/html/html/img/icone1.png",
+      "sha256": "909bebfde661b96a4a8ab055f7cf210c5fadaf1b10dabb6c4c0af2feba43430a",
+      "sizeBytes": 7062
+    },
+    {
+      "source": "nginx/html/img/icone2.png",
+      "destination": "nginx/html/html/img/icone2.png",
+      "sha256": "b1158aaac4d2a971f0bf858d440aa4ccf9c6db273119d699e5d08c772d0a8895",
+      "sizeBytes": 4598
+    },
+    {
+      "source": "nginx/html/img/ifood.png",
+      "destination": "nginx/html/html/img/ifood.png",
+      "sha256": "69420b8005feb65e32e012ccf47e2477c8af83d95887c20426a3c78b03495502",
+      "sizeBytes": 15839
+    },
+    {
+      "source": "nginx/html/img/logo-goopedir-b.png",
+      "destination": "nginx/html/html/img/logo-goopedir-b.png",
+      "sha256": "fb43dae169f3498f8f636aa9658c92a8789218bef45ef636ab2fb43974fe5206",
+      "sizeBytes": 11120
+    },
+    {
+      "source": "nginx/html/img/nfce.webp",
+      "destination": "nginx/html/html/img/nfce.webp",
+      "sha256": "b608d23bcf5529940791c725a754ab3c427f8afc2fe206b47e69195630e5aa55",
+      "sizeBytes": 39846
+    },
+    {
+      "source": "nginx/html/img/nfe.avif",
+      "destination": "nginx/html/html/img/nfe.avif",
+      "sha256": "938abdb771304e903b92f09c2f8a976ce5513588a581abf7ff8d3a4f6b5a4db0",
+      "sizeBytes": 28588
+    },
+    {
+      "source": "nginx/html/img/sem-foto.jpg",
+      "destination": "nginx/html/html/img/sem-foto.jpg",
+      "sha256": "b3e3944e2d46777a570f4da2c54660e2ca061147aab34c9a78776c6ddf234607",
+      "sizeBytes": 8988
+    },
+    {
+      "source": "nginx/html/index.html",
+      "destination": "nginx/html/html/index.html",
+      "sha256": "786d14dfd56e0b996ff052d041233d835acf78423c706c022d3a2ffe6891da37",
+      "sizeBytes": 920
+    },
+    {
+      "source": "nginx/html/logo-goopedir-b.png",
+      "destination": "nginx/html/html/logo-goopedir-b.png",
+      "sha256": "fb43dae169f3498f8f636aa9658c92a8789218bef45ef636ab2fb43974fe5206",
+      "sizeBytes": 11120
+    },
+    {
+      "source": "nginx/html/logo-goopedir-p.png",
+      "destination": "nginx/html/html/logo-goopedir-p.png",
+      "sha256": "a0708f9c2f8792a0673d51be46a18fd52a12c523893b8b222d1be9abb875a214",
+      "sizeBytes": 22485
+    },
+    {
+      "source": "nginx/html/midias/foto2.webp",
+      "destination": "nginx/html/html/midias/foto2.webp",
+      "sha256": "90f6279fbfa4dc6696be62e36c2e517698c848dbe1bd0a35cd561c5c1690c280",
+      "sizeBytes": 119806
+    },
+    {
+      "source": "nginx/html/midias/mont-blanc.jpg",
+      "destination": "nginx/html/html/midias/mont-blanc.jpg",
+      "sha256": "67c7cd0617ce323416e34be49ca66d8d5b4f937e5a76de24b08f77f6961d1dbd",
+      "sizeBytes": 156672
+    },
+    {
+      "source": "nginx/html/robots.txt",
+      "destination": "nginx/html/html/robots.txt",
+      "sha256": "e5ab0d231eeb01b4a982d1c79a6729cac9797ad15a69247e4f28ba6afc149b4c",
+      "sizeBytes": 70
+    },
+    {
+      "source": "nginx/html/sem-foto.jpg",
+      "destination": "nginx/html/html/sem-foto.jpg",
+      "sha256": "2581cbb6d89532144a24dbc5f659f9da10e985fa059e05d6eb583ffa20a24cf7",
+      "sizeBytes": 11185
+    },
+    {
+      "source": "nginx/html/static/css/main.98ad1f46.css",
+      "destination": "nginx/html/html/static/css/main.98ad1f46.css",
+      "sha256": "cbdbba10b000fd79bf693afc58ee849aeb8a420b5b0a360c2a089ecdd7fcbf49",
+      "sizeBytes": 152047
+    },
+    {
+      "source": "nginx/html/static/css/main.98ad1f46.css.map",
+      "destination": "nginx/html/html/static/css/main.98ad1f46.css.map",
+      "sha256": "750ce2feb352aae90cdb0349076697b092f9cbe671f4d09d2d369ada25a84fde",
+      "sizeBytes": 223288
+    },
+    {
+      "source": "nginx/html/static/js/404.44a69d1e.chunk.js",
+      "destination": "nginx/html/html/static/js/404.44a69d1e.chunk.js",
+      "sha256": "7521cd481c85b343dc3ee9e206bc0c6f8e66dd4b1af7f32987121c5c02a1c52d",
+      "sizeBytes": 22079
+    },
+    {
+      "source": "nginx/html/static/js/404.44a69d1e.chunk.js.LICENSE.txt",
+      "destination": "nginx/html/html/static/js/404.44a69d1e.chunk.js.LICENSE.txt",
+      "sha256": "0400410c71d0e23daba5a61322070de79d09446267c035bc5132ef6a77ae263b",
+      "sizeBytes": 188
+    },
+    {
+      "source": "nginx/html/static/js/404.44a69d1e.chunk.js.map",
+      "destination": "nginx/html/html/static/js/404.44a69d1e.chunk.js.map",
+      "sha256": "78c6e892f5f966e5cc9862be62e66ce5a9223267f4656aa4c48d6663c57f7a39",
+      "sizeBytes": 105395
+    },
+    {
+      "source": "nginx/html/static/js/441.e653db01.chunk.js",
+      "destination": "nginx/html/html/static/js/441.e653db01.chunk.js",
+      "sha256": "2a5c3ce2541e39754cb10e6c44b8d19695b4ad6a1d09ec3e45b442a3423cd6ca",
+      "sizeBytes": 5653
+    },
+    {
+      "source": "nginx/html/static/js/441.e653db01.chunk.js.map",
+      "destination": "nginx/html/html/static/js/441.e653db01.chunk.js.map",
+      "sha256": "91e88dfbdd4dc92158008b973b8c099b46caf5cf147e9effa1f6ec09f39b3c87",
+      "sizeBytes": 21019
+    },
+    {
+      "source": "nginx/html/static/js/513.5cf38cde.chunk.js",
+      "destination": "nginx/html/html/static/js/513.5cf38cde.chunk.js",
+      "sha256": "f87e417985254e2694513b3276376971142bd7d694f30b8475c5faf2ab57808d",
+      "sizeBytes": 136759
+    },
+    {
+      "source": "nginx/html/static/js/513.5cf38cde.chunk.js.map",
+      "destination": "nginx/html/html/static/js/513.5cf38cde.chunk.js.map",
+      "sha256": "e1e35a5c89c8eb276c1723a7abc35f4fc6d2c3bb6e4b9e6b5ec5774e25a08d01",
+      "sizeBytes": 272247
+    },
+    {
+      "source": "nginx/html/static/js/704.6b434201.chunk.js",
+      "destination": "nginx/html/html/static/js/704.6b434201.chunk.js",
+      "sha256": "0dd88547f7cbddf87363e37e80cb621503d890562f81329febb3ede80a1efc0f",
+      "sizeBytes": 639
+    },
+    {
+      "source": "nginx/html/static/js/704.6b434201.chunk.js.map",
+      "destination": "nginx/html/html/static/js/704.6b434201.chunk.js.map",
+      "sha256": "08ca4862b657b7e4b79a7790e68c957060518caaf88fa6e489b3e0e8b841c848",
+      "sizeBytes": 2829
+    },
+    {
+      "source": "nginx/html/static/js/main.12480454.js",
+      "destination": "nginx/html/html/static/js/main.12480454.js",
+      "sha256": "9b11c7b3d8b62acbf19633a3a89af55ec2fe4746582f6fc5d395b2ff923eb690",
+      "sizeBytes": 6582310
+    },
+    {
+      "source": "nginx/html/static/js/main.12480454.js.LICENSE.txt",
+      "destination": "nginx/html/html/static/js/main.12480454.js.LICENSE.txt",
+      "sha256": "7a41d1105657a2808d6f51ed896ac7ca8210f255a4ee7670e6c5d25d354a6209",
+      "sizeBytes": 27732
+    },
+    {
+      "source": "nginx/html/static/js/main.12480454.js.map",
+      "destination": "nginx/html/html/static/js/main.12480454.js.map",
+      "sha256": "da9d4c69c298748b15fbcaa25b652376d0e156df215438f8f924ea9403006451",
+      "sizeBytes": 23653640
+    },
+    {
+      "source": "nginx/html/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
+      "destination": "nginx/html/html/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
+      "sha256": "bc844b5b02d3f3adabb514de4e0c0208252d3123413bd03f6287fa446acee859",
+      "sizeBytes": 209376
+    },
+    {
+      "source": "nginx/html/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
+      "destination": "nginx/html/html/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
+      "sha256": "c411f11975d26eb04cd2aa3c071181d4b18e489f1fb97060d4176a3531dfb36e",
+      "sizeBytes": 118072
+    },
+    {
+      "source": "nginx/html/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
+      "destination": "nginx/html/html/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
+      "sha256": "64f9fb623681f112261e9a2f97826782439f3925dea8f44a57d1e4db95ba6cfd",
+      "sizeBytes": 67976
+    },
+    {
+      "source": "nginx/html/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
+      "destination": "nginx/html/html/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
+      "sha256": "c732f106e91bc618767fbac8e2c7b27e5c736d477b2bb4fb83f597a43198c33c",
+      "sizeBytes": 25464
+    },
+    {
+      "source": "nginx/html/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
+      "destination": "nginx/html/html/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
+      "sha256": "31f099c13f6e4ba05f1b471bf170cb5493249474222917372de3ca5cf29e6a1a",
+      "sizeBytes": 423676
+    },
+    {
+      "source": "nginx/html/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
+      "destination": "nginx/html/html/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
+      "sha256": "1f0189e087fcefbf654fad74a3a06668b782c01353a61d5c0b7f0bf23e33c020",
+      "sizeBytes": 157192
+    },
+    {
+      "source": "nginx/html/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
+      "destination": "nginx/html/html/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
+      "sha256": "a6274a12fd3f5f1ea05fc9b4677959b31fd101fdac4f0d09c17159c414d36d23",
+      "sizeBytes": 10836
+    },
+    {
+      "source": "nginx/html/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
+      "destination": "nginx/html/html/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
+      "sha256": "2aca24b35bd41474dcc5e7fb5f11ec43fa06e3ac1d0035ad41108fa6b30b0871",
+      "sizeBytes": 4800
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-300-normal.1431d1cef06ad04f5458.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-300-normal.1431d1cef06ad04f5458.woff2",
+      "sha256": "47aa3bfad6cb9e2d63abdd58f4e6ce4f7b9fd2704b2b15193c71874035fe025d",
+      "sizeBytes": 9576
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-300-normal.5b5f2f31962967dfc22c.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-300-normal.5b5f2f31962967dfc22c.woff",
+      "sha256": "c07952fedb191adadae28459d166bff072fbb5c457b80f4889de78bc31802fc3",
+      "sizeBytes": 8428
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-400-normal.71a33b6b50457b2c903a.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-400-normal.71a33b6b50457b2c903a.woff2",
+      "sha256": "495d38d4b9741e8aa4204002414069e2d8db9f3c60b60e195e4d74381462dee9",
+      "sizeBytes": 9628
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-400-normal.c1d66054fe23e181d92c.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-400-normal.c1d66054fe23e181d92c.woff",
+      "sha256": "adba67d2c722b53eac875d9348c43ee6e58f5dd4fb0badd270bc1a4c88b3f662",
+      "sizeBytes": 8392
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-500-normal.965aebef74db72eaf236.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-500-normal.965aebef74db72eaf236.woff",
+      "sha256": "4bc088e94b95f1fe49e460f0f3a3ba38c9dae1ae21330cfa2a56b3da52320401",
+      "sizeBytes": 8700
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-500-normal.cad7d3d9cb265e334e58.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-500-normal.cad7d3d9cb265e334e58.woff2",
+      "sha256": "3728fbdd191d75bad5b83a838dfe2fc15f84c2aaa36ffa573321275847db31a9",
+      "sizeBytes": 9840
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-700-normal.d010f1f324e111a22e53.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-700-normal.d010f1f324e111a22e53.woff2",
+      "sha256": "6a84eeee6a25e7c9a8a03191007a6720566b5a2aa2384d36168fb07f49e97e9e",
+      "sizeBytes": 9644
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-700-normal.f8a034d72aa6828199d4.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-700-normal.f8a034d72aa6828199d4.woff",
+      "sha256": "6f82c5e21d536d71baa87195b96db1e35687964bf421418487dbd54719b08dd7",
+      "sizeBytes": 8660
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-300-normal.3503ec5cc6330e21f695.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-300-normal.3503ec5cc6330e21f695.woff",
+      "sha256": "5e06c977b1b0bf9e216723e66abb1ba52f6d9aa379c4f12fa690fbada7a18b23",
+      "sizeBytes": 13548
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-300-normal.4777461b144e55145268.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-300-normal.4777461b144e55145268.woff2",
+      "sha256": "435e4b7f9f250d9d9243d4754799fc96ff3e648eb113fad1d15fbcf7eaae70c0",
+      "sizeBytes": 15000
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-400-normal.804378952da8a10faae2.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-400-normal.804378952da8a10faae2.woff2",
+      "sha256": "b7ef2cd1159a8cbfd271ff2abe07f237a46f6fa056eefd2e9018661f93eea137",
+      "sizeBytes": 15344
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-400-normal.af4d91666ea345601bea.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-400-normal.af4d91666ea345601bea.woff",
+      "sha256": "0a32035af713683f29607baa30965c21075cc0c40f5dde1463ad95c6278c2b64",
+      "sizeBytes": 13468
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-500-normal.268f264f58eba5c07c88.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-500-normal.268f264f58eba5c07c88.woff",
+      "sha256": "5713878894191f148bcf7ebf10c3427a296e3827a81833819f18ebffd9117375",
+      "sizeBytes": 13448
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-500-normal.62ced72e5832f02c2796.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-500-normal.62ced72e5832f02c2796.woff2",
+      "sha256": "aeed0e51b0bac7c89e5c7e6cf086d7e03bae03df2390528a6f8a66a93e130d80",
+      "sizeBytes": 14968
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-700-normal.198a421f279162d59143.woff",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-700-normal.198a421f279162d59143.woff",
+      "sha256": "8ea7934f4354b6b8a5e8c4536e0521115c6141b6608d046a8c7be5ded5a0edc1",
+      "sizeBytes": 13432
+    },
+    {
+      "source": "nginx/html/static/media/roboto-cyrillic-ext-700-normal.be4d02458ce53887dc37.woff2",
+      "destination": "nginx/html/html/static/media/roboto-cyrillic-ext-700-normal.be4d02458ce53887dc37.woff2",
+      "sha256": "3c505383d37d2078648e37868bbd1fadf64a1c92dad2e03fff532ffa84e7635b",
+      "sizeBytes": 14684
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-300-normal.8ecd7085cfe9bc2c22ac.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-300-normal.8ecd7085cfe9bc2c22ac.woff",
+      "sha256": "6bb1ef10c985900e0c42b2344613695d73c9dc4fb498e57bf1512e74ce5069ca",
+      "sizeBytes": 6444
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-300-normal.db2632771401f61463fe.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-300-normal.db2632771401f61463fe.woff2",
+      "sha256": "455c2c1af0a2bf20047a1864d7d7c174983407b58465cdb000b9c47565f9ee3b",
+      "sizeBytes": 7120
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-400-normal.c35e4c3958e209d17b31.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-400-normal.c35e4c3958e209d17b31.woff2",
+      "sha256": "daf51ab540602b2d0b87646621637bac38889bb34effb8a432ae739aca78b5c0",
+      "sizeBytes": 7112
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-400-normal.dfdff8fa12eac629d29f.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-400-normal.dfdff8fa12eac629d29f.woff",
+      "sha256": "076b9dc156b8d7d4664f68b6f6d72d0f8373427b5a4cdfdd779982fd5d1938fe",
+      "sizeBytes": 6348
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-500-normal.1a05a4887ccb810cb4dd.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-500-normal.1a05a4887ccb810cb4dd.woff",
+      "sha256": "93181eb73de768974c72787fe0d0cc358bf93a875b34ce68f734aa485d02a441",
+      "sizeBytes": 6324
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-500-normal.9ac81fefbe6c319ea40b.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-500-normal.9ac81fefbe6c319ea40b.woff2",
+      "sha256": "713780d8b30bda5583052ea847cdcb4f2956c2ac5ff38a7e538ba8f14ad1043e",
+      "sizeBytes": 7016
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-700-normal.50e795c1345353b0e996.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-700-normal.50e795c1345353b0e996.woff2",
+      "sha256": "1c9cc76fd52238330f0aabac35acd2cac0f04b7890862e61e013ebbb8513fb5b",
+      "sizeBytes": 6936
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-700-normal.a84892c56152037b3552.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-700-normal.a84892c56152037b3552.woff",
+      "sha256": "3f1a501209f74cba0d5a37beff120424a4fd0197b126e641948c3f1fef65db3b",
+      "sizeBytes": 6300
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-300-normal.35b9d6be04b95f0f0530.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-300-normal.35b9d6be04b95f0f0530.woff2",
+      "sha256": "20dc200cc43ab904876fb0c1697ebe398da40f6769c3dfa35ed51c7e2a0656d5",
+      "sizeBytes": 1480
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-300-normal.392a45a84c081c4b412d.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-300-normal.392a45a84c081c4b412d.woff",
+      "sha256": "f53a37dad6884a26d4b237da88d08fabb63b7f71849d04ad094022e07f489b07",
+      "sizeBytes": 1252
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-400-normal.169619821ea93019d1bb.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-400-normal.169619821ea93019d1bb.woff2",
+      "sha256": "d368cf5bed7856dbafa2af36b51acb9c3e028689eca4495fed5f28388cec60ba",
+      "sizeBytes": 1484
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-400-normal.f708607d2a7290fb8bfa.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-400-normal.f708607d2a7290fb8bfa.woff",
+      "sha256": "f1a34c891f6d051f6cc427cbbac6c3c484f2cf472fb682a295ab333e6776c8f2",
+      "sizeBytes": 1248
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-500-normal.6fb9cffb1d3e72bf9293.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-500-normal.6fb9cffb1d3e72bf9293.woff2",
+      "sha256": "ef8f0236a7e8b46bc9d642ecf4ab0cb7bad7c4182108612ce8f4fb1e2d570b40",
+      "sizeBytes": 1500
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-500-normal.eaa367bbd0b333a7f80b.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-500-normal.eaa367bbd0b333a7f80b.woff",
+      "sha256": "695356ace35a79874e63a4a60b63584e5eba54e0db22371fbebff3c477441b73",
+      "sizeBytes": 1256
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
+      "sha256": "7a57dafeed3fda66121712da78d796c6b6e009c9894dc52847eac63e2edbe86b",
+      "sizeBytes": 1248
+    },
+    {
+      "source": "nginx/html/static/media/roboto-greek-ext-700-normal.bd9854c751441ccc1a70.woff2",
+      "destination": "nginx/html/html/static/media/roboto-greek-ext-700-normal.bd9854c751441ccc1a70.woff2",
+      "sha256": "5b6377da4c959db6d4b22738a27f1bee3d443f4148a680b25cda48d30f3c0532",
+      "sizeBytes": 1432
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-300-normal.0515ab82dae6923cab85.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-300-normal.0515ab82dae6923cab85.woff",
+      "sha256": "ddb5c61d8187e4b5e415a1b5addbd9133504a1709bd6334b8f0f304fd47ea66a",
+      "sizeBytes": 14588
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-300-normal.c48fb6765a9fcb00b330.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-300-normal.c48fb6765a9fcb00b330.woff2",
+      "sha256": "f75911313e1c7802c23345ab57e754d87801581706780c993fb23ff4e0fe62ef",
+      "sizeBytes": 15740
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-400-normal.3f2b9a42f643e62a49b7.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-400-normal.3f2b9a42f643e62a49b7.woff",
+      "sha256": "a9fdbefae33b742c5c1379fabbfa02d3491a9095ef762d8e23f135b66eefd7c9",
+      "sizeBytes": 14384
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-400-normal.b009a76ad6afe4ebd301.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-400-normal.b009a76ad6afe4ebd301.woff2",
+      "sha256": "f6734f8177112c0839b961f96d813fcb189d81b60e96c33278c1983b6f419615",
+      "sizeBytes": 15744
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-500-normal.1f075502d0094a398e21.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-500-normal.1f075502d0094a398e21.woff",
+      "sha256": "3ac31048383d43b9dde380b77a988381c4b185edc01509680056b4871a1b0166",
+      "sizeBytes": 14424
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
+      "sha256": "b019538234514166ec7665359d097403358f8a4c991901983922fb4d56989f1e",
+      "sizeBytes": 15920
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-700-normal.227c93190fe7f82de3f8.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-700-normal.227c93190fe7f82de3f8.woff2",
+      "sha256": "f5aebdfea35d1e7656ef4acc5db1f243209755ae3300943ef8fc6280f363c860",
+      "sizeBytes": 15860
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-700-normal.666d7a2f9db53cf52e2d.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-700-normal.666d7a2f9db53cf52e2d.woff",
+      "sha256": "d89bc0fc41a3a61457755b03529ddf3721e6c8a44a922b12e8a56f1e3f570add",
+      "sizeBytes": 14420
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-300-normal.182712ab85f1472cdb2f.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-300-normal.182712ab85f1472cdb2f.woff",
+      "sha256": "35da7ccde49e03b797f4694ba20cda2c2a030e2e38b34a63e396d0e44a101ccb",
+      "sizeBytes": 10360
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-300-normal.dc7dcec8e3f654e0ed63.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-300-normal.dc7dcec8e3f654e0ed63.woff2",
+      "sha256": "b076e86301cbee8c5c9aef51863a9c0a88e6f6d2aabdffca93e031113c6caa74",
+      "sizeBytes": 11796
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-400-normal.861b791f9de857a6e7bc.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-400-normal.861b791f9de857a6e7bc.woff2",
+      "sha256": "3c23eb02de6b34e30f18cfb7167abd81a2cedfd1da60dfcb71989517ab3fb431",
+      "sizeBytes": 11872
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-400-normal.e757c42df6aaa3e11b62.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-400-normal.e757c42df6aaa3e11b62.woff",
+      "sha256": "c2b940863c2973c37f56c4a3a6dce49088137623a4fd3ab542a566663e5f766a",
+      "sizeBytes": 10208
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-500-normal.252057e589a0379208ed.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-500-normal.252057e589a0379208ed.woff",
+      "sha256": "a303676a0a89cba41d9cee6e5324a216fae654cce74e42345b77c85e2921180e",
+      "sizeBytes": 10184
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-500-normal.9165081d10e1ba601384.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-500-normal.9165081d10e1ba601384.woff2",
+      "sha256": "7f1c829b0c90fd664a03bb714a74f7d35d9e38ee1687104abc8ad5bd9c8ccb6c",
+      "sizeBytes": 11800
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-700-normal.c1cc6d6fc851b3a2f79d.woff",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-700-normal.c1cc6d6fc851b3a2f79d.woff",
+      "sha256": "3d1cbacf38e28779c0bb27dc80dd5a22dbcae27d334d3a26acf5a3a72461a627",
+      "sizeBytes": 10168
+    },
+    {
+      "source": "nginx/html/static/media/roboto-latin-ext-700-normal.ed67ad54b1a8f5d21150.woff2",
+      "destination": "nginx/html/html/static/media/roboto-latin-ext-700-normal.ed67ad54b1a8f5d21150.woff2",
+      "sha256": "fc66f942651a9fe1a598770d3d896529dcd7a03d02f40655451513093103e61b",
+      "sizeBytes": 11824
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-300-normal.32fc45a3d1e8ea11fabc.woff2",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-300-normal.32fc45a3d1e8ea11fabc.woff2",
+      "sha256": "51f3f41805329fb8341beb56ded833eae6c7a8a1a0a1d7e78960e1390fe928b6",
+      "sizeBytes": 5468
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-300-normal.8472d69545c7409091b4.woff",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-300-normal.8472d69545c7409091b4.woff",
+      "sha256": "7747ef64f41172a27c5beff81aa69a818d49e7fd91dc375eccdba2f3621bab9e",
+      "sizeBytes": 4768
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-400-normal.3230f9b040f3c630e0c3.woff2",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-400-normal.3230f9b040f3c630e0c3.woff2",
+      "sha256": "77b24796a3d4ab521f66765651875338ed50cb9306cfe4603a3e79618e429cec",
+      "sizeBytes": 5560
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-400-normal.e0e8ba725ebd107367a8.woff",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-400-normal.e0e8ba725ebd107367a8.woff",
+      "sha256": "d2390f1ad8902a7e7b0be990e71dc85092e74b49aca502cd86898c8787e52e2a",
+      "sizeBytes": 4752
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-500-normal.657896dad292ee9a0a0a.woff",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-500-normal.657896dad292ee9a0a0a.woff",
+      "sha256": "7899e6a59497bd74ecd8087bee209dbf099e0bd973e0440be20cacb8a7940741",
+      "sizeBytes": 4728
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-500-normal.d8642a3d1d4ef6179644.woff2",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-500-normal.d8642a3d1d4ef6179644.woff2",
+      "sha256": "0948409a22b5979aa7e1ec20da9e61f12e7d403800b541ece053881bd2542b70",
+      "sizeBytes": 5604
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-700-normal.3425a701027d0699e369.woff2",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-700-normal.3425a701027d0699e369.woff2",
+      "sha256": "4ec57f2a80b91090971b83970230ca09ab3568c5f5b224896ca9aa6180a76aa9",
+      "sizeBytes": 5548
+    },
+    {
+      "source": "nginx/html/static/media/roboto-vietnamese-700-normal.4df79f684fcbca8386bd.woff",
+      "destination": "nginx/html/html/static/media/roboto-vietnamese-700-normal.4df79f684fcbca8386bd.woff",
+      "sha256": "d986b503429d3f90725ab906619e104515bf360732031b4cba2f4b342a7e632d",
+      "sizeBytes": 4728
+    }
+  ]
+}

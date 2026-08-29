@@ -32,7 +32,7 @@ var
 implementation
 
 uses
-  conexao, uAtualizador;
+  conexao, uAtualizador, System.IOUtils;
 
 {$R *.dfm}
 {
@@ -50,12 +50,31 @@ var
   conexao : Tconexao;
   Banco : TAtualizacao;
 begin
-  conexao := Tconexao.Create('main');
-  conexao.SQL.Add('select * from dados_whatsapp');
-  Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
-  conexao.Free;
-  Banco := TAtualizacao.Create;
-  Banco.Iniciar;
+  try
+    Banco := TAtualizacao.Create;
+    try
+      Banco.Iniciar;
+    finally
+      Banco.Free;
+    end;
+
+    conexao := Tconexao.Create('main');
+    try
+      conexao.SQL.Add('select * from dados_whatsapp');
+      Configuracoes.LoadFromJSON(conexao.ConsultaSQL);
+    finally
+      conexao.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      TFile.AppendAllText(TPath.Combine(ExtractFilePath(ParamStr(0)),
+        'atualizador-core.log'), FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) +
+        ' Falha ao iniciar atualizador: ' + E.Message + sLineBreak,
+        TEncoding.UTF8);
+      raise;
+    end;
+  end;
 
   if ParamCount > 0 then
   begin

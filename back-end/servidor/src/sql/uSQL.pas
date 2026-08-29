@@ -70,38 +70,40 @@ const
     'atualizador.exe;GooPedir.exe;ServicosGoopedir.exe;SiteGooPedir.exe;' +
     'ImpressaoGooPedir.exe;NFCe.exe;WhatsappGoPedir.exe;psGoopedir.exe';
 var
-  Conexao: TConexao;
+  conexao: TConexao;
 
   procedure InserirParametroPadrao(const Chave, Valor: string);
   begin
-    Conexao.SQL.Add('INSERT INTO configuracoes (chave, valor)');
-    Conexao.SQL.Add('VALUES (:chave, :valor)');
-    Conexao.SQL.Add('ON DUPLICATE KEY UPDATE valor = valor');
-    Conexao.Parametros('chave', Chave);
-    Conexao.Parametros('valor', Valor);
-    Conexao.ExecuteSQL;
+    conexao.SQL.Add('INSERT INTO configuracoes (chave, valor)');
+    conexao.SQL.Add('VALUES (:chave, :valor)');
+    conexao.SQL.Add('ON DUPLICATE KEY UPDATE valor = valor');
+    conexao.Parametros('chave', Chave);
+    conexao.Parametros('valor', Valor);
+    conexao.ExecuteSQL;
   end;
 
 begin
-  Conexao := TConexao.Create('ConfigurarParametrosAtualizacaoPadrao');
+  conexao := TConexao.Create('ConfigurarParametrosAtualizacaoPadrao');
   try
-    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
-      'chave VARCHAR(100) PRIMARY KEY,' +
-      'valor TEXT' +
+    conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' + 'valor TEXT' +
       ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
     InserirParametroPadrao('atualizacao_ambiente', 'producao');
-    InserirParametroPadrao('atualizacao_token', '');
-    InserirParametroPadrao('atualizacao_url', '');
-    InserirParametroPadrao('atualizacao_executaveis', ATUALIZACAO_EXECUTAVEIS_PADRAO);
+    InserirParametroPadrao('atualizacao_token', 'IWC8cNw2RrgbL7280RSaTzzoD8LrWS3YjbhT24J8lfT');
+    InserirParametroPadrao('atualizacao_url',
+      'https://atualizacao.goopedir.com/');
+    InserirParametroPadrao('atualizacao_executaveis',
+      ATUALIZACAO_EXECUTAVEIS_PADRAO);
 
 {$IFDEF DEBUG}
-    Conexao.SalvarParametro('atualizacao_ambiente', 'testes');
+    conexao.SalvarParametro('atualizacao_ambiente', 'testes');
 {$ENDIF}
   finally
-    Conexao.Free;
+    conexao.Free;
   end;
 end;
+
 procedure TSQL.AtualizaBanco;
 var
   I: Integer;
@@ -168,56 +170,57 @@ procedure TSQL.AtualizarBancoNovo;
 var
   I: Integer;
   VersaoAtual: Integer;
-  Conexao: TConexao;
+  conexao: TConexao;
 begin
   ListaSQL.Clear;
   UltimoSQLBanco := 0;
   VersaoAtual := StrToIntDef(VersaoExe, 0);
 
-  Conexao := TConexao.Create('uSQL BancoNovo');
+  conexao := TConexao.Create('uSQL BancoNovo');
   try
-    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
-      'chave VARCHAR(100) PRIMARY KEY,' +
-      'valor TEXT' +
+    conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' + 'valor TEXT' +
       ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
-    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
+    conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
       'IDSQL INTEGER,VERSAOSQL INTEGER, SQLUSADOSQL BLOB, ERROSQL BLOB,' +
       'DATASQL DATE, HORASQL TIME, STATUSSQL VARCHAR(15));');
   finally
-    Conexao.Free;
+    conexao.Free;
   end;
 
   for I := UltimoSQLBanco to VersaoAtual do
     Banco(I);
 
-  Conexao := TConexao.Create('uSQL BancoNovo');
+  conexao := TConexao.Create('uSQL BancoNovo');
   try
     for I := 0 to ListaSQL.Count - 1 do
-      Conexao.ExecuteSQL(ListaSQL[I]);
+      conexao.ExecuteSQL(ListaSQL[I]);
 
-    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
-      'chave VARCHAR(100) PRIMARY KEY,' +
-      'valor TEXT' +
+    conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS configuracoes (' +
+      'chave VARCHAR(100) PRIMARY KEY,' + 'valor TEXT' +
       ') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
-    Conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
+    conexao.ExecuteSQL('CREATE TABLE IF NOT EXISTS MEU_SQL (' +
       'IDSQL INTEGER,VERSAOSQL INTEGER, SQLUSADOSQL BLOB, ERROSQL BLOB,' +
       'DATASQL DATE, HORASQL TIME, STATUSSQL VARCHAR(15));');
 
-    Conexao.SQL.Add('INSERT INTO MEU_SQL (IDSQL,VERSAOSQL,SQLUSADOSQL,ERROSQL,DATASQL,HORASQL,STATUSSQL) VALUES (:IDSQL,:VERSAOSQL,:SQLUSADOSQL,:ERROSQL,current_date,current_time,:STATUSSQL)');
-    Conexao.Parametros('IDSQL', Conexao.GerarID('MEU_SQL', 'IDSQL'));
-    Conexao.Parametros('VERSAOSQL', VersaoAtual);
-    Conexao.Parametros('SQLUSADOSQL', 'Banco novo atualizado ate a versao local');
-    Conexao.Parametros('ERROSQL', '');
-    Conexao.Parametros('STATUSSQL', 'SUCESSO');
-    Conexao.ExecuteSQL;
+    conexao.SQL.Add
+      ('INSERT INTO MEU_SQL (IDSQL,VERSAOSQL,SQLUSADOSQL,ERROSQL,DATASQL,HORASQL,STATUSSQL) VALUES (:IDSQL,:VERSAOSQL,:SQLUSADOSQL,:ERROSQL,current_date,current_time,:STATUSSQL)');
+    conexao.Parametros('IDSQL', conexao.GerarID('MEU_SQL', 'IDSQL'));
+    conexao.Parametros('VERSAOSQL', VersaoAtual);
+    conexao.Parametros('SQLUSADOSQL',
+      'Banco novo atualizado ate a versao local');
+    conexao.Parametros('ERROSQL', '');
+    conexao.Parametros('STATUSSQL', 'SUCESSO');
+    conexao.ExecuteSQL;
   finally
-    Conexao.Free;
+    conexao.Free;
   end;
 
   StatusAtualizacao := 1;
 end;
+
 constructor TSQL.Create;
 var
   Versao: String;
@@ -432,7 +435,7 @@ var
   conexao: TConexao;
   QryOrigem, QryInsert: TFDQuery;
   I: Integer;
-  chave, valor: string;
+  Chave, Valor: string;
 begin
   conexao := TConexao.Create('MigrarDadosWhatsappParaConfig');
   QryOrigem := conexao.CriaQRY;
@@ -444,12 +447,12 @@ begin
   begin
     for I := 0 to QryOrigem.FieldCount - 1 do
     begin
-      chave := QryOrigem.Fields[I].FieldName;
-      valor := QryOrigem.Fields[I].AsString;
+      Chave := QryOrigem.Fields[I].FieldName;
+      Valor := QryOrigem.Fields[I].AsString;
       QryInsert.SQL.Text := 'INSERT INTO configuracoes (chave, valor) ' +
         'VALUES (:chave, :valor) ' + 'ON DUPLICATE KEY UPDATE valor = :valor';
-      QryInsert.ParamByName('chave').AsString := LowerCase(chave);
-      QryInsert.ParamByName('valor').AsString := valor;
+      QryInsert.ParamByName('chave').AsString := LowerCase(Chave);
+      QryInsert.ParamByName('valor').AsString := Valor;
       QryInsert.ExecSQL;
     end;
   end;
@@ -664,8 +667,10 @@ var
   C: Char;
   DentroTexto: Boolean;
 begin
-  Arquivos[0] := ExtractFilePath(ParamStr(0)) + 'src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
-  Arquivos[1] := ExtractFilePath(ParamStr(0)) + 'fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[0] := ExtractFilePath(ParamStr(0)) +
+    'src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
+  Arquivos[1] := ExtractFilePath(ParamStr(0)) +
+    'fiscal_ibs_cbs_class_trib_seed.sql';
   Arquivos[2] := GetCurrentDir + '\src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
   Arquivos[3] := GetCurrentDir + '\fiscal_ibs_cbs_class_trib_seed.sql';
   Arquivos[4] := 'src\sql\fiscal_ibs_cbs_class_trib_seed.sql';
@@ -692,7 +697,7 @@ begin
   end;
 
   Comando := '';
-  DentroTexto := false;
+  DentroTexto := False;
   I := 1;
   while I <= Length(Conteudo) do
   begin
@@ -701,7 +706,8 @@ begin
     if C = '''' then
     begin
       Comando := Comando + C;
-      if DentroTexto and (I < Length(Conteudo)) and (Conteudo[I + 1] = '''') then
+      if DentroTexto and (I < Length(Conteudo)) and (Conteudo[I + 1] = '''')
+      then
       begin
         Inc(I);
         Comando := Comando + Conteudo[I];
@@ -1984,7 +1990,8 @@ begin
         SQL := SQL + ' UNIQUE KEY uk_bancos_codigo (codigo),';
         SQL := SQL + ' INDEX idx_bancos_nome (nome),';
         SQL := SQL + ' INDEX idx_bancos_ativo (ativo)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
         ExecultaSQL(SQL);
 
       end;
@@ -2059,7 +2066,8 @@ begin
         SQL := SQL + ' processado_em DATETIME NULL,';
         SQL := SQL + ' INDEX idx_fila_status_criado (status, criado_em),';
         SQL := SQL + ' INDEX idx_fila_pedido (pedido_id)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
         ExecultaSQL(SQL);
       end;
     131:
@@ -2441,7 +2449,8 @@ begin
         ExecultaSQL
           ('ALTER TABLE caixa ADD INDEX idx_caixa_usuario_status (id_usuario, status);');
       end;
-      154: begin
+    154:
+      begin
         ExecultaSQL('alter table cliente add fidelidade integer');
       end;
     155:
@@ -2478,9 +2487,11 @@ begin
         SQL := SQL + '  ind_nf3e TINYINT NOT NULL DEFAULT 0,';
         SQL := SQL + '  ind_nfcom TINYINT NOT NULL DEFAULT 0,';
         SQL := SQL + '  ind_nfse TINYINT NOT NULL DEFAULT 0,';
-        SQL := SQL + '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
         SQL := SQL + '  PRIMARY KEY (cst)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
         ExecultaSQL(SQL);
 
         SQL := 'CREATE TABLE IF NOT EXISTS fiscal_ibs_cbs_class_trib (';
@@ -2522,11 +2533,14 @@ begin
         SQL := SQL + '  ind_dere TINYINT NOT NULL DEFAULT 0,';
         SQL := SQL + '  anexo VARCHAR(100) NULL,';
         SQL := SQL + '  link VARCHAR(500) NULL,';
-        SQL := SQL + '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
+        SQL := SQL +
+          '  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
         SQL := SQL + '  PRIMARY KEY (cclass_trib),';
         SQL := SQL + '  INDEX idx_fiscal_class_trib_cst (cst),';
-        SQL := SQL + '  CONSTRAINT fk_fiscal_class_trib_cst FOREIGN KEY (cst) REFERENCES fiscal_ibs_cbs_cst(cst)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        SQL := SQL +
+          '  CONSTRAINT fk_fiscal_class_trib_cst FOREIGN KEY (cst) REFERENCES fiscal_ibs_cbs_cst(cst)';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
         ExecultaSQL(SQL);
 
         ExecultaSQL
@@ -2537,23 +2551,36 @@ begin
           ('ALTER TABLE produto MODIFY COLUMN ibs_cbs_class_trib VARCHAR(7) DEFAULT "000001"');
         ExecultaSQL
           ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN cclass_trib VARCHAR(7) NOT NULL');
-        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL');
-        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
-        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_cbs_class_trib VARCHAR(7) DEFAULT "000001";');
-        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
-        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
-        ExecultaSQL('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
-        ExecultaSQL('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
-        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN cclass_trib VARCHAR(7) NOT NULL;');
-        ExecultaSQL('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
+        ExecultaSQL
+          ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL');
+        ExecultaSQL
+          ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN ibs_cbs_class_trib VARCHAR(7) DEFAULT "000001";');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
+        ExecultaSQL
+          ('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
+        ExecultaSQL
+          ('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
+        ExecultaSQL
+          ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN cclass_trib VARCHAR(7) NOT NULL;');
+        ExecultaSQL
+          ('ALTER TABLE fiscal_ibs_cbs_class_trib MODIFY COLUMN credito_para TEXT NULL;');
         CarregarClassTribSeed;
       end;
     157:
       begin
-        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
-        ExecultaSQL('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
-        ExecultaSQL('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
-        ExecultaSQL('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN ibs_uf_aliq DECIMAL(10,4) DEFAULT 0.1;');
+        ExecultaSQL
+          ('ALTER TABLE produto MODIFY COLUMN cbs_aliq DECIMAL(10,4) DEFAULT 0.9;');
+        ExecultaSQL
+          ('UPDATE produto SET ibs_uf_aliq = 0.1 WHERE ibs_uf_aliq IS NULL OR ibs_uf_aliq = 0;');
+        ExecultaSQL
+          ('UPDATE produto SET cbs_aliq = 0.9 WHERE cbs_aliq IS NULL OR cbs_aliq = 0;');
       end;
     158:
       begin
@@ -2570,7 +2597,8 @@ begin
         SQL := SQL + ' UNIQUE KEY uk_bancos_codigo (codigo),';
         SQL := SQL + ' INDEX idx_bancos_nome (nome),';
         SQL := SQL + ' INDEX idx_bancos_ativo (ativo)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
         ExecultaSQL(SQL);
 
       end;
@@ -2593,21 +2621,31 @@ begin
         SQL := SQL + ' INDEX idx_cartoes_banco (banco_id),';
         SQL := SQL + ' INDEX idx_cartoes_tipo (tipo),';
         SQL := SQL + ' INDEX idx_cartoes_ativo (ativo),';
-        SQL := SQL + ' CONSTRAINT fk_cartoes_banco FOREIGN KEY (banco_id) REFERENCES bancos(id)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        SQL := SQL +
+          ' CONSTRAINT fk_cartoes_banco FOREIGN KEY (banco_id) REFERENCES bancos(id)';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
         ExecultaSQL(SQL);
       end;
     160:
       begin
         ExecultaSQL('ALTER TABLE despesas ADD COLUMN cartao_id INT DEFAULT 0;');
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN limite_cartao_retornado INT DEFAULT 0;');
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrente INT DEFAULT 0;');
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrencia_tipo INT DEFAULT 0;');
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN recorrencia_grupo VARCHAR(40) DEFAULT NULL;');
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN fatura_ano_mes VARCHAR(7) DEFAULT NULL;');
-        ExecultaSQL('CREATE INDEX idx_despesas_cartao ON despesas (cartao_id);');
-        ExecultaSQL('CREATE INDEX idx_despesas_recorrencia_grupo ON despesas (recorrencia_grupo);');
-        ExecultaSQL('CREATE INDEX idx_despesas_fatura ON despesas (fatura_ano_mes);');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN limite_cartao_retornado INT DEFAULT 0;');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN recorrente INT DEFAULT 0;');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN recorrencia_tipo INT DEFAULT 0;');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN recorrencia_grupo VARCHAR(40) DEFAULT NULL;');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN fatura_ano_mes VARCHAR(7) DEFAULT NULL;');
+        ExecultaSQL
+          ('CREATE INDEX idx_despesas_cartao ON despesas (cartao_id);');
+        ExecultaSQL
+          ('CREATE INDEX idx_despesas_recorrencia_grupo ON despesas (recorrencia_grupo);');
+        ExecultaSQL
+          ('CREATE INDEX idx_despesas_fatura ON despesas (fatura_ano_mes);');
       end;
     161:
       begin
@@ -2627,27 +2665,51 @@ begin
         SQL := SQL + ' criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,';
         SQL := SQL + ' atualizado_em TIMESTAMP NULL DEFAULT NULL,';
         SQL := SQL + ' PRIMARY KEY (id),';
-        SQL := SQL + ' UNIQUE KEY uk_despesa_recorrencia_grupo (recorrencia_grupo),';
-        SQL := SQL + ' INDEX idx_despesa_recorrencia_proximo (ativo, proximo_vencimento),';
+        SQL := SQL +
+          ' UNIQUE KEY uk_despesa_recorrencia_grupo (recorrencia_grupo),';
+        SQL := SQL +
+          ' INDEX idx_despesa_recorrencia_proximo (ativo, proximo_vencimento),';
         SQL := SQL + ' INDEX idx_despesa_recorrencia_cartao (cartao_id)';
-        SQL := SQL + ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
+        SQL := SQL +
+          ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;';
         ExecultaSQL(SQL);
       end;
     162:
       begin
-        ExecultaSQL('ALTER TABLE despesas ADD COLUMN data_compra DATE DEFAULT NULL;');
-        ExecultaSQL('CREATE INDEX idx_despesas_data_compra ON despesas (data_compra);');
+        ExecultaSQL
+          ('ALTER TABLE despesas ADD COLUMN data_compra DATE DEFAULT NULL;');
+        ExecultaSQL
+          ('CREATE INDEX idx_despesas_data_compra ON despesas (data_compra);');
       end;
-      163: begin
+    163:
+      begin
         ExecultaSQL('ALTER TABLE log_operacao ADD tempo_ms INT NULL;');
       end;
     164:
       begin
-        ExecultaSQL('CREATE TABLE IF NOT EXISTS configuracoes (chave VARCHAR(100) PRIMARY KEY, valor TEXT) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_ambiente'', ''producao'') ON DUPLICATE KEY UPDATE valor = valor;');
-        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_token'', ''IWC8cNw2RrgbL7280RSaTzzoD8LrWS3YjbhT24J8lfT'') ON DUPLICATE KEY UPDATE valor = valor;');
-        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_url'', ''https://atualizacao.goopedir.com'') ON DUPLICATE KEY UPDATE valor = valor;');
-        ExecultaSQL('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_executaveis'', ''atualizador.exe;GooPedir.exe;ServicosGoopedir.exe;SiteGooPedir.exe;ImpressaoGooPedir.exe;NFCe.exe;WhatsappGoPedir.exe;psGoopedir.exe'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL
+          ('CREATE TABLE IF NOT EXISTS configuracoes (chave VARCHAR(100) PRIMARY KEY, valor TEXT) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        ExecultaSQL
+          ('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_ambiente'', ''producao'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL
+          ('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_token'', ''IWC8cNw2RrgbL7280RSaTzzoD8LrWS3YjbhT24J8lfT'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL
+          ('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_url'', ''https://atualizacao.goopedir.com'') ON DUPLICATE KEY UPDATE valor = valor;');
+        ExecultaSQL
+          ('INSERT INTO configuracoes (chave, valor) VALUES (''atualizacao_executaveis'', ''atualizador.exe;GooPedir.exe;ServicosGoopedir.exe;SiteGooPedir.exe;ImpressaoGooPedir.exe;NFCe.exe;WhatsappGoPedir.exe;psGoopedir.exe'') ON DUPLICATE KEY UPDATE valor = valor;');
+      end;
+    165:
+      begin
+        ExecultaSQL('ALTER TABLE usuario ADD COLUMN financeiro INT DEFAULT 0;');
+      end;
+    166:
+      begin
+        ExecultaSQL('ALTER TABLE usuario ADD COLUMN usuario_pai INT DEFAULT 0;');
+        ExecultaSQL('CREATE INDEX idx_usuario_pai ON usuario (usuario_pai);');
+      end;
+    167:
+      begin
+        ExecultaSQL('ALTER TABLE usuario ADD COLUMN tempo_expiracao INT DEFAULT 12;');
       end;
     99999999:
       begin
@@ -2662,7 +2724,7 @@ end;
 
 function TSQL.VersaoExe: String;
 begin
-  Result := '164';
+  Result := '167';
 end;
 
 end.

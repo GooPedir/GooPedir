@@ -464,7 +464,12 @@ begin
            CurrentMetrics.ProcessingMS, CurrentMetrics.TempoJSONMS,
            CurrentMetrics.LoggerMS]));
 
-    AppendLog(Format('[REQUEST_END] timestamp=%s request_id=%s method=%s endpoint=%s status=%d thread_id=%d active_start=%d active_peak=%d queue_ms=%d middleware_ms=%d cache_ms=%d lock_wait_ms=%d db_connection_ms=%d sql_ms=%d processing_ms=%d json_ms=%d response_write_ms=%d logger_ms=%d total_ms=%d unaccounted_ms=%d active_end=%d queries=%d rows=%d bytes=%d error="%s"',
+    AppendLog(Format('[REQUEST_END] timestamp=%s request_id=%s method=%s endpoint=%s ' +
+      'status=%d thread_id=%d active_start=%d active_peak=%d queue_ms=%d ' +
+      'middleware_ms=%d cache_ms=%d lock_wait_ms=%d db_connection_ms=%d ' +
+      'sql_ms=%d processing_ms=%d json_ms=%d response_write_ms=%d ' +
+      'logger_ms=%d total_ms=%d unaccounted_ms=%d active_end=%d ' +
+      'queries=%d rows=%d bytes=%d error="%s"',
       [TimestampISO, CurrentMetrics.RequestId, CurrentMetrics.Metodo,
        Sanitize(CurrentMetrics.Endpoint, 500), CurrentMetrics.StatusHTTP,
        GetCurrentThreadId, CurrentMetrics.ActiveStart, RequestsPeak,

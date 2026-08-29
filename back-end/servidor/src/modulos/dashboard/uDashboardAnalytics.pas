@@ -13,6 +13,9 @@ implementation
 const
   DASHBOARD_HISTORY_WEEKS = 12;
   DASHBOARD_MIN_HISTORY_DAYS = 2;
+  DASHBOARD_REVENUE_ALERT_PERCENT = 12;
+  DASHBOARD_CATEGORY_ALERT_PERCENT = 20;
+  DASHBOARD_PAUSED_PRODUCT_MIN_REVENUE_SHARE = 8;
 
 type
   TDashboardContext = record
@@ -118,9 +121,12 @@ end;
 class procedure TDashboardCalendarService.BindCurrentWindow(Qry: TFDQuery;
   const Ctx: TDashboardContext);
 begin
-  Qry.ParamByName('ini').AsDateTime := Ctx.StartAt;
-  Qry.ParamByName('fim').AsDateTime := Ctx.EndAt;
-  Qry.ParamByName('agora').AsDateTime := Ctx.NowAt;
+  if Assigned(Qry.FindParam('ini')) then
+    Qry.ParamByName('ini').AsDateTime := Ctx.StartAt;
+  if Assigned(Qry.FindParam('fim')) then
+    Qry.ParamByName('fim').AsDateTime := Ctx.EndAt;
+  if Assigned(Qry.FindParam('agora')) then
+    Qry.ParamByName('agora').AsDateTime := Ctx.NowAt;
 end;
 
 class function TDashboardCalendarService.HistoricalWhere(const AliasName: string): string;
@@ -216,11 +222,11 @@ begin
   try
     Q.SQL.Text :=
       'SELECT ' +
-      'SUM(CASE WHEN status = 6 THEN valor_total_pedido ELSE 0 END) revenue, ' +
-      'COUNT(CASE WHEN status = 6 THEN 1 END) orders_count, ' +
-      'COUNT(DISTINCT CASE WHEN status = 6 AND codigo_cliente > 0 THEN codigo_cliente END) customers, ' +
+      'SUM(CASE WHEN status <> 0 THEN valor_total_pedido ELSE 0 END) revenue, ' +
+      'COUNT(CASE WHEN status <> 0 THEN 1 END) orders_count, ' +
+      'COUNT(DISTINCT CASE WHEN status <> 0 AND codigo_cliente > 0 THEN codigo_cliente END) customers, ' +
       'COUNT(CASE WHEN status = 0 THEN 1 END) cancellations, ' +
-      'SUM(CASE WHEN status = 6 THEN valor_desconto ELSE 0 END) discounts ' +
+      'SUM(CASE WHEN status <> 0 THEN valor_desconto ELSE 0 END) discounts ' +
       'FROM pedido WHERE codigo_pedido_dia > 0 AND data_hora BETWEEN :ini AND :agora';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
@@ -233,7 +239,7 @@ begin
     Q.SQL.Text :=
       'SELECT COUNT(*) history_days, AVG(day_revenue) expected_revenue, AVG(day_orders) expected_orders, AVG(avg_ticket) avg_ticket ' +
       'FROM (SELECT DATE(data_hora) d, SUM(valor_total_pedido) day_revenue, COUNT(*) day_orders, AVG(valor_total_pedido) avg_ticket ' +
-      'FROM pedido WHERE codigo_pedido_dia > 0 AND status = 6 AND ' +
+      'FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND ' +
       TDashboardCalendarService.HistoricalWhere('') +
       'AND TIME(data_hora) <= TIME(:agora) GROUP BY DATE(data_hora)) x';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
@@ -285,7 +291,7 @@ begin
   try
     Q.SQL.Text :=
       'SELECT HOUR(data_hora) h, COUNT(*) orders_count, SUM(valor_total_pedido) revenue ' +
-      'FROM pedido WHERE codigo_pedido_dia > 0 AND status = 6 AND data_hora BETWEEN :ini AND :agora GROUP BY HOUR(data_hora)';
+      'FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND data_hora BETWEEN :ini AND :agora GROUP BY HOUR(data_hora)';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
     while not Q.Eof do
@@ -301,7 +307,7 @@ begin
     Q.SQL.Text :=
       'SELECT h, AVG(orders_count) expected_orders, AVG(revenue) expected_revenue FROM (' +
       'SELECT DATE(data_hora) d, HOUR(data_hora) h, COUNT(*) orders_count, SUM(valor_total_pedido) revenue ' +
-      'FROM pedido WHERE codigo_pedido_dia > 0 AND status = 6 AND ' +
+      'FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND ' +
       TDashboardCalendarService.HistoricalWhere('') +
       'GROUP BY DATE(data_hora), HOUR(data_hora)) x GROUP BY h';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
@@ -340,6 +346,10 @@ var
   Q: TFDQuery;
   Ctx: TDashboardContext;
   TotalRevenue: Double;
+  HistUntilNowRevenue, HistUntilNowOrders, HistTotalRevenue, HistTotalOrders: Double;
+  RevenuePercentDone, OrdersPercentDone: Double;
+  EstimatedRevenue, EstimatedOrders: Double;
+  HistoryDays: Integer;
   Item: TJSONObject;
 begin
   Result := TDashboardJson.Arr;
@@ -348,20 +358,58 @@ begin
   Ctx := TDashboardCalendarService.Context;
   try
     Q.SQL.Text :=
-      'SELECT SUM(valor_total_pedido) total_revenue FROM pedido WHERE codigo_pedido_dia > 0 AND status = 6 AND data_hora BETWEEN :ini AND :agora';
+      'SELECT SUM(valor_total_pedido) total_revenue FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND data_hora BETWEEN :ini AND :agora';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
     TotalRevenue := Q.FieldByName('total_revenue').AsFloat;
 
     Q.Close;
     Q.SQL.Text :=
-      'SELECT CASE WHEN IFNULL(id_ficha,0) > 0 THEN ''table'' WHEN IFNULL(codigo_cliente_endereco,0) > 0 THEN ''delivery'' ELSE ''pickup'' END channel, ' +
+      'SELECT base.channel, IFNULL(cur.orders_count,0) orders_count, IFNULL(cur.revenue,0) revenue, IFNULL(cur.avg_ticket,0) avg_ticket, ' +
+      'IFNULL(hist.history_days,0) history_days, IFNULL(hist.hist_until_now_revenue,0) hist_until_now_revenue, IFNULL(hist.hist_until_now_orders,0) hist_until_now_orders, ' +
+      'IFNULL(hist.hist_total_revenue,0) hist_total_revenue, IFNULL(hist.hist_total_orders,0) hist_total_orders ' +
+      'FROM (SELECT ''delivery'' channel UNION ALL SELECT ''pickup'' UNION ALL SELECT ''table'') base ' +
+      'LEFT JOIN (SELECT CASE WHEN IFNULL(id_ficha,0) > 0 THEN ''table'' WHEN IFNULL(codigo_cliente_endereco,0) > 0 THEN ''delivery'' ELSE ''pickup'' END channel, ' +
       'COUNT(*) orders_count, SUM(valor_total_pedido) revenue, AVG(valor_total_pedido) avg_ticket ' +
-      'FROM pedido WHERE codigo_pedido_dia > 0 AND status = 6 AND data_hora BETWEEN :ini AND :agora GROUP BY channel';
+      'FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND data_hora BETWEEN :ini AND :agora GROUP BY channel) cur ON cur.channel = base.channel ' +
+      'LEFT JOIN (SELECT channel, COUNT(*) history_days, AVG(until_now_revenue) hist_until_now_revenue, AVG(until_now_orders) hist_until_now_orders, AVG(total_revenue) hist_total_revenue, AVG(total_orders) hist_total_orders FROM (' +
+      'SELECT DATE(data_hora) d, CASE WHEN IFNULL(id_ficha,0) > 0 THEN ''table'' WHEN IFNULL(codigo_cliente_endereco,0) > 0 THEN ''delivery'' ELSE ''pickup'' END channel, ' +
+      'SUM(CASE WHEN TIME(data_hora) <= TIME(:agora) THEN valor_total_pedido ELSE 0 END) until_now_revenue, ' +
+      'COUNT(CASE WHEN TIME(data_hora) <= TIME(:agora) THEN 1 END) until_now_orders, SUM(valor_total_pedido) total_revenue, COUNT(*) total_orders ' +
+      'FROM pedido WHERE codigo_pedido_dia > 0 AND status <> 0 AND ' +
+      TDashboardCalendarService.HistoricalWhere('') +
+      'GROUP BY DATE(data_hora), channel) h GROUP BY channel) hist ON hist.channel = base.channel ' +
+      'ORDER BY FIELD(base.channel, ''delivery'', ''pickup'', ''table'')';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
     while not Q.Eof do
     begin
+      HistoryDays := Q.FieldByName('history_days').AsInteger;
+      HistUntilNowRevenue := Q.FieldByName('hist_until_now_revenue').AsFloat;
+      HistUntilNowOrders := Q.FieldByName('hist_until_now_orders').AsFloat;
+      HistTotalRevenue := Q.FieldByName('hist_total_revenue').AsFloat;
+      HistTotalOrders := Q.FieldByName('hist_total_orders').AsFloat;
+      if HistTotalRevenue > 0 then
+        RevenuePercentDone := HistUntilNowRevenue / HistTotalRevenue
+      else
+        RevenuePercentDone := 0;
+      if HistTotalOrders > 0 then
+        OrdersPercentDone := HistUntilNowOrders / HistTotalOrders
+      else
+        OrdersPercentDone := 0;
+
+      if (HistoryDays >= DASHBOARD_MIN_HISTORY_DAYS) and (RevenuePercentDone > 0.05) then
+        EstimatedRevenue := ((Q.FieldByName('revenue').AsFloat / RevenuePercentDone) + HistTotalRevenue) / 2
+      else
+        EstimatedRevenue := HistTotalRevenue;
+
+      if (HistoryDays >= DASHBOARD_MIN_HISTORY_DAYS) and (OrdersPercentDone > 0.05) then
+        EstimatedOrders := ((Q.FieldByName('orders_count').AsFloat / OrdersPercentDone) + HistTotalOrders) / 2
+      else
+      begin
+        EstimatedOrders := HistTotalOrders;
+      end;
+
       Item := TDashboardJson.Obj;
       TDashboardJson.Str(Item, 'channel', Q.FieldByName('channel').AsString);
       TDashboardJson.Int(Item, 'orders', Q.FieldByName('orders_count').AsInteger);
@@ -371,6 +419,9 @@ begin
         TDashboardJson.Num(Item, 'sharePercent', Q.FieldByName('revenue').AsFloat / TotalRevenue * 100)
       else
         TDashboardJson.Num(Item, 'sharePercent', 0);
+      TDashboardJson.Bool(Item, 'forecastAvailable', HistoryDays >= DASHBOARD_MIN_HISTORY_DAYS);
+      TDashboardJson.Num(Item, 'estimatedOrdersToday', EstimatedOrders);
+      TDashboardJson.Num(Item, 'estimatedRevenueToday', EstimatedRevenue);
       Result.AddElement(Item);
       Q.Next;
     end;
@@ -396,7 +447,7 @@ begin
   try
     Q.SQL.Text :=
       'SELECT SUM(valor_total_pedido) revenue, COUNT(*) orders_count FROM pedido ' +
-      'WHERE codigo_pedido_dia > 0 AND status = 6 AND data_hora BETWEEN :ini AND :agora';
+      'WHERE codigo_pedido_dia > 0 AND status <> 0 AND data_hora BETWEEN :ini AND :agora';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
     CurrentRevenue := Q.FieldByName('revenue').AsFloat;
@@ -407,7 +458,7 @@ begin
       'SELECT COUNT(*) history_days, AVG(until_now) hist_until_now, AVG(total_day) hist_total, AVG(orders_day) hist_orders FROM (' +
       'SELECT DATE(data_hora) d, SUM(CASE WHEN TIME(data_hora) <= TIME(:agora) THEN valor_total_pedido ELSE 0 END) until_now, ' +
       'SUM(valor_total_pedido) total_day, COUNT(*) orders_day FROM pedido ' +
-      'WHERE codigo_pedido_dia > 0 AND status = 6 AND ' +
+      'WHERE codigo_pedido_dia > 0 AND status <> 0 AND ' +
       TDashboardCalendarService.HistoricalWhere('') +
       'GROUP BY DATE(data_hora)) x';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
@@ -505,7 +556,7 @@ begin
     Q.SQL.Text :=
       'SELECT pro.codigo product_id, pro.nome_produto name, SUM(pp.quantidade) quantity, SUM(pp.valor_total) revenue ' +
       'FROM pedido p JOIN pedido_produtos pp ON pp.codigo_pedido = p.codigo JOIN produto pro ON pro.codigo = pp.codigo_produto ' +
-      'WHERE p.codigo_pedido_dia > 0 AND p.status = 6 AND p.data_hora BETWEEN :ini AND :agora ' +
+      'WHERE p.codigo_pedido_dia > 0 AND p.status <> 0 AND p.data_hora BETWEEN :ini AND :agora ' +
       'GROUP BY pro.codigo, pro.nome_produto ORDER BY SUM(pp.quantidade) DESC LIMIT 10';
     TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
     Q.Open;
@@ -534,13 +585,16 @@ var
   Today, Revenue: TJSONObject;
   Variation: Double;
   Alert: TJSONObject;
+  Repo: TDashboardRepository;
+  Q: TFDQuery;
+  Ctx: TDashboardContext;
 begin
   Result := TDashboardJson.Arr;
   Today := TDashboardTodayService.Execute;
   try
     Revenue := Today.GetValue<TJSONObject>('revenue');
     Variation := StrToFloatDef(Revenue.GetValue('variationPercent').Value, 0);
-    if Abs(Variation) >= 12 then
+    if Abs(Variation) >= DASHBOARD_REVENUE_ALERT_PERCENT then
     begin
       Alert := TDashboardJson.Obj;
       if Variation > 0 then
@@ -563,6 +617,56 @@ begin
   finally
     Today.Free;
   end;
+
+  Repo := TDashboardRepository.Create;
+  Q := Repo.Query;
+  Ctx := TDashboardCalendarService.Context;
+  try
+    Q.SQL.Text :=
+      'SELECT c.category_id, c.category_name, c.quantity current_quantity, h.expected_quantity, ' +
+      '((c.quantity - h.expected_quantity) / h.expected_quantity) * 100 variation_percent ' +
+      'FROM (SELECT tp.codigo category_id, tp.descricao category_name, SUM(pp.quantidade) quantity ' +
+      'FROM pedido p JOIN pedido_produtos pp ON pp.codigo_pedido = p.codigo ' +
+      'JOIN produto pro ON pro.codigo = pp.codigo_produto ' +
+      'JOIN tipo_produto tp ON tp.codigo = pro.codigo_grupo ' +
+      'WHERE p.codigo_pedido_dia > 0 AND p.status <> 0 AND p.data_hora BETWEEN :ini AND :agora ' +
+      'GROUP BY tp.codigo, tp.descricao) c ' +
+      'JOIN (SELECT category_id, AVG(day_quantity) expected_quantity FROM (' +
+      'SELECT DATE(p.data_hora) d, tp.codigo category_id, SUM(pp.quantidade) day_quantity ' +
+      'FROM pedido p JOIN pedido_produtos pp ON pp.codigo_pedido = p.codigo ' +
+      'JOIN produto pro ON pro.codigo = pp.codigo_produto ' +
+      'JOIN tipo_produto tp ON tp.codigo = pro.codigo_grupo ' +
+      'WHERE p.codigo_pedido_dia > 0 AND p.status <> 0 AND ' +
+      TDashboardCalendarService.HistoricalWhere('p') +
+      'AND TIME(p.data_hora) <= TIME(:agora) GROUP BY DATE(p.data_hora), tp.codigo) x GROUP BY category_id) h ON h.category_id = c.category_id ' +
+      'WHERE h.expected_quantity > 0 AND ((c.quantity - h.expected_quantity) / h.expected_quantity) * 100 >= :percentual ' +
+      'ORDER BY variation_percent DESC LIMIT 5';
+    TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
+    Q.ParamByName('percentual').AsFloat := DASHBOARD_CATEGORY_ALERT_PERCENT;
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Alert := TDashboardJson.Obj;
+      TDashboardJson.Str(Alert, 'type', 'positive');
+      TDashboardJson.Str(Alert, 'code', 'CATEGORY_QUANTITY_ABOVE_EXPECTED');
+      TDashboardJson.Str(Alert, 'title', 'Categoria acima do esperado');
+      TDashboardJson.Str(Alert, 'category', 'product_category');
+      TDashboardJson.Str(Alert, 'message', Format('A categoria %s vendeu %.2f%% acima do esperado hoje para este horario.', [
+        Q.FieldByName('category_name').AsString,
+        Q.FieldByName('variation_percent').AsFloat
+      ]));
+      TDashboardJson.Num(Alert, 'variationPercent', Q.FieldByName('variation_percent').AsFloat);
+      TDashboardJson.Int(Alert, 'categoryId', Q.FieldByName('category_id').AsInteger);
+      TDashboardJson.Str(Alert, 'categoryName', Q.FieldByName('category_name').AsString);
+      TDashboardJson.Num(Alert, 'currentQuantity', Q.FieldByName('current_quantity').AsFloat);
+      TDashboardJson.Num(Alert, 'expectedQuantity', Q.FieldByName('expected_quantity').AsFloat);
+      Result.AddElement(Alert);
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+    Repo.Free;
+  end;
 end;
 
 class function TDashboardInsightService.Execute: TJSONArray;
@@ -570,6 +674,10 @@ var
   Alerts: TJSONArray;
   I: Integer;
   Insight, Alert: TJSONObject;
+  Repo: TDashboardRepository;
+  Q: TFDQuery;
+  Ctx: TDashboardContext;
+  Metadata: TJSONObject;
 begin
   Result := TDashboardJson.Arr;
   Alerts := TDashboardAlertService.Execute;
@@ -587,6 +695,58 @@ begin
     end;
   finally
     Alerts.Free;
+  end;
+
+  Repo := TDashboardRepository.Create;
+  Q := Repo.Query;
+  Ctx := TDashboardCalendarService.Context;
+  try
+    Q.SQL.Text :=
+      'SELECT pro.codigo product_id, pro.nome_produto product_name, ' +
+      'SUM(pp.valor_total) product_revenue, totals.total_revenue, ' +
+      '(SUM(pp.valor_total) / totals.total_revenue) * 100 revenue_share_percent, ' +
+      'SUM(pp.quantidade) quantity ' +
+      'FROM pedido p JOIN pedido_produtos pp ON pp.codigo_pedido = p.codigo ' +
+      'JOIN produto pro ON pro.codigo = pp.codigo_produto ' +
+      'JOIN (SELECT SUM(pp2.valor_total) total_revenue FROM pedido p2 ' +
+      'JOIN pedido_produtos pp2 ON pp2.codigo_pedido = p2.codigo ' +
+      'WHERE p2.codigo_pedido_dia > 0 AND p2.status <> 0 AND ' +
+      TDashboardCalendarService.HistoricalWhere('p2') +
+      ') totals ON totals.total_revenue > 0 ' +
+      'WHERE p.codigo_pedido_dia > 0 AND p.status <> 0 AND pro.ativo = 0 AND ' +
+      TDashboardCalendarService.HistoricalWhere('p') +
+      'GROUP BY pro.codigo, pro.nome_produto, totals.total_revenue ' +
+      'HAVING revenue_share_percent >= :percentual ' +
+      'ORDER BY revenue_share_percent DESC LIMIT 5';
+    TDashboardCalendarService.BindCurrentWindow(Q, Ctx);
+    Q.ParamByName('percentual').AsFloat := DASHBOARD_PAUSED_PRODUCT_MIN_REVENUE_SHARE;
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Insight := TDashboardJson.Obj;
+      TDashboardJson.Str(Insight, 'type', 'opportunity');
+      TDashboardJson.Int(Insight, 'priority', 70);
+      TDashboardJson.Str(Insight, 'title', 'Produto relevante pausado');
+      TDashboardJson.Str(Insight, 'message', Format('%s esta pausado hoje, mas representou %.2f%% do faturamento em dias equivalentes recentes.', [
+        Q.FieldByName('product_name').AsString,
+        Q.FieldByName('revenue_share_percent').AsFloat
+      ]));
+
+      Metadata := TDashboardJson.Obj;
+      TDashboardJson.Int(Metadata, 'productId', Q.FieldByName('product_id').AsInteger);
+      TDashboardJson.Str(Metadata, 'productName', Q.FieldByName('product_name').AsString);
+      TDashboardJson.Num(Metadata, 'historicalRevenue', Q.FieldByName('product_revenue').AsFloat);
+      TDashboardJson.Num(Metadata, 'historicalTotalRevenue', Q.FieldByName('total_revenue').AsFloat);
+      TDashboardJson.Num(Metadata, 'revenueSharePercent', Q.FieldByName('revenue_share_percent').AsFloat);
+      TDashboardJson.Num(Metadata, 'quantity', Q.FieldByName('quantity').AsFloat);
+      TDashboardJson.Bool(Metadata, 'pausedToday', True);
+      Insight.AddPair('metadata', Metadata);
+      Result.AddElement(Insight);
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+    Repo.Free;
   end;
 end;
 

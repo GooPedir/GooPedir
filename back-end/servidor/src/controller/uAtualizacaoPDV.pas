@@ -728,12 +728,15 @@ begin
   if AResultFile <> '' then Result := Result + ' /resultfile=' + Quoted(AResultFile);
   if AErrorFile <> '' then Result := Result + ' /errorfile=' + Quoted(AErrorFile);
   if SameText(AModo, 'atualizar') then
-    Result := Result + ' /backupexe=' + Quoted(FConfig.FBackupExe) +
-      ' /dbhost=' + Quoted(FConfig.FDbHost) +
+  begin
+    if TFile.Exists(FConfig.FBackupExe) then
+      Result := Result + ' /backupexe=' + Quoted(FConfig.FBackupExe);
+    Result := Result + ' /dbhost=' + Quoted(FConfig.FDbHost) +
       ' /dbporta=' + IntToStr(FConfig.FDbPort) +
       ' /dbusuario=' + Quoted(FConfig.FDbUser) +
       ' /dbsenha=' + Quoted(FConfig.FDbPassword) +
       ' /dbbanco=' + Quoted(FConfig.FDbName);
+  end;
 end;
 
 function TAtualizacaoPDV.ParametrosParaLog(const AParametros: string): string;
@@ -825,6 +828,7 @@ function TAtualizacaoPDV.IniciarAtualizacao(const AReleaseId: string;
 var
   Info: TShellExecuteInfo;
   Codigo: Cardinal;
+  Espera: DWORD;
   ResultFile, ErrorFile, ParametrosAtualizacao, Diretorio: string;
 begin
   Result := False; AMensagemErro := '';
@@ -855,12 +859,19 @@ begin
   end;
 
   try
-    GravarLog('Atualizador.exe aberto. Aguardando finalização...');
-    if WaitForSingleObject(Info.hProcess, INFINITE) <> WAIT_OBJECT_0 then
+    GravarLog('Atualizador.exe aberto. Aguardando inicialização...');
+    Espera := WaitForSingleObject(Info.hProcess, 5000);
+    if Espera = WAIT_TIMEOUT then
+    begin
+      GravarLog('Atualizador.exe continua em execução. Atualização iniciada.');
+      Result := True;
+      Exit;
+    end;
+    if Espera <> WAIT_OBJECT_0 then
       RaiseLastOSError;
     if not GetExitCodeProcess(Info.hProcess, Codigo) then
       RaiseLastOSError;
-    GravarLog('Atualizador.exe finalizou com código ' + IntToStr(Codigo));
+    GravarLog('Atualizador.exe finalizou durante a inicialização com código ' + IntToStr(Codigo));
     Result := Codigo = ATU_APLICADA;
     if not Result then
       AMensagemErro := LerArquivo(ErrorFile);

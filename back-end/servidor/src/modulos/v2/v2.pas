@@ -6819,9 +6819,9 @@ begin
   Codigo := conexao.GerarID('usuario', 'codigo');
   conexao.SQL.Add('INSERT INTO usuario (');
   conexao.SQL.Add
-    ('codigo,nome,senha,data_cadastro,encerra,app,deleta,dashboard,estoque,cad_mesa,cad_motoboy,cad_taxa,cad_impressora,cad_cupom,cad_prod,cad_paga,cad_cli,cad_pedido,desconto,param,caixa,cancelar,garcom,campanha) VALUES (');
+    ('codigo,nome,senha,data_cadastro,encerra,app,deleta,dashboard,estoque,cad_mesa,cad_motoboy,cad_taxa,cad_impressora,cad_cupom,cad_prod,cad_paga,cad_cli,cad_pedido,desconto,param,caixa,cancelar,garcom,campanha,financeiro) VALUES (');
   conexao.SQL.Add
-    (':codigo,:nome,MD5(:senha),CURDATE(),1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,1);');
+    (':codigo,:nome,MD5(:senha),CURDATE(),1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,1,1);');
   conexao.Parametros('codigo', Codigo);
   conexao.Parametros('nome', Usuario.GetValue<String>('usuario'));
   conexao.Parametros('senha', Usuario.GetValue<String>('senha'));
@@ -7337,11 +7337,13 @@ begin
 
   IniciarTempo;
   conexao.SQL.Add
-    ('SELECT * FROM caixa where id_usuario = :caixa and status = 1');
+    ('SELECT * FROM caixa where id_usuario = COALESCE(NULLIF((SELECT usuario_pai FROM usuario WHERE codigo = :usuario_pai_lookup), 0), :usuario_caixa_padrao) and status = 1');
   try
-    conexao.Parametros('caixa', Req.Headers['user'].ToInteger());
+    conexao.Parametros('usuario_pai_lookup', Req.Headers['user'].ToInteger());
+    conexao.Parametros('usuario_caixa_padrao', Req.Headers['user'].ToInteger());
   except
-    conexao.Parametros('caixa', 0);
+    conexao.Parametros('usuario_pai_lookup', 0);
+    conexao.Parametros('usuario_caixa_padrao', 0);
   end;
   JSONObject.AddPair('userCaixa', conexao.ConsultaSQL);
   RegistrarTempo('userCaixa');
@@ -9093,11 +9095,13 @@ var
   // Codigo: Integer;
   JsonObj: TJSONObject;
   Codigo: Integer;
+  UsuarioPai: Integer;
+  TempoExpiracao: Integer;
   Nome, senha: string;
   percentual: Real;
   Finalizar, excluir, dashboard, entrada, desconto, aberturacaixa, Parametros,
     mesa, taxa, impressora, Cupom, produto, Pagamento, lancamento, motoboy,
-    cancelar, garcom, campanha: Boolean;
+    cancelar, garcom, campanha, financeiro: Boolean;
 begin
   JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
   conexao := TConexao.Create('v2');
@@ -9125,6 +9129,33 @@ begin
     garcom := JsonObj.GetValue('garcom').AsType<Boolean>;
     campanha := JsonObj.GetValue('campanha').AsType<Boolean>;
     try
+      financeiro := JsonObj.GetValue('financeiro').AsType<Boolean>;
+    except
+      financeiro := false;
+    end;
+    try
+      UsuarioPai := JsonObj.GetValue('usuario_pai').AsType<Integer>;
+    except
+      try
+        UsuarioPai := JsonObj.GetValue('usuarioPai').AsType<Integer>;
+      except
+        UsuarioPai := 0;
+      end;
+    end;
+    if UsuarioPai < 0 then
+      UsuarioPai := 0;
+    try
+      TempoExpiracao := JsonObj.GetValue('tempo_expiracao').AsType<Integer>;
+    except
+      try
+        TempoExpiracao := JsonObj.GetValue('tempoExpiracao').AsType<Integer>;
+      except
+        TempoExpiracao := 12;
+      end;
+    end;
+    if TempoExpiracao <= 0 then
+      TempoExpiracao := 12;
+    try
       percentual := JsonObj.GetValue('percDesconto').AsType<Real>;
     except
       percentual := 0;
@@ -9136,10 +9167,11 @@ begin
   begin
     Codigo := conexao.GerarID('usuario', 'codigo');
     conexao.SQL.Add
-      ('insert into usuario (codigo,nome,senha,data_cadastro) values (:codigo,:nome,md5(:senha),current_date)');
+      ('insert into usuario (codigo,nome,senha,data_cadastro) values (:codigo,:nome,if(length(:senha) = 32, :senha_md5, md5(:senha)),current_date)');
     conexao.Parametros('codigo', Codigo);
     conexao.Parametros('nome', Nome);
     conexao.Parametros('senha', senha);
+    conexao.Parametros('senha_md5', senha);
     conexao.ExecuteSQL;
   end
   else
@@ -9147,10 +9179,11 @@ begin
     if senha <> '' then
     begin
       conexao.SQL.Add
-        ('update usuario set nome = :nome, senha = md5(:senha) where codigo = :codigo');
+        ('update usuario set nome = :nome, senha = if(length(:senha) = 32, :senha_md5, md5(:senha)) where codigo = :codigo');
       conexao.Parametros('codigo', Codigo);
       conexao.Parametros('nome', Nome);
       conexao.Parametros('senha', senha);
+      conexao.Parametros('senha_md5', senha);
       conexao.ExecuteSQL;
     end;
   end;
@@ -9161,7 +9194,7 @@ begin
   conexao.SQL.Add
     ('cad_impressora = :cad_impressora, cad_cupom = :cad_cupom, cad_prod = :cad_prod, cad_paga = :cad_paga, percentual = :percentual,');
   conexao.SQL.Add
-    ('cad_cli = :cad_cli, cad_pedido = :cad_pedido, desconto = :desconto, param = :param, caixa = :caixa, cancelar = :cancelar, garcom = :garcom, campanha = :campanha');
+    ('cad_cli = :cad_cli, cad_pedido = :cad_pedido, desconto = :desconto, param = :param, caixa = :caixa, cancelar = :cancelar, garcom = :garcom, campanha = :campanha, financeiro = :financeiro, usuario_pai = :usuario_pai, tempo_expiracao = :tempo_expiracao');
   conexao.SQL.Add('where codigo = :codigo');
   conexao.Parametros('codigo', Codigo);
   conexao.Parametros('app', Integer(Finalizar));
@@ -9184,6 +9217,9 @@ begin
   conexao.Parametros('cancelar', Integer(cancelar));
   conexao.Parametros('garcom', Integer(garcom));
   conexao.Parametros('campanha', Integer(campanha));
+  conexao.Parametros('financeiro', Integer(financeiro));
+  conexao.Parametros('usuario_pai', UsuarioPai);
+  conexao.Parametros('tempo_expiracao', TempoExpiracao);
   conexao.Parametros('percentual', percentual);
   conexao.ExecuteSQL;
   conexao.Free;

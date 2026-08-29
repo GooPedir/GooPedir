@@ -7,8 +7,10 @@ Este modulo usa as entidades ja existentes do backend, sem criar tabelas novas.
 - Produtos: `produto`
 - Clientes: `cliente`
 - Status cancelado: `pedido.status = 0`
-- Status finalizado/valido para faturamento: `pedido.status = 6`
+- Pedido valido para indicadores operacionais: `pedido.status <> 0`
+- Status finalizado/faturado: `pedido.status = 6`
 - Pedidos do dia operacional: `pedido.codigo_pedido_dia > 0`
+- Caixa/faturamento: os indicadores da home nao filtram por `pedido.id_caixa` e nao exigem `status = 6`; pedidos abertos entram enquanto nao estiverem cancelados.
 - Data/hora do pedido: preferencialmente `pedido.data_hora`; historicamente tambem existem `data_pedido` e `hora_pedido`
 - Janela operacional usada pelo dashboard atual: 02:00 do dia atual ate 02:00 do dia seguinte
 - Valor bruto/subtotal: `pedido.valor_pedido`

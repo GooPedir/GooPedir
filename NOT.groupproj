@@ -18,6 +18,9 @@
         <Projects Include="back-end\servidor\ServidorGooPedir.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="back-end\atualizador\Atualizador.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="ServidorGooPedir:Make">
         <MSBuild Projects="back-end\servidor\ServidorGooPedir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Atualizador">
+        <MSBuild Projects="back-end\atualizador\Atualizador.dproj"/>
+    </Target>
+    <Target Name="Atualizador:Clean">
+        <MSBuild Projects="back-end\atualizador\Atualizador.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Atualizador:Make">
+        <MSBuild Projects="back-end\atualizador\Atualizador.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir"/>
+        <CallTarget Targets="ServicosGoopedir;ProdutoGoopedir;psGoopedir;balanca;ServidorGooPedir;Atualizador"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean"/>
+        <CallTarget Targets="ServicosGoopedir:Clean;ProdutoGoopedir:Clean;psGoopedir:Clean;balanca:Clean;ServidorGooPedir:Clean;Atualizador:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make"/>
+        <CallTarget Targets="ServicosGoopedir:Make;ProdutoGoopedir:Make;psGoopedir:Make;balanca:Make;ServidorGooPedir:Make;Atualizador:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

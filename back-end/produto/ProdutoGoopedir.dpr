@@ -37,7 +37,6 @@ uses
   uControlerProduto in '..\servidor\src\controller\uControlerProduto.pas',
   uControllCaches in '..\servidor\src\controller\uControllCaches.pas',
   uCacheControl in '..\servidor\src\controller\uCacheControl.pas',
-  uPerformanceMetrics in '..\servidor\src\diagnostico\uPerformanceMetrics.pas',
   uInserirUpdate in '..\servidor\src\modulos\Controller\uInserirUpdate.pas',
   uControllerSite in '..\servidor\src\controller\uControllerSite.pas',
   uGlobais in '..\servidor\uGlobais.pas',

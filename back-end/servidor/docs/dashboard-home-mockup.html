@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Home Analytics - Mockup</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --panel-soft: #f9fbfd;
+      --text: #1f2933;
+      --muted: #66788a;
+      --border: #d9e2ec;
+      --green: #15803d;
+      --green-soft: #e8f5ee;
+      --red: #b42318;
+      --red-soft: #fff0ee;
+      --blue: #1d4ed8;
+      --blue-soft: #eaf1ff;
+      --amber: #b7791f;
+      --amber-soft: #fff7e6;
+      --ink: #111827;
+      --shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #17202a;
+      color: #e5eef7;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      background: #2f80ed;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 900;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 9px 10px;
+      color: #b8c7d6;
+      border-radius: 7px;
+      font-size: 14px;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      color: inherit;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip,
+    .button {
+      min-height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 11px;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      padding: 16px 18px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .panel-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      min-height: 126px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      color: var(--ink);
+      font-size: 25px;
+      line-height: 1.1;
+      font-weight: 850;
+    }
+
+    .metric-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .delta {
+      border-radius: 999px;
+      padding: 4px 7px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .delta.up {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .delta.down {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .forecast {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .forecast-main {
+      padding: 18px;
+      border-radius: var(--radius);
+      background: #102236;
+      color: white;
+      display: grid;
+      gap: 10px;
+    }
+
+    .forecast-label {
+      color: #bad4f0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .forecast-value {
+      font-size: 36px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .forecast-range {
+      color: #d8e7f7;
+      font-size: 13px;
+    }
+
+    .forecast-side {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-box {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .mini-value {
+      color: var(--ink);
+      font-size: 19px;
+      line-height: 1.2;
+      font-weight: 850;
+    }
+
+    .chart {
+      padding: 18px;
+    }
+
+    .bars {
+      height: 230px;
+      display: grid;
+      grid-template-columns: repeat(10, minmax(24px, 1fr));
+      gap: 10px;
+      align-items: end;
+      border-bottom: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .bar-group {
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bar-pair {
+      height: calc(var(--height) * 1%);
+      min-height: 18px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .bar {
+      width: 38%;
+      border-radius: 4px 4px 0 0;
+      background: #1d4ed8;
+    }
+
+    .bar.expected {
+      background: #a8b3c4;
+      opacity: 0.75;
+    }
+
+    .bar.actual {
+      height: 100%;
+    }
+
+    .bar.expected {
+      height: var(--expected);
+    }
+
+    .bar-label {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #1d4ed8;
+    }
+
+    .dot.gray {
+      background: #a8b3c4;
+    }
+
+    .channels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .channel {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+
+    .channel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .channel-name {
+      color: var(--ink);
+      font-weight: 800;
+      text-transform: capitalize;
+    }
+
+    .share {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #e7edf4;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: var(--value);
+      background: #1d4ed8;
+    }
+
+    .channel-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .side-panel {
+      padding-bottom: 14px;
+    }
+
+    .list {
+      padding: 12px 14px 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+
+    .item-title {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .item-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .item-value {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .alert {
+      border-color: #b9d8c7;
+      background: var(--green-soft);
+    }
+
+    .alert .item-title,
+    .alert .item-value {
+      color: var(--green);
+    }
+
+    .insight {
+      border-color: #bfd0f5;
+      background: var(--blue-soft);
+    }
+
+    .insight .item-title {
+      color: var(--blue);
+    }
+
+    .opportunity {
+      border-color: #f1d59a;
+      background: var(--amber-soft);
+    }
+
+    .opportunity .item-title {
+      color: var(--amber);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .main {
+        padding: 18px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .metric-grid,
+      .forecast,
+      .channels {
+        grid-template-columns: 1fr;
+      }
+
+      .bars {
+        overflow-x: auto;
+        grid-template-columns: repeat(10, 42px);
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Navegacao principal">
+      <div class="brand">
+        <div class="brand-mark">G</div>
+        <div>GooPedir</div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-item active"><span class="nav-icon">⌂</span>Home</div>
+        <div class="nav-item"><span class="nav-icon">□</span>Pedidos</div>
+        <div class="nav-item"><span class="nav-icon">◷</span>Vendas</div>
+        <div class="nav-item"><span class="nav-icon">◇</span>Produtos</div>
+        <div class="nav-item"><span class="nav-icon">⚙</span>Configuracoes</div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Home analitica</h1>
+          <div class="subtitle">Hoje, 26/08/2026, das 02:00 ate agora. Comparativo com quartas-feiras das ultimas 12 semanas.</div>
+        </div>
+
+        <div class="actions">
+          <div class="chip">Atualizado 20:30</div>
+          <button class="button" type="button">Filtros</button>
+          <button class="button primary" type="button">Atualizar</button>
+        </div>
+      </header>
+
+      <section class="metric-grid" aria-label="Resumo do dia">
+        <article class="metric-card">
+          <div>
+            <div class="metric-label">Faturamento ate agora</div>
+            <div class="metric-value">R$ 1.250,75</div>
+          </div>
+          <div class="metric-foot">
+            <span>Esperado R$ 980,50</span>
+            <span class="delta up">+27,56%</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div>
+            <div class="metric-label">Pedidos</div>
+            <div class="metric-value">42</div>
+          </div>
+          <div class="metric-foot">
+            <span>Esperado 35,5</span>
+            <span class="delta up">+18,31%</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div>
+            <div class="metric-label">Ticket medio</div>
+            <div class="metric-value">R$ 29,78</div>
+          </div>
+          <div class="metric-foot">
+            <span>Historico R$ 27,62</span>
+            <span class="delta up">+7,82%</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div>
+            <div class="metric-label">Cancelamentos</div>
+            <div class="metric-value">2</div>
+          </div>
+          <div class="metric-foot">
+            <span>4,55% dos pedidos</span>
+            <span class="delta down">atenção</span>
+          </div>
+        </article>
+      </section>
+
+      <div class="layout" style="margin-top: 18px;">
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Previsao de fechamento</div>
+                <div class="panel-subtitle">Metodo: historico ponderado do mesmo dia da semana + ritmo atual</div>
+              </div>
+              <span class="delta up">75% confianca</span>
+            </div>
+
+            <div class="forecast">
+              <div class="forecast-main">
+                <div class="forecast-label">Faturamento estimado</div>
+                <div class="forecast-value">R$ 1.850,25</div>
+                <div class="forecast-range">Faixa provavel: R$ 1.702,23 a R$ 1.998,27</div>
+              </div>
+
+              <div class="forecast-side">
+                <div class="mini-box">
+                  <div class="mini-label">Pedidos estimados</div>
+                  <div class="mini-value">61,5</div>
+                </div>
+                <div class="mini-box">
+                  <div class="mini-label">Pico esperado</div>
+                  <div class="mini-value">19:00 - 20:00</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Movimento por hora</div>
+                <div class="panel-subtitle">Azul mostra realizado; cinza mostra esperado para a mesma faixa</div>
+              </div>
+            </div>
+
+            <div class="chart">
+              <div class="bars">
+                <div class="bar-group" style="--height: 28; --expected: 82%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">11:00</div>
+                </div>
+                <div class="bar-group" style="--height: 54; --expected: 78%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">12:00</div>
+                </div>
+                <div class="bar-group" style="--height: 38; --expected: 70%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">13:00</div>
+                </div>
+                <div class="bar-group" style="--height: 24; --expected: 88%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">14:00</div>
+                </div>
+                <div class="bar-group" style="--height: 30; --expected: 74%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">15:00</div>
+                </div>
+                <div class="bar-group" style="--height: 48; --expected: 65%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">16:00</div>
+                </div>
+                <div class="bar-group" style="--height: 60; --expected: 72%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">17:00</div>
+                </div>
+                <div class="bar-group" style="--height: 76; --expected: 68%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">18:00</div>
+                </div>
+                <div class="bar-group" style="--height: 88; --expected: 76%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">19:00</div>
+                </div>
+                <div class="bar-group" style="--height: 66; --expected: 80%;">
+                  <div class="bar-pair"><div class="bar actual"></div><div class="bar expected"></div></div>
+                  <div class="bar-label">20:00</div>
+                </div>
+              </div>
+
+              <div class="legend">
+                <span class="legend-item"><span class="dot"></span>Realizado</span>
+                <span class="legend-item"><span class="dot gray"></span>Esperado</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Canais</div>
+                <div class="panel-subtitle">Distribuicao do faturamento e pedidos por origem</div>
+              </div>
+            </div>
+
+            <div class="channels">
+              <article class="channel">
+                <div class="channel-top">
+                  <div class="channel-name">delivery</div>
+                  <div class="share">52%</div>
+                </div>
+                <div class="mini-value">R$ 650,40</div>
+                <div class="progress"><span style="--value: 52%;"></span></div>
+                <div class="channel-meta"><span>18 pedidos</span><span>Ticket R$ 36,13</span></div>
+              </article>
+
+              <article class="channel">
+                <div class="channel-top">
+                  <div class="channel-name">mesa</div>
+                  <div class="share">28%</div>
+                </div>
+                <div class="mini-value">R$ 350,35</div>
+                <div class="progress"><span style="--value: 28%;"></span></div>
+                <div class="channel-meta"><span>14 pedidos</span><span>Ticket R$ 25,02</span></div>
+              </article>
+
+              <article class="channel">
+                <div class="channel-top">
+                  <div class="channel-name">retirada</div>
+                  <div class="share">20%</div>
+                </div>
+                <div class="mini-value">R$ 250,00</div>
+                <div class="progress"><span style="--value: 20%;"></span></div>
+                <div class="channel-meta"><span>10 pedidos</span><span>Ticket R$ 25,00</span></div>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <aside class="stack">
+          <section class="panel side-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Alertas e insights</div>
+                <div class="panel-subtitle">Pontos que merecem aparecer no topo da operacao</div>
+              </div>
+            </div>
+
+            <div class="list">
+              <div class="list-item alert">
+                <div>
+                  <div class="item-title">Faturamento acima do esperado</div>
+                  <div class="item-subtitle">Venda esta 27,56% acima do historico para este horario.</div>
+                </div>
+                <div class="item-value">+27,56%</div>
+              </div>
+
+              <div class="list-item insight">
+                <div>
+                  <div class="item-title">Ritmo forte no jantar</div>
+                  <div class="item-subtitle">A faixa das 19:00 deve concentrar o maior volume de pedidos.</div>
+                </div>
+                <div class="item-value">19h</div>
+              </div>
+
+              <div class="list-item opportunity">
+                <div>
+                  <div class="item-title">Oportunidades indisponiveis</div>
+                  <div class="item-subtitle">Endpoint reservado para analise de combinacoes e clientes.</div>
+                </div>
+                <div class="item-value">mock</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel side-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Produtos em destaque</div>
+                <div class="panel-subtitle">Top vendidos hoje</div>
+              </div>
+            </div>
+
+            <div class="list">
+              <div class="list-item">
+                <div>
+                  <div class="item-title">X-Burger</div>
+                  <div class="item-subtitle">15 unidades vendidas</div>
+                </div>
+                <div class="item-value">R$ 375,00</div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <div class="item-title">Batata Frita</div>
+                  <div class="item-subtitle">10 unidades vendidas</div>
+                </div>
+                <div class="item-value">R$ 120,00</div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <div class="item-title">Refrigerante Lata</div>
+                  <div class="item-subtitle">9 unidades vendidas</div>
+                </div>
+                <div class="item-value">R$ 72,00</div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div class="footer-note">
+        Mockup baseado em `GET /dashboard/home`. Os dados sao simulados e servem como sugestao de organizacao visual para a tela inicial do front-end.
+      </div>
+    </main>
+  </div>
+</body>
+</html>

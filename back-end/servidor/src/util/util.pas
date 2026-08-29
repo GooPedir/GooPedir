@@ -1,4 +1,4 @@
-unit util;
+﻿unit util;
 
 interface
 
@@ -1242,6 +1242,107 @@ begin
   end;
 end;
 
+function UsuarioCaixaSQL: string;
+begin
+  Result :=
+    'COALESCE(NULLIF((SELECT usuario_pai FROM usuario WHERE codigo = :usuario_pai_lookup), 0), :usuario_caixa_padrao)';
+end;
+
+procedure DoPostLogin(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  conexao: Tconexao;
+  Dados: TFDMemTable;
+  JsonObj: TJSONObject;
+  Retorno: TJSONObject;
+  UsuarioJson: TJSONObject;
+  UsuarioArray: TJSONArray;
+  Jwt: TJWT;
+  CompactToken: string;
+  Usuario: string;
+  Senha: string;
+  CodigoUsuario: Integer;
+  CodigoUsuarioCaixa: Integer;
+  TempoExpiracao: Integer;
+  ExpiraEm: TDateTime;
+begin
+  JsonObj := TJSONObject.ParseJSONValue(Req.body) as TJSONObject;
+  if not Assigned(JsonObj) then
+  begin
+    Res.Send('JSON invalido').Status(400);
+    Exit;
+  end;
+
+  try
+    try
+      Usuario := JsonObj.GetValue<string>('usuario');
+      Senha := JsonObj.GetValue<string>('senha');
+    except
+      Res.Send('usuario ou senha nao informado').Status(400);
+      Exit;
+    end;
+  finally
+    JsonObj.Free;
+  end;
+
+  conexao := Tconexao.Create('Login');
+  Dados := TFDMemTable.Create(nil);
+  try
+    conexao.SQL.Add('SELECT u.*,');
+    conexao.SQL.Add
+      ('COALESCE(NULLIF(u.usuario_pai, 0), u.codigo) AS usuario_caixa');
+    conexao.SQL.Add('FROM usuario u');
+    conexao.SQL.Add
+      ('WHERE u.nome = :usuario AND (u.senha = MD5(:senha) OR u.senha = :senha_md5)');
+    conexao.Parametros('usuario', Usuario);
+    conexao.Parametros('senha', Senha);
+    conexao.Parametros('senha_md5', Senha);
+    Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+    if Dados.RecordCount = 0 then
+    begin
+      Res.Send('Usuario ou senha invalido').Status(401);
+      Exit;
+    end;
+
+    CodigoUsuario := Dados.FieldByName('codigo').AsInteger;
+    CodigoUsuarioCaixa := Dados.FieldByName('usuario_caixa').AsInteger;
+    TempoExpiracao := Dados.FieldByName('tempo_expiracao').AsInteger;
+    if TempoExpiracao <= 0 then
+      TempoExpiracao := 12;
+    ExpiraEm := IncHour(now, TempoExpiracao);
+
+    Jwt := TJWT.Create;
+    try
+      Jwt.Claims.Issuer := 'GOOPEDIR';
+      Jwt.Claims.Subject := CodigoUsuario.ToString;
+      Jwt.Claims.Expiration := ExpiraEm;
+      Jwt.Claims.SetClaimOfType<Integer>('usuario', CodigoUsuario);
+      Jwt.Claims.SetClaimOfType<Integer>('usuario_caixa', CodigoUsuarioCaixa);
+      CompactToken := TJOSE.SHA256CompactToken(CHAVE_SECRETA, Jwt);
+    finally
+      Jwt.Free;
+    end;
+
+    UsuarioJson := Dados.ToJSONObject;
+    Retorno := TJSONObject.ParseJSONValue(UsuarioJson.ToString) as TJSONObject;
+    UsuarioArray := TJSONArray.Create;
+    UsuarioArray.AddElement(TJSONObject.ParseJSONValue(UsuarioJson.ToString));
+    Retorno.AddPair('token', CompactToken);
+    Retorno.AddPair('tipo', 'Bearer');
+    Retorno.AddPair('expira_em',
+      FormatDateTime('yyyy-mm-dd hh:nn:ss', ExpiraEm));
+    Retorno.AddPair('usuario', TJSONNumber.Create(CodigoUsuario));
+    Retorno.AddPair('usuario_caixa', TJSONNumber.Create(CodigoUsuarioCaixa));
+    Retorno.AddPair('tempo_expiracao', TJSONNumber.Create(TempoExpiracao));
+    Retorno.AddPair('user', UsuarioArray);
+    Retorno.AddPair('dados', UsuarioJson);
+    Res.Send<TJSONObject>(Retorno);
+  finally
+    Dados.Free;
+    conexao.Free;
+  end;
+end;
+
 procedure DoGetUsuario(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   conexao: Tconexao;
@@ -1278,9 +1379,10 @@ begin
   conexao.ExecuteSQL;
 
   conexao.SQL.Add
-    ('SELECT * FROM usuario where nome = :usuario and senha = md5(:senha);');
+    ('SELECT u.*, COALESCE(NULLIF(u.usuario_pai, 0), u.codigo) AS usuario_caixa FROM usuario u where u.nome = :usuario and (u.senha = md5(:senha) or u.senha = :senha_md5);');
   conexao.Parametros('usuario', Usuario);
   conexao.Parametros('senha', Senha);
+  conexao.Parametros('senha_md5', Senha);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -3861,7 +3963,10 @@ begin
   end;
 
   conexao := Tconexao.Create('Util');
-  conexao.SQL.Add('SELECT * FROM ' + Tabela);
+  if SameText(Tabela, 'usuario') then
+    conexao.SQL.Add('SELECT * FROM usuario WHERE codigo > 0')
+  else
+    conexao.SQL.Add('SELECT * FROM ' + Tabela);
   Res.Send<TJSONArray>(conexao.ConsultaSQL);
   conexao.Free;
 end;
@@ -8368,6 +8473,7 @@ begin
   THorse.Get('/v1/pedido/produtos/mesa/:pedido', DoGetPedidoProduto);
   THorse.Get('/v1/produtos/validacao/:produto', DoGetPedidoProdutoStatus);
 
+  THorse.Post('/v1/login', DoPostLogin);
   THorse.Get('/v1/usuario/:usuario/:senha', DoGetUsuario);
 
   THorse.Get('/v1/total/:dataini/:datafim/:horaini/:horafim', DoGetTotal);
@@ -9426,130 +9532,71 @@ var
   ID: Integer;
   SaldoAtual: Integer;
   SaldoNovo: Integer;
-  Status: Integer;
   Dados: TFDMemTable;
-  DadosEnviaSite: TFDMemTable;
   Transacao: String;
+  ProdutosEnviados: TDictionary<Integer, Boolean>;
+  CodigoProdutoSite: Integer;
 begin
 
   conexao := Tconexao.Create('Util');
+  ProdutosEnviados := TDictionary<Integer, Boolean>.Create;
   SaldoAtual := 0;
   SaldoNovo := 0;
-  Transacao := Pedido.ToString + '-' + Codigo.ToString + '-' + Tipo.ToString;
-  ID := conexao.GerarID('produto_estoque', 'codigo');
-  conexao.SQL.Add
-    ('insert into produto_estoque (codigo,data,hora,operacao,codigo_produto,quantidade,saldo_novo,saldo_atual,transacao) values (:codigo,current_date,current_time,:operacao,:codigo_produto,:quantidade,:saldo_novo,:saldo_atual,:transacao)');
-  conexao.Parametros('codigo', ID);
-  conexao.Parametros('operacao', Tipo);
-  conexao.Parametros('quantidade', Quantidade);
-  conexao.Parametros('codigo_produto', Codigo);
-  conexao.Parametros('saldo_novo', SaldoNovo);
-  conexao.Parametros('saldo_atual', SaldoAtual);
-  conexao.Parametros('transacao', Transacao);
-  conexao.ExecuteSQL;
-  Dados := TFDMemTable.Create(nil);
-  conexao.SQL.Add
-    ('select p.codigo, p.controle_estoque from pro_adi_personalizado_sabores as paps');
-  conexao.SQL.Add
-    ('join pro_adi_personalizado as pap on pap.id = paps.id_pro_adi_personalizado');
-  conexao.SQL.Add('join produto as p on p.codigo = paps.id_prod_estoque');
-  conexao.SQL.Add('where paps.id_prod_estoque = :codigo');
-  conexao.Parametros('codigo', Codigo);
-  Dados.LoadFromJSON(conexao.ConsultaSQL);
+  try
+    Transacao := Pedido.ToString + '-' + Codigo.ToString + '-' + Tipo.ToString;
+    ID := conexao.GerarID('produto_estoque', 'codigo');
+    conexao.SQL.Add
+      ('insert into produto_estoque (codigo,data,hora,operacao,codigo_produto,quantidade,saldo_novo,saldo_atual,transacao) values (:codigo,current_date,current_time,:operacao,:codigo_produto,:quantidade,:saldo_novo,:saldo_atual,:transacao)');
+    conexao.Parametros('codigo', ID);
+    conexao.Parametros('operacao', Tipo);
+    conexao.Parametros('quantidade', Quantidade);
+    conexao.Parametros('codigo_produto', Codigo);
+    conexao.Parametros('saldo_novo', SaldoNovo);
+    conexao.Parametros('saldo_atual', SaldoAtual);
+    conexao.Parametros('transacao', Transacao);
+    conexao.ExecuteSQL;
 
-  if Dados.RecordCount > 0 then
-  begin
-    while not Dados.Eof do
-    begin
-      if Dados.FieldByName('controle_estoque').AsInteger = 1 then
+    Dados := TFDMemTable.Create(nil);
+    try
+      conexao.SQL.Add
+        ('select distinct p.controle_estoque, pap.id_produto as prod from pro_adi_personalizado_sabores as paps');
+      conexao.SQL.Add
+        ('join pro_adi_personalizado as pap on pap.id = paps.id_pro_adi_personalizado');
+      conexao.SQL.Add('join produto as p on p.codigo = paps.id_prod_estoque');
+      conexao.SQL.Add('where paps.id_prod_estoque = :codigo');
+      conexao.Parametros('codigo', Codigo);
+      Dados.LoadFromJSON(conexao.ConsultaSQL);
+
+      if Dados.RecordCount > 0 then
       begin
-        EnviaProduto(Codigo, '', '');
-        DadosEnviaSite := TFDMemTable.Create(nil);
-        conexao.SQL.Add
-          ('select 0, pap.id_produto as prod from pro_adi_personalizado_sabores paps');
-        conexao.SQL.Add
-          ('join pro_adi_personalizado as pap on pap.id = paps.id_pro_adi_personalizado');
-        conexao.SQL.Add('where paps.id_prod_estoque = :codigo');
-        conexao.Parametros('codigo', Codigo);
-        DadosEnviaSite.LoadFromJSON(conexao.ConsultaSQL);
-        if DadosEnviaSite.RecordCount > 0 then
+        while not Dados.Eof do
         begin
-          while not DadosEnviaSite.Eof do
+          if Dados.FieldByName('controle_estoque').AsInteger = 1 then
           begin
-            EnviaProduto(DadosEnviaSite.FieldByName('prod').AsInteger, '', '');
-            DadosEnviaSite.Next;
-          end;
-        end;
+            if not ProdutosEnviados.ContainsKey(Codigo) then
+            begin
+              ProdutosEnviados.Add(Codigo, True);
+              EnviaProduto(Codigo, '', '');
+            end;
 
+            CodigoProdutoSite := Dados.FieldByName('prod').AsInteger;
+            if not ProdutosEnviados.ContainsKey(CodigoProdutoSite) then
+            begin
+              ProdutosEnviados.Add(CodigoProdutoSite, True);
+              EnviaProduto(CodigoProdutoSite, '', '');
+            end;
+          end;
+          Dados.Next;
+        end;
       end;
-      Dados.Next;
+    finally
+      Dados.Free;
     end;
+  finally
+    ProdutosEnviados.Free;
+    conexao.Free;
   end;
 
-  Dados.Free;
-  conexao.Free;
-
-  // if (Tipo <> 1) and (Quantidade > 0) then
-  // begin
-  // Quantidade := Quantidade * -1;
-  //
-  // // Subtrai
-  // conexao.SQL.Add
-  // ('update produto set saldo_atual = IFNULL(saldo_atual, 0) + :qtd where codigo = :codigo');
-  // conexao.Parametros('codigo', Codigo);
-  // conexao.Parametros('qtd', Quantidade);
-  // conexao.ExecuteSQL;
-  //
-  // end
-  // else
-  // begin
-  // // Adiciona
-  // conexao.SQL.Add
-  // ('update produto set saldo_atual = IFNULL(saldo_atual, 0) + :qtd where codigo = :codigo');
-  // conexao.Parametros('codigo', Codigo);
-  // conexao.Parametros('qtd', Quantidade);
-  // conexao.ExecuteSQL;
-  //
-  // end;
-
-  //
-
-  // conexao.SQL.Add
-  // ('select codigo, saldo_atual from produto where codigo = :codigo');
-  // conexao.Parametros('codigo', Codigo);
-  //
-  // try
-  // Quantidade := conexao.FieldByName('saldo_atual');
-  // except
-  // Quantidade := 0;
-  // end;
-  //
-  // if Quantidade > 0 then
-  // begin
-  // // Ativa
-  // Status := 1;
-  // end
-  // else
-  // begin
-  // // Inativa
-  // Status := 0;
-  //
-  // end;
-  //
-  // Dados := TFDMemTable.Create(nil);
-  //
-  // if (Codigo > 0) then
-  // begin
-  // conexao.SQL.Add
-  // ('update pro_adi_personalizado_sabores set ativo = :status, modificado_site = 0 where id_prod_estoque = :codigo');
-  // conexao.Parametros('codigo', Codigo);
-  // conexao.Parametros('status', Status);
-  // conexao.ExecuteSQL;
-  // end;
-  //
-  //
-  //
-  // conexao.Free;
   LimpaCacheGeral;
   ValidarNotificacaoEstoqueBaixo;
 end;

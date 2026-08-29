@@ -137,10 +137,16 @@ var
 begin
   try
     if Config.BackupExe.Trim = '' then
-      raise EUpdaterBackupError.Create('BackupExe nao informado');
+    begin
+      Log('BackupExe nao informado. Backup externo ignorado.');
+      Exit;
+    end;
     if not TFile.Exists(Config.BackupExe) then
-      raise EUpdaterBackupError.Create('BackupExe nao encontrado: ' +
-        Config.BackupExe);
+    begin
+      Log('BackupExe nao encontrado: ' + Config.BackupExe +
+        '. Backup externo ignorado.');
+      Exit;
+    end;
 
     Config.ValidateDatabase;
     Parameters := '/backup' +
@@ -230,11 +236,17 @@ procedure ApplyManifestFiles(const Manifest: TPackageManifest;
   const StagingDirectory, InstallDirectory, OperationId: string);
 var
   Item: TManifestFile;
-  SourceFile, DestinationFile, TemporaryFile: string;
+  SourceFile, DestinationFile, TemporaryFile, AlternativeSourceFile: string;
 begin
   for Item in Manifest.Files do
   begin
     SourceFile := ManagedPath(StagingDirectory, Item.Source);
+    if not TFile.Exists(SourceFile) then
+    begin
+      AlternativeSourceFile := ManagedPath(StagingDirectory, Item.Destination);
+      if TFile.Exists(AlternativeSourceFile) then
+        SourceFile := AlternativeSourceFile;
+    end;
     DestinationFile := ManagedPath(InstallDirectory, Item.Destination);
     TDirectory.CreateDirectory(ExtractFileDir(DestinationFile));
     TemporaryFile := DestinationFile + '.updater-' + OperationId + '.tmp';
@@ -284,6 +296,26 @@ begin
     else if TFile.Exists(DestinationFile) then
       TFile.Delete(DestinationFile);
   end;
+end;
+
+procedure StartProcessIfAvailable(const InstallDirectory, ExeName: string);
+var
+  ExePath: string;
+begin
+  if ExeName.Trim = '' then Exit;
+  ExePath := TPath.Combine(InstallDirectory, ExeName.Trim);
+  if not TFile.Exists(ExePath) then Exit;
+  if IsProcessRunning(ExtractFileName(ExePath)) then Exit;
+  Log('Iniciando ' + ExtractFileName(ExePath) + '...');
+  ShellExecute(0, 'open', PChar(ExePath), nil, PChar(InstallDirectory),
+    SW_SHOWNORMAL);
+end;
+
+procedure StartSystemAfterUpdate(const Config: TUpdaterConfig);
+begin
+  StartProcessIfAvailable(Config.InstallDirectory, 'ServicosGoopedir.exe');
+  if not IsProcessRunning('ServicosGoopedir.exe') then
+    StartProcessIfAvailable(Config.InstallDirectory, Config.EntryPoint);
 end;
 
 function TAtualizadorApp.ExecutarConsulta: Integer;
@@ -435,10 +467,7 @@ begin
     end;
 
     Sleep(1500);
-    if not IsProcessRunning(Config.EntryPoint) then
-      ShellExecute(0, 'open',
-        PChar(TPath.Combine(Config.InstallDirectory, Config.EntryPoint)), nil,
-        PChar(Config.InstallDirectory), SW_SHOWNORMAL);
+    StartSystemAfterUpdate(Config);
     Exit(ATU_APLICADA);
   end;
 
@@ -532,10 +561,7 @@ begin
     end;
 
     Sleep(1500);
-    if not IsProcessRunning(Config.EntryPoint) then
-      ShellExecute(0, 'open',
-        PChar(TPath.Combine(Config.InstallDirectory, Config.EntryPoint)), nil,
-        PChar(Config.InstallDirectory), SW_SHOWNORMAL);
+    StartSystemAfterUpdate(Config);
     Result := ATU_APLICADA;
   except
     on E: Exception do

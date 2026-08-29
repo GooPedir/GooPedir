@@ -128,7 +128,12 @@ begin
     if not SafeRelativePath(StagingDirectory, Item.Destination, DestinationCheck) then
       raise EUpdaterPackageError.Create('Destino inseguro no manifesto: ' + Item.Destination);
     if not TFile.Exists(SourceFile) then
-      raise EUpdaterPackageError.Create('Arquivo do manifesto nao encontrado: ' + Item.Source);
+    begin
+      if TFile.Exists(DestinationCheck) then
+        SourceFile := DestinationCheck
+      else
+        raise EUpdaterPackageError.Create('Arquivo do manifesto nao encontrado: ' + Item.Source);
+    end;
     if not SameText(FileSha256(SourceFile), Item.Sha256) then
       raise EUpdaterPackageError.Create('SHA-256 divergente para: ' + Item.Source);
   end;

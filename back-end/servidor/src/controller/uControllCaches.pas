@@ -33,7 +33,7 @@ implementation
 
 uses
   conexao, uSQL, System.SysUtils, System.Classes, Vcl.Dialogs,
-  System.Diagnostics, System.SyncObjs, System.DateUtils, uPerformanceMetrics;
+  System.Diagnostics, System.SyncObjs, System.DateUtils;
 
 var
   ParametrosCacheLock: TCriticalSection;
@@ -356,7 +356,6 @@ var
   procedure MarkStep(const StepName: string);
   begin
     SWStep.Stop;
-    PerformanceStep('parametros_' + StepName, SWStep.ElapsedMilliseconds);
     SWStep := TStopwatch.StartNew;
   end;
 
@@ -413,8 +412,6 @@ begin
       MarkStep('query_create');
       Qry.SQL.Add('select chave, valor from configuracoes');
       Qry.Open;
-      PerformanceSQL('parametros_select_all', Qry.SQL.Text,
-        SWStep.ElapsedMilliseconds, Qry.RecordCount, True);
       SWStep := TStopwatch.StartNew;
       Objeto := TJSONObject.Create;
       ArrayParametro := TJsonArray.Create;
@@ -451,9 +448,7 @@ begin
             end;
           end;
           SWItem.Stop;
-          if SWItem.ElapsedMilliseconds > 5 then
-            PerformanceParamSlow(Qry.FieldByName('chave').AsString,
-              SWItem.ElapsedMilliseconds);
+
 
           Qry.Next;
         end;
